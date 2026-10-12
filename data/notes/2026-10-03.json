@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-03",
+  "published": true,
+  "edition": null,
+  "figure_check": "failed",
+  "note": {
+    "headline": "Stocks rally and bonds sell off together, and credit does not confirm either",
+    "standfirst": "The S&P 500 gained +0.73% and the Nasdaq 100 added +1.00% as the whole curve bear steepened, with 2s10s widening to 46bp on a 10bp drop in the front end. Positioning should note that investment grade and EM dollar debt both sit at session lows even as equity vol collapsed, a split that rarely holds for long.",
+    "takeaways": [
+      "Equities rose on broad breadth, 17 advancers to 7 decliners, led by chip and software names, while credit spreads in IG and high yield ETFs closed at the low end of the session.",
+      "The Treasury curve bear steepened again, with the 2-year down 10bp to 4.78% and the 30-year down only 3bp to 5.61%, extending a multi-day repricing of the front end.",
+      "VIX fell 6.59% to 15.31 and VIX9D fell nearly 14%, showing the options market paying almost nothing for near-term protection despite the rate move.",
+      "Gold fell 0.95% and silver fell 1.23% even as the dollar index slipped 0.17%, an unusual pairing that argues real rates, not the dollar, drove the metals move."
+    ],
+    "desk_view": "The session confirms that equity investors are treating the front-end rate drop as good news, not bad news. A 10bp fall in 2-year yields alongside a 5bp fall in 10-year yields normally reads as a growth scare. Instead the Russell 2000 rose 0.94%, breadth ran 2.43 advancers to decliners, and cyclicals outperformed staples. That combination only makes sense if the desk believes the front end is pricing cuts without pricing a recession. The level that decides it is 4.78% on the 2-year: a break meaningfully lower from here without a matching rally in credit would flip the read from cuts-as-relief to cuts-as-fear.\n\nWhat the session does not confirm is the credit market's cooperation. LQD closed at a session low, down 0.20%, and EMB fell 0.13% to a session low as well. High yield proxies barely moved, HYG up 0.01%, JNK up 0.10%, so the IG weakness looks idiosyncratic to duration and spread, not a credit scare proper. Still, the gap between a VIX at 15.31 and an MOVE index at 107.29 is wide. Rates vol is not confirming the calm that equity vol is pricing. If that gap closes by equity vol rising rather than rates vol falling, the risk barometer's current 0.29 neutral reading moves fast.",
+    "watching": [
+      "Whether 2-year yields extend below 4.78% or stabilize, and what that does to small-cap leadership.",
+      "LQD and EMB follow-through: a third session at lows would turn a curve story into a credit story.",
+      "The MOVE versus VIX gap, currently 107.29 against 15.31, and whether rates vol compresses to match equities or equity vol catches up.",
+      "Dollar index behavior against the breakeven complex, since gold and silver fell despite DXY softness."
+    ],
+    "equities": "The S&P 500 closed up 0.73%, with the Nasdaq 100 outperforming at +1.00% and the Russell 2000 adding 0.94%. The Dow lagged the complex at +0.49% but still advanced, and the S&P MidCap 400 rose 0.96%, confirming the rally had depth beyond mega-cap tech.\n\nTechnology led sector flows at +1.01%, consumer discretionary followed at +1.13%, and real estate and utilities both participated, up 0.32% and 0.38% respectively, consistent with a market pricing lower front-end rates as a tailwind for duration-sensitive equities. Health care was the one sector in the red, down 0.01%, with Pfizer, Lilly and UNH diverging within it, UNH up 1.83% against Pfizer down 1.14%. Breadth ran 17 advancers to 7 decliners with a dispersion reading of 1.44, and single-name moves were wide: Tesla up 4.65%, Broadcom up 3.35%, Oracle up 3.06% against AMD's 2.95% gain, versus Netflix down 1.16% and Salesforce down 0.84%.",
+    "rates": "The curve bear steepened again. 2s10s widened 5bp to 46bp and 5s30s widened 5bp to 60bp, while 3m10y compressed 2bp to 107bp. Every point on the curve from 1-month out to 30-year fell in yield on the day, but the front end fell far more than the back: 2-year down 10bp to 4.78%, 5-year down 8bp to 5.01%, 10-year down 5bp to 5.24%, 30-year down only 3bp to 5.61%.\n\nThe move has been running for a while on a year-to-date basis: the 2-year is up 131bp year to date against the 30-year's 75bp, a steepening that long predates today. Breakevens were close to flat on the day, 5-year up 1bp to 2.37%, 10-year unchanged at 2.36%, and the 5y5y forward down 1bp to 2.35%, which means today's nominal rally was a real rate story. The 10-year TIPS yield fell 5bp to 2.88%. Long Treasuries and the 7-10 year bucket both sit at session lows in price terms, TLT down 0.30% and IEF down 0.28%, consistent with duration selling even as yields across the curve fell versus prior levels implied by the shift column.",
+    "credit": "Credit did not join the equity rally. LQD fell 0.20% to a session low and EMB fell 0.13%, also a session low, both flagged among the day's weakest instruments across any asset class. High yield proxies were closer to flat, HYG up 0.01% and JNK up 0.10%, and leveraged loans rose 0.10%. The split between IG weakness and high yield stability argues the move is concentrated in rate-sensitive investment grade paper rather than a broad risk repricing.",
+    "fx": "The dollar index slipped 0.17% to 101.93 even as it sits among the session's strongest cross-asset performers on a relative basis. EUR/USD fell 0.62% to 1.126, a session low for the pair, and GBP/USD fell 0.18% to 1.324. USD/CHF fell 0.86%. USD/CAD rose 0.19% to a session high, and USD/TRY rose 0.16% to a fresh high. AUD/USD was the standout gainer, up 0.42% to 0.696.",
+    "commodities": "Gold fell 0.95% to 4162.30 and silver fell 1.23%, both giving back ground despite a softer dollar, while platinum fell 1.31% and palladium fell 0.66% to a session low. Copper rose 0.15% to 6.492, holding near recent strength. WTI fell 1.90% to 91.11 and Brent was roughly flat, down 0.06%. Natural gas jumped 2.29%. In ags, sugar rose 5.23% and cocoa rose 5.37%, both sharp moves against soft prints in corn, down 0.90%, and soybeans, down 0.45%.",
+    "volatility": "VIX fell 6.59% to 15.31 and VIX9D fell 13.86% to 12.06, a steep collapse in near-term hedging demand that outpaced the 3.07% decline in VIX3M to 18.01. The term structure is now in clear contango, consistent with a market that sees no near-term catalyst worth paying for. VVIX fell 5.42% to 87.02, confirming vol-of-vol eased alongside spot vol, but SKEW rose 1.48% to 144.88, a sign tail protection costs did not fall as fast as the headline index. The MOVE index for rates fell only 0.78% to 107.29, leaving a wide gap versus equity vol that is worth tracking into tomorrow.",
+    "digital": "Bitcoin rose 0.25% to 84,708.88, a modest gain that undersells how little digital assets moved against a rallying equity tape. Ether rose 0.63%, Solana rose 0.85%, and XRP rose 0.12%. The muted beta to the equity rally stands out given risk assets elsewhere moved harder.",
+    "international": "European markets closed broadly higher ahead of the New York session, with the AEX up 1.28%, EURO STOXX 50 up 1.02% and DAX up 1.17%, a tone that lined up with the US afternoon rally. Asia was more mixed and closed first: the Hang Seng fell 2.60% and the Nikkei fell 0.94%, while the KOSPI rose 0.47% and TAIEX rose 0.25% to a session high. The SENSEX fell 0.79% to a session low. The handoff to New York was a divided one, soft in Hong Kong and Japan, firm in Europe, and US equities chose to follow Europe.",
+    "correlation": "The headline correlation break today is equities up, long bonds down, and gold down, a combination that normally requires a single unifying story and did not obviously get one. Real yields falling while nominal equities rose is coherent if the market is pricing rate cuts without a growth scare, which is exactly what breadth and sector leadership suggest. But gold falling 0.95% into that same real-rate decline argues something other than real rates, possibly dollar positioning or profit-taking, is also in play there.\n\nThe more important break is credit versus equity vol. VIX fell hard, LQD fell to a session low, and MOVE barely budged. Equity markets are pricing calm, rates markets are not, and IG credit is pricing some stress. Historically when VIX diverges this far below MOVE, the resolution tends to come through VIX rising rather than MOVE falling. That is the correlation to watch breaking next, not the gold-bond one."
+  },
+  "closes": {
+    "spx": {
+      "last": 7722.72,
+      "chg": 0.734,
+      "stale": true
+    },
+    "ndx": {
+      "last": 30807.93,
+      "chg": 1.004,
+      "stale": true
+    },
+    "rut": {
+      "last": 2832.9,
+      "chg": 0.936,
+      "stale": true
+    },
+    "sx5e": {
+      "last": 6238.5,
+      "chg": 1.021,
+      "stale": true
+    },
+    "nky": {
+      "last": 68309.461,
+      "chg": -0.939,
+      "stale": true
+    },
+    "vix": {
+      "last": 15.31,
+      "chg": -6.589,
+      "stale": true
+    },
+    "ust10y": {
+      "last": 5.24,
+      "chg": -5.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.126,
+      "chg": -0.616,
+      "stale": true
+    },
+    "wti": {
+      "last": 91.11,
+      "chg": -1.895,
+      "stale": true
+    },
+    "gold": {
+      "last": 4162.3,
+      "chg": -0.952,
+      "stale": true
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 37155987401,
+    "artifact_id": 11285902296,
+    "created_at": "2026-10-03T21:44:23Z"
+  }
+}
