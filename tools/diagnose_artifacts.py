@@ -14,7 +14,10 @@ RUNS = [32530195378, 32544612904, 32900041440, 33017490040, 33123892754, 3345568
         35026847006, 35279900498, 35400256673, 35794037679, 36188375899, 36273633718,
         36352393921, 36491134602, 36633541740, 36782255591, 37155987401, 37841586991]
 TOL = 0.02
-NUM = re.compile(r"[-+]?\d{1,3}(?:,\d{3})*(?:\.\d+)?|[-+]?\d+(?:\.\d+)?")
+# Corrected tokenizer: ASCII digits only, whole numbers with or without commas.
+NUM = re.compile(r"(?<![\w.])[-+−]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?![\w])", re.A)
+# Numbers that are part of a name, not a figure.
+NAMES = re.compile(r"(S&P(?: MidCap)? \d+|Russell \d+|CSI ?\d+|ASX \d+|Nikkei \d+|EURO STOXX \d+|DAX \d+|CAC \d+|FTSE(?: MIB| 100)?|IBEX \d+|Nasdaq \d+|SX5E|\d+-\d+ year|\d+-year|\d+-month|\d+-day|\d+y\d+y|\d+s\d+s|\dm\d+y|VIX\d*D?|VIX ?\d+-\w+|20\d\d)")
 
 def notice(title, text):
     text = text.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
@@ -66,12 +69,14 @@ for run in RUNS:
     for where, fields in (("site", site), ("social", social)):
         for field, v in fields.items():
             text = v if isinstance(v, str) else " ".join(map(str, v or []))
-            for mm in NUM.finditer(text or ""):
-                n = float(mm.group().replace(",", ""))
+            text = NAMES.sub(lambda mm: "#" * len(mm.group()), text or "")
+            for mm in NUM.finditer(text):
+                n = float(mm.group().replace(",", "").replace("−", "-"))
                 if any(abs(n - p) <= max(TOL, abs(p) * TOL) for p in allowed):
                     continue
                 near = min(vals, key=lambda x: abs(abs(x[0]) - abs(n))) if vals else (None, "")
-                ctx = " ".join(text[max(0, mm.start() - 45):mm.end() + 25].split())
+                raw = v if isinstance(v, str) else " ".join(map(str, v or []))
+                ctx = " ".join(raw[max(0, mm.start() - 50):mm.end() + 20].split())
                 lines.append(f"{facts.get('date')} | {where}:{field} | {mm.group()} | ...{ctx}... | nearest fact {near[1]}={near[0]:g}")
                 if where == "site": n_site += 1
                 else: n_social += 1
