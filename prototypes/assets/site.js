@@ -5,13 +5,13 @@
 
   // Header turns solid once the hero has scrolled under it.
   var header = document.querySelector(".site-header");
-  var hero = document.querySelector(".hero");
+  var hero = document.querySelector(".hero__sentinel");
   if (header && hero && "IntersectionObserver" in window) {
     new IntersectionObserver(
       function (entries) {
         header.classList.toggle("is-solid", !entries[0].isIntersecting);
       },
-      { rootMargin: "-64px 0px 0px 0px", threshold: 0 }
+      { threshold: 0 }
     ).observe(hero);
   }
 

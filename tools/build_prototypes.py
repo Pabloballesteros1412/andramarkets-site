@@ -122,21 +122,29 @@ def chart_curve():
 
 def chart_vol():
     w, h = 640, 240
-    pts = scale([abs(x) for x in walk(90, 11, 0, 1.2, 8)], w, h, 10)
-    area = d(pts) + f" L{pts[-1][0]:.1f} {h} L{pts[0][0]:.1f} {h} Z"
-    body = grid_lines(w, h, 3) + f'<path class="area" d="{area}"/><path class="line" d="{d(pts)}"/>'
-    return svg(w, h, body, "Illustrative volatility shape, not market data")
+    realised = [abs(x) for x in walk(90, 11, 0, 0.9, 8)]
+    rng = random.Random(12)
+    implied = [v + 2.2 + rng.gauss(0, 0.35) for v in realised]
+    lo, hi = min(realised + implied), max(realised + implied)
+    def pts(vals):
+        return [(10 + (w - 20) * i / 89, 10 + (h - 20) * (1 - (v - lo) / (hi - lo))) for i, v in enumerate(vals)]
+    pr, pi = pts(realised), pts(implied)
+    gap = d(pi) + " L" + " L".join(f"{x:.1f} {y:.1f}" for x, y in reversed(pr)) + " Z"
+    body = (grid_lines(w, h, 3) + f'<path class="area" d="{gap}"/>'
+            + f'<path class="curve-b" d="{d(pr)}"/><path class="line" d="{d(pi)}"/>')
+    return svg(w, h, body, "Illustrative implied and realised volatility shapes, not market data")
 
 
 def chart_momentum():
     w, h = 1200, 420
-    rng = random.Random(21)
+    # Seed chosen so every band's net move agrees with its label.
+    rng = random.Random(4)
     y, vals, regimes, i0 = 0.0, [], [], 0
-    for length, drift in [(60, 0.25), (35, -0.35), (70, 0.18), (25, -0.5), (55, 0.3), (55, -0.05)]:
+    for length, drift in [(60, 0.32), (35, -0.45), (70, 0.28), (25, -0.6), (55, 0.35), (55, -0.3)]:
         regimes.append((i0, i0 + length, drift))
         i0 += length
         for _ in range(length):
-            y += drift + rng.gauss(0, 1.1)
+            y += drift + rng.gauss(0, 0.9)
             vals.append(y)
     pts = scale(vals, w, h, 16)
     bands = []
@@ -174,14 +182,13 @@ ARCHIVE = [
     ("Close note", "[Close note headline]"),
     ("Study", "[Study title]"),
     ("Close note", "[Close note headline]"),
-    ("Close note", "[Close note headline]"),
 ]
 
 DASHBOARDS = [
-    ("Market breadth", "Advancers, decliners and new highs across the US market.", chart_breadth, ""),
-    ("Sector rotation", "Which sectors led and lagged, and how that is shifting.", chart_sectors, ""),
-    ("Rates and the curve", "The Treasury curve today against where it stood a month ago.", chart_curve, ""),
-    ("Volatility", "Implied and realised volatility, and the gap between them.", chart_vol, " tile--inverse"),
+    ("Market breadth", "Advancers, decliners and new highs across the US market.", chart_breadth, "", None),
+    ("Sector rotation", "Which sectors led and lagged, and how that is shifting.", chart_sectors, "", None),
+    ("Rates and the curve", "The Treasury curve today against where it stood a month ago.", chart_curve, "", ("Today", "1 month ago")),
+    ("Volatility", "Implied and realised volatility, and the gap between them.", chart_vol, " tile--inverse", ("Implied", "Realised")),
 ]
 
 TITLES = {
@@ -206,9 +213,10 @@ def page(theme):
     tiles = "".join(
         f'<a class="tile reveal{extra}" href="#dashboards" style="--i:{i}">'
         f'<div class="tile__chart draw">{fn()}</div>'
-        f'<div><h3>{name}</h3><p>{desc}</p>'
+        + (f'<p class="key"><span><i class="k-solid"></i>{leg[0]}</span><span><i class="k-dash"></i>{leg[1]}</span></p>' if leg else "")
+        + f'<div><h3>{name}</h3><p>{desc}</p>'
         f'<span class="link">Open dashboard {icon("arrow-up-right")}</span></div></a>'
-        for i, (name, desc, fn, extra) in enumerate(DASHBOARDS)
+        for i, (name, desc, fn, extra, leg) in enumerate(DASHBOARDS)
     )
     return f"""<!doctype html>
 <html lang="en" data-theme="{theme}">
@@ -230,7 +238,7 @@ def page(theme):
 <header class="site-header">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="Andra Markets, home">
-      <span class="brand__mark"><img src="../assets/andra-horse.png" alt="" width="84" height="84"></span>
+      <span class="brand__mark"><img src="../assets/andra-horse.png" alt="" width="64" height="64"></span>
       <span class="brand__name">Andra Markets</span>
     </a>
     <nav class="nav" id="site-nav" aria-label="Primary">
@@ -249,6 +257,7 @@ def page(theme):
 
 <main id="main">
   <section class="hero" id="top" aria-labelledby="hero-title">
+    <span class="hero__sentinel" aria-hidden="true"></span>
     <div class="hero__art" aria-hidden="true">
       <img class="horse" src="../assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="high">
     </div>
@@ -265,8 +274,8 @@ def page(theme):
   <section class="tape" aria-labelledby="tape-title">
     <div class="wrap">
       <div class="tape__head">
-        <h2 id="tape-title">US close <span class="ph">[date]</span></h2>
-        <span>Levels and daily change. Source <span class="ph">[data vendor]</span></span>
+        <h2 id="tape-title">US close <span class="ph">[date]</span>, 4:00 PM ET</h2>
+        <span>Levels and daily change. Note published <span class="ph">[time]</span> ET. Source <span class="ph">[data vendor]</span></span>
       </div>
       <ul class="tape__list" tabindex="0" aria-label="Market close levels">{tape}</ul>
     </div>
@@ -278,7 +287,7 @@ def page(theme):
         <h2 class="section-title reveal" id="latest-title">The latest close note</h2>
         <article class="reveal" style="--i:1">
           <p class="latest__meta"><span class="ph">[date]</span><span><span class="ph">[n]</span> min read</span></p>
-          <h3 class="latest__title"><span class="ph">[Headline of the latest close note]</span></h3>
+          <h3 class="latest__title"><span class="ph ph--ink">[Headline of the latest close note]</span></h3>
           <p class="latest__summary"><span class="ph">[Two sentences on the session: what moved, and why it mattered.]</span></p>
           <a class="btn" href="#latest">Read the note {icon("arrow-right")}</a>
         </article>
@@ -337,7 +346,7 @@ def page(theme):
   <section class="section about" id="about" aria-labelledby="about-title">
     <div class="wrap grid">
       <h2 class="visually-hidden" id="about-title">About Andra Markets</h2>
-      <p class="about__statement reveal">Andra Markets is an automated research desk. <span>Every US trading day it reads the close, writes the note and updates the dashboards. Same method, same time, on the record.</span></p>
+      <p class="about__statement reveal">Andra Markets is an automated research desk. Every US trading day it reads the close, writes the note and updates the dashboards.</p>
       <dl class="reveal" style="--i:1">
         <div><dt>Publishes</dt><dd>A close note every US trading day</dd></div>
         <div><dt>Builds</dt><dd>Interactive dashboards and quantitative studies</dd></div>
@@ -347,6 +356,7 @@ def page(theme):
   </section>
 
   <section class="section signup" id="subscribe" aria-labelledby="subscribe-title">
+    <div class="signup__art" aria-hidden="true"><img class="horse" src="../assets/andra-horse.png" alt="" width="1024" height="1024" loading="lazy"></div>
     <div class="wrap grid">
       <h2 class="section-title reveal" id="subscribe-title">The close, in your inbox.</h2>
       <form class="reveal" style="--i:1" novalidate>
@@ -368,7 +378,7 @@ def page(theme):
   <div class="wrap grid">
     <div class="foot__brand">
       <a class="brand" href="#top" aria-label="Andra Markets, home">
-        <span class="brand__mark"><img src="../assets/andra-horse.png" alt="" width="84" height="84" loading="lazy"></span>
+        <span class="brand__mark"><img src="../assets/andra-horse.png" alt="" width="64" height="64" loading="lazy"></span>
         <span class="brand__name">Andra Markets</span>
       </a>
       <p>An automated research desk on the US market close.</p>
@@ -378,6 +388,7 @@ def page(theme):
       <a href="#archive">Archive</a>
       <a href="#dashboards">Dashboards</a>
       <a href="#research">Research</a>
+      <a href="#about">About</a>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
       <li><a href="#" rel="me">{icon("linkedin-logo")}LinkedIn <span class="ph">[handle]</span></a></li>
