@@ -1,0 +1,1403 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-12T14:45:36+00:00",
+  "title": "Design System: Andra Markets",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "role": "neutral",
+        "displayName": "Cool Paper",
+        "canonical": "#f4f6f6",
+        "purpose": "Light page ground, solid header, nav sheet, input fill, mark patch.",
+        "tonalRamp": [
+          "#0a0b0b",
+          "#232424",
+          "#3e4040",
+          "#5c5e5e",
+          "#7f8080",
+          "#a3a5a5",
+          "#c9cbcb",
+          "#edefef"
+        ],
+        "oklch": "oklch(97.2% 0.002 197.1)"
+      },
+      "ground-2": {
+        "role": "neutral",
+        "displayName": "Paper Shade",
+        "canonical": "#e9eded",
+        "purpose": "Light raised tone: tile hover, Learn feature.",
+        "tonalRamp": [
+          "#090c0c",
+          "#222525",
+          "#3d4040",
+          "#5b5e5e",
+          "#7d8181",
+          "#a2a5a5",
+          "#c7cbcb",
+          "#ebefef"
+        ],
+        "oklch": "oklch(94.3% 0.004 197.1)"
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "Engraver's Ink",
+        "canonical": "#0e1215",
+        "purpose": "Light text, primary button, pressed chip, focus, chart line.",
+        "tonalRamp": [
+          "#080c0f",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5aa",
+          "#c6cbd0",
+          "#e9eff4"
+        ],
+        "oklch": "oklch(17.9% 0.009 240.5)"
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Slate Ink",
+        "canonical": "#424a50",
+        "purpose": "Light secondary text.",
+        "tonalRamp": [
+          "#060c11",
+          "#1e252a",
+          "#394147",
+          "#575f65",
+          "#798288",
+          "#9da6ad",
+          "#c2ccd3",
+          "#e6f0f7"
+        ],
+        "oklch": "oklch(40.4% 0.015 240.2)"
+      },
+      "ink-3": {
+        "role": "neutral",
+        "displayName": "Pencil Grey",
+        "canonical": "#5a6268",
+        "purpose": "Light tertiary text, placeholders, dashed comparison series.",
+        "tonalRamp": [
+          "#060c10",
+          "#1e252a",
+          "#394146",
+          "#575f65",
+          "#798188",
+          "#9da6ad",
+          "#c3ccd3",
+          "#e7f0f7"
+        ],
+        "oklch": "oklch(49.1% 0.014 240.1)"
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgba(14, 18, 21, 0.15)",
+        "purpose": "Light 1px dividers.",
+        "tonalRamp": [
+          "#080c0f",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5aa",
+          "#c6cbd0",
+          "#e9eff4"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(17.9% 0.009 240.5)"
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Strong Rule",
+        "canonical": "rgba(14, 18, 21, 0.78)",
+        "purpose": "Light emphatic rules, ghost and input borders, chart reference lines.",
+        "tonalRamp": [
+          "#080c0f",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5aa",
+          "#c6cbd0",
+          "#e9eff4"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(17.9% 0.009 240.5)"
+      },
+      "btn-bg": {
+        "role": "primary",
+        "displayName": "Button Ink",
+        "canonical": "#0e1215",
+        "purpose": "Light primary button fill.",
+        "tonalRamp": [
+          "#080c0f",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5aa",
+          "#c6cbd0",
+          "#e9eff4"
+        ],
+        "oklch": "oklch(17.9% 0.009 240.5)"
+      },
+      "btn-fg": {
+        "role": "neutral",
+        "displayName": "Button Paper",
+        "canonical": "#f4f6f6",
+        "purpose": "Light primary button label.",
+        "tonalRamp": [
+          "#0a0b0b",
+          "#232424",
+          "#3e4040",
+          "#5c5e5e",
+          "#7f8080",
+          "#a3a5a5",
+          "#c9cbcb",
+          "#edefef"
+        ],
+        "oklch": "oklch(97.2% 0.002 197.1)"
+      },
+      "btn-hover": {
+        "role": "primary",
+        "displayName": "Button Ink Hover",
+        "canonical": "#2a3036",
+        "purpose": "Light primary button hover.",
+        "tonalRamp": [
+          "#070c11",
+          "#1f252a",
+          "#3a4147",
+          "#585e65",
+          "#7a8188",
+          "#9ea6ad",
+          "#c4cbd3",
+          "#e8f0f7"
+        ],
+        "oklch": "oklch(30.6% 0.014 248.3)"
+      },
+      "plate": {
+        "role": "neutral",
+        "displayName": "Plate Black",
+        "canonical": "#0e1215",
+        "purpose": "Light-theme Lab plate.",
+        "tonalRamp": [
+          "#080c0f",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5aa",
+          "#c6cbd0",
+          "#e9eff4"
+        ],
+        "oklch": "oklch(17.9% 0.009 240.5)"
+      },
+      "plate-2": {
+        "role": "neutral",
+        "displayName": "Plate Card",
+        "canonical": "#191f23",
+        "purpose": "Light-theme Lab tool card.",
+        "tonalRamp": [
+          "#070c10",
+          "#1f2529",
+          "#3a4145",
+          "#585f64",
+          "#7a8186",
+          "#9ea6ab",
+          "#c4ccd1",
+          "#e8f0f5"
+        ],
+        "oklch": "oklch(23.5% 0.012 237.2)"
+      },
+      "plate-hover": {
+        "role": "neutral",
+        "displayName": "Plate Card Hover",
+        "canonical": "#232a2f",
+        "purpose": "Light-theme Lab tool card hover.",
+        "tonalRamp": [
+          "#060c10",
+          "#1e252a",
+          "#394146",
+          "#575f65",
+          "#798288",
+          "#9da6ac",
+          "#c3ccd3",
+          "#e7f0f7"
+        ],
+        "oklch": "oklch(28.0% 0.014 239.1)"
+      },
+      "plate-ink": {
+        "role": "neutral",
+        "displayName": "Plate Ink",
+        "canonical": "#eef1f1",
+        "purpose": "Light-theme plate text and chart line.",
+        "tonalRamp": [
+          "#0a0c0c",
+          "#222424",
+          "#3e4040",
+          "#5c5e5e",
+          "#7e8181",
+          "#a2a5a5",
+          "#c8cbcb",
+          "#ecefef"
+        ],
+        "oklch": "oklch(95.6% 0.003 197.1)"
+      },
+      "plate-ink-2": {
+        "role": "neutral",
+        "displayName": "Plate Ink Secondary",
+        "canonical": "#b4bbbf",
+        "purpose": "Light-theme plate secondary text.",
+        "tonalRamp": [
+          "#070c0f",
+          "#202528",
+          "#3b4144",
+          "#585f62",
+          "#7b8185",
+          "#9fa6aa",
+          "#c5ccd0",
+          "#e8f0f4"
+        ],
+        "oklch": "oklch(78.8% 0.010 232.4)"
+      },
+      "plate-rule": {
+        "role": "neutral",
+        "displayName": "Plate Hairline",
+        "canonical": "rgba(238, 241, 241, 0.16)",
+        "purpose": "Light-theme plate rules and grid.",
+        "tonalRamp": [
+          "#0a0c0c",
+          "#222424",
+          "#3e4040",
+          "#5c5e5e",
+          "#7e8181",
+          "#a2a5a5",
+          "#c8cbcb",
+          "#ecefef"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(95.6% 0.003 197.1)"
+      },
+      "chart-line": {
+        "role": "chart",
+        "displayName": "Chart Line",
+        "canonical": "#0e1215",
+        "purpose": "Light primary series.",
+        "tonalRamp": [
+          "#080c0f",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5aa",
+          "#c6cbd0",
+          "#e9eff4"
+        ],
+        "oklch": "oklch(17.9% 0.009 240.5)"
+      },
+      "chart-grid": {
+        "role": "chart",
+        "displayName": "Chart Grid",
+        "canonical": "rgba(14, 18, 21, 0.1)",
+        "purpose": "Light grid lines.",
+        "tonalRamp": [
+          "#080c0f",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5aa",
+          "#c6cbd0",
+          "#e9eff4"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(17.9% 0.009 240.5)"
+      },
+      "chart-fill": {
+        "role": "chart",
+        "displayName": "Chart Fill",
+        "canonical": "rgba(14, 18, 21, 0.08)",
+        "purpose": "Light area fill.",
+        "tonalRamp": [
+          "#080c0f",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5aa",
+          "#c6cbd0",
+          "#e9eff4"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(17.9% 0.009 240.5)"
+      },
+      "up": {
+        "role": "chart",
+        "displayName": "Rise Green",
+        "canonical": "#00a050",
+        "purpose": "Light rise/positive, charts and keys only.",
+        "tonalRamp": [
+          "#001004",
+          "#032d13",
+          "#0b4d26",
+          "#16703a",
+          "#1b9950",
+          "#3fc16f",
+          "#6ce894",
+          "#c9fed5"
+        ],
+        "oklch": "oklch(61.8% 0.164 151.7)"
+      },
+      "down": {
+        "role": "chart",
+        "displayName": "Fall Red",
+        "canonical": "#e0202a",
+        "purpose": "Light fall/negative, charts and keys only.",
+        "tonalRamp": [
+          "#1e0101",
+          "#4b0105",
+          "#7b060f",
+          "#af101b",
+          "#e72a30",
+          "#fe726a",
+          "#fbb7af",
+          "#fee9e6"
+        ],
+        "oklch": "oklch(58.1% 0.221 25.9)"
+      },
+      "up-tint": {
+        "role": "chart",
+        "displayName": "Rise Band",
+        "canonical": "rgba(0, 160, 80, 0.24)",
+        "purpose": "Light positive regime band.",
+        "tonalRamp": [
+          "#001004",
+          "#032d13",
+          "#0b4d26",
+          "#16703a",
+          "#1b9950",
+          "#3fc16f",
+          "#6ce894",
+          "#c9fed5"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(61.8% 0.164 151.7)"
+      },
+      "down-tint": {
+        "role": "chart",
+        "displayName": "Fall Band",
+        "canonical": "rgba(224, 32, 42, 0.22)",
+        "purpose": "Light negative regime band.",
+        "tonalRamp": [
+          "#1e0101",
+          "#4b0105",
+          "#7b060f",
+          "#af101b",
+          "#e72a30",
+          "#fe726a",
+          "#fbb7af",
+          "#fee9e6"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(58.1% 0.221 25.9)"
+      },
+      "select": {
+        "role": "neutral",
+        "displayName": "Selection",
+        "canonical": "rgba(14, 18, 21, 0.14)",
+        "purpose": "Light text selection.",
+        "tonalRamp": [
+          "#080c0f",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5aa",
+          "#c6cbd0",
+          "#e9eff4"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(17.9% 0.009 240.5)"
+      },
+      "focus": {
+        "role": "primary",
+        "displayName": "Focus Ink",
+        "canonical": "#0e1215",
+        "purpose": "Light focus outline.",
+        "tonalRamp": [
+          "#080c0f",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5aa",
+          "#c6cbd0",
+          "#e9eff4"
+        ],
+        "oklch": "oklch(17.9% 0.009 240.5)"
+      },
+      "ground-dark": {
+        "role": "neutral",
+        "displayName": "Cool Paper (dark)",
+        "canonical": "#0a0c0d",
+        "purpose": "Dark page ground, solid header, nav sheet, input fill, mark patch.",
+        "tonalRamp": [
+          "#090b0c",
+          "#222426",
+          "#3e4041",
+          "#5b5e5f",
+          "#7e8182",
+          "#a2a5a6",
+          "#c8cbcc",
+          "#eceff1"
+        ],
+        "oklch": "oklch(15.2% 0.004 229.1)"
+      },
+      "ground-2-dark": {
+        "role": "neutral",
+        "displayName": "Paper Shade (dark)",
+        "canonical": "#14181b",
+        "purpose": "Dark raised tone: tile hover, Learn feature.",
+        "tonalRamp": [
+          "#080c0e",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5a9",
+          "#c6cbd0",
+          "#eaeff4"
+        ],
+        "oklch": "oklch(20.6% 0.009 240.3)"
+      },
+      "ink-dark": {
+        "role": "primary",
+        "displayName": "Engraver's Ink (dark)",
+        "canonical": "#e9eceb",
+        "purpose": "Dark text, primary button, pressed chip, focus, chart line.",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#222524",
+          "#3e403f",
+          "#5c5e5d",
+          "#7e8180",
+          "#a2a5a4",
+          "#c8cbca",
+          "#ecefee"
+        ],
+        "oklch": "oklch(94.1% 0.003 174.5)"
+      },
+      "ink-2-dark": {
+        "role": "neutral",
+        "displayName": "Slate Ink (dark)",
+        "canonical": "#a8b0b4",
+        "purpose": "Dark secondary text.",
+        "tonalRamp": [
+          "#070c0f",
+          "#1f2528",
+          "#3a4144",
+          "#585f62",
+          "#7a8285",
+          "#9ea6aa",
+          "#c4ccd0",
+          "#e8f0f4"
+        ],
+        "oklch": "oklch(75.2% 0.011 228.9)"
+      },
+      "ink-3-dark": {
+        "role": "neutral",
+        "displayName": "Pencil Grey (dark)",
+        "canonical": "#899196",
+        "purpose": "Dark tertiary text, placeholders, dashed comparison series.",
+        "tonalRamp": [
+          "#070c0f",
+          "#1f2529",
+          "#3a4145",
+          "#575f63",
+          "#7a8286",
+          "#9ea6ab",
+          "#c3ccd1",
+          "#e7f0f5"
+        ],
+        "oklch": "oklch(65.2% 0.012 234.9)"
+      },
+      "rule-dark": {
+        "role": "neutral",
+        "displayName": "Hairline (dark)",
+        "canonical": "rgba(233, 236, 235, 0.13)",
+        "purpose": "Dark 1px dividers.",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#222524",
+          "#3e403f",
+          "#5c5e5d",
+          "#7e8180",
+          "#a2a5a4",
+          "#c8cbca",
+          "#ecefee"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(94.1% 0.003 174.5)"
+      },
+      "rule-strong-dark": {
+        "role": "neutral",
+        "displayName": "Strong Rule (dark)",
+        "canonical": "rgba(233, 236, 235, 0.7)",
+        "purpose": "Dark emphatic rules, ghost and input borders, chart reference lines.",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#222524",
+          "#3e403f",
+          "#5c5e5d",
+          "#7e8180",
+          "#a2a5a4",
+          "#c8cbca",
+          "#ecefee"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(94.1% 0.003 174.5)"
+      },
+      "btn-bg-dark": {
+        "role": "primary",
+        "displayName": "Button Ink (dark)",
+        "canonical": "#e9eceb",
+        "purpose": "Dark primary button fill.",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#222524",
+          "#3e403f",
+          "#5c5e5d",
+          "#7e8180",
+          "#a2a5a4",
+          "#c8cbca",
+          "#ecefee"
+        ],
+        "oklch": "oklch(94.1% 0.003 174.5)"
+      },
+      "btn-fg-dark": {
+        "role": "neutral",
+        "displayName": "Button Paper (dark)",
+        "canonical": "#0a0c0d",
+        "purpose": "Dark primary button label.",
+        "tonalRamp": [
+          "#090b0c",
+          "#222426",
+          "#3e4041",
+          "#5b5e5f",
+          "#7e8182",
+          "#a2a5a6",
+          "#c8cbcc",
+          "#eceff1"
+        ],
+        "oklch": "oklch(15.2% 0.004 229.1)"
+      },
+      "btn-hover-dark": {
+        "role": "primary",
+        "displayName": "Button Ink Hover (dark)",
+        "canonical": "#ffffff",
+        "purpose": "Dark primary button hover.",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ],
+        "oklch": "oklch(100.0% 0.000 89.9)"
+      },
+      "plate-dark": {
+        "role": "neutral",
+        "displayName": "Plate Black (dark)",
+        "canonical": "#1a2024",
+        "purpose": "Dark-theme Lab plate.",
+        "tonalRamp": [
+          "#070c10",
+          "#1f2529",
+          "#3a4145",
+          "#585f63",
+          "#7a8186",
+          "#9ea6ab",
+          "#c4ccd1",
+          "#e8f0f5"
+        ],
+        "oklch": "oklch(23.9% 0.012 237.2)"
+      },
+      "plate-2-dark": {
+        "role": "neutral",
+        "displayName": "Plate Card (dark)",
+        "canonical": "#252c31",
+        "purpose": "Dark-theme Lab tool card.",
+        "tonalRamp": [
+          "#060c10",
+          "#1e252a",
+          "#394146",
+          "#575f65",
+          "#798288",
+          "#9da6ac",
+          "#c3ccd2",
+          "#e7f0f7"
+        ],
+        "oklch": "oklch(28.8% 0.013 239.1)"
+      },
+      "plate-hover-dark": {
+        "role": "neutral",
+        "displayName": "Plate Card Hover (dark)",
+        "canonical": "#2d353a",
+        "purpose": "Dark-theme Lab tool card hover.",
+        "tonalRamp": [
+          "#060c10",
+          "#1e252a",
+          "#394146",
+          "#565f65",
+          "#798288",
+          "#9da6ac",
+          "#c2ccd3",
+          "#e6f0f7"
+        ],
+        "oklch": "oklch(32.3% 0.014 235.3)"
+      },
+      "plate-ink-dark": {
+        "role": "neutral",
+        "displayName": "Plate Ink (dark)",
+        "canonical": "#e9eceb",
+        "purpose": "Dark-theme plate text and chart line.",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#222524",
+          "#3e403f",
+          "#5c5e5d",
+          "#7e8180",
+          "#a2a5a4",
+          "#c8cbca",
+          "#ecefee"
+        ],
+        "oklch": "oklch(94.1% 0.003 174.5)"
+      },
+      "plate-ink-2-dark": {
+        "role": "neutral",
+        "displayName": "Plate Ink Secondary (dark)",
+        "canonical": "#a8b0b4",
+        "purpose": "Dark-theme plate secondary text.",
+        "tonalRamp": [
+          "#070c0f",
+          "#1f2528",
+          "#3a4144",
+          "#585f62",
+          "#7a8285",
+          "#9ea6aa",
+          "#c4ccd0",
+          "#e8f0f4"
+        ],
+        "oklch": "oklch(75.2% 0.011 228.9)"
+      },
+      "plate-rule-dark": {
+        "role": "neutral",
+        "displayName": "Plate Hairline (dark)",
+        "canonical": "rgba(233, 236, 235, 0.14)",
+        "purpose": "Dark-theme plate rules and grid.",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#222524",
+          "#3e403f",
+          "#5c5e5d",
+          "#7e8180",
+          "#a2a5a4",
+          "#c8cbca",
+          "#ecefee"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(94.1% 0.003 174.5)"
+      },
+      "chart-line-dark": {
+        "role": "chart",
+        "displayName": "Chart Line (dark)",
+        "canonical": "#e9eceb",
+        "purpose": "Dark primary series.",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#222524",
+          "#3e403f",
+          "#5c5e5d",
+          "#7e8180",
+          "#a2a5a4",
+          "#c8cbca",
+          "#ecefee"
+        ],
+        "oklch": "oklch(94.1% 0.003 174.5)"
+      },
+      "chart-grid-dark": {
+        "role": "chart",
+        "displayName": "Chart Grid (dark)",
+        "canonical": "rgba(233, 236, 235, 0.09)",
+        "purpose": "Dark grid lines.",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#222524",
+          "#3e403f",
+          "#5c5e5d",
+          "#7e8180",
+          "#a2a5a4",
+          "#c8cbca",
+          "#ecefee"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(94.1% 0.003 174.5)"
+      },
+      "chart-fill-dark": {
+        "role": "chart",
+        "displayName": "Chart Fill (dark)",
+        "canonical": "rgba(233, 236, 235, 0.08)",
+        "purpose": "Dark area fill.",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#222524",
+          "#3e403f",
+          "#5c5e5d",
+          "#7e8180",
+          "#a2a5a4",
+          "#c8cbca",
+          "#ecefee"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(94.1% 0.003 174.5)"
+      },
+      "up-dark": {
+        "role": "chart",
+        "displayName": "Rise Green (dark)",
+        "canonical": "#1fd27a",
+        "purpose": "Dark rise/positive, charts and keys only.",
+        "tonalRamp": [
+          "#001005",
+          "#022c16",
+          "#0a4d2a",
+          "#156f40",
+          "#189858",
+          "#28c273",
+          "#4bec93",
+          "#c9fed9"
+        ],
+        "oklch": "oklch(76.1% 0.184 154.5)"
+      },
+      "down-dark": {
+        "role": "chart",
+        "displayName": "Fall Red (dark)",
+        "canonical": "#ff4b52",
+        "purpose": "Dark fall/negative, charts and keys only.",
+        "tonalRamp": [
+          "#1f0001",
+          "#4a0209",
+          "#7a0917",
+          "#ad1526",
+          "#e52e3d",
+          "#fc7371",
+          "#feb5b0",
+          "#ffe8e7"
+        ],
+        "oklch": "oklch(67.2% 0.216 23.2)"
+      },
+      "up-tint-dark": {
+        "role": "chart",
+        "displayName": "Rise Band (dark)",
+        "canonical": "rgba(31, 210, 122, 0.2)",
+        "purpose": "Dark positive regime band.",
+        "tonalRamp": [
+          "#001005",
+          "#022c16",
+          "#0a4d2a",
+          "#156f40",
+          "#189858",
+          "#28c273",
+          "#4bec93",
+          "#c9fed9"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(76.1% 0.184 154.5)"
+      },
+      "down-tint-dark": {
+        "role": "chart",
+        "displayName": "Fall Band (dark)",
+        "canonical": "rgba(255, 75, 82, 0.2)",
+        "purpose": "Dark negative regime band.",
+        "tonalRamp": [
+          "#1f0001",
+          "#4a0209",
+          "#7a0917",
+          "#ad1526",
+          "#e52e3d",
+          "#fc7371",
+          "#feb5b0",
+          "#ffe8e7"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(67.2% 0.216 23.2)"
+      },
+      "select-dark": {
+        "role": "neutral",
+        "displayName": "Selection (dark)",
+        "canonical": "rgba(233, 236, 235, 0.22)",
+        "purpose": "Dark text selection.",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#222524",
+          "#3e403f",
+          "#5c5e5d",
+          "#7e8180",
+          "#a2a5a4",
+          "#c8cbca",
+          "#ecefee"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(94.1% 0.003 174.5)"
+      },
+      "focus-dark": {
+        "role": "primary",
+        "displayName": "Focus Ink (dark)",
+        "canonical": "#e9eceb",
+        "purpose": "Dark focus outline.",
+        "tonalRamp": [
+          "#0a0c0b",
+          "#222524",
+          "#3e403f",
+          "#5c5e5d",
+          "#7e8180",
+          "#a2a5a4",
+          "#c8cbca",
+          "#ecefee"
+        ],
+        "oklch": "oklch(94.1% 0.003 174.5)"
+      },
+      "up-plate": {
+        "role": "chart",
+        "displayName": "Plate Rise Green",
+        "canonical": "#1fd27a",
+        "purpose": "Rise on the Lab plate, both themes.",
+        "tonalRamp": [
+          "#001005",
+          "#022c16",
+          "#0a4d2a",
+          "#156f40",
+          "#189858",
+          "#28c273",
+          "#4bec93",
+          "#c9fed9"
+        ],
+        "oklch": "oklch(76.1% 0.184 154.5)"
+      },
+      "down-plate": {
+        "role": "chart",
+        "displayName": "Plate Fall Red",
+        "canonical": "#ff4b52",
+        "purpose": "Fall on the Lab plate, both themes.",
+        "tonalRamp": [
+          "#1f0001",
+          "#4a0209",
+          "#7a0917",
+          "#ad1526",
+          "#e52e3d",
+          "#fc7371",
+          "#feb5b0",
+          "#ffe8e7"
+        ],
+        "oklch": "oklch(67.2% 0.216 23.2)"
+      },
+      "up-tint-plate": {
+        "role": "chart",
+        "displayName": "Plate Rise Band",
+        "canonical": "rgba(31, 210, 122, 0.3)",
+        "purpose": "Positive regime band on the plate.",
+        "tonalRamp": [
+          "#001005",
+          "#022c16",
+          "#0a4d2a",
+          "#156f40",
+          "#189858",
+          "#28c273",
+          "#4bec93",
+          "#c9fed9"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(76.1% 0.184 154.5)"
+      },
+      "down-tint-plate": {
+        "role": "chart",
+        "displayName": "Plate Fall Band",
+        "canonical": "rgba(255, 75, 82, 0.3)",
+        "purpose": "Negative regime band on the plate.",
+        "tonalRamp": [
+          "#1f0001",
+          "#4a0209",
+          "#7a0917",
+          "#ad1526",
+          "#e52e3d",
+          "#fc7371",
+          "#feb5b0",
+          "#ffe8e7"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(67.2% 0.216 23.2)"
+      },
+      "video-frame": {
+        "role": "neutral",
+        "displayName": "Video Frame",
+        "canonical": "#0e1215",
+        "purpose": "Video placeholder fill, both themes.",
+        "tonalRamp": [
+          "#080c0f",
+          "#202528",
+          "#3c4044",
+          "#595e62",
+          "#7c8185",
+          "#a0a5aa",
+          "#c6cbd0",
+          "#e9eff4"
+        ],
+        "oklch": "oklch(17.9% 0.009 240.5)"
+      },
+      "video-play": {
+        "role": "neutral",
+        "displayName": "Play Button",
+        "canonical": "#eef1f1",
+        "purpose": "Video play square, both themes.",
+        "tonalRamp": [
+          "#0a0c0c",
+          "#222424",
+          "#3e4040",
+          "#5c5e5e",
+          "#7e8181",
+          "#a2a5a5",
+          "#c8cbcb",
+          "#ecefef"
+        ],
+        "oklch": "oklch(95.6% 0.003 197.1)"
+      },
+      "video-platform": {
+        "role": "neutral",
+        "displayName": "Platform Label",
+        "canonical": "#c3c9cc",
+        "purpose": "Video platform label, both themes.",
+        "tonalRamp": [
+          "#080c0e",
+          "#202527",
+          "#3c4143",
+          "#595f61",
+          "#7c8184",
+          "#a0a6a8",
+          "#c6cccf",
+          "#e9f0f3"
+        ],
+        "oklch": "oklch(83.2% 0.008 228.9)"
+      },
+      "hero-vignette-dark": {
+        "role": "neutral",
+        "displayName": "Dark Vignette",
+        "canonical": "rgba(10, 12, 13, 0.75)",
+        "purpose": "Outer stop of the dark hero radial vignette.",
+        "tonalRamp": [
+          "#090b0c",
+          "#222426",
+          "#3e4041",
+          "#5b5e5f",
+          "#7e8182",
+          "#a2a5a6",
+          "#c8cbcc",
+          "#eceff1"
+        ],
+        "note": "Canonical value is translucent; ramp is built on its opaque base.",
+        "oklch": "oklch(15.2% 0.004 229.1)"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero h1 only. Max 12ch, balanced."
+      },
+      "closing-title": {
+        "displayName": "Closing Title",
+        "purpose": "Signup closing-plate headline."
+      },
+      "page-title": {
+        "displayName": "Page Title",
+        "purpose": "Inner page h1."
+      },
+      "section-title": {
+        "displayName": "Section Title",
+        "purpose": "Homepage section h2."
+      },
+      "statement": {
+        "displayName": "Statement",
+        "purpose": "About statement."
+      },
+      "feature-title": {
+        "displayName": "Feature Title",
+        "purpose": "Learn feature h3."
+      },
+      "note-title": {
+        "displayName": "Note Title",
+        "purpose": "Latest close note h3."
+      },
+      "tool-title": {
+        "displayName": "Tool Title",
+        "purpose": "Lab tool h3 (Next in the Lab at 1.25rem)."
+      },
+      "page-section-title": {
+        "displayName": "Page Section Title",
+        "purpose": "Inner page section h2."
+      },
+      "tile-title": {
+        "displayName": "Tile Title",
+        "purpose": "Dashboard tile h3 (1rem at 640px and below)."
+      },
+      "list-title": {
+        "displayName": "List Title",
+        "purpose": "Learn list item title."
+      },
+      "hero-sub": {
+        "displayName": "Hero Sub",
+        "purpose": "Hero supporting line, ink-2, max 36ch."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "Section ledes, ink-2, max 52ch (44ch in section heads)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Body copy."
+      },
+      "body-mobile": {
+        "displayName": "Body Mobile",
+        "purpose": "Body copy at 640px and below."
+      },
+      "brand": {
+        "displayName": "Brand",
+        "purpose": "Andra Markets wordmark."
+      },
+      "nav-sheet": {
+        "displayName": "Nav Sheet",
+        "purpose": "Mobile nav sheet links."
+      },
+      "ui": {
+        "displayName": "Ui",
+        "purpose": "Buttons, links, nav, theme and menu buttons (small button 0.875rem)."
+      },
+      "small": {
+        "displayName": "Small",
+        "purpose": "Chips, labels, help, status, meta rows, calendar day heads."
+      },
+      "meta": {
+        "displayName": "Meta",
+        "purpose": "Keys, sources, tags, read times, legal (0.75rem on mobile tiles)."
+      },
+      "tape-figure": {
+        "displayName": "Tape Figure",
+        "purpose": "Tape levels, tabular figures."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Entrances, reveals, hover nudges, mobile sheet, press."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.77, 0, 0.175, 1)",
+        "purpose": "Chart clip-path draw."
+      },
+      {
+        "name": "press",
+        "value": "120ms ease-out, scale(0.98)",
+        "purpose": "Button :active."
+      },
+      {
+        "name": "colour",
+        "value": "160ms ease",
+        "purpose": "Button, nav, chip and footer link colour changes."
+      },
+      {
+        "name": "nudge",
+        "value": "200ms ease-out",
+        "purpose": "Icon nudges (3px, 4px, 2px/-2px), tile arrow, video play scale 1.06, tile and tool fills, mobile sheet."
+      },
+      {
+        "name": "header",
+        "value": "240ms ease",
+        "purpose": "Header transparent to solid."
+      },
+      {
+        "name": "tile-in",
+        "value": "260ms ease-out",
+        "purpose": "Filtered tiles fade in."
+      },
+      {
+        "name": "theme-cross-fade",
+        "value": "260ms ease (View Transitions)",
+        "purpose": "Theme switch; disabled under reduced motion."
+      },
+      {
+        "name": "theme-icon",
+        "value": "300ms ease-out, rotate(-20deg)",
+        "purpose": "Theme toggle hover."
+      },
+      {
+        "name": "hero-rise",
+        "value": "900ms ease-out, translateY(14px), delay 240ms + i*80ms",
+        "purpose": "Hero copy entrance."
+      },
+      {
+        "name": "reveal",
+        "value": "900ms ease-out, translateY(18px), delay i*70ms",
+        "purpose": "Scroll reveals, once, IntersectionObserver rootMargin 0 0 -12% 0, threshold 0.05."
+      },
+      {
+        "name": "chart-draw",
+        "value": "1400ms ease-in-out, 150ms delay, clip-path inset(0 100% 0 0) to none",
+        "purpose": "Charts draw in on reveal."
+      },
+      {
+        "name": "horse-in",
+        "value": "1600ms ease-out, from opacity 0 scale(1.04)",
+        "purpose": "Hero horse entrance (not on the closing plate)."
+      },
+      {
+        "name": "recede",
+        "value": "scroll-driven, view timeline --hero, exit 0% to 100%, to translate(-49%, -44%) scale(0.94) opacity 0.25",
+        "purpose": "Hero horse recedes as the page scrolls; only where animation-timeline: view() is supported."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "No entrance, reveal hiding, chart draw, recede, smooth scroll or view-transition animation; content is visible by default."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "dash-2col",
+        "value": "1100px",
+        "purpose": "Dashboard grid 3 to 2 columns."
+      },
+      {
+        "name": "nav-sheet",
+        "value": "1020px",
+        "purpose": "Nav becomes the mobile sheet; menu button and sheet Subscribe appear."
+      },
+      {
+        "name": "stack",
+        "value": "960px",
+        "purpose": "Two-part sections and Lab tools full width; footer 6/6; Watch 2 columns."
+      },
+      {
+        "name": "horse-reposition",
+        "value": "860px",
+        "purpose": "Hero horse to 52% / 36%."
+      },
+      {
+        "name": "mobile",
+        "value": "640px",
+        "purpose": "72px sections, 1rem body, compact tiles, stacked calendar, Watch scroller, stacked field."
+      },
+      {
+        "name": "small-phone",
+        "value": "520px",
+        "purpose": "Header Subscribe hidden, icon-only menu, horse 180vw at y 27%."
+      }
+    ],
+    "themes": {
+      "default": "light",
+      "attribute": "data-theme on <html>",
+      "storageKey": "andra-theme",
+      "urlParam": "?theme=light|dark (wins and is persisted)",
+      "themeColor": {
+        "light": "#f4f6f6",
+        "dark": "#0a0c0d"
+      },
+      "transition": "document.startViewTransition when available",
+      "horse": {
+        "light": {
+          "--horse-filter": "invert(1) grayscale(1) brightness(0.85) contrast(3)",
+          "--mark-filter": "invert(1) grayscale(1) brightness(0.8) contrast(3)",
+          "--horse-blend": "multiply",
+          "--horse-opacity": "0.92"
+        },
+        "dark": {
+          "--horse-filter": "none",
+          "--mark-filter": "none",
+          "--horse-blend": "screen",
+          "--horse-opacity": "0.5"
+        }
+      },
+      "plateRemap": {
+        "--ink": "--plate-ink",
+        "--ink-2": "--plate-ink-2",
+        "--ink-3": "--plate-ink-2",
+        "--rule": "--plate-rule",
+        "--rule-strong": "--plate-ink-2",
+        "--chart-line": "--plate-ink",
+        "--chart-grid": "--plate-rule",
+        "--btn-bg": "--plate-ink",
+        "--btn-fg": "--plate",
+        "--focus": "--plate-ink"
+      },
+      "gradients": {
+        "hero-light": "linear-gradient(to top, var(--ground) 0%, transparent 40%)",
+        "hero-dark": "radial-gradient(120% 90% at 63% 45%, transparent 40%, rgba(10, 12, 13, 0.75) 100%), linear-gradient(to top, var(--ground) 0%, transparent 38%)"
+      }
+    },
+    "chartConventions": {
+      "series": "solid 1.6 chart-line; comparison dashed 1.3 ink-3, dasharray 4 4; non-scaling-stroke",
+      "grid": "3-4 horizontal lines, chart-grid, 1px",
+      "reference": "rule-strong 1px, dasharray 3 4",
+      "dots": "r 2.5, chart-line",
+      "heatmapOpacity": "0.45 + 0.55*|v| (floor 0.45), 3px gap",
+      "viewBoxes": {
+        "tile": "320x160 (2:1)",
+        "lab": "640x260",
+        "explainer": "560x240"
+      },
+      "key": "16px line swatches (solid/dashed 1.6px), 12px up/down squares, 0.8125rem ink-2, Illustrative stamp right-aligned",
+      "aria": "role=img, label ends ', illustrative, not market data'",
+      "colourScope": "red and green only inside charts and keys"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ink slab for the main action; trailing arrow nudges on hover.",
+      "html": "<a class=\"ds-btn\" href=\"#\">Explore dashboards <svg class=\"ds-icon\" viewBox=\"0 0 256 256\" aria-hidden=\"true\"><path d=\"M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z\"/></svg></a>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 22px; border: 1px solid var(--btn-bg, #0e1215); border-radius: 0; background: var(--btn-bg, #0e1215); color: var(--btn-fg, #f4f6f6); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; font-size: 0.9375rem; font-weight: 550; text-decoration: none; cursor: pointer; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-icon { width: 1.05em; height: 1.05em; fill: currentColor; transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn:active { transform: scale(0.98); } .ds-btn:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 3px; } @media (hover: hover) and (pointer: fine) { .ds-btn:hover { background: var(--btn-hover, #2a3036); border-color: var(--btn-hover, #2a3036); } .ds-btn:hover .ds-icon { transform: translateX(3px); } }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action; outlined in the strong rule, fills with ink on hover.",
+      "html": "<a class=\"ds-btn-ghost\" href=\"#\">Subscribe</a>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border: 1px solid var(--rule-strong, rgba(14, 18, 21, 0.78)); border-radius: 0; background: transparent; color: var(--ink, #0e1215); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; font-size: 0.9375rem; font-weight: 550; text-decoration: none; cursor: pointer; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn-ghost:active { transform: scale(0.98); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 3px; } @media (hover: hover) and (pointer: fine) { .ds-btn-ghost:hover { background: var(--ink, #0e1215); border-color: var(--ink, #0e1215); color: var(--ground, #f4f6f6); } }"
+    },
+    {
+      "name": "Filter Chips",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Single-select category filter with tabular counts; pressed chip is ink-filled.",
+      "html": "<div class=\"ds-chips\"><button type=\"button\" class=\"ds-chip\" aria-pressed=\"true\">All <span class=\"ds-chip__n\">12</span></button><button type=\"button\" class=\"ds-chip\" aria-pressed=\"false\">Rates <span class=\"ds-chip__n\">2</span></button><button type=\"button\" class=\"ds-chip\" aria-pressed=\"false\">Equities <span class=\"ds-chip__n\">4</span></button></div>",
+      "css": ".ds-chips { display: flex; gap: 8px; } .ds-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid var(--rule, rgba(14, 18, 21, 0.15)); border-radius: 0; background: transparent; color: var(--ink-2, #424a50); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; font-size: 0.875rem; font-weight: 550; cursor: pointer; transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease; } .ds-chip__n { font-variant-numeric: tabular-nums; color: var(--ink-3, #5a6268); font-weight: 450; } .ds-chip[aria-pressed=\"true\"] { background: var(--ink, #0e1215); border-color: var(--ink, #0e1215); color: var(--ground, #f4f6f6); } .ds-chip[aria-pressed=\"true\"] .ds-chip__n { color: inherit; opacity: 0.7; } .ds-chip:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: -4px; } @media (hover: hover) and (pointer: fine) { .ds-chip[aria-pressed=\"false\"]:hover { border-color: var(--rule-strong, rgba(14, 18, 21, 0.78)); color: var(--ink, #0e1215); } }"
+    },
+    {
+      "name": "Email Field (error state)",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Square input with a strong-rule border; the error is ink only, with a doubled border and a warning icon.",
+      "html": "<div class=\"ds-field\"><label for=\"ds-email\">Email address</label><div class=\"ds-field__row\"><input id=\"ds-email\" type=\"email\" placeholder=\"you@company.com\" aria-invalid=\"true\"><button class=\"ds-field__btn\" type=\"submit\">Subscribe</button></div><p class=\"ds-field__status\"><svg class=\"ds-icon\" viewBox=\"0 0 256 256\" aria-hidden=\"true\"><path d=\"M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z\"/></svg><span>Enter your email address to subscribe.</span></p></div>",
+      "css": ".ds-field { font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; color: var(--ink, #0e1215); } .ds-field label { display: block; font-size: 0.875rem; font-weight: 550; margin-bottom: 8px; } .ds-field__row { display: flex; gap: 8px; } .ds-field input { flex: 1; min-width: 0; min-height: 52px; padding: 0 16px; border: 1px solid var(--rule-strong, rgba(14, 18, 21, 0.78)); border-radius: 0; background: var(--ground, #f4f6f6); color: var(--ink, #0e1215); font: inherit; font-size: 1rem; } .ds-field input::placeholder { color: var(--ink-3, #5a6268); opacity: 1; } .ds-field input:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 0; } .ds-field input[aria-invalid=\"true\"] { border-color: var(--ink, #0e1215); box-shadow: inset 0 0 0 1px var(--ink, #0e1215); } .ds-field__btn { min-height: 52px; padding: 0 22px; border: 1px solid var(--btn-bg, #0e1215); border-radius: 0; background: var(--btn-bg, #0e1215); color: var(--btn-fg, #f4f6f6); font: inherit; font-size: 0.9375rem; font-weight: 550; cursor: pointer; } .ds-field__status { margin: 10px 0 0; display: flex; align-items: center; gap: 8px; font-size: 0.9375rem; font-weight: 650; } .ds-icon { width: 1.25rem; height: 1.25rem; fill: currentColor; flex: none; }"
+    },
+    {
+      "name": "Site Header",
+      "kind": "nav",
+      "refersTo": "header-solid",
+      "description": "Slim 64px header, shown in its solid state: wordmark, nav, theme toggle, small Subscribe.",
+      "html": "<header class=\"ds-header\"><a class=\"ds-brand\" href=\"#\">Andra Markets</a><nav class=\"ds-nav\"><a href=\"#\">Dashboards</a><a href=\"#\">Lab</a><a href=\"#\">Calendar</a><a href=\"#\">Daily note</a><a href=\"#\">Learn</a><a href=\"#\">Watch</a></nav><a class=\"ds-btn-sm\" href=\"#\">Subscribe</a></header>",
+      "css": ".ds-header { display: flex; align-items: center; gap: 24px; height: 64px; padding: 0 clamp(16px, 4vw, 56px); background: var(--ground, #f4f6f6); border-bottom: 1px solid var(--rule, rgba(14, 18, 21, 0.15)); color: var(--ink, #0e1215); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; } .ds-brand { margin-right: auto; font-size: 1.0625rem; font-weight: 650; letter-spacing: -0.02em; text-decoration: none; color: inherit; } .ds-nav { display: flex; gap: 24px; font-size: 0.9375rem; } .ds-nav a { color: var(--ink-2, #424a50); text-decoration: none; transition: color 160ms ease; } .ds-nav a:focus-visible, .ds-btn-sm:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 3px; } .ds-btn-sm { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; background: var(--btn-bg, #0e1215); color: var(--btn-fg, #f4f6f6); font-size: 0.875rem; font-weight: 550; text-decoration: none; transition: background-color 160ms ease; } @media (hover: hover) and (pointer: fine) { .ds-nav a:hover { color: var(--ink, #0e1215); } .ds-btn-sm:hover { background: var(--btn-hover, #2a3036); } }"
+    },
+    {
+      "name": "Dashboard Tile",
+      "kind": "card",
+      "refersTo": "dash-tile",
+      "description": "Lattice cell: chart, key row with the Illustrative stamp, title, description, source line. No kicker.",
+      "html": "<a class=\"ds-tile\" href=\"#\"><svg class=\"ds-chart\" viewBox=\"0 0 320 160\" role=\"img\" aria-label=\"Yield curve shape, illustrative, not market data\"><line class=\"g\" x1=\"0\" x2=\"320\" y1=\"40\" y2=\"40\"/><line class=\"g\" x1=\"0\" x2=\"320\" y1=\"80\" y2=\"80\"/><line class=\"g\" x1=\"0\" x2=\"320\" y1=\"120\" y2=\"120\"/><path class=\"dash\" d=\"M12 60 L80 52 L140 70 L200 84 L260 62 L308 54\"/><path class=\"line\" d=\"M12 90 L80 82 L140 92 L200 96 L260 70 L308 48\"/></svg><p class=\"ds-key\"><span><i class=\"k-solid\"></i>Today</span><span><i class=\"k-dash\"></i>1 month ago</span><span class=\"ds-key__note\">Illustrative</span></p><span class=\"ds-tile__title\">Yield curve</span><span class=\"ds-tile__desc\">The Treasury curve today against a month ago.</span><span class=\"ds-tile__src\">Rates and credit. <span class=\"ds-ph\">[source]</span>, <span class=\"ds-ph\">[date]</span></span><span class=\"ds-tile__go\"><svg class=\"ds-icon\" viewBox=\"0 0 256 256\" aria-hidden=\"true\"><path d=\"M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z\"/></svg></span></a>",
+      "css": ".ds-tile { position: relative; display: flex; flex-direction: column; max-width: 400px; padding: clamp(18px, 2vw, 28px); border: 1px solid var(--rule, rgba(14, 18, 21, 0.15)); color: var(--ink, #0e1215); text-decoration: none; font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; transition: background-color 200ms ease; } .ds-chart { width: 100%; height: auto; overflow: visible; } .ds-chart .g { stroke: var(--chart-grid, rgba(14, 18, 21, 0.1)); stroke-width: 1; vector-effect: non-scaling-stroke; } .ds-chart .line, .ds-chart .dash { fill: none; stroke: var(--chart-line, #0e1215); stroke-width: 1.6; stroke-linejoin: round; vector-effect: non-scaling-stroke; } .ds-chart .dash { stroke: var(--ink-3, #5a6268); stroke-width: 1.3; stroke-dasharray: 4 4; } .ds-key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 10px 0 0; font-size: 0.8125rem; color: var(--ink-2, #424a50); } .ds-key span { display: inline-flex; align-items: center; gap: 8px; } .ds-key i { display: inline-block; width: 16px; } .ds-key .k-solid { border-top: 1.6px solid var(--chart-line, #0e1215); } .ds-key .k-dash { border-top: 1.6px dashed var(--ink-3, #5a6268); } .ds-key__note { margin-left: auto; } .ds-tile__title { margin-top: 18px; font-size: clamp(1.1875rem, 1.5vw, 1.375rem); font-weight: 540; letter-spacing: -0.02em; line-height: 1.15; } .ds-tile__desc { margin-top: 6px; font-size: 0.9375rem; color: var(--ink-2, #424a50); } .ds-tile__src { margin-top: 10px; font-size: 0.8125rem; } .ds-ph { color: var(--ink-3, #5a6268); } .ds-tile__go { position: absolute; top: clamp(18px, 2vw, 28px); right: clamp(18px, 2vw, 28px); font-size: 1.125rem; opacity: 0; transform: translate(-4px, 4px); transition: opacity 200ms ease, transform 200ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-icon { width: 1em; height: 1em; fill: currentColor; } .ds-tile:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 3px; } @media (hover: hover) and (pointer: fine) { .ds-tile:hover { background: var(--ground-2, #e9eded); } .ds-tile:hover .ds-tile__go { opacity: 1; transform: none; } }"
+    },
+    {
+      "name": "Lab Tool Card on the Plate",
+      "kind": "card",
+      "refersTo": "lab-tool",
+      "description": "Tool card on the dark plate; chart colours fixed to the vivid pair, hover lightens the card.",
+      "html": "<div class=\"ds-plate\"><a class=\"ds-tool\" href=\"#\"><svg class=\"ds-chart\" viewBox=\"0 0 640 260\" preserveAspectRatio=\"none\" role=\"img\" aria-label=\"Momentum regimes, illustrative, not market data\"><rect class=\"bu\" x=\"10\" y=\"0\" width=\"200\" height=\"260\"/><rect class=\"bd\" x=\"210\" y=\"0\" width=\"120\" height=\"260\"/><rect class=\"bu\" x=\"330\" y=\"0\" width=\"300\" height=\"260\"/><path class=\"line\" d=\"M10 200 L60 170 L110 150 L160 120 L210 90 L250 130 L290 160 L330 170 L400 120 L480 80 L560 60 L630 40\"/></svg><p class=\"ds-key\"><span><i class=\"sw-up\"></i>Trending regime</span><span><i class=\"sw-down\"></i>Reversal regime</span><span class=\"ds-key__note\">Illustrative</span></p><span class=\"ds-tool__title\">Momentum regime backtest</span><span class=\"ds-tool__desc\">Run a momentum rule across trending and reversal regimes.</span><span class=\"ds-link\">Open the explorer <svg class=\"ds-icon\" viewBox=\"0 0 256 256\" aria-hidden=\"true\"><path d=\"M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z\"/></svg></span></a></div>",
+      "css": ".ds-plate { padding: 32px; background: var(--plate, #0e1215); color: var(--plate-ink, #eef1f1); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; } .ds-tool { display: flex; flex-direction: column; gap: 4px; max-width: 560px; padding: clamp(20px, 2.4vw, 32px); background: var(--plate-2, #191f23); color: inherit; text-decoration: none; transition: background-color 200ms ease; } .ds-chart { width: 100%; height: auto; } .ds-chart .bu { fill: rgba(31, 210, 122, 0.3); } .ds-chart .bd { fill: rgba(255, 75, 82, 0.3); } .ds-chart .line { fill: none; stroke: var(--plate-ink, #eef1f1); stroke-width: 1.6; stroke-linejoin: round; vector-effect: non-scaling-stroke; } .ds-key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 10px 0 0; font-size: 0.8125rem; color: var(--plate-ink-2, #b4bbbf); } .ds-key span { display: inline-flex; align-items: center; gap: 8px; } .ds-key i { display: inline-block; width: 12px; height: 12px; } .ds-key .sw-up { background: #1fd27a; } .ds-key .sw-down { background: #ff4b52; } .ds-key__note { margin-left: auto; } .ds-tool__title { margin-top: 24px; font-size: clamp(1.375rem, 2vw, 1.75rem); font-weight: 540; letter-spacing: -0.025em; line-height: 1.1; } .ds-tool__desc { margin-top: 8px; color: var(--plate-ink-2, #b4bbbf); max-width: 48ch; } .ds-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding-top: 16px; font-size: 0.9375rem; font-weight: 550; text-decoration: underline; text-decoration-color: var(--plate-ink-2, #b4bbbf); text-underline-offset: 0.22em; } .ds-icon { width: 1em; height: 1em; fill: currentColor; transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-tool:focus-visible { outline: 2px solid var(--plate-ink, #eef1f1); outline-offset: 3px; } @media (hover: hover) and (pointer: fine) { .ds-tool:hover { background: var(--plate-hover, #232a2f); } .ds-tool:hover .ds-icon { transform: translate(2px, -2px); } }"
+    },
+    {
+      "name": "Calendar (day-grouped)",
+      "kind": "custom",
+      "refersTo": "tag",
+      "description": "Ruled table grouped by day with outline type tags and tabular figures; no colour.",
+      "html": "<table class=\"ds-cal\"><thead><tr><th>Time</th><th>Event</th><th>Type</th><th>Consensus</th><th>Prior</th></tr></thead><tbody><tr class=\"ds-cal__day\"><th colspan=\"5\"><span class=\"ds-ph\">[Day, date]</span></th></tr><tr><td class=\"ds-num ds-ph\">[time]</td><th>Consumer prices (CPI)</th><td><span class=\"ds-tag\">Macro</span></td><td class=\"ds-num ds-ph\">[consensus]</td><td class=\"ds-num ds-ph\">[prior]</td></tr><tr><td class=\"ds-num ds-ph\">[time]</td><th>FOMC rate decision</th><td><span class=\"ds-tag ds-tag--fed\">Fed</span></td><td class=\"ds-num ds-ph\">[consensus]</td><td class=\"ds-num ds-ph\">[prior]</td></tr></tbody></table>",
+      "css": ".ds-cal { width: 100%; border-collapse: collapse; border-top: 1px solid var(--rule-strong, rgba(14, 18, 21, 0.78)); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; font-size: 0.9375rem; color: var(--ink, #0e1215); } .ds-cal th, .ds-cal td { padding: 16px 16px 16px 0; text-align: left; vertical-align: baseline; border-bottom: 1px solid var(--rule, rgba(14, 18, 21, 0.15)); white-space: nowrap; } .ds-cal thead th { padding-block: 12px; font-size: 0.8125rem; font-weight: 500; color: var(--ink-2, #424a50); } .ds-cal tbody th { font-weight: 540; font-size: 1.0625rem; white-space: normal; width: 40%; } .ds-cal__day th { padding-top: 16px; font-size: 0.875rem; font-weight: 600; border-bottom-color: var(--rule-strong, rgba(14, 18, 21, 0.78)); } .ds-num { font-variant-numeric: tabular-nums; } .ds-ph { color: var(--ink-3, #5a6268); } .ds-tag { display: inline-block; padding: 2px 8px; border: 1px solid var(--rule, rgba(14, 18, 21, 0.15)); font-size: 0.8125rem; color: var(--ink-2, #424a50); } .ds-tag--fed { border-color: var(--rule-strong, rgba(14, 18, 21, 0.78)); color: var(--ink, #0e1215); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Engraving on the Record",
+    "overview": "One engraved, rearing horse and a single grotesque carry the whole identity. In the light theme the page is cool off-white paper with ink type and the horse printed onto it as an engraving; in the dark theme the page is near-black and the horse is a dim, cinematic presence. Everything else is catalogue: full-bleed plates and ruled lists, one idea per screen, hairlines instead of boxes, square corners, no shadows.\n\nColour is withheld on purpose. The UI is monochrome ink on ground in both themes; vivid red and green exist only inside charts and their keys, where they carry meaning. Seriousness comes from restraint, tabular figures, dated and sourced numbers, and bracketed placeholders wherever a real number does not yet exist.\n\nThe system refuses the fintech template: no gradient hero, no metric tiles, no three equal feature cards, no accent colour in UI.",
+    "keyCharacteristics": [
+      "Two themes, light by default, toggled and remembered per visitor.",
+      "One family: Schibsted Grotesk, variable 400 to 900, every stack ending in `sans-serif`.",
+      "Hairline rules (1px) and tonal layering instead of shadows or cards.",
+      "Square corners everywhere.",
+      "The horse is the only image, shown whole and untouched, treated only with CSS filter and blend.",
+      "Red and green only inside charts; errors are ink only.",
+      "Motion is quiet and gated: content visible by default, reduced motion respected."
+    ],
+    "rules": [
+      {
+        "name": "The Charts-Only Colour Rule",
+        "body": "Red and green appear only inside charts and their keys. Never in buttons, links, tags, status messages, errors, success messages or decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Plate Rule",
+        "body": "The Lab is the one dark plate on the page. It inverts by re-mapping tokens, never by hand-picking colours per component.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Numbers Rule",
+        "body": "`font-variant-numeric: tabular-nums` is applied only to elements that hold numbers: tape levels, chip counts, and calendar time, consensus and prior cells. Never on prose or punctuation-bearing text; the mobile calendar's text labels (`Consensus`, `Prior`) reset to `normal`.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Family Rule",
+        "body": "Every `font-family` resolves to the single `--font` stack ending in `sans-serif`. Form controls use `font: inherit`.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Record Rule",
+        "body": "Nothing casts a shadow. A surface is distinguished by tone or by a hairline, and a hover changes tone, not height.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do keep light as the default theme, resolve it as `?theme=` param, then `andra-theme` in localStorage, then light, and keep `theme-color` in step (`#f4f6f6` / `#0a0c0d`).",
+      "Do set every colour through the theme custom properties so both themes and the Lab plate work without per-component overrides.",
+      "Do use the one `--font` stack ending in `sans-serif`, with variable weights between 400 and 650 as recorded in Typography.",
+      "Do apply tabular figures only to elements that hold numbers.",
+      "Do give every chart a key, an \"Illustrative\" stamp until real data exists, and a source and date line.",
+      "Do write unknown values as bracketed placeholders in `.ph` (or `.ph--ink` for a headline).",
+      "Do separate with 1px hairlines (`--rule`, `--rule-strong`) and tonal steps rather than boxes.",
+      "Do gate every hover effect behind `@media (hover: hover) and (pointer: fine)`.",
+      "Do keep content visible by default: hide for a reveal only under `html.js` and `prefers-reduced-motion: no-preference`.",
+      "Do use the shared motion tokens: `--ease-out` `cubic-bezier(0.23, 1, 0.32, 1)` for entrances, hovers and the sheet, and `--ease-in-out` `cubic-bezier(0.77, 0, 0.175, 1)` for the chart draw. Durations: 120ms press, 160ms colour, 200ms nudges and fills, 240ms header, 260ms tile fade and theme cross-fade, 300ms theme icon, 900ms rise and reveal, 1400ms chart draw (150ms delay), 1600ms horse entrance.",
+      "Do stagger the hero entrance at `240ms + i x 80ms` (rise from 14px) and scroll reveals at `i x 70ms` (rise from 18px, once, IntersectionObserver with a -12% bottom margin and 0.05 threshold; dashboard tiles stagger by column, `i mod 3`).",
+      "Do draw charts in with `clip-path: inset(0 100% 0 0)` to `none`, and let the hero horse recede on scroll (`animation-timeline` on the hero's view timeline, exit 0% to 100%, to `translate(-49%, -44%) scale(0.94)` at 0.25 opacity) only where `animation-timeline: view()` is supported.",
+      "Do cross-fade theme changes with View Transitions (260ms), and switch instantly under reduced motion.",
+      "Do under `prefers-reduced-motion: reduce` drop the horse entrance, hero rise, reveals, chart draw, recede, smooth scroll and view-transition animation.",
+      "Do show the horse whole and change it only through `--horse-filter`, `--mark-filter`, `--horse-blend`, opacity and placement.",
+      "Do publish only as \"Andra Markets\"."
+    ],
+    "donts": [
+      "Don't round any corner; everything is square (0px).",
+      "Don't add shadows. The inset ring on an invalid input is the one border treatment allowed.",
+      "Don't use gradients anywhere except the hero vignettes.",
+      "Don't use red or green outside charts and their keys, including for errors, success, tags or links.",
+      "Don't put an eyebrow, kicker or category label above a heading.",
+      "Don't use em dashes or en dashes in copy; use commas, colons or full stops.",
+      "Don't put a personal name anywhere on the site.",
+      "Don't crop, redraw, recolour (in the file), replace or regenerate `andra-horse.png`; don't add a second image or illustration style.",
+      "Don't use a serif face or a fallback stack that ends in `serif`, and don't add a second family.",
+      "Don't invent numbers, prices, counts or dates; use a bracketed placeholder.",
+      "Don't introduce an accent colour in the UI; ink is the only emphasis."
+    ]
+  }
+}
