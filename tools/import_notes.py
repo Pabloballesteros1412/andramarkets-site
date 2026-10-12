@@ -17,8 +17,11 @@ first:
          text was recovered from the PDF: held, opened as a pull request
        otherwise: published straight to main
   3. one note per session date: the newest clean run is published; a held
-     run newer than it gets a pull request (for recovered text, the most
-     complete run of the day); every other run that day is superseded
+     run newer than it goes to review (for recovered text, the most complete
+     run of the day); every other run that day is superseded
+  4. review: a new run that is held gets its own pull request. Runs an earlier
+     import already saw (a re-check after VERSION changes, such as the first
+     backfill) are held together in one "Backfill review" pull request
 
 Only data/notes/<date>.json is written: the note text plus the ten closing
 levels the home tape shows. This repo is public, so the PDF and the full facts
@@ -416,46 +419,72 @@ def open_held_pr(record, reasons, token):
     return open_pr(branch, f"Held close note: {date}", "\n".join(lines), token)
 
 
-def open_recovered_pr(records, token):
-    """One pull request for every note whose only issue is recovered text."""
+def short_reason(reason):
+    """A few words per hold reason, for the review table."""
+    if reason == RECOVERED:
+        return "text recovered from the PDF"
+    if reason.startswith("The figure check failed"):
+        return "figure check failed"
+    if "not an NYSE trading day" in reason:
+        return f"not a trading day ({reason.split(' was ')[0]})"
+    if reason.startswith("The run finished"):
+        return "made before that day's close"
+    if reason.startswith("The note is incomplete: "):
+        return "incomplete: " + reason[len("The note is incomplete: "):].split(". ")[0]
+    if reason.startswith("The note is dated"):
+        return "dated in the future"
+    return reason.rstrip(".")
+
+
+def open_backfill_pr(records, token):
+    """One pull request for every held note found while re-checking past runs."""
     records = sorted(records, key=lambda r: r["date"])
-    first, last = records[0]["day"], records[-1]["day"]
-    span = f"{first.day} {first:%b} to {last.day} {last:%b %Y}" if len(records) > 1 else f"{first.day} {first:%b %Y}"
-    branch = "held/recovered"
-    push_branch(branch, [{k: v for k, v in r.items() if k != "day"} for r in records],
-                f"Recovered close notes {span} for review")
+    first, last = (dt.date.fromisoformat(records[i]["date"]) for i in (0, -1))
+    span = f"{first.day} {first:%b} to {last.day} {last:%b %Y}"
+    branch = "held/backfill"
+    push_branch(branch, [r["record"] for r in records], f"Held close notes {span} for review")
+    recovered = sum(1 for r in records if RECOVERED in r["reasons"])
     lines = [
-        f"These {len(records)} close notes come from agent runs before 15 September 2026, "
-        "which saved no note text. Their text was read back from each report PDF, using the "
-        "report's type sizes to tell the prose from tables and exhibits. On the 23 later runs, "
-        "where the agent's own text exists, this recovery reproduced every field exactly.",
+        f"These {len(records)} close notes from past agent runs did not pass every check, so "
+        "none of them is on the site. They are collected here so you can review them in one "
+        "place. New daily notes that are held still get a pull request each.",
         "",
-        "Each passed every other check (trading day, made after the close, figure check). "
-        "Where a day had several runs, the most complete one was taken.",
-        "",
-        "| Date | Headline | Fields | Agent run |",
+        "| Date | Headline | Held because | Agent run |",
         "|---|---|---|---|",
-        *[f"| {r['date']} | {r['note']['headline']} | {_filled(r)} of {len(NOTE_FIELDS)} | "
-          f"[PDF]({_run_link(r)}) |" for r in records],
+        *[f"| {r['date']} | {r['record']['note']['headline'].replace('|', '/')} | "
+          f"{'; '.join(short_reason(x) for x in r['reasons'])} | "
+          f"[run {r['record']['source']['run_id']}]({_run_link(r['record'])}) |" for r in records],
+        "",
+        "**Reasons**",
+        "",
+        "- **figure check failed:** the agent's own audit found figures it could not trace "
+        "to the fact pack; the PDF says so in a Control note.",
+        "- **incomplete:** a section is missing or stops mid-sentence (the agent's reply was cut off).",
+        "- **not a trading day** or **made before that day's close:** the date on the note "
+        "does not match the session its figures come from.",
+        f"- **text recovered from the PDF:** {recovered} of these runs, from before "
+        "15 September, saved no note text, so it was read back from the report PDF. Checked "
+        "on the 23 later runs where both exist, every field matched exactly.",
         "",
         "**What to do**",
         "",
-        "- Read the notes under **Files changed** (`data/notes/<date>.json`).",
-        "- **Merge** to publish them all. To leave one out first, open its file in "
-        "**Files changed**, use the **...** menu, **Delete file**, and commit to this branch.",
-        "- **Close** to publish none of them.",
+        "- Read any note under **Files changed** (`data/notes/<date>.json`), or its PDF from the run link.",
+        "- To drop a note, open its file in **Files changed**, use the **...** menu, "
+        "**Delete file**, and commit to this branch. Repeat for each note to drop.",
+        "- **Merge** to publish every note still in the pull request. **Close** to publish none.",
     ]
-    return open_pr(branch, f"Recovered close notes: {span}", "\n".join(lines), token)
+    return open_pr(branch, f"Backfill review: {len(records)} held close notes, {span}",
+                   "\n".join(lines), token)
 
 
-def close_stale_prs(date, keep, state, token):
+def close_stale_prs(date, keep, state, token, why=None):
     """Close held pull requests for the date other than the one kept."""
     for pr in api(f"/repos/{SITE_REPO}/pulls?state=open&per_page=100", token) or []:
         ref = pr["head"]["ref"]
         if not ref.startswith(f"held/{date}-") or ref == keep:
             continue
         api(f"/repos/{SITE_REPO}/issues/{pr['number']}/comments", token, "POST",
-            {"body": f"Closed automatically: a newer or more complete note for {date} replaces this one."})
+            {"body": why or f"Closed automatically: a newer or more complete note for {date} replaces this one."})
         api(f"/repos/{SITE_REPO}/pulls/{pr['number']}", token, "PATCH", {"state": "closed"})
         try:
             api(f"/repos/{SITE_REPO}/git/refs/heads/{ref}", token, "DELETE")
@@ -548,6 +577,9 @@ def main():
 
     results, rejected, rows = [], [], []
     for a in artifacts:
+        # A run seen by an earlier import is being re-checked: if held, it joins
+        # the one backfill review instead of opening a pull request of its own.
+        recheck = str(a["id"]) in seen
         entry = {"v": VERSION, "run_id": (a.get("workflow_run") or {}).get("id"),
                  "created_at": a["created_at"]}
         try:
@@ -560,7 +592,8 @@ def main():
             print(f"::error::Artifact {a['id']} rejected: {e}")
         else:
             entry["date"] = record["date"]
-            results.append({"artifact": a, "record": record, "reasons": reasons, "entry": entry})
+            results.append({"artifact": a, "record": record, "reasons": reasons,
+                            "entry": entry, "recheck": recheck})
         seen[str(a["id"])] = entry
 
     publish, held, superseded, withdraw = decide(results, ROOT)
@@ -580,8 +613,8 @@ def main():
                      "replaced the earlier note" if prev and prev["source"]["artifact_id"] != record["source"]["artifact_id"] else "published"))
         if not dry:
             write_note(ROOT, record)
-    recovered = [r for r in held if r["reasons"] == [RECOVERED]]
-    single = [r for r in held if r["reasons"] != [RECOVERED]]
+    backfill = [r for r in held if r["recheck"]]
+    single = [r for r in held if not r["recheck"]]
     for r in held:
         r["entry"].update(status="held", reasons=r["reasons"])
         rows.append((r["artifact"]["id"], r["record"]["date"], "held: " + " ".join(r["reasons"])))
@@ -589,27 +622,37 @@ def main():
     if dry:
         plan = [f"{d} {res}" for _, d, res in sorted(rows, key=lambda x: (x[1], str(x[0])))]
         print("\n".join(plan))
-        print(f"DRY RUN: publish {len(publish)}, held {len(single)} + {len(recovered)} recovered "
-              f"in one PR, superseded {len(superseded)}, rejected {len(rejected)}")
+        for r in sorted(backfill, key=lambda r: r["record"]["date"]):
+            print(f"BACKFILL | {r['record']['date']} | {r['record']['note']['headline'][:50]} | "
+                  f"{'; '.join(short_reason(x) for x in r['reasons'])} | run {r['record']['source']['run_id']}")
+        print(f"DRY RUN: publish {len(publish)}, withdraw {len(withdraw)}, held {len(single)} "
+              f"in their own PRs + {len(backfill)} in the backfill review, "
+              f"superseded {len(superseded)}, rejected {len(rejected)}")
         return 0
 
-    failed = 0
-    for group, opener in ([(r,) for r in single], None), ([tuple(recovered)] if recovered else [], "recovered"):
+    failed, failed_dates = 0, set()
+    for group, opener in ([(r,) for r in single], None), ([tuple(backfill)] if backfill else [], "backfill"):
         for batch in group:
             try:
                 if not site_token:
                     raise RuntimeError("GITHUB_TOKEN is not set")
                 if opener:
-                    url = open_recovered_pr([dict(x["record"], day=dt.date.fromisoformat(x["record"]["date"])) for x in batch], site_token)
+                    url = open_backfill_pr([{"date": x["record"]["date"], "record": x["record"],
+                                             "reasons": x["reasons"]} for x in batch], site_token)
                 else:
                     url = open_held_pr(batch[0]["record"], batch[0]["reasons"], site_token)
                 for x in batch:
                     x["entry"]["pr"] = url
                 print(f"Held {', '.join(x['record']['date'] for x in batch)}: {url}")
             except Exception as e:  # noqa: BLE001
-                # Not recorded, so the next run tries again.
+                # Left at the old version, so the next run checks these again;
+                # their dates keep whatever pull requests are already open.
                 for x in batch:
-                    del seen[str(x["artifact"]["id"])]
+                    if x["recheck"]:
+                        x["entry"]["v"] = VERSION - 1
+                    else:
+                        del seen[str(x["artifact"]["id"])]
+                    failed_dates.add(x["record"]["date"])
                 failed += 1
                 print(f"::error::Could not open the review pull request: {e}. Check Settings, "
                       "Actions, General: Allow GitHub Actions to create and approve pull requests.")
@@ -625,13 +668,18 @@ def main():
     if site_token:
         # Per date, only the pull request of the run kept for review stays open.
         keep = {r["record"]["date"]: f"held/{r['record']['date']}-{r['artifact']['id']}" for r in single}
+        in_backfill = {r["record"]["date"]: r["entry"].get("pr") for r in backfill}
         for date in sorted({r["record"]["date"] for r in publish + held} | set(withdraw)):
-            close_stale_prs(date, keep.get(date), state, site_token)
+            if date not in failed_dates:
+                why = (f"Closed automatically: this note moved to the backfill review, "
+                       f"{in_backfill[date]}" if date in in_backfill else None)
+                close_stale_prs(date, keep.get(date), state, site_token, why)
 
     summary(rows)
     output("published", "true" if (publish or withdraw) and pushed else "false")
-    print(f"published {len(publish)}, held {len(single)} + {len(recovered)} recovered, "
-          f"superseded {len(superseded)}, rejected {len(rejected)}")
+    print(f"published {len(publish)}, withdrew {len(withdraw)}, held {len(single)} + "
+          f"{len(backfill)} in the backfill review, superseded {len(superseded)}, "
+          f"rejected {len(rejected)}")
     return 1 if rejected or failed else 0
 
 
