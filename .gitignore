@@ -1,2 +1,3 @@
 .impeccable/review/
 .impeccable/critique/tmp*
+__pycache__/

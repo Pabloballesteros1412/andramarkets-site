@@ -21,8 +21,27 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT
 ICONS = ROOT / "assets" / "icons"
 
-# Andra Markets on LinkedIn. Replace with the company page URL.
-LINKEDIN_URL = "#"
+# Andra Markets social channels. Footer links and the Watch section are built
+# from these, so a channel appears everywhere once its URL is set.
+LINKEDIN_URL = "https://www.linkedin.com/company/andramarkets/"
+TIKTOK_URL = "https://www.tiktok.com/@andramarkets"
+YOUTUBE_URL = ""  # No channel yet. Set the URL to bring back the footer link and icon.
+
+SOCIALS = [
+    ("LinkedIn", LINKEDIN_URL, "linkedin-logo"),
+    ("TikTok", TIKTOK_URL, "tiktok-logo"),
+    ("YouTube", YOUTUBE_URL, "youtube-logo"),
+]
+
+# Watch embeds (placeholders until real videos exist): (platform, shape).
+# "wide" is a 16:9 YouTube frame, "tall" a 9:16 TikTok frame. To add YouTube
+# back, set YOUTUBE_URL and put ("YouTube", "wide") first; the grid adapts.
+VIDEOS = [
+    ("TikTok", "tall"),
+    ("TikTok", "tall"),
+    ("TikTok", "tall"),
+    ("TikTok", "tall"),
+]
 
 # Absolute site address, no trailing slash, e.g. "https://andramarkets.com".
 # Social cards need it for og:image and canonical links. Left empty until the
@@ -268,7 +287,9 @@ def c_explainer(w=560, h=240):
 
 # Icons -----------------------------------------------------------------------
 
-ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "linkedin-logo", "tiktok-logo", "youtube-logo", "list", "x", "play", "sun", "moon"]
+ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "play", "sun", "moon"] + [
+    icon_name for _, url, icon_name in SOCIALS if url
+]
 
 
 def sprite():
@@ -403,14 +424,18 @@ def page():
         f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time"><span class="ph">[n]</span> min read</span></a></li>'
         for i, (t, desc) in enumerate(LEARN)
     )
-    tiktoks = "".join(
-        f'<li class="video video--tall reveal" style="--i:{i + 1}"><a href="#watch">'
+    channels = {label: (url, icon_name) for label, url, icon_name in SOCIALS if url}
+    videos = [(platform, shape) for platform, shape in VIDEOS if platform in channels]
+    video_items = "".join(
+        f'<li class="video video--{shape} reveal" style="--i:{i}"><a href="{channels[platform][0]}">'
         f'<span class="video__frame"><span class="video__play">{icon("play")}</span>'
-        f'<span class="video__platform">{icon("tiktok-logo")}TikTok</span></span>'
+        f'<span class="video__platform">{icon(channels[platform][1])}{platform}</span></span>'
         f'<span class="video__title"><span class="ph ph--ink">[Video title]</span></span>'
         f'<span class="video__meta"><span class="ph">[duration]</span></span></a></li>'
-        for i in range(2)
+        for i, (platform, shape) in enumerate(videos)
     )
+    watch_layout = "watch-grid--mixed" if any(shape == "wide" for _, shape in videos) else "watch-grid--tall"
+    watch_platforms = " and ".join(dict.fromkeys(platform for platform, _ in videos))
 
     return shell(
         title="Andra Markets: markets research platform",
@@ -551,16 +576,9 @@ def page():
     <div class="wrap">
       <div class="section-head">
         <h2 class="section-title reveal" id="watch-title">Watch</h2>
-        <p class="lede reveal">Market recaps and short explainers from YouTube and TikTok. Embeds are placeholders.</p>
+        <p class="lede reveal">Market recaps and short explainers on {watch_platforms}. Embeds are placeholders.</p>
       </div>
-      <ul class="watch-grid">
-        <li class="video video--wide reveal"><a href="#watch">
-          <span class="video__frame"><span class="video__play">{icon("play")}</span>
-          <span class="video__platform">{icon("youtube-logo")}YouTube</span></span>
-          <span class="video__title"><span class="ph ph--ink">[Video title]</span></span>
-          <span class="video__meta"><span class="ph">[duration]</span></span></a></li>
-        {tiktoks}
-      </ul>
+      <ul class="watch-grid {watch_layout}">{video_items}</ul>
     </div>
   </section>
 
@@ -628,6 +646,10 @@ def site_header(home, base):
 
 
 def site_footer(home, base):
+    social_links = "\n".join(
+        f'      <li><a href="{url}" rel="me">{icon(icon_name)}{label}</a></li>'
+        for label, url, icon_name in SOCIALS if url
+    )
     return f"""<footer class="site-footer">
   <div class="wrap grid">
     <div class="foot__brand">
@@ -648,9 +670,7 @@ def site_footer(home, base):
       <a href="{base}methodology/">Methodology</a>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
-      <li><a href="{LINKEDIN_URL}" rel="me">{icon("linkedin-logo")}LinkedIn</a></li>
-      <li><a href="#" rel="me">{icon("tiktok-logo")}TikTok {ph("[handle]")}</a></li>
-      <li><a href="#" rel="me">{icon("youtube-logo")}YouTube {ph("[handle]")}</a></li>
+{social_links}
     </ul>
     <div class="foot__legal">
       <span>&copy; {ph("[year]")} Andra Markets</span>

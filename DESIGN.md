@@ -424,7 +424,7 @@ Two-part section splits: content in columns 1 to 6 (or 1 to 8 for the About stat
 **Breakpoints (max-width) and what each collapses:**
 - **1100px:** dashboard grid 3 to 2 columns.
 - **1020px:** primary nav becomes the mobile sheet; the menu button appears; Subscribe appears as the last item in the sheet; header gap tightens 24px to 8px.
-- **960px:** note, Learn, About, signup columns and the footer brand go full width; footer nav and social split 6/6; Lab tools go full width; Watch becomes 2 columns with the YouTube frame spanning both at 16:9.
+- **960px:** note, Learn, About, signup columns and the footer brand go full width; footer nav and social split 6/6; Lab tools go full width; in the mixed Watch layout the grid becomes 2 columns with the YouTube frame spanning both at 16:9 (the TikTok-only row keeps 4).
 - **860px:** hero horse moves to `x 52%`, `y 36%` (above the headline).
 - **640px:** section padding 72px; body 1rem; section heads stack; tape columns become `40vw` each; dashboard tiles compact (still 2 columns, 14px padding, description hidden, title 1rem, source and key 0.75rem, Illustrative note on its own row); calendar becomes stacked rows (see Components); note archive stacks date over title; Watch becomes a horizontal snap scroller (wide 84vw, tall 44vw); signup input and button stack; hero buttons stretch; footer links grow to 44px.
 - **520px:** header Subscribe button hidden (the sheet and hero carry it); menu button shows its icon only; horse size `180vw`, `y 27%`.
@@ -448,7 +448,7 @@ Square corners everywhere: buttons, chips, tags, inputs (`border-radius: 0` expl
 
 Borders are 1px hairlines in `--rule` or `--rule-strong`. The dashboard lattice draws a single hairline grid by giving the container top and left borders and each tile right and bottom borders. Lists are ruled rows (bottom border per item, a strong rule on top), not boxes.
 
-Icons are Phosphor-style 256-unit SVG paths in an inline sprite (`warning-circle`, `arrow-right`, `arrow-up-right`, `linkedin-logo`, `tiktok-logo`, `youtube-logo`, `list`, `x`, `play`, `sun`, `moon`), drawn at `1em` in `currentColor`.
+Icons are Phosphor-style 256-unit SVG paths in an inline sprite (`warning-circle`, `arrow-right`, `arrow-up-right`, `list`, `x`, `play`, `sun`, `moon`, plus the logo of each social channel that has a URL: `linkedin-logo`, `tiktok-logo`, and `youtube-logo` once YouTube is live), drawn at `1em` in `currentColor`.
 
 ## Components
 
@@ -524,7 +524,8 @@ A cell in the hairline lattice; no card chrome.
 - **Play button:** 56px square, `--video-ink` with a `--video-ground` play icon; scales to 1.06 on hover.
 - **Platform label:** bottom left, 0.8125rem `--video-ink-2`, with the platform icon.
 - **Below the frame:** title (540, an ink placeholder) and duration (0.8125rem).
-- **Layout:** desktop `7fr 2.5fr 2.5fr`, with the wide frame stretching to the TikTok height. At 960px and below the grid has two columns, with the wide frame spanning both at 16:9. At 640px and below it becomes a snap scroller.
+- **Layout:** built from `VIDEOS` in `tools/build_site.py`; only channels with a URL render. TikTok only (current): `.watch-grid--tall`, four equal 9:16 frames in a row on desktop. With a YouTube frame: `.watch-grid--mixed`, desktop `7fr 2.5fr 2.5fr` with the wide frame stretching to the TikTok height; at 960px and below two columns with the wide frame spanning both at 16:9. At 640px and below either layout becomes a snap scroller.
+- **Links:** each frame links to the channel's profile until real embeds exist; the lede names the platforms shown.
 
 ### About
 A statement paragraph (statement style, columns 1 to 8) beside a definition list (columns 9 to 12, bottom-aligned). Each `dt`/`dd` pair sits in a row with a `--rule` top border and 14px padding; terms are 0.8125rem ink-2. The section heading is visually hidden. The section has a `--rule` top border.
@@ -537,7 +538,7 @@ A statement paragraph (statement style, columns 1 to 8) beside a definition list
 - **Status** is a polite live region, wired to the input with `aria-describedby`.
 
 ### Footer
-`--rule` top border, padding 48px/40px, 0.9375rem. Brand (mark plus wordmark) with a one-line description in ink-2; a two-column nav of section links plus Methodology; social links (LinkedIn, TikTok, YouTube) with 1.25rem icons and `rel="me"`. Links are ink-2, turn ink on hover, min height 40px (44px on mobile). Legal row: `--rule` top border, 0.8125rem ink-3: "© [year] Andra Markets" and "For information only. Not investment advice."
+`--rule` top border, padding 48px/40px, 0.9375rem. Brand (mark plus wordmark) with a one-line description in ink-2; a two-column nav of section links plus Methodology; social links built from `SOCIALS` in `tools/build_site.py`, one per channel with a URL (currently LinkedIn and TikTok; YouTube returns when `YOUTUBE_URL` is set), 1.25rem icons and `rel="me"`. Links are ink-2, turn ink on hover, min height 40px (44px on mobile). Legal row: `--rule` top border, 0.8125rem ink-3: "© [year] Andra Markets" and "For information only. Not investment advice."
 
 ### Inner page (`.page`)
 For methodology and future sub-pages, sharing the same header and footer. Top padding `nav-h + clamp(48px, 9vh, 112px)`, bottom `--section`. The head is max 44rem: page title and lede (16px gap) over a `--rule-strong` bottom rule, with `clamp(32px, 5vw, 56px)` padding. The body is max 44rem: sections padded 28px with `--rule` bottom borders, h2 at 1.375rem/540, paragraphs ink-2 max 65ch. The header is solid from the first paint.

@@ -1316,9 +1316,18 @@ ul {
 
 .watch-grid {
   display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 2.5fr) minmax(0, 2.5fr);
   gap: clamp(12px, 1.6vw, 20px);
   align-items: start;
+}
+
+/* One 16:9 YouTube frame beside two 9:16 TikTok frames. */
+.watch-grid--mixed {
+  grid-template-columns: minmax(0, 7fr) minmax(0, 2.5fr) minmax(0, 2.5fr);
+}
+
+/* TikTok only: a row of 9:16 frames. */
+.watch-grid--tall {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .video a {
@@ -1675,7 +1684,7 @@ ul {
   .tool--wide {
     grid-column: 1 / -1;
   }
-  .watch-grid {
+  .watch-grid--mixed {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .video--wide {
