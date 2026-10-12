@@ -87,5 +87,94 @@
     "run_id": 34909074715,
     "artifact_id": 10374250938,
     "created_at": "2026-09-14T23:38:00Z"
+  },
+  "charts": {
+    "curve": [
+      {
+        "key": "ust1m",
+        "tenor": "1 month",
+        "last": 3.93,
+        "chg": 2.0,
+        "stale": true
+      },
+      {
+        "key": "ust3m",
+        "tenor": "3 month",
+        "last": 4.07,
+        "chg": 7.0,
+        "stale": true
+      },
+      {
+        "key": "ust6m",
+        "tenor": "6 month",
+        "last": 4.12,
+        "chg": 5.0,
+        "stale": true
+      },
+      {
+        "key": "ust1y",
+        "tenor": "1 year",
+        "last": 4.35,
+        "chg": 7.0,
+        "stale": true
+      },
+      {
+        "key": "ust2y",
+        "tenor": "2 year",
+        "last": 4.63,
+        "chg": 7.0,
+        "stale": true
+      },
+      {
+        "key": "ust3y",
+        "tenor": "3 year",
+        "last": 4.69,
+        "chg": 6.0,
+        "stale": true
+      },
+      {
+        "key": "ust5y",
+        "tenor": "5 year",
+        "last": 4.78,
+        "chg": 3.0,
+        "stale": true
+      },
+      {
+        "key": "ust7y",
+        "tenor": "7 year",
+        "last": 4.87,
+        "chg": 3.0,
+        "stale": true
+      },
+      {
+        "key": "ust10y",
+        "tenor": "10 year",
+        "last": 4.96,
+        "chg": 1.0,
+        "stale": true
+      },
+      {
+        "key": "ust20y",
+        "tenor": "20 year",
+        "last": 5.38,
+        "chg": -1.0,
+        "stale": true
+      },
+      {
+        "key": "ust30y",
+        "tenor": "30 year",
+        "last": 5.35,
+        "chg": -2.0,
+        "stale": true
+      }
+    ],
+    "risk": {
+      "score": -0.43,
+      "label": "Defensive"
+    },
+    "breadth": {
+      "advancers": 13,
+      "decliners": 12
+    }
   }
 }
