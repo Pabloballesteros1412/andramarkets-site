@@ -24,6 +24,11 @@ ICONS = ROOT / "assets" / "icons"
 # Andra Markets on LinkedIn. Replace with the company page URL.
 LINKEDIN_URL = "#"
 
+# Absolute site address, no trailing slash, e.g. "https://andramarkets.com".
+# Social cards need it for og:image and canonical links. Left empty until the
+# site has its own domain, so no account name is baked into the pages.
+SITE_URL = ""
+
 
 # Chart helpers ---------------------------------------------------------------
 
@@ -653,7 +658,10 @@ def site_footer(home, base):
 </footer>"""
 
 
-def shell(title, desc, body, home, base):
+def shell(title, desc, body, home, base, path=""):
+    url = f"{SITE_URL}/{path}" if SITE_URL else ""
+    og_image = f"{SITE_URL}/assets/og-image.png" if SITE_URL else f"{base}assets/og-image.png"
+    canonical = f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n' if url else ""
     return f"""<!doctype html>
 <html lang="en" data-theme="light">
 <head>
@@ -663,7 +671,18 @@ def shell(title, desc, body, home, base):
 <meta name="description" content="{desc}">
 <meta name="theme-color" content="#f4f6f6">
 <script>{THEME_BOOT}</script>
-<link rel="icon" href="{base}assets/andra-horse.png">
+<link rel="icon" href="{base}assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="{base}assets/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="{base}assets/apple-touch-icon.png">
+{canonical}<meta property="og:type" content="website">
+<meta property="og:site_name" content="Andra Markets">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:image" content="{og_image}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Andra Markets engraved horse beside the line Markets, on the record.">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="{base}assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{base}assets/site.css">
 </head>
@@ -716,6 +735,7 @@ def methodology():
         body=body,
         home="../",
         base="../",
+        path="methodology/",
     )
 
 
