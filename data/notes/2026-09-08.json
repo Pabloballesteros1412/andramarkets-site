@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-08",
+  "published": true,
+  "edition": "0003",
+  "figure_check": "failed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "Equities slip on narrow breadth while commodities rally and curve flattens",
+    "standfirst": "The S&P fell -0.58% on the thinnest breadth of the week, eight advancers against sixteen decliners, as oil, copper and the ag complex rallied against a flattening front end of the Treasury curve. The setup argues for an inflation repricing rather than a growth scare, and 2s10s at 41bp is the level that decides which one it is.",
+    "takeaways": [
+      "Breadth was thin: eight advancers against sixteen decliners, a ratio of 0.50, even as the S&P held to a -0.58% loss.",
+      "The curve flattened as the front end sold off, 2yr yields +3bp to 4.37% and 30yr yields -1bp to 5.24%, while breakevens rose across every tenor.",
+      "Commodities rallied broadly: WTI +3.02%, copper +2.67% to a fresh high, with corn and soybeans also printing highs.",
+      "Health care was the weak sector at -2.52% while tech held near flat, a split visible inside the leaders and laggards list: AMD +5.90% and Broadcom +2.98% against Nvidia -2.01%."
+    ],
+    "desk_view": "The standard risk-off script, stocks and yields falling together, did not show up today. Equities fell (S&P -0.58%, Dow -1.18%) while front-end yields rose (2yr +3bp, 3yr +4bp) and the curve flattened, 2s10s to 41bp and 5s30s to 70bp. Breakevens rose across every tenor, 5yr +3bp to 2.40 and 10yr +2bp to 2.37, and the 10yr TIPS real yield added +1bp. Oil rose +3.02%, copper rose +2.67% to a fresh high. That combination reads closer to an inflation repricing than a growth scare. The level that decides it is 2s10s: continued front-end selling against a capped long end extends pressure on the growth-sensitive sectors that already lagged today, health care -2.52% and financials -1.38%. A long end that catches up instead resets the story to a duration scare, one that would not spare the mega-cap tech names currently insulated by AMD, Tesla, Broadcom and Oracle.\n\nThe risk barometer read -0.26, \"neutral,\" but that score masked a real split rather than a calm session. USD/JPY was the single largest drag at -3.0, MOVE at -0.87, SPX at -0.84, while copper contributed +1.84 and DXY +1.15. A neutral print built from offsetting extremes is a different market than one built from everything sitting near zero. Breadth of 8 versus 16 and dispersion of 2.1 say the internals were not neutral at all.",
+    "watching": [
+      "Whether 2s10s keeps flattening or the long end catches up to the front-end selloff.",
+      "Follow-through in oil and copper after today's rally, a test of the inflation-repricing read.",
+      "Whether health care's split holds, UnitedHealth +0.93% against Lilly -2.21% and Pfizer -2.32%.",
+      "Whether Asia's divide persists, KOSPI +4.61% and Nikkei +2.12% against CSI 300 -3.60%."
+    ],
+    "equities": "The S&P fell -0.58% to 7673.52, the Dow was the weakest major at -1.18% to 52786.07, and the Nasdaq 100 was flat at -0.12% to 29507.70 as chip and auto names offset broader softness. The Russell 2000 fell -0.52%, the MidCap 400 fell -0.69%, and the NYSE Composite fell -0.67%, so the loss was broad across cap tiers even where the headline index looked calm.\n\nSector rotation matched the macro story more than the tape's small headline move. Energy led at +1.11% and utilities added +0.86%, both defensive-adjacent or inflation-linked plays, while health care dropped -2.52% and financials fell -1.38%. Technology held at +0.32% on the back of AMD +5.90% and Broadcom +2.98%, but Nvidia fell -2.01%, so the sector average hid real dispersion at the stock level. Breadth of eight advancers against sixteen decliners and dispersion of 2.1 confirm a market where the index number undersold the damage underneath.",
+    "rates": "The curve flattened, 2s10s down 2bp to 41bp and 5s30s down 3bp to 70bp, driven entirely by the front end. Yields rose from the 2yr through the 10yr, 2yr +3bp to 4.37%, 5yr +2bp to 4.54%, 10yr +1bp to 4.78%, while the 30yr slipped -1bp to 5.24%. The 2yr, 3yr, 5yr and 7yr tenors all sit at highs for the period, and 7-10yr Treasuries (IEF) sit at lows, a split that puts the selling squarely in the belly and front end rather than at the long end.\n\nBreakevens rose across every tenor: 5yr +3bp to 2.40, 10yr +2bp to 2.37, and the 5y5y forward +1bp to 2.34. The 10yr TIPS real yield added +1bp to 2.43. Rising breakevens against a flattening nominal curve is the inflation-repricing signature, not the growth-scare one. MOVE rose +4.16% to 76.143, so rates volatility firmed alongside the yield move rather than fading it.",
+    "credit": "Credit tone was soft but not disorderly. High yield (HYG) fell -0.05%, JNK fell -0.06%, and EM sovereign debt (EMB) fell -0.12%, modest give-back rather than a spread blowout. Investment grade (LQD) was flat on the day at 0.00% but sits at a low for the period, and leveraged loans (BKLN) fell -0.05%. Long Treasuries (TLT) fell -0.01% and 7-10yr Treasuries (IEF) fell -0.10% while also printing a low, consistent with the front-end-led selloff in rates rather than a credit-specific event.",
+    "fx": "The dollar index fell -0.33% to 98.836, but the move was not uniform against G10. The euro rose +0.13%, sterling rose +0.17%, and the Australian dollar rose +0.19% to a high for the period, while the Canadian dollar strengthened -0.36% against the greenback. USD/JPY was the standout, down -1.57% to 153.745, the largest single move in the G10 bloc and the biggest drag on the day's risk barometer. In EM, the Brazilian real strengthened -0.77% against the dollar, the Mexican peso weakened +0.13% while USD/MXN still sits at a low for the period, and USD/TRY rose +0.07% to a fresh high.",
+    "commodities": "Energy and industrial metals led a broad commodity rally. WTI rose +3.02% to 94.24 and Brent rose +3.22% to 99.38, while copper rose +2.67% to 6.773, a fresh high. Gold fell -0.72% to 4398.1 even as silver rose +0.27%, an unusual split between the two precious metals. Aluminium rose +2.18% and the ags moved together, corn +4.05% and soybeans +1.78%, both at highs, alongside wheat +4.37%. Natural gas fell -2.59% and coffee fell -10.58%, the two clear outliers to the broader upside move.",
+    "volatility": "The VIX rose +2.75% to 15.72, still a low absolute level even as the term structure sent a mixed signal: VIX 9-day fell -12.11% and VIX 3-month fell -10.47%, both dropping hard against the spot VIX rise. VVIX rose +5.06% to 88.69 while SKEW fell -1.79% to 148.86, so the cost of tail protection eased even as short-dated realized-vol proxies firmed. MOVE, the rates equivalent, rose +4.16% to 76.143, and that move looks more informative than the equity vol complex given the session's real story sat in the bond market.",
+    "digital": "Digital assets traded with a muted, slightly negative beta to the day's risk tone. Bitcoin fell -0.78% to 78497.97, Ether fell -0.23%, and Solana fell -0.53%, all modest declines that tracked the broader equity weakness without amplifying it. XRP was the exception, up +1.42%, a standalone move against the rest of the complex.",
+    "international": "Asia closed split down the middle. The Nikkei rose +2.12% and the KOSPI rose +4.61%, while the CSI 300 fell -3.60% and the Hang Seng fell -0.93%, so the region handed New York no consistent read on risk appetite. Europe was calmer: the EURO STOXX 50 rose +0.17%, the CAC rose +0.33%, while the DAX slipped -0.15% and the SMI fell -0.81%. Nothing in either session explains the US afternoon's sector split, which leaves the domestic curve move as the more useful cross-check for tomorrow.",
+    "correlation": "Today's cross-asset picture was defined by a break in the usual stocks-versus-yields relationship rather than a confirmation of it. Equities fell while front-end and belly yields rose, a combination that normally shows up alongside falling risk assets and falling yields together. Instead the move looked like a commodity-and-breakeven story: oil, copper and the grain complex rallied while nominal yields at the front end rose in step with breakevens, and equities were the asset absorbing the adjustment.\n\nA continuation of that pattern, commodities up, front-end yields up, equities soft, would confirm an inflation-driven repricing and put more weight on the sectors already showing stress, health care and financials. A break in it, where the long end sells off alongside the front end or where equities stabilize despite continued commodity strength, would argue the move was a one-day positioning event rather than a regime shift. The 2s10s level at 41bp and the direction of the 30yr from here are the cleanest tells."
+  },
+  "closes": {
+    "spx": {
+      "last": 7673.52,
+      "chg": -0.584,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29507.701,
+      "chg": -0.123,
+      "stale": false
+    },
+    "rut": {
+      "last": 2960.204,
+      "chg": -0.519,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6403.99,
+      "chg": 0.173,
+      "stale": true
+    },
+    "nky": {
+      "last": 66399.844,
+      "chg": 2.121,
+      "stale": true
+    },
+    "vix": {
+      "last": 15.72,
+      "chg": 2.745,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.78,
+      "chg": 1.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.163,
+      "chg": 0.131,
+      "stale": false
+    },
+    "wti": {
+      "last": 94.24,
+      "chg": 3.017,
+      "stale": false
+    },
+    "gold": {
+      "last": 4398.1,
+      "chg": -0.716,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 34287405560,
+    "artifact_id": 10080249728,
+    "created_at": "2026-09-08T22:53:20Z"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-29",
+  "published": true,
+  "edition": "0023",
+  "figure_check": "failed",
+  "text_source": "agent",
+  "note": {
+    "headline": "Curve flattens, credit slips, and gold sells off with breadth this weak",
+    "standfirst": "The S&P held near flat while breadth broke down hard, sixteen decliners against six advancers on a session where credit and rates moved together to the downside. Positioning looks defensive under the surface even as headline index levels barely moved.",
+    "takeaways": [
+      "Breadth was the worst signal of the day, sixteen decliners to six advancers with dispersion at 1.38.",
+      "Credit sold off across the board, high yield and investment grade both at session lows alongside long Treasuries.",
+      "The curve flattened again, 2s10s down 4bp to 32bp as the front end sold off faster than the long end.",
+      "Gold fell 2.46% even as copper rose 1.41%, an unusual split for the two metals most tied to growth and haven demand."
+    ],
+    "desk_view": "This session confirms that the rally in mega-cap tech is doing the index's work while everything underneath it deteriorates. ORCL, META and AVGO led, NFLX and AMZN followed, and that was enough to keep the Nasdaq 100 positive at +0.21%. But the Russell 2000 fell 0.35%, the Dow fell 0.26%, and sixteen of the tracked names or groups closed lower against six higher. That gap between index and breadth is the story. It has been building and it has not resolved either way.\n\nThe level that decides it is 2s10s. The curve flattened another 4bp to 32bp with the 2-year yield up 11bp to 4.92% against a 7bp move in the 10-year to 5.24%. That is a front end selling off faster than the back end, a shape that argues the market is pricing less easing rather than more inflation. Watch whether that flattening continues into next week or whether the 10-year catches up. If the 2-year keeps leading the selloff while credit spreads stay soft, the read is a market repricing policy, not growth. If the long end starts moving instead, that is a different conversation entirely, one about term premium and deficit supply.",
+    "watching": [
+      "Whether HYG and JNK stabilize or extend their slide into the new session.",
+      "Whether 2s10s keeps flattening or the long end starts to reprice as well.",
+      "Dispersion inside the Russell 2000, given breadth this narrow at the index level.",
+      "Gold versus copper, whether the divergence closes or widens further."
+    ],
+    "equities": "The S&P 500 closed at 7670.84, down 0.17%, with the Nasdaq 100 the only major US index green at +0.21%. The Dow fell 0.26%, the Russell 2000 fell 0.35%, and the S&P MidCap 400 fell 0.10%. Index-level calm masks a rough session underneath: six advancers against sixteen decliners across the tracked set, with dispersion at 1.38.\n\nSector rotation went defensive with a growth kicker. Utilities led at +1.17%, industrials rose 0.21%, and communications gained 0.26%. Energy fell 0.90% alongside crude's slide, materials fell 0.75%, and financials fell 0.33%. Technology itself was flat at -0.02% despite the single-name strength in ORCL and META, meaning the gains concentrated in a handful of names rather than the sector as a whole. AAPL was the weakest single name at -2.66%, WMT fell 1.78%, and TSLA fell 1.29%.",
+    "rates": "The curve flattened again. 2s10s narrowed 4bp to 32bp and 5s30s narrowed 1bp to 50bp, while 3m10y steepened 3bp to 96bp. Yields rose across the board: the 2-year up 11bp to 4.92%, the 5-year up 8bp to 5.06%, the 10-year up 7bp to 5.24%, and the 30-year up 7bp to 5.56%. The front end led the move, consistent with a repricing of policy expectations rather than a growth or inflation scare.\n\nBreakevens ticked higher but stayed contained: the 5-year breakeven up 1bp to 2.34%, the 10-year up 1bp to 2.35%, and the 5y5y forward up 1bp to 2.36%. Real yields did the heavier lifting, with the 10-year TIPS yield up 7bp to 2.90%. That combination, nominal yields up with breakevens flat, points to real rate pressure as the driver, not inflation expectations. The MOVE index rose 4.70 points, confirming rates volatility picked up alongside the price action.",
+    "credit": "Credit sold off across every measure. US high yield (HYG) fell 0.23%, JNK fell 0.27%, investment grade (LQD) fell 0.06%, EM sovereign USD debt (EMB) fell 0.07%, and leveraged loans fell 0.05%. Long Treasuries (TLT) fell 0.50% and 7-10 year Treasuries (IEF) fell 0.09%, both landing among the session's lows alongside high yield and investment grade. The tone was uniformly weak, duration and credit risk sold off together rather than one offsetting the other.",
+    "fx": "The dollar index rose 0.19% to 101.396 and sat among the day's highs alongside USD/CAD, USD/CHF and USD/TRY. EUR/USD fell 0.29% to 1.135, a session low for the pair, while USD/CHF rose 0.42% and USD/CAD rose 0.25%. USD/JPY was the exception, down 0.12% to 157.279 even as the broader dollar gained. In EM, USD/MXN rose 1.59%, USD/BRL rose 0.30%, and USD/INR rose 0.19%, a broadly firmer dollar story against the bloc.",
+    "commodities": "Energy fell hard: WTI down 3.95% to 88.94 and Brent down 9.13% to 95.67. Gold fell 2.46% while silver rose 1.02% and copper rose 1.41%, an unusual split between the metals. Palladium rose 1.79% and platinum rose 0.25%. In ags, sugar rose 7.90%, cocoa fell 4.21%, and wheat rose 0.65%.",
+    "volatility": "The VIX fell 0.19 points to 16.04 and VIX9D fell more sharply, down 1.25 to 14.21, leaving the front of the curve in backwardation relief versus the 3-month print at 18.09, down 0.77. VVIX fell 1.44 to 89.71 and SKEW fell 1.14 to 144.58. Equity vol eased even as breadth broke down, a gap worth watching. The MOVE index told the opposite story, up 4.70 to 106.60, meaning the cost of protection in rates rose while equity protection got cheaper.",
+    "digital": "Digital assets drifted lower with limited conviction. Bitcoin fell 0.15%, Ether fell 0.41%, Solana fell 0.12%, and XRP fell 0.29%. The moves were small and directionally aligned with the softer risk tone in equities and credit, without any standout beta.",
+    "international": "European equities were mixed: the EURO STOXX 50 rose 0.30%, the DAX rose 0.10%, and the AEX rose 0.37% and sat among the session's highs, while the CAC fell 0.53% and the FTSE fell 0.45%. Asia was weaker into the handoff, led down by the KOSPI at -2.70% and the Sensex at -1.52%, though the Hang Seng rose 0.54%. The TAIEX sat among the day's highs on a longer horizon even after a 0.28% daily decline. New York inherited a mixed setup: European resilience in the core, a rough Asian session, and a dollar already bid into the open.",
+    "correlation": "The standout break today was gold and copper moving in opposite directions, gold down 2.46% and copper up 1.41%, when both are usually read as pro-cyclical or pro-safety in the same direction depending on the regime. The risk barometer detail shows gold as the single largest positive contributor to the score and copper close behind it, both pulling against a barometer that is otherwise negative across hyg, move, dxy and rut. That split argues two different stories are being priced at once, a safe-haven unwind in gold against a growth or supply signal in copper.\n\nEquities and credit stayed correlated in the usual direction, both softer, which is the more important signal for cross-asset risk. When credit and equity dispersion move together like this, with HYG and JNK at lows and breadth at 0.38, it tends to be a cleaner read than when they diverge. The level to watch for a correlation break is high yield: if HYG stabilizes while the Russell 2000 keeps falling, that would mark credit as the market not yet pricing the same downside equities are flagging."
+  },
+  "closes": {
+    "spx": {
+      "last": 7670.84,
+      "chg": -0.167,
+      "stale": false
+    },
+    "ndx": {
+      "last": 30339.332,
+      "chg": 0.206,
+      "stale": false
+    },
+    "rut": {
+      "last": 2807.922,
+      "chg": -0.354,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6320.26,
+      "chg": 0.301,
+      "stale": false
+    },
+    "nky": {
+      "last": 65877.617,
+      "chg": -0.733,
+      "stale": true
+    },
+    "vix": {
+      "last": 16.04,
+      "chg": -0.187,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.24,
+      "chg": 7.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.135,
+      "chg": -0.285,
+      "stale": false
+    },
+    "wti": {
+      "last": 88.94,
+      "chg": -3.952,
+      "stale": false
+    },
+    "gold": {
+      "last": 4215.0,
+      "chg": -2.458,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 36633541740,
+    "artifact_id": 11064086677,
+    "created_at": "2026-09-29T21:33:40Z"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-09",
+  "published": true,
+  "edition": "0005",
+  "figure_check": "passed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "Oil spike and credit weakness drag risk into defensive territory",
+    "standfirst": "Crude jumped more than 4% while equity breadth collapsed to 7 advancers against 17 decliners, and Treasury yields rose across the curve even as credit spreads widened. Higher yields, weaker credit, and a firmer commodity complex argue for keeping hedges on rather than chasing the modest headline index declines.",
+    "takeaways": [
+      "The risk barometer read -0.42, defensive, with breadth at 7 advancers against 17 decliners and dispersion at 1.82.",
+      "Treasury yields shifted up in parallel, all tenors higher by 1 to 3bp, while 2s10s held at 41bp and credit spreads widened across IG, high yield, and EM sovereign debt.",
+      "WTI rose +4.29% and Brent +4.10%, the largest cross-asset move of the session, while natural gas fell -3.81%.",
+      "The VIX rose +4.71% to 16.46 even as VIX9D and VIX3M both fell, compressing the term structure toward spot from both ends."
+    ],
+    "desk_view": "The session confirms that the defensive rotation is a small-cap and credit story first, not a mega-cap tech unwind. The Russell fell -1.32%, the worst of the major indices, and contributed the largest single drag to the risk barometer at -1.35. Credit followed: LQD, HYG, JNK, and EMB all closed lower, with US high yield and US investment grade printing session lows on the extremes list. Technology held flat at the index level, XLK +0.00%, carried by META +6.55% and AMD +3.04%, so the headline index's -0.48% understates the damage below the surface.\n\nThe level that decides whether this extends is 4.80% on the 10-year. Yields moved up in parallel, all four tenors from 2s to 30s higher by 1 to 3bp, while 2s10s held at 41bp. That is a real-rate story, not an inflation scare: the 10-year breakeven was flat at 2.37 and the 5y5y forward fell -1bp to 2.33. If oil's move proves durable and drags breakevens higher from here, the curve narrative shifts from real yields to inflation compensation, and that would be the first sign the equity selloff has further to run.",
+    "watching": [
+      "Whether WTI holds its gain after the +4.29% session or fades back toward the prior range.",
+      "Credit spreads: does IG and HY keep pricing at session lows or stabilize.",
+      "The VIX term structure: does VIX9D catch back up to spot VIX or does spot fade to meet it.",
+      "Follow-through in the Russell after the -1.32% session, the single largest drag on the risk barometer."
+    ],
+    "equities": "Breadth was the story, not the index moves. The SPX fell -0.48%, the mildest damage among the majors: the Russell fell -1.32%, the MidCap 400 fell -1.08%, and the Dow fell -0.77%. The Nasdaq 100's -0.29% was the smallest decline of the six major benchmarks. Decliners outnumbered advancers 17 to 7, and dispersion across the session read 1.82, wide.\n\nEnergy was the only sector to close higher, XLE +0.83%, tracking the jump in crude. Technology held flat at the index level, XLK +0.00%, masking a wide gap between leaders and laggards inside the sector: META +6.55% and AMD +3.04% against GOOGL -2.28% and AVGO -1.13%. Industrials led the decline, XLI -1.51%, followed by consumer discretionary at -1.34% and utilities at -1.17%. UNH -1.94% and CRM -1.99% extended weakness outside tech.",
+    "rates": "The curve shifted up in parallel. Two-year yields rose to 4.39%, five-year to 4.57%, ten-year to 4.80%, and thirty-year to 5.25%, moves of +2bp, +3bp, +2bp, and +1bp respectively. 2s10s held at 41bp, unchanged on the session. 5s30s compressed 2bp to 68bp and 3m10y narrowed 1bp to 86bp. The two-year printed a session high on the extremes list, while long Treasuries and the 7-10 year sector printed lows.\n\nBreakevens stayed contained. The 5-year breakeven rose 1bp to 2.41, the 10-year held flat at 2.37, and the 5y5y forward slipped 1bp to 2.33. Real 10-year yields were unchanged at 2.43. That combination, nominal yields up and breakevens flat, points to the move being a real-rate adjustment rather than an inflation repricing, at least for one session.",
+    "credit": "Credit sold across the board. LQD fell -0.16%, HYG fell -0.18%, JNK fell -0.18%, and EMB fell -0.20%, with leveraged loans off -0.05%. US high yield and US investment grade both printed session lows on the extremes list, alongside the 7-10 year Treasury sector and long Treasuries. The tone was uniformly weak, with no segment of the credit complex bucking the move.",
+    "fx": "The dollar index slipped -0.06% to 98.783, but the moves inside G10 were mixed rather than directional. The euro rose +0.11%, sterling +0.03%, and the Swiss franc weakened against the dollar by +0.08%. USD/JPY fell -0.31% even as the yen contributed a negative reading to the risk barometer. In EM, the peso strengthened, USD/MXN down -0.34% and printing a session low, while the lira weakened, USD/TRY up +0.08% and printing a session high, and the Brazilian real gave back ground, USD/BRL up +0.40%.",
+    "commodities": "Energy led every complex. WTI rose +4.29% to 97.02 and Brent +4.10% to 101.93, both printing session highs, while natural gas fell -3.81%. Precious metals firmed alongside the risk-off tone: gold +1.16%, silver +2.44%, and platinum +2.99%. Copper rose +1.77% and printed a session high, the only positive contributor to the risk barometer outside the dollar. Agricultural markets were split, corn +3.38% and sugar +6.91% higher, coffee down -8.57%.",
+    "volatility": "The VIX rose +4.71% to 16.46, but the front and back of the curve moved the other way: VIX9D fell -7.48% to 15.59 and VIX3M fell -8.13% to 18.87. That compresses the term structure toward spot from both ends, an unusual cross-current worth flagging rather than explaining. VVIX rose +6.55% to 94.5, and SKEW edged up +0.26% to 149.25. MOVE, the rates equivalent, rose +0.79% to 76.74, a smaller move than the equity vol complex.",
+    "digital": "Digital assets sold alongside risk but by more. Bitcoin fell -0.57%, Ether fell -1.23%, Solana fell -1.96%, and XRP fell -1.74%. Bitcoin's contribution to the risk barometer was -0.23, smaller than equities or credit, suggesting the asset class traded its own dynamics on top of the broader defensive tone rather than purely amplifying it.",
+    "international": "Europe closed mixed ahead of the US session: EURO STOXX 50 +0.14%, DAX flat at +0.00%, and CAC +0.14%, while FTSE 100 fell -1.31% and SMI fell -1.55%. Asia was uniformly weaker, led by China's CSI benchmark, off -3.60%, and the Nikkei's -1.70%, with the Hang Seng off -0.38% and the ASX down -1.00%. The handoff to New York was a soft one: Asia sold first, Europe held better in the core markets, and the US opened into an already-defensive tape.",
+    "correlation": "The standard risk-off playbook broke down this session. Equities fell, credit fell, and Treasuries fell too, TLT down -0.57% and IEF down -0.29%, so bonds offered no offset to the equity and credit weakness. At the same time gold rose +1.16% and copper rose +1.77%, both printing session highs. That is four asset classes moving against the simple flight-to-quality script at once: stocks down, credit down, bonds down, and hard assets up.\n\nA break in this pattern would look like Treasuries catching a bid while equities stay weak, the classic negative correlation resuming. Watch the 10-year: if yields fall back through 4.80% on a fresh equity leg lower, that is the market reverting to the standard stock-bond relationship. If yields keep rising into further equity weakness, the read stays what it was Tuesday, a real-rate and commodity story sitting on top of a credit and small-cap unwind."
+  },
+  "closes": {
+    "spx": {
+      "last": 7636.36,
+      "chg": -0.484,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29421.553,
+      "chg": -0.292,
+      "stale": false
+    },
+    "rut": {
+      "last": 2921.234,
+      "chg": -1.316,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6413.17,
+      "chg": 0.143,
+      "stale": true
+    },
+    "nky": {
+      "last": 65269.328,
+      "chg": -1.703,
+      "stale": true
+    },
+    "vix": {
+      "last": 16.46,
+      "chg": 4.707,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.8,
+      "chg": 2.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.164,
+      "chg": 0.107,
+      "stale": false
+    },
+    "wti": {
+      "last": 97.02,
+      "chg": 4.289,
+      "stale": false
+    },
+    "gold": {
+      "last": 4444.8,
+      "chg": 1.158,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 34413095043,
+    "artifact_id": 10128186306,
+    "created_at": "2026-09-09T22:43:39Z"
+  }
+}

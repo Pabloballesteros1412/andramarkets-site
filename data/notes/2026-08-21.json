@@ -1,0 +1,91 @@
+{
+  "date": "2026-08-21",
+  "published": true,
+  "edition": "0001",
+  "figure_check": "failed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "Equities broaden and volatility eases while gold prints a record high",
+    "standfirst": "The S&P 500 rose +0.44% to 7674.37 with financials and materials leading, and the VIX fell to 15.13 as breadth turned decisively positive. Gold's +3.22% rally to a record close alongside a crypto surge complicates a purely constructive read on the session's risk appetite.",
+    "takeaways": [
+      "Breadth was strong, 16 advancers to 9 decliners, and the VIX fell -5.50% to 15.13, the surface reading of the tape.",
+      "Rotation favored cyclicals: financials and materials led while utilities fell -2.29% and megacap tech was mixed to soft.",
+      "Rates held completely still, with the curve and breakevens unchanged across every tenor.",
+      "Gold's +3.22% run to a record and bitcoin's +7.29% jump moved together, an unusual pairing that muddies the risk read."
+    ],
+    "desk_view": "The session confirms broad, cyclical participation: advancers beat decliners nearly 2 to 1, small caps outpaced megacap tech, and financials led on names like Goldman Sachs and Morgan Stanley. It also confirms a rates market in a holding pattern, with every tenor on the curve, and every point on the breakeven curve, printing unchanged.\n\nWhat it does not confirm is a single, coherent story for gold. A +3.22% move to a record close, alongside a VIX at 15.13 and an equity tape up across the board, does not fit the metal's usual role as a fear hedge. The level that decides it: if gold keeps climbing while the 10-year holds 4.69% and TIPS breakevens stay pinned at 2.34%, the metals bid looks idiosyncratic and separate from the equity story. If gold instead starts trading opposite the S&P 500 again, that is the more familiar relationship reasserting itself, and it would argue for less conviction behind today's advance than the headline index level of 7674.37 suggests.",
+    "watching": [
+      "Whether gold's advance past 4661.60 extends into a second session or fades back.",
+      "Whether the flat Treasury curve, 2s10s at 50bp, finally breaks in either direction.",
+      "Whether investment grade credit confirms fresh lows or the LQD move reverses.",
+      "Whether bitcoin holds today's close near 78355.71 or gives back the +7.29% gain."
+    ],
+    "equities": "The S&P 500 added +0.44% to close at 7674.37, with the Dow the best large-cap index at +0.98% to 53277.01. The Russell 2000 outpaced the Nasdaq 100, +0.85% against +0.33%, and mid-caps rose +0.51%. Breadth backed the tape: 16 advancers against 9 decliners, a 1.78 ratio, with dispersion at 1.51, moderate rather than extreme.\n\nMaterials led sectors at +2.14%, followed by health care +1.29% and consumer discretionary +1.15%. Financials rose +0.93%, with Goldman Sachs +3.73% and Morgan Stanley +3.25% pacing single names. Utilities was the session's clear loser at -2.29%, and energy slipped -0.17% as WTI fell -1.36%. Technology barely moved, +0.12%, weighed by Nvidia -0.98%, Apple -0.63% and Amazon -0.57%. Tesla was the top single mover at +5.14%, and Walmart printed among the session's lows.",
+    "rates": "The curve did not move. 2s10s held at 50bp, 5s30s at 84bp, 3m10y at 82bp, all unchanged on the session. Yield levels sat where they started: 2-year 4.19%, 5-year 4.39%, 10-year 4.69%, 30-year 5.23%.\n\nBreakevens were equally still: 5-year and 10-year both at 2.34%, the 5y5y forward at 2.34%, and the 10-year TIPS real yield at 2.35%, none changed on the day. The MOVE index ticked up +0.30% to 73.40, a small divergence from the collapse in equity vol. Long Treasuries fell -0.35% and 7-10 year paper fell -0.19% to a session low, duration underperforming a flat yield tape.",
+    "credit": "Investment grade lagged. LQD fell -0.13% and printed among the session's lows, while high yield firmed: HYG +0.06%, JNK +0.10%. Leveraged loans added +0.05% and EM sovereign debt rose +0.05%. The split, softer IG against a steady-to-firm HY and loan tape, reads as a duration story more than a credit-quality one.",
+    "fx": "The dollar index slipped -0.06% to 98.839, a quiet session against a busier cross-rate board. The euro added +0.04%, sterling +0.35%, and the Swiss franc weakened +0.39% on a USD/CHF basis; the yen also gave ground, USD/JPY +0.37%. In EM, the peso and real firmed, USD/MXN -0.24% to a session low and USD/BRL -0.75%, while the lira weakened further, USD/TRY +0.19% to a fresh high, and the rupee eased, USD/INR +0.20%.",
+    "commodities": "Crude diverged: WTI fell -1.36% to 86.64 while Brent held with a small +0.10% gain to 93.87, and natural gas rose +2.38%. Precious metals were the story of the day, gold +3.22% to 4661.60, a record close, with silver +1.45% and platinum +3.30%. Copper added +1.86% and aluminium +2.67% on the industrial side. Grains were firm, corn +6.16% to a fresh high and wheat +2.53%, but coffee fell -10.64%, the sharpest single move across the commodity complex.",
+    "volatility": "The VIX fell -5.50% to 15.13 and VVIX dropped -4.00% to 86.27, a straightforward cheapening of equity protection. SKEW ticked up +0.47% to 143.90, tail cover holding a slight premium even as the front of the curve eased. The MOVE index rose +0.30% to 73.40, rates vol drifting the opposite direction from equity vol on the same session.",
+    "digital": "Digital assets ran well ahead of every other risk asset. Bitcoin rose +7.29% to 78355.71, still down -11.69% on the year, and ether added +6.85%. Solana gained +6.74% and XRP led the majors at +10.83%. The move came against a dollar index that barely moved, -0.06%, a beta to risk well above anything else in the fact set.",
+    "international": "Europe closed higher across the board: the EURO STOXX 50 added +0.63%, the DAX +0.59%, the FTSE 100 +0.64%, and the IBEX +0.76%, with the FTSE MIB essentially flat at +0.00%. Asian",
+    "correlation": "The desk's risk barometer read 0.47, Constructive, but the internals pulled in opposite directions. Bitcoin was the largest single contributor to the score at +3.0, followed by copper at +1.22 and USD/JPY at +0.91. Gold was the largest"
+  },
+  "closes": {
+    "spx": {
+      "last": 7674.37,
+      "chg": 0.435,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29308.859,
+      "chg": 0.328,
+      "stale": false
+    },
+    "rut": {
+      "last": 3017.871,
+      "chg": 0.85,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6462.22,
+      "chg": 0.625,
+      "stale": false
+    },
+    "nky": {
+      "last": 66216.789,
+      "chg": 0.0,
+      "stale": false
+    },
+    "vix": {
+      "last": 15.13,
+      "chg": -5.497,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.69,
+      "chg": 0.0,
+      "stale": false
+    },
+    "eurusd": {
+      "last": 1.168,
+      "chg": 0.037,
+      "stale": false
+    },
+    "wti": {
+      "last": 86.64,
+      "chg": -1.355,
+      "stale": false
+    },
+    "gold": {
+      "last": 4661.6,
+      "chg": 3.217,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 32530195378,
+    "artifact_id": 9463811352,
+    "created_at": "2026-08-21T21:58:08Z"
+  }
+}

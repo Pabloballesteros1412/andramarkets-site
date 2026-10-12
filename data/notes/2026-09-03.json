@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-03",
+  "published": true,
+  "edition": "0001",
+  "figure_check": "failed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "S&P gains 1.06% on broad breadth while gold and yen also rally",
+    "standfirst": "Every major US index closed higher, breadth ran 18 advancers to 7 decliners, and the VIX fell 5.79% to 14.32. Underneath that clean tape, gold rose 3.55% and the yen strengthened 2.67% against the dollar, a pairing that does not fit a standard risk-on session and is worth watching into tomorrow.",
+    "takeaways": [
+      "Equities rallied broadly with strong breadth: SPX +1.06%, NDX +1.16%, DJI +1.18%, advancers beat decliners 18 to 7.",
+      "Volatility collapsed across tenors: VIX -5.79% to 14.32, VIX3M fell to a fresh low of 17.42.",
+      "The dollar weakened against every G10 currency while gold, silver and copper all gained, a combination that splits from the usual risk-on template.",
+      "The Treasury curve barely moved: 10-year held 4.79%, 2s10s unchanged at 40bp, even as short-dated yields sit at multi-year highs."
+    ],
+    "desk_view": "Taken at face value, this was a clean risk-on session. Breadth ran 2.57 advancers to decliners, six of eleven sectors gained more than 1%, and single names did the heavy lifting: ORCL +5.69%, TSLA +5.42%, GS +3.34%, META +3.01%, CRM +2.92%. Volatility was crushed across the surface, VIX9D fell 30.68% and MOVE fell 6.31%. On the numbers alone, this reads as conviction buying of risk.\n\nThe cross-asset mix says otherwise. Gold rose 3.55%, silver 4.38%, platinum 4.01%, and the yen was the strongest G10 currency against the dollar at -2.67% on USD/JPY, all on a day the dollar index fell 0.56%. Havens and risk assets do not typically move together, and a weaker dollar can lift equities, metals and copper all at once without any of it being a genuine appetite for risk. The level that decides the read: does gold hold today's gain alongside equities tomorrow, or does it fade while stocks keep the bid. If gold gives it back and equities hold, this reverts to plain risk-on. If both keep climbing together, the dollar is the story, not risk appetite.",
+    "watching": [
+      "USD/JPY follow-through after today's 2.67% move, does the yen bid extend or fade",
+      "Whether gold's 3.55% gain holds or reverses as the dollar index stabilizes",
+      "VIX3M behavior off its fresh low of 17.42, any re-widening in term vol",
+      "Follow-through in today's single-name leaders (ORCL, TSLA, GS, META, CRM) after outsized one-day gains"
+    ],
+    "equities": "All six major US benchmarks closed higher. The Dow led at +1.18% to 53686.11, followed by Nasdaq 100 +1.16%, S&P 500 +1.06% to 7747.71, NYSE Composite +0.92% (a fresh high), MidCap 400 +0.89%, and Russell 2000 lagging at +0.51%. Breadth was firm: 18 advancers against 7 decliners, a ratio of 2.57, with dispersion at 1.92.\n\nRotation favored financials and growth cyclicals over defensives and commodities. Financials led at +1.56%, consumer discretionary +1.39%, technology +1.29%, real estate +1.19%. Energy fell 0.74%, materials fell 0.62%, staples fell 0.32%. Single-name dispersion was wide: ORCL +5.69%, TSLA +5.42%, GS +3.34%, META +3.01% and CRM +2.92% on the top side against AVGO -2.74%, XOM -1.18% and PFE -0.72% on the bottom.",
+    "rates": "The curve barely moved. 2s10s held at 40bp and 3m10y held at 87bp, both unchanged on the day. 5s30s steepened 1bp to 73bp. Yield levels: 2-year 4.39%, 5-year 4.54% (down 1bp), 10-year 4.79% flat, 30-year 5.27% flat. Despite the \"parallel shift\" tag, the 5-year did nearly all the day's work.\n\nBreakevens edged higher: 5-year +2bp to 2.37%, 10-year +1bp to 2.35%, 5y5y forward flat at 2.33%. The 10-year real yield rose 1bp to 2.45%. Short-dated yields from 1-year through 5-year sit at multi-year highs per today's extremes list even though daily changes were flat to marginal, suggesting the move higher happened earlier and today was a pause. No auction detail in today's pack.",
+    "credit": "Spreads stayed firm across the credit complex. LQD gained 0.14%, HYG 0.13%, JNK 0.10%, EMB 0.32%, BKLN 0.15%, with long Treasuries (TLT) up 0.15% and 7- 10 year Treasuries (IEF) up 0.11%. US investment grade and the 7-10 year Treasury bucket both register at fresh lows in price terms even after today's gain, consistent with the recent backup in intermediate yields rather than anything in today's session specifically. Tone was unremarkable, no stress in the moves.",
+    "fx": "The dollar weakened against every G10 currency tracked. DXY fell 0.56% to 99.003. EUR/USD rose 0.29% to 1.163, GBP/USD +0.07% to 1.352, AUD/USD +0.78% to 0.72. USD/JPY fell 2.67% to 155.924, the largest G10 move of the day. USD/CHF fell 0.50%, USD/CAD fell 0.74%. In EM, USD/MXN fell 0.45% to a fresh low of 16.914, USD/BRL fell 1.02%, USD/INR fell 0.51%, while USD/TRY rose 0.29% to a fresh high of 48.423.",
+    "commodities": "Precious metals led the complex. Gold rose 3.55% to 4521.20, silver 4.38%, platinum 4.01%, palladium 6.71%. Copper gained 2.64% to 6.673 and aluminium rose 2.03%. Energy was soft: WTI +0.84% to 91.77, Brent +0.19%, natural gas fell 1.12%. Ags were mixed: corn rose 3.95% to a fresh high, soybeans rose 0.98% also to a fresh high, wheat fell 0.33%, while coffee fell 10.20%, sugar fell 3.80% and cocoa fell 1.82%.",
+    "volatility": "Protection got cheap fast. VIX fell 5.79% to 14.32, VIX9D fell 30.68% to 11.68, and VIX3M fell 15.19% to a fresh low of 17.42. VVIX eased 2.84% to 83.8. SKEW rose 4.52% to 150.63, tail hedging demand ticking up even as at-the-money vol collapsed. Rates volatility eased too, MOVE fell 6.31% to 74.681.",
+    "digital": "Digital assets moved with risk. Bitcoin rose 4.89% to 81081.99, ether gained 4.25%, solana 3.60%, and XRP led at 7.36%. The move tracks the day's equity gains and dollar weakness rather than breaking from either.",
+    "international": "Asia closed well before New York opened and closed lower across the board: Nikkei fell 2.85%, KOSPI fell 4.00%, CSI 300 fell 3.60%, TAIEX fell 1.67%, ASX fell 0.97%, Hang Seng fell 0.07%, Sensex fell 0.49%. Europe was mixed and mostly softer: EURO STOXX 50 fell 0.11%, DAX fell 0.50%, CAC fell 0.26%, IBEX fell 0.23%, FTSE MIB fell 0.24%, while FTSE 100 rose 0.70% and SMI rose 0.20%. New York's rally arrived on a weak handoff, today's buying was domestic.",
+    "correlation": "Today's cross-asset correlation broke from the standard risk-on template. Equities, gold, copper and bitcoin all rose together while the dollar and volatility fell, a combination that normally splits into either a pure risk rally, where stocks rise and gold and vol fall, or a defensive rotation, where gold and the yen rise while stocks fall. Today produced both legs at once.\n\nThe risk barometer still reads Constructive at 0.57, but its own component breakdown shows the tension: usdjpy and gold are the two largest drags on the score at -3.0 and -2.15, even as spx, copper, dxy and btc pull the score higher at +1.52, +1.72, +1.97 and +2.01. A session where gold and the yen fade while equities and copper keep gaining would confirm a standard risk-on continuation. A session where gold and the yen keep rising alongside equities would say the buying has more to do with the dollar than with risk appetite."
+  },
+  "closes": {
+    "spx": {
+      "last": 7747.71,
+      "chg": 1.058,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29482.32,
+      "chg": 1.163,
+      "stale": false
+    },
+    "rut": {
+      "last": 2968.271,
+      "chg": 0.511,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6362.15,
+      "chg": -0.107,
+      "stale": true
+    },
+    "nky": {
+      "last": 64325.641,
+      "chg": -2.854,
+      "stale": true
+    },
+    "vix": {
+      "last": 14.32,
+      "chg": -5.789,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.79,
+      "chg": 0.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.163,
+      "chg": 0.291,
+      "stale": false
+    },
+    "wti": {
+      "last": 91.77,
+      "chg": 0.835,
+      "stale": false
+    },
+    "gold": {
+      "last": 4521.2,
+      "chg": 3.548,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 33814031226,
+    "artifact_id": 9916091482,
+    "created_at": "2026-09-03T22:47:54Z"
+  }
+}

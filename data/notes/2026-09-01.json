@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-01",
+  "published": true,
+  "edition": "0001",
+  "figure_check": "passed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "Oil jumps, curve steepens, but gold and credit sell off with equities",
+    "standfirst": "Every major risk asset finished lower Tuesday except energy and the classic defensives, while gold, long Treasuries, and high yield sold off alongside stocks instead of catching a bid. That combination points to an inflation repricing rather than a growth scare, and it changes what the next leg looks like.",
+    "takeaways": [
+      "Havens did not work today: gold fell -1.22% and long Treasuries fell -0.79% at the same time as equities and credit sold off.",
+      "WTI jumped +5.87% and pulled breakevens and real yields higher together, and the curve bear steepened with 2s10s widening to +41bp.",
+      "Breadth was poor, with decliners outnumbering advancers 16 to 10 and a dispersion reading of 1.79.",
+      "Digital assets traded as high-beta risk, with bitcoin down -1.67% and the rest of the majors down more."
+    ],
+    "desk_view": "The session confirms a shift in what kind of risk-off this is. A VIX spike of +9.52% alongside HYG, LQD, and EMB all selling off usually pulls money into gold and duration. It didn't happen. Gold fell -1.22%, TLT fell -0.79%, IEF fell -0.69%, and both moved in the same direction as equities and credit. High yield, investment grade, and 7-10 year Treasuries all printed session lows. At the same time WTI jumped +5.87%, the 5-year breakeven rose +6bp, the 10-year breakeven rose +4bp, and the 10-year TIPS real yield rose +2bp. Nominal and real yields rose together while the curve bear steepened, 2s10s to +41bp and 5s30s to +76bp. That is an inflation story, not a growth scare, and it explains why energy (+1.27%) and defensives (staples +0.32%, utilities +0.78%, health care +0.66%) held up while tech (-1.53%) and discretionary (-1.72%) did not.\n\nThe level that decides whether this extends is the 10-year at 4.75%, up +2bp today, and WTI holding above 90.79. If crude gives back today's move and breakevens fade, the inflation trade loses its grip and equities can stabilize even with credit still soft. If the long end keeps climbing and oil holds its gain, expect the bear steepener to keep pressuring duration-sensitive sectors while energy and staples keep outperforming. Watch whether gold and Treasuries resume their usual inverse relationship with equities. If they do, this reverts to a standard growth scare. If they keep selling with risk assets, the inflation repricing is the dominant force.",
+    "watching": [
+      "Whether WTI holds above 90.79 or fades today's +5.87% jump.",
+      "The 10-year yield reaction at 4.75% and whether the bear steepener extends toward 5s30s.",
+      "Credit spreads in HYG, LQD, and EMB after all three printed session lows.",
+      "Spillover from mainland China's -3.60% close into the US open."
+    ],
+    "equities": "The decline was broad. SPX fell -0.71%, Nasdaq 100 fell -1.29%, Dow fell -0.79%, RUT fell -1.23%, S&P MidCap 400 fell -1.05%, and NYSE Composite fell -0.46%. Decliners beat advancers 16 to 10, the ratio held at 0.62, and dispersion read 1.79, wide enough to say this was not a uniform tape.\n\nThe sector split was defensive versus cyclical. Staples rose +0.32%, utilities rose +0.78%, and health care rose +0.66%. Energy led at +1.27% on the oil move. Technology fell -1.53%, consumer discretionary fell -1.72%, industrials fell -1.37%, materials fell -1.18%, financials fell -0.88%, and communications fell -0.52%. Among single names, AAPL rose +2.61%, CVX rose +2.38%, XOM rose +2.24%, UNH rose +1.77%, and META rose +1.08%. On the other side, ORCL fell -5.23%, TSLA fell -3.22%, AMD fell -2.36% despite a YTD gain of +105.67%, GS fell -2.28%, and AMZN fell -1.87%.",
+    "rates": "The curve bear steepened. 2s10s widened to +41bp (+2bp), 5s30s to +76bp (+2bp), and 3m10y to +84bp (+1bp). The 2-year held at 4.34%, the 5-year rose to 4.49% (+1bp), the 10-year rose to 4.75% (+2bp), and the 30-year rose to 5.25% (+3bp). The long end underperformed the front end across the session.\n\nBreakevens moved with nominal yields rather than against them. The 5-year breakeven rose to 2.37% (+6bp), the 10-year breakeven rose to 2.35% (+4bp), and the 5y5y forward rose to 2.33% (+2bp). The 10-year TIPS real yield rose to 2.44% (+2bp). Real and nominal yields rising together points to an inflation-driven sell-off in duration, not a demand shock.",
+    "credit": "Credit was weak across the stack. LQD fell -0.93%, HYG fell -0.89%, JNK fell -0.89%, EMB fell -0.72%, and BKLN fell -0.10%. High yield, investment grade, and 7-10 year Treasuries all printed session lows. Primary markets were not flagged in the tape today, but the tone across cash bond proxies was one-directional and offered no place to hide.",
+    "fx": "The dollar index rose +0.23% even as EUR/USD rose +0.25%, a split that says the DXY move came from elsewhere in the basket. USD/JPY fell -0.23% and USD/CHF fell -0.08%, both consistent with a firmer yen and franc. USD/CAD fell -0.35% and USD/MXN fell -0.19%, moves that line up with the oil rally more than with the broader risk-off tone. USD/TRY printed a fresh high at +0.04% on the day. USD/BRL fell -0.18% and USD/INR fell -0.28%.",
+    "commodities": "Energy was the story. WTI rose +5.87% and Brent rose +5.26%, both closing at new highs on the session, with natural gas up +0.68%. Precious metals sold off with the rest of risk: gold fell -1.22%, silver fell -2.25%, platinum fell -2.20%, and palladium fell -3.26%. Copper fell -0.83% while aluminium rose +1.47%. Grains moved higher across the board, with corn up +5.92%, soybeans up +3.39%, and wheat up +3.24%, all printing highs, while coffee fell -10.34% and cocoa fell -2.12%.",
+    "volatility": "Spot VIX rose +9.52% to 16.34 while the shorter end of the curve moved the other way, VIX9D fell -14.96% and VIX3M fell -10.76%. VVIX rose +5.75% and SKEW fell -0.83%. In rates, MOVE rose +3.39% to 77.875, consistent with the yield move across the curve. The mismatch between spot VIX and the front of its own term structure is worth tracking into tomorrow's open.",
+    "digital": "Crypto traded as high-beta risk. Bitcoin fell -1.67%, ether fell -2.21%, solana fell -3.17%, and XRP fell -2.43%, all underperforming the equity indices on a percentage basis.",
+    "international": "Europe closed mostly lower ahead of the US session: EURO STOXX 50 fell -1.01%, DAX fell -1.17%, CAC fell -0.79%, SMI fell -0.79%, and AEX fell -0.59%, while FTSE rose +0.30% and MIB was flat at -0.01%. Asia was mixed but the standout was mainland China's benchmark, down -3.60%, against a KOSPI gain of +0.46%, a Nikkei loss of -0.14%, and small moves in Hang Seng, Sensex, ASX, and TAIEX. The handoff to New York was soft outside of the UK and Korea.",
+    "correlation": "The break worth flagging is the one between equities and traditional havens. Gold, long Treasuries, and 7-10 year Treasuries all sold off with equities and credit rather than against them. That is not the standard risk-off pattern, where duration and gold absorb flows out of stocks. It lines up instead with the oil move and the rise in breakevens, which points to an inflation-driven repricing rather than a growth-driven one.\n\nIf that correlation breaks back to normal, meaning gold and Treasuries start rallying on further equity weakness, the market is telling you growth fear has taken over from inflation fear. If gold and duration keep selling with risk assets, the inflation repricing is still setting the tone and duration-sensitive equity sectors stay under pressure regardless of what the headline index does."
+  },
+  "closes": {
+    "spx": {
+      "last": 7631.47,
+      "chg": -0.711,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29077.221,
+      "chg": -1.289,
+      "stale": false
+    },
+    "rut": {
+      "last": 2920.132,
+      "chg": -1.228,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6420.16,
+      "chg": -1.01,
+      "stale": true
+    },
+    "nky": {
+      "last": 66311.93,
+      "chg": -0.141,
+      "stale": true
+    },
+    "vix": {
+      "last": 16.34,
+      "chg": 9.517,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.75,
+      "chg": 2.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.162,
+      "chg": 0.247,
+      "stale": false
+    },
+    "wti": {
+      "last": 90.79,
+      "chg": 5.865,
+      "stale": false
+    },
+    "gold": {
+      "last": 4377.2,
+      "chg": -1.216,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 33570707133,
+    "artifact_id": 9824973311,
+    "created_at": "2026-09-01T23:28:42Z"
+  }
+}

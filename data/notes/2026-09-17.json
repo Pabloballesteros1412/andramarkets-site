@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-17",
+  "published": true,
+  "edition": "0012",
+  "figure_check": "failed",
+  "text_source": "agent",
+  "note": {
+    "headline": "Stocks Rally Broadly While Front-End Yields Push to Fresh Highs",
+    "standfirst": "The S&P 500 rose 1.14% and the Nasdaq 100 gained 1.73% on breadth of 17 advancers to 5 decliners, while volatility collapsed and credit rallied alongside it. Short Treasury yields kept climbing into the rally, a split that puts the front end of the curve in charge of whether this holds.",
+    "takeaways": [
+      "Equities rallied broadly, breadth 17 advancers to 5 decliners (ratio 3.4), led by mega-cap tech: AMD +6.36%, ORCL +5.19%, NVDA +2.54%.",
+      "The curve flattened as front-end yields hit fresh highs: the 2-year yield rose 7bp to 4.74%, while 2s10s narrowed 6bp to 27bp.",
+      "Volatility compressed sharply across asset classes: VIX fell 12.82% to 15.44 and MOVE fell 5.59% to 76.22.",
+      "Digital assets showed low beta to the risk move: Bitcoin rose just 0.22% against a 1.14% gain in the S&P."
+    ],
+    "desk_view": "The tape confirms a clean risk-on session. The risk barometer read 1.22, labeled risk-on, sitting at 70.3 on its scale. Breadth backed it: 17 advancers against 5 decliners, a 3.4 ratio, with dispersion at 1.96. Technology led, XLK up 2.25%, AMD rose 6.36% and Oracle rose 5.19%. Credit bought the same story: LQD rose 0.68%, HYG rose 0.38%, EMB rose 0.65%. Volatility fell across the board, VIX down 12.82% to 15.44 and MOVE down 5.59% to 76.22. Protection got cheap while stocks and credit both bid.\n\nThe one piece that does not fit is the front end of the Treasury curve. The 2-year yield rose 7bp to 4.74%, and every tenor from 3-month through 7-year printed at a high for the period. The 10-year rose only 1bp to 5.01% and the 30-year fell 1bp to 5.35%, so the curve flattened 6bp on 2s10s to 27bp. That is short-end pressure, not long-end relief. If the 2-year keeps climbing without denting equities or credit, the market is pricing a carry cost, not disinflation. The level that decides it is 4.74% on the 2-year. A break higher paired with equities holding this bid is the signal that the front end is not being priced the same way as the rest of the tape.",
+    "watching": [
+      "Whether the 2-year yield holds above 4.74% or reverses lower.",
+      "Follow-through in mega-cap tech after AMD and Oracle led the session.",
+      "Whether VIX stays under 16 or the compression fades.",
+      "HYG and JNK, both sitting at period lows in price despite today's gain."
+    ],
+    "equities": "All six major US benchmarks closed higher. The S&P 500 gained 1.14% to 7637.76, the Nasdaq 100 gained 1.73% to 29446.98, and the Dow added 0.61% to 51778.04. The Russell 2000 rose 0.55%, the S&P MidCap 400 rose 0.58%, and the NYSE Composite rose 0.65%. Breadth ran 17 advancers to 5 decliners, a 3.4 ratio, with dispersion at 1.96, wide enough that single-name leadership mattered more than the index print.\n\nTechnology carried the tape, XLK up 2.25%, with AMD up 6.36% to 545.09, Oracle up 5.19% to 150.59, Nvidia up 2.54% and Broadcom up 2.29%. Tesla added 2.27%. On the other side, Salesforce fell 3.07%, Berkshire fell 2.04%, and Netflix fell 1.44%. Financials (XLF -0.09%) and Communications (XLC -0.58%) were the only sectors in the red, a narrow miss against an otherwise broad advance.",
+    "rates": "The curve flattened. 2s10s narrowed 6bp to 27bp, 5s30s narrowed 4bp to 49bp, and 3m10y narrowed 2bp to 87bp. The move came from the front end: the 2-year rose 7bp to 4.74%, the 5-year rose 3bp to 4.86%, and the 10-year rose just 1bp to 5.01%. The 30-year fell 1bp to 5.35%. Every tenor from 3-month to 7-year printed at a high for the period.\n\nBreakevens told a mixed story. The 5-year breakeven fell 3bp to 2.32%, the 10-year held flat at 2.33%, and the 5y5y forward rose 3bp to 2.34%. The 10-year TIPS yield rose 6bp to 2.68%, the larger move sitting in the real rate. No auction results printed in this session's data.",
+    "credit": "Credit rallied with equities. LQD rose 0.68%, HYG rose 0.38%, JNK rose 0.37%, and EMB rose 0.65%. Leveraged loans (BKLN) added 0.24%. TLT rose 1.11% and IEF rose 0.57% as duration caught a bid at the long end. Still, both high yield ETFs, HYG and JNK, sit at lows for the period in price terms even after today's gain, a reminder that the rally is off a depressed base, not a fresh high.",
+    "fx": "The dollar index slipped 0.09% to 100.223, but the move was not uniform across G10. The euro fell 0.49% to 1.148 and sterling fell 0.86% to 1.336, while the Swiss franc weakened 0.67% against the dollar, with USD/CHF at a high for the period, and the Canadian dollar weakened 0.48%. USD/JPY rose 0.46% to 155.973. In EM, the Turkish lira weakened 0.16% to a fresh high in USD/TRY, while the Brazilian real firmed 0.36% and the Mexican peso was little changed.",
+    "commodities": "Energy gave back ground: WTI fell 1.31% to 101.09 and Brent fell 1.64% to 104.09. Gold slipped 0.16% to 4380.60 while silver rose 2.22% and copper rose 2.84%, the largest move in the metals complex. Platinum fell 0.44% and palladium fell 0.82%. In ags, wheat fell 0.68%, corn fell 0.61%, and soybeans fell 0.08% even as the soybean price sits at a high for the period. Coffee fell 6.46% and cocoa fell 6.00%, the two largest moves on the board, while sugar rose 1.95%.",
+    "volatility": "Protection got cheap across the board. VIX fell 12.82% to 15.44 and VVIX fell 8.06% to 87.72, both moving lower with equities higher. SKEW held near flat, down 0.17% to 145.7, so tail pricing did not follow the vol crush lower. MOVE, the rates equivalent, fell 5.59% to 76.22, a large drop given that front-end yields rose on the same day.",
+    "digital": "Bitcoin rose 0.22% to 76314.64, a fraction of the equity move. Ether added 1.19%, Solana added 2.35%, and XRP fell 0.82%. Crypto did not carry beta to the risk-on tape today, it sat this one out.",
+    "international": "Europe closed higher into the US session: the FTSE 100 led with a gain of 1.19%, the CAC 40 rose 0.62%, the DAX rose 0.53%, and the EURO STOXX 50 rose 0.48%. Asia was firmer overnight, KOSPI up 1.37%, TAIEX up 0.74%, the Nikkei up 0.69%, and the Hang Seng up 0.19%. The Americas followed through, the TSX up 1.08% and the Merval up 1.08%. New York inherited a market already bid before the open.",
+    "correlation": "The standard risk-on correlation held for most of the session. Equities, credit, and volatility all moved the same direction: stocks up, credit spreads tighter, VIX and MOVE both down. Copper rose 2.84% alongside the equity gain, consistent with a growth-positive read. Gold fell modestly, consistent with the same story.\n\nThe break sits in rates. Short yields rose while volatility measures fell and risk assets rallied, an unusual combination if the front end is repricing tighter policy or funding pressure. A genuine break in the standing correlation would show up as credit spreads widening even as equities hold their bid, or as MOVE reversing higher while VIX stays low. Neither has happened yet. The 2-year yield at 4.74% is the number to watch for it."
+  },
+  "closes": {
+    "spx": {
+      "last": 7637.76,
+      "chg": 1.138,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29446.98,
+      "chg": 1.734,
+      "stale": false
+    },
+    "rut": {
+      "last": 2874.63,
+      "chg": 0.553,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6266.5,
+      "chg": 0.481,
+      "stale": true
+    },
+    "nky": {
+      "last": 63923.0,
+      "chg": 0.691,
+      "stale": true
+    },
+    "vix": {
+      "last": 15.44,
+      "chg": -12.818,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.01,
+      "chg": 1.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.148,
+      "chg": -0.49,
+      "stale": false
+    },
+    "wti": {
+      "last": 101.09,
+      "chg": -1.308,
+      "stale": false
+    },
+    "gold": {
+      "last": 4380.6,
+      "chg": -0.157,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 35279900498,
+    "artifact_id": 10522208135,
+    "created_at": "2026-09-17T22:12:17Z"
+  }
+}

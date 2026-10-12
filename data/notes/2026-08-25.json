@@ -1,0 +1,91 @@
+{
+  "date": "2026-08-25",
+  "published": true,
+  "edition": "0001",
+  "figure_check": "failed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "Credit strength drives a constructive session as crude drops and vol drains out",
+    "standfirst": "The S&P 500 closed up +0.32% on breadth that barely cleared even, while credit and copper did the heavy lifting inside our risk barometer and gold and bitcoin pulled the other way. The setup rewards owning credit and duration together into a flattening curve, and it holds only as long as the long end keeps leading that move.",
+    "takeaways": [
+      "Credit, not equities, carried the risk barometer to Constructive: LQD contributed +2.14 and EMB +1.69 against SPX's +0.46.",
+      "The Treasury curve bull-flattened, with the 10-year down 4bp to 4.70% while the 2-year held at 4.24%, taking 2s10s to 46bp.",
+      "Crude fell hard, WTI -4.61% and Brent -6.85%, while volatility compressed across equity and rate markets, VIX -2.52% and MOVE -2.79%.",
+      "Breadth was a coin flip, 13 advancers to 12 decliners, and single names drove the tape more than sectors, AMD +4.91% against XOM -2.08%."
+    ],
+    "desk_view": "The Constructive read of 0.63 on our risk barometer is a credit number, not an equity one. The three largest positive contributions came from LQD (+2.14), EMB (+1.69) and HYG (+1.25), all bigger than anything equities produced, SPX added only +0.46 and RUT +0.51. Gold (-0.99) and bitcoin (-0.35) sat on the other side of the ledger, both moving against the day's risk-on tone. That split matters: credit is pricing comfort that neither the safe-haven complex nor crypto is willing to extend yet.\n\nThe level that decides whether this holds is 2s10s. It flattened 4bp to 46bp today, entirely a long-end move, the 10-year fell 4bp and the 30-year fell 4bp while the 2-year sat unchanged at 4.24%. If the front end starts following the belly and long end lower, that is the market pricing cuts and the flattening becomes a rates story, not a credit one. If 2s10s pushes back above 50bp, the steepening trade reopens and today's credit-led calm needs a second look.",
+    "watching": [
+      "Whether 2s10s holds under 50bp or reverts toward steepening.",
+      "Follow-through in crude after WTI's -4.61% drop, with energy equities already down -1.66%.",
+      "Whether credit keeps leading the risk barometer or gold and bitcoin's negative pull spreads into equities.",
+      "Read-through from Korea and Hong Kong, KOSPI -3.12% and HSI -1.89%, into the US chip and AI-leadership trade."
+    ],
+    "equities": "The S&P 500 closed at 7677.28, up +0.32%, with the Nasdaq 100 outperforming at +0.64% on chip and streaming strength. The Russell 2000 added +0.50%, ahead of the Dow's +0.30%, while the S&P MidCap 400 slipped -0.04% and the NYSE Composite added +0.17%. AMD led all names at +4.91%, NFLX added +2.77% and NVDA +2.19%. GS and PFE both rose over +2.00%. On the other side, XOM fell -2.08%, CRM -1.61%, CVX -1.58%, COST -1.17% and LLY -1.06%.\n\nTechnology (+0.94%) and Communications (+0.77%) led sector rotation, Financials and Health care also firmed. Energy gave back -1.66% and Consumer staples -1.06%, tracking the drop in crude. Materials closed flat at 0.00% despite sitting at a session high on other metrics. Breadth told a different story than the index tape: 13 advancers against 12 decliners, a ratio of 1.08, with dispersion at 1.62. That combination, index gains on split breadth, says this was a leadership rally in a handful of names, not a broad move.",
+    "rates": "The curve bull-flattened. 2s10s narrowed 4bp to 46bp, 5s30s narrowed 2bp to 82bp, and 3m10y narrowed 3bp to 83bp. The move sat entirely in the belly and long end: 5-year -2bp to 4.41%, 7-year -2bp, 10-year -4bp to 4.70%, 20-year and 30-year both -4bp to 5.21% and 5.23%. The front end barely moved, 2-year and 3-year unchanged, 1-month and 3-month down 1bp, 6-month and 1-year up 1bp.\n\nBreakevens stayed close to flat, 5-year down 1bp to 2.31%, 10-year unchanged at 2.32%, 5y5y forward up 1bp to 2.33%. The 10-year TIPS yield fell 2bp to 2.38%. Real rates, not inflation expectations, drove the nominal 10-year lower today. No auction color to add.",
+    "credit": "Every credit proxy closed higher. LQD added +0.64%, HYG +0.28%, JNK +0.26%, EMB +0.56%, BKLN +0.05%, and duration proxies TLT and IEF rose +1.10% and +0.54%. Investment grade and EM sovereign debt led, consistent with their outsized weight in today's risk score. Tone into month-end reads firm, spreads compressing alongside a rally in long Treasuries rather than against it.",
+    "fx": "The dollar index eased -0.09% to 98.911. EUR/USD slipped -0.03% to 1.168, GBP/USD -0.02% to 1.365, and AUD/USD -0.09%. USD/JPY firmed +0.19% to 159.202 and USD/CHF added +0.05%. USD/CAD moved +0.32%, the largest G10 shift of the session. In EM, USD/TRY sits at a session high, up +0.10% to 48.095, while USD/MXN sits at a session low despite a small +0.08% tick, and USD/BRL added +0.20%. USD/INR eased -0.31%.",
+    "commodities": "Energy sold off hard: WTI fell -4.61% to 81.09 and Brent gave back -6.85% to 85.86, while natural gas rose +2.27%. Precious metals diverged from crude, gold added +1.62% to 4715.9 and silver ticked up +0.13%, while platinum fell -0.69% and palladium -1.86%. Copper rose +1.70% to a session high of 6.711 and aluminium added +0.58%. In ags, corn and wheat both closed at session highs, up +6.66% and +3.34%, soybeans added +1.87%, while coffee fell -11.36% and sugar gave back -2.27%.",
+    "volatility": "Protection got cheaper across the board. VIX fell -2.52% to 15.45 and VVIX dropped -3.35% to 85.67. SKEW eased -1.63% to 143.27, showing less demand for tail hedges specifically. In rates, MOVE fell -2.79% to 71.919, tracking the drop in long-end yield volatility alongside the flattening curve.",
+    "digital": "Digital assets sold off against the day's risk-on equity tape. Bitcoin fell -0.84% to 78305.031, Ether -2.03%, Solana -2.08% and XRP -3.24%. The divergence shows up directly in the risk barometer, where bitcoin's contribution was negative even as equities and credit pushed the score higher.",
+    "international": "Europe closed mixed and modestly firm, DAX +0.61%, SMI +0.54%, FTSE +0.29%, MIB +0.34% and EURO STOXX 50 +0.12%, while CAC, IBEX and AEX each slipped less than -0.25%. Asia was the weak link, KOSPI fell -3.12%, Hang Seng -1.89%, TAIEX -1.02% and Nikkei -0.74%, with only ASX 200 higher at +0.49%. The Americas leaned firmer, Bovespa +1.55%, TSX +0.66% and Mexbol +0.79%. New York opened into a session where Asia was selling and Europe was holding, a mixed handoff rather than a clean risk signal.",
+    "correlation": "Equities, credit and industrial metals moved as one bloc today. SPX, LQD, EMB and copper all rose together, and that bloc supplied nearly all of the positive score in the risk barometer. Gold and bitcoin sat apart, both scoring negative regardless of direction, gold rose while bitcoin fell, and neither participated in the equity and credit rally. That split describes a market pricing growth confidence through credit and industrial demand, not one where every risk-adjacent asset is repricing together.\n\nThe level to watch for a break in that pattern is the curve. Today's flattening came entirely from the long end, the 2-year held at 4.24% while the 10-year and 30-year each fell 4bp. If the front end starts falling with the long end, that is a rate-cut repricing, a different and more aggressive regime than the credit-led calm seen today. If credit reverses instead, LQD and HYG giving back today's gains while equities hold, that is the more classic late-stage divergence worth flagging first."
+  },
+  "closes": {
+    "spx": {
+      "last": 7677.28,
+      "chg": 0.319,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29209.229,
+      "chg": 0.641,
+      "stale": false
+    },
+    "rut": {
+      "last": 3010.022,
+      "chg": 0.499,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6455.63,
+      "chg": 0.119,
+      "stale": false
+    },
+    "nky": {
+      "last": 65528.09,
+      "chg": -0.74,
+      "stale": true
+    },
+    "vix": {
+      "last": 15.45,
+      "chg": -2.524,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.7,
+      "chg": -4.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.168,
+      "chg": -0.029,
+      "stale": false
+    },
+    "wti": {
+      "last": 81.09,
+      "chg": -4.611,
+      "stale": false
+    },
+    "gold": {
+      "last": 4715.9,
+      "chg": 1.618,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 32900041440,
+    "artifact_id": 9582988784,
+    "created_at": "2026-08-25T21:24:49Z"
+  }
+}

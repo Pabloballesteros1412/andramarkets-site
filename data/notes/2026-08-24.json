@@ -1,0 +1,83 @@
+{
+  "date": "2026-08-24",
+  "published": true,
+  "edition": "0001",
+  "figure_check": "passed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "Market close: quantitative read of the session",
+    "standfirst": "Published in quantitative mode. Editorial commentary is unavailable in this edition; tables and exhibits reflect the official close.",
+    "takeaways": [
+      "Cross-asset risk score at -0.08 (Neutral)."
+    ],
+    "desk_view": "",
+    "watching": [],
+    "equities": "",
+    "rates": "",
+    "credit": "",
+    "fx": "",
+    "commodities": "",
+    "volatility": "",
+    "digital": "",
+    "international": "",
+    "correlation": ""
+  },
+  "closes": {
+    "spx": {
+      "last": 7652.86,
+      "chg": -0.28,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29023.182,
+      "chg": -0.975,
+      "stale": false
+    },
+    "rut": {
+      "last": 2995.08,
+      "chg": -0.755,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6447.98,
+      "chg": -0.22,
+      "stale": false
+    },
+    "nky": {
+      "last": 66016.359,
+      "chg": -0.303,
+      "stale": true
+    },
+    "vix": {
+      "last": 15.85,
+      "chg": 4.759,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.74,
+      "chg": 5.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.167,
+      "chg": -0.153,
+      "stale": false
+    },
+    "wti": {
+      "last": 84.98,
+      "chg": -2.389,
+      "stale": false
+    },
+    "gold": {
+      "last": 4710.0,
+      "chg": 1.858,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 32781416985,
+    "artifact_id": 9539917854,
+    "created_at": "2026-08-24T21:49:41Z"
+  }
+}

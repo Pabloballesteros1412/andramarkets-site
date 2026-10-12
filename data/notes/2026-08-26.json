@@ -1,0 +1,91 @@
+{
+  "date": "2026-08-26",
+  "published": true,
+  "edition": "0001",
+  "figure_check": "failed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "Rates fall on real yields, dollar firms anyway, breadth stays negative",
+    "standfirst": "Treasuries rallied 6 to 7bp across the curve on real yields, not inflation expectations, while the dollar index still rose and decliners outnumbered advancers better than two to one. The S&P 500 closed flat at the index level but the internals did not agree with the headline.",
+    "takeaways": [
+      "Treasury yields fell 6 to 7bp across the curve with breakevens unchanged, pointing to a real-rate move, yet the dollar index rose +0.22%.",
+      "Breadth was negative two to one, 8 advancers against 17 decliners, even as the S&P 500 finished at -0.02%.",
+      "Mega-cap tech split hard: ORCL, AAPL, MSFT and META all higher while NVDA fell -1.59%.",
+      "MOVE dropped -3.45% to 69.438, the largest single input to a risk barometer that still closed at -0.05, essentially neutral."
+    ],
+    "desk_view": "The session confirms a market where rates vol is compressing faster than equity risk is clearing. MOVE fell -3.45% and was the single biggest positive contributor to the risk barometer, yet the barometer still printed -0.05, dragged back to neutral by dollar strength (-0.78 contribution) and softness in investment grade and EM sovereign credit. That tension, calmer rates against a firmer dollar and thinner equity breadth, is the story of the day, not the SPX close at -0.02%.\n\nThe level that decides which side wins is the 10-year at 4.64%, down 6bp with the breakeven flat at 2.32. A real-yield-led Treasury rally that also weakens the dollar would confirm a genuine growth-scare bid. A real-yield rally that leaves the dollar firm, as happened today, looks more like a flight to quality funded out of risk assets elsewhere, and that reads differently for credit and EM than for US large caps. Watch whether DXY holds above 99.136 into the next session or gives it back as yields stabilize.",
+    "watching": [
+      "Whether the 10-year holds below 4.64% or reverses back toward its recent range.",
+      "Whether the dollar index sustains the move above 99.136 or fades with yields.",
+      "Read-through from NVDA's -1.59% session into the rest of the semiconductor complex.",
+      "Whether LLY's -3.59% drop is idiosyncratic or drags the rest of health care lower."
+    ],
+    "equities": "The S&P 500 closed at 7675.7, -0.02%, the Nasdaq 100 added +0.05%, the Dow gave back -0.21% and the Russell 2000 fell -0.14%. Mid caps were the outlier, the S&P MidCap 400 up +0.61%, while the NYSE Composite slipped -0.11%. None of the headline moves were large. The dispersion underneath them was.\n\nBreadth was negative, 8 advancers against 17 decliners, one unchanged, a ratio of 0.47 with dispersion at 1.27. Industrials led sectors at +1.09%, tech followed at +0.61% and energy at +0.60%, while health care fell -1.00%, real estate -0.60% and communications -0.50%. Inside tech, the split was stark: ORCL +2.84%, AAPL +1.15%, MSFT +0.95% and META +1.07% carried the sector while NVDA fell -1.59%. On the downside, LLY dropped -3.59%, GS fell -1.74%, KO gave back -1.70% and XOM slipped -1.53%.",
+    "rates": "The curve shifted lower in parallel: 2-year at 4.17% (-7bp), 5-year at 4.35% (-6bp), 10-year at 4.64% (-6bp), 30-year at 5.17% (-6bp). Because the front end fell slightly more than the long end, 2s10s steepened by 1bp to 47bp. 5s30s held at 82bp. 3m10y compressed 5bp to 78bp.\n\nBreakevens did not move: 5-year at 2.31%, 10-year at 2.32%, 5y5y forward at 2.33%, all unchanged on the day. The 10-year TIPS yield fell 6bp to 2.32%, which means the entire nominal move was a real-yield story, not a repricing of inflation. MOVE fell -3.45% to 69.438, its sharpest drop of the inputs tracked today.",
+    "credit": "Credit gave back a little ground without any sign of stress. LQD fell -0.08%, HYG slipped -0.03%, JNK eased -0.02%, and EMB, the EM sovereign proxy, fell -0.07%. Leveraged loans, via BKLN, rose +0.10%, the one pocket of the complex that firmed. Nothing here reads as a repricing, more a mild fade in a market that was already rich.",
+    "fx": "The dollar index rose +0.22% to 99.136 even as Treasury yields fell across the curve. EUR/USD fell -0.10%, GBP/USD dropped -0.33%, USD/CHF rose +0.33% and USD/CAD gained +0.23%. AUD/USD bucked the dollar move, up +0.33%. USD/JPY drifted +0.07%. In EM, USD/MXN rose +0.05% on the day but sits at a fresh low on the extremes list, USD/BRL fell -0.03%, USD/TRY rose +0.07% and sits at a high, and USD/INR fell -0.34%.",
+    "commodities": "Energy fell: WTI dropped -0.55%, Brent gave back -2.28%. Natural gas jumped +4.87%. Gold added +0.21% to 4647.8, consistent with the fall in real yields, while silver fell -0.80% and copper slipped -0.16% even as it sits on the highs list. Platinum fell -0.56%, palladium rose +0.50%, aluminium fell -0.53%. Ags were the loudest corner of the tape: wheat rose +9.15%, corn +7.04% and soybeans +2.73%, all printing highs, while coffee dropped -13.57% and sugar added +2.03%.",
+    "volatility": "Protection got cheaper across the board. VIX fell -1.55% to 15.21, VVIX eased -0.50% to 85.24 and SKEW ticked down -0.22% to 142.96. The standout was MOVE, down -3.45% to 69.438, the largest one-day drop in the surface and the biggest single contributor to today's risk barometer.",
+    "digital": "Bitcoin rose +0.22% to 78740.4, Ether added +2.17%, Solana gained +1.56% and XRP fell -2.45%. The move contributed a modest +0.09 to the risk barometer, in line with digital assets trading as a small, positive-beta sleeve on a day when broader risk was mixed rather than directional.",
+    "international": "Europe closed mostly firmer: EURO STOXX 50 +0.23%, CAC +0.28%, FTSE MIB +0.31%, while FTSE 100 slipped -0.07% despite sitting on the highs list. Asia was broadly positive, KOSPI +0.68%, TAIEX +0.91%, ASX 200 +0.68% and Nikkei +0.50%, with Hang Seng roughly flat at -0.02%. The handoff to New York was a calm one, no stress signal from either session, which sits awkwardly against the negative breadth seen in US cash equities.",
+    "correlation": "The risk barometer closed at -0.05, effectively a coin flip between two large offsetting inputs: MOVE's collapse (+0.72 contribution) and the dollar's rise (-0.78 contribution). Under a normal regime, falling rates vol and falling yields support risk assets broadly. That did not happen today. Equity breadth was negative, credit gave back ground, and gold's gain came alongside dollar strength rather than against it.\n\nA genuine break in this pattern would show up first in EM. EMB's -0.07% and copper's -0.16% are the two inputs the barometer already flags as soft. If the dollar keeps climbing while Treasury yields keep falling, that combination has historically pressured EM sovereign spreads and EM currencies before it shows up in US large caps. The MXN print at a fresh low and TRY at a fresh high are the two FX pairs worth watching for the first sign that the dollar move is starting to bite."
+  },
+  "closes": {
+    "spx": {
+      "last": 7675.7,
+      "chg": -0.021,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29224.521,
+      "chg": 0.052,
+      "stale": false
+    },
+    "rut": {
+      "last": 3005.9,
+      "chg": -0.137,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6470.74,
+      "chg": 0.234,
+      "stale": false
+    },
+    "nky": {
+      "last": 65856.43,
+      "chg": 0.501,
+      "stale": true
+    },
+    "vix": {
+      "last": 15.21,
+      "chg": -1.553,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.64,
+      "chg": -6.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.166,
+      "chg": -0.103,
+      "stale": false
+    },
+    "wti": {
+      "last": 81.91,
+      "chg": -0.546,
+      "stale": false
+    },
+    "gold": {
+      "last": 4647.8,
+      "chg": 0.209,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 33017490040,
+    "artifact_id": 9625377023,
+    "created_at": "2026-08-26T22:04:16Z"
+  }
+}
