@@ -547,7 +547,7 @@ For methodology and future sub-pages, sharing the same header and footer. Top pa
 - **Closing plate:** `.signup__art` at `50% / 46%`, `min(150svh, 190vw)`, same filter and blend, container opacity 0.32, no entrance animation.
 - **Brand mark patch technique:** the mark is shown whole, never cropped. A 44px by `nav-h - 1px` box isolates a blend group; its `::before` paints a patch of `--ground` extending 10px beyond each side; the image (64px wide, full height, `object-fit: contain`, offset -10px) takes `--mark-filter` and `--horse-blend`. The image's black ground therefore blends against a known ground patch and vanishes even when the header is transparent over the hero, and no box ever shows. The same mark is used in the footer.
 - **Video frames:** a contained background at `screen` and 0.22 opacity on the dark frame.
-- **Favicon:** `andra-horse.png` itself.
+- **Favicon and touch icon:** the owner-approved head-and-neck crop; see Brand assets.
 
 ### Placeholder tokens
 Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, `[n]`, `[handle]`, `[Company]`...). The generator wraps every `[...]` in `.ph`, which renders in `--ink-3` (plate-ink-2 on the plate). `.ph--ink` renders in full ink and is used where the placeholder stands in for a headline or title (note headlines, video titles, the tape's headline).
