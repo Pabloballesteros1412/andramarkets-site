@@ -1,8 +1,9 @@
 {
   "date": "2026-09-24",
   "published": true,
-  "edition": null,
+  "edition": "0018",
   "figure_check": "passed",
+  "text_source": "agent",
   "note": {
     "headline": "Rates sell off hard, credit follows, equities barely notice yet",
     "standfirst": "The 10-year rose 15bp to 5.11% and the MOVE index jumped +9.57% while the S&P closed flat at -0.03%. That gap between rates stress and equity calm is the whole story of the session, and it will not hold indefinitely.",

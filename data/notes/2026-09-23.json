@@ -1,8 +1,9 @@
 {
   "date": "2026-09-23",
   "published": true,
-  "edition": null,
+  "edition": "0017",
   "figure_check": "passed",
+  "text_source": "agent",
   "note": {
     "headline": "Risk-off day: credit, rates vol and small caps sell together as dollar bids",
     "standfirst": "Every major risk gauge moved the same direction today: high yield, investment grade, EM debt and the MOVE index all sold off together while the dollar caught a bid. That kind of alignment tends to matter more than any single index print, and it argues for treating this as a broadening move rather than a single-sector story.",
