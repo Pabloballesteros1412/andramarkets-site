@@ -1,0 +1,90 @@
+{
+  "date": "2026-09-27",
+  "published": true,
+  "edition": null,
+  "figure_check": "failed",
+  "note": {
+    "headline": "Equities grind higher as bonds sell off, and nobody blinks",
+    "standfirst": "The S&P 500 added +0.51% while the long end sold off and the curve bear steepened, a split that usually draws a bid for volatility protection but didn't. Positioning looks comfortable paying up for duration risk as long as credit and vol stay quiet.",
+    "takeaways": [
+      "Stocks rose into a bond selloff, a combination that normally punishes risk but didn't this time.",
+      "The curve bear steepened again, with the 10-year up 7bp to 5.18% and the 2-year up only 2bp to 4.87%.",
+      "Vol compressed hard, with VIX down -5.105 to 14.87 and MOVE down -8.204 to 96.0, a rare joint move.",
+      "Breadth was solid at 1.78 advancers to decliners but leadership stayed narrow, with mega-cap tech and financials doing the work."
+    ],
+    "desk_view": "The session confirms that equities are pricing higher long rates as a growth signal, not a discount-rate problem. The 10-year moved to 5.18%, up 7bp, and the 30-year followed at 5.47%, up 7bp, while the front end barely moved. That is a bear steepener, not a bear flattener, and the S&P still closed up +0.51%. If this were a duration scare, cyclicals would have led the tape down and utilities would have been bid as a rate-sensitive hide. Instead XLI rose +0.948% and XLU rose +0.381%, both up, which argues the market read the long end as reflation rather than distress.\n\nThe level that decides this is 5.20% on the 10-year. The move so far has been orderly, MOVE actually fell -8.204 to 96.0 even as yields rose, which tells you rates vol is not confirming the yield move as a regime shift. If 10-year yields push through 5.20% on rising rates vol rather than falling vol, that is the tell that the bond move has stopped being a growth story and started being a term-premium story. Until then, this is a market still willing to buy the dip in duration-sensitive equity sectors on every bear steepening.",
+    "watching": [
+      "Whether the 10-year holds below 5.20% or breaks it with MOVE turning higher.",
+      "Follow-through in XLC and META weakness after a -3.33% single-session drop.",
+      "Whether HYG and LQD stay pinned near session lows even as equities grind higher.",
+      "USD/JPY continuing to fall through 157 after a -0.945% move, and what that does to the carry bid."
+    ],
+    "equities": "The S&P 500 closed up +0.51%, the Dow up +0.932%, and the Nasdaq 100 the laggard among majors at +0.424%. Small caps barely moved, with the Russell 2000 up +0.07%, which is a soft print given the advance-decline ratio of 1.78. Breadth was constructive on the surface, 16 advancers against 9 decliners, but dispersion at 1.45 says the gains were uneven under the hood.\n\nSector rotation favored cyclicals and rate-sensitive value over growth software and communications. Industrials led at +0.948%, financials followed at +0.568%, and technology as a sector still managed +0.801% on the back of MSFT's move. Communications was the weak sector at -0.904%, dragged by META's -3.33% single-name move, and energy fell -0.895% as crude gave back ground. The single-name story was MSFT and COST at the top, both up more than 2.93%, against META, CRM, and ORCL at the bottom, all down more than 1.74%. That is a market rewarding scale and cash generation while punishing anything priced for multiple expansion.",
+    "rates": "The curve bear steepened again. 2s10s widened to 31bp, up 5bp on the day, and 5s30s widened to 44bp, up 3bp. Every point on the curve from the 2-year out to the 30-year rose, but the move was concentrated in the belly and long end: the 10-year added 7bp to 5.18%, the 30-year added 7bp to 5.47%, while the 2-year added only 2bp to 4.87%. The 3m10y spread widened to 94bp.\n\nReal yields led the move. The 10-year TIPS yield rose 9bp to 2.85%, more than the 7bp move in nominal 10-year yields, which pulled the 10-year breakeven up only 1bp to 2.34%. That split says the selloff was driven by real rates, not an inflation repricing. The 5y5y forward held flat at 2.34%, showing no change in the market's long-run inflation view.",
+    "credit": "Credit was mixed and quiet. Investment grade, via LQD, ticked up +0.058%, while high yield gave back a touch, HYG down -0.039% and JNK down -0.075%, both sitting at session lows on the extremes list. EM sovereign debt was flat, EMB unchanged on the day and also printing at lows. None of this looks like stress, spreads are drifting rather than gapping, but the tone is one of credit lagging the equity rally rather than confirming it.",
+    "fx": "The dollar index fell -0.316% to 100.97, and the move was broad. EUR/USD rose +0.096% to 1.139, GBP/USD rose +0.169% to 1.323, and AUD/USD rose +0.207% to 0.702. USD/JPY was the standout, down -0.945% to 157.311, a large one-day move against a dollar that was only modestly weaker elsewhere, and it was the single biggest negative contributor to the risk barometer. In EM, USD/BRL fell -0.121%, USD/MXN fell -0.125%, and USD/INR fell -0.374%, while USD/TRY held near its highs, up +0.039% to 48.969.",
+    "commodities": "Energy fell hard. Brent dropped -8.593% to 97.44 and WTI fell -2.325% to 92.41, a divergence between the two benchmarks worth flagging without a clean explanation in the data. Natural gas fell -2.184%. Precious metals firmed alongside the bond selloff, gold up +0.54% to 4321.2 and silver up +2.118% to 64.801, with platinum the standout at +2.779%. Copper rose +0.707% to 6.766, holding its place as one of the larger positive contributors to the risk barometer, a sign industrial demand expectations stayed intact even as rates rose.",
+    "volatility": "The vol surface compressed across the board. VIX fell -5.105% to 14.87, VIX9D fell harder at -9.568% to 12.76, an inversion of the front end that says the market is not pricing near-term event risk. VIX3M fell -2.713% to 17.93, VVIX fell -3.014% to 87.84, and SKEW eased slightly to 144.91. MOVE, the rates equivalent, fell -8.204% to 96.0 even as yields rose across the curve. Protection got cheaper in both equity and rates vol on the same day yields sold off, which is the one detail from today worth carrying into tomorrow.",
+    "digital": "Bitcoin was flat, up +0.092%, showing little beta to the equity rally or the bond selloff. Ether fell -0.626% and XRP fell -0.726%, while Solana rose +0.72%. Digital assets contributed almost nothing to the risk barometer today, a +0.04 reading for BTC, which suggests the space traded on its own flows rather than following the cross-asset tape.",
+    "international": "Asia was split. The Nikkei rose +1.298% and the KOSPI rose +0.898%, both at or near highs, while the Hang Seng fell -1.014% and the ASX 200 fell -0.425%. TAIEX slipped -0.276% despite sitting near its highs on a year-to-date basis. Europe closed broadly firmer, EURO STOXX 50 up +0.483%, DAX up +0.562%, IBEX up +0.647%, while the CAC was the outlier, down -0.045%. The handoff to New York was a firm European close and a mixed Asian one, with nothing in either session that explains the size of the US Treasury selloff.",
+    "correlation": "The standout cross-asset signal is the joint move of equities higher, yields higher, and volatility lower. That combination typically requires either a growth narrative strong enough to override the discount-rate drag on equities, or a market that has simply stopped pricing rate risk as equity risk. Copper's positive contribution and the strength in industrials and financials point toward the growth read. The risk barometer itself sits at 0.19, a neutral score built almost entirely from two components pulling in opposite directions, MOVE at +1.63 and USD/JPY at -2.17, which tells you the internal consistency of today's move is not as clean as the headline index level suggests.\n\nA break in this correlation would show up first in credit, not equities. HYG and JNK are already sitting at their lows for the period while equities rose, a quiet divergence that hasn't yet demanded attention. If high yield spreads widen further while the 10-year continues higher, that would confirm the bond selloff has stopped being a benign growth signal and started to bite risk appetite. Watch LQD and HYG relative to the S&P over the next session, not the VIX print, for the first sign that today's calm was mispriced."
+  },
+  "closes": {
+    "spx": {
+      "last": 7743.41,
+      "chg": 0.51,
+      "stale": true
+    },
+    "ndx": {
+      "last": 30608.131,
+      "chg": 0.424,
+      "stale": true
+    },
+    "rut": {
+      "last": 2837.55,
+      "chg": 0.07,
+      "stale": true
+    },
+    "sx5e": {
+      "last": 6302.82,
+      "chg": 0.483,
+      "stale": true
+    },
+    "nky": {
+      "last": 66364.203,
+      "chg": 1.298,
+      "stale": true
+    },
+    "vix": {
+      "last": 14.87,
+      "chg": -5.105,
+      "stale": true
+    },
+    "ust10y": {
+      "last": 5.18,
+      "chg": 7.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.139,
+      "chg": 0.096,
+      "stale": false
+    },
+    "wti": {
+      "last": 92.41,
+      "chg": -2.325,
+      "stale": true
+    },
+    "gold": {
+      "last": 4321.2,
+      "chg": 0.54,
+      "stale": true
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 36352393921,
+    "artifact_id": 10942512735,
+    "created_at": "2026-09-27T21:40:33Z"
+  }
+}
