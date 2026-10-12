@@ -468,6 +468,7 @@ def page():
             <h3>Momentum regime backtest</h3>
             <p>Run a momentum rule across trending and reversal regimes, and see where it pays and where it breaks.</p>
             <p class="tool__params">Lookback {ph("[n]")} months. Universe {ph("[universe]")}.</p>
+            <p class="tool__src">{ph("[source]")}, {ph("[date]")}</p>
           </div>
           <span class="link">Open the explorer {icon("arrow-up-right")}</span>
         </a>
@@ -477,6 +478,7 @@ def page():
           <div class="tool__text">
             <h3>Options pricer</h3>
             <p>Price European options and watch the Greeks respond as strike, volatility and time change.</p>
+            <p class="tool__src">Model {ph("[model]")}. {ph("[source]")}, {ph("[date]")}</p>
           </div>
           <span class="link">Open the pricer {icon("arrow-up-right")}</span>
         </a>
@@ -535,7 +537,7 @@ def page():
       <div class="grid learn__grid">
         <a class="learn-feature reveal" href="#learn">
           <div class="draw">{c_explainer()}</div>
-          <p class="key"><span><i class="k-solid"></i>Normal curve</span><span><i class="k-dash"></i>Inverted curve</span></p>
+          <p class="key"><span><i class="k-solid"></i>Normal curve</span><span><i class="k-dash"></i>Inverted curve</span><span class="key__note">Diagram, not market data</span></p>
           <h3>How to read the yield curve</h3>
           <p>What the curve is, why it usually slopes up, and what it means when it turns upside down.</p>
           <span class="learn-list__time">{ph("[n]")} min read</span>

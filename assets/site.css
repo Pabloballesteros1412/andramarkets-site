@@ -17,6 +17,15 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --horse-size: min(167svh, 200vw);
+  /* Video frames read as a dark player in both themes. */
+  --video-ground: #0e1215;
+  --video-ink: #eef1f1;
+  --video-ink-2: #c3c9cc;
+  /* The Lab plate is dark in both themes, so its chart colours are fixed. */
+  --plate-up: #1fd27a;
+  --plate-down: #ff4b52;
+  --plate-up-tint: rgba(31, 210, 122, 0.3);
+  --plate-down-tint: rgba(255, 75, 82, 0.3);
   --horse-x: 63%;
   --horse-y: 50%;
 }
@@ -54,7 +63,6 @@
   --horse-opacity: 0.92;
   --select: rgba(14, 18, 21, 0.14);
   --focus: #0e1215;
-  --video: #dde2e2;
 }
 
 /* Dark: near-black, the horse as a dim cinematic presence. */
@@ -89,7 +97,6 @@
   --horse-opacity: 0.5;
   --select: rgba(233, 236, 235, 0.22);
   --focus: #e9eceb;
-  --video: #161b1e;
 }
 
 *,
@@ -494,6 +501,7 @@ ul {
 
 .hero {
   position: relative;
+  /* 56px short of the viewport so the tape's top edge shows at the fold. */
   min-height: calc(100svh - 56px);
   overflow: hidden;
   display: flex;
@@ -602,7 +610,7 @@ ul {
   align-items: baseline;
   justify-content: space-between;
   gap: 8px 24px;
-  padding-top: 20px;
+  padding-top: 8px;
   font-size: 0.875rem;
   color: var(--ink-2);
 }
@@ -631,10 +639,6 @@ ul {
   .tape__note:hover .icon {
     transform: translateX(3px);
   }
-}
-
-.tape__head {
-  padding-top: 8px;
 }
 
 .tape__src {
@@ -678,6 +682,7 @@ ul {
 
 .tape__chg {
   font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Sections */
@@ -971,13 +976,14 @@ ul {
   }
 }
 
-.dash-tile.is-entering {
-  animation: tile-in 260ms var(--ease-out) both;
-}
-
-@keyframes tile-in {
-  from {
-    opacity: 0;
+@media (prefers-reduced-motion: no-preference) {
+  .dash-tile.is-entering {
+    animation: tile-in 260ms var(--ease-out) both;
+  }
+  @keyframes tile-in {
+    from {
+      opacity: 0;
+    }
   }
 }
 
@@ -996,10 +1002,10 @@ ul {
   --btn-bg: var(--plate-ink);
   --btn-fg: var(--plate);
   --focus: var(--plate-ink);
-  --up: #1fd27a;
-  --down: #ff4b52;
-  --up-tint: rgba(31, 210, 122, 0.3);
-  --down-tint: rgba(255, 75, 82, 0.3);
+  --up: var(--plate-up);
+  --down: var(--plate-down);
+  --up-tint: var(--plate-up-tint);
+  --down-tint: var(--plate-down-tint);
 }
 
 .lab-grid {
@@ -1059,8 +1065,14 @@ ul {
   max-width: 48ch;
 }
 
-.tool__params {
+.tool__params,
+.tool__src {
   font-size: 0.875rem;
+}
+
+.tool__text .tool__src {
+  margin-top: 4px;
+  color: var(--plate-ink-2);
 }
 
 .tool > .link {
@@ -1319,7 +1331,7 @@ ul {
   display: grid;
   place-items: center;
   aspect-ratio: 16 / 9;
-  background: #0e1215;
+  background: var(--video-ground);
   border: 1px solid var(--rule);
   overflow: hidden;
 }
@@ -1365,8 +1377,8 @@ ul {
   width: 56px;
   height: 56px;
   position: relative;
-  background: #eef1f1;
-  color: #0e1215;
+  background: var(--video-ink);
+  color: var(--video-ground);
   font-size: 1.5rem;
   transition: transform 200ms var(--ease-out);
 }
@@ -1383,7 +1395,7 @@ ul {
   align-items: center;
   gap: 8px;
   font-size: 0.8125rem;
-  color: #c3c9cc;
+  color: var(--video-ink-2);
 }
 
 .video__title {
@@ -1400,12 +1412,6 @@ ul {
 @media (hover: hover) and (pointer: fine) {
   .video a:hover .video__play {
     transform: scale(1.06);
-  }
-}
-
-@media (min-width: 961px) {
-  .video--wide .video__frame {
-    aspect-ratio: auto;
   }
 }
 
@@ -1691,41 +1697,8 @@ ul {
     flex-direction: column;
     align-items: start;
   }
-  .tape__note {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  color: var(--ink);
-  font-weight: 550;
-  text-decoration: none;
-}
-
-.tape__note .icon {
-  transition: transform 200ms var(--ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .tape__note:hover .icon {
-    transform: translateX(3px);
-  }
-}
-
-.tape__head {
-  padding-top: 8px;
-}
-
-.tape__src {
-  padding-bottom: 16px;
-  font-size: 0.8125rem;
-  color: var(--ink-3);
-}
-
-.tape__list {
+  .tape__list {
     grid-template-columns: repeat(10, 40vw);
-  }
-  .dash-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .dash-tile__link {
     padding: 14px;
@@ -1940,9 +1913,12 @@ ul {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html.js .reveal,
-  html.js .draw .chart {
+  /* Fewer, gentler: reveals fade in place, nothing moves. */
+  html.js .reveal {
     transition: opacity 300ms ease;
+  }
+  html.js .reveal:not(.is-in) {
+    opacity: 0;
   }
   ::view-transition-group(*),
   ::view-transition-old(*),
