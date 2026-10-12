@@ -211,6 +211,32 @@ def closes(facts):
     return out
 
 
+# Margin charts on the report page: chart -> (facts block, key, label) rows.
+# Only these instruments are kept, as label, close and daily change.
+CHARTS_VERSION = 2
+BARS = {
+    "sectors": [("sectors", k, None) for k in ("xlk", "xlf", "xlv", "xly", "xlp", "xle",
+                                                 "xli", "xlb", "xlre", "xlu", "xlc")],
+    "credit": [("credit", "lqd", "US IG (LQD)"), ("credit", "hyg", "US HY (HYG)"),
+               ("credit", "emb", "EM USD (EMB)"), ("credit", "bkln", "Loans (BKLN)"),
+               ("credit", "ief", "7-10Y UST (IEF)"), ("credit", "tlt", "Long UST (TLT)")],
+    "volatility": [("volatility", "vix", "VIX"), ("volatility", "vix9d", "VIX 9-day"),
+                   ("volatility", "vix3m", "VIX 3-month"), ("volatility", "vvix", "VVIX"),
+                   ("volatility", "move", "MOVE"), ("volatility", "vstoxx", "VSTOXX")],
+    "commodities": [("commodities", "wti", "WTI crude"), ("commodities", "brent", "Brent"),
+                    ("commodities", "natgas", "Natural gas"), ("commodities", "gold", "Gold"),
+                    ("commodities", "silver", "Silver"), ("commodities", "copper", "Copper")],
+    "fx": [("fx", "dxy", "Dollar index"), ("fx", "eurusd", "EUR/USD"), ("fx", "usdjpy", "USD/JPY"),
+           ("fx", "gbpusd", "GBP/USD"), ("fx", "usdcnh", "USD/CNH"), ("fx", "usdmxn", "USD/MXN")],
+    "international": [("europe", "sx5e", "Euro Stoxx 50"), ("europe", "dax", "DAX 40"),
+                      ("europe", "ftse", "FTSE 100"), ("apac", "nky", "Nikkei 225"),
+                      ("apac", "hsi", "Hang Seng"), ("apac", "csi300", "CSI 300"),
+                      ("apac", "kospi", "KOSPI"), ("americas", "ibov", "Bovespa"),
+                      ("americas", "tsx", "S&P/TSX")],
+    "digital": [("digital", "btc", "Bitcoin"), ("digital", "eth", "Ether"),
+                ("digital", "sol", "Solana"), ("digital", "xrp", "XRP")],
+}
+
 CURVE = ("ust1m", "ust3m", "ust6m", "ust1y", "ust2y", "ust3y", "ust5y", "ust7y",
          "ust10y", "ust20y", "ust30y")
 
@@ -225,7 +251,27 @@ def charts(facts):
     risk = facts.get("risk_barometer") if isinstance(facts.get("risk_barometer"), dict) else {}
     breadth = facts.get("breadth") if isinstance(facts.get("breadth"), dict) else {}
     count = lambda v: int(v) if isinstance(v, (int, float)) and not isinstance(v, bool) and v >= 0 else None
+    bars = {}
+    for chart, rows_spec in BARS.items():
+        kept, left_out = [], 0
+        for block, key, label in rows_spec:
+            row = next((r for r in facts.get(block) or [] if isinstance(r, dict) and r.get("key") == key), None)
+            if not row:
+                continue
+            last, chg = number(row.get("last")), number(row.get("chg"))
+            if last is None or chg is None or key in stale:
+                left_out += 1  # no print for this session: never shown as a move
+                continue
+            kept.append([label or clean_text(row.get("name"))[:28], last, chg])
+        bars[chart] = {"rows": kept, "left_out": left_out}
+    mv = facts.get("movers") if isinstance(facts.get("movers"), dict) else {}
+    movers = {side: [[clean_text(r.get("name"))[:12], number(r.get("chg"))]
+                     for r in mv.get(side) or [] if isinstance(r, dict) and number(r.get("chg")) is not None][:5]
+              for side in ("leaders", "laggards")}
     return {
+        "v": CHARTS_VERSION,
+        "bars": bars,
+        "movers": movers,
         "curve": curve,
         "risk": {"score": number(risk.get("score")), "label": clean_text(risk.get("label"))[:24]},
         "breadth": {"advancers": count(breadth.get("advancers")), "decliners": count(breadth.get("decliners"))},
@@ -549,7 +595,7 @@ def enrich(root, everything, token, dry):
     done = []
     for f in sorted((root / "data" / "notes").glob("*.json")):
         record = json.loads(f.read_text(encoding="utf-8"))
-        if "charts" in record:
+        if (record.get("charts") or {}).get("v", 1) >= CHARTS_VERSION:
             continue
         art = by_id.get(record["source"]["artifact_id"])
         if not art:
