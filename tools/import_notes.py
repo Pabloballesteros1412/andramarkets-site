@@ -76,6 +76,11 @@ NOTE_FIELDS = ("headline", "standfirst", "takeaways", "desk_view", "watching",
                "equities", "rates", "credit", "fx", "commodities", "volatility",
                "digital", "international", "correlation")
 LIST_FIELDS = ("takeaways", "watching")
+LABELS = {"standfirst": "standfirst", "takeaways": "takeaways", "desk_view": "desk view",
+          "watching": "what we watch", "equities": "equities", "rates": "rates",
+          "credit": "credit", "fx": "FX", "commodities": "commodities",
+          "volatility": "volatility", "digital": "digital assets",
+          "international": "international", "correlation": "correlation"}
 # The home tape: (facts block, instrument key). Only these closes are kept.
 TAPE = [("us_equity", "spx"), ("us_equity", "ndx"), ("us_equity", "rut"),
         ("europe", "sx5e"), ("apac", "nky"), ("volatility", "vix"),
@@ -252,6 +257,18 @@ def check(stamp, files, artifact, today):
                        else "no note file, and no headline could be read from the PDF")
 
     hold = []
+    # The agent's fallback when its writer fails: a generic headline, no prose.
+    quantitative = text["standfirst"].startswith("Published in quantitative mode")
+    if not quantitative:
+        empty = [LABELS[f] for f in LABELS if not text[f]]
+        short = [LABELS[f] for f in LABELS if f not in LIST_FIELDS and text[f]
+                 and len(text[f].split()) < 15]
+        if empty or short:
+            hold.append("The note is incomplete: "
+                        + "; ".join(x for x in (
+                            ("no text for " + ", ".join(empty)) if empty else "",
+                            ("cut short in " + ", ".join(short)) if short else "") if x)
+                        + ". The agent's reply was probably truncated.")
     trading = nyse.is_trading_day(day)
     if trading is None:
         hold.append(f"{day.year} is not in the NYSE holiday table in tools/nyse.py, "

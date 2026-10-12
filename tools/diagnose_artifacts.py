@@ -1,33 +1,21 @@
 #!/usr/bin/env python3
-"""Temporary diagnostic: spot-check control notes and a partial recovery."""
-import io, json, os, re, sys, zipfile
-sys.path.insert(0, os.path.dirname(__file__))
-import import_notes as m
-import pdf_note
+"""Temporary diagnostic: dry-run the importer against the real artifacts."""
+import os, subprocess, sys
 
 def notice(title, text):
     text = text.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
     print(f"::notice title={title}::{text[:4000]}")
 
-token = os.environ["AGENT_ARTIFACTS_TOKEN"]
-arts = {a["id"]: a for a in m.list_artifacts(token)}
-def pdf_of(aid):
-    z = zipfile.ZipFile(io.BytesIO(m.download_zip(arts[aid], token)))
-    return z, z.read(next(n for n in z.namelist() if n.startswith("AndraMarkets_Close_")))
-
-out = []
-for aid in (11577608366, 10522208135, 9625377023):  # held for a control note
-    z, pdf = pdf_of(aid)
-    body = re.sub(r"\s+", " ", m.pdf_text(pdf))
-    for mm in re.finditer(r"Control\s*note", body, re.I):
-        out.append(f"{aid}: ...{body[max(0, mm.start()-160):mm.end()+200]}...")
-    nj = next((n for n in z.namelist() if n.startswith("note_")), None)
-notice("control notes", "\n\n".join(out) or "none found")
-
-for aid in (9956689740, 9871461806):  # 4 Sep (short equities), 2 Sep newest (headline only)
-    z, pdf = pdf_of(aid)
-    got = pdf_note.extract(pdf)
-    body = m.pdf_text(pdf)
-    i = body.find("US EQUITIES")
-    notice(f"partial {aid}", json.dumps({k: (v if isinstance(v, list) else v[:300]) for k, v in got.items()}, ensure_ascii=False)[:2000]
-           + "\n---RAW near US EQUITIES---\n" + body[max(0, i-200):i+1500])
+r = subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "import_notes.py"), "--dry-run"],
+                   capture_output=True, text=True)
+out = (r.stdout + r.stderr).replace("::error::", "ERROR ")
+out = out.replace("Recovered from the PDF: the agent saved no note text for this run, so the text was read back from the report. Check it before merging.", "[RECOVERED]")
+out = out.replace("The figure check failed: the PDF carries a Control note.", "[CONTROL]")
+chunks, buf = [], ""
+for ln in out.splitlines():
+    if len(buf) + len(ln) > 3900:
+        chunks.append(buf); buf = ""
+    buf += ln + "\n"
+chunks.append(buf)
+for i, c in enumerate(chunks[:8]):
+    notice(f"dry run {i+1}/{len(chunks)}", c)
