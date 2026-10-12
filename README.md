@@ -38,12 +38,16 @@ One note per date: the newest run that passes is published, and a newer run
 that is held gets the pull request; other runs that day are superseded. If the
 run behind a live note fails a check when re-checked, that note is taken down.
 
+Each new daily note that is held gets its own pull request. Notes held while
+re-checking runs an earlier import already saw (the first backfill, or after
+`VERSION` changes in `tools/import_notes.py`) are collected in one "Backfill
+review" pull request with a table of date, reason and agent run. To drop a
+note there, delete its file in the pull request (**Files changed**, **...**,
+**Delete file**), then merge to publish the rest.
+
 Runs before 15 September 2026 saved no note text file. For those, the text is
 read back from the report PDF (`tools/pdf_note.py`, checked against all 23
-later runs: every field matched exactly) and always held for review. The
-recovered notes that pass every other check share one pull request,
-"Recovered close notes"; to leave one out, delete its file in that pull
-request before merging.
+later runs: every field matched exactly) and always held for review.
 
 The PDF is read only for the checks and, for old runs, the text; it and the
 full facts file are never committed (this repo is public) or offered on the
