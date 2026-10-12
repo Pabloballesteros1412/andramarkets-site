@@ -699,7 +699,8 @@ def main():
     if withdraw:
         message += f"; withdraw {', '.join(withdraw)}"
     if enriched:
-        message += f"; add chart figures to {len(enriched)} note{'s' if len(enriched) > 1 else ''}"
+        figures = f"add chart figures to {len(enriched)} note{'s' if len(enriched) > 1 else ''}"
+        message = figures[0].upper() + figures[1:] if not (dates or withdraw) else f"{message}; {figures}"
     pushed = push_main(message) if artifacts or enriched else False
 
     failed, failed_dates = 0, set()

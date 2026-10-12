@@ -58,6 +58,11 @@ To take a note down: open `data/notes/<date>.json` in the web editor, change
 `"published": true` to `"published": false`, commit. The site rebuilds without
 it. Later runs for that date keep it down until you set it back to `true`.
 
+Each note record keeps, besides the text, only the figures its page shows:
+the ten tape closes, the Treasury curve, the risk score and breadth. Notes
+saved before a figure existed are filled in once from their own artifact on
+the next import run (while that artifact is still kept, 90 days).
+
 Each December, add the next year's NYSE holidays to `tools/nyse.py`.
 Until then, notes dated in that year are held for review.
 

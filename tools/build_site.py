@@ -949,6 +949,138 @@ def archive(notes):
     )
 
 
+# Report side panel: the session in numbers -----------------------------------
+
+KPIS = [("S&amp;P 500", "spx", 2), ("Nasdaq 100", "ndx", 2), ("US 10Y yield", "ust10y", 2),
+        ("VIX", "vix", 2)]
+TENOR_YEARS = {"ust1m": 1 / 12, "ust3m": 0.25, "ust6m": 0.5, "ust1y": 1, "ust2y": 2, "ust3y": 3,
+               "ust5y": 5, "ust7y": 7, "ust10y": 10, "ust20y": 20, "ust30y": 30}
+TENOR_LABEL = {"ust3m": "3M", "ust1y": "1Y", "ust2y": "2Y", "ust5y": "5Y", "ust10y": "10Y", "ust30y": "30Y"}
+
+
+def prev_session(day):
+    d = day - dt.timedelta(days=1)
+    for _ in range(10):
+        if nyse.is_trading_day(d) is not False:
+            return d
+        d -= dt.timedelta(days=1)
+    return d
+
+
+def real_svg(w, h, body, label):
+    return f'<svg class="chart" viewBox="0 0 {w} {h}" role="img" aria-label="{esc(label)}">{body}</svg>'
+
+
+def moves_chart(rec):
+    """The day's change for each price instrument on the tape, as diverging bars."""
+    rows = []
+    for label, key, _ in TAPE:
+        c = (rec.get("closes") or {}).get(key) or {}
+        if key in RATES or c.get("chg") is None or c.get("last") is None or c.get("stale"):
+            continue
+        rows.append((html.unescape(label), c["chg"], c["last"]))
+    if len(rows) < 3:
+        return ""
+    rows.sort(key=lambda r: r[1], reverse=True)
+    W, row, top = 400, 19, 2
+    H = top + row * len(rows) + 2
+    x0, half = 236, 94
+    span = max(abs(r[1]) for r in rows) or 1
+    body = f'<line class="ref" x1="{x0}" x2="{x0}" y1="0" y2="{H}"/>'
+    for i, (name, chg, last) in enumerate(rows):
+        y = top + i * row
+        wbar = max(1.0, half * abs(chg) / span)
+        x = x0 if chg >= 0 else x0 - wbar
+        body += (f'<g><title>{esc(name)}: {signed(chg, 2, "%")}</title>'
+                 f'<text class="chart__label" x="0" y="{y + 13}">{esc(name)}</text>'
+                 f'<rect class="{"up" if chg >= 0 else "down"}" x="{x:.1f}" y="{y + 4.5}" width="{wbar:.1f}" height="10"/>'
+                 f'<text class="chart__value" x="{W}" y="{y + 13}" text-anchor="end">{signed(chg, 2, "%")}</text></g>')
+    label = "Daily change at the close: " + ", ".join(f"{n} {signed(c, 2, '%')}" for n, c, _ in rows)
+    return real_svg(W, H, body, label)
+
+
+def curve_chart(rec, d):
+    """Treasury curve at its latest close against the session before."""
+    curve = [c for c in ((rec.get("charts") or {}).get("curve") or [])
+             if c.get("key") in TENOR_YEARS and c.get("last") is not None and c.get("chg") is not None]
+    if len(curve) < 4:
+        return "", ""
+    stale = any(c.get("stale") for c in curve)
+    close = prev_session(d) if stale else d
+    before = prev_session(close)
+    now = [(TENOR_YEARS[c["key"]], c["last"], c["key"]) for c in curve]
+    then = [(t, last - c["chg"] / 100) for (t, last, _), c in zip(now, curve)]
+    W, H, left, right, top, bottom = 400, 124, 40, 8, 6, 18
+    ys = [v for _, v, _ in now] + [v for _, v in then]
+    lo, hi = min(ys), max(ys)
+    pad = max((hi - lo) * 0.12, 0.05)
+    lo, hi = lo - pad, hi + pad
+    X = lambda t: left + (W - left - right) * math.sqrt(t) / math.sqrt(30)
+    Y = lambda v: top + (H - top - bottom) * (1 - (v - lo) / (hi - lo))
+    body = ""
+    for k in range(3):
+        v = lo + (hi - lo) * (k + 0.5) / 3
+        body += (f'<line class="grid-line" x1="{left}" x2="{W - right}" y1="{Y(v):.1f}" y2="{Y(v):.1f}"/>'
+                 f'<text class="chart__label" x="0" y="{Y(v) + 3.5:.1f}">{v:.2f}%</text>')
+    for t, _, key in now:
+        if key in TENOR_LABEL:
+            body += f'<text class="chart__label" x="{X(t):.1f}" y="{H - 6}" text-anchor="middle">{TENOR_LABEL[key]}</text>'
+    path = lambda pts: "M" + " L".join(f"{X(t):.1f} {Y(v):.1f}" for t, v in pts)
+    body += f'<path class="dash" d="{path(then)}"/><path class="line" d="{path([(t, v) for t, v, _ in now])}"/>'
+    body += "".join(f'<circle class="dot" cx="{X(t):.1f}" cy="{Y(v):.1f}" r="2.5"><title>{c["tenor"]}: {v:.2f}%, {signed(c["chg"], 0, "bp")}</title></circle>'
+                    for (t, v, _), c in zip(now, curve))
+    two, ten = next((c for c in curve if c["key"] == "ust2y"), None), next((c for c in curve if c["key"] == "ust10y"), None)
+    label = f"US Treasury yield curve at the close of {day_med(close)}, against {day_med(before)}"
+    if two and ten:
+        label += f": 2-year {two['last']:.2f}% ({signed(two['chg'], 0, 'bp')}), 10-year {ten['last']:.2f}% ({signed(ten['chg'], 0, 'bp')})"
+    key = (f'<p class="key"><span><i class="k-solid"></i>{close.day} {close:%b}</span>'
+           f'<span><i class="k-dash"></i>{before.day} {before:%b}</span></p>')
+    src = f"FRED, close of {day_med(close)}"
+    if stale:
+        src += ", the latest published curve"
+    return real_svg(W, H, body, label) + key, src + "."
+
+
+def side_panel(rec):
+    d = rec["day"]
+    closes, ch = rec.get("closes") or {}, rec.get("charts") or {}
+    items = []
+    for label, key, dec in KPIS:
+        c = closes.get(key) or {}
+        if c.get("last") is None:
+            continue
+        if key in RATES:
+            level = f"{c['last']:.{dec}f}%"
+            change = "Prior close" if c.get("stale") else (signed(c["chg"], 0, "bp") if c.get("chg") is not None else "n/a")
+        else:
+            level = f"{c['last']:,.{dec}f}"
+            change = signed(c["chg"], 2, "%") if c.get("chg") is not None else "n/a"
+        items.append((label, level, change))
+    risk, br = ch.get("risk") or {}, ch.get("breadth") or {}
+    if risk.get("score") is not None:
+        items.append(("Risk score", f"{risk['score']:+.2f}".replace("-", MINUS), esc(risk.get("label") or "")))
+    if br.get("advancers") is not None and br.get("decliners") is not None:
+        items.append(("Breadth", f"{br['advancers']} / {br['decliners']}", "up / down"))
+    if not items:
+        return ""
+    kpis = "".join(f'<li class="kpi__item"><span class="kpi__name">{n}</span>'
+                   f'<span class="kpi__level">{lv}</span><span class="kpi__chg">{chg}</span></li>' for n, lv, chg in items)
+    out = (f'<aside class="report__side" aria-labelledby="side-title">'
+           f'<h2 class="report__side-title" id="side-title">The session in numbers</h2>'
+           f'<ul class="kpi">{kpis}</ul>'
+           f'<p class="report__src">Close and daily change, {day_med(d)}. Yahoo Finance, FRED; '
+           f'risk score and breadth by Andra Markets.</p>')
+    moves = moves_chart(rec)
+    if moves:
+        out += (f'<figure class="report__fig"><h3>The day\'s moves</h3>{moves}'
+                f'<figcaption class="report__src">Yahoo Finance, change at the close, {day_med(d)}.</figcaption></figure>')
+    curve, src = curve_chart(rec, d)
+    if curve:
+        out += (f'<figure class="report__fig"><h3>Treasury yield curve</h3>{curve}'
+                f'<figcaption class="report__src">{src}</figcaption></figure>')
+    return out + "</aside>"
+
+
 def report(rec, newer, older):
     n = rec["note"]
     d = rec["day"]
@@ -984,7 +1116,7 @@ def report(rec, newer, older):
     standfirst = " ".join(n.get("standfirst", "").split())
     body = f"""<main id="main" class="page report">
   <div class="wrap">
-    <article>
+    <article class="report__grid">
       <header class="page__head">
         <h1 class="page__title report__title">{esc(n["headline"])}</h1>
         {f'<p class="lede">{esc(standfirst)}</p>' if standfirst else ""}
@@ -994,6 +1126,7 @@ def report(rec, newer, older):
           <p class="report__share-status" role="status" aria-live="polite"></p>
         </div>
       </header>
+      {side_panel(rec)}
       <div class="page__body">{sections}
       {sources}
       </div>
