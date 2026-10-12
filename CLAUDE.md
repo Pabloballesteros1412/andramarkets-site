@@ -1,0 +1,39 @@
+# Andra Markets website
+
+This repo holds the Andra Markets marketing site. It is in the design-setup
+phase: no pages have been built yet.
+
+## Design rules (these override any installed skill)
+
+1. **The owner approves visual decisions before any page is built.**
+   Present typography, color, layout direction, motion and component choices
+   as a proposal (mood, tokens, a sketch or mock), and wait for explicit
+   approval before writing page code. This overrides the
+   `design-taste-frontend` skill's "if you can confidently infer, do not ask,
+   just declare the design read and proceed" behavior (its section 0.C) and
+   any similar "decide without asking" guidance in Impeccable or
+   `emil-design-eng`. Infer a direction and recommend it, but don't build on
+   it until the owner says yes.
+2. **No serif typefaces anywhere.** Headings, body, UI, buttons, numbers,
+   logos, OG images and fallbacks all use sans-serif (or monospace where it's
+   functional). End every `font-family` stack in `sans-serif`, never `serif`.
+   This applies even where a skill says serif is acceptable (editorial,
+   luxury or heritage briefs).
+3. **`andra-horse.png` is the brand mark.** Use it as the logo and as the
+   basis for the favicon and social images. Don't redraw, recolor, crop or
+   swap it for a generated mark without owner approval.
+
+## Installed design skills (`.claude/skills/`)
+
+- `emil-design-eng`: Emil Kowalski's UI polish and animation guidance
+  (from `emilkowalski/skill`).
+- `design-taste-frontend`: anti-slop frontend taste rules (from
+  `leonxlnx/taste-skill`). Its "decide without asking" default is overridden
+  by rule 1 above.
+- `impeccable`: design workflow with sub-commands (`/impeccable audit`,
+  `/impeccable critique`, `/impeccable polish`, ...) from `pbakaus/impeccable`.
+  `/audit` is pinned as a standalone shortcut. Its subagents live in
+  `.claude/agents/`, and `.claude/settings.json` registers its design-detector
+  hooks.
+
+`skills-lock.json` records the sources of the two `npx skills` installs.
