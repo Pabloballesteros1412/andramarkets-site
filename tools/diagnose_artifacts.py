@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Temporary diagnostic: check PDF text recovery against the real note JSON."""
-import collections, io, json, os, re, sys, zipfile
+"""Temporary diagnostic: spot-check control notes and a partial recovery."""
+import io, json, os, re, sys, zipfile
 sys.path.insert(0, os.path.dirname(__file__))
 import import_notes as m
 import pdf_note
@@ -9,48 +9,25 @@ def notice(title, text):
     text = text.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
     print(f"::notice title={title}::{text[:4000]}")
 
-def norm(v):
-    if isinstance(v, list):
-        return [norm(x) for x in v]
-    return re.sub(r"\s+", " ", (v or "")).strip()
-
 token = os.environ["AGENT_ARTIFACTS_TOKEN"]
-stats, diffs, old, seen_f = collections.Counter(), [], [], {}
-for a in m.list_artifacts(token):
-    z = zipfile.ZipFile(io.BytesIO(m.download_zip(a, token)))
-    names = [i.filename for i in z.infolist()]
-    pdf = z.read(next(n for n in names if n.startswith("AndraMarkets_Close_")))
+arts = {a["id"]: a for a in m.list_artifacts(token)}
+def pdf_of(aid):
+    z = zipfile.ZipFile(io.BytesIO(m.download_zip(arts[aid], token)))
+    return z, z.read(next(n for n in z.namelist() if n.startswith("AndraMarkets_Close_")))
+
+out = []
+for aid in (11577608366, 10522208135, 9625377023):  # held for a control note
+    z, pdf = pdf_of(aid)
+    body = re.sub(r"\s+", " ", m.pdf_text(pdf))
+    for mm in re.finditer(r"Control\s*note", body, re.I):
+        out.append(f"{aid}: ...{body[max(0, mm.start()-160):mm.end()+200]}...")
+    nj = next((n for n in z.namelist() if n.startswith("note_")), None)
+notice("control notes", "\n\n".join(out) or "none found")
+
+for aid in (9956689740, 9871461806):  # 4 Sep (short equities), 2 Sep newest (headline only)
+    z, pdf = pdf_of(aid)
     got = pdf_note.extract(pdf)
-    nj = next((n for n in names if n.startswith("note_")), None)
-    if not nj:
-        old.append(f"{a['id']} {a['created_at'][:10]}: " + ", ".join(f"{k}:{len(v) if isinstance(v, list) else len(v.split())}" for k, v in got.items()) + f" | {got.get('headline','')[:70]}")
-        continue
-    truth = json.loads(z.read(nj))
-    for f in m.NOTE_FIELDS:
-        t = truth.get(f) or ([] if f in m.LIST_FIELDS else "")
-        g = got.get(f) or ([] if f in m.LIST_FIELDS else "")
-        if norm(t) == norm(g):
-            stats[f + " ok"] += 1
-            if f not in m.LIST_FIELDS and t and [p.strip() for p in re.split(r"\n\s*\n", t)] != [norm(p) for p in g.split("\n\n")]:
-                stats[f + " paragraph-split differs"] += 1
-        else:
-            stats[f + " BAD"] += 1
-            if len(diffs) < 14 and f not in seen_f:
-                seen_f[f] = 1
-                a_, b_ = json.dumps(norm(t)), json.dumps(norm(g))
-                i = next((k for k in range(min(len(a_), len(b_))) if a_[k] != b_[k]), min(len(a_), len(b_)))
-                diffs.append(f"{a['id']} {f} len {len(a_)}/{len(b_)} at {i}: truth={a_[max(0,i-40):i+80]!r} | got={b_[max(0,i-40):i+80]!r}")
-notice("stats", "\n".join(f"{k}: {v}" for k, v in sorted(stats.items())))
-notice("diffs", "\n".join(diffs) or "none")
-import subprocess
-r = subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "import_notes.py"), "--dry-run"],
-                   capture_output=True, text=True)
-out = (r.stdout + r.stderr).replace("::error::", "ERROR ")
-chunks, buf = [], ""
-for ln in out.splitlines():
-    if len(buf) + len(ln) > 3900:
-        chunks.append(buf); buf = ""
-    buf += ln + "\n"
-chunks.append(buf)
-for i, c in enumerate(chunks[:8]):
-    notice(f"dry run {i+1}/{len(chunks)}", c)
+    body = m.pdf_text(pdf)
+    i = body.find("US EQUITIES")
+    notice(f"partial {aid}", json.dumps({k: (v if isinstance(v, list) else v[:300]) for k, v in got.items()}, ensure_ascii=False)[:2000]
+           + "\n---RAW near US EQUITIES---\n" + body[max(0, i-200):i+1500])
