@@ -23,8 +23,10 @@ first:
      import already saw (a re-check after VERSION changes, such as the first
      backfill) are held together in one "Backfill review" pull request
 
-Only data/notes/<date>.json is written: the note text plus the ten closing
-levels the home tape shows. This repo is public, so the PDF and the full facts
+Only data/notes/<date>.json is written: the note text, the ten closing
+levels the home tape shows, and the few figures the report page charts need
+(Treasury curve, risk score, breadth). Records published before those charts
+existed are filled in once from their own artifact (enrich). This repo is public, so the PDF and the full facts
 file are never written to it: they stay in the agent repo's artifacts.
 Captions, LinkedIn and TikTok files in the artifact are never read.
 
@@ -209,6 +211,27 @@ def closes(facts):
     return out
 
 
+CURVE = ("ust1m", "ust3m", "ust6m", "ust1y", "ust2y", "ust3y", "ust5y", "ust7y",
+         "ust10y", "ust20y", "ust30y")
+
+
+def charts(facts):
+    """Only what the report page charts need: the curve, risk score and breadth."""
+    stale = set(facts.get("series_not_yet_published") or [])
+    rows = {r.get("key"): r for r in facts.get("treasury_curve") or [] if isinstance(r, dict)}
+    curve = [{"key": k, "tenor": clean_text(rows[k].get("name"))[:20],
+              "last": number(rows[k].get("last")), "chg": number(rows[k].get("chg")),
+              "stale": k in stale} for k in CURVE if k in rows]
+    risk = facts.get("risk_barometer") if isinstance(facts.get("risk_barometer"), dict) else {}
+    breadth = facts.get("breadth") if isinstance(facts.get("breadth"), dict) else {}
+    count = lambda v: int(v) if isinstance(v, (int, float)) and not isinstance(v, bool) and v >= 0 else None
+    return {
+        "curve": curve,
+        "risk": {"score": number(risk.get("score")), "label": clean_text(risk.get("label"))[:24]},
+        "breadth": {"advancers": count(breadth.get("advancers")), "decliners": count(breadth.get("decliners"))},
+    }
+
+
 def clean_text(v):
     if not isinstance(v, str):
         return ""
@@ -315,6 +338,7 @@ def check(stamp, files, artifact, today):
         "text_source": source,
         "note": text,
         "closes": closes(facts),
+        "charts": charts(facts),
         "source": {
             "repo": AGENT_REPO,
             "run_id": (artifact.get("workflow_run") or {}).get("id"),
@@ -519,6 +543,32 @@ def summary(rows):
             f.write(f"| {a} | {d} | {r} |\n")
 
 
+def enrich(root, everything, token, dry):
+    """Add chart figures to published records made before they existed."""
+    by_id = {a["id"]: a for a in everything}
+    done = []
+    for f in sorted((root / "data" / "notes").glob("*.json")):
+        record = json.loads(f.read_text(encoding="utf-8"))
+        if "charts" in record:
+            continue
+        art = by_id.get(record["source"]["artifact_id"])
+        if not art:
+            print(f"::warning::{record['date']}: its artifact has expired, so no chart figures.")
+            continue
+        try:
+            _, files = unpack(download_zip(art, token))
+            record["charts"] = charts(json.loads(files["facts"]))
+        except (Rejected, ValueError) as e:
+            print(f"::warning::{record['date']}: chart figures not added ({e}).")
+            continue
+        done.append(record["date"])
+        if dry:
+            print(f"ENRICH {record['date']} {json.dumps(record['charts'])}")
+        else:
+            write_note(root, record)
+    return done
+
+
 def decide(results, root):
     """Pick, per session date, what to publish, what to hold and what is superseded.
 
@@ -568,8 +618,8 @@ def main():
     seen = state["artifacts"]
 
     try:
-        artifacts = [a for a in list_artifacts(agent_token)
-                     if seen.get(str(a["id"]), {}).get("v", 1) < VERSION]
+        everything = list_artifacts(agent_token)
+        artifacts = [a for a in everything if seen.get(str(a["id"]), {}).get("v", 1) < VERSION]
     except urllib.error.HTTPError as e:
         raise SystemExit(f"Could not list the agent's artifacts (HTTP {e.code}). "
                          "The token may have expired or lost Actions: read access.")
@@ -619,6 +669,7 @@ def main():
         r["entry"].update(status="held", reasons=r["reasons"])
         rows.append((r["artifact"]["id"], r["record"]["date"], "held: " + " ".join(r["reasons"])))
 
+    enriched = enrich(ROOT, everything, agent_token, dry)
     if dry:
         plan = [f"{d} {res}" for _, d, res in sorted(rows, key=lambda x: (x[1], str(x[0])))]
         print("\n".join(plan))
@@ -647,7 +698,10 @@ def main():
                if dates else "Record imported agent artifacts")
     if withdraw:
         message += f"; withdraw {', '.join(withdraw)}"
-    pushed = push_main(message) if artifacts else False
+    if enriched:
+        figures = f"add chart figures to {len(enriched)} note{'s' if len(enriched) > 1 else ''}"
+        message = figures[0].upper() + figures[1:] if not (dates or withdraw) else f"{message}; {figures}"
+    pushed = push_main(message) if artifacts or enriched else False
 
     failed, failed_dates = 0, set()
     for group, opener in ([(r,) for r in single], None), ([tuple(backfill)] if backfill else [], "backfill"):
@@ -685,7 +739,7 @@ def main():
                 close_stale_prs(date, keep.get(date), state, site_token, why)
 
     summary(rows)
-    output("published", "true" if (publish or withdraw) and pushed else "false")
+    output("published", "true" if (publish or withdraw or enriched) and pushed else "false")
     print(f"published {len(publish)}, withdrew {len(withdraw)}, held {len(single)} + "
           f"{len(backfill)} in the backfill review, superseded {len(superseded)}, "
           f"rejected {len(rejected)}")
