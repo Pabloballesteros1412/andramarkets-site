@@ -48,11 +48,21 @@ workflow runs it from `andramarkets-agent/video/`. The step is
 
 - **Fix:** move the file to `andramarkets-agent/video/build_video_data.py`.
 
-## 5. Run files are kept for 90 days only
+## 5. PDFs and fact packs expire after 90 days (priority)
 
-The `andramarkets-<run id>` artifact expires after 90 days. The site copies
-each note in permanently, so nothing is lost as long as the site's import
-runs within that window.
+The `andramarkets-<run id>` artifact is deleted after 90 days. The site keeps
+only the note text and the tape closes, never the PDF or the full facts file
+(this site repo is public). So today the artifact is the only copy of each
+PDF and fact pack, and they disappear after 90 days. The paid tier will need
+them (full archive, PDF and data downloads).
 
-- **Optional:** set `retention-days` on the upload step if you want a longer
-  safety margin.
+- **Fix:** keep a permanent private copy in the agent repo, for example a step
+  that commits `AndraMarkets_Close_*.pdf` and `facts_*.json` to an
+  `archive/YYYY/` folder in the private agent repo after each run (or uploads
+  them as assets on a private release). Do this before the oldest notes
+  expire: on 12 October 2026 the agent repo held 66 note artifacts, the
+  oldest from 20 August 2026, which expires around 18 November 2026.
+- **Stopgap:** the agent repo is private, so its artifact retention can be
+  raised to 400 days (agent repo Settings → Actions → General → Artifact and
+  log retention, plus `retention-days: 400` on the upload step). That only
+  affects new artifacts and is not a permanent archive.

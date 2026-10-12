@@ -7,7 +7,7 @@ first:
 
   1. download the zip with a read-only token and take exactly three files:
      AndraMarkets_Close_YYYYMMDD.pdf, note_YYYYMMDD.json, facts_YYYYMMDD.json
-  2. check them
+  2. check them (the PDF is read in memory for the figure check and edition)
        broken (missing file, bad JSON, not a PDF, dates disagree): rejected,
          nothing is published and the workflow run fails so GitHub emails you
        not an NYSE trading day, dated in the future, or the figure check
@@ -15,6 +15,9 @@ first:
        otherwise: published straight to main
   3. a newer note for the same session date replaces the older one
 
+Only data/notes/<date>.json is written: the note text plus the ten closing
+levels the home tape shows. This repo is public, so the PDF and the full facts
+file are never written to it: they stay in the agent repo's artifacts.
 Captions, LinkedIn and TikTok files in the artifact are never read.
 
 Environment:
@@ -61,6 +64,11 @@ NOTE_FIELDS = ("headline", "standfirst", "takeaways", "desk_view", "watching",
                "equities", "rates", "credit", "fx", "commodities", "volatility",
                "digital", "international", "correlation")
 LIST_FIELDS = ("takeaways", "watching")
+# The home tape: (facts block, instrument key). Only these closes are kept.
+TAPE = [("us_equity", "spx"), ("us_equity", "ndx"), ("us_equity", "rut"),
+        ("europe", "sx5e"), ("apac", "nky"), ("volatility", "vix"),
+        ("treasury_curve", "ust10y"), ("fx", "eurusd"),
+        ("commodities", "wti"), ("commodities", "gold")]
 
 
 class Rejected(Exception):
@@ -162,15 +170,23 @@ def unpack(blob):
     return stamps.pop(), {k: data for k, (_, data) in found.items()}
 
 
-def finite(v):
-    """JSON as the agent writes it may hold NaN; publish null instead."""
-    if isinstance(v, float) and not math.isfinite(v):
+def number(v):
+    """The agent's JSON may hold NaN; keep finite numbers only."""
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
         return None
-    if isinstance(v, dict):
-        return {str(k): finite(x) for k, x in v.items()}
-    if isinstance(v, list):
-        return [finite(x) for x in v]
-    return v
+    return float(v) if math.isfinite(v) else None
+
+
+def closes(facts):
+    """The tape's closing level and daily change, from the facts file."""
+    stale = set(facts.get("series_not_yet_published") or [])
+    out = {}
+    for block, key in TAPE:
+        rows = facts.get(block) if isinstance(facts.get(block), list) else []
+        row = next((r for r in rows if isinstance(r, dict) and r.get("key") == key), {})
+        out[key] = {"last": number(row.get("last")), "chg": number(row.get("chg")),
+                    "stale": key in stale}
+    return out
 
 
 def clean_text(v):
@@ -249,9 +265,8 @@ def check(stamp, files, artifact, today):
         "published": True,
         "edition": edition,
         "figure_check": figure_check,
-        "pdf": f"AndraMarkets_Close_{stamp}.pdf",
-        "facts": f"facts_{stamp}.json",
         "note": text,
+        "closes": closes(facts),
         "source": {
             "repo": AGENT_REPO,
             "run_id": (artifact.get("workflow_run") or {}).get("id"),
@@ -259,19 +274,12 @@ def check(stamp, files, artifact, today):
             "created_at": artifact["created_at"],
         },
     }
-    facts_json = json.dumps(finite(facts), indent=2, ensure_ascii=False, allow_nan=False) + "\n"
-    return record, facts_json, hold
+    return record, hold
 
 
 # Files and git ---------------------------------------------------------------
 
-def write_note(root, record, pdf, facts_json):
-    folder = root / "reports" / record["date"]
-    folder.mkdir(parents=True, exist_ok=True)
-    for old in list(folder.glob("AndraMarkets_Close_*.pdf")) + list(folder.glob("facts_*.json")):
-        old.unlink()
-    (folder / record["pdf"]).write_bytes(pdf)
-    (folder / record["facts"]).write_text(facts_json, encoding="utf-8")
+def write_note(root, record):
     notes = root / "data" / "notes"
     notes.mkdir(parents=True, exist_ok=True)
     (notes / f"{record['date']}.json").write_text(
@@ -291,8 +299,8 @@ def git(*args, cwd=ROOT, check=True):
 
 
 def push_main(message):
-    git("add", "-A", "data", "reports")
-    if not git("status", "--porcelain", "data", "reports"):
+    git("add", "-A", "data")
+    if not git("status", "--porcelain", "data"):
         return False
     git("commit", "-m", message)
     for attempt in range(4):
@@ -303,15 +311,15 @@ def push_main(message):
     raise SystemExit("Could not push to main after 4 attempts.")
 
 
-def open_held_pr(record, pdf, facts_json, reasons, token):
+def open_held_pr(record, reasons, token):
     date, artifact = record["date"], record["source"]["artifact_id"]
     branch = f"held/{date}-{artifact}"
     tmp = Path(tempfile.mkdtemp())
     try:
         git("fetch", "origin", "main")
         git("worktree", "add", "-B", branch, str(tmp), "origin/main")
-        write_note(tmp, record, pdf, facts_json)
-        git("add", "-A", "data", "reports", cwd=tmp)
+        write_note(tmp, record)
+        git("add", "-A", "data", cwd=tmp)
         git("commit", "-m", f"Held close note {date} for review", cwd=tmp)
         git("push", "--force", "origin", f"{branch}:{branch}", cwd=tmp)
     finally:
@@ -341,7 +349,9 @@ def open_held_pr(record, pdf, facts_json, reasons, token):
     ]
     if replaces:
         lines.append(f"- Merging replaces the note already published for {date}.")
-    lines += ["", "Open the PDF from the **Files changed** tab to read it first."]
+    run = record["source"]["run_id"]
+    lines += ["", f"Read the note text under **Files changed** (`data/notes/{date}.json`), "
+              f"or the PDF in the agent run: https://github.com/{AGENT_REPO}/actions/runs/{run}"]
     pr = api(f"/repos/{SITE_REPO}/pulls", token, "POST", {
         "title": f"Held close note: {date}",
         "head": branch,
@@ -417,7 +427,7 @@ def main():
         entry = {"run_id": (a.get("workflow_run") or {}).get("id"), "created_at": a["created_at"]}
         try:
             stamp, files = unpack(download_zip(a, agent_token))
-            record, facts_json, reasons = check(stamp, files, a, today)
+            record, reasons = check(stamp, files, a, today)
         except Rejected as e:
             entry.update(status="rejected", reason=str(e))
             rejected.append((a, str(e)))
@@ -427,7 +437,7 @@ def main():
             entry["date"] = record["date"]
             if reasons:
                 entry.update(status="held", reasons=reasons)
-                held.append((record, files["pdf"], facts_json, reasons))
+                held.append((record, reasons))
                 rows.append((a["id"], record["date"], "held: " + " ".join(reasons)))
             else:
                 prev = existing(ROOT, record["date"])
@@ -438,7 +448,7 @@ def main():
                     if prev and prev.get("published") is False:
                         # The owner withdrew this date by hand. Keep it withdrawn.
                         record["published"] = False
-                    write_note(ROOT, record, files["pdf"], facts_json)
+                    write_note(ROOT, record)
                     entry["status"] = "published"
                     published.append(record)
                     rows.append((a["id"], record["date"],
@@ -446,12 +456,12 @@ def main():
         seen[str(a["id"])] = entry
 
     failed = 0
-    for record, pdf, facts_json, reasons in held:
+    for record, reasons in held:
         key = str(record["source"]["artifact_id"])
         try:
             if not site_token:
                 raise RuntimeError("GITHUB_TOKEN is not set")
-            seen[key]["pr"] = open_held_pr(record, pdf, facts_json, reasons, site_token)
+            seen[key]["pr"] = open_held_pr(record, reasons, site_token)
             print(f"Held {record['date']}: {seen[key]['pr']}")
         except Exception as e:  # noqa: BLE001
             # Not recorded as seen, so the next run tries again.

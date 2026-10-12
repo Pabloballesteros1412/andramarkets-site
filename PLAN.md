@@ -1,11 +1,23 @@
 # Plan: publish the daily close note on the site
 
-Status: **approved and built.** Owner decisions: pull approach; held notes
-open a pull request; a newer note replaces an older one for the same date;
-page sketches approved; facts JSON offered as a download; live data Stage 1
-now, Stage 2 later; backfill the last 90 days, with anything that fails a
-check held for review. Setup steps live in README, Publishing the close note.
-Agent repo problems are tracked in AGENT_FIXES.md.
+Status: **approved and built**, then amended by the owner.
+
+Owner decisions: pull approach; held notes open a pull request; a newer note
+replaces an older one for the same date; page sketches approved; live data
+Stage 1 now, Stage 2 later; backfill the last 90 days, with anything that
+fails a check held for review.
+
+**Amendment (no downloads):** the site is the free tier. Each note is a web
+page rendered from its text, with a "Share this note" button. No PDF and no
+verified facts file is linked, published or committed to this public repo:
+both stay in the agent repo's artifacts, and become paid-subscriber perks
+later (see PRODUCT.md, Business Model). The importer reads the PDF in memory
+only for the figure check and edition number, and keeps only the note text
+and the ten tape closes. This replaces decision 5 below and every mention of
+a PDF or facts download in sections 1, 2, 4 and 6.
+
+Setup steps live in README, Publishing the close note. Agent repo problems
+are tracked in AGENT_FIXES.md.
 
 ---
 
@@ -21,9 +33,9 @@ I read `Pabloballesteros1412/andramarkets` (`andramarkets-agent/` and
 
   | File | Use on the site |
   |---|---|
-  | `AndraMarkets_Close_YYYYMMDD.pdf` | the note, published as a download |
+  | `AndraMarkets_Close_YYYYMMDD.pdf` | read for the figure check only, never stored or published |
   | `note_YYYYMMDD.json` | headline, standfirst, takeaways, desk view, watching, section text |
-  | `facts_YYYYMMDD.json` | verified fact pack: session date, levels and changes for the tape |
+  | `facts_YYYYMMDD.json` | session date and the ten tape closes only; never stored in full |
   | `series_YYYYMMDD.json` | S&P 500 intraday closes (optional chart later) |
   | LinkedIn PDF, TikTok PNGs, captions | **not published on the site** |
 
@@ -210,7 +222,7 @@ over headline, exactly as the home archive does.
 Thursday 9 October 2026   Edition 0031   6 min read      ← meta row (ink-2, 20px gaps)
 Headline of the note                                     ← page title
 Standfirst, two sentences.                               ← lede
-[ Download the PDF  ↓ ]   Previous note  ·  Next note    ← primary button, text links
+[ Share this note ]                                       ← primary button (amended)
 ════════════════════════════════════════════════
 Takeaways        ruled list of four
 Desk view        two paragraphs
@@ -222,13 +234,10 @@ Sources: Yahoo Finance, FRED. Every figure checked against the session's
 verified fact pack. For information only. Not investment advice.
 ```
 
-- The PDF is linked, not embedded: embedded PDFs are poor on phones and slow
-  everywhere, and the HTML text reads well on a phone.
-- Tables and exhibits stay in the PDF.
+- Amended: no PDF link, no download of any kind. The page is the note.
+- Tables and exhibits stay in the PDF, which remains a future paid perk.
 - Each report page gets its own title and description for link previews,
   reusing the approved share image.
-- **Question:** also offer the verified facts JSON as a download, as a signal
-  of rigour for recruiters? It is small and already public data.
 
 ### Nav
 
@@ -303,6 +312,6 @@ DESIGN.md in several places.
    you to merge. OK?
 3. Same session date twice: newer replaces older? (Recommended.)
 4. The archive and report page layouts in section 4, as sketched.
-5. Publish the facts JSON next to the PDF: yes or no?
+5. ~~Publish the facts JSON next to the PDF~~ Amended: no downloads at all.
 6. Live data: Stage 1 now; Stage 2 later or never?
 7. Backfill: all notes in the last 90 days, or start from the next run?

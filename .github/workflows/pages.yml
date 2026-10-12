@@ -6,7 +6,6 @@ on:
     paths:
       - "assets/**"
       - "data/notes/**"
-      - "reports/**"
       - "tools/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
@@ -45,6 +44,11 @@ jobs:
           mkdir _site
           cp -r index.html methodology reports assets _site/
           rm -rf _site/assets/icons
+      # The site is free: no PDF or data file may ever be published.
+      - name: Check no downloads are published
+        run: |
+          found=$(find _site -type f \( -iname '*.pdf' -o -iname '*.json' -o -iname '*.xlsx' -o -iname '*.csv' \))
+          if [ -n "$found" ]; then echo "::error::Files that must not be published: $found"; exit 1; fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

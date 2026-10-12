@@ -7,13 +7,14 @@ per visitor. Writes:
     index.html                 the homepage
     methodology/index.html     methodology (placeholder page)
     reports/index.html         every published close note
-    reports/<date>/index.html  one page per note, next to its PDF and facts
+    reports/<date>/index.html  one page per note, rendered from its text
 
     python3 tools/build_site.py
 
 Close notes come from data/notes/*.json, written by tools/import_notes.py.
 With none published, the home page keeps its placeholders. The tape shows the
-latest note's closing levels from its verified facts file.
+latest note's closing levels. No PDF or facts file is ever linked: the site is
+free, and those downloads are reserved for paid subscribers later.
 
 Every chart is a schematic shape from a seeded random walk. None of it is
 market data, and the page labels it "Illustrative". Follow DESIGN.md.
@@ -319,19 +320,20 @@ def icon(name):
 
 # Content ---------------------------------------------------------------------
 
-# Tape: (label, facts block, instrument key, decimals). Levels come from the
-# latest note's facts file. The 10-year is a yield, its change in basis points.
+# Tape: (label, instrument key, decimals). Levels are the latest note's
+# closes (see TAPE in tools/import_notes.py). The 10-year is a yield, its
+# change in basis points.
 TAPE = [
-    ("S&amp;P 500", "us_equity", "spx", 2),
-    ("Nasdaq 100", "us_equity", "ndx", 2),
-    ("Russell 2000", "us_equity", "rut", 2),
-    ("Euro Stoxx 50", "europe", "sx5e", 2),
-    ("Nikkei 225", "apac", "nky", 2),
-    ("VIX", "volatility", "vix", 2),
-    ("US 10Y yield", "treasury_curve", "ust10y", 2),
-    ("EUR/USD", "fx", "eurusd", 4),
-    ("WTI crude", "commodities", "wti", 2),
-    ("Gold", "commodities", "gold", 1),
+    ("S&amp;P 500", "spx", 2),
+    ("Nasdaq 100", "ndx", 2),
+    ("Russell 2000", "rut", 2),
+    ("Euro Stoxx 50", "sx5e", 2),
+    ("Nikkei 225", "nky", 2),
+    ("VIX", "vix", 2),
+    ("US 10Y yield", "ust10y", 2),
+    ("EUR/USD", "eurusd", 4),
+    ("WTI crude", "wti", 2),
+    ("Gold", "gold", 1),
 ]
 RATES = {"ust10y"}
 
@@ -460,12 +462,10 @@ def signed(v, decimals, unit=""):
 
 
 def tape_items(rec):
-    """Closing level and daily change for each tape instrument, from the facts file."""
-    facts = json.loads((REPORTS / rec["date"] / rec["facts"]).read_text(encoding="utf-8"))
-    stale = set(facts.get("series_not_yet_published") or [])
+    """Closing level and daily change for each tape instrument."""
     items, any_stale = [], False
-    for label, block, key, dec in TAPE:
-        row = next((r for r in facts.get(block) or [] if r.get("key") == key), {})
+    for label, key, dec in TAPE:
+        row = (rec.get("closes") or {}).get(key) or {}
         last, chg = row.get("last"), row.get("chg")
         if last is None:
             level, change = "n/a", ""
@@ -475,7 +475,7 @@ def tape_items(rec):
         else:
             level = f"{last:,.{dec}f}"
             change = signed(chg, 2, "%") if chg is not None else "n/a"
-        if last is not None and key in stale:
+        if last is not None and row.get("stale"):
             change, any_stale = "Prior close", True
         items.append((label, level, change))
     return items, any_stale
@@ -967,11 +967,10 @@ def report(rec, newer, older):
         else:
             content = paragraphs(v)
         sections += f'\n      <section aria-labelledby="{sid}"><h2 id="{sid}">{heading}</h2>{content}</section>'
-    checked = ("Every figure in this note was checked against the session's verified fact pack, "
-               "published above as JSON.")
+    checked = "Every figure in this note was checked against the session's verified fact pack."
     if rec.get("figure_check") == "failed":
         checked = ("This edition did not fully pass the automated figure check against the "
-                   "session's verified fact pack, published above as JSON. It was reviewed before publication.")
+                   "session's verified fact pack. It was reviewed before publication.")
     sources = (f'<section aria-labelledby="s-sources"><h2 id="s-sources">Sources</h2>'
                f"<p>Levels at the official close from Yahoo Finance; the Treasury curve, breakevens and real "
                f"yields from FRED. {checked}</p><p>For information only. Not investment advice.</p></section>")
@@ -981,6 +980,7 @@ def report(rec, newer, older):
     if newer:
         pager += f'<a class="link" href="../{newer["date"]}/">Next note, {day_med(newer["day"])} {icon("arrow-right")}</a>'
     pager += f'<a class="link" href="../">All notes {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../../#subscribe">Get the note by email {icon("arrow-right")}</a>'
     standfirst = " ".join(n.get("standfirst", "").split())
     body = f"""<main id="main" class="page report">
   <div class="wrap">
@@ -989,9 +989,9 @@ def report(rec, newer, older):
         <h1 class="page__title report__title">{esc(n["headline"])}</h1>
         {f'<p class="lede">{esc(standfirst)}</p>' if standfirst else ""}
         <p class="note__meta">{meta}</p>
-        <div class="report__actions">
-          <a class="btn" href="{esc(rec["pdf"])}" download>Download the PDF {icon("arrow-right")}</a>
-          <a class="btn btn--ghost" href="{esc(rec["facts"])}" download>Verified facts, JSON</a>
+        <div class="report__share" hidden>
+          <button class="btn" type="button" data-share>Share this note</button>
+          <p class="report__share-status" role="status" aria-live="polite"></p>
         </div>
       </header>
       <div class="page__body">{sections}
@@ -1021,6 +1021,7 @@ def main():
     for i, rec in enumerate(notes):
         newer = notes[i - 1] if i > 0 else None
         older = notes[i + 1] if i + 1 < len(notes) else None
+        (REPORTS / rec["date"]).mkdir(exist_ok=True)
         (REPORTS / rec["date"] / "index.html").write_text(report(rec, newer, older))
     print(f"wrote index.html, methodology/index.html, reports/index.html and {len(notes)} report page(s)")
 

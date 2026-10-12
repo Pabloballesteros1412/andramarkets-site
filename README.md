@@ -6,8 +6,8 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `assets/`: stylesheet, script, self-hosted font, brand mark.
 - `tools/build_site.py`: generates every page from one shell. Edit markup here.
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
-- `data/notes/<date>.json`: one record per published close note.
-- `reports/<date>/`: each note's PDF and verified facts file.
+- `data/notes/<date>.json`: one record per close note: its text and the ten
+  closing levels for the tape. No PDF or facts file is ever stored here.
 - `DESIGN.md`: the design system. Every page follows it.
 - `PRODUCT.md`: product truth and brand commitments.
 - `AGENT_FIXES.md`: known problems in the agent repo, to fix next.
@@ -25,15 +25,17 @@ its files as an Actions artifact. `.github/workflows/publish-notes.yml` in
 this repo checks for new artifacts twice an hour from 20:00 to 02:59 UTC,
 with a read-only token, and for each one:
 
-- **publishes it** when it passes every check: it commits the PDF, the facts
-  file and the note record to `main`, then deploys the site;
+- **publishes it** when it passes every check: it commits the note record
+  (text and tape closes) to `main`, then deploys the site;
 - **holds it in a pull request** titled "Held close note: <date>" when the
   date was not an NYSE trading day, is in the future, or the figure check
   failed. Merge to publish, close to discard;
 - **rejects it** when files are missing or broken. Nothing is published and
   the run fails, so GitHub emails you.
 
-A newer note for the same date replaces the older one. To publish at once:
+A newer note for the same date replaces the older one. The PDF is read only to
+run the figure check; it and the full facts file are never committed (this
+repo is public) or offered on the site. They stay in the agent's artifacts. To publish at once:
 **Actions** → **Publish close notes** → **Run workflow**.
 
 To take a note down: open `data/notes/<date>.json` in the web editor, change
@@ -99,8 +101,10 @@ Social channels live in `SOCIALS` and the Watch videos in `VIDEOS`, both at the
 top of `tools/build_site.py`. Andra has no YouTube channel yet: set
 `YOUTUBE_URL` and add `("YouTube", "wide")` to the front of `VIDEOS` to bring
 back the footer link and the 16:9 frame; the Watch grid adapts by itself. All charts are illustrative
-shapes until real data is wired in, and say so. The signup form is front-end
-only until an email provider is connected.
+shapes until real data is wired in, and say so. The signup form is a
+placeholder until the free newsletter launches on a newsletter platform
+(Substack, Beehiiv or Ghost); it will then link there. See PRODUCT.md,
+Business Model.
 
 ## Licenses
 

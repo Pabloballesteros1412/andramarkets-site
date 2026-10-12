@@ -52,7 +52,7 @@ record. The daily note is one module among others, not the centrepiece.
   Learn, Watch.
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
-  time, email provider, a YouTube channel.
+  time, newsletter platform (Substack, Beehiiv or Ghost), a YouTube channel.
   The site uses labelled placeholders until each is decided.
 
 ## Brand Commitments
@@ -77,11 +77,49 @@ record. The daily note is one module among others, not the centrepiece.
 ## Evidence on Hand
 
 - `andra-horse.png` (brand mark).
-- The daily close notes, imported from the agent repo (`data/notes/`,
-  `reports/`): headline, text, PDF and verified facts, with official closes
-  from Yahoo Finance and FRED. The home tape and note module use them.
+- The daily close notes, imported from the agent repo (`data/notes/`): the
+  note text and the ten closing levels the tape shows, from Yahoo Finance and
+  FRED. The note PDFs and full fact packs stay in the agent repo.
 - No other market data, subscriber counts, testimonials or press exist yet.
   Never invent numbers: use placeholders such as `[live]` and `[date]`.
+
+## Business Model
+
+Recorded for direction only. **No paid feature is built yet.**
+
+### Free tier (open to everyone, on this site)
+
+The daily close note, readable on the web and shareable by link; dashboards;
+the economic calendar; Learn; Lab tools; Watch.
+
+The site never offers downloads: no note PDF, no verified facts file, no data
+behind the dashboards. This repo is public, so PDFs and full fact packs are
+never committed here; they stay in the agent repo and its artifacts.
+
+### Paid subscription (future, not built)
+
+- An exclusive weekly report.
+- A company deep dive every two weeks, produced with the research agent and
+  reviewed by the owner, with a downloadable Excel valuation model.
+- Earnings previews and reviews for major companies during earnings season.
+- Subscriber polls to choose the next company to analyse.
+- Extras: the full report archive, PDF downloads, the data downloads behind
+  the dashboards (including the verified facts file), early access to Lab tools.
+- **Never:** model portfolios or buy and sell lists (regulatory risk).
+
+Delivery and payments run on a newsletter platform (Substack, Beehiiv or
+Ghost, not chosen yet), linked from the site. No custom accounts, logins or
+payments on this site.
+
+An on-demand equity research agent is a possible later tier. Not planned now.
+
+### Rollout
+
+1. Launch a free newsletter carrying the daily note, to build an audience.
+   The site's email signup links to the newsletter platform once it exists;
+   until then it is a placeholder.
+2. Open the paid tier later, only after legal advice on the rules for
+   publishing investment research.
 
 ## Product Principles
 
