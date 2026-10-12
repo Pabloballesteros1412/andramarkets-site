@@ -482,6 +482,7 @@ A full-width band below the hero, ground fill, `--rule` top and bottom.
 - **Head:** h2 "Markets [date], [time] ET" at 0.9375rem/600 ink, and a right-aligned link to the latest close note (550, ink, arrow nudges 3px on hover). Head text otherwise 0.875rem ink-2.
 - **List:** 10 instruments in a grid of `minmax(124px, 1fr)` columns that scrolls horizontally with snap; at 640px and below each column is `40vw`. Items separated by vertical `--rule` hairlines, 16px padding. Name 0.8125rem ink-2; level 1.1875rem/500 tabular; change 0.875rem.
 - **Source line:** "Last and daily change. Source [data vendor]" at 0.8125rem ink-3.
+- **With a published note:** the head reads "Markets 9 Oct 2026, 4:00 pm ET" (1:00 pm on NYSE early closes) and links to that note's page. Levels are the note's official closes from its facts file, with thousands separators and each instrument's decimals; changes carry a sign and a true minus (U+2212), percent to two decimals, the 10-year yield in whole basis points. No colour on the tape. A series with no print for the session shows its level and "Prior close" as the change; a missing value reads "n/a". Source line: "Close and daily change. Sources: Yahoo Finance, FRED for the US 10Y yield.", plus "Prior close: no print yet for the session." when it applies.
 
 ### Filter chips and status
 - **Chip:** 44px tall, padding 0 16px, `--rule` border, transparent, ink-2 label at 0.875rem/550, count in tabular figures at 450 in ink-3.
@@ -513,6 +514,17 @@ A cell in the hairline lattice; no card chrome.
 ### Daily note module
 - **Latest (columns 1 to 6):** section title, then an article: note title (note-title style, 28px above), summary (max 46ch), meta row (date and read time, 0.875rem ink-2, 20px gap), and a primary "Read the note" button.
 - **Archive (columns 8 to 12, bottom-aligned):** a label line ("Every US trading day, after the close.", 0.875rem ink-2) over a `--rule-strong` rule, then a ruled list of rows `7rem | title | 20px arrow`, 18px vertical padding. Hover underlines the title and nudges the arrow 4px. Mobile stacks date above title. An "All notes" link follows.
+- **Real notes:** the latest note fills the article (headline in ink, standfirst as summary, read time from the word count at 230 words a minute) and the archive lists the three before it. Dates are `<time>` in ink-2 with tabular figures ("9 Oct 2026"; 0.8125rem on mobile). Until a note is published the placeholders stay.
+
+### Note archive (`/reports/`)
+An inner page. Head: page title "Daily close notes", lede "Every US trading day, after the close. [n] notes." Body (max 44rem): notes grouped by month, newest first. Each month opens with a heading styled like a calendar day row (0.875rem/600 ink, 28px top padding, 16px for the first, 12px bottom, `--rule-strong` bottom rule), followed by the note list rows with the date as "9 Oct".
+
+### Report page (`/reports/<date>/`)
+An inner page, one per note.
+- **Head:** the headline in the section title scale (540, `clamp(2rem, 4.2vw, 3.5rem)`, 1.02, -0.035em, balanced): a model headline runs 8 to 13 words, too long for the page title scale. Then the standfirst as the lede, the meta row (long date, edition, read time; 0.875rem ink-2, 20px gaps, 20px above), then an actions row 28px below with an 8px gap: primary "Download the PDF" and ghost "Verified facts, JSON". On mobile both buttons go full width. No meta or label above the headline (no eyebrows).
+- **Body:** inner page sections in reading order, each only when it has text: Takeaways, Desk view, What we watch, Equities, Rates, Credit, FX, Commodities, Volatility, Digital assets, International, Correlation, then Sources (with the figure check statement and "For information only. Not investment advice."). Takeaways and What we watch are ruled lists: `--rule` top border, rows padded 12px with `--rule` separators, ink-2 text. Consecutive paragraphs are 12px apart.
+- **Pager:** text links below the body, 32px above, 24px apart: "Previous note, [date]", "Next note, [date]", "All notes".
+- The PDF is linked, never embedded.
 
 ### Learn feature and list
 - **Feature (columns 1 to 6):** a `--ground-2` panel, padding `clamp(20px, 2.4vw, 32px)`, explainer diagram on top with its key ending in the stamp "Diagram, not market data", then the title (feature-title style, 28px above), description (ink-2, max 46ch) and read time.

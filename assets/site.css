@@ -1980,3 +1980,82 @@ ul {
   color: var(--ink-2);
   max-width: 65ch;
 }
+
+/* Close note archive and report pages (DESIGN.md: Note archive, Report page) */
+
+.note-list time {
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.archive {
+  max-width: 44rem;
+}
+
+.archive__month h2 {
+  padding: 28px 0 12px;
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.archive__month:first-child h2 {
+  padding-top: 16px;
+}
+
+.report__title {
+  font-size: clamp(2rem, 4.2vw, 3.5rem);
+  font-weight: 540;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.report .page__head .note__meta {
+  margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.report__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.page__body .ruled {
+  margin-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.page__body .ruled li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-2);
+}
+
+.page__body .ruled li:last-child {
+  border-bottom: 0;
+}
+
+.page__body p + p {
+  margin-top: 12px;
+}
+
+.report__pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+  max-width: 44rem;
+  margin-top: 32px;
+}
+
+@media (max-width: 640px) {
+  .note-list a > time {
+    font-size: 0.8125rem;
+  }
+  .report__actions .btn {
+    flex: 1 1 100%;
+  }
+}

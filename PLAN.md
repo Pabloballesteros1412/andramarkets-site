@@ -1,8 +1,11 @@
 # Plan: publish the daily close note on the site
 
-Status: **proposal, waiting for owner approval.** No site code, workflow or
-setting changes until you say yes. Nothing in the agent repo changes in this
-phase.
+Status: **approved and built.** Owner decisions: pull approach; held notes
+open a pull request; a newer note replaces an older one for the same date;
+page sketches approved; facts JSON offered as a download; live data Stage 1
+now, Stage 2 later; backfill the last 90 days, with anything that fails a
+check held for review. Setup steps live in README, Publishing the close note.
+Agent repo problems are tracked in AGENT_FIXES.md.
 
 ---
 
