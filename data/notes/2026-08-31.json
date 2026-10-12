@@ -89,6 +89,83 @@
     "created_at": "2026-09-01T00:51:05Z"
   },
   "charts": {
+    "v": 2,
+    "bars": {
+      "sectors": {
+        "rows": [],
+        "left_out": 11
+      },
+      "credit": {
+        "rows": [],
+        "left_out": 6
+      },
+      "volatility": {
+        "rows": [],
+        "left_out": 5
+      },
+      "commodities": {
+        "rows": [],
+        "left_out": 6
+      },
+      "fx": {
+        "rows": [],
+        "left_out": 5
+      },
+      "international": {
+        "rows": [],
+        "left_out": 9
+      },
+      "digital": {
+        "rows": [],
+        "left_out": 4
+      }
+    },
+    "movers": {
+      "leaders": [
+        [
+          "AMZN",
+          3.9686187944258933
+        ],
+        [
+          "NFLX",
+          2.354715642591132
+        ],
+        [
+          "BAC",
+          1.8800090899181
+        ],
+        [
+          "GOOGL",
+          1.743725979109012
+        ],
+        [
+          "MSFT",
+          1.677034764032892
+        ]
+      ],
+      "laggards": [
+        [
+          "NVDA",
+          -4.5749595891063315
+        ],
+        [
+          "AMD",
+          -2.326562725379
+        ],
+        [
+          "TSLA",
+          -1.707955694679375
+        ],
+        [
+          "AVGO",
+          -0.7401625495918829
+        ],
+        [
+          "ORCL",
+          -0.7173860210453631
+        ]
+      ]
+    },
     "curve": [
       {
         "key": "ust1m",
