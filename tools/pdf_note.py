@@ -57,7 +57,7 @@ def _is(size, target):
 def _join(parts):
     text = re.sub(r"\s+", " ", " ".join(parts)).strip()
     # A compound word broken after its hyphen at a line end ("near-" / "dated").
-    return re.sub(r"(?<=[A-Za-z])- (?=[A-Za-z])", "-", text)
+    return re.sub(r"(?<=[A-Za-z0-9])- (?=[A-Za-z])", "-", text)
 
 
 def _paragraphs(lines):
