@@ -2173,7 +2173,6 @@ ul {
 .chart .chart__label {
   font-size: 12px;
   fill: var(--ink-2);
-  font-variant-numeric: tabular-nums;
 }
 
 .chart .chart__value {
