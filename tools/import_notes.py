@@ -5,15 +5,23 @@ Run by .github/workflows/publish-notes.yml. For every artifact the agent
 uploaded that this repo has not seen yet (data/import-state.json), oldest
 first:
 
-  1. download the zip with a read-only token and take exactly three files:
-     AndraMarkets_Close_YYYYMMDD.pdf, note_YYYYMMDD.json, facts_YYYYMMDD.json
+  1. download the zip with a read-only token and take at most three files:
+     AndraMarkets_Close_YYYYMMDD.pdf, facts_YYYYMMDD.json and, from runs since
+     15 September 2026, note_YYYYMMDD.json. Earlier runs saved no note file:
+     their text is recovered from the PDF (tools/pdf_note.py) and always held
   2. check them (the PDF is read in memory for the figure check and edition)
-       broken (missing file, bad JSON, not a PDF, dates disagree): rejected,
-         nothing is published and the workflow run fails so GitHub emails you
-       not an NYSE trading day, dated in the future, or the figure check
-         failed ("Control note." in the PDF): held, opened as a pull request
+       broken (missing PDF or facts, bad JSON, not a PDF, dates disagree):
+         rejected, nothing is published and the run fails so GitHub emails you
+       not an NYSE trading day, dated in the future, made before that day's
+         close, the figure check failed ("Control note." in the PDF), or the
+         text was recovered from the PDF: held, opened as a pull request
        otherwise: published straight to main
-  3. a newer note for the same session date replaces the older one
+  3. one note per session date: the newest clean run is published; a held
+     run newer than it goes to review (for recovered text, the most complete
+     run of the day); every other run that day is superseded
+  4. review: a new run that is held gets its own pull request. Runs an earlier
+     import already saw (a re-check after VERSION changes, such as the first
+     backfill) are held together in one "Backfill review" pull request
 
 Only data/notes/<date>.json is written: the note text plus the ten closing
 levels the home tape shows. This repo is public, so the PDF and the full facts
@@ -44,6 +52,13 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nyse  # noqa: E402
+import pdf_note  # noqa: E402
+
+# Bump when a change should re-check artifacts already imported.
+VERSION = 2
+NY = ZoneInfo("America/New_York")
+RECOVERED = ("Recovered from the PDF: the agent saved no note text for this run, "
+             "so the text was read back from the report. Check it before merging.")
 
 ROOT = Path(__file__).resolve().parent.parent
 STATE = Path("data/import-state.json")
@@ -64,6 +79,11 @@ NOTE_FIELDS = ("headline", "standfirst", "takeaways", "desk_view", "watching",
                "equities", "rates", "credit", "fx", "commodities", "volatility",
                "digital", "international", "correlation")
 LIST_FIELDS = ("takeaways", "watching")
+LABELS = {"standfirst": "standfirst", "takeaways": "takeaways", "desk_view": "desk view",
+          "watching": "what we watch", "equities": "equities", "rates": "rates",
+          "credit": "credit", "fx": "FX", "commodities": "commodities",
+          "volatility": "volatility", "digital": "digital assets",
+          "international": "international", "correlation": "correlation"}
 # The home tape: (facts block, instrument key). Only these closes are kept.
 TAPE = [("us_equity", "spx"), ("us_equity", "ndx"), ("us_equity", "rut"),
         ("europe", "sx5e"), ("apac", "nky"), ("volatility", "vix"),
@@ -136,7 +156,7 @@ def list_artifacts(token):
 # Checks ----------------------------------------------------------------------
 
 def unpack(blob):
-    """Return (YYYYMMDD, {"pdf": bytes, "note": bytes, "facts": bytes})."""
+    """Return (YYYYMMDD, {"pdf": bytes, "facts": bytes[, "note": bytes]})."""
     found = {}
     try:
         z = zipfile.ZipFile(io.BytesIO(blob))
@@ -161,7 +181,7 @@ def unpack(blob):
                 if len(data) > cap:
                     raise Rejected(f"{info.filename} is too large")
                 found[kind] = (m.group(1), data)
-    missing = [k for k in FILES if k not in found]
+    missing = [k for k in ("pdf", "facts") if k not in found]
     if missing:
         raise Rejected("the artifact has no " + " and no ".join(missing) + " file")
     stamps = {stamp for stamp, _ in found.values()}
@@ -205,11 +225,11 @@ def pdf_text(pdf):
 def check(stamp, files, artifact, today):
     """Build the note record. Returns (record, hold_reasons) or raises Rejected."""
     try:
-        note = json.loads(files["note"])
+        note = json.loads(files["note"]) if "note" in files else None
         facts = json.loads(files["facts"])
     except ValueError as e:
         raise Rejected(f"a JSON file does not parse ({e})")
-    if not isinstance(note, dict) or not isinstance(facts, dict):
+    if not isinstance(facts, dict) or not isinstance(note, (dict, type(None))):
         raise Rejected("a JSON file is not an object")
     try:
         day = dt.date.fromisoformat(str(facts.get("date"))[:10])
@@ -219,6 +239,13 @@ def check(stamp, files, artifact, today):
         raise Rejected(f"the facts file is dated {day} but the files are named {stamp}")
     if not files["pdf"].startswith(b"%PDF-"):
         raise Rejected("the PDF file is not a PDF")
+    source = "agent"
+    if note is None:
+        source = "pdf"
+        try:
+            note = pdf_note.extract(files["pdf"])
+        except Exception as e:  # noqa: BLE001
+            raise Rejected(f"no note file, and the PDF text could not be read ({type(e).__name__})")
 
     text = {}
     for field in NOTE_FIELDS:
@@ -229,9 +256,22 @@ def check(stamp, files, artifact, today):
         else:
             text[field] = clean_text(v)
     if not text["headline"]:
-        raise Rejected("the note has no headline")
+        raise Rejected("the note has no headline" if source == "agent"
+                       else "no note file, and no headline could be read from the PDF")
 
     hold = []
+    # The agent's fallback when its writer fails: a generic headline, no prose.
+    quantitative = text["standfirst"].startswith("Published in quantitative mode")
+    if not quantitative:
+        empty = [LABELS[f] for f in LABELS if not text[f]]
+        short = [LABELS[f] for f in LABELS if f not in LIST_FIELDS and text[f]
+                 and len(text[f].split()) < 15]
+        if empty or short:
+            hold.append("The note is incomplete: "
+                        + "; ".join(x for x in (
+                            ("no text for " + ", ".join(empty)) if empty else "",
+                            ("cut short in " + ", ".join(short)) if short else "") if x)
+                        + ". The agent's reply was probably truncated.")
     trading = nyse.is_trading_day(day)
     if trading is None:
         hold.append(f"{day.year} is not in the NYSE holiday table in tools/nyse.py, "
@@ -240,6 +280,13 @@ def check(stamp, files, artifact, today):
         hold.append(f"{day:%A} {day.day} {day:%B %Y} was not an NYSE trading day.")
     if day > today:
         hold.append(f"The note is dated {day}, after today in New York.")
+    made = dt.datetime.fromisoformat(artifact["created_at"].replace("Z", "+00:00")).astimezone(NY)
+    close = dt.datetime.combine(day, dt.time(13 if nyse.close_time(day) == "1:00 pm" else 16), NY)
+    if day <= today and made < close:
+        hold.append(f"The run finished at {made:%H:%M} ET on {made:%A} {made.day} {made:%B}, "
+                    f"before the {day.day} {day:%B} close, so its figures cannot be that session's.")
+    if source == "pdf":
+        hold.append(RECOVERED)
 
     edition, figure_check = None, "unknown"
     try:
@@ -257,7 +304,7 @@ def check(stamp, files, artifact, today):
             hold.append("The figure check failed: the PDF carries a Control note.")
         elif body.strip():
             figure_check = "passed"
-        m = re.search(r"Edition\s*(\d{1,6})\b", body)
+        m = re.search(r"Edition\s*(\d{1,6})\b", body, re.I)
         edition = m.group(1) if m else None
 
     record = {
@@ -265,6 +312,7 @@ def check(stamp, files, artifact, today):
         "published": True,
         "edition": edition,
         "figure_check": figure_check,
+        "text_source": source,
         "note": text,
         "closes": closes(facts),
         "source": {
@@ -311,26 +359,45 @@ def push_main(message):
     raise SystemExit("Could not push to main after 4 attempts.")
 
 
-def open_held_pr(record, reasons, token):
-    date, artifact = record["date"], record["source"]["artifact_id"]
-    branch = f"held/{date}-{artifact}"
+def push_branch(branch, records, message):
+    """Commit the records on a fresh branch from main and force-push it."""
     tmp = Path(tempfile.mkdtemp())
     try:
         git("fetch", "origin", "main")
         git("worktree", "add", "-B", branch, str(tmp), "origin/main")
-        write_note(tmp, record)
+        for record in records:
+            write_note(tmp, record)
         git("add", "-A", "data", cwd=tmp)
-        git("commit", "-m", f"Held close note {date} for review", cwd=tmp)
+        git("commit", "-m", message, cwd=tmp)
         git("push", "--force", "origin", f"{branch}:{branch}", cwd=tmp)
     finally:
         git("worktree", "remove", "--force", str(tmp), check=False)
         shutil.rmtree(tmp, ignore_errors=True)
 
+
+def open_pr(branch, title, body, token):
     owner = SITE_REPO.split("/")[0]
     open_prs = api(f"/repos/{SITE_REPO}/pulls?state=open&head={owner}:{branch}", token)
     if open_prs:
+        api(f"/repos/{SITE_REPO}/pulls/{open_prs[0]['number']}", token, "PATCH",
+            {"title": title, "body": body})
         return open_prs[0]["html_url"]
-    replaces = existing(ROOT, date)
+    return api(f"/repos/{SITE_REPO}/pulls", token, "POST",
+               {"title": title, "head": branch, "base": "main", "body": body})["html_url"]
+
+
+def _run_link(record):
+    return f"https://github.com/{AGENT_REPO}/actions/runs/{record['source']['run_id']}"
+
+
+def _filled(record):
+    return sum(1 for v in record["note"].values() if v)
+
+
+def open_held_pr(record, reasons, token):
+    date, artifact = record["date"], record["source"]["artifact_id"]
+    branch = f"held/{date}-{artifact}"
+    push_branch(branch, [record], f"Held close note {date} for review")
     lines = [
         f"The close note for **{date}** did not pass every check, so it was not published.",
         "",
@@ -340,38 +407,84 @@ def open_held_pr(record, reasons, token):
         "",
         f"**Headline:** {record['note']['headline']}",
         "",
-        f"Source: agent run {record['source']['run_id']}, artifact {artifact}.",
-        "",
         "**What to do**",
         "",
         "- **Merge** to publish it on the site as it is.",
         "- **Close** to discard it. Nothing is published.",
     ]
-    if replaces:
+    if existing(ROOT, date):
         lines.append(f"- Merging replaces the note already published for {date}.")
-    run = record["source"]["run_id"]
     lines += ["", f"Read the note text under **Files changed** (`data/notes/{date}.json`), "
-              f"or the PDF in the agent run: https://github.com/{AGENT_REPO}/actions/runs/{run}"]
-    pr = api(f"/repos/{SITE_REPO}/pulls", token, "POST", {
-        "title": f"Held close note: {date}",
-        "head": branch,
-        "base": "main",
-        "body": "\n".join(lines),
-    })
-    return pr["html_url"]
+              f"or the PDF in the agent run: {_run_link(record)}"]
+    return open_pr(branch, f"Held close note: {date}", "\n".join(lines), token)
 
 
-def close_stale_prs(date, created_at, state, token):
-    """A newer note for the date went live: close older held PRs for it."""
+def short_reason(reason):
+    """A few words per hold reason, for the review table."""
+    if reason == RECOVERED:
+        return "text recovered from the PDF"
+    if reason.startswith("The figure check failed"):
+        return "figure check failed"
+    if "not an NYSE trading day" in reason:
+        return f"not a trading day ({reason.split(' was ')[0]})"
+    if reason.startswith("The run finished"):
+        return "made before that day's close"
+    if reason.startswith("The note is incomplete: "):
+        return "incomplete: " + reason[len("The note is incomplete: "):].split(". ")[0]
+    if reason.startswith("The note is dated"):
+        return "dated in the future"
+    return reason.rstrip(".")
+
+
+def open_backfill_pr(records, token):
+    """One pull request for every held note found while re-checking past runs."""
+    records = sorted(records, key=lambda r: r["date"])
+    first, last = (dt.date.fromisoformat(records[i]["date"]) for i in (0, -1))
+    span = f"{first.day} {first:%b} to {last.day} {last:%b %Y}"
+    branch = "held/backfill"
+    push_branch(branch, [r["record"] for r in records], f"Held close notes {span} for review")
+    recovered = sum(1 for r in records if RECOVERED in r["reasons"])
+    lines = [
+        f"These {len(records)} close notes from past agent runs did not pass every check, so "
+        "none of them is on the site. They are collected here so you can review them in one "
+        "place. New daily notes that are held still get a pull request each.",
+        "",
+        "| Date | Headline | Held because | Agent run |",
+        "|---|---|---|---|",
+        *[f"| {r['date']} | {r['record']['note']['headline'].replace('|', '/')} | "
+          f"{'; '.join(short_reason(x) for x in r['reasons'])} | "
+          f"[run {r['record']['source']['run_id']}]({_run_link(r['record'])}) |" for r in records],
+        "",
+        "**Reasons**",
+        "",
+        "- **figure check failed:** the agent's own audit found figures it could not trace "
+        "to the fact pack; the PDF says so in a Control note.",
+        "- **incomplete:** a section is missing or stops mid-sentence (the agent's reply was cut off).",
+        "- **not a trading day** or **made before that day's close:** the date on the note "
+        "does not match the session its figures come from.",
+        f"- **text recovered from the PDF:** {recovered} of these runs, from before "
+        "15 September, saved no note text, so it was read back from the report PDF. Checked "
+        "on the 23 later runs where both exist, every field matched exactly.",
+        "",
+        "**What to do**",
+        "",
+        "- Read any note under **Files changed** (`data/notes/<date>.json`), or its PDF from the run link.",
+        "- To drop a note, open its file in **Files changed**, use the **...** menu, "
+        "**Delete file**, and commit to this branch. Repeat for each note to drop.",
+        "- **Merge** to publish every note still in the pull request. **Close** to publish none.",
+    ]
+    return open_pr(branch, f"Backfill review: {len(records)} held close notes, {span}",
+                   "\n".join(lines), token)
+
+
+def close_stale_prs(date, keep, state, token, why=None):
+    """Close held pull requests for the date other than the one kept."""
     for pr in api(f"/repos/{SITE_REPO}/pulls?state=open&per_page=100", token) or []:
         ref = pr["head"]["ref"]
-        if not ref.startswith(f"held/{date}-"):
-            continue
-        held = state["artifacts"].get(ref.rsplit("-", 1)[-1], {})
-        if held.get("created_at", "") >= created_at:
+        if not ref.startswith(f"held/{date}-") or ref == keep:
             continue
         api(f"/repos/{SITE_REPO}/issues/{pr['number']}/comments", token, "POST",
-            {"body": f"Closed automatically: a newer note for {date} has been published."})
+            {"body": why or f"Closed automatically: a newer or more complete note for {date} replaces this one."})
         api(f"/repos/{SITE_REPO}/pulls/{pr['number']}", token, "PATCH", {"state": "closed"})
         try:
             api(f"/repos/{SITE_REPO}/git/refs/heads/{ref}", token, "DELETE")
@@ -406,25 +519,69 @@ def summary(rows):
             f.write(f"| {a} | {d} | {r} |\n")
 
 
+def decide(results, root):
+    """Pick, per session date, what to publish, what to hold and what is superseded.
+
+    results: dicts with artifact, record, reasons.
+    Returns (publish, held, superseded, withdraw): withdraw lists dates whose live
+    note came from a run that, checked again, no longer passes.
+    """
+    by_date = {}
+    for r in results:
+        by_date.setdefault(r["record"]["date"], []).append(r)
+    publish, held, superseded, withdraw = [], [], [], []
+    for date, cands in sorted(by_date.items()):
+        cands.sort(key=lambda r: r["artifact"]["created_at"])
+        prev = existing(root, date)
+        live = prev["source"]["created_at"] if prev else ""
+        if prev and any(r["reasons"] and r["artifact"]["id"] == prev["source"]["artifact_id"] for r in cands):
+            withdraw.append(date)
+            live = ""
+        clean = [r for r in cands if not r["reasons"]]
+        winner = clean[-1] if clean and clean[-1]["artifact"]["created_at"] >= live else None
+        if winner:
+            publish.append(winner)
+            live = winner["artifact"]["created_at"]
+        later = [r for r in cands if r["reasons"] and r["artifact"]["created_at"] > live]
+        keep = None
+        if later:
+            # The agent's own text wins over recovered text; then, for recovered
+            # text, the most complete run; then the newest.
+            keep = max(later, key=lambda r: (r["record"]["text_source"] == "agent",
+                                             0 if r["record"]["text_source"] == "agent" else _filled(r["record"]),
+                                             r["artifact"]["created_at"]))
+            held.append(keep)
+        superseded += [r for r in cands if r is not winner and r is not keep]
+        if winner and date in withdraw:
+            withdraw.remove(date)  # replaced outright by the clean run
+    return publish, held, superseded, withdraw
+
+
 def main():
+    dry = "--dry-run" in sys.argv
     agent_token = os.environ.get("AGENT_ARTIFACTS_TOKEN")
     site_token = os.environ.get("GITHUB_TOKEN")
     if not agent_token:
         raise SystemExit("AGENT_ARTIFACTS_TOKEN is not set. See README, Publishing the close note.")
-    today = dt.datetime.now(ZoneInfo("America/New_York")).date()
+    today = dt.datetime.now(NY).date()
     state = load_state(ROOT)
     seen = state["artifacts"]
 
     try:
-        artifacts = [a for a in list_artifacts(agent_token) if str(a["id"]) not in seen]
+        artifacts = [a for a in list_artifacts(agent_token)
+                     if seen.get(str(a["id"]), {}).get("v", 1) < VERSION]
     except urllib.error.HTTPError as e:
         raise SystemExit(f"Could not list the agent's artifacts (HTTP {e.code}). "
                          "The token may have expired or lost Actions: read access.")
-    print(f"{len(artifacts)} new artifact(s) from {AGENT_REPO}")
+    print(f"{len(artifacts)} artifact(s) to check from {AGENT_REPO}")
 
-    published, held, rejected, rows = [], [], [], []
+    results, rejected, rows = [], [], []
     for a in artifacts:
-        entry = {"run_id": (a.get("workflow_run") or {}).get("id"), "created_at": a["created_at"]}
+        # A run seen by an earlier import is being re-checked: if held, it joins
+        # the one backfill review instead of opening a pull request of its own.
+        recheck = str(a["id"]) in seen
+        entry = {"v": VERSION, "run_id": (a.get("workflow_run") or {}).get("id"),
+                 "created_at": a["created_at"]}
         try:
             stamp, files = unpack(download_zip(a, agent_token))
             record, reasons = check(stamp, files, a, today)
@@ -435,55 +592,94 @@ def main():
             print(f"::error::Artifact {a['id']} rejected: {e}")
         else:
             entry["date"] = record["date"]
-            if reasons:
-                entry.update(status="held", reasons=reasons)
-                held.append((record, reasons))
-                rows.append((a["id"], record["date"], "held: " + " ".join(reasons)))
-            else:
-                prev = existing(ROOT, record["date"])
-                if prev and prev["source"]["created_at"] > a["created_at"]:
-                    entry["status"] = "superseded"
-                    rows.append((a["id"], record["date"], "skipped, a newer note is live"))
-                else:
-                    if prev and prev.get("published") is False:
-                        # The owner withdrew this date by hand. Keep it withdrawn.
-                        record["published"] = False
-                    write_note(ROOT, record)
-                    entry["status"] = "published"
-                    published.append(record)
-                    rows.append((a["id"], record["date"],
-                                 "replaced the earlier note" if prev else "published"))
+            results.append({"artifact": a, "record": record, "reasons": reasons,
+                            "entry": entry, "recheck": recheck})
         seen[str(a["id"])] = entry
 
-    failed = 0
-    for record, reasons in held:
-        key = str(record["source"]["artifact_id"])
-        try:
-            if not site_token:
-                raise RuntimeError("GITHUB_TOKEN is not set")
-            seen[key]["pr"] = open_held_pr(record, reasons, site_token)
-            print(f"Held {record['date']}: {seen[key]['pr']}")
-        except Exception as e:  # noqa: BLE001
-            # Not recorded as seen, so the next run tries again.
-            del seen[key]
-            failed += 1
-            print(f"::error::Could not open the review pull request for {record['date']}: {e}. "
-                  "Check Settings, Actions, General: Allow GitHub Actions to create "
-                  "and approve pull requests.")
+    publish, held, superseded, withdraw = decide(results, ROOT)
+    for date in withdraw:
+        rows.append(("", date, "withdrawn: the live note no longer passes the checks"))
+        if not dry:
+            (ROOT / "data" / "notes" / f"{date}.json").unlink()
+    for r in superseded:
+        r["entry"]["status"] = "superseded"
+        rows.append((r["artifact"]["id"], r["record"]["date"], "superseded by another run that day"))
+    for r in publish:
+        record, prev = r["record"], existing(ROOT, r["record"]["date"])
+        if prev and prev.get("published") is False:
+            record["published"] = False  # The owner withdrew this date by hand. Keep it so.
+        r["entry"]["status"] = "published"
+        rows.append((r["artifact"]["id"], record["date"],
+                     "replaced the earlier note" if prev and prev["source"]["artifact_id"] != record["source"]["artifact_id"] else "published"))
+        if not dry:
+            write_note(ROOT, record)
+    backfill = [r for r in held if r["recheck"]]
+    single = [r for r in held if not r["recheck"]]
+    for r in held:
+        r["entry"].update(status="held", reasons=r["reasons"])
+        rows.append((r["artifact"]["id"], r["record"]["date"], "held: " + " ".join(r["reasons"])))
+
+    if dry:
+        plan = [f"{d} {res}" for _, d, res in sorted(rows, key=lambda x: (x[1], str(x[0])))]
+        print("\n".join(plan))
+        for r in sorted(backfill, key=lambda r: r["record"]["date"]):
+            print(f"BACKFILL | {r['record']['date']} | {r['record']['note']['headline'][:50]} | "
+                  f"{'; '.join(short_reason(x) for x in r['reasons'])} | run {r['record']['source']['run_id']}")
+        print(f"DRY RUN: publish {len(publish)}, withdraw {len(withdraw)}, held {len(single)} "
+              f"in their own PRs + {len(backfill)} in the backfill review, "
+              f"superseded {len(superseded)}, rejected {len(rejected)}")
+        return 0
+
+    failed, failed_dates = 0, set()
+    for group, opener in ([(r,) for r in single], None), ([tuple(backfill)] if backfill else [], "backfill"):
+        for batch in group:
+            try:
+                if not site_token:
+                    raise RuntimeError("GITHUB_TOKEN is not set")
+                if opener:
+                    url = open_backfill_pr([{"date": x["record"]["date"], "record": x["record"],
+                                             "reasons": x["reasons"]} for x in batch], site_token)
+                else:
+                    url = open_held_pr(batch[0]["record"], batch[0]["reasons"], site_token)
+                for x in batch:
+                    x["entry"]["pr"] = url
+                print(f"Held {', '.join(x['record']['date'] for x in batch)}: {url}")
+            except Exception as e:  # noqa: BLE001
+                # Left at the old version, so the next run checks these again;
+                # their dates keep whatever pull requests are already open.
+                for x in batch:
+                    if x["recheck"]:
+                        x["entry"]["v"] = VERSION - 1
+                    else:
+                        del seen[str(x["artifact"]["id"])]
+                    failed_dates.add(x["record"]["date"])
+                failed += 1
+                print(f"::error::Could not open the review pull request: {e}. Check Settings, "
+                      "Actions, General: Allow GitHub Actions to create and approve pull requests.")
 
     save_state(ROOT, state)
-    dates = sorted({r["date"] for r in published})
+    dates = sorted({r["record"]["date"] for r in publish})
     message = (f"Publish close note{'s' if len(dates) > 1 else ''} {', '.join(dates)}"
                if dates else "Record imported agent artifacts")
+    if withdraw:
+        message += f"; withdraw {', '.join(withdraw)}"
     pushed = push_main(message) if artifacts else False
 
     if site_token:
-        for record in published:
-            close_stale_prs(record["date"], record["source"]["created_at"], state, site_token)
+        # Per date, only the pull request of the run kept for review stays open.
+        keep = {r["record"]["date"]: f"held/{r['record']['date']}-{r['artifact']['id']}" for r in single}
+        in_backfill = {r["record"]["date"]: r["entry"].get("pr") for r in backfill}
+        for date in sorted({r["record"]["date"] for r in publish + held} | set(withdraw)):
+            if date not in failed_dates:
+                why = (f"Closed automatically: this note moved to the backfill review, "
+                       f"{in_backfill[date]}" if date in in_backfill else None)
+                close_stale_prs(date, keep.get(date), state, site_token, why)
 
     summary(rows)
-    output("published", "true" if published and pushed else "false")
-    print(f"published {len(published)}, held {len(held) - failed}, rejected {len(rejected)}")
+    output("published", "true" if (publish or withdraw) and pushed else "false")
+    print(f"published {len(publish)}, withdrew {len(withdraw)}, held {len(single)} + "
+          f"{len(backfill)} in the backfill review, superseded {len(superseded)}, "
+          f"rejected {len(rejected)}")
     return 1 if rejected or failed else 0
 
 
