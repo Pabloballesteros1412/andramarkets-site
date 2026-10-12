@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-theme="cream">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Andra Markets: homepage directions</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/andra-horse.png">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  .chooser { min-height: 100svh; display: grid; grid-template-columns: 1fr 1fr; }
+  .chooser a { position: relative; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; padding: clamp(24px, 4vw, 56px); text-decoration: none; overflow: hidden; min-height: 50svh; }
+  .chooser img { position: absolute; width: min(120svh, 140vw); height: min(120svh, 140vw); max-width: none; left: 50%; top: 42%; transform: translate(-49%, -50.5%); pointer-events: none; transition: transform 600ms var(--ease-out); }
+  .chooser strong { position: relative; font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 560; letter-spacing: -0.035em; line-height: 1; }
+  .chooser span { position: relative; max-width: 36ch; }
+  .opt-cream { background: #edefee; color: #0f1316; }
+  .opt-cream img { filter: invert(1) contrast(1.45) brightness(1.02); mix-blend-mode: multiply; opacity: .92; }
+  .opt-cream span { color: #434b51; }
+  .opt-dark { background: #0a0c0d; color: #e9eceb; }
+  .opt-dark img { mix-blend-mode: screen; opacity: .5; }
+  .opt-dark span { color: #a8b0b4; }
+  .opt-dark:focus-visible { outline-color: #e9eceb; }
+  @media (hover: hover) and (pointer: fine) { .chooser a:hover img { transform: translate(-49%, -50.5%) scale(1.02); } }
+  @media (max-width: 760px) { .chooser { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main class="chooser">
+  <h1 class="visually-hidden">Andra Markets homepage directions</h1>
+  <a class="opt-cream" href="cream/">
+    <img src="assets/andra-horse.png" alt="" width="1024" height="1024">
+    <strong>A. Cream</strong>
+    <span>Cool paper, ink type, the horse printed as an engraving.</span>
+  </a>
+  <a class="opt-dark" href="dark/">
+    <img src="assets/andra-horse.png" alt="" width="1024" height="1024">
+    <strong>B. Dark</strong>
+    <span>Near-black, the horse as a dim cinematic presence.</span>
+  </a>
+</main>
+</body>
+</html>

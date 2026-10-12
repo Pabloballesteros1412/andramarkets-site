@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en" data-theme="cream">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Andra Markets: Cream direction (prototype)</title>
+<meta name="description" content="Andra Markets is an automated research desk: a daily US market close note, interactive dashboards and quantitative studies.">
+<meta name="theme-color" content="#edefee">
+<meta name="robots" content="noindex">
+<link rel="icon" href="../assets/andra-horse.png">
+<link rel="preload" href="../assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-arrow-right" viewBox="0 0 256 256"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></symbol><symbol id="i-arrow-up-right" viewBox="0 0 256 256"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></symbol><symbol id="i-linkedin-logo" viewBox="0 0 256 256"><path d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24Zm0,192H40V40H216V216ZM96,112v64a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm88,28v36a8,8,0,0,1-16,0V140a20,20,0,0,0-40,0v36a8,8,0,0,1-16,0V112a8,8,0,0,1,15.79-1.78A36,36,0,0,1,184,140ZM100,84A12,12,0,1,1,88,72,12,12,0,0,1,100,84Z"/></symbol><symbol id="i-tiktok-logo" viewBox="0 0 256 256"><path d="M224,72a48.05,48.05,0,0,1-48-48,8,8,0,0,0-8-8H128a8,8,0,0,0-8,8V156a20,20,0,1,1-28.57-18.08A8,8,0,0,0,96,130.69V88a8,8,0,0,0-9.4-7.88C50.91,86.48,24,119.1,24,156a76,76,0,0,0,152,0V116.29A103.25,103.25,0,0,0,224,128a8,8,0,0,0,8-8V80A8,8,0,0,0,224,72Zm-8,39.64a87.19,87.19,0,0,1-43.33-16.15A8,8,0,0,0,160,102v54a60,60,0,0,1-120,0c0-25.9,16.64-49.13,40-57.6v27.67A36,36,0,1,0,136,156V32h24.5A64.14,64.14,0,0,0,216,87.5Z"/></symbol><symbol id="i-youtube-logo" viewBox="0 0 256 256"><path d="M164.44,121.34l-48-32A8,8,0,0,0,104,96v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,145.05V111l25.58,17ZM234.33,69.52a24,24,0,0,0-14.49-16.4C185.56,39.88,131,40,128,40s-57.56-.12-91.84,13.12a24,24,0,0,0-14.49,16.4C19.08,79.5,16,97.74,16,128s3.08,48.5,5.67,58.48a24,24,0,0,0,14.49,16.41C69,215.56,120.4,216,127.34,216h1.32c6.94,0,58.37-.44,91.18-13.11a24,24,0,0,0,14.49-16.41c2.59-10,5.67-28.22,5.67-58.48S236.92,79.5,234.33,69.52Zm-15.49,113a8,8,0,0,1-4.77,5.49c-31.65,12.22-85.48,12-86,12H128c-.54,0-54.33.2-86-12a8,8,0,0,1-4.77-5.49C34.8,173.39,32,156.57,32,128s2.8-45.39,5.16-54.47A8,8,0,0,1,41.93,68c30.52-11.79,81.66-12,85.85-12h.27c.54,0,54.38-.18,86,12a8,8,0,0,1,4.77,5.49C221.2,82.61,224,99.43,224,128S221.2,173.39,218.84,182.47Z"/></symbol><symbol id="i-list" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"/></symbol><symbol id="i-x" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></symbol></svg>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Andra Markets, home">
+      <span class="brand__mark"><img src="../assets/andra-horse.png" alt="" width="84" height="84"></span>
+      <span class="brand__name">Andra Markets</span>
+    </a>
+    <nav class="nav" id="site-nav" aria-label="Primary">
+      <a href="#latest">Close note</a>
+      <a href="#archive">Archive</a>
+      <a href="#dashboards">Dashboards</a>
+      <a href="#research">Research</a>
+      <a href="#about">About</a>
+    </nav>
+    <a class="btn" href="#subscribe">Subscribe</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
+      <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="hero__art" aria-hidden="true">
+      <img class="horse" src="../assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="high">
+    </div>
+    <div class="wrap hero__copy">
+      <h1 id="hero-title" style="--i:0">Every close, on&nbsp;the record.</h1>
+      <p class="hero__sub" style="--i:1">An automated research desk. A daily note on the US market close, live dashboards and quantitative studies.</p>
+      <div class="hero__actions" style="--i:2">
+        <a class="btn" href="#latest">Read the latest note <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+        <a class="btn btn--ghost" href="#subscribe">Subscribe</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="tape" aria-labelledby="tape-title">
+    <div class="wrap">
+      <div class="tape__head">
+        <h2 id="tape-title">US close <span class="ph">[date]</span></h2>
+        <span>Levels and daily change. Source <span class="ph">[data vendor]</span></span>
+      </div>
+      <ul class="tape__list" tabindex="0" aria-label="Market close levels"><li class="tape__item"><span class="tape__name">S&amp;P 500</span><span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li><li class="tape__item"><span class="tape__name">Nasdaq 100</span><span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li><li class="tape__item"><span class="tape__name">Dow Jones</span><span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li><li class="tape__item"><span class="tape__name">Russell 2000</span><span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li><li class="tape__item"><span class="tape__name">VIX</span><span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li><li class="tape__item"><span class="tape__name">US 10Y yield</span><span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li><li class="tape__item"><span class="tape__name">US dollar (DXY)</span><span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li><li class="tape__item"><span class="tape__name">WTI crude</span><span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li><li class="tape__item"><span class="tape__name">Gold</span><span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li></ul>
+    </div>
+  </section>
+
+  <section class="section latest" id="latest" aria-labelledby="latest-title">
+    <div class="wrap grid">
+      <div class="latest__text">
+        <h2 class="section-title reveal" id="latest-title">The latest close note</h2>
+        <article class="reveal" style="--i:1">
+          <p class="latest__meta"><span class="ph">[date]</span><span><span class="ph">[n]</span> min read</span></p>
+          <h3 class="latest__title"><span class="ph">[Headline of the latest close note]</span></h3>
+          <p class="latest__summary"><span class="ph">[Two sentences on the session: what moved, and why it mattered.]</span></p>
+          <a class="btn" href="#latest">Read the note <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+        </article>
+      </div>
+      <figure class="latest__figure draw reveal" style="--i:2">
+        <svg class="chart" viewBox="0 0 640 320" role="img" aria-label="Illustrative intraday chart shape, not market data" preserveAspectRatio="none"><line class="grid-line" x1="0" x2="640" y1="80.0" y2="80.0"/><line class="grid-line" x1="0" x2="640" y1="160.0" y2="160.0"/><line class="grid-line" x1="0" x2="640" y1="240.0" y2="240.0"/><path class="area" d="M12.0 78.5 L16.8 65.5 L21.6 70.6 L26.3 77.8 L31.1 100.0 L35.9 104.7 L40.7 77.1 L45.4 66.2 L50.2 40.4 L55.0 33.8 L59.8 23.7 L64.5 18.7 L69.3 58.9 L74.1 37.5 L78.9 24.7 L83.6 12.0 L88.4 52.8 L93.2 94.9 L98.0 116.2 L102.7 127.1 L107.5 119.2 L112.3 119.8 L117.1 106.6 L121.8 121.8 L126.6 113.8 L131.4 103.6 L136.2 119.3 L140.9 76.9 L145.7 62.8 L150.5 33.1 L155.3 47.7 L160.0 65.3 L164.8 73.2 L169.6 75.3 L174.4 59.4 L179.1 52.8 L183.9 63.3 L188.7 86.2 L193.5 98.4 L198.2 68.1 L203.0 87.3 L207.8 80.8 L212.6 69.9 L217.3 105.8 L222.1 104.2 L226.9 71.8 L231.7 120.5 L236.4 127.9 L241.2 130.0 L246.0 149.4 L250.8 136.8 L255.5 137.8 L260.3 173.1 L265.1 152.4 L269.9 135.6 L274.6 112.0 L279.4 76.3 L284.2 67.0 L289.0 63.6 L293.7 94.8 L298.5 79.3 L303.3 93.7 L308.1 104.3 L312.8 134.7 L317.6 157.9 L322.4 170.3 L327.2 138.4 L331.9 187.5 L336.7 222.6 L341.5 216.3 L346.3 180.5 L351.0 165.9 L355.8 211.8 L360.6 272.9 L365.4 263.6 L370.1 281.1 L374.9 308.0 L379.7 283.6 L384.5 256.2 L389.2 251.9 L394.0 245.4 L398.8 234.3 L403.6 194.9 L408.3 179.3 L413.1 166.1 L417.9 152.3 L422.7 190.1 L427.4 158.3 L432.2 134.5 L437.0 121.1 L441.8 168.8 L446.5 183.8 L451.3 162.7 L456.1 206.5 L460.9 210.5 L465.6 185.1 L470.4 216.6 L475.2 176.8 L480.0 162.8 L484.7 166.0 L489.5 157.6 L494.3 141.2 L499.1 137.8 L503.8 109.3 L508.6 125.0 L513.4 134.6 L518.2 108.7 L522.9 107.6 L527.7 128.6 L532.5 105.0 L537.3 68.7 L542.0 79.1 L546.8 112.3 L551.6 115.1 L556.4 118.2 L561.1 125.0 L565.9 90.2 L570.7 114.8 L575.5 83.5 L580.2 114.0 L585.0 132.8 L589.8 116.8 L594.6 88.8 L599.3 67.3 L604.1 58.4 L608.9 54.4 L613.7 50.2 L618.4 35.7 L623.2 39.5 L628.0 32.2 L628.0 320 L12.0 320 Z"/><line class="ref" x1="0" x2="640" y1="78.5" y2="78.5"/><path class="line" d="M12.0 78.5 L16.8 65.5 L21.6 70.6 L26.3 77.8 L31.1 100.0 L35.9 104.7 L40.7 77.1 L45.4 66.2 L50.2 40.4 L55.0 33.8 L59.8 23.7 L64.5 18.7 L69.3 58.9 L74.1 37.5 L78.9 24.7 L83.6 12.0 L88.4 52.8 L93.2 94.9 L98.0 116.2 L102.7 127.1 L107.5 119.2 L112.3 119.8 L117.1 106.6 L121.8 121.8 L126.6 113.8 L131.4 103.6 L136.2 119.3 L140.9 76.9 L145.7 62.8 L150.5 33.1 L155.3 47.7 L160.0 65.3 L164.8 73.2 L169.6 75.3 L174.4 59.4 L179.1 52.8 L183.9 63.3 L188.7 86.2 L193.5 98.4 L198.2 68.1 L203.0 87.3 L207.8 80.8 L212.6 69.9 L217.3 105.8 L222.1 104.2 L226.9 71.8 L231.7 120.5 L236.4 127.9 L241.2 130.0 L246.0 149.4 L250.8 136.8 L255.5 137.8 L260.3 173.1 L265.1 152.4 L269.9 135.6 L274.6 112.0 L279.4 76.3 L284.2 67.0 L289.0 63.6 L293.7 94.8 L298.5 79.3 L303.3 93.7 L308.1 104.3 L312.8 134.7 L317.6 157.9 L322.4 170.3 L327.2 138.4 L331.9 187.5 L336.7 222.6 L341.5 216.3 L346.3 180.5 L351.0 165.9 L355.8 211.8 L360.6 272.9 L365.4 263.6 L370.1 281.1 L374.9 308.0 L379.7 283.6 L384.5 256.2 L389.2 251.9 L394.0 245.4 L398.8 234.3 L403.6 194.9 L408.3 179.3 L413.1 166.1 L417.9 152.3 L422.7 190.1 L427.4 158.3 L432.2 134.5 L437.0 121.1 L441.8 168.8 L446.5 183.8 L451.3 162.7 L456.1 206.5 L460.9 210.5 L465.6 185.1 L470.4 216.6 L475.2 176.8 L480.0 162.8 L484.7 166.0 L489.5 157.6 L494.3 141.2 L499.1 137.8 L503.8 109.3 L508.6 125.0 L513.4 134.6 L518.2 108.7 L522.9 107.6 L527.7 128.6 L532.5 105.0 L537.3 68.7 L542.0 79.1 L546.8 112.3 L551.6 115.1 L556.4 118.2 L561.1 125.0 L565.9 90.2 L570.7 114.8 L575.5 83.5 L580.2 114.0 L585.0 132.8 L589.8 116.8 L594.6 88.8 L599.3 67.3 L604.1 58.4 L608.9 54.4 L613.7 50.2 L618.4 35.7 L623.2 39.5 L628.0 32.2"/><circle class="dot" cx="628.0" cy="32.2" r="3.5"/></svg>
+        <figcaption><span>S&amp;P 500, session of <span class="ph">[date]</span></span><span>Illustrative</span></figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section archive" id="archive" aria-labelledby="archive-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title reveal" id="archive-title">Archive</h2>
+        <a class="link reveal" href="#archive">All notes and studies <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+      </div>
+      <ol class="archive__list reveal"><li class="archive__row"><a href="#archive"><span class="archive__date ph">[date]</span><span class="archive__title"><span class="ph">[Close note headline]</span></span><span class="archive__type">Close note</span><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></li><li class="archive__row"><a href="#archive"><span class="archive__date ph">[date]</span><span class="archive__title"><span class="ph">[Close note headline]</span></span><span class="archive__type">Close note</span><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></li><li class="archive__row"><a href="#archive"><span class="archive__date ph">[date]</span><span class="archive__title"><span class="ph">[Study title]</span></span><span class="archive__type">Study</span><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></li><li class="archive__row"><a href="#archive"><span class="archive__date ph">[date]</span><span class="archive__title"><span class="ph">[Close note headline]</span></span><span class="archive__type">Close note</span><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></li><li class="archive__row"><a href="#archive"><span class="archive__date ph">[date]</span><span class="archive__title"><span class="ph">[Close note headline]</span></span><span class="archive__type">Close note</span><svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></li></ol>
+    </div>
+  </section>
+
+  <section class="section dash" id="dashboards" aria-labelledby="dash-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title reveal" id="dash-title">Dashboards</h2>
+        <p class="lede reveal">Interactive views of the US market. Charts below are illustrative.</p>
+      </div>
+      <div class="dash__grid"><a class="tile reveal" href="#dashboards" style="--i:0"><div class="tile__chart draw"><svg class="chart" viewBox="0 0 640 240" role="img" aria-label="Illustrative advance and decline bars, not market data" preserveAspectRatio="none"><line class="ref" x1="0" x2="640" y1="120.0" y2="120.0"/><rect class="up" x="2.0" y="106.4" width="12.0" height="13.6"/><rect class="up" x="18.0" y="42.2" width="12.0" height="77.8"/><rect class="down" x="34.0" y="120.0" width="12.0" height="43.4"/><rect class="up" x="50.0" y="56.5" width="12.0" height="63.5"/><rect class="down" x="66.0" y="120.0" width="12.0" height="6.1"/><rect class="down" x="82.0" y="120.0" width="12.0" height="6.2"/><rect class="up" x="98.0" y="6.1" width="12.0" height="113.9"/><rect class="up" x="114.0" y="102.9" width="12.0" height="17.1"/><rect class="up" x="130.0" y="114.1" width="12.0" height="5.9"/><rect class="up" x="146.0" y="71.1" width="12.0" height="48.9"/><rect class="up" x="162.0" y="49.1" width="12.0" height="70.9"/><rect class="up" x="178.0" y="113.4" width="12.0" height="6.6"/><rect class="up" x="194.0" y="79.0" width="12.0" height="41.0"/><rect class="down" x="210.0" y="120.0" width="12.0" height="45.8"/><rect class="down" x="226.0" y="120.0" width="12.0" height="12.0"/><rect class="down" x="242.0" y="120.0" width="12.0" height="16.0"/><rect class="down" x="258.0" y="120.0" width="12.0" height="65.7"/><rect class="down" x="274.0" y="120.0" width="12.0" height="75.5"/><rect class="down" x="290.0" y="120.0" width="12.0" height="82.1"/><rect class="down" x="306.0" y="120.0" width="12.0" height="4.9"/><rect class="down" x="322.0" y="120.0" width="12.0" height="1.2"/><rect class="down" x="338.0" y="120.0" width="12.0" height="9.5"/><rect class="up" x="354.0" y="107.8" width="12.0" height="12.2"/><rect class="down" x="370.0" y="120.0" width="12.0" height="65.9"/><rect class="up" x="386.0" y="116.1" width="12.0" height="3.9"/><rect class="up" x="402.0" y="98.4" width="12.0" height="21.6"/><rect class="up" x="418.0" y="69.9" width="12.0" height="50.1"/><rect class="down" x="434.0" y="120.0" width="12.0" height="38.7"/><rect class="down" x="450.0" y="120.0" width="12.0" height="13.9"/><rect class="down" x="466.0" y="120.0" width="12.0" height="103.6"/><rect class="down" x="482.0" y="120.0" width="12.0" height="19.7"/><rect class="down" x="498.0" y="120.0" width="12.0" height="113.7"/><rect class="down" x="514.0" y="120.0" width="12.0" height="70.5"/><rect class="up" x="530.0" y="50.5" width="12.0" height="69.5"/><rect class="down" x="546.0" y="120.0" width="12.0" height="114.0"/><rect class="up" x="562.0" y="67.3" width="12.0" height="52.7"/><rect class="up" x="578.0" y="93.4" width="12.0" height="26.6"/><rect class="down" x="594.0" y="120.0" width="12.0" height="9.0"/><rect class="up" x="610.0" y="86.1" width="12.0" height="33.9"/><rect class="up" x="626.0" y="82.4" width="12.0" height="37.6"/></svg></div><div><h3>Market breadth</h3><p>Advancers, decliners and new highs across the US market.</p><span class="link">Open dashboard <svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></div></a><a class="tile reveal" href="#dashboards" style="--i:1"><div class="tile__chart draw"><svg class="chart" viewBox="0 0 440 240" role="img" aria-label="Illustrative sector bars, not market data" preserveAspectRatio="none"><line class="ref" x1="220.0" x2="220.0" y1="0" y2="240"/><rect class="up" x="220.0" y="3.0" width="125.3" height="15.8"/><rect class="up" x="220.0" y="24.8" width="101.8" height="15.8"/><rect class="up" x="220.0" y="46.6" width="61.9" height="15.8"/><rect class="up" x="220.0" y="68.5" width="36.8" height="15.8"/><rect class="up" x="220.0" y="90.3" width="18.8" height="15.8"/><rect class="down" x="206.7" y="112.1" width="13.3" height="15.8"/><rect class="down" x="173.4" y="133.9" width="46.6" height="15.8"/><rect class="down" x="113.9" y="155.7" width="106.1" height="15.8"/><rect class="down" x="111.1" y="177.5" width="108.9" height="15.8"/><rect class="down" x="11.5" y="199.4" width="208.5" height="15.8"/><rect class="down" x="8.0" y="221.2" width="212.0" height="15.8"/></svg></div><div><h3>Sector rotation</h3><p>Which sectors led and lagged, and how that is shifting.</p><span class="link">Open dashboard <svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></div></a><a class="tile reveal" href="#dashboards" style="--i:2"><div class="tile__chart draw"><svg class="chart" viewBox="0 0 440 240" role="img" aria-label="Illustrative yield curve shape, not market data" preserveAspectRatio="none"><line class="grid-line" x1="0" x2="440" y1="60.0" y2="60.0"/><line class="grid-line" x1="0" x2="440" y1="120.0" y2="120.0"/><line class="grid-line" x1="0" x2="440" y1="180.0" y2="180.0"/><path class="curve-b" d="M16.0 104.4 L90.5 94.0 L121.3 109.6 L145.0 135.6 L182.6 166.8 L213.1 172.0 L251.6 151.2 L349.1 99.2 L424.0 73.2"/><path class="curve-a" d="M16.0 187.6 L90.5 125.2 L121.3 94.0 L145.0 99.2 L182.6 130.4 L213.1 140.8 L251.6 125.2 L349.1 68.0 L424.0 42.0"/><circle class="dot" cx="16.0" cy="187.6" r="3"/><circle class="dot" cx="90.5" cy="125.2" r="3"/><circle class="dot" cx="121.3" cy="94.0" r="3"/><circle class="dot" cx="145.0" cy="99.2" r="3"/><circle class="dot" cx="182.6" cy="130.4" r="3"/><circle class="dot" cx="213.1" cy="140.8" r="3"/><circle class="dot" cx="251.6" cy="125.2" r="3"/><circle class="dot" cx="349.1" cy="68.0" r="3"/><circle class="dot" cx="424.0" cy="42.0" r="3"/></svg></div><div><h3>Rates and the curve</h3><p>The Treasury curve today against where it stood a month ago.</p><span class="link">Open dashboard <svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></div></a><a class="tile reveal tile--inverse" href="#dashboards" style="--i:3"><div class="tile__chart draw"><svg class="chart" viewBox="0 0 640 240" role="img" aria-label="Illustrative volatility shape, not market data" preserveAspectRatio="none"><line class="grid-line" x1="0" x2="640" y1="80.0" y2="80.0"/><line class="grid-line" x1="0" x2="640" y1="160.0" y2="160.0"/><path class="area" d="M10.0 216.8 L17.0 213.5 L23.9 204.5 L30.9 209.1 L37.9 221.1 L44.8 221.6 L51.8 217.4 L58.8 207.5 L65.7 218.4 L72.7 230.0 L79.7 223.7 L86.6 219.4 L93.6 205.7 L100.6 196.9 L107.5 197.8 L114.5 200.2 L121.5 177.2 L128.4 179.8 L135.4 186.8 L142.4 197.0 L149.3 196.2 L156.3 194.9 L163.3 197.9 L170.2 198.5 L177.2 196.1 L184.2 189.8 L191.1 180.0 L198.1 178.1 L205.1 194.2 L212.0 187.9 L219.0 200.6 L226.0 202.2 L232.9 215.4 L239.9 215.4 L246.9 222.3 L253.8 220.4 L260.8 190.8 L267.8 191.3 L274.7 183.7 L281.7 195.6 L288.7 198.2 L295.6 192.2 L302.6 193.0 L309.6 189.7 L316.5 188.8 L323.5 197.8 L330.4 192.8 L337.4 200.0 L344.4 183.3 L351.3 187.8 L358.3 181.6 L365.3 181.6 L372.2 173.1 L379.2 178.5 L386.2 169.5 L393.1 170.6 L400.1 159.3 L407.1 153.7 L414.0 152.4 L421.0 159.4 L428.0 152.6 L434.9 148.4 L441.9 133.6 L448.9 137.0 L455.8 132.0 L462.8 127.5 L469.8 124.9 L476.7 123.1 L483.7 121.4 L490.7 126.8 L497.6 135.9 L504.6 139.5 L511.6 134.2 L518.5 120.6 L525.5 111.9 L532.5 102.4 L539.4 95.4 L546.4 89.2 L553.4 87.5 L560.3 80.6 L567.3 64.7 L574.3 67.6 L581.2 73.9 L588.2 56.3 L595.2 54.1 L602.1 45.4 L609.1 37.6 L616.1 47.7 L623.0 25.9 L630.0 10.0 L630.0 240 L10.0 240 Z"/><path class="line" d="M10.0 216.8 L17.0 213.5 L23.9 204.5 L30.9 209.1 L37.9 221.1 L44.8 221.6 L51.8 217.4 L58.8 207.5 L65.7 218.4 L72.7 230.0 L79.7 223.7 L86.6 219.4 L93.6 205.7 L100.6 196.9 L107.5 197.8 L114.5 200.2 L121.5 177.2 L128.4 179.8 L135.4 186.8 L142.4 197.0 L149.3 196.2 L156.3 194.9 L163.3 197.9 L170.2 198.5 L177.2 196.1 L184.2 189.8 L191.1 180.0 L198.1 178.1 L205.1 194.2 L212.0 187.9 L219.0 200.6 L226.0 202.2 L232.9 215.4 L239.9 215.4 L246.9 222.3 L253.8 220.4 L260.8 190.8 L267.8 191.3 L274.7 183.7 L281.7 195.6 L288.7 198.2 L295.6 192.2 L302.6 193.0 L309.6 189.7 L316.5 188.8 L323.5 197.8 L330.4 192.8 L337.4 200.0 L344.4 183.3 L351.3 187.8 L358.3 181.6 L365.3 181.6 L372.2 173.1 L379.2 178.5 L386.2 169.5 L393.1 170.6 L400.1 159.3 L407.1 153.7 L414.0 152.4 L421.0 159.4 L428.0 152.6 L434.9 148.4 L441.9 133.6 L448.9 137.0 L455.8 132.0 L462.8 127.5 L469.8 124.9 L476.7 123.1 L483.7 121.4 L490.7 126.8 L497.6 135.9 L504.6 139.5 L511.6 134.2 L518.5 120.6 L525.5 111.9 L532.5 102.4 L539.4 95.4 L546.4 89.2 L553.4 87.5 L560.3 80.6 L567.3 64.7 L574.3 67.6 L581.2 73.9 L588.2 56.3 L595.2 54.1 L602.1 45.4 L609.1 37.6 L616.1 47.7 L623.0 25.9 L630.0 10.0"/></svg></div><div><h3>Volatility</h3><p>Implied and realised volatility, and the gap between them.</p><span class="link">Open dashboard <svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></div></a></div>
+    </div>
+  </section>
+
+  <section class="section feature" id="research" aria-labelledby="research-title">
+    <div class="wrap">
+      <div class="grid">
+        <h2 class="feature__title reveal" id="research-title">Momentum regimes</h2>
+        <p class="feature__abstract reveal" style="--i:1">When does trend-following pay, and when does it break? A regime-by-regime study of momentum in US equities.</p>
+      </div>
+      <figure class="feature__figure draw reveal">
+        <svg class="chart" viewBox="0 0 1200 420" role="img" aria-label="Illustrative momentum regime chart, not market data" preserveAspectRatio="none"><rect class="band-up" x="16.0" y="0" width="234.4" height="420"/><rect class="band-down" x="250.4" y="0" width="136.7" height="420"/><rect class="band-up" x="387.1" y="0" width="273.4" height="420"/><rect class="band-down" x="660.5" y="0" width="97.7" height="420"/><rect class="band-up" x="758.2" y="0" width="214.8" height="420"/><rect class="band-down" x="973.1" y="0" width="210.9" height="420"/><line class="grid-line" x1="0" x2="1200" y1="105.0" y2="105.0"/><line class="grid-line" x1="0" x2="1200" y1="210.0" y2="210.0"/><line class="grid-line" x1="0" x2="1200" y1="315.0" y2="315.0"/><path class="line" d="M16.0 404.0 L19.9 384.9 L23.8 391.4 L27.7 399.2 L31.6 391.7 L35.5 367.4 L39.4 359.3 L43.3 370.4 L47.3 376.7 L51.2 374.1 L55.1 359.4 L59.0 356.3 L62.9 357.5 L66.8 357.1 L70.7 351.8 L74.6 357.7 L78.5 354.5 L82.4 348.0 L86.3 324.9 L90.2 322.4 L94.1 307.4 L98.0 316.8 L101.9 303.1 L105.8 297.9 L109.8 301.3 L113.7 298.4 L117.6 284.2 L121.5 284.9 L125.4 269.2 L129.3 247.5 L133.2 224.5 L137.1 201.6 L141.0 213.8 L144.9 206.4 L148.8 211.5 L152.7 196.8 L156.6 192.6 L160.5 186.7 L164.4 177.8 L168.3 181.8 L172.3 177.3 L176.2 182.9 L180.1 154.3 L184.0 156.6 L187.9 153.1 L191.8 171.3 L195.7 186.0 L199.6 193.0 L203.5 180.0 L207.4 167.4 L211.3 160.7 L215.2 165.2 L219.1 139.5 L223.0 148.7 L226.9 155.8 L230.8 146.6 L234.8 155.5 L238.7 149.0 L242.6 133.9 L246.5 131.5 L250.4 130.0 L254.3 133.1 L258.2 144.8 L262.1 186.9 L266.0 205.3 L269.9 208.9 L273.8 232.4 L277.7 242.7 L281.6 243.7 L285.5 230.9 L289.4 251.1 L293.4 261.1 L297.3 261.8 L301.2 258.9 L305.1 279.3 L309.0 260.1 L312.9 273.6 L316.8 263.8 L320.7 269.7 L324.6 268.3 L328.5 251.4 L332.4 246.2 L336.3 248.1 L340.2 263.9 L344.1 275.4 L348.0 296.4 L351.9 275.2 L355.9 297.7 L359.8 332.8 L363.7 316.1 L367.6 304.0 L371.5 311.9 L375.4 305.2 L379.3 318.8 L383.2 329.4 L387.1 320.7 L391.0 313.5 L394.9 316.6 L398.8 294.2 L402.7 282.7 L406.6 278.6 L410.5 290.6 L414.4 286.5 L418.4 287.9 L422.3 286.4 L426.2 274.1 L430.1 278.7 L434.0 273.0 L437.9 260.8 L441.8 254.0 L445.7 223.4 L449.6 242.4 L453.5 240.7 L457.4 252.8 L461.3 251.2 L465.2 217.9 L469.1 235.6 L473.0 236.8 L476.9 226.3 L480.9 222.8 L484.8 209.1 L488.7 225.9 L492.6 211.5 L496.5 220.9 L500.4 233.5 L504.3 224.1 L508.2 215.8 L512.1 222.5 L516.0 230.2 L519.9 230.3 L523.8 228.0 L527.7 227.8 L531.6 237.9 L535.5 264.2 L539.5 245.7 L543.4 241.2 L547.3 254.1 L551.2 271.1 L555.1 277.4 L559.0 280.2 L562.9 304.1 L566.8 284.6 L570.7 277.0 L574.6 278.7 L578.5 272.1 L582.4 267.0 L586.3 251.7 L590.2 247.5 L594.1 229.7 L598.0 208.3 L602.0 209.9 L605.9 213.2 L609.8 221.9 L613.7 222.5 L617.6 229.2 L621.5 226.8 L625.4 220.8 L629.3 211.9 L633.2 224.0 L637.1 208.4 L641.0 210.0 L644.9 209.1 L648.8 213.2 L652.7 235.7 L656.6 230.3 L660.5 257.7 L664.5 249.5 L668.4 254.4 L672.3 240.6 L676.2 238.1 L680.1 234.9 L684.0 223.1 L687.9 229.1 L691.8 215.5 L695.7 222.6 L699.6 224.9 L703.5 238.7 L707.4 237.5 L711.3 234.7 L715.2 246.4 L719.1 267.7 L723.1 273.6 L727.0 273.9 L730.9 281.4 L734.8 298.9 L738.7 313.3 L742.6 322.1 L746.5 360.0 L750.4 372.7 L754.3 360.5 L758.2 372.8 L762.1 372.0 L766.0 347.6 L769.9 335.4 L773.8 320.5 L777.7 318.8 L781.6 331.7 L785.6 292.6 L789.5 285.4 L793.4 278.9 L797.3 255.1 L801.2 241.6 L805.1 237.4 L809.0 247.5 L812.9 245.9 L816.8 244.3 L820.7 249.1 L824.6 256.3 L828.5 265.2 L832.4 263.1 L836.3 267.0 L840.2 258.5 L844.1 242.5 L848.1 235.1 L852.0 231.3 L855.9 208.6 L859.8 197.1 L863.7 211.8 L867.6 217.2 L871.5 211.3 L875.4 218.7 L879.3 205.9 L883.2 224.1 L887.1 244.1 L891.0 228.6 L894.9 217.9 L898.8 234.3 L902.7 229.9 L906.6 209.8 L910.6 220.1 L914.5 231.4 L918.4 242.9 L922.3 251.6 L926.2 269.6 L930.1 272.2 L934.0 286.6 L937.9 282.4 L941.8 251.4 L945.7 260.9 L949.6 246.3 L953.5 228.5 L957.4 253.5 L961.3 248.8 L965.2 245.5 L969.2 246.2 L973.1 236.9 L977.0 242.8 L980.9 239.0 L984.8 244.3 L988.7 246.5 L992.6 256.8 L996.5 229.2 L1000.4 230.4 L1004.3 244.8 L1008.2 221.2 L1012.1 202.3 L1016.0 205.3 L1019.9 213.9 L1023.8 223.6 L1027.7 208.8 L1031.7 213.4 L1035.6 222.8 L1039.5 212.9 L1043.4 216.8 L1047.3 218.0 L1051.2 194.6 L1055.1 184.4 L1059.0 169.6 L1062.9 165.0 L1066.8 149.6 L1070.7 152.2 L1074.6 140.9 L1078.5 128.5 L1082.4 134.1 L1086.3 150.5 L1090.2 144.5 L1094.2 146.5 L1098.1 139.5 L1102.0 147.5 L1105.9 141.5 L1109.8 130.1 L1113.7 101.5 L1117.6 79.9 L1121.5 75.7 L1125.4 58.5 L1129.3 66.7 L1133.2 52.8 L1137.1 51.6 L1141.0 35.7 L1144.9 32.1 L1148.8 35.5 L1152.7 44.8 L1156.7 29.9 L1160.6 29.7 L1164.5 21.4 L1168.4 16.0 L1172.3 41.8 L1176.2 34.9 L1180.1 40.0 L1184.0 35.7"/></svg>
+        <figcaption>
+          <span class="legend"><span><i class="sw-up"></i>Trending regime</span><span><i class="sw-down"></i>Reversal regime</span></span>
+          <span>Illustrative</span>
+        </figcaption>
+      </figure>
+      <div class="feature__foot">
+        <dl class="facts reveal">
+          <div><dt>Sample</dt><dd class="ph">[period]</dd></div>
+          <div><dt>Universe</dt><dd class="ph">[universe]</dd></div>
+          <div><dt>Method</dt><dd class="ph">[method]</dd></div>
+        </dl>
+        <a class="btn reveal" href="#research">Read the study <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section about" id="about" aria-labelledby="about-title">
+    <div class="wrap grid">
+      <h2 class="visually-hidden" id="about-title">About Andra Markets</h2>
+      <p class="about__statement reveal">Andra Markets is an automated research desk. <span>Every US trading day it reads the close, writes the note and updates the dashboards. Same method, same time, on the record.</span></p>
+      <dl class="reveal" style="--i:1">
+        <div><dt>Publishes</dt><dd>A close note every US trading day</dd></div>
+        <div><dt>Builds</dt><dd>Interactive dashboards and quantitative studies</dd></div>
+        <div><dt>Data</dt><dd class="ph">[data sources]</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="section signup" id="subscribe" aria-labelledby="subscribe-title">
+    <div class="wrap grid">
+      <h2 class="section-title reveal" id="subscribe-title">The close, in your inbox.</h2>
+      <form class="reveal" style="--i:1" novalidate>
+        <div class="field">
+          <label for="email">Email address</label>
+          <div class="field__row">
+            <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" aria-describedby="email-help email-status">
+            <button class="btn" type="submit">Subscribe</button>
+          </div>
+          <p class="field__help" id="email-help">One note per US trading day. Unsubscribe in one click.</p>
+          <p class="field__status" id="email-status" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap grid">
+    <div class="foot__brand">
+      <a class="brand" href="#top" aria-label="Andra Markets, home">
+        <span class="brand__mark"><img src="../assets/andra-horse.png" alt="" width="84" height="84" loading="lazy"></span>
+        <span class="brand__name">Andra Markets</span>
+      </a>
+      <p>An automated research desk on the US market close.</p>
+    </div>
+    <nav class="foot__nav" aria-label="Footer">
+      <a href="#latest">Close note</a>
+      <a href="#archive">Archive</a>
+      <a href="#dashboards">Dashboards</a>
+      <a href="#research">Research</a>
+    </nav>
+    <ul class="foot__social" aria-label="Andra Markets on social media">
+      <li><a href="#" rel="me"><svg class="icon" aria-hidden="true"><use href="#i-linkedin-logo"/></svg>LinkedIn <span class="ph">[handle]</span></a></li>
+      <li><a href="#" rel="me"><svg class="icon" aria-hidden="true"><use href="#i-tiktok-logo"/></svg>TikTok <span class="ph">[handle]</span></a></li>
+      <li><a href="#" rel="me"><svg class="icon" aria-hidden="true"><use href="#i-youtube-logo"/></svg>YouTube <span class="ph">[handle]</span></a></li>
+    </ul>
+    <div class="foot__legal">
+      <span>&copy; <span class="ph">[year]</span> Andra Markets</span>
+      <span>For information only. Not investment advice.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/site.js" defer></script>
+</body>
+</html>
