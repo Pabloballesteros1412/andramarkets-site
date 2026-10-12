@@ -15,7 +15,7 @@ def norm(v):
     return re.sub(r"\s+", " ", (v or "")).strip()
 
 token = os.environ["AGENT_ARTIFACTS_TOKEN"]
-stats, diffs, old = collections.Counter(), [], []
+stats, diffs, old, seen_f = collections.Counter(), [], [], {}
 for a in m.list_artifacts(token):
     z = zipfile.ZipFile(io.BytesIO(m.download_zip(a, token)))
     names = [i.filename for i in z.infolist()]
@@ -35,10 +35,11 @@ for a in m.list_artifacts(token):
                 stats[f + " paragraph-split differs"] += 1
         else:
             stats[f + " BAD"] += 1
-            if len(diffs) < 12:
-                a_, b_ = json.dumps(norm(t))[:300], json.dumps(norm(g))[:300]
-                i = next((k for k in range(min(len(a_), len(b_))) if a_[k] != b_[k]), 0)
-                diffs.append(f"{a['id']} {f}: truth[{i}:]={a_[max(0,i-30):i+60]!r} got={b_[max(0,i-30):i+60]!r}")
+            if len(diffs) < 14 and f not in seen_f:
+                seen_f[f] = 1
+                a_, b_ = json.dumps(norm(t)), json.dumps(norm(g))
+                i = next((k for k in range(min(len(a_), len(b_))) if a_[k] != b_[k]), min(len(a_), len(b_)))
+                diffs.append(f"{a['id']} {f} len {len(a_)}/{len(b_)} at {i}: truth={a_[max(0,i-40):i+80]!r} | got={b_[max(0,i-40):i+80]!r}")
 notice("stats", "\n".join(f"{k}: {v}" for k, v in sorted(stats.items())))
 notice("diffs", "\n".join(diffs) or "none")
 notice("old 1", "\n".join(old[:22]))
