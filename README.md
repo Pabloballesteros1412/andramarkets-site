@@ -18,9 +18,13 @@ which publishes only `index.html`, `methodology/` and `assets/`.
 Everything in square brackets on the site is a placeholder, never invented
 data: market levels `[live]`, dates and times, data vendor and sources, note
 headlines and summaries, read times, calendar values and company names, Lab
-parameters and upcoming tools, video titles and durations, TikTok and YouTube
-handles, copyright year, and the Methodology sections. Set `LINKEDIN_URL` in
-`tools/build_site.py` to Andra's LinkedIn page. All charts are illustrative
+parameters and upcoming tools, video titles and durations, copyright year, and
+the Methodology sections.
+
+Social channels live in `SOCIALS` and the Watch videos in `VIDEOS`, both at the
+top of `tools/build_site.py`. Andra has no YouTube channel yet: set
+`YOUTUBE_URL` and add `("YouTube", "wide")` to the front of `VIDEOS` to bring
+back the footer link and the 16:9 frame; the Watch grid adapts by itself. All charts are illustrative
 shapes until real data is wired in, and say so. The signup form is front-end
 only until an email provider is connected.
 

@@ -18,7 +18,7 @@ Two audiences in equal measure:
 
 - Finance recruiters and professionals judging the quality and seriousness of
   the research, usually on a laptop and often from a link on a CV or LinkedIn.
-- Social media followers (LinkedIn, TikTok, YouTube) arriving on a phone after
+- Social media followers (LinkedIn, TikTok) arriving on a phone after
   a post or a clip, who want today's note and a reason to subscribe.
 
 ## Product Purpose
@@ -27,7 +27,7 @@ Andra Markets is a markets research platform. Its modules: interactive
 dashboards across rates, equities, macro and cross-asset; a Lab of interactive
 quant tools (momentum regime backtest explorer, options pricer, more to come);
 an economic calendar; a daily US market close note; Learn (explainers for people
-starting out); and Watch (YouTube and TikTok videos). Success: visitors explore
+starting out); and Watch (TikTok videos; YouTube to follow once Andra has a channel). Success: visitors explore
 a dashboard or tool, come back for the calendar and note, and subscribe by email.
 
 ## Positioning
@@ -39,7 +39,9 @@ record. The daily note is one module among others, not the centrepiece.
 ## Operating Context
 
 - The close note is tied to the US market close and published per trading day.
-- Visitors arrive from LinkedIn, TikTok and YouTube as well as direct links.
+- Visitors arrive from LinkedIn and TikTok as well as direct links.
+- Channels: LinkedIn https://www.linkedin.com/company/andramarkets/ and TikTok
+  https://www.tiktok.com/@andramarkets. No YouTube channel yet.
 
 ## Capabilities and Constraints
 
@@ -50,7 +52,7 @@ record. The daily note is one module among others, not the centrepiece.
   Learn, Watch.
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
-  time, email provider, TikTok and YouTube handles, Andra's LinkedIn page URL.
+  time, email provider, a YouTube channel.
   The site uses labelled placeholders until each is decided.
 
 ## Brand Commitments
