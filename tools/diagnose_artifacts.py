@@ -1,39 +1,45 @@
 #!/usr/bin/env python3
-"""Temporary diagnostic: font-size map of one new-format report PDF."""
-import io, os, sys, zipfile, math
+"""Temporary diagnostic: check PDF text recovery against the real note JSON."""
+import collections, io, json, os, re, sys, zipfile
 sys.path.insert(0, os.path.dirname(__file__))
 import import_notes as m
-from pypdf import PdfReader
+import pdf_note
 
 def notice(title, text):
     text = text.replace("%", "%25").replace("\r", "").replace("\n", "%0A")
-    print(f"::notice title={title}::{text}")
+    print(f"::notice title={title}::{text[:4000]}")
+
+def norm(v):
+    if isinstance(v, list):
+        return [norm(x) for x in v]
+    return re.sub(r"\s+", " ", (v or "")).strip()
 
 token = os.environ["AGENT_ARTIFACTS_TOKEN"]
-arts = {a["id"]: a for a in m.list_artifacts(token)}
-z = zipfile.ZipFile(io.BytesIO(m.download_zip(arts[11645604264], token)))
-pdf = PdfReader(io.BytesIO(z.read("AndraMarkets_Close_20261009.pdf")))
-runs = []
-for pno, page in enumerate(pdf.pages):
-    def visit(text, cm, tm, font, size, pno=pno):
-        if not text.strip():
-            return
-        scale = math.hypot(tm[0], tm[1]) * math.hypot(cm[0], cm[1])
-        name = (font or {}).get("/BaseFont", "?") if font else "?"
-        runs.append((pno, round(size * scale, 1), str(name)[-14:], text.replace("\n", " ")))
-    page.extract_text(visitor_text=visit)
-merged = []
-for r in runs:
-    if merged and merged[-1][:3] == r[:3]:
-        merged[-1] = (*r[:3], merged[-1][3] + " " + r[3])
-    else:
-        merged.append(r)
-lines = [f"p{p} {s} {f} | {t[:70]}" for p, s, f, t in merged]
-buf, out = "", []
-for ln in lines:
-    if len(buf) + len(ln) > 3900:
-        out.append(buf); buf = ""
-    buf += ln + "\n"
-out.append(buf)
-for i, chunk in enumerate(out[:9]):
-    notice(f"runs {i+1}/{len(out)}", chunk)
+stats, diffs, old = collections.Counter(), [], []
+for a in m.list_artifacts(token):
+    z = zipfile.ZipFile(io.BytesIO(m.download_zip(a, token)))
+    names = [i.filename for i in z.infolist()]
+    pdf = z.read(next(n for n in names if n.startswith("AndraMarkets_Close_")))
+    got = pdf_note.extract(pdf)
+    nj = next((n for n in names if n.startswith("note_")), None)
+    if not nj:
+        old.append(f"{a['id']} {a['created_at'][:10]}: " + ", ".join(f"{k}:{len(v) if isinstance(v, list) else len(v.split())}" for k, v in got.items()) + f" | {got.get('headline','')[:70]}")
+        continue
+    truth = json.loads(z.read(nj))
+    for f in m.NOTE_FIELDS:
+        t = truth.get(f) or ([] if f in m.LIST_FIELDS else "")
+        g = got.get(f) or ([] if f in m.LIST_FIELDS else "")
+        if norm(t) == norm(g):
+            stats[f + " ok"] += 1
+            if f not in m.LIST_FIELDS and t and [p.strip() for p in re.split(r"\n\s*\n", t)] != [norm(p) for p in g.split("\n\n")]:
+                stats[f + " paragraph-split differs"] += 1
+        else:
+            stats[f + " BAD"] += 1
+            if len(diffs) < 12:
+                a_, b_ = json.dumps(norm(t))[:300], json.dumps(norm(g))[:300]
+                i = next((k for k in range(min(len(a_), len(b_))) if a_[k] != b_[k]), 0)
+                diffs.append(f"{a['id']} {f}: truth[{i}:]={a_[max(0,i-30):i+60]!r} got={b_[max(0,i-30):i+60]!r}")
+notice("stats", "\n".join(f"{k}: {v}" for k, v in sorted(stats.items())))
+notice("diffs", "\n".join(diffs) or "none")
+notice("old 1", "\n".join(old[:22]))
+notice("old 2", "\n".join(old[22:]))
