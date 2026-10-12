@@ -23,15 +23,18 @@ Two audiences in equal measure:
 
 ## Product Purpose
 
-Andra Markets is an automated research desk. Every US trading day it publishes
-a market close note. It also maintains interactive dashboards and publishes
-quantitative studies. Success: visitors read the latest note, explore a
-dashboard or study, and subscribe to the daily note by email.
+Andra Markets is a markets research platform. Its modules: interactive
+dashboards across rates, equities, macro and cross-asset; a Lab of interactive
+quant tools (momentum regime backtest explorer, options pricer, more to come);
+an economic calendar; a daily US market close note; Learn (explainers for people
+starting out); and Watch (YouTube and TikTok videos). Success: visitors explore
+a dashboard or tool, come back for the calendar and note, and subscribe by email.
 
 ## Positioning
 
-The research is produced by an automated pipeline on a fixed daily cadence, so
-the output is consistent, dated and on the record every trading day.
+One platform that serves professionals (dashboards, tools, calendar) and
+newcomers (Learn, Watch) from the same automated pipeline, dated and on the
+record. The daily note is one module among others, not the centrepiece.
 
 ## Operating Context
 
@@ -40,8 +43,12 @@ the output is consistent, dated and on the record every trading day.
 
 ## Capabilities and Constraints
 
-- Outputs: daily US market close note, interactive dashboards, quantitative
-  studies (first featured study: momentum regimes).
+- Modules: dashboards (12 proposed: yield curve, Fed path, sector heatmap,
+  volatility term structure, global indices, FX majors, commodities, credit
+  spreads, inflation and labour, earnings season tracker, market breadth,
+  cross-asset correlation), Lab tools, economic calendar, daily close note,
+  Learn, Watch.
+- One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
   time, email provider, social handles. Prototypes use labelled placeholders.
 
@@ -56,7 +63,7 @@ the output is consistent, dated and on the record every trading day.
 - Owner approves visual decisions before real pages are built (CLAUDE.md rule 1).
 - Tone: premium and serious, never playful. References the owner likes for
   their principles (not their look): spacex.com, canyon.com, quartr.com.
-- Red and green appear only inside charts.
+- Red and green appear only inside charts, vivid and saturated, readable on both themes.
 
 ## Evidence on Hand
 
