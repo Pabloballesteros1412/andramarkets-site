@@ -2,7 +2,7 @@ name: Diagnose agent artifacts (temporary)
 on:
   push:
     branches: [claude/funny-noether-emdg4e]
-    paths: [tools/diagnose_artifacts.py, .github/workflows/diagnose-artifacts.yml]
+    paths: ["tools/**", .github/workflows/diagnose-artifacts.yml]
 permissions:
   contents: read
 jobs:

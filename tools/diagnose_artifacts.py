@@ -42,5 +42,15 @@ for a in m.list_artifacts(token):
                 diffs.append(f"{a['id']} {f} len {len(a_)}/{len(b_)} at {i}: truth={a_[max(0,i-40):i+80]!r} | got={b_[max(0,i-40):i+80]!r}")
 notice("stats", "\n".join(f"{k}: {v}" for k, v in sorted(stats.items())))
 notice("diffs", "\n".join(diffs) or "none")
-notice("old 1", "\n".join(old[:22]))
-notice("old 2", "\n".join(old[22:]))
+import subprocess
+r = subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "import_notes.py"), "--dry-run"],
+                   capture_output=True, text=True)
+out = (r.stdout + r.stderr).replace("::error::", "ERROR ")
+chunks, buf = [], ""
+for ln in out.splitlines():
+    if len(buf) + len(ln) > 3900:
+        chunks.append(buf); buf = ""
+    buf += ln + "\n"
+chunks.append(buf)
+for i, c in enumerate(chunks[:8]):
+    notice(f"dry run {i+1}/{len(chunks)}", c)
