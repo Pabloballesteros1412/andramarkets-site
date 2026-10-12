@@ -297,7 +297,7 @@ The system refuses the fintech template: no gradient hero, no metric tiles, no t
 - One family: Schibsted Grotesk, variable 400 to 900, every stack ending in `sans-serif`.
 - Hairline rules (1px) and tonal layering instead of shadows or cards.
 - Square corners everywhere.
-- The horse is the only image, shown whole and untouched, treated only with CSS filter and blend.
+- The horse is the only image, shown whole and untouched on every page, treated only with CSS filter and blend. The single exception is the owner-approved favicon and touch icon (see Brand assets).
 - Red and green only inside charts; errors are ink only.
 - Motion is quiet and gated: content visible by default, reduced motion respected.
 
@@ -562,6 +562,11 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Accessibility:** each SVG is `role="img"` with an aria-label ending ", illustrative, not market data".
 - **Data:** previews are schematic seeded random walks, never real or invented figures.
 
+### Brand assets
+- **Favicon and touch icon** (`assets/favicon-32.png`, `assets/favicon-48.png`, `assets/apple-touch-icon.png` at 180px): a head-and-neck crop of `andra-horse.png` (source box x462 to 646, y252 to 436) on its own black ground, pixels otherwise unaltered, resized with Lanczos. The owner asked for "a favicon (head and neck crop of the horse)" and approved the proposal as shown. This is the only approved crop of the mark.
+- **Social share image** (`assets/og-image.png`, 1200x630): the full, uncropped horse screen-blended on `#0a0c0d` at 0.62 opacity with a radial vignette, the wordmark (1.625rem/650) and the hero line set in Schibsted Grotesk (84px/560, -0.04em), sub in `#a8b0b4`. Owner-approved as shown. Every page's head carries icon links, Open Graph and Twitter card tags; canonical and `og:url` are emitted only once `SITE_URL` is set in `tools/build_site.py`.
+- New derivatives (other sizes, a manifest icon, alternative share cards) need owner approval before they ship.
+
 ## Do's and Don'ts
 
 ### Do:
@@ -590,7 +595,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Don't** put an eyebrow, kicker or category label above a heading.
 - **Don't** use em dashes or en dashes in copy; use commas, colons or full stops.
 - **Don't** put a personal name anywhere on the site.
-- **Don't** crop, redraw, recolour (in the file), replace or regenerate `andra-horse.png`; don't add a second image or illustration style.
+- **Don't** crop, redraw, recolour (in the file), replace or regenerate `andra-horse.png`; don't add a second image or illustration style. The only approved crop is the favicon set (Brand assets); any other derivative needs owner approval first.
 - **Don't** use a serif face or a fallback stack that ends in `serif`, and don't add a second family.
 - **Don't** invent numbers, prices, counts or dates; use a bracketed placeholder.
 - **Don't** introduce an accent colour in the UI; ink is the only emphasis.

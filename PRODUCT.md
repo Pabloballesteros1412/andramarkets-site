@@ -61,6 +61,10 @@ record. The daily note is one module among others, not the centrepiece.
   approved showing it on light grounds via a CSS invert + grayscale + multiply
   treatment that leaves the file untouched.
 - Published only as Andra Markets: no personal names anywhere on the site.
+- Owner-approved derivatives of the mark: the favicon and touch icon are a
+  head-and-neck crop (the owner asked for "a favicon (head and neck crop of the
+  horse)" and approved it as shown); the social share image uses the full horse.
+  No other crop is approved.
 - Sans-serif only, everywhere, including fallbacks (CLAUDE.md rule 2).
 - Owner approves visual decisions before real pages are built (CLAUDE.md rule 1).
   The homepage direction was approved as final; DESIGN.md is the system.

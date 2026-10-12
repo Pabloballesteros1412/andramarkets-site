@@ -41,7 +41,9 @@ display size, one line naming the platform's modules, "Explore dashboards"
 primary and "Subscribe" secondary; slim nav with theme toggle; tape edge at fold.
 
 FORM: Full-bleed plate sequence with catalogue sections (owner-pinned and
-approved as final; no concept roll was run, so there is no seed reference). Signature motion: the horse recedes
+approved as final).
+seed: none (unavailable)
+Signature motion: the horse recedes
 with scroll; charts draw in with a clip reveal; theme switch cross-fades.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

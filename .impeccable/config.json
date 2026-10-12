@@ -22,5 +22,6 @@
         "reason": "Claude triage: 1.18 applies only to the 24-40px .about__statement display text, intentional; body text is 1.55; rendered scans clean"
       }
     ]
-  }
+  },
+  "buildPath": "code"
 }
