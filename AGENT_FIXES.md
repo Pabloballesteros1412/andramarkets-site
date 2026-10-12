@@ -127,7 +127,7 @@ today's. Every gap below comes from the facts file itself:
 |---|---|---|
 | VSTOXX (`^V2TX`) | all 31 | absent: no data on any run |
 | USD/CNH (`CNH=X`) | all 31 | absent: no data on any run |
-| CSI 300 (`000300.SS`) | 23 of 31 | absent 21–26 Aug and 15 Sep onward; the same 4,529.10 / −3.60% on 1 and 14 Sep, flagged as no print |
+| CSI 300 (`000300.SS`) | 24 of 31 | absent 21–26 Aug and 15 Sep onward; the same 4,529.10 / −3.60% on 1 and 14 Sep, flagged as no print |
 | VIX 9-day, VIX 3-month | 21–26 Aug, 15–17 Sep | absent |
 | Asian indices (Nikkei, Hang Seng, KOSPI, Sensex, TAIEX) | nearly every note | marked "not yet published" for the note's date |
 | European indices | 1, 14 and 24 Sep (Global indices chart hidden) | marked "not yet published"; the values equal the previous session's |
