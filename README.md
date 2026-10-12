@@ -6,6 +6,7 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `assets/`: stylesheet, script, self-hosted font, brand mark.
 - `tools/build_site.py`: generates every page from one shell. Edit markup here.
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
+- `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
 - `data/notes/<date>.json`: one record per close note: its text and the ten
   closing levels for the tape. No PDF or facts file is ever stored here.
 - `DESIGN.md`: the design system. Every page follows it.

@@ -315,7 +315,7 @@ A monochrome ink-and-ground palette in two themes, with one darker "plate" surfa
 ### Neutral
 | Token | Light | Dark | Role |
 |---|---|---|---|
-| `--ground` | `#f4f6f6` | `#0a0c0d` | Page background, solid header, mobile nav sheet, input fill, the brand-mark patch, hero bottom fade. |
+| `--ground` | `#f4f6f6` | `#0a0c0d` | Page background, solid header, mobile nav sheet, input fill, hero bottom fade. |
 | `--ground-2` | `#e9eded` | `#14181b` | Raised tone: dashboard tile hover, Learn feature panel. |
 | `--ink-2` | `#424a50` | `#a8b0b4` | Secondary text: ledes, hero sub, nav links at rest, descriptions, key labels, meta. |
 | `--ink-3` | `#5a6268` | `#899196` | Tertiary text: placeholders (`.ph`), source lines, legal line, comparison (dashed) chart line, input placeholder. |
@@ -353,8 +353,7 @@ Inside `.lab`: `--ink` becomes `--plate-ink`, `--ink-2` and `--ink-3` become `--
 | Token | Light | Dark | Role |
 |---|---|---|---|
 | `--horse-filter` | `invert(1) grayscale(1) brightness(0.85) contrast(3)` | `none` | Filter on the hero and closing-plate horse. |
-| `--mark-filter` | `invert(1) grayscale(1) brightness(0.8) contrast(3)` | `none` | Filter on the header and footer brand mark. |
-| `--horse-blend` | `multiply` | `screen` | Blend mode for every horse and mark instance. |
+| `--horse-blend` | `multiply` | `screen` | Blend mode for every horse instance (not the brand mark, which is transparent). |
 | `--horse-opacity` | `0.92` | `0.5` | Opacity of the hero horse image. |
 
 In light, the inverted file turns the black ground white and multiply makes it vanish into the paper, leaving the engraving as ink. In dark, the untouched file screens onto near-black, so its black ground vanishes and the white engraving glows dimly. The PNG itself is never edited.
@@ -564,7 +563,7 @@ For methodology and future sub-pages, sharing the same header and footer. Top pa
 ### Horse placements
 - **Hero:** `.hero__art` absolutely placed at `left 63%`, `top 50%`, size `min(167svh, 200vw)` square, `translate(-49%, -50.5%)`, with `--horse-filter` and `--horse-blend`; the image has `--horse-opacity`. It fills the right two thirds on desktop; at 860px and below it moves to `52% / 36%`; at 520px and below it is `180vw` at `y 27%`. The hero is `min-height: calc(100svh - 56px)`, copy bottom-left, with the vignette over it.
 - **Closing plate:** `.signup__art` at `50% / 46%`, `min(150svh, 190vw)`, same filter and blend, container opacity 0.32, no entrance animation.
-- **Brand mark patch technique:** the mark is shown whole, never cropped. A 44px by `nav-h - 1px` box isolates a blend group; its `::before` paints a patch of `--ground` extending 10px beyond each side; the image (64px wide, full height, `object-fit: contain`, offset -10px) takes `--mark-filter` and `--horse-blend`. The image's black ground therefore blends against a known ground patch and vanishes even when the header is transparent over the hero, and no box ever shows. The same mark is used in the footer.
+- **Brand mark:** the transparent marks (see Brand assets), `assets/andra-mark-light.png` in the light theme and `assets/andra-mark-dark.png` in the dark theme, swapped by `data-theme` in CSS like the theme icons. Height 34px (36px above 960px), width auto, vertically centred with the wordmark by the brand's flex row, 10px gap. No box, background, border, filter or blend. The same marks are used in the footer.
 - **Video frames:** a contained background at `screen` and 0.22 opacity on the dark frame.
 - **Favicon and touch icon:** the owner-approved head-and-neck crop; see Brand assets.
 
@@ -583,6 +582,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 
 ### Brand assets
 - **Favicon and touch icon** (`assets/favicon-32.png`, `assets/favicon-48.png`, `assets/apple-touch-icon.png` at 180px): a head-and-neck crop of `andra-horse.png` (source box x462 to 646, y252 to 436) on its own black ground, pixels otherwise unaltered, resized with Lanczos. The owner asked for "a favicon (head and neck crop of the horse)" and approved the proposal as shown. This is the only approved crop of the mark.
+- **Header and footer marks** (`assets/andra-mark-light.png`, `assets/andra-mark-dark.png`, 140x160): made by `tools/make_mark.py` from `andra-horse.png`. The black ground is removed (alpha from luminance: 6 and below is transparent, 160 and above opaque, so the engraving's grey shading stays as partial transparency), the empty margin is trimmed to a 6px pad, and the horse is set in each theme's ink (`#0e1215` light, `#e9eceb` dark). The whole horse is kept, shapes untouched. Owner-requested to remove the box the old blend technique showed on mobile. Regenerate with `python3 tools/make_mark.py`; never edit by hand.
 - **Social share image** (`assets/og-image.png`, 1200x630): the full, uncropped horse screen-blended on `#0a0c0d` at 0.62 opacity with a radial vignette, the wordmark (1.625rem/650) and the hero line set in Schibsted Grotesk (84px/560, -0.04em), sub in `#a8b0b4`. Owner-approved as shown. Every page's head carries icon links, Open Graph and Twitter card tags; canonical and `og:url` are emitted only once `SITE_URL` is set in `tools/build_site.py`.
 - New derivatives (other sizes, a manifest icon, alternative share cards) need owner approval before they ship.
 
@@ -603,7 +603,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Do** draw charts in with `clip-path: inset(0 100% 0 0)` to `none`, and let the hero horse recede on scroll (`animation-timeline` on the hero's view timeline, exit 0% to 100%, to `translate(-49%, -44%) scale(0.94)` at 0.25 opacity) only where `animation-timeline: view()` is supported.
 - **Do** cross-fade theme changes with View Transitions (260ms), and switch instantly under reduced motion.
 - **Do** under `prefers-reduced-motion: reduce` keep only gentle fades: reveals fade in place (opacity, 300ms, no movement); drop the horse entrance, hero rise, chart draw, recede, filter tile fade, smooth scroll and view-transition animation.
-- **Do** show the horse whole and change it only through `--horse-filter`, `--mark-filter`, `--horse-blend`, opacity and placement.
+- **Do** show the horse whole and change it only through `--horse-filter`, `--horse-blend`, opacity and placement (the brand mark uses its approved transparent derivatives).
 - **Do** publish only as "Andra Markets".
 
 ### Don't:
@@ -614,7 +614,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Don't** put an eyebrow, kicker or category label above a heading.
 - **Don't** use em dashes or en dashes in copy; use commas, colons or full stops.
 - **Don't** put a personal name anywhere on the site.
-- **Don't** crop, redraw, recolour (in the file), replace or regenerate `andra-horse.png`; don't add a second image or illustration style. The only approved crop is the favicon set (Brand assets); any other derivative needs owner approval first.
+- **Don't** crop, redraw, recolour (in the file), replace or regenerate `andra-horse.png`; don't add a second image or illustration style. The approved derivatives are the favicon set and the transparent header marks (Brand assets); any other derivative needs owner approval first.
 - **Don't** use a serif face or a fallback stack that ends in `serif`, and don't add a second family.
 - **Don't** invent numbers, prices, counts or dates; use a bracketed placeholder.
 - **Don't** introduce an accent colour in the UI; ink is the only emphasis.
