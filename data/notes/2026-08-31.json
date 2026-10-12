@@ -1,0 +1,91 @@
+{
+  "date": "2026-08-31",
+  "published": true,
+  "edition": "0001",
+  "figure_check": "failed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "Bear flattener drags small caps and chipmakers as gold breaks lower",
+    "standfirst": "Treasury yields rose across the curve with the front end leading, a bear flattener driven by real rates rather than inflation expectations, and that back-up pressured small caps, rate-sensitive sectors and semiconductors while financials and communication names held up. Positioning into the next session turns on whether 10-year yields hold above 4.73% or fade, and on whether gold's -2.86% session squares with its status as the largest single prop in the risk barometer.",
+    "takeaways": [
+      "The curve bear-flattened with 2-year yields up 14bp against 30-year yields up 3bp, and 10-year TIPS carried the move, up 8bp to 2.42%, while breakevens sat flat.",
+      "Small caps and chip names took the losses, Russell 2000 down 1.39% and Nvidia down 4.57%, while financials, communications and discretionary stocks were bought.",
+      "Gold fell 2.86% even though it remains the single largest positive contributor to the cross-asset risk barometer, a gap worth watching.",
+      "Digital assets, high yield and investment grade credit all softened together, consistent with the barometer's -0.45 Defensive read."
+    ],
+    "desk_view": "The session confirms a real-rate story. Every tenor on the Treasury curve rose in yield, but the front end moved most, 2-year up 14bp to 4.34% against 30-year up 3bp to 5.22%, and 10-year TIPS did the work, up 8bp to 2.42%, while the 10-year breakeven held unchanged at 2.31%. That combination, real yields rising and breakevens flat, points to a financing and growth repricing rather than an inflation scare, and it explains why rate-sensitive equity groups took the worst of it: utilities down 1.04%, real estate down 0.40%, and small caps down 1.39% on the Russell. The 7-10 year Treasury proxy printed a fresh low on the session, which is the cleanest confirmation that duration, not equities, absorbed the first-order hit.\n\nWhat the session does not confirm is a broad equity risk-off. The S&P 500 gave back just 0.25%, the Dow was flat at -0.02%, and breadth was actually positive, 16 advancers against 9 decliners for a ratio of 1.78. That sits awkwardly against a risk barometer reading -0.45 and Defensive. The read here is concentration, not breadth: Nvidia's 4.57% decline and the semiconductor complex did most of the index-level damage, while the median stock did fine. The level that decides which read wins from here is the 10-year yield at 4.73%. A push through it with equities still holding a positive advance-decline line would say this stays a rates story with equity casualties confined to a handful of large names. A break where breadth turns negative alongside continued yield pressure would say the concentration argument has failed.",
+    "watching": [
+      "Whether the 10-year yield extends past 4.73% or reverses, given today's move was led by real rates, not breakevens.",
+      "The semiconductor complex after Nvidia fell 4.57%, AMD fell 2.33% and Broadcom fell 0.74% in the same session.",
+      "VIX9D's jump to 16.85, up 20.53%, against a spot VIX that fell 0.55%, a front-end vol signal worth tracking into the open.",
+      "Whether China's 3.60% drop on the CSI 300 and Korea's 1.79% decline on the KOSPI carry through to US futures."
+    ],
+    "equities": "The S&P 500 closed at 7711.76, down 0.25%. The Nasdaq 100 fell harder, down 0.70%, on the back of chip weakness, while the Dow was essentially flat at -0.02%. The Russell 2000 was the weakest of the majors, down 1.39%, and the S&P MidCap 400 fell 1.20%, both consistent with a curve move that hit smaller, more rate-sensitive balance sheets hardest.\n\nSector rotation was clean: communications rose 1.42%, discretionary rose 1.15%, financials rose 0.38%, energy rose 0.63% and staples rose 0.44%, while technology fell 1.55%, utilities fell 1.04% and industrials fell 0.93%. Breadth told a different story from the index tape, 16 advancers against 9 decliners for a ratio of 1.78 and dispersion of 1.66, which says the index-level loss was concentrated in a handful of heavy names rather than broad-based selling.",
+    "rates": "The curve bear-flattened. Two-year yields rose 14bp to 4.34%, five-year yields rose 10bp to 4.48%, 10-year yields rose 6bp to 4.73%, and 30-year yields rose just 3bp to 5.22%. That left 2s10s at 39bp, down 8bp on the day, and 5s30s at 74bp, down 7bp, while 3m10y held at 83bp with no change. Several tenors, from 1-year through 7-year, printed fresh highs on the move.\n\nBreakevens did not participate. The 5-year breakeven rose just 1bp to 2.31%, the 10-year breakeven was unchanged at 2.31%, and the 5y5y forward slipped 1bp to 2.31%. The entire back-up in nominal yields traces to real rates: the 10-year TIPS yield rose 8bp to 2.42%. That split is the clearest evidence the move was a real-rate repricing, not an inflation repricing.",
+    "credit": "Credit softened in step with the rate move rather than on its own signal. Investment grade led the give-back, LQD down 0.36%, with high yield more contained, HYG down 0.16% and JNK down 0.17%. EM sovereign debt slipped 0.25% and leveraged loans held better, down 0.05%. Long Treasuries fell 0.30% and the 7-10 year proxy fell 0.41% to a fresh low. Nothing here reads as a credit-specific stress signal, it tracks the duration move.",
+    "fx": "The dollar index rose 0.55% to 99.70, its largest single-day move in the pack and the biggest drag on the risk barometer at -1.93. The move was not uniform: EUR/USD and GBP/USD were roughly flat, but the dollar fell against the Swiss franc, down 0.16%, and the Canadian dollar, down 0.17%, while it rose against the Australian dollar's cross, up 0.19% on AUD/USD. In EM, the Brazilian real weakened 0.27% and the Mexican peso weakened 0.12% on the day even as USD/MXN sits at a longer-run low, while USD/TRY fell 0.29% on the session despite printing among the period's highs.",
+    "commodities": "Energy drifted lower, WTI down 0.16% and Brent down 0.44%, with natural gas off 0.65%. Precious metals took the bigger hit: gold fell 2.86% to 4478.10 and silver fell 3.51%, both against a dollar that was firmer on the day. Copper slipped 0.38%. Grains moved the other way, wheat up 3.27% to a fresh high, soybeans up 1.57% to a fresh high, and corn up 0.34% to a fresh high, alongside a 6.80% jump in palladium.",
+    "volatility": "Spot VIX fell 0.55% to 14.43, but the front end of the vol curve told a different story: VIX9D rose 20.53% to 16.85, a sharp bid for near-term protection against a spot index that eased. VIX3M rose 5.33%, VVIX rose 4.50% and SKEW rose 3.97% to 149.77, all pointing to more expensive tail protection even as realized conditions stayed calm. MOVE, the rates-vol gauge, rose 1.59% to 70.97, consistent with the day's yield swing.",
+    "digital": "Digital assets moved with the broader defensive tape. Bitcoin fell 0.74% to 77667.57, and the alt complex underperformed it, Ether down 1.62%, Solana down 3.57% and XRP down 2.67%. The pattern, bitcoin softer but more resilient than the rest of the complex, matches its usual behavior on risk-off days.",
+    "international": "Europe closed higher across the board and handed New York a firm tape: the EURO STOXX 50 rose 0.95%, the CAC rose 0.98%, and the DAX rose 0.77% to a fresh high. Asia was split. The Nikkei rose 0.41% and the TAIEX rose 0.78%, but the CSI 300 fell 3.60% and the KOSPI fell 1.79%. New York opened against that mixed handoff, a firm Europe against a weak China print, before its own session turned on the rate move.",
+    "correlation": "Stocks and bonds moved the same direction today, which is not what a Defensive risk barometer reading usually implies. Treasuries sold off across the curve, the 7- 10 year proxy printing a fresh low, while the S&P 500 also fell, down 0.25%. In a classic flight-to-quality session, duration would have rallied as equities gave ground. It did not. Gold, the largest single positive contributor to the barometer at +1.75, fell 2.86% on the same day, another break from the safe-haven script the barometer's own composition would predict.\n\nThe read here is that a single factor, the real-rate move, dominated both markets at once rather than investors choosing between risk assets and havens. That is worth tracking because it removes the standard hedge: if equities and duration keep selling off together, a long-duration position stops offsetting an equity drawdown, and the classic 60/40 relationship stops doing its job. The level that would restore the normal relationship is a stabilizing move in the 7-10 year Treasury proxy while equities are still under pressure. Continued joint weakness in both would confirm the real-rate move, not a risk-on or risk-off switch, is the dominant driver across the complex right now."
+  },
+  "closes": {
+    "spx": {
+      "last": 7711.76,
+      "chg": -0.249,
+      "stale": true
+    },
+    "ndx": {
+      "last": 29433.43,
+      "chg": -0.702,
+      "stale": true
+    },
+    "rut": {
+      "last": 2972.37,
+      "chg": -1.392,
+      "stale": true
+    },
+    "sx5e": {
+      "last": 6485.67,
+      "chg": 0.949,
+      "stale": true
+    },
+    "nky": {
+      "last": 66405.562,
+      "chg": 0.414,
+      "stale": true
+    },
+    "vix": {
+      "last": 14.43,
+      "chg": -0.551,
+      "stale": true
+    },
+    "ust10y": {
+      "last": 4.73,
+      "chg": 6.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.166,
+      "chg": 0.013,
+      "stale": true
+    },
+    "wti": {
+      "last": 83.4,
+      "chg": -0.156,
+      "stale": true
+    },
+    "gold": {
+      "last": 4478.1,
+      "chg": -2.855,
+      "stale": true
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 33455683795,
+    "artifact_id": 9781581146,
+    "created_at": "2026-09-01T00:51:05Z"
+  }
+}

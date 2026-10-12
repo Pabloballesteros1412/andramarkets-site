@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-30",
+  "published": true,
+  "edition": "0024",
+  "figure_check": "failed",
+  "text_source": "agent",
+  "note": {
+    "headline": "Curve bear steepens as credit and breadth quietly deteriorate under a flat tape",
+    "standfirst": "The S&P slipped 0.25% while the Nasdaq 100 eked out a gain, but decliners outnumbered advancers nearly two to one. The real story is under the surface: credit spreads widened, the MOVE index jumped, and the curve bear steepened, a combination that argues for caution even as headline index moves stayed small.",
+    "takeaways": [
+      "Credit led the risk-off signal, with LQD, HYG and EMB all at or near session lows.",
+      "The curve bear steepened, with 2s10s widening 5bp as the long end sold off harder than the front end.",
+      "Breadth was poor, with decliners far outnumbering advancers and dispersion elevated at 1.29.",
+      "Copper and the dollar index both firmed, an unusual pairing that kept the risk barometer pinned near neutral."
+    ],
+    "desk_view": "The tape looks calm and isn't. Index level moves were modest, the S&P down 0.25%, the Nasdaq 100 up 0.23%, but that headline stability sat on top of a credit market that sold off across the board. LQD fell 0.23%, HYG fell 0.19%, EMB fell 0.48% to a session low. The MOVE index rose 3.62 points to 110.45, the largest single contributor to the risk barometer's negative score alongside EMB. When rate volatility rises and credit softens while equities barely move, the equity print is lagging, not leading.\n\nThe level that decides the next leg is the 10-year at 5.26%, up 2bp on the day with the whole long end under more pressure than the front: 30-year yields rose 3bp, 20-year 4bp, against a 2-year that fell 3bp. That is a clean bear steepener, and it has now shown up alongside credit weakness for more than one session pattern. If the 10-year pushes through the recent high with MOVE continuing to climb, the equity complex will have to reprice for a repricing it has so far ignored. Watch whether Technology's strength, still up 0.64% today, can survive a credit market that is already telling a different story.",
+    "watching": [
+      "Whether the 10-year yield extends above 5.26% on continued MOVE index strength.",
+      "Credit spread action in HYG and LQD, both already at session lows, for signs of stabilization or follow-through.",
+      "Breadth confirmation: does Nasdaq strength broaden out or stay concentrated in a handful of names.",
+      "Dollar index follow-through after today's push to a fresh high alongside EM currency weakness in BRL and MXN."
+    ],
+    "equities": "The S&P 500 fell 0.25%, the Dow fell 0.86%, and the Russell 2000 fell 0.39%, while the Nasdaq 100 rose 0.23%. That divergence was purely a large-cap tech story: Technology was the only sector materially higher, up 0.64%, with Consumer Staples down 1.53%, Health Care down 1.35% and Financials down 1.13% leading the rest of the board lower.\n\nBreadth confirms the sector picture was ugly beneath the index. Decliners outnumbered advancers, and dispersion sat at 1.29. Leaders were concentrated in mega-cap names, CRM up 1.89%, AAPL up 1.10%, AMZN up 1.01%, GOOGL up 0.93%, while laggards were broad and deep: WMT down 2.70%, MS down 2.43%, LLY down 2.33%, UNH down 2.10%, META down 1.84%. A market where five stocks carry the tape and far more decline is not a healthy tape, whatever the index print says.",
+    "rates": "The curve bear steepened, with 2s10s widening 5bp to 37bp and 3m10y widening 5bp to 101bp. The move was driven by the long end: 30-year yields rose 3bp to 5.59%, 20-year rose 4bp to 5.64%, 10-year rose 2bp to 5.26%, while the 2-year fell 3bp to 4.89%. Short bills were little changed to slightly lower, with 3-month down 3bp and 6-month down 5bp.\n\nBreakevens firmed modestly, with the 5-year up 2bp to 2.36% and the 10-year up 1bp to 2.36%, while 10-year TIPS real yields rose 1bp to 2.91%. The pattern, nominal long yields rising faster than breakevens, points to a term premium story rather than an inflation story. The MOVE index rose 3.62 points to 110.45, its highest reading this year by the YTD change, confirming that rate volatility, not just rate levels, moved today.",
+    "credit": "Credit was the weakest link in the session. LQD fell 0.23%, HYG fell 0.19%, JNK fell 0.17%, and EMB fell 0.48% to a session low alongside US high yield and US investment grade, both flagged among the day's weakest series. Leveraged loans slipped 0.15%. None of these are large moves in isolation, but the consistency across the investment grade, high yield and EM sovereign complex, all softer on the same day the MOVE index jumped, is the tell. Primary market tone was not in the data, but the secondary tape was offered, not bid.",
+    "fx": "The dollar index rose 0.08% to 101.45, a fresh high, while EUR/USD fell 0.35% to 1.133, itself a session low. USD/CHF rose 0.33% and USD/CAD rose 0.34%, both fresh highs for the dollar side of those pairs. AUD/USD was the weakest G10 cross, down 0.96%. In EM, USD/BRL fell 1.16% (BRL firmer), USD/MXN rose 0.42%, and USD/TRY rose 0.05% to a fresh high. The dollar's broad firmness against both G10 and EM sits awkwardly next to the copper rally, a divergence the risk barometer flagged as its single largest positive contributor.",
+    "commodities": "Copper rose 1.48% to 6.64, the largest single positive contributor to the risk barometer and a signal at odds with the rest of the tape. WTI rose 1.07% to 90.34 while Brent fell 4.55% to 97.92, an unusual split between the two crude benchmarks. Gold rose 0.23%, silver rose 0.14%, and platinum rose 2.52%. Agriculture was soft: corn fell 3.98%, wheat fell 2.53%, while sugar rose 4.49%.",
+    "volatility": "The VIX rose 1.87 points to 16.34 and VIX3m rose 1.55 points to 18.37, a front-end-led jump that flattened the term structure versus VIX9d, which actually fell slightly to 14.20. VVIX eased to 89.48 and SKEW fell to 141.92, so the options market is pricing more near-term realized risk without paying up for tail protection. The more notable move was in rates vol: MOVE rose 3.62 points to 110.45, confirming that the cost of protection rose faster in rates than in equities today.",
+    "digital": "Bitcoin rose 0.09% and Ether rose 0.22%, both essentially flat on the day and showing little beta to the equity or credit moves. Solana fell 0.95% and XRP fell 0.13%. Digital assets sat out the session's cross-asset stress signal entirely.",
+    "international": "European bourses closed broadly lower ahead of the US session, with the CAC down 0.89%, the EURO STOXX 50 down 0.81%, the DAX down 0.79% and the FTSE 100 down 0.29%, the relative outperformer. Asia was mixed to soft: the Nikkei fell 0.60%, the Hang Seng fell 0.48%, the TAIEX fell 0.82%, while the ASX 200 bucked the trend, up 0.34%. The handoff to New York was a session already leaning defensive before the US credit and rates signals confirmed it.",
+    "correlation": "The session's defining feature was a correlation break, not a correlation confirmation. Equities traded flat to mildly negative while credit sold off and rate volatility jumped, a combination that normally moves together. Copper's rally against a firmer dollar is a second break: the two typically move inversely, and today they did not.\n\nIf these breaks persist into the next session, that is the signal to watch. A market where credit leads equities lower, even modestly, is a market pricing a different regime than the one the index level suggests. The decisive test is whether Monday's equity tape starts pricing the same stress that HYG, EMB and MOVE priced today, or whether credit reverses instead."
+  },
+  "closes": {
+    "spx": {
+      "last": 7651.54,
+      "chg": -0.252,
+      "stale": false
+    },
+    "ndx": {
+      "last": 30408.502,
+      "chg": 0.228,
+      "stale": false
+    },
+    "rut": {
+      "last": 2796.864,
+      "chg": -0.394,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6269.02,
+      "chg": -0.811,
+      "stale": false
+    },
+    "nky": {
+      "last": 65481.27,
+      "chg": -0.602,
+      "stale": true
+    },
+    "vix": {
+      "last": 16.34,
+      "chg": 1.87,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.26,
+      "chg": 2.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.133,
+      "chg": -0.351,
+      "stale": false
+    },
+    "wti": {
+      "last": 90.34,
+      "chg": 1.074,
+      "stale": false
+    },
+    "gold": {
+      "last": 4189.1,
+      "chg": 0.225,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 36782255591,
+    "artifact_id": 11128736705,
+    "created_at": "2026-09-30T21:56:31Z"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-02",
+  "published": true,
+  "edition": "0001",
+  "figure_check": "failed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "Small caps and cyclicals lead as tech splits and vol drops",
+    "standfirst": "The Russell 2000 outran mega-cap tech again, breadth ran 17 advancers to 7 decliners, and the VIX fell to 15.20 even as the MOVE index rose. Positioning should track the split inside tech, where NVDA and META rose while MSFT and AVGO fell, and the divergence between falling equity vol and rising rate vol, not the headline index print.",
+    "takeaways": [
+      "Breadth and cyclicals led: Russell 2000 +1.13%, materials +1.69%, financials +0.80%, with 17 advancers against 7 decliners.",
+      "Mega-cap tech split hard: NVDA +3.21%, ORCL +3.13%, META +2.47% rose while COST -1.22%, MSFT -0.84%, AVGO -0.66% fell, leaving the sector ETF (XLK) at -0.02%.",
+      "Equity vol fell sharply, VIX -6.98% to 15.20, while rate vol rose, MOVE +2.35% to 79.713, a divergence that rarely holds.",
+      "Treasury yields rose across the curve (2y +5bp, 10y +4bp) as gold (+2.02%) and copper (+1.53%) rallied alongside equities."
+    ],
+    "desk_view": "The session confirms that the rally has broadened past the AI-adjacent mega-caps. Breadth ran 17 advancers to 7 decliners, a 2.43 ratio, and leadership sat in the Russell 2000 (+1.13%), materials (+1.69%) and financials (+0.80%) rather than the Nasdaq 100 (+0.23%). Inside tech itself the picture split: NVDA, ORCL, META and NFLX rose while COST, MSFT, AVGO, AMD and CRM fell. The risk barometer read 0.12, essentially neutral, dragged down by usdjpy, gold and MOVE contributions even as spx, copper, vix and rut pulled the other way. That is a market buying breadth and selling single-name concentration.\n\nWhat it does not confirm is a clean risk-on signal. The VIX fell 6.98% to 15.20 and VIX3M eased 13.68% to 17.73, but the MOVE index rose 2.35% to 79.713 the same day Treasury yields rose across the curve, with 2s10s narrowing 1bp to 40bp on a 5bp back-up in twos. Cheap equity vol and rising rate vol rarely coexist for long. The level that decides which one is mispriced is the 10-year, at 4.79%. A push through that with MOVE still rising would argue the VIX print is complacent. A retreat in yields with MOVE fading would argue equity vol has it right.",
+    "watching": [
+      "Whether MOVE's rise (+2.35% to 79.713) extends while the VIX holds near its close of 15.20, a split that usually resolves one way.",
+      "Follow-through in mega-cap tech dispersion: NVDA and META extending gains against MSFT and AVGO.",
+      "China risk appetite after the CSI 300 fell 3.60%, the largest single index move of the session.",
+      "Whether gold (+2.02%) and copper (+1.53%) keep rising together, a pairing that reads reflation more than fear."
+    ],
+    "equities": "The S&P 500 added 0.46% to 7,666.6 and the Nasdaq 100 lagged at +0.23%, while the Russell 2000 led all majors at +1.13% and the Dow rose 0.56% to 53,061.949. The NYSE Composite added 0.60%. Breadth was wide: 17 advancers against 7 decliners, a 2.43 ratio, with dispersion at 1.17.\n\nSector rotation favored cyclicals over growth. Materials (+1.69%), communications (+1.39%) and financials (+0.80%) topped the board; real estate (-0.70%) and technology (-0.02%) brought up the rear. The dispersion sits inside tech itself: NVDA (+3.21%), ORCL (+3.13%), META (+2.47%), NFLX (+2.38%) and PFE (+1.65%) led single names, while COST (-1.22%), MSFT (-0.84%), AVGO (-0.66%), AMD (-0.55%) and CRM (-0.46%) lagged. The flat tech tape owes to MSFT and AVGO offsetting NVDA.",
+    "rates": "The curve flattened. 2s10s narrowed 1bp to 40bp, 5s30s came in 4bp to 72bp, while 3m10y widened 3bp to 87bp. Yields rose across the curve: 2-year 4.39% (+5bp), 5-year 4.55% (+6bp), 10-year 4.79% (+4bp), 30-year 5.27% (+2bp). The 1-year and 2-year sit at the top of the session's highs list.\n\nBreakevens eased while real yields held. The 5-year breakeven fell 2bp to 2.35%, the 10-year breakeven fell 1bp to 2.34%, the 5y5y forward held at 2.33%, and the 10-year TIPS yield was flat at 2.44%. The MOVE index rose 2.35% to 79.713, a rates market pricing more uncertainty than the flattening move alone suggests. The 7-10 year Treasury proxy sits on the session's lows list, consistent with the back-up in yields.",
+    "credit": "Credit tone was firm but quiet. Investment grade (LQD) rose 0.12% to 105.35 and high yield (HYG) was roughly flat at 79.11, up 0.01%. High yield on the JNK measure was flat at 95.21. EM sovereign debt (EMB) added 0.06% to 94.15 and leveraged loans (BKLN) rose 0.05% to 20.56. Long Treasuries (TLT) and the 7-10 year proxy (IEF) both rose modestly, 0.10% and 0.09%. Despite the flat-to-firm price action, both US high yield and US investment grade appear on the session's lows list, a reminder that spread cushion has been thin even as prices grind higher.",
+    "fx": "The dollar index slipped 0.09% to 99.577, a small move against an uneven G10 tape: EUR/USD fell 0.24% to 1.159, USD/JPY fell 0.62% to 158.75, and GBP/USD fell 0.50% to 1.348, so the index-level dip did not translate into uniform dollar weakness. USD/CHF was the exception, up 0.60% to 0.813. In EM, USD/BRL fell 1.42% to 5.108 and USD/MXN fell 0.11% to 16.98, sitting on the session's lows list, while USD/TRY rose 0.06% to a session high of 48.298. USD/INR fell 0.16% to 94.96.",
+    "commodities": "Gold rose 2.02% to 4,435.9 and silver rose 2.10% to 65.975, a precious metals bid that ran alongside, not against, the equity rally. Copper rose 1.53% to 6.606 and aluminium added 0.63% to 3,435.0, with palladium up 3.25% to 1,360.0 and platinum up 0.41% to 1,768.8. Energy held a firm bid: WTI rose 0.57% to 90.73 and Brent rose 0.74% to 95.35, with natural gas up 3.34% to 3.001; energy appears on the session's highs list. Grains extended a run of highs: wheat rose 1.41% to 774.75, corn rose 4.03% to 542.5 and soybeans rose 0.15% to 1,308.75. Coffee fell 13.12% to 297.35 and cocoa fell 4.00% to 6,290.0, the sharpest declines of the session, while sugar rose 1.91% to 18.71, itself on the highs list.",
+    "volatility": "The cost of protection fell across the curve. VIX dropped 6.98% to 15",
+    "digital": "",
+    "international": "",
+    "correlation": ""
+  },
+  "closes": {
+    "spx": {
+      "last": 7666.6,
+      "chg": 0.46,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29143.33,
+      "chg": 0.227,
+      "stale": false
+    },
+    "rut": {
+      "last": 2953.166,
+      "chg": 1.131,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6368.98,
+      "chg": -0.797,
+      "stale": true
+    },
+    "nky": {
+      "last": 66215.344,
+      "chg": -0.146,
+      "stale": true
+    },
+    "vix": {
+      "last": 15.2,
+      "chg": -6.977,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.79,
+      "chg": 4.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.159,
+      "chg": -0.236,
+      "stale": false
+    },
+    "wti": {
+      "last": 90.73,
+      "chg": 0.565,
+      "stale": false
+    },
+    "gold": {
+      "last": 4435.9,
+      "chg": 2.022,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 33690084080,
+    "artifact_id": 9869945595,
+    "created_at": "2026-09-02T22:32:19Z"
+  }
+}

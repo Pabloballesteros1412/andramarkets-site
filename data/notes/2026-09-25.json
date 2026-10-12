@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-25",
+  "published": true,
+  "edition": "0019",
+  "figure_check": "failed",
+  "text_source": "agent",
+  "note": {
+    "headline": "Stocks grind higher into a bear steepener while yields hit fresh highs across the curve",
+    "standfirst": "The S&P added +0.51% and breadth ran nearly two advancers for every decliner, even as the 10-year rose to 5.18% and long Treasuries closed at lows. Equity risk appetite and rising real yields are moving together for now, and that pairing is the thing to watch, not the index level.",
+    "takeaways": [
+      "The curve bear steepened again, with 30-year yields up 7bp to 5.47% and 2s10s widening to 31bp.",
+      "Equity gains were broad but sector led, with tech, industrials and financials up while energy and communications lagged.",
+      "Credit diverged from equity: high yield and investment grade both sit at multi-week lows even as stocks rose.",
+      "Volatility compressed hard, with VIX down to 14.87 and MOVE falling 8.20 points, a gap between rates and equity vol that argues for caution on the rates move."
+    ],
+    "desk_view": "The session confirms that equity investors are still willing to buy rising yields, at least for now. The S&P closed up +0.51%, with advancers outnumbering decliners 16 to 9. That is a market pricing growth over duration risk. But the move underneath was not a straight risk-on tape: real 10-year yields rose 9bp to 2.85% while breakevens fell, which reads as the market repricing real rates higher rather than inflation expectations. Copper at fresh highs and gold higher on the day both fit a picture where nominal reflation and safe-haven demand are being bid at the same time, an odd combination that usually does not last.\n\nThe level that decides this is the 10-year at 5.18%, now printing session highs alongside 20-year and 30-year yields also at fresh highs on the day. If equities keep grinding higher through a 5.18%-plus 10-year, that is genuine confidence the growth backdrop can absorb the rate. If instead equities stall while yields keep climbing, the bear steepening stops being a growth story and starts being a duration problem for risk assets. Credit already looks like it is leaning that way: HYG, JNK and LQD all closed at multi-week lows on the day the S&P rose. That gap between credit and equity is the one to close before drawing conclusions from either.",
+    "watching": [
+      "Whether 10-year yields hold above 5.18% or reverse into month end.",
+      "Credit spreads, and whether HYG and LQD stabilize or extend their lows alongside further equity gains.",
+      "The gap between VIX at 14.87 and MOVE at 96.00, and whether rate vol catches down to equity vol or equity vol catches up.",
+      "Dollar direction after DXY fell -0.27% even as US yields rose, a divergence worth resolving."
+    ],
+    "equities": "The S&P closed up +0.51%, with the Dow outperforming at +0.93% and the Russell 2000 barely positive at +0.07%. Breadth was firm, 16 advancers against 9 decliners, a ratio of 1.78, with dispersion at 1.45 suggesting gains were not concentrated in a handful of names even as the mega-cap leaders did the heavy lifting.\n\nSector rotation favored cyclicals and quality over yield-sensitive and defensive-adjacent names: industrials led at +0.95%, tech at +0.80%, financials at +0.57%, while energy fell -0.90% and communications fell -0.90% on Meta's -3.33% drag. MSFT (+3.66%), COST (+2.93%) and AAPL (+1.53%) carried the tape; ORCL (-1.75%) and CRM (-1.76%) sold off alongside Meta, a split inside mega-cap tech rather than a uniform move.",
+    "rates": "The curve bear steepened again. 2s10s widened to 31bp, up 5bp on the day, and 5s30s widened to 44bp, up 3bp. Every tenor from 3-month bills to the 30-year rose on the day, with the belly and long end moving most: 10-year yields rose 7bp to 5.18%, 30-year yields rose 7bp to 5.47%, both at session highs, while 2-year yields rose just 2bp to 4.87%.\n\nReal yields did the work. The 10-year TIPS yield rose 9bp to 2.85% while the 10-year breakeven fell 2bp to 2.33% and the 5y5y forward breakeven fell 3bp to 2.33%. That combination, higher real yields and lower breakevens, is a real-rate story, not an inflation scare, and it is consistent with 7-10 year Treasuries closing at lows alongside long Treasuries.",
+    "credit": "Credit did not follow equities higher. US high yield (HYG) fell -0.04% and closed at a low on the day, JNK fell -0.08% and also closed at a low, and investment grade (LQD) rose only +0.06% while itself printing among the session's lows. EM sovereign USD debt (EMB) was flat. Leveraged loans (BKLN) were the one pocket of strength, up +0.10%. The tone in credit is cautious against a firmer equity tape, a gap worth watching into the next session.",
+    "fx": "The dollar index fell -0.27% to 101.02 even as US yields rose across the curve, a divergence between rate differentials and spot that does not have a clean read from today's data alone. EUR/USD rose +0.12% to 1.14 while closing at a session low for the pair. USD/JPY fell -0.61% to 157.30 despite the yen showing up as the single largest drag on the risk barometer. USD/CHF rose +0.43% to a session high, and USD/TRY also printed a high on the day. EM crosses were mixed: USD/BRL rose +0.30%, USD/MXN rose +0.75%, USD/INR barely moved.",
+    "commodities": "Energy sold off hard: Brent fell -8.44% to 97.60 and WTI fell -2.19% to 92.54, alongside natural gas down -1.76%. Precious metals firmed even as real yields rose, an unusual pairing: gold rose +0.54% to 4321.20, silver rose +1.99%, and platinum rose +2.89%. Copper rose +0.88% to 6.778 and printed a session high, consistent with the reflation thread running through the rates and equity moves. Sugar was the outlier in ags, up +5.46%.",
+    "volatility": "The vol surface compressed sharply. VIX fell -5.11% to 14.87, VIX9D fell -9.57% to 12.76, and VIX3M fell -2.71% to 17.93, a curve that steepened as near-term protection got cheaper faster than further-dated cover. VVIX fell -3.01% and SKEW was little changed at 146.04. The bigger move was in rates vol: MOVE fell -8.20% to 96.00, still up nearly 54% year to date, and the gap between a calm equity vol complex and an elevated-but-falling rate vol complex is the one that matters given the bear steepening in Treasuries.",
+    "digital": "Digital assets traded with a mixed, low-beta look against the broader risk rally. Bitcoin fell -0.46%, sitting on the risk barometer as one of the larger individual drags. Ether was roughly flat, up +0.06%. Solana rose +4.40% and XRP rose +2.30%, an altcoin bid that did not extend to the majors, so today's digital tape did not track the equity advance.",
+    "international": "European equities closed broadly higher and handed New York a constructive tape: EURO STOXX 50 rose +0.48%, DAX rose +0.56%, IBEX rose +0.65%, while CAC was flat at -0.04%. Asia was split: Nikkei rose +0.76% to a fresh high and KOSPI rose +0.90%, but Hang Seng fell -0.29%, ASX 200 fell -0.72%, and Sensex fell -1.67%. TAIEX fell -0.28% on the day despite sitting near highs year to date. The regional picture into the US close was firmer in Europe and Japan, softer in China-linked and Indian markets.",
+    "correlation": "Equities and yields moved together again today, both up, which is the reflation-friendly regime the market has traded for weeks. The risk barometer sits at a neutral 0.24, but the components tell a split story: MOVE (+1.63) and DXY (+0.93) contributed most to the score, both flagging rate and dollar stress, while USD/JPY (-1.40) and gold (-0.34) pulled the other way. That is not a clean risk-on print, it is a market where rates and dollar signals disagree with the safe-haven bid.\n\nThe break to watch is credit against equity. HYG, JNK and LQD all sit at lows while the S&P rose, and that gap has not shown up in the vix-move relationship yet because equity vol collapsed today. If credit spreads widen further while equities keep climbing, the correlation between equity price and equity risk appetite breaks first, and that typically leads the rest of the complex rather than follows it."
+  },
+  "closes": {
+    "spx": {
+      "last": 7743.41,
+      "chg": 0.51,
+      "stale": false
+    },
+    "ndx": {
+      "last": 30608.135,
+      "chg": 0.424,
+      "stale": false
+    },
+    "rut": {
+      "last": 2837.552,
+      "chg": 0.07,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6302.82,
+      "chg": 0.483,
+      "stale": false
+    },
+    "nky": {
+      "last": 65513.988,
+      "chg": 0.761,
+      "stale": true
+    },
+    "vix": {
+      "last": 14.87,
+      "chg": -5.105,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.18,
+      "chg": 7.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.14,
+      "chg": 0.124,
+      "stale": false
+    },
+    "wti": {
+      "last": 92.54,
+      "chg": -2.188,
+      "stale": false
+    },
+    "gold": {
+      "last": 4321.2,
+      "chg": 0.54,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 36188375899,
+    "artifact_id": 10887308372,
+    "created_at": "2026-09-25T20:56:10Z"
+  }
+}

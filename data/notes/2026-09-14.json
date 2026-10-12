@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-14",
+  "published": true,
+  "edition": "0008",
+  "figure_check": "failed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "Curve flattens, credit sets fresh lows, mega-cap tech splits in two",
+    "standfirst": "The front end of the Treasury curve sold off while credit spread products, from high yield to long Treasuries, closed at period lows, a sharper defensive signal than the -0.48% move in the S&P 500 suggests. Positioning now turns on whether credit keeps leading this tape lower or whether Friday's front-end cheapening was a one-day event.",
+    "takeaways": [
+      "Investment grade, high yield, EM sovereign debt and long Treasuries all closed at period lows, credit led the defensive tone, not equities.",
+      "The curve flattened again, 2s10s down 6bp to 33bp and 5s30s down 5bp to 57bp, as the 2-year sold off +7bp against a firmer 30-year at -2bp.",
+      "Mega-cap dispersion split the tape: CRM, NFLX, GOOGL and META rose more than +2.70% while AVGO, AMD, ORCL, BAC and GS fell more than -3.60%.",
+      "Bitcoin rose +1.99% and gold fell -1.81% on a day the risk barometer read -0.43 defensive, a cross-asset disagreement worth tracking into next week."
+    ],
+    "desk_view": "The session confirms a defensive read but not a broad one. Breadth was close to even, 13 advancers against 12 decliners, and the index-level losses were modest: the S&P 500 fell -0.48%, the Dow just -0.29%. The stress showed up instead in specific places: credit spread products at lows, the front end of the curve cheapening 7bp on the 2-year, MOVE up +2.06% and VIX up +7.96%. That is a market repricing funding risk and duration preference, not one dumping equities wholesale.\n\nWhat contradicts the script is gold and bitcoin. Gold fell -1.81% and bitcoin rose +1.99%, both moving against the defensive complex even as the risk barometer read -0.43. The barometer's own math shows it: usdjpy, dxy and vix drove the score negative while gold and bitcoin were its two largest positive contributors. The level that resolves this is whether HYG and LQD, both already at session lows, extend that move Monday. If they do, credit's message wins and gold and bitcoin's decoupling gets tested. If they stabilize, today reads as isolated stress in banks, semis and the front end, not a market-wide flight from risk.",
+    "watching": [
+      "Whether HYG and LQD extend Friday's slide to fresh lows or stabilize, confirming or fading the credit-led signal.",
+      "China's equity benchmark's -3.60% drop and whether Asia's weakness, KOSPI -1.76% and TAIEX -1.61%, carries into US futures.",
+      "The 2-year yield at 4.63% after a +7bp move, for signs the front-end selloff continues or reverses.",
+      "USD/JPY at 153.42 after a -0.69% move, the single largest driver of Friday's risk barometer."
+    ],
+    "equities": "Indices fell across the board but by modest amounts: the S&P 500 -0.48% to 7,619.98, the Nasdaq 100 -0.82%, the Dow -0.29%, the Russell 2000 -0.40%, the S&P MidCap index -0.94%. Breadth was close to flat, 13 advancers to 12 decliners, with dispersion at 2.84, meaning the losses were concentrated rather than broad.\n\nSector rotation told the real story. Communications rose +2.19% and consumer staples +1.25%, health care +1.45%, while technology fell -1.81%, industrials -1.42% and utilities -1.35%. Inside the mega-caps the same split held: CRM +4.73%, NFLX +3.77%, GOOGL +3.22% and META +2.71% led gains, while BAC -5.14%, AVGO -4.77%, AMD -4.40%, GS -3.96% and ORCL -3.65% led losses. Financials and semis sold specifically. The broader tape did not.",
+    "rates": "The curve flattened again: 2s10s fell 6bp to 33bp, 5s30s fell 5bp to 57bp, 3m10y fell 6bp to 89bp. The front end sold off across maturities, the 2-year +7bp to 4.63%, the 3-year +6bp, the 5-year +3bp, the 7-year +3bp, even bills moved, the 3-month +7bp to 4.07% and the 1-year +7bp to 4.35%. The long end firmed: the 10-year +1bp to 4.96%, the 20-year -1bp to 5.38%, the 30-year -2bp to 5.35%.\n\nBreakevens barely moved: the 5-year held at 2.40%, the 10-year +1bp to 2.37%, the 5y5y forward +2bp to 2.34%. Real yields did the work instead, the 10-year TIPS yield rose +5bp to 2.60%, consistent with the front-end selloff being a real-rate story rather than an inflation repricing. MOVE rose +2.06% to 83.90, its second straight defensive contribution to the risk barometer.",
+    "credit": "Spread product led the defensive tape. LQD fell -0.02%, HYG -0.09%, JNK -0.13% and EMB -0.13%, with US high yield, US investment grade, EM sovereign debt, long Treasuries and 7-10 year Treasuries all among the session's lows. Leveraged loans and long Treasuries were the exceptions, BKLN +0.10% and TLT +0.07%, a modest bid for floating-rate paper and duration even as broad spread product sold off. Credit did more of the defensive work today than equities.",
+    "fx": "The dollar index rose +0.35% to 99.47, firmer against the euro (-0.14% to 1.159) and the Australian dollar (-0.06% to 0.715), but not against the yen. USD/JPY fell -0.69% to 153.42, the single largest driver of the day's risk barometer at -1.58. Sterling rose +0.12% to 1.353, the Swiss franc weakened to a session high (USD/CHF +0.42% to 0.817), and USD/TRY held near highs at +0.03% to 48.61. EM was mixed: USD/MXN -0.06%, USD/BRL +0.17%, USD/INR -0.69%.",
+    "commodities": "Energy diverged from metals. WTI rose +2.12% to 102.17, Brent +1.78% to 106.47, natural gas +1.87%. Precious metals fell despite the defensive tape: gold -1.81% to 4,329.00, silver -1.42%, platinum -1.39%, palladium -1.14%. Copper fell -1.11% to 6.40, one of the larger negative contributors to the risk barometer. Agriculture was mixed and sharp: corn +4.66%, sugar +5.01%, wheat +2.12%, soybeans +1.93%, coffee fell -7.78%.",
+    "volatility": "VIX rose +7.96% to 17.10 while VIX3M fell -6.13% to 19.28, the front of the curve catching up to the back rather than inverting outright. VVIX rose +3.96% to 94.89 and SKEW fell -1.55% to 152.09. MOVE rose +2.06% to 83.90. Protection got modestly more expensive at the front of the curve, and the rates vol move outpaced the equity vol move.",
+    "digital": "Bitcoin rose +1.99% to 78,367.72, ether +1.88%, solana +3.64% and XRP +6.21%. Digital assets traded against the defensive tape rather than with it, the same divergence gold showed in the opposite direction. The risk barometer's largest positive contribution came from bitcoin, at odds with a headline score of -0.43.",
+    "international": "European equities closed firmer across the board: the EURO STOXX 50 +0.90% to 6325.13, the DAX +0.82%, the CAC +0.78%, the FTSE 100 +0.39%, the IBEX +0.91%, the FTSE MIB +1.36%, the SMI +0.26%, the AEX +0.50%. Asia closed weaker almost everywhere: the Nikkei 225 -1.93%, the Hang Seng -0.60%, China's benchmark -3.60%, the KOSPI -1.76%, the SENSEX -0.16%, Australian shares -0.89%, the TAIEX -1.61%. The handoff to New York was a firm European session against a broadly weak Asian one, with China's decline the standout.",
+    "correlation": "The session's cross-asset signal was split rather than aligned. Credit, the front end of the curve and equity vol all moved in the same defensive direction, HYG, LQD and EMB at lows, the 2-year up 7bp, VIX up +7.96%. That is a coherent risk-off cluster. Gold and bitcoin broke from it entirely, gold down -1.81% and bitcoin up +1.99%, the two largest positive contributors to a risk barometer that otherwise read defensive.\n\nA break in this pattern would matter more than the pattern itself. If gold and bitcoin continue to diverge from credit and rates while equities stay range-bound, it argues the defensive signal is concentrated in funding and duration markets rather than broad risk appetite. If gold and bitcoin instead converge with credit next week, that would confirm a broader repricing is underway and the mega-cap dispersion seen Friday was an early symptom rather than a one-off."
+  },
+  "closes": {
+    "spx": {
+      "last": 7619.98,
+      "chg": -0.483,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29127.158,
+      "chg": -0.822,
+      "stale": false
+    },
+    "rut": {
+      "last": 2892.237,
+      "chg": -0.403,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6325.13,
+      "chg": 0.896,
+      "stale": true
+    },
+    "nky": {
+      "last": 64011.34,
+      "chg": -1.93,
+      "stale": true
+    },
+    "vix": {
+      "last": 17.1,
+      "chg": 7.955,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.96,
+      "chg": 1.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.159,
+      "chg": -0.138,
+      "stale": false
+    },
+    "wti": {
+      "last": 102.17,
+      "chg": 2.119,
+      "stale": false
+    },
+    "gold": {
+      "last": 4329.0,
+      "chg": -1.812,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 34909074715,
+    "artifact_id": 10374250938,
+    "created_at": "2026-09-14T23:38:00Z"
+  }
+}

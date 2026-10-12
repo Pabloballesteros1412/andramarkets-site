@@ -1,28 +1,34 @@
 {
   "date": "2026-09-15",
   "published": true,
-  "edition": null,
-  "figure_check": "passed",
+  "edition": "0010",
+  "figure_check": "failed",
+  "text_source": "agent",
   "note": {
-    "headline": "Energy Surge Masks Broad Risk-Off As Crypto And Small Caps Slide",
-    "standfirst": "Energy and materials rallied on a sharp commodity spike while breadth turned negative across the broader tape, credit softened and crypto sold off hard. Positioning into the next session hinges on whether the commodity bid is a growth signal or an inflation shock, a distinction the bond market has not yet resolved.",
+    "headline": "Oil Jumps Four Percent While Credit Slides to Session Lows",
+    "standfirst": "Energy led a broad equity retreat as crude rallied hard and high yield, investment grade, EM sovereign debt and long Treasuries all closed at lows. Positioning into the next session hinges on whether that credit weakness is a one-day commodity rotation or the start of something that spreads into risk assets more broadly.",
     "takeaways": [
-      "Energy and materials led on a commodity spike while 17 of 26 tracked sectors and indices declined and the S&P 500 fell -0.45%.",
-      "Crypto was the single largest drag on the risk barometer, with Bitcoin down -3.02% and XRP down -9.06%.",
-      "Credit softened at the margin, with high yield, investment grade and EM sovereign debt all lower alongside a modestly flattening Treasury curve.",
-      "The dollar firmed against"
+      "Credit closed at lows across high yield, investment grade, EM sovereign and long Treasuries even as equities only fell modestly.",
+      "Energy and materials were the only positive sectors as oil jumped and grains rallied hard.",
+      "The curve flattened again, with the front end up 1-2bp and the 20y/30y down 1bp.",
+      "Digital assets sold off far harder than equities, with Bitcoin down 3.22% and XRP down 9.63%."
     ],
-    "desk_view": "",
-    "watching": [],
-    "equities": "",
-    "rates": "",
-    "credit": "",
-    "fx": "",
-    "commodities": "",
-    "volatility": "",
-    "digital": "",
-    "international": "",
-    "correlation": ""
+    "desk_view": "The session confirms a split that is easy to miss if you only watch the S&P. The index fell 0.45% and breadth was poor, 9 advancers against 17 decliners, but the real story sat in credit and commodities. HYG, LQD, EMB, TLT and IEF all closed at their lows for the period, alongside XLU. At the same time WTI rose 4.03% and Brent 2.67%, corn rose 4.64%, soybeans 2.65%, wheat 2.94%. That combination, credit weak and commodities strong, into a curve that flattened again (2s10s at 32bp, down 1bp, front-end yields up 1-2bp against a 1bp drop at 20y and 30y) looks like a market pricing supply-side cost pressure without much conviction that growth absorbs it. The risk barometer stayed at -0.08, neutral, because usdjpy and copper contributed positively enough to offset the negative pull from btc, hyg, rut, emb, dxy and spx.\n\nThe level that decides which read is correct is whether HYG and EMB stabilize here or keep making new lows into a firm commodity tape. If credit holds and the oil move fades, this was a one-day energy and grains rotation. If IG and HY keep grinding to fresh lows while the curve keeps flattening past today's 32bp on 2s10s, that is a different signal, a market discounting slower growth into higher input costs, and the barometer's neutral print will not survive it.",
+    "watching": [
+      "Whether HYG, LQD and EMB extend today's lows or stabilize into the open.",
+      "Whether WTI holds its 4.03% gain or gives it back quickly.",
+      "Follow-through in Asia after the KOSPI's 3.26% drop.",
+      "Whether 2s10s extends its flattening move below 32bp."
+    ],
+    "equities": "All six major indices closed lower. The Russell 2000 was the worst of the group at -0.76%, the Nasdaq 100 fell 0.65%, the S&P 500 fell 0.45%, the Dow fell 0.63%, and the NYSE Composite, the broadest measure, fell a smaller 0.32%. Breadth was thin, 9 advancers against 17 decliners for a ratio of 0.53, and dispersion sat at 1.5, consistent with a market where a narrow group of names did the work on both sides.\n\nThat work was almost entirely commodity-linked. Energy was the only sector with a real gain, XLE up 2.17% on the back of CVX (+2.64%) and XOM (+2.57%), with Materials the only other sector in the green at +0.48%. Consumer discretionary was the worst sector at -1.75%, dragged by Amazon (-2.02%) and Netflix (-3.01%), alongside Oracle (-3.07%), UnitedHealth (-1.99%) and Costco (-1.91%) on the laggard side. AMD (+2.19%) and Meta (+0.70%) were the only non-energy names among the leaders.",
+    "rates": "The curve flattened across the board. 2s10s narrowed to 32bp (-1bp), 5s30s to 54bp (-3bp), and 3m10y to 86bp (-3bp). The move was a genuine bear flattener at the front and a bull flattener at the back: 2y and 5y yields rose 2bp each to 4.65% and 4.80%, 10y rose 1bp to 4.97%, while 20y and 30y each fell 1bp, with 30y at 5.34%.\n\nBreakevens ticked up modestly and in step with nominal yields. The 5y breakeven rose 1bp to 2.41%, the 10y breakeven rose 1bp to 2.38%, and the 5y5y forward rose 1bp to 2.35%. The 10-year TIPS yield was unchanged at 2.60%, so the front-end back-up in nominals ran alongside inflation compensation rather than real yields.",
+    "credit": "Credit was soft and broad. LQD fell 0.02%, HYG fell 0.19%, JNK fell 0.20%, EMB fell 0.25%, and TLT fell 0.27%. Leveraged loans (BKLN) were the exception, up 0.19%. The extremes list is the tell here: EM sovereign debt, US high yield, investment grade, 7-10 year Treasuries and long Treasuries all closed at lows for the period, alongside the Utilities sector. Tone into the close was defensive rather than distressed, spread widening was orderly, but the breadth of instruments hitting lows together is not something a single sector rally explains.",
+    "fx": "The dollar firmed broadly. DXY rose 0.19%, with EUR/USD down 0.46% and GBP/USD down 0.38%. USD/JPY rose 1.09% to 155.088, and USD/CHF and USD/TRY both closed at highs for the period. The EM bloc sold its currencies against the dollar across the board: USD/BRL up 0.83%, USD/MXN up 0.90%, USD/INR up 0.86%, USD/TRY up a smaller 0.07%. AUD/USD was the one G10 laggard beyond the euro and sterling, down 0.29%.",
+    "commodities": "Energy led every commodity bloc. WTI rose 4.03% and Brent rose 2.67%, with natural gas up 1.66%. The grain complex moved with it, corn up 4.64%, soybeans up 2.65%, wheat up 2.94%, and sugar up 4.08%, while coffee fell 7.81% and cocoa fell 2.25% in the opposite direction. Industrial metals were firm too, copper up 2.04% and aluminium up 0.82%, palladium up 1.42%. Gold was the outlier, down 0.43%, and silver rose 1.06%.",
+    "volatility": "The vol surface barely moved despite the cross-asset dispersion. VIX rose 0.59% to 17.2, still a low-vol print by any recent standard. VVIX was flat, up 0.02%, and MOVE, the rates vol gauge, fell 0.23% even as the curve reshaped itself. SKEW fell 3.60% to 146.61, suggesting the options market priced less tail risk into the close than it did the day before, an odd complement to a session where credit hit lows across the board.",
+    "digital": "Digital assets carried far more beta to the session's risk-off tone than equities did. Bitcoin fell 3.22%, Ether fell 4.58%, Solana fell 5.43%, and XRP fell 9.63%. The gap between crypto's decline and the S&P's 0.45% drop was the widest divergence in the risk barometer, with btc contributing the single largest negative pull to the day's score.",
+    "international": "Europe closed lower across the board but without much force: EURO STOXX 50 fell 0.38%, DAX fell 0.15%, CAC fell 0.34%, FTSE fell 0.37%, and the SMI was the weakest of the group at -0.50%. Asia handed New York a more mixed and, in one case, sharper setup. The Nikkei fell 0.81% and the KOSPI fell 3.26%, a standout move, while the Hang Seng rose 0.45% and the ASX rose 0.10%. The Americas were split too, Bovespa up 0.54% against a weaker Mexbol, down 1.11%.",
+    "correlation": "The unusual part of the session was not that risk assets fell together, it was what held them up. Equities, high yield, EM debt and Bitcoin all pulled the risk barometer down in the same direction, the textbook risk-off correlation. But usdjpy and copper both contributed positively enough to keep the composite score at a neutral -0.08 rather than a clean negative print. A weaker yen alongside firm copper usually reads as a carry-friendly, growth-supportive combination, not something you'd expect to sit next to credit closing at its lows.\n\nThat is the correlation worth watching into the next session. If usdjpy weakness stops being read as carry-friendly and copper's rally fades alongside oil, the two positive legs propping up today's neutral score disappear, and the barometer would move cleanly into the negative column the underlying components, btc, hyg, rut, emb, dxy and spx, are already pointing toward. A break in that offset is the signal that would turn a mixed, sector-driven session into a broader risk-off one."
   },
   "closes": {
     "spx": {
@@ -62,7 +68,7 @@
     },
     "eurusd": {
       "last": 1.154,
-      "chg": -0.482,
+      "chg": -0.459,
       "stale": false
     },
     "wti": {
@@ -78,8 +84,8 @@
   },
   "source": {
     "repo": "Pabloballesteros1412/andramarkets",
-    "run_id": 35024612239,
-    "artifact_id": 10418739472,
-    "created_at": "2026-09-15T21:20:12Z"
+    "run_id": 35026847006,
+    "artifact_id": 10420270967,
+    "created_at": "2026-09-15T21:46:07Z"
   }
 }

@@ -1,0 +1,91 @@
+{
+  "date": "2026-08-27",
+  "published": true,
+  "edition": "0001",
+  "figure_check": "failed",
+  "text_source": "pdf",
+  "note": {
+    "headline": "Five stocks carry the S&P higher while breadth turns negative underneath",
+    "standfirst": "A narrow group of AI-linked megacaps, led by CRM and NVDA, pushed the S&P 500 up 0.72% and the Nasdaq 100 up 1.43% while ten of eleven S&P sectors closed lower and breadth ran 8 advancers to 17 decliners. Vol collapsed into the print, VIX down to 14.51 and the 9-day contract down 28.19%, so the tape priced this as an isolated earnings story rather than broad risk appetite.",
+    "takeaways": [
+      "Index gains were concentrated in five names while ten of eleven S&P sectors closed lower.",
+      "The vol curve collapsed at the front end, pricing the CRM and NVDA move as idiosyncratic rather than systemic.",
+      "Treasury yields rose in a parallel shift of roughly 2bp with the 2s10s curve unchanged at 47bp.",
+      "Gold rose and EM sovereign debt fell, both risk-off signals, even as equity indices advanced."
+    ],
+    "desk_view": "The risk barometer closed at 0.18, Neutral, and that number is the honest summary of a split session. Equity and vol components pushed the score higher: SPX contributed +1.04, copper +0.97, VIX +0.70, BTC +0.66. Gold and EM debt pulled the other way: gold -0.86, EMB -0.58, HYG -0.17, LQD -0.16. That is not noise. It is two parts of the market pricing the same day differently, one taking the CRM and NVDA prints as reason to buy calls off and stocks on, the other buying gold and selling EM credit as if something is still owed a hedge.\n\nThe level that decides which read wins is breadth, not price. The S&P closed up on eight advancers against seventeen decliners, a ratio of 0.47, with dispersion at 5.01. If that ratio stays this lopsided while the index grinds higher on the same five names, the rally is fragile by construction: any stumble in CRM, NVDA, AVGO, TSLA, or ORCL has nothing underneath to absorb it. A broadening of participation, even a modest one, would be the tell that the move has legs beyond the earnings calendar.",
+    "watching": [
+      "Follow-through in CRM and NVDA: does the move hold or does it give back into the next session.",
+      "Breadth: whether participation extends past the five names that carried Wednesday's tape.",
+      "EMB and gold: whether the risk-off signal in credit and precious metals persists or fades.",
+      "CSI300's 3.60% drop overnight and whether Asia's weakness bleeds into US risk appetite."
+    ],
+    "equities": "The S&P 500 closed at 7730.99, up 0.72%, and the Nasdaq 100 closed at 29641.561, up 1.43%. The Dow added 0.20%, the Russell 2000 added 0.28%, and the S&P MidCap 400 was flat at +0.06%. The NYSE Composite fell 0.38%, the one broad index in the red, and that gap between cap-weighted gauges and the composite is the clearest read on concentration.\n\nSector rotation confirmed it. Technology was the only sector materially higher, up 3.16%. Every other sector fell: consumer staples -1.38%, communications -1.07%, consumer discretionary -1.09%, real estate -0.95%, health care -1.13%, materials -0.82%, industrials -0.85%, utilities -0.76%, financials -0.65%, energy -0.22%. CRM led all movers at +22.58%, NVDA added 8.74%, AVGO 4.49%, TSLA 2.60%, ORCL 2.06%. On the other side, COST fell 2.24%, NFLX fell 1.99%, BAC fell 1.70%, WMT fell 1.64%, AMZN fell 1.54%. Breadth closed at 8 advancers to 17 decliners with dispersion at 5.01, wide enough to confirm a rally built on a handful of stocks rather than a market-wide bid.",
+    "rates": "The curve moved in a parallel shift, yields up roughly 2bp across most of the belly and long end: 2-year +2bp to 4.19%, 5-year +2bp to 4.37%, 10-year +2bp to 4.66%, 30-year +1bp to 5.18%. The 2s10s spread held at 47bp, unchanged on the day. The 5s30s spread narrowed 1bp to 81bp and 3m10y widened 3bp to 81bp, small moves that leave the curve's shape largely where it started.\n\nBreakevens edged higher at the long end. The 5-year breakeven was flat at 2.31%, the 10-year added 1bp to 2.33%, and the 5y5y forward added 2bp to 2.35%, a series the fact pack flags at highs. Real 10-year yields rose 2bp to 2.34%, tracking the nominal move rather than diverging from it. MOVE, the rates vol gauge, was little changed at 69.859.",
+    "credit": "Credit drifted lower across the board, with EM sovereign debt the weakest link: EMB fell 0.19%, investment grade (LQD) fell 0.05%, high yield (HYG) fell 0.04%, JNK fell 0.05%, leveraged loans were flat. Long Treasuries (TLT) fell 0.20% and the belly (IEF) fell 0.10%, both consistent with the day's parallel rate rise. None of these moves are large, but they run counter to the equity tape, and EMB's underperformance is the standout.",
+    "fx": "The dollar index was essentially flat, down 0.04%. Within G10, sterling was the weakest major, down 0.38%, euro fell 0.16%, and the yen gave back a touch with USD/JPY up 0.09%. The Swiss franc and Canadian dollar softened against the dollar, while the Aussie firmed 0.45%, tracking the day's bid in copper and gold. In EM, the peso sits near a low against the dollar, the lira strengthened with USD/TRY down 0.86%, and the rupee was the session's outlier, USD/INR up 2.12%.",
+    "commodities": "Energy firmed, WTI up 1.69% and Brent up 0.89%, with natural gas up 2.11%. Precious metals extended their bid: gold up 1.40%, silver up 3.30%, platinum up 1.34%, palladium up 3.92%. Copper rose 1.48% to a fresh high, and aluminium added 1.32%. Grains and softs moved sharply: wheat, corn, and soybeans all closed at highs, up 3.77%, 3.41%, and 0.74% respectively, sugar also at a high, up 3.58%, and cocoa up 7.15%. Coffee was the exception, down 12.92%.",
+    "volatility": "Vol came in hard and unevenly across the curve. VIX fell 4.60% to 14.51, the 9-day contract fell 28.19% to 12.1, and the 3-month contract fell 14.51% to 17.56, a series the fact pack marks at a low. VVIX fell 2.75% to 82.9 while SKEW ticked up 0.76% to 144.05. The front end gave back far more than the back end, consistent with a market pricing today's move as a one-day event rather than a change in regime.",
+    "digital": "Digital assets tracked the risk tape loosely. Bitcoin rose 1.60% to 80290.148, ether added 0.31%, and Solana was the standout, up 6.91%. XRP rose 2.21%. None of the moves matched the scale of the equity dispersion seen in single names, and digital assets remain well below year-to-date highs across the board.",
+    "international": "Europe closed mixed and small: EURO STOXX 50 up 0.23%, DAX up 0.08%, CAC up 0.28%, FTSE 100 the laggard at -0.79%. Asia was split along the same tech line that defined New York. Nikkei rose 0.62%, KOSPI rose 0.97%, TAIEX rose 1.47%, all markets with heavy semiconductor exposure. CSI 300 fell 3.60%, the sharpest move of the session anywhere, and the ASX and Sensex both closed lower. The handoff to New York was a market already leaning toward chipmakers before CRM and NVDA opened the US session.",
+    "correlation": "The risk barometer's internal split is the story of the day. Equity and vol components pushed toward risk-on, SPX +1.04, copper +0.97, VIX +0.70, BTC +0.66, while gold and EM credit pulled toward risk-off, gold -0.86, EMB -0.58, HYG -0.17, LQD -0.16. Stocks and vol moved together as expected. Gold and credit did not follow.\n\nThat divergence matters more than the index print. If gold keeps bidding and EMB keeps fading while the S&P grinds higher on the same five names, cross-asset investors are treating this rally as concentrated risk to be hedged rather than broad reflation to be bought. A break in that pattern, credit spreads tightening alongside the equity move or gold giving back its bid, would be the signal that the hedge demand was noise rather than a read on what comes next."
+  },
+  "closes": {
+    "spx": {
+      "last": 7730.99,
+      "chg": 0.72,
+      "stale": false
+    },
+    "ndx": {
+      "last": 29641.561,
+      "chg": 1.427,
+      "stale": false
+    },
+    "rut": {
+      "last": 3014.339,
+      "chg": 0.281,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6470.74,
+      "chg": 0.234,
+      "stale": true
+    },
+    "nky": {
+      "last": 66262.156,
+      "chg": 0.616,
+      "stale": true
+    },
+    "vix": {
+      "last": 14.51,
+      "chg": -4.602,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.66,
+      "chg": 2.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.166,
+      "chg": -0.157,
+      "stale": false
+    },
+    "wti": {
+      "last": 83.62,
+      "chg": 1.69,
+      "stale": false
+    },
+    "gold": {
+      "last": 4662.5,
+      "chg": 1.398,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 33123892754,
+    "artifact_id": 9667723511,
+    "created_at": "2026-08-27T22:54:57Z"
+  }
+}

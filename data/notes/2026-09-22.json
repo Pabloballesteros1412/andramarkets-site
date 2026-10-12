@@ -1,0 +1,91 @@
+{
+  "date": "2026-09-22",
+  "published": true,
+  "edition": "0016",
+  "figure_check": "failed",
+  "text_source": "agent",
+  "note": {
+    "headline": "Small caps lead, banks lag, and the S&P closes flat at a record",
+    "standfirst": "The index barely moved but the surface hid a rotation out of financials and into small caps, staples, and materials. Breadth split dead even at 13 up and 13 down, so this was a market of sector calls, not a market of direction.",
+    "takeaways": [
+      "Financials took the worst one-day hit of the majors as JPM, BAC, and MS all fell more than 2.8%.",
+      "The Russell 2000 outperformed the S&P by a wide margin even as the curve flattened, a combination that does not usually pair.",
+      "Treasury yields fell across 5s through 30s while 2s held flat, pulling 2s10s in by 5bp to +20bp.",
+      "WTI crude gave back 6.42%, the sharpest single-day move in the fact pack, while gold and copper both firmed."
+    ],
+    "desk_view": "The tape confirms rotation, not fear. VIX fell to 14.21 and MOVE fell to 78.561, so the options market is not pricing stress. But the internals argue that money moved out of banks and into small caps, staples, and materials, a combination more consistent with a rates repositioning trade than a broad risk-on session. The S&P closed at 7764.64, a new high on the extremes list, with the index basically unchanged on the day. That flatness at a record is the tell: nothing about today needed the index to move, because the action was underneath it.\n\nThe level that decides whether this is rotation or something more is 2s10s. The curve flattened 5bp to +20bp with the 2-year unchanged and the 10-year down 5bp, so the front end held while the belly and long end firmed. If that continues and the 2-year starts moving too, this becomes a rates call the whole market has to answer. Financials are the sector most exposed to that answer, and they already told you today they don't like the setup.",
+    "watching": [
+      "Whether financials stabilize or the pattern in JPM, BAC, and MS extends into the next session.",
+      "Whether the front end of the curve joins the rally or continues to lag 5s through 30s.",
+      "Follow-through in WTI crude after the 6.42% drop, the largest single-day commodity move on the tape.",
+      "Whether Russell 2000 outperformance persists or reverses once financials stabilize."
+    ],
+    "equities": "The S&P 500 closed at 7764.64, off -0.001% and still a session high on the extremes list. The Nasdaq 100 added +0.82% and the Russell 2000 rose +0.51%, while the Dow fell -0.36%, weighed by the same bank names that dragged financials broadly. Technology (+0.73%), staples (+0.99%), and materials (+1.65%) led sector performance. Financials fell -1.97%, the worst sector by a clear margin, with communications down -1.06% behind Netflix's -1.64% and disappointing follow-through in the group.\n\nBreadth was split exactly even, 13 advancers against 13 decliners, with dispersion at 1.47. That is a market picking winners and losers with no net direction, consistent with the sector story: Walmart led gainers at +2.49%, JPMorgan led laggards at -3.42%. Utilities sit on the lows list alongside high yield credit and 7-10 year Treasuries, a quieter signal that duration-sensitive and defensive-but-rate-exposed names are under pressure even as the broader tape held.",
+    "rates": "The curve flattened again, with 2s10s in 5bp to +20bp and 3m10y in 8bp to +79bp. The move was concentrated in the belly and long end: 5-year yields fell 3bp to 4.83%, the 10-year fell 5bp to 4.96%, and the 30-year fell 5bp to 5.29%, while the 2-year held flat at 4.76%. 5s30s compressed 2bp to +46bp.\n\nMOVE fell 3.25 points to 78.561, suggesting the rally in intermediate and long yields was orderly rather than a scramble. Breakevens softened modestly across the curve, with 10-year breakevens down 1bp to 2.33% and the 10-year TIPS yield down 6bp to 2.62%, so the yield decline looks more real-rate driven than inflation-driven on the day.",
+    "credit": "Investment grade was unchanged on the LQD proxy at 105.09, while high yield gave back ground, with HYG down -0.013% and sitting on the session's lows list alongside JNK, which itself edged up 0.011%. EM sovereign debt (EMB) fell -0.075%, and leveraged loans rose 0.049%. Nothing here signals stress, spreads are simply drifting with a rates-driven tone rather than a credit-driven one, but high yield's presence on the lows list is worth flagging given the otherwise calm equity session.",
+    "fx": "The dollar index rose +0.111% to 100.541, extending its position as the top negative contributor to the risk barometer. EUR/USD fell -0.252% to 1.145 and GBP/USD fell -0.331% to 1.334, while USD/JPY rose +0.259% to 157.453. USD/CAD rose +0.509% to 1.407 and USD/MXN rose +0.382% to 17.293, a mixed picture in the majors against a broadly firmer dollar. USD/TRY sits on the session's highs list at 48.824, and USD/BRL fell -0.763% to 5.102, the outlier of firmness in the EM bloc.",
+    "commodities": "WTI crude fell -6.421% to 89.63 and Brent fell -1.894% to 98.44, the sharpest move anywhere in the fact pack. Natural gas rose +11.953%. Precious metals firmed broadly: gold added +0.413% to 4402.00, silver rose +3.00% to 67.80, and platinum rose +2.213%. Copper rose +3.238% to 6.903 and sits on the highs list, the largest single positive contributor to the risk barometer among all components. Grains were soft, with wheat down -1.445% and corn down -1.243%, while sugar rose +6.236%.",
+    "volatility": "VIX fell -4.438% to 14.21 and VIX9D fell -7.686% to 12.13, both well off their year-to-date levels and pricing a calm near-term tape. VIX3M fell -2.60% to 17.61, keeping the term structure in a normal contango. VVIX fell -3.031% to 83.17, so demand for vol-of-vol protection eased as well. SKEW rose +1.836% to 144.80, a modest pickup in tail-risk pricing that runs against the otherwise benign surface, worth watching if it persists.",
+    "digital": "Bitcoin fell -0.415% to 86,243.422 and Ether fell -0.65% to 2758.41, both drifting lower in line with the day's mixed risk tone rather than tracking equities directly. Solana was roughly flat at -0.076%, while XRP rose +2.841%, the outlier in the space. Crypto's contribution to the broader risk barometer was negative on both BTC and, taken with DXY and gold, part of the modest drag keeping the composite score at Neutral.",
+    "international": "European bourses closed broadly higher, with the EURO STOXX 50 up +1.315%, the DAX up +1.071%, and the FTSE MIB up +1.604%, though the FTSE 100 lagged with a -0.286% loss. Asian markets were firmer across the board into the New York session: the Nikkei rose +1.376%, the Hang Seng rose +1.179%, and the KOSPI rose +1.646% to a fresh year-to-date gain of +62.606%. That handoff was constructive, and US equities opened into it, but the divergence between a strong European and Asian session and a flat US close suggests New York found its own reasons to rotate rather than simply extend the overseas move.",
+    "correlation": "The split between a flat S&P and a down financials sector, alongside a rising dollar but rising gold and copper too, points to a session where the usual short-term risk-on, risk-off correlation broke down into sector-specific and rates-specific trades. The risk barometer's own component list shows this clearly: copper contributed +2.25 to the composite score, the single largest input, while DXY, gold, and EMB were all modest drags. That is not a coherent single-factor risk move, it is several unrelated stories landing on the same day.\n\nA break worth watching is whether small caps keep decoupling from the curve. Russell 2000 outperformance alongside a flattening curve is not the usual textbook pairing, small caps typically prefer a steepening curve and lower long rates together. If that decoupling persists into a week where the curve keeps flattening, it argues the small-cap bid is a standalone flow, not a rates call, and traders positioned for the standard cross-asset relationship could be caught wrong-footed."
+  },
+  "closes": {
+    "spx": {
+      "last": 7764.64,
+      "chg": -0.001,
+      "stale": false
+    },
+    "ndx": {
+      "last": 30732.396,
+      "chg": 0.82,
+      "stale": false
+    },
+    "rut": {
+      "last": 2889.919,
+      "chg": 0.506,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6318.2,
+      "chg": 1.315,
+      "stale": true
+    },
+    "nky": {
+      "last": 65018.949,
+      "chg": 1.376,
+      "stale": true
+    },
+    "vix": {
+      "last": 14.21,
+      "chg": -4.438,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.96,
+      "chg": -5.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.145,
+      "chg": -0.252,
+      "stale": false
+    },
+    "wti": {
+      "last": 89.63,
+      "chg": -6.421,
+      "stale": false
+    },
+    "gold": {
+      "last": 4402.0,
+      "chg": 0.413,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 35794037679,
+    "artifact_id": 10723725776,
+    "created_at": "2026-09-22T22:48:46Z"
+  }
+}
