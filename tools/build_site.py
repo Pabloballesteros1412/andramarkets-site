@@ -4,18 +4,32 @@
 Light (default) and dark themes, switched by a header toggle and remembered
 per visitor. Writes:
 
-    index.html               the homepage
-    methodology/index.html   methodology (placeholder page)
+    index.html                 the homepage
+    methodology/index.html     methodology (placeholder page)
+    reports/index.html         every published close note
+    reports/<date>/index.html  one page per note, rendered from its text
 
     python3 tools/build_site.py
+
+Close notes come from data/notes/*.json, written by tools/import_notes.py.
+With none published, the home page keeps its placeholders. The tape shows the
+latest note's closing levels. No PDF or facts file is ever linked: the site is
+free, and those downloads are reserved for paid subscribers later.
 
 Every chart is a schematic shape from a seeded random walk. None of it is
 market data, and the page labels it "Illustrative". Follow DESIGN.md.
 """
+import datetime as dt
+import html
+import json
 import math
 import random
 import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import nyse  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT
@@ -306,8 +320,22 @@ def icon(name):
 
 # Content ---------------------------------------------------------------------
 
-TAPE = ["S&amp;P 500", "Nasdaq 100", "Russell 2000", "Euro Stoxx 50", "Nikkei 225",
-        "VIX", "US 10Y yield", "EUR/USD", "WTI crude", "Gold"]
+# Tape: (label, instrument key, decimals). Levels are the latest note's
+# closes (see TAPE in tools/import_notes.py). The 10-year is a yield, its
+# change in basis points.
+TAPE = [
+    ("S&amp;P 500", "spx", 2),
+    ("Nasdaq 100", "ndx", 2),
+    ("Russell 2000", "rut", 2),
+    ("Euro Stoxx 50", "sx5e", 2),
+    ("Nikkei 225", "nky", 2),
+    ("VIX", "vix", 2),
+    ("US 10Y yield", "ust10y", 2),
+    ("EUR/USD", "eurusd", 4),
+    ("WTI crude", "wti", 2),
+    ("Gold", "gold", 1),
+]
+RATES = {"ust10y"}
 
 CATEGORIES = [
     ("rates", "Rates and credit", "Rates"),
@@ -365,6 +393,94 @@ def fill(text):
     return re.sub(r"(\[[^\]]+\])", r'<span class="ph">\1</span>', text)
 
 
+# Close notes -----------------------------------------------------------------
+
+NOTES = ROOT / "data" / "notes"
+REPORTS = ROOT / "reports"
+
+# Report page sections, in reading order: (field, heading).
+SECTIONS = [
+    ("takeaways", "Takeaways"),
+    ("desk_view", "Desk view"),
+    ("watching", "What we watch"),
+    ("equities", "Equities"),
+    ("rates", "Rates"),
+    ("credit", "Credit"),
+    ("fx", "FX"),
+    ("commodities", "Commodities"),
+    ("volatility", "Volatility"),
+    ("digital", "Digital assets"),
+    ("international", "International"),
+    ("correlation", "Correlation"),
+]
+
+
+def load_notes():
+    """Published notes, newest first."""
+    notes = []
+    for f in NOTES.glob("*.json"):
+        rec = json.loads(f.read_text(encoding="utf-8"))
+        if rec.get("published") is False:
+            continue
+        rec["day"] = dt.date.fromisoformat(rec["date"])
+        notes.append(rec)
+    return sorted(notes, key=lambda r: r["date"], reverse=True)
+
+
+def esc(text):
+    return html.escape(text, quote=True)
+
+
+def day_long(d):
+    return f"{d:%A} {d.day} {d:%B %Y}"
+
+
+def day_med(d):
+    return f"{d.day} {d:%b %Y}"
+
+
+def read_minutes(rec):
+    words = 0
+    for v in rec["note"].values():
+        for t in v if isinstance(v, list) else [v]:
+            words += len(t.split())
+    return max(1, math.ceil(words / 230))
+
+
+def paragraphs(text):
+    return "".join(f"<p>{esc(' '.join(p.split()))}</p>" for p in re.split(r"\n\s*\n", text) if p.strip())
+
+
+MINUS = "\u2212"
+
+
+def signed(v, decimals, unit=""):
+    r = round(v, decimals)
+    if r == 0:
+        return f"{0:.{decimals}f}{unit}"
+    return f"{'+' if r > 0 else MINUS}{abs(r):,.{decimals}f}{unit}"
+
+
+def tape_items(rec):
+    """Closing level and daily change for each tape instrument."""
+    items, any_stale = [], False
+    for label, key, dec in TAPE:
+        row = (rec.get("closes") or {}).get(key) or {}
+        last, chg = row.get("last"), row.get("chg")
+        if last is None:
+            level, change = "n/a", ""
+        elif key in RATES:
+            level = f"{last:.{dec}f}%"
+            change = signed(chg, 0, "bp") if chg is not None else "n/a"
+        else:
+            level = f"{last:,.{dec}f}"
+            change = signed(chg, 2, "%") if chg is not None else "n/a"
+        if last is not None and row.get("stale"):
+            change, any_stale = "Prior close", True
+        items.append((label, level, change))
+    return items, any_stale
+
+
 # Page ------------------------------------------------------------------------
 
 THEME_BOOT = (
@@ -376,12 +492,32 @@ THEME_BOOT = (
 )
 
 
-def page():
-    tape = "".join(
-        f'<li class="tape__item"><span class="tape__name">{n}</span>'
-        f'<span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li>'
-        for n in TAPE
-    )
+def page(notes):
+    latest = notes[0] if notes else None
+    if latest:
+        d = latest["day"]
+        items, any_stale = tape_items(latest)
+        tape = "".join(
+            f'<li class="tape__item"><span class="tape__name">{n}</span>'
+            f'<span class="tape__level">{level}</span><span class="tape__chg">{change}</span></li>'
+            for n, level, change in items
+        )
+        tape_title = f'Markets {day_med(d)}, {nyse.close_time(d)} ET'
+        tape_note = (f'<a class="tape__note" href="reports/{latest["date"]}/"><span>Latest close note, {day_med(d)}: '
+                     f'{esc(latest["note"]["headline"])}</span>{icon("arrow-right")}</a>')
+        tape_src = "Close and daily change. Sources: Yahoo Finance, FRED for the US 10Y yield."
+        if any_stale:
+            tape_src += " Prior close: no print yet for the session."
+    else:
+        tape = "".join(
+            f'<li class="tape__item"><span class="tape__name">{n}</span>'
+            f'<span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li>'
+            for n, *_ in TAPE
+        )
+        tape_title = f'Markets {ph("[date]")}, {ph("[time]")} ET'
+        tape_note = (f'<a class="tape__note" href="#note"><span>Latest close note, {ph("[date]")}: '
+                     f'<span class="ph ph--ink">[headline]</span></span>{icon("arrow-right")}</a>')
+        tape_src = f'Last and daily change. Source {ph("[data vendor]")}'
     filters = f'<button type="button" class="chip" data-filter="all" data-label="All" aria-pressed="true">All <span class="chip__n">{len(DASHBOARDS)}</span></button>' + "".join(
         f'<button type="button" class="chip" data-filter="{key}" data-label="{label}" aria-pressed="false">{short} '
         f'<span class="chip__n">{sum(1 for x in DASHBOARDS if x[0] == key)}</span></button>'
@@ -415,10 +551,31 @@ def page():
         + "</tbody>"
         for day, rows in CALENDAR
     )
-    archive = "".join(
-        f'<li><a href="#note"><span class="ph">[date]</span><span class="note-list__title"><span class="ph ph--ink">[Close note headline]</span></span>{icon("arrow-right")}</a></li>'
-        for _ in range(3)
-    )
+    if latest:
+        archive = "".join(
+            f'<li><a href="reports/{r["date"]}/"><time datetime="{r["date"]}">{day_med(r["day"])}</time>'
+            f'<span class="note-list__title">{esc(r["note"]["headline"])}</span>{icon("arrow-right")}</a></li>'
+            for r in notes[1:4]
+        )
+        note_latest = f"""<article class="reveal" style="--i:1">
+          <h3 class="note__title">{esc(latest["note"]["headline"])}</h3>
+          <p class="note__summary">{esc(" ".join(latest["note"]["standfirst"].split()))}</p>
+          <p class="note__meta"><time datetime="{latest["date"]}">{day_med(latest["day"])}</time><span>{read_minutes(latest)} min read</span></p>
+          <a class="btn" href="reports/{latest["date"]}/">Read the note {icon("arrow-right")}</a>
+        </article>"""
+        all_notes = "reports/"
+    else:
+        archive = "".join(
+            f'<li><a href="#note"><span class="ph">[date]</span><span class="note-list__title"><span class="ph ph--ink">[Close note headline]</span></span>{icon("arrow-right")}</a></li>'
+            for _ in range(3)
+        )
+        note_latest = f"""<article class="reveal" style="--i:1">
+          <h3 class="note__title"><span class="ph ph--ink">[Headline of the latest close note]</span></h3>
+          <p class="note__summary">{ph("[Two sentences on the session: what moved, and why it mattered.]")}</p>
+          <p class="note__meta">{ph("[date]")}<span>{ph("[n]")} min read</span></p>
+          <a class="btn" href="#note">Read the note {icon("arrow-right")}</a>
+        </article>"""
+        all_notes = "#note"
     learn = "".join(
         f'<li class="reveal" style="--i:{i}"><a href="#learn"><span class="learn-list__title">{t}</span>'
         f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time"><span class="ph">[n]</span> min read</span></a></li>'
@@ -459,11 +616,11 @@ def page():
   <section class="tape" aria-labelledby="tape-title">
     <div class="wrap">
       <div class="tape__head">
-        <h2 id="tape-title">Markets {ph("[date]")}, {ph("[time]")} ET</h2>
-        <a class="tape__note" href="#note"><span>Latest close note, {ph("[date]")}: <span class="ph ph--ink">[headline]</span></span>{icon("arrow-right")}</a>
+        <h2 id="tape-title">{tape_title}</h2>
+        {tape_note}
       </div>
       <ul class="tape__list" tabindex="0" aria-label="Market levels">{tape}</ul>
-      <p class="tape__src">Last and daily change. Source {ph("[data vendor]")}</p>
+      <p class="tape__src">{tape_src}</p>
     </div>
   </section>
 
@@ -538,17 +695,12 @@ def page():
     <div class="wrap grid">
       <div class="note__latest">
         <h2 class="section-title reveal" id="note-title">Daily close note</h2>
-        <article class="reveal" style="--i:1">
-          <h3 class="note__title"><span class="ph ph--ink">[Headline of the latest close note]</span></h3>
-          <p class="note__summary">{ph("[Two sentences on the session: what moved, and why it mattered.]")}</p>
-          <p class="note__meta">{ph("[date]")}<span>{ph("[n]")} min read</span></p>
-          <a class="btn" href="#note">Read the note {icon("arrow-right")}</a>
-        </article>
+        {note_latest}
       </div>
       <div class="note__archive reveal" style="--i:2">
         <p class="note__label">Every US trading day, after the close.</p>
         <ol class="note-list">{archive}</ol>
-        <a class="link" href="#note">All notes {icon("arrow-right")}</a>
+        <a class="link" href="{all_notes}">All notes {icon("arrow-right")}</a>
       </div>
     </div>
   </section>
@@ -667,6 +819,7 @@ def site_footer(home, base):
       <a href="{home}#learn">Learn</a>
       <a href="{home}#watch">Watch</a>
       <a href="{home}#about">About</a>
+      <a href="{base}reports/">All notes</a>
       <a href="{base}methodology/">Methodology</a>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
@@ -761,11 +914,116 @@ def methodology():
     )
 
 
+def archive(notes):
+    months = {}
+    for r in notes:
+        months.setdefault((r["day"].year, r["day"].month), []).append(r)
+    groups = "".join(
+        f'<section class="archive__month" aria-labelledby="m-{y}-{m:02d}">'
+        f'<h2 id="m-{y}-{m:02d}">{dt.date(y, m, 1):%B %Y}</h2><ol class="note-list">'
+        + "".join(
+            f'<li><a href="{r["date"]}/"><time datetime="{r["date"]}">{r["day"].day} {r["day"]:%b}</time>'
+            f'<span class="note-list__title">{esc(r["note"]["headline"])}</span>{icon("arrow-right")}</a></li>'
+            for r in rows
+        )
+        + "</ol></section>"
+        for (y, m), rows in months.items()
+    )
+    count = f"{len(notes)} note{'' if len(notes) == 1 else 's'}." if notes else "The first note is on its way."
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Daily close notes</h1>
+      <p class="lede">Every US trading day, after the close. {count}</p>
+    </header>
+    <div class="archive">{groups}</div>
+  </div>
+</main>"""
+    return shell(
+        title="Daily close notes: Andra Markets",
+        desc="The Andra Markets close note archive: one research note every US trading day, after the close.",
+        body=body,
+        home="../",
+        base="../",
+        path="reports/",
+    )
+
+
+def report(rec, newer, older):
+    n = rec["note"]
+    d = rec["day"]
+    meta = f'<time datetime="{rec["date"]}">{day_long(d)}</time>'
+    if rec.get("edition"):
+        meta += f'<span>Edition {esc(rec["edition"])}</span>'
+    meta += f"<span>{read_minutes(rec)} min read</span>"
+    sections = ""
+    for field, heading in SECTIONS:
+        v = n.get(field)
+        if not v:
+            continue
+        sid = f"s-{field.replace('_', '-')}"
+        if isinstance(v, list):
+            content = '<ol class="ruled">' + "".join(f"<li>{esc(t)}</li>" for t in v) + "</ol>"
+        else:
+            content = paragraphs(v)
+        sections += f'\n      <section aria-labelledby="{sid}"><h2 id="{sid}">{heading}</h2>{content}</section>'
+    checked = "Every figure in this note was checked against the session's verified fact pack."
+    if rec.get("figure_check") == "failed":
+        checked = ("This edition did not fully pass the automated figure check against the "
+                   "session's verified fact pack. It was reviewed before publication.")
+    sources = (f'<section aria-labelledby="s-sources"><h2 id="s-sources">Sources</h2>'
+               f"<p>Levels at the official close from Yahoo Finance; the Treasury curve, breakevens and real "
+               f"yields from FRED. {checked}</p><p>For information only. Not investment advice.</p></section>")
+    pager = ""
+    if older:
+        pager += f'<a class="link" href="../{older["date"]}/">Previous note, {day_med(older["day"])} {icon("arrow-right")}</a>'
+    if newer:
+        pager += f'<a class="link" href="../{newer["date"]}/">Next note, {day_med(newer["day"])} {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../">All notes {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../../#subscribe">Get the note by email {icon("arrow-right")}</a>'
+    standfirst = " ".join(n.get("standfirst", "").split())
+    body = f"""<main id="main" class="page report">
+  <div class="wrap">
+    <article>
+      <header class="page__head">
+        <h1 class="page__title report__title">{esc(n["headline"])}</h1>
+        {f'<p class="lede">{esc(standfirst)}</p>' if standfirst else ""}
+        <p class="note__meta">{meta}</p>
+        <div class="report__share" hidden>
+          <button class="btn" type="button" data-share>Share this note</button>
+          <p class="report__share-status" role="status" aria-live="polite"></p>
+        </div>
+      </header>
+      <div class="page__body">{sections}
+      {sources}
+      </div>
+    </article>
+    <nav class="report__pager" aria-label="More close notes">{pager}</nav>
+  </div>
+</main>"""
+    return shell(
+        title=f"{esc(n['headline'])}: Andra Markets close note, {day_med(d)}",
+        desc=esc(standfirst or f"The Andra Markets close note for {day_long(d)}."),
+        body=body,
+        home="../../",
+        base="../../",
+        path=f"reports/{rec['date']}/",
+    )
+
+
 def main():
-    (OUT / "index.html").write_text(page())
+    notes = load_notes()
+    (OUT / "index.html").write_text(page(notes))
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
-    print("wrote index.html and methodology/index.html")
+    REPORTS.mkdir(exist_ok=True)
+    (REPORTS / "index.html").write_text(archive(notes))
+    for i, rec in enumerate(notes):
+        newer = notes[i - 1] if i > 0 else None
+        older = notes[i + 1] if i + 1 < len(notes) else None
+        (REPORTS / rec["date"]).mkdir(exist_ok=True)
+        (REPORTS / rec["date"] / "index.html").write_text(report(rec, newer, older))
+    print(f"wrote index.html, methodology/index.html, reports/index.html and {len(notes)} report page(s)")
 
 
 if __name__ == "__main__":

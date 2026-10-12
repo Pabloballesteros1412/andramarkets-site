@@ -482,6 +482,7 @@ A full-width band below the hero, ground fill, `--rule` top and bottom.
 - **Head:** h2 "Markets [date], [time] ET" at 0.9375rem/600 ink, and a right-aligned link to the latest close note (550, ink, arrow nudges 3px on hover). Head text otherwise 0.875rem ink-2.
 - **List:** 10 instruments in a grid of `minmax(124px, 1fr)` columns that scrolls horizontally with snap; at 640px and below each column is `40vw`. Items separated by vertical `--rule` hairlines, 16px padding. Name 0.8125rem ink-2; level 1.1875rem/500 tabular; change 0.875rem.
 - **Source line:** "Last and daily change. Source [data vendor]" at 0.8125rem ink-3.
+- **With a published note:** the head reads "Markets 9 Oct 2026, 4:00 pm ET" (1:00 pm on NYSE early closes) and links to that note's page. Levels are the note's official closes (stored in its note record), with thousands separators and each instrument's decimals; changes carry a sign and a true minus (U+2212), percent to two decimals, the 10-year yield in whole basis points. No colour on the tape. A series with no print for the session shows its level and "Prior close" as the change; a missing value reads "n/a". Source line: "Close and daily change. Sources: Yahoo Finance, FRED for the US 10Y yield.", plus "Prior close: no print yet for the session." when it applies.
 
 ### Filter chips and status
 - **Chip:** 44px tall, padding 0 16px, `--rule` border, transparent, ink-2 label at 0.875rem/550, count in tabular figures at 450 in ink-3.
@@ -513,6 +514,17 @@ A cell in the hairline lattice; no card chrome.
 ### Daily note module
 - **Latest (columns 1 to 6):** section title, then an article: note title (note-title style, 28px above), summary (max 46ch), meta row (date and read time, 0.875rem ink-2, 20px gap), and a primary "Read the note" button.
 - **Archive (columns 8 to 12, bottom-aligned):** a label line ("Every US trading day, after the close.", 0.875rem ink-2) over a `--rule-strong` rule, then a ruled list of rows `7rem | title | 20px arrow`, 18px vertical padding. Hover underlines the title and nudges the arrow 4px. Mobile stacks date above title. An "All notes" link follows.
+- **Real notes:** the latest note fills the article (headline in ink, standfirst as summary, read time from the word count at 230 words a minute) and the archive lists the three before it. Dates are `<time>` in ink-2 with tabular figures ("9 Oct 2026"; 0.8125rem on mobile). Until a note is published the placeholders stay.
+
+### Note archive (`/reports/`)
+An inner page. Head: page title "Daily close notes", lede "Every US trading day, after the close. [n] notes." Body (max 44rem): notes grouped by month, newest first. Each month opens with a heading styled like a calendar day row (0.875rem/600 ink, 28px top padding, 16px for the first, 12px bottom, `--rule-strong` bottom rule), followed by the note list rows with the date as "9 Oct".
+
+### Report page (`/reports/<date>/`)
+An inner page, one per note.
+- **Head:** the headline in the section title scale (540, `clamp(2rem, 4.2vw, 3.5rem)`, 1.02, -0.035em, balanced): a model headline runs 8 to 13 words, too long for the page title scale. Then the standfirst as the lede, the meta row (long date, edition, read time; 0.875rem ink-2, 20px gaps, 20px above), then the share row 28px below: a primary "Share this note" button and a polite status line beside it (0.875rem ink-2, 20px gap). The button opens the system share sheet where the browser has one, else copies the page link and says "Link copied." (or shows the link to copy by hand). The row is hidden without JS. On mobile the button goes full width. No meta or label above the headline (no eyebrows).
+- **Body:** inner page sections in reading order, each only when it has text: Takeaways, Desk view, What we watch, Equities, Rates, Credit, FX, Commodities, Volatility, Digital assets, International, Correlation, then Sources (with the figure check statement and "For information only. Not investment advice."). Takeaways and What we watch are ruled lists: `--rule` top border, rows padded 12px with `--rule` separators, ink-2 text. Consecutive paragraphs are 12px apart.
+- **Pager:** text links below the body, 32px above, 24px apart: "Previous note, [date]", "Next note, [date]", "All notes", "Get the note by email" (to the signup plate).
+- **No downloads.** The site is the free tier: no PDF, facts file or data download is linked or published anywhere (see PRODUCT.md, Business Model). The deploy fails if a PDF, JSON, CSV or XLSX file reaches the published site.
 
 ### Learn feature and list
 - **Feature (columns 1 to 6):** a `--ground-2` panel, padding `clamp(20px, 2.4vw, 32px)`, explainer diagram on top with its key ending in the stamp "Diagram, not market data", then the title (feature-title style, 28px above), description (ink-2, max 46ch) and read time.
@@ -534,7 +546,7 @@ A statement paragraph (statement style, columns 1 to 8) beside a definition list
 - **Plate:** `min-height: 88svh`, content bottom-aligned, `--rule` top border, horse behind (see Horse placements). Title in columns 1 to 6, form in columns 8 to 12.
 - **Field:** label 0.875rem/550; input and Subscribe button in a row with an 8px gap (stacked at 640px and below); input 52px tall, padding 0 16px, `--rule-strong` border, ground fill, 1rem, ink-3 placeholder; focus is a 2px `--focus` outline at 0 offset. Help line 0.875rem ink-2.
 - **Error:** ink only. Input gets `aria-invalid="true"`, ink border plus an inset 1px ink ring (2px total). The status line turns 650 weight and shows the `warning-circle` icon at 1.25rem beside the message. Messages: "Enter your email address to subscribe." or "That email address looks incomplete. Check it and try again." Focus returns to the input, and typing clears the error.
-- **Success:** the status line (550) reads "Subscribed. The next close note goes to [address]." and the input row dims to 0.5 opacity. No colour, no icon.
+- **Success:** the status line (550) reads "The newsletter launches soon. Your address was not saved: sign up here again once it opens." and the input row dims to 0.5 opacity. No colour, no icon. This holds until the newsletter platform exists (PRODUCT.md, Business Model); the address is never sent or stored. Once it launches, the message becomes "Subscribed. The next close note goes to [address]."
 - **Status** is a polite live region, wired to the input with `aria-describedby`.
 
 ### Footer

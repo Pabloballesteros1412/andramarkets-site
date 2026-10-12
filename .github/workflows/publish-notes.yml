@@ -1,0 +1,57 @@
+name: Publish close notes
+
+# Pulls each new close note from the agent repo's Actions artifacts, checks
+# it, and publishes it (or opens a pull request when it is held for review).
+# See tools/import_notes.py and README, Publishing the close note.
+
+on:
+  schedule:
+    # The agent runs after the US close. Check twice an hour from 20:00 to
+    # 02:59 UTC, every day, so manual weekend runs are picked up too.
+    - cron: "7,37 20-23 * * *"
+    - cron: "7,37 0-2 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: publish-notes
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      published: ${{ steps.import.outputs.published }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the PDF reader
+        run: pip install pypdf==5.1.0
+      - name: Import new notes
+        id: import
+        env:
+          AGENT_ARTIFACTS_TOKEN: ${{ secrets.AGENT_ARTIFACTS_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python3 tools/import_notes.py
+
+  deploy:
+    needs: import
+    # Deploy what was published even if another artifact was rejected.
+    if: ${{ always() && needs.import.outputs.published == 'true' }}
+    uses: ./.github/workflows/pages.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

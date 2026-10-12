@@ -1,4 +1,4 @@
-// Andra Markets: theme, header state, menu, filters, reveals, signup.
+// Andra Markets: theme, header state, menu, filters, reveals, signup, share.
 (function () {
   var root = document.documentElement;
   root.classList.add("js");
@@ -137,7 +137,8 @@
         input.focus();
         return;
       }
-      msg.textContent = "Subscribed. The next close note goes to " + value + ".";
+      // No newsletter platform yet: nothing is sent or stored.
+      msg.textContent = "The newsletter launches soon. Your address was not saved: sign up here again once it opens.";
       form.closest(".signup").classList.add("is-done");
     });
     input.addEventListener("input", function () {
@@ -145,6 +146,37 @@
         input.removeAttribute("aria-invalid");
         msg.textContent = "";
         status.classList.remove("is-error");
+      }
+    });
+  }
+
+  // Share a close note: the system share sheet where there is one, else copy
+  // the link. Hidden without JS, since it cannot work without it.
+  var share = document.querySelector(".report__share");
+  if (share) {
+    var shareBtn = share.querySelector("[data-share]");
+    var shareMsg = share.querySelector(".report__share-status");
+    var url = location.origin + location.pathname;
+    var title = document.querySelector("h1").textContent;
+    var say = function (text) {
+      shareMsg.textContent = text;
+    };
+    share.hidden = false;
+    shareBtn.addEventListener("click", function () {
+      say("");
+      if (navigator.share) {
+        navigator.share({ title: title, url: url }).catch(function () {});
+      } else if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(
+          function () {
+            say("Link copied.");
+          },
+          function () {
+            say("Copy this link: " + url);
+          }
+        );
+      } else {
+        say("Copy this link: " + url);
       }
     });
   }
