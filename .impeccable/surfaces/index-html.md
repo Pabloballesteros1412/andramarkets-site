@@ -5,7 +5,7 @@ primary_target: "index.html"
 related_targets: []
 ---
 
-# Homepage prototype (one page, light and dark themes)
+# Homepage (light and dark themes)
 
 Scope: the Andra Markets homepage, `index.html`, one page with a
 remembered light (default) / dark theme toggle. Visitor mode: Persuade.
@@ -18,6 +18,8 @@ Audience: finance recruiters/professionals and social followers, equally.
 Action: explore a dashboard or Lab tool; subscribe by email.
 Constraints: sans-serif only; horse mark untouched (CSS treatment only); red and
 green only inside charts; no invented numbers, placeholders like [live] [date].
+
+Status: approved as final by the owner (round 3).
 
 ## Direction contract
 
@@ -38,8 +40,8 @@ FIRST VIEWPORT: Horse filling the right two thirds, headline bottom-left at
 display size, one line naming the platform's modules, "Explore dashboards"
 primary and "Subscribe" secondary; slim nav with theme toggle; tape edge at fold.
 
-FORM: Full-bleed plate sequence with catalogue sections (owner-pinned).
-seed: none (brief-pinned, roll not run). Signature motion: the horse recedes
+FORM: Full-bleed plate sequence with catalogue sections (owner-pinned and
+approved as final; no concept roll was run, so there is no seed reference). Signature motion: the horse recedes
 with scroll; charts draw in with a clip reveal; theme switch cross-fades.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

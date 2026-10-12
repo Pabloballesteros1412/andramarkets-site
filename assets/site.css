@@ -48,8 +48,8 @@
   --down: #e0202a;
   --up-tint: rgba(0, 160, 80, 0.24);
   --down-tint: rgba(224, 32, 42, 0.22);
-  --horse-filter: invert(1) grayscale(1) contrast(1.9) brightness(1.12);
-  --mark-filter: invert(1) grayscale(1) contrast(1.6);
+  --horse-filter: invert(1) grayscale(1) brightness(0.85) contrast(3);
+  --mark-filter: invert(1) grayscale(1) brightness(0.8) contrast(3);
   --horse-blend: multiply;
   --horse-opacity: 0.92;
   --select: rgba(14, 18, 21, 0.14);
@@ -935,11 +935,6 @@ ul {
   font-size: 0.8125rem;
 }
 
-.dash-tile__cat {
-  font-size: 0.8125rem;
-  color: var(--ink-3);
-}
-
 .dash-tile h3 {
   margin-top: 2px;
   font-size: clamp(1.1875rem, 1.5vw, 1.375rem);
@@ -1162,7 +1157,7 @@ ul {
 }
 
 .note__meta {
-  margin-top: 28px;
+  margin-top: 12px;
   display: flex;
   gap: 20px;
   font-size: 0.875rem;
@@ -1170,7 +1165,7 @@ ul {
 }
 
 .note__title {
-  margin-top: 10px;
+  margin-top: 28px;
   font-size: clamp(1.375rem, 2.2vw, 1.875rem);
   font-weight: 520;
   line-height: 1.15;
@@ -1367,9 +1362,8 @@ ul {
 .video__play {
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
+  width: 56px;
+  height: 56px;
   position: relative;
   background: #eef1f1;
   color: #0e1215;
@@ -1740,7 +1734,8 @@ ul {
     padding-top: 10px;
   }
   .dash-tile__src {
-    display: none;
+    margin-top: 4px;
+    font-size: 0.75rem;
   }
   .dash-tile h3 {
     font-size: 1rem;
@@ -1753,10 +1748,13 @@ ul {
     font-size: 0.75rem;
   }
   .dash-tile .key__note {
-    display: none;
+    flex-basis: 100%;
   }
   .cal thead {
     display: none;
+  }
+  .cal-wrap {
+    border-top: 0;
   }
   .cal,
   .cal tbody,

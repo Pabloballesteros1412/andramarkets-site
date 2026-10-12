@@ -372,9 +372,9 @@ def page():
         f'<li class="dash-tile reveal" data-cat="{cat}" style="--i:{i % 3}">'
         f'<a href="#dashboards" class="dash-tile__link">'
         f'<div class="dash-tile__chart draw">{fn()}</div>{key_html(leg)}'
-        f'<div class="dash-tile__text"><p class="dash-tile__cat">{cat_label[cat]}</p>'
+        f'<div class="dash-tile__text">'
         f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p>'
-        f'<p class="dash-tile__src">{ph("[source]")}, {ph("[date]")}</p></div>'
+        f'<p class="dash-tile__src">{cat_label[cat]}. {ph("[source]")}, {ph("[date]")}</p></div>'
         f'<span class="dash-tile__go">{icon("arrow-up-right")}</span></a></li>'
         for i, (cat, name, desc, fn, leg) in enumerate(DASHBOARDS)
     )
@@ -507,9 +507,9 @@ def page():
       <div class="note__latest">
         <h2 class="section-title reveal" id="note-title">Daily close note</h2>
         <article class="reveal" style="--i:1">
-          <p class="note__meta">{ph("[date]")}<span>{ph("[n]")} min read</span></p>
           <h3 class="note__title"><span class="ph ph--ink">[Headline of the latest close note]</span></h3>
           <p class="note__summary">{ph("[Two sentences on the session: what moved, and why it mattered.]")}</p>
+          <p class="note__meta">{ph("[date]")}<span>{ph("[n]")} min read</span></p>
           <a class="btn" href="#note">Read the note {icon("arrow-right")}</a>
         </article>
       </div>
