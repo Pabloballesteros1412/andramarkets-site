@@ -1,8 +1,9 @@
 {
   "date": "2026-09-21",
   "published": true,
-  "edition": null,
+  "edition": "0015",
   "figure_check": "passed",
+  "text_source": "agent",
   "note": {
     "headline": "Stocks rip to highs while yields climb and oil breaks lower",
     "standfirst": "The S&P 500 pushed to a fresh high with tech and communications doing the heavy lifting, even as the 10-year yield rose to 5.01% and crude fell hard. Breadth was strong and risk appetite firm, but the equity rally is running against a tightening curve and a weak energy tape, a combination that will not reconcile forever.",

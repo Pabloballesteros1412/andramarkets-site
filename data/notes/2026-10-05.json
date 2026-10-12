@@ -1,8 +1,9 @@
 {
   "date": "2026-10-05",
   "published": true,
-  "edition": null,
+  "edition": "0028",
   "figure_check": "passed",
+  "text_source": "agent",
   "note": {
     "headline": "Equities grind to highs as yields rise and rates vol jumps",
     "standfirst": "The S&P 500 and Nasdaq 100 closed at fresh highs even as the Treasury curve flattened and the MOVE index jumped 5.88 points. Positioning into next session hinges on whether equity strength can keep ignoring a 10-year yield at 5.28% and a rates market pricing more term risk.",

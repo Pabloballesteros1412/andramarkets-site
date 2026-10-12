@@ -1,8 +1,9 @@
 {
   "date": "2026-10-09",
   "published": true,
-  "edition": null,
+  "edition": "0031",
   "figure_check": "passed",
+  "text_source": "agent",
   "note": {
     "headline": "Stocks rise and yields fall together as curve bull-flattens, breadth confirms",
     "standfirst": "The S&P closed at a fresh high while the 10-year yield fell 6bp, a combination that argues the rally has duration support rather than just a short squeeze. Breadth confirmed the move, with advancers outpacing decliners better than three to one.",

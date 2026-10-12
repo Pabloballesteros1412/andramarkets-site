@@ -1,8 +1,9 @@
 {
   "date": "2026-09-18",
   "published": true,
-  "edition": null,
+  "edition": "0013",
   "figure_check": "passed",
+  "text_source": "agent",
   "note": {
     "headline": "Market close: quantitative read of the session",
     "standfirst": "Published in quantitative mode. Editorial commentary is unavailable in this edition; tables and exhibits reflect the official close.",

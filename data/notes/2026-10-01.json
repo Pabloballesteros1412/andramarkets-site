@@ -1,8 +1,9 @@
 {
   "date": "2026-10-01",
   "published": true,
-  "edition": null,
+  "edition": "0025",
   "figure_check": "passed",
+  "text_source": "agent",
   "note": {
     "headline": "Stocks grind higher as credit and the dollar quietly diverge",
     "standfirst": "The S&P 500 closed at a record with breadth barely positive while high yield, investment grade, and EM debt all fell to session lows. Positioning should respect the equity tape less than usual here, the cracks are underneath it.",

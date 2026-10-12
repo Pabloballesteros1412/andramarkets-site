@@ -1,8 +1,9 @@
 {
   "date": "2026-09-16",
   "published": true,
-  "edition": null,
+  "edition": "0011",
   "figure_check": "passed",
+  "text_source": "agent",
   "note": {
     "headline": "Dollar and yields rise together as financials and energy lead a narrow selloff",
     "standfirst": "SPX fell 0.45% and the Dow lost 1.21% as GS, XOM and CVX led declines, while ORCL, AMD and NVDA kept the Nasdaq 100 flat at +0.03%. Positioning should treat this as a sector rotation out of financials and energy into semis, not a broad risk-off move, until credit or rate vol confirms otherwise.",
