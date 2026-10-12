@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
-"""Build the two homepage prototypes from one template.
+"""Build the Andra Markets homepage prototype.
 
-Both directions share this exact markup; only `data-theme` differs, so the
-structure, copy and typeface stay identical and only the mood changes.
+One page, two themes (light default, dark), switched by a header toggle and
+remembered per visitor. Writes:
+
+    prototypes/index.html        the homepage
+    prototypes/cream/index.html  redirect to ?theme=light (old preview link)
+    prototypes/dark/index.html   redirect to ?theme=dark  (old preview link)
 
     python3 tools/build_prototypes.py
 
-Charts are schematic shapes from a seeded random walk. They carry no market
-data and are labelled "Illustrative" on the page.
+Every chart is a schematic shape from a seeded random walk. None of it is
+market data, and the page labels it "Illustrative".
 """
+import math
 import random
 import re
 from pathlib import Path
@@ -18,7 +23,7 @@ OUT = ROOT / "prototypes"
 ICONS = OUT / "assets" / "icons"
 
 
-# Charts ---------------------------------------------------------------------
+# Chart helpers ---------------------------------------------------------------
 
 def walk(n, seed, drift=0.0, vol=1.0, start=0.0):
     rng = random.Random(seed)
@@ -29,13 +34,19 @@ def walk(n, seed, drift=0.0, vol=1.0, start=0.0):
     return out
 
 
-def scale(vals, w, h, pad):
-    lo, hi = min(vals), max(vals)
-    n = len(vals)
-    return [
-        (pad + (w - 2 * pad) * i / (n - 1), pad + (h - 2 * pad) * (1 - (v - lo) / (hi - lo)))
-        for i, v in enumerate(vals)
-    ]
+def fit(series, w, h, pad=8, lo=None, hi=None):
+    """Scale one or more series into a shared w x h box."""
+    flat = [v for s in series for v in s]
+    lo = min(flat) if lo is None else lo
+    hi = max(flat) if hi is None else hi
+    out = []
+    for s in series:
+        n = len(s)
+        out.append([
+            (pad + (w - 2 * pad) * i / (n - 1), pad + (h - 2 * pad) * (1 - (v - lo) / (hi - lo)))
+            for i, v in enumerate(s)
+        ])
+    return out
 
 
 def d(pts):
@@ -49,95 +60,166 @@ def grid_lines(w, h, rows):
     )
 
 
-def svg(w, h, body, label):
-    return (
-        f'<svg class="chart" viewBox="0 0 {w} {h}" role="img" aria-label="{label}" '
-        f'preserveAspectRatio="none">{body}</svg>'
-    )
+def svg(w, h, body, label, stretch=True):
+    par = ' preserveAspectRatio="none"' if stretch else ""
+    return f'<svg class="chart" viewBox="0 0 {w} {h}" role="img" aria-label="{label}, illustrative, not market data"{par}>{body}</svg>'
 
 
-def chart_intraday():
-    w, h = 640, 320
-    pts = scale(walk(130, 7, 0.02, 1.0), w, h, 12)
-    area = d(pts) + f" L{pts[-1][0]:.1f} {h} L{pts[0][0]:.1f} {h} Z"
-    ref = pts[0][1]
-    body = (
-        grid_lines(w, h, 4)
-        + f'<path class="area" d="{area}"/>'
-        + f'<line class="ref" x1="0" x2="{w}" y1="{ref:.1f}" y2="{ref:.1f}"/>'
-        + f'<path class="line" d="{d(pts)}"/>'
-        + f'<circle class="dot" cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="3.5"/>'
-    )
-    return svg(w, h, body, "Illustrative intraday chart shape, not market data")
+W, H = 320, 160  # dashboard tile charts
 
 
-def chart_breadth():
-    w, h = 640, 240
-    rng = random.Random(3)
-    vals = [rng.gauss(0.15, 1) for _ in range(40)]
+def c_yield_curve():
+    tenors = [0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 30]
+    now = [0.62, 0.66, 0.7, 0.66, 0.63, 0.62, 0.64, 0.68, 0.78, 0.8]
+    ago = [0.7, 0.73, 0.74, 0.7, 0.66, 0.63, 0.63, 0.65, 0.72, 0.74]
+
+    def pts(vals):
+        return [(12 + (W - 24) * math.sqrt(t) / math.sqrt(30), H - 12 - (H - 24) * (v - 0.55) / 0.3) for t, v in zip(tenors, vals)]
+
+    a, b = pts(now), pts(ago)
+    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5"/>' for x, y in a)
+    return svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d(b)}"/><path class="line" d="{d(a)}"/>' + dots, "Yield curve shape, today against one month ago", stretch=False)
+
+
+def c_fed_path():
+    steps = [5, 5, 4.75, 4.75, 4.5, 4.5, 4.25, 4.25, 4.0, 4.0]
+    implied = [5, 4.95, 4.82, 4.7, 4.58, 4.46, 4.36, 4.24, 4.15, 4.08]
+    pa, pb = fit([steps, implied], W, H, 14)
+    stair = []
+    for i, (x, y) in enumerate(pa):
+        if i:
+            stair.append((x, pa[i - 1][1]))
+        stair.append((x, y))
+    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5"/>' for x, y in pb)
+    return svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d(stair)}"/><path class="line" d="{d(pb)}"/>' + dots, "Policy rate path implied by futures against the current rate", stretch=False)
+
+
+def c_credit():
+    ig = [abs(v) + 6 for v in walk(80, 31, 0, 0.4)]
+    hy = [v * 2.6 + 2 for v in ig]
+    rng = random.Random(32)
+    hy = [v + rng.gauss(0, 0.8) for v in hy]
+    pa, pb = fit([hy, ig], W, H, 8)
+    area = d(pb) + f" L{pb[-1][0]:.1f} {H} L{pb[0][0]:.1f} {H} Z"
+    return svg(W, H, grid_lines(W, H, 3) + f'<path class="area" d="{area}"/><path class="line" d="{d(pa)}"/><path class="dash" d="{d(pb)}"/>', "Credit spreads, high yield against investment grade")
+
+
+def heat_cells(rows, cols, seed, w, h, gap=3, diag=False):
+    rng = random.Random(seed)
+    cw, ch = (w - gap * (cols - 1)) / cols, (h - gap * (rows - 1)) / rows
+    cells = []
+    for r in range(rows):
+        for c in range(cols):
+            v = 1.0 if diag and r == c else max(-1, min(1, rng.gauss(0.1, 0.55)))
+            if diag and c < r:
+                continue
+            cls = "up" if v >= 0 else "down"
+            op = 0.18 + 0.82 * abs(v)
+            cells.append(f'<rect class="{cls}" x="{c * (cw + gap):.1f}" y="{r * (ch + gap):.1f}" width="{cw:.1f}" height="{ch:.1f}" opacity="{op:.2f}"/>')
+    return "".join(cells)
+
+
+def c_sector_heatmap():
+    return svg(W, H, heat_cells(3, 4, 41, W, H), "Sector performance heatmap", stretch=False)
+
+
+def c_correlation():
+    return svg(H, H, heat_cells(5, 5, 42, H, H, diag=True), "Cross-asset correlation matrix", stretch=False)
+
+
+def hbars(vals, w, h, gap=4):
     m = max(abs(v) for v in vals)
-    bw = w / len(vals)
-    mid = h / 2
-    bars = []
-    for i, v in enumerate(vals):
-        bh = abs(v) / m * (mid - 6)
-        y = mid - bh if v >= 0 else mid
-        cls = "up" if v >= 0 else "down"
-        bars.append(f'<rect class="{cls}" x="{i * bw + 2:.1f}" y="{y:.1f}" width="{bw - 4:.1f}" height="{bh:.1f}"/>')
-    body = f'<line class="ref" x1="0" x2="{w}" y1="{mid}" y2="{mid}"/>' + "".join(bars)
-    return svg(w, h, body, "Illustrative advance and decline bars, not market data")
-
-
-def chart_sectors():
-    w, h = 440, 240
-    rng = random.Random(5)
-    vals = sorted((rng.gauss(0, 1) for _ in range(11)), reverse=True)
-    m = max(abs(v) for v in vals)
-    rh = h / len(vals)
+    rh = (h - gap * (len(vals) - 1)) / len(vals)
     mid = w / 2
-    rows = []
+    out = [f'<line class="ref" x1="{mid}" x2="{mid}" y1="0" y2="{h}"/>']
     for i, v in enumerate(vals):
-        bw = abs(v) / m * (mid - 8)
+        bw = abs(v) / m * (mid - 6)
         x = mid if v >= 0 else mid - bw
-        cls = "up" if v >= 0 else "down"
-        rows.append(f'<rect class="{cls}" x="{x:.1f}" y="{i * rh + 3:.1f}" width="{bw:.1f}" height="{rh - 6:.1f}"/>')
-    body = f'<line class="ref" x1="{mid}" x2="{mid}" y1="0" y2="{h}"/>' + "".join(rows)
-    return svg(w, h, body, "Illustrative sector bars, not market data")
+        out.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{x:.1f}" y="{i * (rh + gap):.1f}" width="{bw:.1f}" height="{rh:.1f}"/>')
+    return "".join(out)
 
 
-def chart_curve():
-    w, h = 440, 240
-    tenors = [0, 1, 2, 3, 5, 7, 10, 20, 30]
-    a = [0.62, 0.74, 0.8, 0.79, 0.73, 0.71, 0.74, 0.85, 0.9]
-    b = [0.78, 0.8, 0.77, 0.72, 0.66, 0.65, 0.69, 0.79, 0.84]
+def c_global_indices():
+    rng = random.Random(51)
+    vals = sorted((rng.gauss(0.2, 1) for _ in range(8)), reverse=True)
+    return svg(W, H, hbars(vals, W, H), "Global equity index moves")
+
+
+def c_fx():
+    rng = random.Random(61)
+    vals = sorted((rng.gauss(0, 1) for _ in range(7)), reverse=True)
+    return svg(W, H, hbars(vals, W, H, 6), "Major currency moves against the US dollar")
+
+
+def vbars(vals, w, h, gap=3):
+    m = max(abs(v) for v in vals)
+    bw = (w - gap * (len(vals) - 1)) / len(vals)
+    mid = h / 2
+    out = [f'<line class="ref" x1="0" x2="{w}" y1="{mid}" y2="{mid}"/>']
+    for i, v in enumerate(vals):
+        bh = abs(v) / m * (mid - 4)
+        y = mid - bh if v >= 0 else mid
+        out.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{i * (bw + gap):.1f}" y="{y:.1f}" width="{bw:.1f}" height="{bh:.1f}"/>')
+    return "".join(out)
+
+
+def c_breadth():
+    rng = random.Random(3)
+    return svg(W, H, vbars([rng.gauss(0.15, 1) for _ in range(30)], W, H), "Advancers minus decliners")
+
+
+def c_earnings():
+    rng = random.Random(71)
+    n, gap = 12, 4
+    bw = (W - gap * (n - 1)) / n
+    out = []
+    for i in range(n):
+        share = rng.uniform(0.6, 0.85)
+        reported = (i + 3) / (n + 2) * 0.92
+        beat, miss = share * reported, (1 - share) * reported
+        hb, hm = beat * (H - 8), miss * (H - 8)
+        x = i * (bw + gap)
+        out.append(f'<rect class="up" x="{x:.1f}" y="{H - hb:.1f}" width="{bw:.1f}" height="{hb:.1f}"/>')
+        out.append(f'<rect class="down" x="{x:.1f}" y="{H - hb - hm - 2:.1f}" width="{bw:.1f}" height="{hm:.1f}"/>')
+    return svg(W, H, "".join(out), "Earnings beats and misses as companies report")
+
+
+def c_vol_term():
+    tenors = [1, 2, 3, 4, 6, 9, 12]
+    now = [0.42, 0.5, 0.56, 0.6, 0.65, 0.69, 0.72]
+    ago = [0.6, 0.62, 0.63, 0.64, 0.66, 0.68, 0.7]
 
     def pts(vals):
-        return [(16 + (w - 32) * (t ** 0.5) / (30 ** 0.5), h - 16 - (h - 32) * (v - 0.55) / 0.4) for t, v in zip(tenors, vals)]
+        return [(14 + (W - 28) * (t - 1) / 11, H - 12 - (H - 24) * (v - 0.38) / 0.38) for t, v in zip(tenors, vals)]
 
-    pa, pb = pts(a), pts(b)
-    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="3"/>' for x, y in pa)
-    body = grid_lines(w, h, 4) + f'<path class="curve-b" d="{d(pb)}"/><path class="curve-a" d="{d(pa)}"/>' + dots
-    return svg(w, h, body, "Illustrative yield curve shape, not market data")
-
-
-def chart_vol():
-    w, h = 640, 240
-    realised = [abs(x) for x in walk(90, 11, 0, 0.9, 8)]
-    rng = random.Random(12)
-    implied = [v + 2.2 + rng.gauss(0, 0.35) for v in realised]
-    lo, hi = min(realised + implied), max(realised + implied)
-    def pts(vals):
-        return [(10 + (w - 20) * i / 89, 10 + (h - 20) * (1 - (v - lo) / (hi - lo))) for i, v in enumerate(vals)]
-    pr, pi = pts(realised), pts(implied)
-    gap = d(pi) + " L" + " L".join(f"{x:.1f} {y:.1f}" for x, y in reversed(pr)) + " Z"
-    body = (grid_lines(w, h, 3) + f'<path class="area" d="{gap}"/>'
-            + f'<path class="curve-b" d="{d(pr)}"/><path class="line" d="{d(pi)}"/>')
-    return svg(w, h, body, "Illustrative implied and realised volatility shapes, not market data")
+    a, b = pts(now), pts(ago)
+    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5"/>' for x, y in a)
+    return svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d(b)}"/><path class="line" d="{d(a)}"/>' + dots, "Volatility term structure, today against one week ago", stretch=False)
 
 
-def chart_momentum():
-    w, h = 1200, 420
-    # Seed chosen so every band's net move agrees with its label.
+def c_commodities():
+    a, b = walk(70, 81, 0.05, 1), walk(70, 82, -0.04, 1)
+    pa, pb = fit([a, b], W, H, 8)
+    return svg(W, H, grid_lines(W, H, 3) + f'<path class="line" d="{d(pa)}"/><path class="dash" d="{d(pb)}"/>', "Oil and gold, rebased")
+
+
+def c_inflation_labour():
+    infl = [abs(v) * 0.4 + 2 for v in walk(48, 91, 0, 0.5, 3)]
+    rng = random.Random(92)
+    jobs = [1 + rng.gauss(0, 0.7) for _ in range(48)]
+    pa, = fit([infl], W, H * 0.55, 8)
+    pb_vals = jobs
+    m = max(abs(v) for v in pb_vals)
+    bw = W / len(pb_vals)
+    base = H - 4
+    bars = "".join(
+        f'<rect class="{"up" if v >= 0 else "down"}" x="{i * bw + 1:.1f}" y="{base - abs(v) / m * 36:.1f}" width="{bw - 2:.1f}" height="{abs(v) / m * 36:.1f}"/>'
+        for i, v in enumerate(pb_vals)
+    )
+    return svg(W, H, f'<path class="line" d="{d(pa)}"/>' + bars, "Inflation line above monthly payroll changes")
+
+
+def c_momentum(w=640, h=260):
     rng = random.Random(4)
     y, vals, regimes, i0 = 0.0, [], [], 0
     for length, drift in [(60, 0.32), (35, -0.45), (70, 0.28), (25, -0.6), (55, 0.35), (55, -0.3)]:
@@ -146,21 +228,45 @@ def chart_momentum():
         for _ in range(length):
             y += drift + rng.gauss(0, 0.9)
             vals.append(y)
-    pts = scale(vals, w, h, 16)
-    bands = []
-    for a, b, drift in regimes:
-        x0, x1 = pts[a][0], pts[min(b, len(pts) - 1)][0]
-        cls = "band-up" if drift > 0 else "band-down"
-        bands.append(f'<rect class="{cls}" x="{x0:.1f}" y="0" width="{x1 - x0:.1f}" height="{h}"/>')
-    body = "".join(bands) + grid_lines(w, h, 4) + f'<path class="line" d="{d(pts)}"/>'
-    return svg(w, h, body, "Illustrative momentum regime chart, not market data")
+    pts, = fit([vals], w, h, 10)
+    bands = "".join(
+        f'<rect class="{"band-up" if dr > 0 else "band-down"}" x="{pts[a][0]:.1f}" y="0" width="{pts[min(b, len(pts) - 1)][0] - pts[a][0]:.1f}" height="{h}"/>'
+        for a, b, dr in regimes
+    )
+    return svg(w, h, bands + grid_lines(w, h, 4) + f'<path class="line" d="{d(pts)}"/>', "Momentum strategy across trending and reversal regimes")
 
 
-# Icons ----------------------------------------------------------------------
+def c_payoff(w=640, h=260):
+    # Long call: payoff at expiry (dashed) and value before expiry (solid).
+    xs = [i / 99 for i in range(100)]
+    k = 0.5
+    payoff = [max(0, x - k) for x in xs]
+    value = [0.09 * math.log1p(math.exp((x - k) / 0.09)) for x in xs]
+    pa, pb = fit([payoff, value], w, h, 12, lo=-0.02, hi=0.55)
+    zero = h - 12 - (h - 24) * (0.02 / 0.57)
+    return svg(w, h, grid_lines(w, h, 4) + f'<line class="ref" x1="0" x2="{w}" y1="{zero:.1f}" y2="{zero:.1f}"/><path class="dash" d="{d(pa)}"/><path class="line" d="{d(pb)}"/>', "Call option value before expiry against its payoff at expiry")
+
+
+def c_explainer(w=560, h=240):
+    # Normal against inverted curve, an explainer diagram.
+    tenors = [0.25, 1, 2, 5, 10, 30]
+
+    def curve(vals):
+        return [(16 + (w - 32) * math.sqrt(t) / math.sqrt(30), h - 16 - (h - 32) * v) for t, v in zip(tenors, vals)]
+
+    normal = curve([0.2, 0.35, 0.45, 0.6, 0.7, 0.8])
+    inverted = curve([0.75, 0.7, 0.6, 0.48, 0.42, 0.45])
+    return svg(w, h, grid_lines(w, h, 4) + f'<path class="line" d="{d(normal)}"/><path class="dash" d="{d(inverted)}"/>', "Diagram of a normal and an inverted yield curve", stretch=False)
+
+
+# Icons -----------------------------------------------------------------------
+
+ICON_NAMES = ["arrow-right", "arrow-up-right", "linkedin-logo", "tiktok-logo", "youtube-logo", "list", "x", "play", "sun", "moon"]
+
 
 def sprite():
     symbols = []
-    for name in ["arrow-right", "arrow-up-right", "linkedin-logo", "tiktok-logo", "youtube-logo", "list", "x"]:
+    for name in ICON_NAMES:
         path = re.search(r'd="([^"]+)"', (ICONS / f"{name}.svg").read_text()).group(1)
         symbols.append(f'<symbol id="i-{name}" viewBox="0 0 256 256"><path d="{path}"/></symbol>')
     return '<svg width="0" height="0" style="position:absolute" aria-hidden="true">' + "".join(symbols) + "</svg>"
@@ -170,66 +276,136 @@ def icon(name):
     return f'<svg class="icon" aria-hidden="true"><use href="#i-{name}"/></svg>'
 
 
-# Page -----------------------------------------------------------------------
+# Content ---------------------------------------------------------------------
 
-TAPE = [
-    "S&amp;P 500", "Nasdaq 100", "Dow Jones", "Russell 2000", "VIX",
-    "US 10Y yield", "US dollar (DXY)", "WTI crude", "Gold",
-]
+TAPE = ["S&amp;P 500", "Nasdaq 100", "Russell 2000", "Euro Stoxx 50", "Nikkei 225",
+        "VIX", "US 10Y yield", "EUR/USD", "WTI crude", "Gold"]
 
-ARCHIVE = [
-    ("Close note", "[Close note headline]"),
-    ("Close note", "[Close note headline]"),
-    ("Study", "[Study title]"),
-    ("Close note", "[Close note headline]"),
+CATEGORIES = [
+    ("rates", "Rates and credit"),
+    ("macro", "Macro and the Fed"),
+    ("equities", "Equities"),
+    ("cross", "Cross-asset"),
 ]
 
 DASHBOARDS = [
-    ("Market breadth", "Advancers, decliners and new highs across the US market.", chart_breadth, "", None),
-    ("Sector rotation", "Which sectors led and lagged, and how that is shifting.", chart_sectors, "", None),
-    ("Rates and the curve", "The Treasury curve today against where it stood a month ago.", chart_curve, "", ("Today", "1 month ago")),
-    ("Volatility", "Implied and realised volatility, and the gap between them.", chart_vol, " tile--inverse", ("Implied", "Realised")),
+    ("rates", "Yield curve", "The Treasury curve today against a month ago.", c_yield_curve, ("Today", "1 month ago")),
+    ("macro", "Fed path", "Where futures price the policy rate, meeting by meeting.", c_fed_path, ("Implied path", "Current rate")),
+    ("equities", "Sector heatmap", "Every S&amp;P 500 sector, ranked by the day's move.", c_sector_heatmap, None),
+    ("cross", "Volatility term structure", "Implied volatility across expiries, and how its shape is shifting.", c_vol_term, ("Today", "1 week ago")),
+    ("equities", "Global indices", "Major equity benchmarks across the US, Europe and Asia.", c_global_indices, None),
+    ("cross", "FX majors", "The dollar against the major currencies.", c_fx, None),
+    ("cross", "Commodities", "Energy, metals and agriculture, rebased to the same start.", c_commodities, ("Oil", "Gold")),
+    ("rates", "Credit spreads", "High yield and investment grade spreads over Treasuries.", c_credit, ("High yield", "Investment grade")),
+    ("macro", "Inflation and labour", "Inflation prints alongside the monthly jobs report.", c_inflation_labour, None),
+    ("equities", "Earnings season tracker", "Beats and misses as companies report, sector by sector.", c_earnings, None),
+    ("equities", "Market breadth", "Advancers, decliners and new highs across the market.", c_breadth, None),
+    ("cross", "Cross-asset correlation", "How stocks, bonds, the dollar and commodities move together.", c_correlation, None),
 ]
 
-TITLES = {
-    "cream": "Andra Markets: Cream direction (prototype)",
-    "dark": "Andra Markets: Dark direction (prototype)",
-}
+CALENDAR = [
+    ("Macro", "Consumer prices (CPI)", "[consensus]", "[prior]"),
+    ("Earnings", "[Company] quarterly results", "EPS [consensus]", "EPS [prior]"),
+    ("Macro", "Retail sales", "[consensus]", "[prior]"),
+    ("Fed", "FOMC rate decision", "[consensus]", "[prior]"),
+    ("Fed", "Fed Chair press conference", "", ""),
+    ("Earnings", "[Company] quarterly results", "EPS [consensus]", "EPS [prior]"),
+    ("Macro", "Nonfarm payrolls", "[consensus]", "[prior]"),
+]
+
+LEARN = [
+    ("What moves bond yields", "Inflation, growth and the Fed, in plain terms."),
+    ("What the VIX actually measures", "Why it is called the fear gauge, and where that breaks down."),
+    ("How earnings season works", "Estimates, beats, misses and why guidance matters more."),
+    ("Momentum, explained", "Why winners keep winning, until they suddenly do not."),
+    ("What the Fed does on decision day", "Rates, the statement, the dots and the press conference."),
+]
 
 
-def page(theme):
+def ph(text):
+    return f'<span class="ph">{text}</span>'
+
+
+def fill(text):
+    """Wrap every [placeholder] in a span."""
+    return re.sub(r"(\[[^\]]+\])", r'<span class="ph">\1</span>', text)
+
+
+# Page ------------------------------------------------------------------------
+
+THEME_BOOT = (
+    "(function(){var t='light';try{var q=new URLSearchParams(location.search).get('theme');"
+    "if(q==='light'||q==='dark'){t=q;localStorage.setItem('andra-theme',q)}"
+    "else{var s=localStorage.getItem('andra-theme');if(s==='light'||s==='dark')t=s}}catch(e){}"
+    "document.documentElement.setAttribute('data-theme',t)})();"
+)
+
+
+def page():
     tape = "".join(
         f'<li class="tape__item"><span class="tape__name">{n}</span>'
         f'<span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li>'
         for n in TAPE
     )
-    archive = "".join(
-        f'<li class="archive__row"><a href="#archive">'
-        f'<span class="archive__date ph">[date]</span>'
-        f'<span class="archive__title"><span class="ph">{title}</span></span>'
-        f'<span class="archive__type">{kind}</span>{icon("arrow-right")}</a></li>'
-        for kind, title in ARCHIVE
+    filters = f'<button type="button" class="chip" data-filter="all" aria-pressed="true">All <span class="chip__n">{len(DASHBOARDS)}</span></button>' + "".join(
+        f'<button type="button" class="chip" data-filter="{key}" aria-pressed="false">{label} '
+        f'<span class="chip__n">{sum(1 for x in DASHBOARDS if x[0] == key)}</span></button>'
+        for key, label in CATEGORIES
     )
+    cat_label = dict(CATEGORIES)
+
+    def key_html(leg):
+        if not leg:
+            return ""
+        return f'<p class="key"><span><i class="k-solid"></i>{leg[0]}</span><span><i class="k-dash"></i>{leg[1]}</span></p>'
+
     tiles = "".join(
-        f'<a class="tile reveal{extra}" href="#dashboards" style="--i:{i}">'
-        f'<div class="tile__chart draw">{fn()}</div>'
-        + (f'<p class="key"><span><i class="k-solid"></i>{leg[0]}</span><span><i class="k-dash"></i>{leg[1]}</span></p>' if leg else "")
-        + f'<div><h3>{name}</h3><p>{desc}</p>'
-        f'<span class="link">Open dashboard {icon("arrow-up-right")}</span></div></a>'
-        for i, (name, desc, fn, extra, leg) in enumerate(DASHBOARDS)
+        f'<li class="dash-tile reveal" data-cat="{cat}" style="--i:{i % 3}">'
+        f'<a href="#dashboards" class="dash-tile__link">'
+        f'<div class="dash-tile__chart draw">{fn()}</div>{key_html(leg)}'
+        f'<div class="dash-tile__text"><p class="dash-tile__cat">{cat_label[cat]}</p>'
+        f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p></div>'
+        f'<span class="dash-tile__go">{icon("arrow-up-right")}</span></a></li>'
+        for i, (cat, name, desc, fn, leg) in enumerate(DASHBOARDS)
     )
+    calendar = "".join(
+        f'<tr><td class="ph">[date]</td><td class="ph">[time]</td>'
+        f'<th scope="row">{fill(event)}</th><td><span class="tag tag--{kind.lower()}">{kind}</span></td>'
+        f'<td>{fill(cons)}</td><td>{fill(prior)}</td></tr>'
+        for kind, event, cons, prior in CALENDAR
+    )
+    archive = "".join(
+        f'<li><a href="#note"><span class="ph">[date]</span><span class="note-list__title"><span class="ph ph--ink">[Close note headline]</span></span>{icon("arrow-right")}</a></li>'
+        for _ in range(3)
+    )
+    learn = "".join(
+        f'<li class="reveal" style="--i:{i}"><a href="#learn"><span class="learn-list__title">{t}</span>'
+        f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time"><span class="ph">[n]</span> min read</span></a></li>'
+        for i, (t, desc) in enumerate(LEARN)
+    )
+    tiktoks = "".join(
+        f'<li class="video video--tall reveal" style="--i:{i + 1}"><a href="#watch">'
+        f'<span class="video__frame"><span class="video__play">{icon("play")}</span>'
+        f'<span class="video__platform">{icon("tiktok-logo")}TikTok</span></span>'
+        f'<span class="video__title"><span class="ph ph--ink">[Video title]</span></span>'
+        f'<span class="video__meta"><span class="ph">[duration]</span></span></a></li>'
+        for i in range(2)
+    )
+
     return f"""<!doctype html>
-<html lang="en" data-theme="{theme}">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{TITLES[theme]}</title>
-<meta name="description" content="Andra Markets is an automated research desk: a daily US market close note, interactive dashboards and quantitative studies.">
-<meta name="theme-color" content="{'#edefee' if theme == 'cream' else '#0a0c0d'}">
+<title>Andra Markets: markets research platform (prototype)</title>
+<meta name="description" content="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, explainers and videos.">
 <meta name="robots" content="noindex">
-<link rel="icon" href="../assets/andra-horse.png">
-<link rel="preload" href="../assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="../assets/site.css">
+<meta name="theme-color" content="#f4f6f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0c0d" media="(prefers-color-scheme: dark)">
+<script>{THEME_BOOT}</script>
+<link rel="icon" href="assets/andra-horse.png">
+<link rel="preload" href="assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
 {sprite()}
@@ -238,17 +414,22 @@ def page(theme):
 <header class="site-header">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="Andra Markets, home">
-      <span class="brand__mark"><img src="../assets/andra-horse.png" alt="" width="64" height="64"></span>
+      <span class="brand__mark"><img src="assets/andra-horse.png" alt="" width="64" height="64"></span>
       <span class="brand__name">Andra Markets</span>
     </a>
     <nav class="nav" id="site-nav" aria-label="Primary">
-      <a href="#latest">Close note</a>
-      <a href="#archive">Archive</a>
       <a href="#dashboards">Dashboards</a>
-      <a href="#research">Research</a>
-      <a href="#about">About</a>
+      <a href="#lab">Lab</a>
+      <a href="#calendar">Calendar</a>
+      <a href="#note">Daily note</a>
+      <a href="#learn">Learn</a>
+      <a href="#watch">Watch</a>
     </nav>
-    <a class="btn" href="#subscribe">Subscribe</a>
+    <button class="theme-btn" type="button" aria-label="Switch to dark theme">
+      <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
+      <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
+    </button>
+    <a class="btn btn--sm" href="#subscribe">Subscribe</a>
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
       <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
     </button>
@@ -259,13 +440,13 @@ def page(theme):
   <section class="hero" id="top" aria-labelledby="hero-title">
     <span class="hero__sentinel" aria-hidden="true"></span>
     <div class="hero__art" aria-hidden="true">
-      <img class="horse" src="../assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="high">
+      <img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="high">
     </div>
     <div class="wrap hero__copy">
-      <h1 id="hero-title" style="--i:0">Every close, on&nbsp;the record.</h1>
-      <p class="hero__sub" style="--i:1">An automated research desk. A daily note on the US market close, live dashboards and quantitative studies.</p>
+      <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
+      <p class="hero__sub" style="--i:1">A markets research platform. Live dashboards, quant tools, an economic calendar and a daily close note.</p>
       <div class="hero__actions" style="--i:2">
-        <a class="btn" href="#latest">Read the latest note {icon("arrow-right")}</a>
+        <a class="btn" href="#dashboards">Explore dashboards {icon("arrow-right")}</a>
         <a class="btn btn--ghost" href="#subscribe">Subscribe</a>
       </div>
     </div>
@@ -274,38 +455,10 @@ def page(theme):
   <section class="tape" aria-labelledby="tape-title">
     <div class="wrap">
       <div class="tape__head">
-        <h2 id="tape-title">US close <span class="ph">[date]</span>, 4:00 PM ET</h2>
-        <span>Levels and daily change. Note published <span class="ph">[time]</span> ET. Source <span class="ph">[data vendor]</span></span>
+        <h2 id="tape-title">Markets {ph("[date]")}, {ph("[time]")} ET</h2>
+        <span>Last and daily change. Source {ph("[data vendor]")}</span>
       </div>
-      <ul class="tape__list" tabindex="0" aria-label="Market close levels">{tape}</ul>
-    </div>
-  </section>
-
-  <section class="section latest" id="latest" aria-labelledby="latest-title">
-    <div class="wrap grid">
-      <div class="latest__text">
-        <h2 class="section-title reveal" id="latest-title">The latest close note</h2>
-        <article class="reveal" style="--i:1">
-          <p class="latest__meta"><span class="ph">[date]</span><span><span class="ph">[n]</span> min read</span></p>
-          <h3 class="latest__title"><span class="ph ph--ink">[Headline of the latest close note]</span></h3>
-          <p class="latest__summary"><span class="ph">[Two sentences on the session: what moved, and why it mattered.]</span></p>
-          <a class="btn" href="#latest">Read the note {icon("arrow-right")}</a>
-        </article>
-      </div>
-      <figure class="latest__figure draw reveal" style="--i:2">
-        {chart_intraday()}
-        <figcaption><span>S&amp;P 500, session of <span class="ph">[date]</span></span><span>Illustrative</span></figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <section class="section archive" id="archive" aria-labelledby="archive-title">
-    <div class="wrap">
-      <div class="section-head">
-        <h2 class="section-title reveal" id="archive-title">Archive</h2>
-        <a class="link reveal" href="#archive">All notes and studies {icon("arrow-right")}</a>
-      </div>
-      <ol class="archive__list reveal">{archive}</ol>
+      <ul class="tape__list" tabindex="0" aria-label="Market levels">{tape}</ul>
     </div>
   </section>
 
@@ -313,52 +466,138 @@ def page(theme):
     <div class="wrap">
       <div class="section-head">
         <h2 class="section-title reveal" id="dash-title">Dashboards</h2>
-        <p class="lede reveal">Interactive views of the US market. Charts below are illustrative.</p>
+        <p class="lede reveal">Interactive views across rates, equities, macro and cross-asset. Previews are illustrative.</p>
       </div>
-      <div class="dash__grid">{tiles}</div>
+      <div class="filters" role="group" aria-label="Filter dashboards by category">{filters}</div>
+      <p class="filters__status" role="status" aria-live="polite">Showing all {len(DASHBOARDS)} dashboards</p>
+      <ul class="dash-grid">{tiles}</ul>
     </div>
   </section>
 
-  <section class="section feature" id="research" aria-labelledby="research-title">
+  <section class="section lab" id="lab" aria-labelledby="lab-title">
     <div class="wrap">
-      <div class="grid">
-        <h2 class="feature__title reveal" id="research-title">Momentum regimes</h2>
-        <p class="feature__abstract reveal" style="--i:1">When does trend-following pay, and when does it break? A regime-by-regime study of momentum in US equities.</p>
+      <div class="section-head">
+        <h2 class="section-title reveal" id="lab-title">Lab</h2>
+        <p class="lede reveal">Interactive quant tools. Change the inputs, watch the result move.</p>
       </div>
-      <figure class="feature__figure draw reveal">
-        {chart_momentum()}
-        <figcaption>
-          <span class="legend"><span><i class="sw-up"></i>Trending regime</span><span><i class="sw-down"></i>Reversal regime</span></span>
-          <span>Illustrative</span>
-        </figcaption>
-      </figure>
-      <div class="feature__foot">
-        <dl class="facts reveal">
-          <div><dt>Sample</dt><dd class="ph">[period]</dd></div>
-          <div><dt>Universe</dt><dd class="ph">[universe]</dd></div>
-          <div><dt>Method</dt><dd class="ph">[method]</dd></div>
-        </dl>
-        <a class="btn reveal" href="#research">Read the study {icon("arrow-right")}</a>
+      <div class="lab-grid">
+        <a class="tool tool--wide reveal" href="#lab">
+          <div class="draw">{c_momentum()}</div>
+          <p class="key"><span><i class="sw-up"></i>Trending regime</span><span><i class="sw-down"></i>Reversal regime</span><span class="key__note">Illustrative</span></p>
+          <div class="tool__text">
+            <h3>Momentum regime backtest</h3>
+            <p>Run a momentum rule across trending and reversal regimes, and see where it pays and where it breaks.</p>
+            <p class="tool__params">Lookback {ph("[n]")} months. Universe {ph("[universe]")}.</p>
+          </div>
+          <span class="link">Open the explorer {icon("arrow-up-right")}</span>
+        </a>
+        <a class="tool reveal" href="#lab" style="--i:1">
+          <div class="draw">{c_payoff()}</div>
+          <p class="key"><span><i class="k-solid"></i>Value today</span><span><i class="k-dash"></i>Payoff at expiry</span><span class="key__note">Illustrative</span></p>
+          <div class="tool__text">
+            <h3>Options pricer</h3>
+            <p>Price European options and watch the Greeks respond as strike, volatility and time change.</p>
+          </div>
+          <span class="link">Open the pricer {icon("arrow-up-right")}</span>
+        </a>
+        <div class="tool tool--next reveal" style="--i:2">
+          <h3>Next in the Lab</h3>
+          <p>{ph("[Tool name]")} and {ph("[Tool name]")} are in development. New tools are announced in the daily note.</p>
+          <a class="link" href="#subscribe">Subscribe {icon("arrow-right")}</a>
+        </div>
       </div>
+    </div>
+  </section>
+
+  <section class="section calendar" id="calendar" aria-labelledby="cal-title">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title reveal" id="cal-title">Calendar</h2>
+          <p class="lede reveal">Macro releases, Fed meetings and earnings for the week of {ph("[date]")}. Times in ET.</p>
+        </div>
+        <a class="link reveal" href="#calendar">Full calendar {icon("arrow-right")}</a>
+      </div>
+      <div class="cal-wrap reveal">
+        <table class="cal">
+          <thead><tr><th scope="col">Date</th><th scope="col">Time</th><th scope="col">Event</th><th scope="col">Type</th><th scope="col">Consensus</th><th scope="col">Prior</th></tr></thead>
+          <tbody>{calendar}</tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section note" id="note" aria-labelledby="note-title">
+    <div class="wrap grid">
+      <div class="note__latest">
+        <h2 class="section-title reveal" id="note-title">Daily close note</h2>
+        <article class="reveal" style="--i:1">
+          <p class="note__meta">{ph("[date]")}<span>{ph("[n]")} min read</span></p>
+          <h3 class="note__title"><span class="ph ph--ink">[Headline of the latest close note]</span></h3>
+          <p class="note__summary">{ph("[Two sentences on the session: what moved, and why it mattered.]")}</p>
+          <a class="btn" href="#note">Read the note {icon("arrow-right")}</a>
+        </article>
+      </div>
+      <div class="note__archive reveal" style="--i:2">
+        <p class="note__label">Every US trading day, after the close.</p>
+        <ol class="note-list">{archive}</ol>
+        <a class="link" href="#note">All notes {icon("arrow-right")}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section learn" id="learn" aria-labelledby="learn-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title reveal" id="learn-title">Learn</h2>
+        <p class="lede reveal">Market explainers for people starting out. No jargon left unexplained.</p>
+      </div>
+      <div class="grid learn__grid">
+        <a class="learn-feature reveal" href="#learn">
+          <div class="draw">{c_explainer()}</div>
+          <p class="key"><span><i class="k-solid"></i>Normal curve</span><span><i class="k-dash"></i>Inverted curve</span></p>
+          <h3>How to read the yield curve</h3>
+          <p>What the curve is, why it usually slopes up, and what it means when it turns upside down.</p>
+          <span class="learn-list__time">{ph("[n]")} min read</span>
+        </a>
+        <ol class="learn-list">{learn}</ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section watch" id="watch" aria-labelledby="watch-title">
+    <div class="wrap">
+      <div class="section-head">
+        <h2 class="section-title reveal" id="watch-title">Watch</h2>
+        <p class="lede reveal">Market recaps and short explainers from YouTube and TikTok. Embeds are placeholders.</p>
+      </div>
+      <ul class="watch-grid">
+        <li class="video video--wide reveal"><a href="#watch">
+          <span class="video__frame"><span class="video__play">{icon("play")}</span>
+          <span class="video__platform">{icon("youtube-logo")}YouTube</span></span>
+          <span class="video__title"><span class="ph ph--ink">[Video title]</span></span>
+          <span class="video__meta"><span class="ph">[duration]</span></span></a></li>
+        {tiktoks}
+      </ul>
     </div>
   </section>
 
   <section class="section about" id="about" aria-labelledby="about-title">
     <div class="wrap grid">
       <h2 class="visually-hidden" id="about-title">About Andra Markets</h2>
-      <p class="about__statement reveal">Andra Markets is an automated research desk. Every US trading day it reads the close, writes the note and updates the dashboards.</p>
+      <p class="about__statement reveal">Andra Markets is a markets research platform. Its pipeline reads the data every trading day and keeps the dashboards, tools, calendar and notes current.</p>
       <dl class="reveal" style="--i:1">
+        <div><dt>Covers</dt><dd>US and global markets: rates, equities, macro, FX and commodities</dd></div>
         <div><dt>Publishes</dt><dd>A close note every US trading day</dd></div>
-        <div><dt>Builds</dt><dd>Interactive dashboards and quantitative studies</dd></div>
         <div><dt>Data</dt><dd class="ph">[data sources]</dd></div>
       </dl>
     </div>
   </section>
 
   <section class="section signup" id="subscribe" aria-labelledby="subscribe-title">
-    <div class="signup__art" aria-hidden="true"><img class="horse" src="../assets/andra-horse.png" alt="" width="1024" height="1024" loading="lazy"></div>
+    <div class="signup__art" aria-hidden="true"><img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" loading="lazy"></div>
     <div class="wrap grid">
-      <h2 class="section-title reveal" id="subscribe-title">The close, in your inbox.</h2>
+      <h2 class="section-title reveal" id="subscribe-title">The market, in your inbox.</h2>
       <form class="reveal" style="--i:1" novalidate>
         <div class="field">
           <label for="email">Email address</label>
@@ -366,7 +605,7 @@ def page(theme):
             <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" aria-describedby="email-help email-status">
             <button class="btn" type="submit">Subscribe</button>
           </div>
-          <p class="field__help" id="email-help">One note per US trading day. Unsubscribe in one click.</p>
+          <p class="field__help" id="email-help">The daily close note and new tools. Unsubscribe in one click.</p>
           <p class="field__status" id="email-status" role="status" aria-live="polite"></p>
         </div>
       </form>
@@ -378,42 +617,59 @@ def page(theme):
   <div class="wrap grid">
     <div class="foot__brand">
       <a class="brand" href="#top" aria-label="Andra Markets, home">
-        <span class="brand__mark"><img src="../assets/andra-horse.png" alt="" width="64" height="64" loading="lazy"></span>
+        <span class="brand__mark"><img src="assets/andra-horse.png" alt="" width="64" height="64" loading="lazy"></span>
         <span class="brand__name">Andra Markets</span>
       </a>
-      <p>An automated research desk on the US market close.</p>
+      <p>A markets research platform.</p>
     </div>
     <nav class="foot__nav" aria-label="Footer">
-      <a href="#latest">Close note</a>
-      <a href="#archive">Archive</a>
       <a href="#dashboards">Dashboards</a>
-      <a href="#research">Research</a>
+      <a href="#lab">Lab</a>
+      <a href="#calendar">Calendar</a>
+      <a href="#note">Daily note</a>
+      <a href="#learn">Learn</a>
+      <a href="#watch">Watch</a>
       <a href="#about">About</a>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
-      <li><a href="#" rel="me">{icon("linkedin-logo")}LinkedIn <span class="ph">[handle]</span></a></li>
-      <li><a href="#" rel="me">{icon("tiktok-logo")}TikTok <span class="ph">[handle]</span></a></li>
-      <li><a href="#" rel="me">{icon("youtube-logo")}YouTube <span class="ph">[handle]</span></a></li>
+      <li><a href="#" rel="me">{icon("linkedin-logo")}LinkedIn {ph("[handle]")}</a></li>
+      <li><a href="#" rel="me">{icon("tiktok-logo")}TikTok {ph("[handle]")}</a></li>
+      <li><a href="#" rel="me">{icon("youtube-logo")}YouTube {ph("[handle]")}</a></li>
     </ul>
     <div class="foot__legal">
-      <span>&copy; <span class="ph">[year]</span> Andra Markets</span>
+      <span>&copy; {ph("[year]")} Andra Markets</span>
       <span>For information only. Not investment advice.</span>
     </div>
   </div>
 </footer>
 
-<script src="../assets/site.js" defer></script>
+<script src="assets/site.js" defer></script>
 </body>
 </html>
 """
 
 
+def redirect(theme):
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>Andra Markets</title>
+<meta http-equiv="refresh" content="0; url=../?theme={theme}">
+<link rel="canonical" href="../">
+</head>
+<body style="font-family: sans-serif"><a href="../?theme={theme}">Andra Markets</a></body>
+</html>
+"""
+
+
 def main():
-    for theme in ("cream", "dark"):
-        target = OUT / theme / "index.html"
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(page(theme))
-        print("wrote", target.relative_to(ROOT))
+    (OUT / "index.html").write_text(page())
+    for old, theme in (("cream", "light"), ("dark", "dark")):
+        (OUT / old).mkdir(exist_ok=True)
+        (OUT / old / "index.html").write_text(redirect(theme))
+    print("wrote prototypes/index.html and redirects")
 
 
 if __name__ == "__main__":

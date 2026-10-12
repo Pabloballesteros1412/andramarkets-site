@@ -1,4 +1,4 @@
-// Andra Markets prototypes: header state, mobile menu, reveals, signup states.
+// Andra Markets prototype: theme, header state, menu, filters, reveals, signup.
 (function () {
   var root = document.documentElement;
   root.classList.add("js");
@@ -14,6 +14,57 @@
       { threshold: 0 }
     ).observe(hero);
   }
+
+  // Theme: light by default, the visitor's choice is remembered.
+  var themeBtn = document.querySelector(".theme-btn");
+  function syncThemeBtn() {
+    var dark = root.getAttribute("data-theme") === "dark";
+    themeBtn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+  }
+  if (themeBtn) {
+    syncThemeBtn();
+    themeBtn.addEventListener("click", function () {
+      var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      var apply = function () {
+        root.setAttribute("data-theme", next);
+        syncThemeBtn();
+      };
+      try {
+        localStorage.setItem("andra-theme", next);
+      } catch (e) {}
+      if (document.startViewTransition) document.startViewTransition(apply);
+      else apply();
+    });
+  }
+
+  // Dashboard filters.
+  var chips = document.querySelectorAll(".chip");
+  var tiles = document.querySelectorAll(".dash-tile");
+  var filterStatus = document.querySelector(".filters__status");
+  chips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      var cat = chip.getAttribute("data-filter");
+      var shown = 0;
+      chips.forEach(function (c) {
+        c.setAttribute("aria-pressed", String(c === chip));
+      });
+      tiles.forEach(function (tile) {
+        var match = cat === "all" || tile.getAttribute("data-cat") === cat;
+        tile.hidden = !match;
+        tile.classList.remove("is-entering");
+        if (match) {
+          shown++;
+          tile.classList.add("is-in");
+          void tile.offsetWidth;
+          tile.classList.add("is-entering");
+        }
+      });
+      filterStatus.textContent =
+        cat === "all"
+          ? "Showing all " + tiles.length + " dashboards"
+          : "Showing " + shown + " of " + tiles.length + " dashboards: " + chip.firstChild.textContent.trim();
+    });
+  });
 
   // Mobile menu.
   var menuBtn = document.querySelector(".menu-btn");
