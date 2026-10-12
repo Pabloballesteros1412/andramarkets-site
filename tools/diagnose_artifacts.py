@@ -15,7 +15,7 @@ RUNS = [32530195378, 32544612904, 32900041440, 33017490040, 33123892754, 3345568
         36352393921, 36491134602, 36633541740, 36782255591, 37155987401, 37841586991]
 TOL = 0.02
 # Corrected tokenizer: ASCII digits only, whole numbers with or without commas.
-NUM = re.compile(r"(?<![\w.])[-+−]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?![\w])", re.A)
+NUM = re.compile(r"(?<![\w.])[-+−]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?!\d)", re.A)
 # Numbers that are part of a name, not a figure.
 NAMES = re.compile(r"(S&P(?: MidCap)? \d+|Russell \d+|CSI ?\d+|ASX \d+|Nikkei \d+|EURO STOXX \d+|DAX \d+|CAC \d+|FTSE(?: MIB| 100)?|IBEX \d+|Nasdaq \d+|SX5E|\d+-\d+ year|\d+-year|\d+-month|\d+-day|\d+y\d+y|\d+s\d+s|\dm\d+y|VIX\d*D?|VIX ?\d+-\w+|20\d\d)")
 
