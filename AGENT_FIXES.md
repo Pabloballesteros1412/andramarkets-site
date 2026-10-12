@@ -115,3 +115,43 @@ workflow runs it from `andramarkets-agent/video/`. The step is
 `continue-on-error`, so the run still shows green.
 
 - **Fix:** move the file to `andramarkets-agent/video/build_video_data.py`.
+
+## 10. Data gaps behind missing or partial report charts
+
+Audit of all 31 live notes (12 October 2026). The site hides a chart when
+fewer than 3 of its instruments have a print for the note's date, and leaves
+out any instrument with no print, so it never shows yesterday's move as
+today's. Every gap below comes from the facts file itself:
+
+| Gap | Notes affected | What the facts file holds |
+|---|---|---|
+| VSTOXX (`^V2TX`) | all 31 | absent: no data on any run |
+| USD/CNH (`CNH=X`) | all 31 | absent: no data on any run |
+| CSI 300 (`000300.SS`) | all | frozen at 4,529.10 / −3.60% (1 and 14 Sep), absent from 18 Sep |
+| VIX 9-day, VIX 3-month | 21–26 Aug, 15–17 Sep | absent |
+| Asian indices (Nikkei, Hang Seng, KOSPI, Sensex, TAIEX) | nearly every note | marked "not yet published" for the note's date |
+| European indices | 1, 14 and 24 Sep (Global indices chart hidden) | marked "not yet published"; the values equal the previous session's |
+| Every market series | 31 Aug, 3 Oct | marked "not yet published" (see items 5 and 6) |
+| Treasury curve | 20 Aug | absent; on other days it is the previous session's (FRED posts after the run) |
+
+- **Fix the symbols:** VSTOXX, USD/CNH and CSI 300 return no data or stale
+  data from Yahoo. Replace each symbol with one that returns data, or drop
+  the instrument from `universe.py` so the note does not promise it.
+- **Retry missing series:** when a series has no row (VIX 9-day and VIX
+  3-month above), retry it once before writing the fact pack.
+- **Save each instrument's own print date:** add `"date"` (the date of the
+  last print, from the price index) to every row in every block of
+  `fact_pack()`. Asian and European markets close hours before New York; with
+  their own date the site can show "Nikkei 225, close of 9 Oct (Tokyo)"
+  instead of dropping them, and a print that really is a day old shows as such.
+- **Find out why foreign closes are missing at run time:** the Asian and
+  European flags appear even on runs made hours after those markets closed.
+  Check that the Yahoo download for non-US tickers asks for, and keeps, the
+  session's local date (time zone of the index), and log any ticker without
+  that day's bar.
+- **Treasury curve:** keep saving `treasury_curve`; to show the same day's
+  curve, fetch it from a source that publishes by the time the agent runs, or
+  save the FRED curve's own date (covered by the print date above).
+
+No other field is needed: sectors, credit, commodities, digital assets,
+movers, risk score and breadth are present in every note's facts.
