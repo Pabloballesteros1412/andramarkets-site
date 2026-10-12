@@ -971,32 +971,35 @@ def real_svg(w, h, body, label):
     return f'<svg class="chart" viewBox="0 0 {w} {h}" role="img" aria-label="{esc(label)}">{body}</svg>'
 
 
-def moves_chart(rec):
-    """The day's change for each price instrument on the tape, as diverging bars."""
-    rows = []
-    for label, key, _ in TAPE:
-        c = (rec.get("closes") or {}).get(key) or {}
-        if key in RATES or c.get("chg") is None or c.get("last") is None or c.get("stale"):
-            continue
-        rows.append((html.unescape(label), c["chg"], c["last"]))
-    if len(rows) < 3:
-        return ""
-    rows.sort(key=lambda r: r[1], reverse=True)
-    W, row, top = 400, 19, 2
+def bar_chart(rows, label):
+    """Diverging horizontal bars for (name, change %, close) rows, largest gain first."""
+    rows = sorted(rows, key=lambda r: r[1], reverse=True)
+    W, row, top = 300, 19, 2
     H = top + row * len(rows) + 2
-    x0, half = 236, 94
+    x0, half = 186, 64
     span = max(abs(r[1]) for r in rows) or 1
     body = f'<line class="ref" x1="{x0}" x2="{x0}" y1="0" y2="{H}"/>'
     for i, (name, chg, last) in enumerate(rows):
         y = top + i * row
         wbar = max(1.0, half * abs(chg) / span)
         x = x0 if chg >= 0 else x0 - wbar
-        body += (f'<g><title>{esc(name)}: {signed(chg, 2, "%")}</title>'
+        tip = f"{name}: {signed(chg, 2, '%')}" + (f", close {last:,.2f}" if last is not None else "")
+        body += (f'<g><title>{esc(tip)}</title>'
                  f'<text class="chart__label" x="0" y="{y + 13}">{esc(name)}</text>'
                  f'<rect class="{"up" if chg >= 0 else "down"}" x="{x:.1f}" y="{y + 4.5}" width="{wbar:.1f}" height="10"/>'
                  f'<text class="chart__value" x="{W}" y="{y + 13}" text-anchor="end">{signed(chg, 2, "%")}</text></g>')
-    label = "Daily change at the close: " + ", ".join(f"{n} {signed(c, 2, '%')}" for n, c, _ in rows)
-    return real_svg(W, H, body, label)
+    aria = f"{label}, change at the close: " + ", ".join(f"{n} {signed(c, 2, '%')}" for n, c, _ in rows)
+    return real_svg(W, H, body, aria)
+
+
+def moves_rows(rec):
+    rows = []
+    for label, key, _ in TAPE:
+        c = (rec.get("closes") or {}).get(key) or {}
+        if key in RATES or c.get("chg") is None or c.get("last") is None or c.get("stale"):
+            continue
+        rows.append((html.unescape(label), c["chg"], c["last"]))
+    return rows
 
 
 def curve_chart(rec, d):
@@ -1010,7 +1013,7 @@ def curve_chart(rec, d):
     before = prev_session(close)
     now = [(TENOR_YEARS[c["key"]], c["last"], c["key"]) for c in curve]
     then = [(t, last - c["chg"] / 100) for (t, last, _), c in zip(now, curve)]
-    W, H, left, right, top, bottom = 400, 124, 40, 8, 6, 18
+    W, H, left, right, top, bottom = 300, 128, 40, 8, 6, 18
     ys = [v for _, v, _ in now] + [v for _, v in then]
     lo, hi = min(ys), max(ys)
     pad = max((hi - lo) * 0.12, 0.05)
@@ -1021,10 +1024,10 @@ def curve_chart(rec, d):
     for k in range(3):
         v = lo + (hi - lo) * (k + 0.5) / 3
         body += (f'<line class="grid-line" x1="{left}" x2="{W - right}" y1="{Y(v):.1f}" y2="{Y(v):.1f}"/>'
-                 f'<text class="chart__label" x="0" y="{Y(v) + 3.5:.1f}">{v:.2f}%</text>')
+                 f'<text class="chart__label" x="0" y="{Y(v) + 4:.1f}">{v:.2f}%</text>')
     for t, _, key in now:
         if key in TENOR_LABEL:
-            body += f'<text class="chart__label" x="{X(t):.1f}" y="{H - 6}" text-anchor="middle">{TENOR_LABEL[key]}</text>'
+            body += f'<text class="chart__label" x="{X(t):.1f}" y="{H - 3}" text-anchor="middle">{TENOR_LABEL[key]}</text>'
     path = lambda pts: "M" + " L".join(f"{X(t):.1f} {Y(v):.1f}" for t, v in pts)
     body += f'<path class="dash" d="{path(then)}"/><path class="line" d="{path([(t, v) for t, v, _ in now])}"/>'
     body += "".join(f'<circle class="dot" cx="{X(t):.1f}" cy="{Y(v):.1f}" r="2.5"><title>{c["tenor"]}: {v:.2f}%, {signed(c["chg"], 0, "bp")}</title></circle>'
@@ -1039,6 +1042,54 @@ def curve_chart(rec, d):
     if stale:
         src += ", the latest published curve"
     return real_svg(W, H, body, label) + key, src + "."
+
+
+# Section -> margin chart: (title, rows key in charts.bars or a special, source).
+MARGIN = {
+    "takeaways": ("The day's moves", "moves", "Yahoo Finance, change at the close"),
+    "desk_view": ("Biggest gainers and losers", "movers",
+                  "Andra Markets watchlist of US large caps; Yahoo Finance, change at the close"),
+    "equities": ("S&amp;P 500 sectors", "sectors", "Sector ETFs, Yahoo Finance, change at the close"),
+    "rates": ("Treasury yield curve", "curve", ""),
+    "credit": ("Credit proxies", "credit", "Listed ETFs as proxies for each segment; Yahoo Finance, change at the close"),
+    "fx": ("Currencies", "fx", "Yahoo Finance, change at the New York close. A rise in USD/xxx is a stronger dollar"),
+    "commodities": ("Commodities", "commodities", "Front-month futures, Yahoo Finance, change at the close"),
+    "volatility": ("Volatility indices", "volatility", "Yahoo Finance, change at the close"),
+    "digital": ("Digital assets", "digital", "Yahoo Finance, change to the New York close"),
+    "international": ("Global equity indices", "international", "Yahoo Finance, change at each local close"),
+}
+
+
+def margin_chart(field, rec):
+    """The chart beside a section, or "" when the note has no data for it."""
+    if field not in MARGIN:
+        return ""
+    title, what, src = MARGIN[field]
+    d, ch = rec["day"], rec.get("charts") or {}
+    left_out = 0
+    if what == "curve":
+        svg, src = curve_chart(rec, d)
+        if not svg:
+            return ""
+        return f'<figure class="report__margin"><h3>{title}</h3>{svg}<figcaption class="report__src">{src}</figcaption></figure>'
+    if what == "moves":
+        rows = moves_rows(rec)
+    elif what == "movers":
+        mv = ch.get("movers") or {}
+        seen, rows = set(), []
+        for name, chg in (mv.get("leaders") or []) + (mv.get("laggards") or []):
+            if name not in seen and chg is not None:
+                seen.add(name)
+                rows.append((name, chg, None))
+    else:
+        block = (ch.get("bars") or {}).get(what) or {}
+        rows = [(n, c, last) for n, last, c in block.get("rows") or []]
+        left_out = block.get("left_out") or 0
+    if len(rows) < 3:
+        return ""
+    note = f" {left_out} without a print that day left out." if left_out else ""
+    return (f'<figure class="report__margin"><h3>{title}</h3>{bar_chart(rows, html.unescape(title))}'
+            f'<figcaption class="report__src">{src}, {day_med(d)}.{note}</figcaption></figure>')
 
 
 def side_panel(rec):
@@ -1065,20 +1116,11 @@ def side_panel(rec):
         return ""
     kpis = "".join(f'<li class="kpi__item"><span class="kpi__name">{n}</span>'
                    f'<span class="kpi__level">{lv}</span><span class="kpi__chg">{chg}</span></li>' for n, lv, chg in items)
-    out = (f'<aside class="report__side" aria-labelledby="side-title">'
-           f'<h2 class="report__side-title" id="side-title">The session in numbers</h2>'
-           f'<ul class="kpi">{kpis}</ul>'
-           f'<p class="report__src">Close and daily change, {day_med(d)}. Yahoo Finance, FRED; '
-           f'risk score and breadth by Andra Markets.</p>')
-    moves = moves_chart(rec)
-    if moves:
-        out += (f'<figure class="report__fig"><h3>The day\'s moves</h3>{moves}'
-                f'<figcaption class="report__src">Yahoo Finance, change at the close, {day_med(d)}.</figcaption></figure>')
-    curve, src = curve_chart(rec, d)
-    if curve:
-        out += (f'<figure class="report__fig"><h3>Treasury yield curve</h3>{curve}'
-                f'<figcaption class="report__src">{src}</figcaption></figure>')
-    return out + "</aside>"
+    return (f'<aside class="report__side" aria-labelledby="side-title">'
+            f'<h2 class="report__side-title" id="side-title">The session in numbers</h2>'
+            f'<ul class="kpi">{kpis}</ul>'
+            f'<p class="report__src">Close and daily change, {day_med(d)}. Yahoo Finance, FRED; '
+            f'risk score and breadth by Andra Markets.</p></aside>')
 
 
 def report(rec, newer, older):
@@ -1099,6 +1141,7 @@ def report(rec, newer, older):
         else:
             content = paragraphs(v)
         sections += f'\n      <section aria-labelledby="{sid}"><h2 id="{sid}">{heading}</h2>{content}</section>'
+        sections += margin_chart(field, rec)
     checked = "Every figure in this note was checked against the session's verified fact pack."
     if rec.get("figure_check") == "failed":
         checked = ("This edition did not fully pass the automated figure check against the "

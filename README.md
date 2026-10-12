@@ -59,9 +59,12 @@ To take a note down: open `data/notes/<date>.json` in the web editor, change
 it. Later runs for that date keep it down until you set it back to `true`.
 
 Each note record keeps, besides the text, only the figures its page shows:
-the ten tape closes, the Treasury curve, the risk score and breadth. Notes
-saved before a figure existed are filled in once from their own artifact on
-the next import run (while that artifact is still kept, 90 days).
+the ten tape closes, the Treasury curve, the risk score and breadth, and the
+name, close and change of the instruments in the margin charts (sectors,
+credit, FX, commodities, volatility, digital, global indices, the five biggest
+gainers and losers). When the charts need new figures, `CHARTS_VERSION` in
+`tools/import_notes.py` goes up and the next import run fills every note in
+from its own artifact (while that artifact is still kept, 90 days).
 
 Each December, add the next year's NYSE holidays to `tools/nyse.py`.
 Until then, notes dated in that year are held for review.
