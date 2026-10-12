@@ -623,12 +623,10 @@ def main():
     pushed = push_main(message) if artifacts else False
 
     if site_token:
-        for r in publish + single:
-            date = r["record"]["date"]
-            keep = f"held/{date}-{r['artifact']['id']}" if r in single else None
-            close_stale_prs(date, keep, state, site_token)
-        for r in recovered:
-            close_stale_prs(r["record"]["date"], None, state, site_token)
+        # Per date, only the pull request of the run kept for review stays open.
+        keep = {r["record"]["date"]: f"held/{r['record']['date']}-{r['artifact']['id']}" for r in single}
+        for date in sorted({r["record"]["date"] for r in publish + held} | set(withdraw)):
+            close_stale_prs(date, keep.get(date), state, site_token)
 
     summary(rows)
     output("published", "true" if (publish or withdraw) and pushed else "false")

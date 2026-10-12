@@ -28,14 +28,26 @@ with a read-only token, and for each one:
 - **publishes it** when it passes every check: it commits the note record
   (text and tape closes) to `main`, then deploys the site;
 - **holds it in a pull request** titled "Held close note: <date>" when the
-  date was not an NYSE trading day, is in the future, or the figure check
-  failed. Merge to publish, close to discard;
+  date was not an NYSE trading day, is in the future, the run finished before
+  that day's close, the figure check failed, or the note is incomplete (a
+  section missing or cut short). Merge to publish, close to discard;
 - **rejects it** when files are missing or broken. Nothing is published and
   the run fails, so GitHub emails you.
 
-A newer note for the same date replaces the older one. The PDF is read only to
-run the figure check; it and the full facts file are never committed (this
-repo is public) or offered on the site. They stay in the agent's artifacts. To publish at once:
+One note per date: the newest run that passes is published, and a newer run
+that is held gets the pull request; other runs that day are superseded. If the
+run behind a live note fails a check when re-checked, that note is taken down.
+
+Runs before 15 September 2026 saved no note text file. For those, the text is
+read back from the report PDF (`tools/pdf_note.py`, checked against all 23
+later runs: every field matched exactly) and always held for review. The
+recovered notes that pass every other check share one pull request,
+"Recovered close notes"; to leave one out, delete its file in that pull
+request before merging.
+
+The PDF is read only for the checks and, for old runs, the text; it and the
+full facts file are never committed (this repo is public) or offered on the
+site. They stay in the agent's artifacts. To publish at once:
 **Actions** → **Publish close notes** → **Run workflow**.
 
 To take a note down: open `data/notes/<date>.json` in the web editor, change
