@@ -1,0 +1,90 @@
+{
+  "date": "2026-09-28",
+  "published": true,
+  "edition": null,
+  "figure_check": "failed",
+  "note": {
+    "headline": "Risk off across the board as growth stocks lead a broad decline",
+    "standfirst": "The S&P fell -0.77% and the Nasdaq 100 dropped -1.08% as breadth turned decisively negative, with decliners outpacing advancers 17 to 8. Credit, front-end rates, and mega-cap tech all sold off together, a combination that leaves little room to hide.",
+    "takeaways": [
+      "Risk assets sold off in unison, with equities, high yield, and investment grade credit all weaker on the same day.",
+      "Mega-cap tech names drove the index damage, with META, TSLA, AMD, ORCL, and CRM all down more than 2.88%.",
+      "The curve bear steepened as the front end rallied 6bp while the 30-year rose 2bp, a classic growth-scare shape.",
+      "Gold fell -3.88% even as the broader risk barometer flagged stress, an unusual divergence worth tracking."
+    ],
+    "desk_view": "This session confirms that the sell-off in growth names has legs beyond a single sector story. The risk barometer printed -1.06, a clean risk-off read, with EM sovereign debt, investment grade credit, and USD/JPY carry all contributing negative scores. Breadth backs it up: 17 decliners against 8 advancers, dispersion at 1.68. When credit, currencies, and equities move the same direction at the same time, that is not noise.\n\nThe level that decides whether this extends is the 10-year yield, down just 1bp on the day even as the 2-year rallied 6bp. A steepening move driven by front-end demand while the long end holds near its highs tells you the market is pricing a growth wobble, not an inflation scare. If the 10-year breaks meaningfully lower with equities still falling, that confirms a genuine flight to duration. If it holds here while stocks stabilize, this was a one-day positioning flush in crowded tech longs.",
+    "watching": [
+      "Whether the Nasdaq 100 holds up after a second straight day of mega-cap tech weakness.",
+      "The 10-year yield's reaction if equity weakness persists into Monday.",
+      "Credit spreads in LQD and HYG, both at session lows, for signs of forced selling versus orderly repricing.",
+      "VIX term structure, given VIX 9-day rose +12.77% against a smaller move in VIX 3-month."
+    ],
+    "equities": "The S&P closed down -0.77%, with the Nasdaq 100 underperforming at -1.08%. The Russell 2000 fell -0.69% and the Dow held up best among majors at -0.67%, though no major index closed higher. This was a broad decline, not a single-sector rotation.\n\nCommunications and consumer discretionary led sector losses at -1.58% and -1.41%, dragged by META's -4.79% and TSLA's -3.94%. Financials fell -1.19% and technology gave back -0.89%, with AMD, ORCL, and CRM all down more than 2.88%. Energy was the lone sector holding roughly flat at +0.10%, helped by XOM and CVX both posting gains, while health care and staples eked out small advances. Breadth confirms the tape: 8 advancers against 17 decliners, with dispersion at 1.68 pointing to a market that punished specific names hard rather than drifting lower uniformly.",
+    "rates": "The curve bear steepened, with 2s10s widening 5bp to 36bp and 5s30s widening 7bp to 51bp. The front end led the rally: 2-year yields fell 6bp to 4.81%, 5-year fell 5bp to 4.98%, while 10-year yields dipped just 1bp to 5.17% and 30-year yields rose 2bp to 5.49%. The move type is unambiguous: front-end buying against long-end selling.\n\nReal yields told a similar story, with the 10-year TIPS yield down 2bp to 2.83%. Breakevens were little changed, with the 5-year breakeven down 1bp to 2.33% and 10-year flat at 2.34%. The MOVE index rose 6.06% to 101.82, confirming that rate volatility is picking up alongside the equity weakness rather than in isolation.",
+    "credit": "Credit sold off in step with equities. LQD fell -0.72%, HYG fell -0.41%, and EMB fell -0.91%, with EM sovereign debt closing at a session low alongside investment grade and high yield ETFs. Long Treasuries via TLT fell -0.88% and 7-10 year Treasuries via IEF fell -0.52%, both also printing lows on the day. The tone is one of broad de-risking across duration and credit quality alike, not a single segment under stress.",
+    "fx": "The dollar index rose +0.20% to 101.175, closing at a session high alongside USD/CAD and USD/CHF. EUR/USD rose +0.016 to 1.138 even as the euro sits near session lows on a year-to-date basis. USD/JPY fell -0.91% to 157.36, a yen bid that stands out against dollar strength elsewhere and was the single largest negative contributor to the risk barometer. USD/TRY and USD/MXN both firmed against a broadly stronger dollar, consistent with EM currency weakness rather than a JPY-specific story.",
+    "commodities": "Gold fell -3.88%, the largest positive contributor to the risk score by construction but the largest single mover to the downside in the commodity complex. Silver fell -4.87% and platinum and palladium both dropped more than 2.00%, a broad retreat in precious metals. Brent crude fell -5.43% while WTI rose +1.10%, a split that widens the Brent-WTI spread sharply. Copper fell -1.10%, consistent with the growth-scare read from rates, while softs were mixed: coffee rose +3.52% and sugar rose +6.11% even as wheat, corn, and soybeans all declined.",
+    "volatility": "The VIX rose +8.07% to 16.07, still a moderate absolute level but a sharp one-day repricing. VIX 9-day jumped +12.77% to 14.39, outpacing the move in VIX 3-month at +1.67%, a front-loaded fear bid typical of a single stressful session rather than a structural regime shift. VVIX rose +3.62% and SKEW rose +0.93%, both consistent with modest demand for tail protection. The MOVE index's 6.06% jump suggests the rates desk is paying up for protection just as much as equities.",
+    "digital": "Bitcoin fell -1.53%, a smaller decline than equities on a percentage basis but consistent in direction. Ether fell -0.58%, Solana fell -3.74%, and XRP fell -2.49%, with the digital complex trading as a leveraged, though not amplified, extension of the broader risk-off move.",
+    "international": "European markets closed before the worst of the US selling, with the EURO STOXX 50 up +0.48% and the DAX up +0.56%. Asian markets were mixed heading into the US session: the Nikkei rose +1.30% and the KOSPI rose +0.90%, while the Hang Seng fell -1.01% and the ASX 200 fell -0.43%. New York inherited a market that had already shown cracks in Hong Kong and Australia, with the US afternoon selling extending that softness rather than reversing it.",
+    "correlation": "The defining feature of the session is that equities, credit, and duration all moved the same direction at once. Stocks fell, high yield and investment grade spreads widened, and long Treasuries sold off alongside them, a pattern that normally only shows up when the move is being driven by a single common factor rather than sector-specific news. The risk barometer's construction, with EMB, LQD, USD/JPY, HYG, VIX, and MOVE all contributing negative scores simultaneously, confirms that cross-asset correlation rose sharply into this close.\n\nThe break to watch is gold's divergence from the pattern. Gold fell -3.88% even as every other line in the risk barometer flagged stress, and it remains the single largest positive contributor to the score by construction. If that divergence persists into next week, it argues the move is more of a liquidity and positioning event than a genuine flight to safety, since gold typically firms when EM debt, credit, and duration all sell off together. A reversal in gold back toward its recent levels alongside continued equity weakness would confirm a cleaner safety bid and change that read."
+  },
+  "closes": {
+    "spx": {
+      "last": 7683.69,
+      "chg": -0.771,
+      "stale": false
+    },
+    "ndx": {
+      "last": 30276.811,
+      "chg": -1.082,
+      "stale": false
+    },
+    "rut": {
+      "last": 2817.912,
+      "chg": -0.692,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6302.82,
+      "chg": 0.483,
+      "stale": true
+    },
+    "nky": {
+      "last": 66364.203,
+      "chg": 1.298,
+      "stale": true
+    },
+    "vix": {
+      "last": 16.07,
+      "chg": 8.07,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.17,
+      "chg": -1.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.138,
+      "chg": 0.016,
+      "stale": false
+    },
+    "wti": {
+      "last": 93.43,
+      "chg": 1.104,
+      "stale": false
+    },
+    "gold": {
+      "last": 4153.6,
+      "chg": -3.879,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 36491134602,
+    "artifact_id": 11001299113,
+    "created_at": "2026-09-28T22:17:27Z"
+  }
+}
