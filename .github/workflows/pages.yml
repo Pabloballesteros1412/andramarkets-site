@@ -1,11 +1,12 @@
-name: Deploy prototypes to GitHub Pages
+name: Deploy site to GitHub Pages
 
 on:
   push:
-    # The claude/ branch entry lets this PR publish a preview; drop it after merge.
-    branches: [main, claude/compassionate-mayer-yefufr]
+    branches: [main]
     paths:
-      - "prototypes/**"
+      - "index.html"
+      - "methodology/**"
+      - "assets/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -27,10 +28,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
+      # Publish only the public site, never repo docs, briefs or tooling.
+      - name: Stage site
+        run: |
+          mkdir _site
+          cp -r index.html methodology assets _site/
+          rm -rf _site/assets/icons
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: prototypes
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

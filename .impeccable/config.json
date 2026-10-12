@@ -7,7 +7,7 @@
         "rule": "cramped-padding",
         "value": "*",
         "files": [
-          "prototypes/index.html"
+          "index.html"
         ],
         "createdAt": "2026-10-12T14:04:15.163Z",
         "reason": "Claude triage: static scan cannot see padding on inner wrappers (section/tape/frame); rendered URL scans at 1280 and 390 in light and dark report 0 findings"
@@ -16,7 +16,7 @@
         "rule": "tight-leading",
         "value": "*",
         "files": [
-          "prototypes/index.html"
+          "index.html"
         ],
         "createdAt": "2026-10-12T14:04:15.175Z",
         "reason": "Claude triage: 1.18 applies only to the 24-40px .about__statement display text, intentional; body text is 1.55; rendered scans clean"

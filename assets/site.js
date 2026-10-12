@@ -1,4 +1,4 @@
-// Andra Markets prototype: theme, header state, menu, filters, reveals, signup.
+// Andra Markets: theme, header state, menu, filters, reveals, signup.
 (function () {
   var root = document.documentElement;
   root.classList.add("js");
@@ -13,6 +13,8 @@
       },
       { threshold: 0 }
     ).observe(hero);
+  } else if (header) {
+    header.classList.add("is-solid");
   }
 
   // Theme: light by default, the visitor's choice is remembered.
@@ -116,7 +118,7 @@
     });
   }
 
-  // Signup: prototype only, nothing is sent.
+  // Signup: front-end only until an email provider is connected.
   var form = document.querySelector(".signup form");
   if (form) {
     var input = form.querySelector("input");

@@ -1,4 +1,4 @@
-/* Andra Markets homepage prototype. One page, light (default) and dark themes. */
+/* Andra Markets site. Light (default) and dark themes. Tokens and rules: DESIGN.md. */
 
 @font-face {
   font-family: "Schibsted Grotesk";
@@ -1951,4 +1951,49 @@ ul {
   ::view-transition-new(*) {
     animation: none !important;
   }
+}
+
+/* Inner pages (methodology and future sub-pages) */
+
+.page {
+  padding-top: calc(var(--nav-h) + clamp(48px, 9vh, 112px));
+  padding-bottom: var(--section);
+}
+
+.page__head {
+  max-width: 44rem;
+  padding-bottom: clamp(32px, 5vw, 56px);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.page__title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 560;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.page__head .lede {
+  margin-top: 16px;
+}
+
+.page__body {
+  max-width: 44rem;
+}
+
+.page__body section {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.page__body h2 {
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.page__body p {
+  margin-top: 8px;
+  color: var(--ink-2);
+  max-width: 65ch;
 }

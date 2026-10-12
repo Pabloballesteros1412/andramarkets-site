@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-"""Build the Andra Markets homepage prototype.
+"""Build the Andra Markets site.
 
-One page, two themes (light default, dark), switched by a header toggle and
-remembered per visitor. Writes:
+Light (default) and dark themes, switched by a header toggle and remembered
+per visitor. Writes:
 
-    prototypes/index.html        the homepage
-    prototypes/cream/index.html  redirect to ?theme=light (old preview link)
-    prototypes/dark/index.html   redirect to ?theme=dark  (old preview link)
+    index.html               the homepage
+    methodology/index.html   methodology (placeholder page)
 
-    python3 tools/build_prototypes.py
+    python3 tools/build_site.py
 
 Every chart is a schematic shape from a seeded random walk. None of it is
-market data, and the page labels it "Illustrative".
+market data, and the page labels it "Illustrative". Follow DESIGN.md.
 """
 import math
 import random
@@ -19,8 +18,11 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "prototypes"
-ICONS = OUT / "assets" / "icons"
+OUT = ROOT
+ICONS = ROOT / "assets" / "icons"
+
+# Andra Markets on LinkedIn. Replace with the company page URL.
+LINKEDIN_URL = "#"
 
 
 # Chart helpers ---------------------------------------------------------------
@@ -405,51 +407,10 @@ def page():
         for i in range(2)
     )
 
-    return f"""<!doctype html>
-<html lang="en" data-theme="light">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Andra Markets: markets research platform (prototype)</title>
-<meta name="description" content="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, explainers and videos.">
-<meta name="robots" content="noindex">
-<meta name="theme-color" content="#f4f6f6">
-<script>{THEME_BOOT}</script>
-<link rel="icon" href="assets/andra-horse.png">
-<link rel="preload" href="assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="assets/site.css">
-</head>
-<body>
-{sprite()}
-<a class="skip" href="#main">Skip to content</a>
-
-<header class="site-header">
-  <div class="wrap">
-    <a class="brand" href="#top" aria-label="Andra Markets, home">
-      <span class="brand__mark"><img src="assets/andra-horse.png" alt="" width="64" height="64"></span>
-      <span class="brand__name">Andra Markets</span>
-    </a>
-    <nav class="nav" id="site-nav" aria-label="Primary">
-      <a href="#dashboards">Dashboards</a>
-      <a href="#lab">Lab</a>
-      <a href="#calendar">Calendar</a>
-      <a href="#note">Daily note</a>
-      <a href="#learn">Learn</a>
-      <a href="#watch">Watch</a>
-      <a class="nav__subscribe" href="#subscribe">Subscribe</a>
-    </nav>
-    <button class="theme-btn" type="button" aria-label="Switch to dark theme">
-      <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
-      <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
-    </button>
-    <a class="btn btn--sm" href="#subscribe">Subscribe</a>
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
-      <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
-    </button>
-  </div>
-</header>
-
-<main id="main">
+    return shell(
+        title="Andra Markets: markets research platform",
+        desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, explainers and videos.",
+        body=f"""<main id="main">
   <section class="hero" id="top" aria-labelledby="hero-title">
     <span class="hero__sentinel" aria-hidden="true"></span>
     <div class="hero__art" aria-hidden="true">
@@ -625,28 +586,62 @@ def page():
       </form>
     </div>
   </section>
-</main>
+</main>""",
+        home="",
+        base="",
+    )
 
-<footer class="site-footer">
+
+def site_header(home, base):
+    return f"""<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="{home or '#top'}" aria-label="Andra Markets, home">
+      <span class="brand__mark"><img src="{base}assets/andra-horse.png" alt="" width="64" height="64"></span>
+      <span class="brand__name">Andra Markets</span>
+    </a>
+    <nav class="nav" id="site-nav" aria-label="Primary">
+      <a href="{home}#dashboards">Dashboards</a>
+      <a href="{home}#lab">Lab</a>
+      <a href="{home}#calendar">Calendar</a>
+      <a href="{home}#note">Daily note</a>
+      <a href="{home}#learn">Learn</a>
+      <a href="{home}#watch">Watch</a>
+      <a class="nav__subscribe" href="{home}#subscribe">Subscribe</a>
+    </nav>
+    <button class="theme-btn" type="button" aria-label="Switch to dark theme">
+      <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
+      <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
+    </button>
+    <a class="btn btn--sm" href="{home}#subscribe">Subscribe</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
+      <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
+    </button>
+  </div>
+</header>"""
+
+
+def site_footer(home, base):
+    return f"""<footer class="site-footer">
   <div class="wrap grid">
     <div class="foot__brand">
-      <a class="brand" href="#top" aria-label="Andra Markets, home">
-        <span class="brand__mark"><img src="assets/andra-horse.png" alt="" width="64" height="64" loading="lazy"></span>
+      <a class="brand" href="{home or '#top'}" aria-label="Andra Markets, home">
+        <span class="brand__mark"><img src="{base}assets/andra-horse.png" alt="" width="64" height="64" loading="lazy"></span>
         <span class="brand__name">Andra Markets</span>
       </a>
       <p>Research on US and global markets.</p>
     </div>
     <nav class="foot__nav" aria-label="Footer">
-      <a href="#dashboards">Dashboards</a>
-      <a href="#lab">Lab</a>
-      <a href="#calendar">Calendar</a>
-      <a href="#note">Daily note</a>
-      <a href="#learn">Learn</a>
-      <a href="#watch">Watch</a>
-      <a href="#about">About</a>
+      <a href="{home}#dashboards">Dashboards</a>
+      <a href="{home}#lab">Lab</a>
+      <a href="{home}#calendar">Calendar</a>
+      <a href="{home}#note">Daily note</a>
+      <a href="{home}#learn">Learn</a>
+      <a href="{home}#watch">Watch</a>
+      <a href="{home}#about">About</a>
+      <a href="{base}methodology/">Methodology</a>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
-      <li><a href="#" rel="me">{icon("linkedin-logo")}LinkedIn {ph("[handle]")}</a></li>
+      <li><a href="{LINKEDIN_URL}" rel="me">{icon("linkedin-logo")}LinkedIn</a></li>
       <li><a href="#" rel="me">{icon("tiktok-logo")}TikTok {ph("[handle]")}</a></li>
       <li><a href="#" rel="me">{icon("youtube-logo")}YouTube {ph("[handle]")}</a></li>
     </ul>
@@ -655,35 +650,80 @@ def page():
       <span>For information only. Not investment advice.</span>
     </div>
   </div>
-</footer>
+</footer>"""
 
-<script src="assets/site.js" defer></script>
+
+def shell(title, desc, body, home, base):
+    return f"""<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<meta name="description" content="{desc}">
+<meta name="theme-color" content="#f4f6f6">
+<script>{THEME_BOOT}</script>
+<link rel="icon" href="{base}assets/andra-horse.png">
+<link rel="preload" href="{base}assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{base}assets/site.css">
+</head>
+<body>
+{sprite()}
+<a class="skip" href="#main">Skip to content</a>
+
+{site_header(home, base)}
+
+{body}
+
+{site_footer(home, base)}
+
+<script src="{base}assets/site.js" defer></script>
 </body>
 </html>
 """
 
 
-def redirect(theme):
-    return f"""<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="robots" content="noindex">
-<title>Andra Markets</title>
-<meta http-equiv="refresh" content="0; url=../?theme={theme}">
-<link rel="canonical" href="../">
-</head>
-<body style="font-family: sans-serif"><a href="../?theme={theme}">Andra Markets</a></body>
-</html>
-"""
+def methodology():
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Methodology</h1>
+      <p class="lede">How Andra Markets sources, processes and presents market data. This page is a placeholder until the methodology is published.</p>
+    </header>
+    <div class="page__body">
+      <section aria-labelledby="m-data">
+        <h2 id="m-data">Data sources</h2>
+        <p>{ph("[Data vendors, coverage and update times]")}</p>
+      </section>
+      <section aria-labelledby="m-pipeline">
+        <h2 id="m-pipeline">Pipeline</h2>
+        <p>{ph("[How the daily pipeline collects, checks and publishes data and notes]")}</p>
+      </section>
+      <section aria-labelledby="m-charts">
+        <h2 id="m-charts">Charts</h2>
+        <p>Every chart states its source and date. Green marks a rise and red a fall; colour appears only inside charts. Previews marked Illustrative are not market data.</p>
+      </section>
+      <section aria-labelledby="m-corrections">
+        <h2 id="m-corrections">Corrections</h2>
+        <p>{ph("[How errors are reported, corrected and logged]")}</p>
+      </section>
+    </div>
+  </div>
+</main>"""
+    return shell(
+        title="Methodology: Andra Markets",
+        desc="How Andra Markets sources, processes and presents market data.",
+        body=body,
+        home="../",
+        base="../",
+    )
 
 
 def main():
     (OUT / "index.html").write_text(page())
-    for old, theme in (("cream", "light"), ("dark", "dark")):
-        (OUT / old).mkdir(exist_ok=True)
-        (OUT / old / "index.html").write_text(redirect(theme))
-    print("wrote prototypes/index.html and redirects")
+    (OUT / "methodology").mkdir(exist_ok=True)
+    (OUT / "methodology" / "index.html").write_text(methodology())
+    print("wrote index.html and methodology/index.html")
 
 
 if __name__ == "__main__":

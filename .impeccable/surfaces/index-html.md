@@ -1,13 +1,13 @@
 ---
 version: 1
-slug: "prototypes-index-html"
-primary_target: "prototypes/index.html"
+slug: "index-html"
+primary_target: "index.html"
 related_targets: []
 ---
 
 # Homepage prototype (one page, light and dark themes)
 
-Scope: the Andra Markets homepage, `prototypes/index.html`, one page with a
+Scope: the Andra Markets homepage, `index.html`, one page with a
 remembered light (default) / dark theme toggle. Visitor mode: Persuade.
 Build path: code-first. Owner feedback round 2 pinned: platform positioning,
 one site two themes, more vivid chart colours, 12 filterable dashboards, Lab
