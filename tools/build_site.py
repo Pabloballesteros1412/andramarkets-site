@@ -773,7 +773,7 @@ def site_header(home, base):
     return f"""<header class="site-header">
   <div class="wrap">
     <a class="brand" href="{home or '#top'}" aria-label="Andra Markets, home">
-      <span class="brand__mark"><img src="{base}assets/andra-horse.png" alt="" width="64" height="64"></span>
+      <span class="brand__mark"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></span>
       <span class="brand__name">Andra Markets</span>
     </a>
     <nav class="nav" id="site-nav" aria-label="Primary">
@@ -806,7 +806,7 @@ def site_footer(home, base):
   <div class="wrap grid">
     <div class="foot__brand">
       <a class="brand" href="{home or '#top'}" aria-label="Andra Markets, home">
-        <span class="brand__mark"><img src="{base}assets/andra-horse.png" alt="" width="64" height="64" loading="lazy"></span>
+        <span class="brand__mark"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160" loading="lazy"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160" loading="lazy"></span>
         <span class="brand__name">Andra Markets</span>
       </a>
       <p>Research on US and global markets.</p>

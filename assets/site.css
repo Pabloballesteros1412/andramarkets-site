@@ -58,7 +58,6 @@
   --up-tint: rgba(0, 160, 80, 0.24);
   --down-tint: rgba(224, 32, 42, 0.22);
   --horse-filter: invert(1) grayscale(1) brightness(0.85) contrast(3);
-  --mark-filter: invert(1) grayscale(1) brightness(0.8) contrast(3);
   --horse-blend: multiply;
   --horse-opacity: 0.92;
   --select: rgba(14, 18, 21, 0.14);
@@ -92,7 +91,6 @@
   --up-tint: rgba(31, 210, 122, 0.2);
   --down-tint: rgba(255, 75, 82, 0.2);
   --horse-filter: none;
-  --mark-filter: none;
   --horse-blend: screen;
   --horse-opacity: 0.5;
   --select: rgba(233, 236, 235, 0.22);
@@ -343,33 +341,28 @@ ul {
   z-index: 1;
 }
 
-/* The full mark is shown uncropped; its black ground vanishes via blend
-   against a patch of page ground, so no box ever shows. */
+/* Transparent marks (tools/make_mark.py), one per theme: no box, no blend. */
 .brand__mark {
-  width: 44px;
-  height: calc(var(--nav-h) - 1px);
-  position: relative;
-  isolation: isolate;
-}
-
-.brand__mark::before {
-  content: "";
-  position: absolute;
-  inset: 0 -10px;
-  background: var(--ground);
-  z-index: -1;
+  display: block;
+  flex: none;
+  height: 34px;
 }
 
 .brand__mark img {
-  position: absolute;
-  left: -10px;
-  top: 0;
-  width: 64px;
+  display: block;
+  width: auto;
   height: 100%;
-  max-width: none;
-  object-fit: contain;
-  filter: var(--mark-filter);
-  mix-blend-mode: var(--horse-blend);
+}
+
+:root[data-theme="dark"] .brand__mark--light,
+:root:not([data-theme="dark"]) .brand__mark--dark {
+  display: none;
+}
+
+@media (min-width: 961px) {
+  .brand__mark {
+    height: 36px;
+  }
 }
 
 .nav {
