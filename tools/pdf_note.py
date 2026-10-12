@@ -10,8 +10,9 @@ template sets each kind of text at its own size, which is what this relies on:
     prose and takeaways      8.0 pt
     "What we are watching"   7.2 pt items, numbered at 6.2 pt
 
-Tables, exhibits, the methodology and the disclaimer use other sizes and are
-ignored. tools/import_notes.py holds every recovered note for review.
+Reports made before 22 August 2026 are drawn about 3% larger, so every size is
+scaled by the measured size of the first section number ("1.0"). Tables,
+exhibits, the methodology and the disclaimer use other sizes and are ignored. tools/import_notes.py holds every recovered note for review.
 """
 import io
 import math
@@ -50,8 +51,8 @@ def runs(pdf):
     return out
 
 
-def _is(size, target):
-    return abs(size - target) < 0.15
+def _is(size, target, k=1.0):
+    return abs(size - target * k) < 0.15
 
 
 def _join(parts):
@@ -82,16 +83,22 @@ def extract(pdf):
     rs = [r for r in runs(pdf) if not re.search(r"GLOBAL MARKETS RESEARCH\s+US CLOSE", r[3])]
     note = {}
 
+    # The first section number sets the scale of the whole report.
+    first_section = next((i for i, r in enumerate(rs)
+                          if 5.5 <= r[1] <= 7.5 and re.fullmatch(r"\s*1\.0\s*", r[3])), None)
+    if first_section is None:
+        return note
+    k = rs[first_section][1] / NUMBER
+
     # Headline and standfirst: the large runs at the top of page one.
-    first_section = next((i for i, r in enumerate(rs) if _is(r[1], NUMBER) and re.fullmatch(r"\s*1\.0\s*", r[3])), len(rs))
     top = rs[:first_section]
-    head = [i for i, r in enumerate(top) if r[1] >= 15]
+    head = [i for i, r in enumerate(top) if r[1] >= 17 * k]
     if head:
         note["headline"] = _join(top[i][3] for i in head)
         after = [r for r in top[head[-1] + 1:]]
         stand = []
         for r in after:
-            if 8.6 <= r[1] <= 10.5:
+            if 8.6 * k <= r[1] <= 10.5 * k:
                 stand.append(r[3])
             elif stand:
                 break
@@ -103,7 +110,7 @@ def extract(pdf):
     watching, in_watch = [], False
     for r in rs:
         page, size, y, text = r
-        if _is(size, TITLE):
+        if _is(size, TITLE, k):
             # The watch list is drawn last, after the methodology title, so a
             # new title ends a prose section but never the watch list.
             section = text.strip().upper() if text.strip().upper() in SECTIONS else None
@@ -111,21 +118,21 @@ def extract(pdf):
                 blocks.setdefault(section, [[]])
                 in_watch = False
             continue
-        if _is(size, NUMBER) and "WHAT WE ARE WATCHING" in text.upper():
+        if _is(size, NUMBER, k) and "WHAT WE ARE WATCHING" in text.upper():
             in_watch, section = True, None
             watching.append([])
             continue
         if in_watch:
-            if _is(size, WATCH):
+            if _is(size, WATCH, k):
                 watching[-1].append(text)
-            elif _is(size, NUMBER) and re.fullmatch(r"\s*\d+\s*", text):
+            elif _is(size, NUMBER, k) and re.fullmatch(r"\s*\d+\s*", text):
                 watching.append([])
             continue
         if section is None:
             continue
-        if _is(size, PROSE):
+        if _is(size, PROSE, k):
             blocks[section][-1].append(r)
-        elif section == "KEY TAKEAWAYS" and _is(size, NUMBER) and re.fullmatch(r"\s*\d+\s*", text):
+        elif section == "KEY TAKEAWAYS" and _is(size, NUMBER, k) and re.fullmatch(r"\s*\d+\s*", text):
             blocks[section].append([])  # each number closes one takeaway
         elif blocks[section][-1]:
             blocks[section].append([])

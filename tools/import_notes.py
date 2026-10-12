@@ -493,16 +493,21 @@ def summary(rows):
 def decide(results, root):
     """Pick, per session date, what to publish, what to hold and what is superseded.
 
-    results: dicts with artifact, record, reasons. Returns (publish, held, superseded).
+    results: dicts with artifact, record, reasons.
+    Returns (publish, held, superseded, withdraw): withdraw lists dates whose live
+    note came from a run that, checked again, no longer passes.
     """
     by_date = {}
     for r in results:
         by_date.setdefault(r["record"]["date"], []).append(r)
-    publish, held, superseded = [], [], []
+    publish, held, superseded, withdraw = [], [], [], []
     for date, cands in sorted(by_date.items()):
         cands.sort(key=lambda r: r["artifact"]["created_at"])
         prev = existing(root, date)
         live = prev["source"]["created_at"] if prev else ""
+        if prev and any(r["reasons"] and r["artifact"]["id"] == prev["source"]["artifact_id"] for r in cands):
+            withdraw.append(date)
+            live = ""
         clean = [r for r in cands if not r["reasons"]]
         winner = clean[-1] if clean and clean[-1]["artifact"]["created_at"] >= live else None
         if winner:
@@ -518,7 +523,9 @@ def decide(results, root):
                                              r["artifact"]["created_at"]))
             held.append(keep)
         superseded += [r for r in cands if r is not winner and r is not keep]
-    return publish, held, superseded
+        if winner and date in withdraw:
+            withdraw.remove(date)  # replaced outright by the clean run
+    return publish, held, superseded, withdraw
 
 
 def main():
@@ -556,7 +563,11 @@ def main():
             results.append({"artifact": a, "record": record, "reasons": reasons, "entry": entry})
         seen[str(a["id"])] = entry
 
-    publish, held, superseded = decide(results, ROOT)
+    publish, held, superseded, withdraw = decide(results, ROOT)
+    for date in withdraw:
+        rows.append(("", date, "withdrawn: the live note no longer passes the checks"))
+        if not dry:
+            (ROOT / "data" / "notes" / f"{date}.json").unlink()
     for r in superseded:
         r["entry"]["status"] = "superseded"
         rows.append((r["artifact"]["id"], r["record"]["date"], "superseded by another run that day"))
@@ -607,6 +618,8 @@ def main():
     dates = sorted({r["record"]["date"] for r in publish})
     message = (f"Publish close note{'s' if len(dates) > 1 else ''} {', '.join(dates)}"
                if dates else "Record imported agent artifacts")
+    if withdraw:
+        message += f"; withdraw {', '.join(withdraw)}"
     pushed = push_main(message) if artifacts else False
 
     if site_token:
@@ -618,7 +631,7 @@ def main():
             close_stale_prs(r["record"]["date"], None, state, site_token)
 
     summary(rows)
-    output("published", "true" if publish and pushed else "false")
+    output("published", "true" if (publish or withdraw) and pushed else "false")
     print(f"published {len(publish)}, held {len(single)} + {len(recovered)} recovered, "
           f"superseded {len(superseded)}, rejected {len(rejected)}")
     return 1 if rejected or failed else 0
