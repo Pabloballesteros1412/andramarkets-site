@@ -546,7 +546,7 @@ A statement paragraph (statement style, columns 1 to 8) beside a definition list
 - **Plate:** `min-height: 88svh`, content bottom-aligned, `--rule` top border, horse behind (see Horse placements). Title in columns 1 to 6, form in columns 8 to 12.
 - **Field:** label 0.875rem/550; input and Subscribe button in a row with an 8px gap (stacked at 640px and below); input 52px tall, padding 0 16px, `--rule-strong` border, ground fill, 1rem, ink-3 placeholder; focus is a 2px `--focus` outline at 0 offset. Help line 0.875rem ink-2.
 - **Error:** ink only. Input gets `aria-invalid="true"`, ink border plus an inset 1px ink ring (2px total). The status line turns 650 weight and shows the `warning-circle` icon at 1.25rem beside the message. Messages: "Enter your email address to subscribe." or "That email address looks incomplete. Check it and try again." Focus returns to the input, and typing clears the error.
-- **Success:** the status line (550) reads "Subscribed. The next close note goes to [address]." and the input row dims to 0.5 opacity. No colour, no icon.
+- **Success:** the status line (550) reads "The newsletter launches soon. Your address was not saved: sign up here again once it opens." and the input row dims to 0.5 opacity. No colour, no icon. This holds until the newsletter platform exists (PRODUCT.md, Business Model); the address is never sent or stored. Once it launches, the message becomes "Subscribed. The next close note goes to [address]."
 - **Status** is a polite live region, wired to the input with `aria-describedby`.
 
 ### Footer

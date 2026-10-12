@@ -137,7 +137,8 @@
         input.focus();
         return;
       }
-      msg.textContent = "Subscribed. The next close note goes to " + value + ".";
+      // No newsletter platform yet: nothing is sent or stored.
+      msg.textContent = "The newsletter launches soon. Your address was not saved: sign up here again once it opens.";
       form.closest(".signup").classList.add("is-done");
     });
     input.addEventListener("input", function () {
