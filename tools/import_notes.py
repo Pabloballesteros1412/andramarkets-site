@@ -630,6 +630,25 @@ def main():
               f"superseded {len(superseded)}, rejected {len(rejected)}")
         return 0
 
+    # Push main first, so review branches start from the notes this run
+    # published or withdrew. Until their pull requests exist, held runs are
+    # recorded as unchecked: if the run stops here, the next one retries them.
+    pending = {}
+    for r in held:
+        key = str(r["artifact"]["id"])
+        pending[key] = dict(r["entry"])
+        if r["recheck"]:
+            r["entry"]["v"] = VERSION - 1
+        else:
+            del seen[key]
+    save_state(ROOT, state)
+    dates = sorted({r["record"]["date"] for r in publish})
+    message = (f"Publish close note{'s' if len(dates) > 1 else ''} {', '.join(dates)}"
+               if dates else "Record imported agent artifacts")
+    if withdraw:
+        message += f"; withdraw {', '.join(withdraw)}"
+    pushed = push_main(message) if artifacts else False
+
     failed, failed_dates = 0, set()
     for group, opener in ([(r,) for r in single], None), ([tuple(backfill)] if backfill else [], "backfill"):
         for batch in group:
@@ -642,28 +661,18 @@ def main():
                 else:
                     url = open_held_pr(batch[0]["record"], batch[0]["reasons"], site_token)
                 for x in batch:
-                    x["entry"]["pr"] = url
+                    seen[str(x["artifact"]["id"])] = dict(pending[str(x["artifact"]["id"])], pr=url)
                 print(f"Held {', '.join(x['record']['date'] for x in batch)}: {url}")
             except Exception as e:  # noqa: BLE001
-                # Left at the old version, so the next run checks these again;
-                # their dates keep whatever pull requests are already open.
-                for x in batch:
-                    if x["recheck"]:
-                        x["entry"]["v"] = VERSION - 1
-                    else:
-                        del seen[str(x["artifact"]["id"])]
-                    failed_dates.add(x["record"]["date"])
+                # Left unchecked, so the next run tries again; their dates keep
+                # whatever pull requests are already open.
+                failed_dates.update(x["record"]["date"] for x in batch)
                 failed += 1
                 print(f"::error::Could not open the review pull request: {e}. Check Settings, "
                       "Actions, General: Allow GitHub Actions to create and approve pull requests.")
-
-    save_state(ROOT, state)
-    dates = sorted({r["record"]["date"] for r in publish})
-    message = (f"Publish close note{'s' if len(dates) > 1 else ''} {', '.join(dates)}"
-               if dates else "Record imported agent artifacts")
-    if withdraw:
-        message += f"; withdraw {', '.join(withdraw)}"
-    pushed = push_main(message) if artifacts else False
+    if held and len(failed_dates) < len({r["record"]["date"] for r in held}):
+        save_state(ROOT, state)
+        push_main("Record review pull requests")
 
     if site_token:
         # Per date, only the pull request of the run kept for review stays open.
