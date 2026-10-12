@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-08",
+  "published": true,
+  "edition": null,
+  "figure_check": "failed",
+  "note": {
+    "headline": "Energy and staples carry the tape while megacap tech absorbs the selling",
+    "standfirst": "The S&P fell 0.47% and the Nasdaq 100 dropped 1.39% as chipmakers and software names gave back ground, even as Dow, Russell and midcaps closed higher. Positioning now splits along a fault line: cyclicals and defensives firm, crowded AI longs get sold.",
+    "takeaways": [
+      "Megacap tech led the index lower while breadth outside the Nasdaq 100 was positive, a split not a rout.",
+      "The curve bear steepened again, with 2s10s at +51bp and the long end cheapening 3bp while 2-year yields richened 2bp.",
+      "Crude jumped over 2.9% on WTI and Brent, lifting energy stocks and feeding into the staples and value rotation.",
+      "Vol woke up: VIX rose to 15.41 and VVIX jumped over 5%, even as the MOVE index eased."
+    ],
+    "desk_view": "The session confirms a rotation out of the most crowded trade of the year. Oracle, Broadcom, AMD and Nvidia were among the five worst performers, all down between roughly 2.9% and 5.5%, while Chevron, Exxon, Netflix, Coke and Walmart led gains. That is not a risk-off day. The Dow rose 0.10%, the Russell 2000 was roughly flat to higher, and seven of eleven sectors closed in the green. The damage is concentrated in semiconductors and software, the names that have carried the index all year, and the question is whether this is profit-taking into strength or the start of something that broadens into the names that have participated.\n\nThe level that decides it is the Nasdaq 100 relative to the S&P 500 from here. A one-day give-back in mega-cap tech with energy and staples catching a bid looks like rotation, not capitulation, as long as credit holds. Investment grade actually firmed, LQD up 0.36%, and EM sovereign debt firmed too, EMB up 0.20%, while high yield drifted to a fresh low on the day. That high yield weakness against IG strength is the one crack worth watching. If HYG keeps softening while equity dip-buyers show up in cyclicals, the rotation story survives. If HYG weakness spreads to IG and the long end keeps cheapening into supply, the bear steepener stops being a curve story and becomes a risk story.",
+    "watching": [
+      "Whether high yield spreads continue to diverge from investment grade into the end of the week.",
+      "Follow-through, or lack of it, in semiconductor names after the one-day drop in Nvidia, AMD, Broadcom and Oracle.",
+      "The 30-year yield, now at 5.67%, and whether the bear steepening move extends into long-end auctions.",
+      "Crude's hold near the 90-dollar WTI level and whether energy sector strength persists or fades."
+    ],
+    "equities": "The S&P 500 closed down 0.47%, with the damage concentrated in the Nasdaq 100's 1.39% drop. The Dow, Russell 2000, S&P MidCap 400 and NYSE Composite all closed higher, a split that puts the index move entirely on the shoulders of a handful of large-cap names. Breadth was roughly even, 12 advancers against 14 decliners among the tracked cohort, consistent with a rotation rather than a broad risk purge.\n\nEnergy led sector performance, XLE up 2.97% on the back of crude's rally, with consumer staples close behind at +2.11%. Technology was the sole sector under material pressure, XLK down 1.79%, dragged by the same names topping the laggards list. Financials, industrials, materials, real estate and communications all closed higher. Dispersion sits at 2.23, and the gap between sector winners and losers says this was a stock and sector-specific session, not an index-wide repricing.",
+    "rates": "The curve bear steepened again. 2s10s widened 3bp to +51bp and 5s30s widened 3bp to +64bp, with the move driven from the long end: 30-year yields rose 3bp to 5.67% and 20-year yields rose 3bp to 5.71%, while 2-year yields richened 2bp to 4.77%. The 10-year added 1bp to 5.28%. Short bills were little changed, with 3-month at 4.22% and 6-month flat at 4.28%.\n\nBreakevens were flat across the curve, 5-year at 2.37% and 10-year at 2.36%, with the 5y5y forward also unchanged at 2.35%. Real yields firmed marginally, 10-year TIPS up 1bp to 2.92%. The MOVE index eased 1.81%, which argues the curve move was an orderly repricing of term premium rather than a volatility event, even as nominal yields pushed to highs in the 20 and 30-year sectors.",
+    "credit": "Investment grade firmed, LQD up 0.36%, while high yield softened on both measures tracked, HYG down 0.05% and JNK down 0.03%, both flagged among the session's lows. EM sovereign debt in USD terms gained, EMB up 0.20%. Leveraged loans were unchanged. The split, IG richening while HY cheapens, is a quality bid inside credit that echoes the equity rotation out of the most levered growth names.",
+    "fx": "The dollar index slipped 0.11% to 102.125 even as it printed among the session's highs earlier, a sign of two-way flow rather than a clean trend day. EUR/USD fell 0.34% to a session low of 1.122. USD/JPY eased 0.25% to 157.901. Commodity currencies were soft against the dollar, AUD/USD down 0.27%, while USD/CAD rose 0.09%. USD/MXN and USD/BRL both pushed higher, up 1.22% and 0.84% respectively, and USD/TRY and USD/INR extended to fresh highs, consistent with the broader EM currency softness against a dollar that itself struggled for direction.",
+    "commodities": "Crude led the complex, WTI up 2.93% to 90.87 and Brent up 3.37% to 103.58, the clearest macro driver of the day's sector rotation into energy. Natural gas fell 2.34%. Precious metals were mixed: gold rose 0.44% while silver fell 0.78%. Industrial metals softened, copper down 0.52% and aluminium down 1.67%. Agriculturals were broadly weaker, led down by sugar's 3.07% drop, with wheat, corn and soybeans all lower.",
+    "volatility": "Volatility picked up across the surface. VIX rose 2.19% to 15.41 and VIX9d jumped 3.65% to 12.21, flattening the front of the term structure versus VIX3m, which rose 2.03% to 18.08. VVIX rose 5.39% to 87.66, and SKEW ticked up slightly to 141.84, both consistent with a market paying up for downside protection after a concentrated selloff in mega-cap tech. The MOVE index moved the other way, down 1.81% to 100.70, so the repricing of protection costs is an equity story this session, not a rates one.",
+    "digital": "Digital assets sold off in line with the weakest pocket of risk appetite. Bitcoin fell 1.81%, Ether dropped 3.97%, Solana fell 5.65% and XRP fell 3.13%. The move tracks the semiconductor and software weakness in equities more closely than it tracks the broader index, consistent with crypto trading as a high-beta extension of the crowded growth trade rather than a standalone macro hedge today.",
+    "international": "European markets closed broadly lower ahead of the US session, with the EURO STOXX 50 down 0.87%, the DAX down 1.19% and the FTSE MIB down 1.35%. The FTSE 100 was the relative outperformer, down just 0.16%. Asia closed mixed to weaker overnight, KOSPI down 1.98% and the Nikkei down 0.92%, while TAIEX was roughly flat, down 0.03% and among the session's highs on a year-to-date basis. The handoff to New York was a soft one, and the US session's own rotation away from tech names that dominate those same European and Asian indices added to the pressure.",
+    "correlation": "The standard risk-on, risk-off correlation cluster broke down today. Bitcoin, the S&P 500 and USD/JPY all registered as the most negative contributors to the risk barometer, while LQD, EMB and the dollar index registered as the most positive, a combination that does not fit a single clean narrative. Normally a weak equity tape with a weak yen and weak crypto reads as classic risk-off, but credit spreads in investment grade firmed and EM sovereigns firmed at the same time, which is not the pattern you'd expect if this were broad deleveraging.\n\nWhat would confirm a real correlation break is high yield decoupling further from investment grade while equity dispersion stays this wide. Today's dispersion reading of 2.23, with energy and tech at opposite ends of the sector table, says correlation across equities is already loosening. If that loosening spreads into credit, with HYG continuing to underperform LQD meaningfully, that is the signal that the market is pricing idiosyncratic risk in the most levered growth names rather than a macro shock. The risk barometer itself sits at -0.06, dead neutral, which is the composite's way of saying today's cross-currents canceled out."
+  },
+  "closes": {
+    "spx": {
+      "last": 7765.36,
+      "chg": -0.467,
+      "stale": false
+    },
+    "ndx": {
+      "last": 30725.809,
+      "chg": -1.394,
+      "stale": false
+    },
+    "rut": {
+      "last": 2794.128,
+      "chg": 0.033,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6126.73,
+      "chg": -0.867,
+      "stale": false
+    },
+    "nky": {
+      "last": 70035.711,
+      "chg": -0.917,
+      "stale": true
+    },
+    "vix": {
+      "last": 15.41,
+      "chg": 2.188,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.28,
+      "chg": 1.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.122,
+      "chg": -0.335,
+      "stale": false
+    },
+    "wti": {
+      "last": 90.87,
+      "chg": 2.934,
+      "stale": false
+    },
+    "gold": {
+      "last": 4158.7,
+      "chg": 0.435,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 37841586991,
+    "artifact_id": 11577608366,
+    "created_at": "2026-10-08T20:46:41Z"
+  }
+}
