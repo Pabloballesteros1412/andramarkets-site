@@ -1,0 +1,90 @@
+{
+  "date": "2026-09-21",
+  "published": true,
+  "edition": null,
+  "figure_check": "passed",
+  "note": {
+    "headline": "Stocks rip to highs while yields climb and oil breaks lower",
+    "standfirst": "The S&P 500 pushed to a fresh high with tech and communications doing the heavy lifting, even as the 10-year yield rose to 5.01% and crude fell hard. Breadth was strong and risk appetite firm, but the equity rally is running against a tightening curve and a weak energy tape, a combination that will not reconcile forever.",
+    "takeaways": [
+      "Nasdaq 100 led with a +2.83% gain as Meta and AMD both rose more than 9%.",
+      "The 10-year yield rose to 5.01%, up 7bp, while the curve flattened with 2s10s down 2bp to 25bp.",
+      "WTI crude fell 8.39% and Brent fell 7.70%, dragging XLE down 2.88% and dropping high yield to a session low.",
+      "Bitcoin rose 6.59% and the broader digital complex outperformed, tracking the equity bid rather than offsetting it."
+    ],
+    "desk_view": "This session confirms that the equity advance remains concentrated but not narrow. Advancers beat decliners 21 to 5, and the move was not just mega-cap tech: Russell 2000 added +0.52% and mid-caps rose +0.38%. The rally was led by single names with real catalysts, Meta up 11.34% and AMD up 9.95%, and dispersion at 3.12 says stock-picking is being rewarded, not punished. That is a healthy backdrop for a market at highs.\n\nWhat it does not confirm is a comfortable rates picture. The 10-year at 5.01% and the 2-year at 4.76% mark a curve that flattened again, down 2bp on 2s10s, with every tenor from 2-year to 30-year shifting higher on the day. Equities absorbed that move without flinching, which is the story until it isn't. The level that decides this is the 10-year. If 5.01% becomes 5.10% or higher without a growth story to justify it, the tech-led rally will need to answer for its duration risk. Watch whether XLK and XLC keep bidding when yields print above where they closed today.",
+    "watching": [
+      "Whether the 10-year holds above 5.00% or fades back below it.",
+      "Follow-through in crude after an 8.39% drop in WTI, and whether XLE stabilizes.",
+      "Credit tone given HYG and JNK both closed at session lows despite a positive daily change.",
+      "Digital asset follow-through after a broad-based rise led by XRP at +10.05%."
+    ],
+    "equities": "The S&P 500 gained 1.49% to close at a fresh high, with the Nasdaq 100 the strongest major index at +2.83%. The Dow lagged relatively at +0.71% and the Russell 2000 added +0.52%, so the gain was real but top-heavy toward growth. Communications rose 3.56% and technology rose 2.77%, the two clear leadership sectors, while energy fell 2.88% and staples and utilities both closed lower.\n\nBreadth backs the tape: 21 advancers against 5 decliners, a 4.2 ratio. Dispersion at 3.12 shows this wasn't a single-factor melt-up. Meta and AMD each rose more than 9%, Tesla added 3.03%, and Nvidia and Netflix both participated. On the other side, Exxon and Chevron fell more than 2.5% each alongside the crude move, and Berkshire, Coca-Cola and Salesforce all closed lower. The split is clean: growth and semis bought, energy and defensives sold.",
+    "rates": "The curve flattened again. 2s10s fell 2bp to 25bp and 5s30s fell 3bp to 48bp, while 3m10y steepened 5bp to 87bp. Every point on the curve moved higher in yield: 2-year up 9bp to 4.76%, 5-year up 8bp to 4.86%, 10-year up 7bp to 5.01%, 30-year up 5bp to 5.34%. The front end led the move, consistent with the belly-to-front flattening pattern.\n\nBreakevens ticked up modestly, with the 5-year at 2.33% (+2bp) and 10-year at 2.34% (+1bp), while the 5y5y forward held flat at 2.35%. Real yields did the work: the 10-year TIPS yield rose 7bp to 2.68%, matching the move in nominal 10-year almost basis point for basis point given breakevens barely moved. That is a real-rate story, not an inflation story. The MOVE index rose modestly, still elevated on the year at +30.21% YTD but not signaling acute stress today.",
+    "credit": "Credit closed mixed against a backdrop of two extremes worth flagging: US high yield (HYG) and 7-10 year Treasuries both printed session lows even as HYG's daily change read positive at +0.19%. Investment grade (LQD) gained 0.37% and EM sovereign debt (EMB) gained 0.43%, both outperforming high yield. Leveraged loans (BKLN) fell 0.48%, the one outright decliner in the complex. The tone is calm rather than exuberant: credit is participating in the risk rally but without the high yield leadership that would normally accompany a growth-led equity surge.",
+    "fx": "The dollar index rose 0.21%, a modest gain that sits oddly against a broadly risk-on equity tape. USD/JPY rose 0.79%, tagging fresh short-term highs, while EUR/USD fell 0.07%. Sterling firmed 0.09% and the Aussie dollar rose 0.11%, so the dollar's strength was not uniform. In EM, the Brazilian real firmed 0.73% against the dollar while the Mexican peso and Turkish lira both weakened slightly, USD/TRY pushing to a fresh high.",
+    "commodities": "Energy sold off hard: WTI fell 8.39% and Brent fell 7.70%, with natural gas down 2.89%. That is the standout move of the session and it hit energy equities directly, with XLE down 2.88%. Gold fell 0.86% even as silver held flat and copper rose 2.73% to a fresh high. Agriculture was broadly firm, with corn, soybeans and wheat all higher and corn and soybeans both at session highs, while coffee fell 6.81%.",
+    "volatility": "The VIX rose slightly but remains low in absolute terms. VIX9D jumped 7.09%, moving inside the 3-month print, a curve shape that shows some near-dated hedging demand without any term structure stress. VVIX fell 1.84% and SKEW fell 3.99%, both easing, so the cost of tail protection is not signaling concern even as spot vol ticked up. Protection remains cheap by any recent standard.",
+    "digital": "Digital assets outperformed the broader risk complex. Bitcoin rose 6.59%, Ether rose 5.03%, Solana rose 7.37% and XRP led with a 10.05% gain. The move tracked the equity rally in direction and exceeded it in magnitude, consistent with digital assets running at high beta to risk appetite rather than trading on an independent catalyst.",
+    "international": "European markets closed before the US session and sold off across the board: EURO STOXX 50 fell 1.37%, the DAX fell 1.61%, and the CAC, IBEX and FTSE MIB all fell more than 1.4%. The FTSE 100 was the exception, up 0.75%. Asia was mixed to firm: the KOSPI rose 2.66% and the Nikkei rose 1.38%, while the Hang Seng added 0.60% and the Sensex and ASX 200 were roughly flat. The handoff to New York was a weak Europe and a firm Asia, and US equities chose to follow Asia.",
+    "correlation": "The session's cross-asset signature is unusual: equities and yields rose together, oil fell sharply, and gold fell alongside oil rather than acting as a hedge. That combination, growth assets up, real rates up, gold down, is consistent with a real-growth narrative rather than an inflation or safety bid. Copper's move to a fresh high supports that read, since copper tends to track growth expectations more than gold does.\n\nThe break to watch is between equities and rates. Today they rose together, which markets can tolerate for a session or a week. If the 10-year continues higher while equities are still trying to extend, the correlation that failed to bite today will eventually bite through valuation multiples on the very growth names that led this rally. Financial conditions have not tightened yet by the equity tape's own reckoning. That is the gap between the bond market and the stock market that the next few sessions need to close."
+  },
+  "closes": {
+    "spx": {
+      "last": 7764.7,
+      "chg": 1.493,
+      "stale": false
+    },
+    "ndx": {
+      "last": 30482.352,
+      "chg": 2.827,
+      "stale": false
+    },
+    "rut": {
+      "last": 2875.36,
+      "chg": 0.523,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6236.2,
+      "chg": -1.371,
+      "stale": true
+    },
+    "nky": {
+      "last": 65018.949,
+      "chg": 1.376,
+      "stale": true
+    },
+    "vix": {
+      "last": 14.87,
+      "chg": 0.405,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.01,
+      "chg": 7.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.147,
+      "chg": -0.071,
+      "stale": false
+    },
+    "wti": {
+      "last": 91.89,
+      "chg": -8.385,
+      "stale": false
+    },
+    "gold": {
+      "last": 4386.9,
+      "chg": -0.859,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 35662582866,
+    "artifact_id": 10668480924,
+    "created_at": "2026-09-21T22:29:10Z"
+  }
+}

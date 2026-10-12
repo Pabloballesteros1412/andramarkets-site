@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-05",
+  "published": true,
+  "edition": null,
+  "figure_check": "passed",
+  "note": {
+    "headline": "Equities grind to highs as yields rise and rates vol jumps",
+    "standfirst": "The S&P 500 and Nasdaq 100 closed at fresh highs even as the Treasury curve flattened and the MOVE index jumped 5.88 points. Positioning into next session hinges on whether equity strength can keep ignoring a 10-year yield at 5.28% and a rates market pricing more term risk.",
+    "takeaways": [
+      "Equity indices closed at highs with broad participation, advancers beat decliners more than two to one.",
+      "The curve flattened again, 2s10s down to 45bp, while the long end held and short rates led the move up.",
+      "Rates volatility rose sharply, MOVE +5.88, even as equity vol stayed contained near 15.5 on VIX.",
+      "Credit continued to lag the equity rally, high yield and investment grade both sit at session lows for the cross-asset set."
+    ],
+    "desk_view": "The session confirms that equity buyers are not waiting for the rates market to settle. The S&P 500 added 0.66%, the Nasdaq 100 0.87%, and breadth backed it up at 2.14 advancers to decliners. Cyclical leadership was broad: financials, energy, materials and communications all outperformed tech on the day even as tech names like Nvidia and Broadcom carried the mega-cap tape. That is not a narrow rally. Copper at +2.16% and the Russell 2000 at +0.50% both point to risk appetite extending past the usual mega-cap suspects.\n\nWhat it does not confirm is that the bond market agrees. The 10-year sits at 5.28%, up 4bp, and the 2-year at 4.83%, up 5bp, with the curve flattening across 2s10s and 5s30s. MOVE jumped 5.88 points to 113.6, the single largest mover in the risk barometer at -1.19 contribution, a reading that argues for more rate repricing risk than the VIX at 15.52 suggests. The level that decides the next leg is simple: if 10-year yields push through 5.30% with MOVE still rising, equity multiples get tested regardless of how clean the breadth numbers look today. Until then, this is a market willing to pay up for growth and cyclicals both, financed by a bond market that has not yet said no.",
+    "watching": [
+      "October CPI print and its read-through to the belly of the curve.",
+      "Whether MOVE continues higher or fades back toward its recent range.",
+      "Credit spreads in HY and IG, both sitting at session lows despite the equity grind higher.",
+      "Hang Seng follow-through after a 2.60% drop, and whether Asia weakness bleeds into US risk appetite."
+    ],
+    "equities": "All six major US benchmarks closed higher, led by the Nasdaq 100 at +0.87% and the S&P 500 at +0.66%. The Dow lagged at +0.18%, a function of its lighter weight in the names doing the work: Visa, Tesla, Nvidia, Broadcom and Meta were the session's five leaders, each up more than 1.89%. Salesforce was the clear laggard at -2.09%, with Pfizer and Goldman also softer.\n\nSector rotation favored cyclicals over defensives without punishing either. Energy led at +1.00%, materials at +1.31%, communications at +1.17% and financials at +0.73%, while technology trailed the broader tape at +0.56% despite its mega-cap leaders. Real estate was the one sector in the red, -0.34%. Breadth was healthy at 2.14 advancers to decliners with dispersion at 1.15, consistent with a rally that is participating broadly rather than concentrating in a handful of names.",
+    "rates": "The curve flattened again. 2s10s fell 1bp to 45bp and 5s30s fell 3bp to 57bp, while 3m10y steepened 2bp to 109bp. Yields rose across the front and belly, with 2-year, 3-year, 5-year and 7-year all up 5bp, while 10-year added 4bp and 30-year just 2bp. The pattern is short rates leading the move, long end lagging, classic bear flattening.\n\nBreakevens were little changed: 5-year breakeven fell 1bp to 2.36%, 10-year breakeven held at 2.36%, and 5y5y forward added 1bp to 2.36%. Real yields did the work instead, with 10-year TIPS up 4bp to 2.92%. The standout number on the day sits outside the cash curve: MOVE jumped 5.88 points to 113.6, a far larger move in relative terms than anything in yield levels, and it is worth watching whether that vol spike is a precursor to wider yield ranges or a one-day dislocation.",
+    "credit": "Credit held but did not lead. Investment grade (LQD) was flat on the day and high yield (HYG, JNK) each inched up less than 0.15%, both still sitting at the lows of the broader cross-asset set alongside EM sovereign debt (EMB), which rose 0.22% but remains a laggard on a YTD basis at -6.19%. Leveraged loans (BKLN) ticked up 0.05%. None of this reads as stress, spreads are not blowing out, but credit is not confirming the enthusiasm in equity indices either. That gap is worth watching if rates volatility persists.",
+    "fx": "The dollar index rose 0.19% to 102.124, making new highs on the session alongside a weaker euro, with EUR/USD down 0.21% to 1.123 and sitting at the day's lows. USD/JPY eased slightly, -0.05% to 157.848. GBP/USD gained 0.15% and AUD/USD rose 0.63%, the strongest G10 cross of the day. In EM, USD/BRL fell 4.36%, a sizeable move, while USD/MXN eased 1.42% and USD/TRY was flat. USD/CAD rose 0.17% to a session high. The dollar's broad firmness against European currencies did not extend evenly across the EM bloc.",
+    "commodities": "Oil fell, with WTI down 1.99% to 89.30 and Brent down 1.89% to 100.32, the weakest major asset class on the day apart from long Treasuries. Precious and industrial metals moved the other way: silver rose 2.37%, platinum 2.84%, copper 2.16% to 6.633, each near session highs. Gold was more muted at +0.13%. Natural gas rose 1.48%. In agriculture, sugar led with a 4.27% gain and cocoa added 3.21%, while corn was flat to lower. The split between falling energy and rising metals is the clearest commodity story of the day.",
+    "volatility": "VIX rose 1.37% to 15.52, still a low absolute level, but the term structure moved more than the headline number suggests. VIX9D jumped 6.55% to 12.85, a sharp pickup in near-dated hedging demand, while VIX3M eased fractionally to 18.0. VVIX fell 1.79% and SKEW fell 1.27%, both suggesting tail-risk pricing eased even as front-month implied vol ticked up. The more telling number sits in rates: MOVE rose 5.88 to 113.6. Protection in rates got more expensive today. Protection in equities barely moved.",
+    "digital": "Digital assets sold off modestly alongside a firmer dollar. Bitcoin fell 0.72% to 85,858, Ether fell 0.43%, Solana fell 0.71% and XRP fell 0.91%, the laggard of the group. None of the moves were large, and crypto's beta to the day's equity strength was effectively zero, it tracked the dollar and rates story more than the S&P 500.",
+    "international": "Asia closed mixed to weaker ahead of the US session. Hang Seng fell 2.60%, the sharpest move across major indices globally, and SENSEX fell 0.79%, while Nikkei fell 0.94%. KOSPI and TAIEX were firmer, up 0.47% and 0.25% respectively. Europe was mixed and largely directionless: EURO STOXX 50 and DAX barely moved, CAC 40 fell 0.80%, while IBEX 35 rose 1.12% and AEX rose 0.64%. None of the European or Asian moves were large enough to explain the US equity strength or the rates selloff, the two markets handed New York a quiet setup that the US session then built on independently.",
+    "correlation": "The standout cross-asset signal today is the divergence between rates volatility and equity volatility. MOVE rose 5.88 points while VIX rose only 1.37%, a gap that typically does not persist. Historically, sustained MOVE spikes bleed into equity vol with a lag, as rate uncertainty eventually forces repricing in discount rates and multiples. That has not happened yet. The risk barometer itself flags this: MOVE's -1.19 contribution was the largest single drag in the composite, while SPX's +0.96 and copper's +1.53 contributions pulled the other way, leaving the overall score at a neutral 0.12.\n\nA break in this correlation, meaning either equity vol catching up to rates vol or MOVE fading back toward its range, would resolve a genuine tension in the tape. If MOVE keeps rising into next week while equities keep making highs, that is the setup most likely to end in a correction in the more stretched cyclical and growth names, since equity pricing is currently assuming rate stability that the bond market itself is no longer pricing with confidence."
+  },
+  "closes": {
+    "spx": {
+      "last": 7773.95,
+      "chg": 0.663,
+      "stale": false
+    },
+    "ndx": {
+      "last": 31076.441,
+      "chg": 0.872,
+      "stale": false
+    },
+    "rut": {
+      "last": 2847.136,
+      "chg": 0.503,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6242.14,
+      "chg": 0.058,
+      "stale": false
+    },
+    "nky": {
+      "last": 68309.461,
+      "chg": -0.939,
+      "stale": true
+    },
+    "vix": {
+      "last": 15.52,
+      "chg": 1.372,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.28,
+      "chg": 4.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.123,
+      "chg": -0.213,
+      "stale": false
+    },
+    "wti": {
+      "last": 89.3,
+      "chg": -1.987,
+      "stale": false
+    },
+    "gold": {
+      "last": 4167.6,
+      "chg": 0.127,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 37375983779,
+    "artifact_id": 11372061989,
+    "created_at": "2026-10-05T21:35:56Z"
+  }
+}

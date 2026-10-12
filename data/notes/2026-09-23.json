@@ -1,0 +1,90 @@
+{
+  "date": "2026-09-23",
+  "published": true,
+  "edition": null,
+  "figure_check": "passed",
+  "note": {
+    "headline": "Risk-off day: credit, rates vol and small caps sell together as dollar bids",
+    "standfirst": "Every major risk gauge moved the same direction today: high yield, investment grade, EM debt and the MOVE index all sold off together while the dollar caught a bid. That kind of alignment tends to matter more than any single index print, and it argues for treating this as a broadening move rather than a single-sector story.",
+    "takeaways": [
+      "Credit led the risk-off move, with high yield, investment grade and EM sovereign debt all down together, an alignment broader than a typical equity pullback.",
+      "The MOVE index jumped +17.55% while the front end rallied 5bp and the long end sat still, a bear steepening that put the curve at +25bp on 2s10s.",
+      "Breadth was weak at 11 advancers versus 15 decliners, and the Russell 2000's -1.28% underperformance against the S&P's -0.76% shows small caps absorbing more of the damage.",
+      "The dollar index rose to a new high on the day while EUR/USD and AUD/USD both fell, a classic flight bid rather than a growth story."
+    ],
+    "desk_view": "The signal today was breadth of the selloff, not its depth. The S&P fell -0.76%, a move most desks would file and forget, but underneath it every credit proxy in the fact pack sold off in lockstep: LQD -1.14%, HYG -0.74%, JNK -0.78%, EMB -1.19%. That is not sector rotation. That is a bid for cash and quality showing up across the capital structure at once. The MOVE index confirms it, up +17.55% on the day, the single largest mover in the entire pack. When rates vol jumps that hard alongside credit spreads widening, the move is being priced as a funding or policy repricing, not a stock-specific event.\n\nThe level that decides whether this extends or fades is the front end. Two-year yields fell 5bp today while five, ten and thirty stayed flat, producing bear steepening at the long end against a rallying front end. That combination, front-end grab plus curve steepening, is the market pricing near-term easing risk while still demanding term premium further out. If tomorrow's session brings the ten-year higher alongside continued credit weakness, this stops being a rates story and becomes a broader deleveraging. If the ten-year holds and credit stabilizes, today reads as a single rough print, most likely tied to whatever drove MOVE and not a regime change.",
+    "watching": [
+      "Whether high yield spreads (HYG, JNK) stabilize or continue to widen in tomorrow's session.",
+      "The MOVE index: a follow-through print above today's level would confirm a rates-driven risk event rather than a one-day spike.",
+      "Small cap breadth versus large cap: Russell 2000 underperformance persisting would confirm the risk-off is broad, not narrow.",
+      "Dollar index follow-through: a push past today's high versus a fade back toward flat tells you whether this was a flight bid or a one-day flow."
+    ],
+    "equities": "The S&P 500 closed lower, down -0.76%, with the Nasdaq 100 essentially flat at -0.04% and the Dow underperforming at -1.03%. The Russell 2000 was the weakest major index at -1.28%, and that gap between small caps and the Nasdaq is the story: mega-cap tech held while everything more sensitive to funding costs and credit got sold.\n\nSector rotation confirmed a defensive tilt with a twist. Utilities fell -2.24% and real estate fell -1.76%, both rate-sensitive groups getting hit rather than bid, consistent with the MOVE spike rather than a typical flight to safety. Energy rose +0.96% and materials rose +1.15%, while communications fell -1.91% on the back of GOOGL's -3.80% single-stock move. Breadth was negative at 11 advancers to 15 decliners with a dispersion reading of 1.67, showing this was a stock-picker's tape underneath the index-level moves. The laggard list was dominated by megacaps: GOOGL, MS, ORCL, AVGO and GS all down more than 2.40%, while XOM, PFE, KO, BRK-B and META led on the upside.",
+    "rates": "The curve bear steepened. Two-year yields fell 5bp to 4.71%, while five, ten, twenty and thirty-year yields were unchanged at 4.83%, 4.96%, 5.33% and 5.29% respectively. That left 2s10s at +25bp, up 5bp on the day, and 5s30s unchanged at +46bp.\n\nThe standout print was the MOVE index, up +17.55%, the sharpest move in the entire fact pack. Rate volatility repricing on this scale, without a matching move in the long end, points to front-end uncertainty rather than a shift in the growth or inflation outlook. Breakevens actually declined a touch, with 5-year breakevens down 1bp to 2.32% and 10-year down 1bp to 2.33%, while 10-year TIPS real yields rose 1bp to 2.63%. That combination, real yields up and breakevens down, is consistent with tightening financial conditions rather than an inflation scare.",
+    "credit": "Credit sold off across every tier in the pack. Investment grade (LQD) fell -1.14%, high yield (HYG, JNK) fell -0.74% and -0.78%, EM sovereign debt (EMB) fell -1.19%, and leveraged loans (BKLN) fell -0.15%. Long Treasuries (TLT) and belly Treasuries (IEF) also fell, -1.58% and -1.05% respectively. The extremes list confirms it: US high yield, US investment grade, EM sovereign debt and long Treasuries all printed session lows. Nothing in the credit complex was bid today.",
+    "fx": "The dollar index rose +0.71% to a session high, and pulled most of G10 lower against it. EUR/USD fell -0.70% to 1.138, GBP/USD fell -0.98% to 1.324, and AUD/USD fell -1.08% to 0.704. USD/CHF rose +0.54% and printed a session high, and USD/JPY rose +0.62% to 158.35. In EM, USD/MXN rose +1.80%, USD/BRL rose +1.13%, and USD/TRY was little changed at +0.04% but sits at a session high. The dollar move looks like a flight bid layered on top of the credit and rates-vol story, not an isolated FX event.",
+    "commodities": "Gold fell -1.26% despite the risk-off tape, a sign the dollar bid dominated the safe-haven bid today. Silver fell -1.57% and platinum fell -3.66%. Industrial metals diverged: copper rose +0.39% and printed a session high even as broader risk sold off. Energy was soft, with WTI down -1.79% and Brent down -0.57%, while natural gas spiked +6.95%. In ags, sugar rose +7.05% to a session high while wheat, corn and soybeans all fell between -0.60% and -1.49%.",
+    "volatility": "Vol repriced higher across the board but the real move was in rates. VIX rose +2.09% to 15.18, still a modest level in absolute terms, and VIX9D rose +2.36% to 13.45, putting the front end of the equity vol curve in mild backwardation against VIX3M's 18.11. VVIX rose +3.30% to 88.60 while SKEW fell -3.99% to 142.19, suggesting demand for near-term protection rose more than demand for tail hedges. The outsized move was MOVE, up +17.55%, dwarfing the equity vol reaction and confirming that today's protection bid was concentrated in rates, not stocks.",
+    "digital": "Digital assets sold off in line with broader risk, not ahead of it. Bitcoin fell -2.24%, Ether fell -2.94%, Solana fell -3.72%, and XRP led declines at -5.61%. The moves track the equity and credit weakness closely enough that crypto looks like a high-beta risk asset again today, not an independent story.",
+    "international": "Asia closed higher across the board ahead of the US session: the Nikkei rose +1.38%, the Hang Seng rose +1.18%, the KOSPI rose +1.65%, and the TAIEX rose +1.14% to a session high. Europe was softer but orderly, with the EURO STOXX 50 down -0.29%, the DAX down -0.64%, and the CAC down -0.19%; the AEX was the exception, up +0.51%. The handoff to New York was constructive from Asia and neutral from Europe, which makes the US afternoon credit and rates-vol move look like a session-specific event rather than a global one.",
+    "correlation": "Today's defining feature was correlation, not divergence. Equities, high yield, investment grade, EM debt and rates vol all moved the same direction at the same time, and the risk barometer's component list shows it plainly: HYG, LQD, EMB and MOVE were the four largest negative contributors, all tied at -3.00. That kind of clustering is unusual outside of a genuine funding or policy shock, and it is the reason today's -0.76% S&P print carries more weight than the headline number alone would suggest.\n\nThe break to watch is gold's -1.26% decline against the risk-off tape. Gold normally moves opposite credit and equities in this kind of session, and instead it moved with them, likely a function of the dollar's session-high print rather than a change in the safe-haven bid. If gold stays offered while credit remains weak, it points to a dollar-liquidity story. If gold recouples with weaker credit tomorrow, today's cross-asset alignment was the more important signal and the correlation break was noise."
+  },
+  "closes": {
+    "spx": {
+      "last": 7706.03,
+      "chg": -0.756,
+      "stale": false
+    },
+    "ndx": {
+      "last": 30470.293,
+      "chg": -0.04,
+      "stale": false
+    },
+    "rut": {
+      "last": 2838.66,
+      "chg": -1.276,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6299.82,
+      "chg": -0.291,
+      "stale": false
+    },
+    "nky": {
+      "last": 65018.949,
+      "chg": 1.376,
+      "stale": true
+    },
+    "vix": {
+      "last": 15.18,
+      "chg": 2.085,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.96,
+      "chg": 0.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.138,
+      "chg": -0.7,
+      "stale": false
+    },
+    "wti": {
+      "last": 92.9,
+      "chg": -1.787,
+      "stale": false
+    },
+    "gold": {
+      "last": 4321.4,
+      "chg": -1.257,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 35919134004,
+    "artifact_id": 10775889216,
+    "created_at": "2026-09-23T20:59:04Z"
+  }
+}

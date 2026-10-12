@@ -1,0 +1,90 @@
+{
+  "date": "2026-09-16",
+  "published": true,
+  "edition": null,
+  "figure_check": "passed",
+  "note": {
+    "headline": "Dollar and yields rise together as financials and energy lead a narrow selloff",
+    "standfirst": "SPX fell 0.45% and the Dow lost 1.21% as GS, XOM and CVX led declines, while ORCL, AMD and NVDA kept the Nasdaq 100 flat at +0.03%. Positioning should treat this as a sector rotation out of financials and energy into semis, not a broad risk-off move, until credit or rate vol confirms otherwise.",
+    "takeaways": [
+      "Real yields, not inflation expectations, drove the parallel rise in the Treasury curve.",
+      "Financials and energy absorbed the day's losses while megacap tech held the index near flat.",
+      "Equity vol rose while rate vol fell, a split that points to stock-specific stress rather than a macro shock.",
+      "Credit spreads and crypto held steady through the equity weakness, offering no confirmation of broader stress."
+    ],
+    "desk_view": "The session confirms a real-yield story. The 10-year printed 5.00%, up 3bp, while the 10-year breakeven fell 5bp to 2.33 and the 10-year TIPS yield rose 2bp to 2.62. That combination, higher nominal yields on lower inflation compensation, is a real-rate move, and it showed up cleanly in equities: GS fell 3.96%, XOM fell 3.54%, CVX fell 2.86%, and XLF and XLE were the worst sectors on the day at -1.62% and -2.88%. Breadth was poor, 9 advancers against 17 decliners, but the index held near flat because ORCL, AMD and NVDA bought the dip in growth even as the rate-sensitive names sold off.\n\nWhat the session does not confirm is systemic stress. The MOVE index fell 3.56% to 80.73 even as yields rose, while the VIX rose 2.97% to 17.71. Rates markets are not pricing the same anxiety as equities. Credit stayed calm too: LQD, HYG, JNK and EMB were all higher on the day, and BTC added 0.52%. The level that decides this is 10y at 5.00%. If it holds here without credit spreads following equities lower, this stays a rotation story. If HYG or LQD start printing the same negative prints as GS and XOM, the read changes to something broader.",
+    "watching": [
+      "Whether the 10-year holds above 5.00% or fades back through it.",
+      "Follow-through in financials and banks after GS's 3.96% drop.",
+      "Whether MOVE stays decoupled from VIX or catches up to the equity vol move.",
+      "Oil's reaction after WTI broke 3.60% lower through 102."
+    ],
+    "equities": "The tape was split by cap and sector, not uniformly weak. SPX fell 0.45% to 7,551.81, the Dow fell 1.21% to 51,461.90, the Russell fell 0.40%, and the NYSE Composite fell 0.81%, while the Nasdaq 100 was flat at +0.03%. That gap is the story: mega-cap tech absorbed the selling that hit the rest of the market.\n\nSector rotation was clean. XLE fell 2.88% and XLF fell 1.62%, the two worst sectors, while XLK rose 0.10% and XLV rose 0.07%, the only sectors positive besides an unchanged XLU. Breadth was 9 advancers against 17 decliners, a 0.53 ratio, with dispersion at 1.48. That is a market being pulled apart by single names: GS at -3.96% on one end, ORCL at +2.00% on the other.",
+    "rates": "The curve moved in a parallel shift higher, up 2 to 3bp across most tenors: 2-year +2bp to 4.67%, 5-year +3bp to 4.83%, 10-year +3bp to 5.00%, 30-year +2bp to 5.36%. The shape barely changed: 2s10s widened 1bp to 33bp, 5s30s compressed 1bp to 53bp, and 3m10y widened 3bp to 89bp.\n\nThe composition of the move matters more than its size. Breakevens fell across the curve, 5-year down 6bp to 2.35%, 10-year down 5bp to 2.33%, 5y5y forward down 4bp to 2.31%, while the 10-year real yield rose 2bp to 2.62%. Real yields did the work, not inflation expectations. The MOVE index fell 3.56% to 80.73 on the day, so the rates market priced this as an orderly repricing, not a shock.",
+    "credit": "Credit had a quiet, slightly firm day: LQD rose 0.16%, HYG rose 0.05%, JNK rose 0.10%, EMB rose 0.08%, and TLT rose 0.21%, none of it confirming the equity weakness in financials and energy. The extremes list still shows US investment grade, US high yield, EM sovereign USD and long Treasuries sitting at lows, a reminder that today's small gains sit on top of a year of price erosion, LQD is down 5.18% year to date, HYG down 2.79%, EMB down 3.36%, TLT down 7.07%. The tone is steady, not stressed, but the trend underneath the daily print is still negative.",
+    "fx": "The dollar was bid broadly. DXY rose 0.67% to 100.31, with EUR/USD down 0.71% to 1.147, GBP/USD down 0.90% to 1.338, and USD/CHF up 0.96% to a session high of 0.825. USD/JPY rose 1.18% to 156.204. EM currencies sold off in sympathy: USD/MXN rose 0.66%, USD/BRL rose 0.22%, and USD/TRY rose 0.08% to a fresh high near 48.66. This was a dollar day against G10 and EM alike, not a single-pair story.",
+    "commodities": "Energy took the largest hit of the session: WTI fell 3.60% to 102.02 and Brent fell 2.90% to 105.60, matching the move in XLE. Gold fell 0.70% to 4,302.50 even as silver rose 0.29% to 63.42, a split between the two metals. Industrial metals firmed, copper up 1.15% and aluminium up 1.01%, arguing against a pure growth-scare read on the oil move. Ags were mixed, with sugar up 5.46% to a fresh high and coffee down 6.64%.",
+    "volatility": "The surface split by asset class. VIX rose 2.97% to 17.71 and VVIX rose 0.53% to 95.41, so equity protection got more expensive, while SKEW eased 0.45% to 145.95, meaning the demand was for near-dated cover, not tail risk. MOVE fell 3.56% to 80.73, cheapening the cost of rate protection on the same day yields rose 3bp on the 10-year. Protection in equities costs more today. Protection in rates costs less.",
+    "digital": "Bitcoin rose 0.52% to 76,002.36, Ether rose 0.20%, Solana rose 1.46%, and XRP rose 0.53%. All four traded away from the day's dollar strength and equity weakness, showing low beta to the session's risk-off pockets in financials and energy.",
+    "international": "Europe closed before the US turn and finished higher across the board: EURO STOXX 50 rose 0.48%, DAX rose 0.53%, CAC rose 0.62%, FTSE rose 0.29%, and the FTSE MIB led with a 0.80% gain. Asia handed over a softer tape: Hang Seng fell 1.01%, KOSPI fell 0.85%, Sensex fell 1.04%, and the ASX fell 0.89%, with the Nikkei flat at -0.01%. The handoff to New York was a firm Europe against a soft Asia, consistent with the dollar bid that ran through the session.",
+    "correlation": "The standard risk-off correlation, dollar up, yields up, equities down, credit down, mostly held on the dollar and equity legs but broke on credit and rate vol. HYG, LQD and EMB all rose while SPX fell, and MOVE fell while VIX rose. The risk barometer sits at 0.17, labeled neutral, with USD/JPY the largest single positive contribution at 2.67 and DXY the largest negative at -2.3, a sign the barometer is reading currency divergence more than a coordinated risk move.\n\nA break in these correlations would matter more than a continuation of them. If credit begins to price the same stress as GS and XOM, or if MOVE catches up to the VIX move, the story stops being a rotation out of financials and energy and starts being a broader repricing. Until then, the equity weakness looks contained to the sectors carrying it."
+  },
+  "closes": {
+    "spx": {
+      "last": 7551.81,
+      "chg": -0.447,
+      "stale": false
+    },
+    "ndx": {
+      "last": 28945.061,
+      "chg": 0.025,
+      "stale": false
+    },
+    "rut": {
+      "last": 2858.811,
+      "chg": -0.4,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6266.5,
+      "chg": 0.481,
+      "stale": false
+    },
+    "nky": {
+      "last": 63484.102,
+      "chg": -0.014,
+      "stale": true
+    },
+    "vix": {
+      "last": 17.71,
+      "chg": 2.965,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.0,
+      "chg": 3.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.147,
+      "chg": -0.71,
+      "stale": false
+    },
+    "wti": {
+      "last": 102.02,
+      "chg": -3.6,
+      "stale": false
+    },
+    "gold": {
+      "last": 4302.5,
+      "chg": -0.699,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 35153186436,
+    "artifact_id": 10469952113,
+    "created_at": "2026-09-16T21:39:44Z"
+  }
+}

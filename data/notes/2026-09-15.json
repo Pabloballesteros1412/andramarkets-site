@@ -1,0 +1,85 @@
+{
+  "date": "2026-09-15",
+  "published": true,
+  "edition": null,
+  "figure_check": "passed",
+  "note": {
+    "headline": "Energy Surge Masks Broad Risk-Off As Crypto And Small Caps Slide",
+    "standfirst": "Energy and materials rallied on a sharp commodity spike while breadth turned negative across the broader tape, credit softened and crypto sold off hard. Positioning into the next session hinges on whether the commodity bid is a growth signal or an inflation shock, a distinction the bond market has not yet resolved.",
+    "takeaways": [
+      "Energy and materials led on a commodity spike while 17 of 26 tracked sectors and indices declined and the S&P 500 fell -0.45%.",
+      "Crypto was the single largest drag on the risk barometer, with Bitcoin down -3.02% and XRP down -9.06%.",
+      "Credit softened at the margin, with high yield, investment grade and EM sovereign debt all lower alongside a modestly flattening Treasury curve.",
+      "The dollar firmed against"
+    ],
+    "desk_view": "",
+    "watching": [],
+    "equities": "",
+    "rates": "",
+    "credit": "",
+    "fx": "",
+    "commodities": "",
+    "volatility": "",
+    "digital": "",
+    "international": "",
+    "correlation": ""
+  },
+  "closes": {
+    "spx": {
+      "last": 7585.73,
+      "chg": -0.449,
+      "stale": false
+    },
+    "ndx": {
+      "last": 28937.838,
+      "chg": -0.65,
+      "stale": false
+    },
+    "rut": {
+      "last": 2870.285,
+      "chg": -0.759,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6236.5,
+      "chg": -0.381,
+      "stale": false
+    },
+    "nky": {
+      "last": 63492.988,
+      "chg": -0.81,
+      "stale": true
+    },
+    "vix": {
+      "last": 17.2,
+      "chg": 0.585,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.97,
+      "chg": 1.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.154,
+      "chg": -0.482,
+      "stale": false
+    },
+    "wti": {
+      "last": 105.48,
+      "chg": 4.034,
+      "stale": false
+    },
+    "gold": {
+      "last": 4333.4,
+      "chg": -0.425,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 35024612239,
+    "artifact_id": 10418739472,
+    "created_at": "2026-09-15T21:20:12Z"
+  }
+}

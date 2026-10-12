@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-01",
+  "published": true,
+  "edition": null,
+  "figure_check": "passed",
+  "note": {
+    "headline": "Stocks grind higher as credit and the dollar quietly diverge",
+    "standfirst": "The S&P 500 closed at a record with breadth barely positive while high yield, investment grade, and EM debt all fell to session lows. Positioning should respect the equity tape less than usual here, the cracks are underneath it.",
+    "takeaways": [
+      "Equity indices closed higher but breadth was close to flat, with advancers barely outnumbering decliners.",
+      "Credit sold off across the board: LQD, HYG, JNK and EMB all made session lows alongside a firmer dollar.",
+      "The Treasury curve bear steepened, with 2s10s widening 4bp as the long end sold off more than the front.",
+      "The dollar index hit a session high even as equities rose, a combination the risk barometer scores as neutral, not risk-on."
+    ],
+    "desk_view": "The headline print says risk-on: S&P 500 +0.19%, Nasdaq 100 +0.31%, Russell 2000 +0.35%, all green. Underneath that, the session confirms nothing clean. Breadth was 12 advancers to 11 decliners, dispersion sat at 1.16, and the risk barometer scored -0.30, neutral. Credit did not participate. HYG, JNK, LQD and EMB all printed on the lows list for the day. A dollar index at a session high while high yield sells off is not a combination you want to build conviction on. It is a market where index levels and cross-asset health are telling different stories.\n\nThe level that decides it is credit, not the S&P. If HYG and LQD stabilize while equities hold near 7,666, the index gain gets validated by a market that believes it. If spreads keep widening into a steeper curve, the equity record becomes a narrow, mega-cap story riding XLK's +1.05% day while health care, communications and real estate all closed red. The 2s10s move to 41bp on a bear steepener, with the 30-year up 5bp to 5.64%, is the long end pricing something term premium related. Watch whether that spreads to credit tomorrow or stays contained to the rates desk.",
+    "watching": [
+      "Whether HYG and LQD stabilize or extend the move lower into a weaker tape.",
+      "Whether the bear steepener persists, with 30-year yield levels decide if duration selling spreads to curve.",
+      "Dollar index follow-through above 102.03, and whether EUR/USD holds above 1.125.",
+      "Breadth confirmation: another day of advancers roughly matching decliners would validate a narrow, cap-weighted rally."
+    ],
+    "equities": "The S&P 500 closed at 7,666.45, up 0.19%, with the Nasdaq 100 outperforming at +0.31% and the Russell 2000 up 0.35%. The Dow lagged at +0.04%, mid-caps led the tape at +1.03%. Index gains masked a market that was not uniformly bought: breadth was 12 advancers against 11 decliners, with a ratio of 1.09 and dispersion of 1.16, consistent with a stock-picker's session rather than a broad rally.\n\nSector rotation favored cyclicals and energy over defensives and communications. XLE rose 1.95%, XLI gained 0.99%, XLK added 1.05%. XLV fell 1.32%, XLC gave back 0.93%, and XLRE lost 0.56%. The single-name tape told a similar story: CRM led gainers at +3.10%, CVX and NVDA followed, while NFLX fell 2.49% and AVGO dropped 2.15%. The split between energy and tech leadership against health care and communications weakness looks like rotation within the rally, not confirmation of it.",
+    "rates": "The curve bear steepened. 2s10s widened 4bp to 41bp, 3m10y widened 8bp to 109bp, and 5s30s added 2bp to 55bp. The move was concentrated at the long end: 30-year yields rose 5bp to 5.64%, 10-year rose 3bp to 5.29%, while 2-year yields fell 1bp to 4.88%. Front-end bills eased too, with 3-month down 5bp and 6-month down 3bp.\n\nReal yields rose alongside nominals, with the 10-year TIPS yield up 2bp to 2.93%. Breakevens were unchanged across the curve: 5-year, 10-year, and 5y5y forward all held at 2.36%. That combination, flat breakevens with real yields higher, points to a term premium or supply story at the long end rather than an inflation repricing. The MOVE index fell 2.11 points to 108.13, which is a touch of calm in rates vol even as the long end sold off on a cash basis.",
+    "credit": "Credit was the weak link in an otherwise green session. LQD fell 0.15%, HYG fell 0.40% and JNK fell 0.49%, with high yield making both the HYG and JNK lows lists for the day. EMB fell 0.64% to a session low, the steepest move in the credit complex. Leveraged loans were the exception, up 0.15%, suggesting the sell pressure concentrated in liquid beta rather than floating-rate credit. The tone is one of quiet distribution, not panic, but it is broad enough across IG, HY and EM sovereign to be worth tracking into tomorrow's open.",
+    "fx": "The dollar index rose 0.57% to 102.03, a session high, and pulled most G10 crosses against it. EUR/USD fell 0.80% to 1.125, a session low, GBP/USD fell 0.27% to 1.320, and AUD/USD dropped 0.81% to 0.693. USD/CHF and USD/CAD both printed dollar strength, up 0.19% and down 0.50% respectively on the dollar leg. USD/JPY rose 0.42% to 158.06, extending a persistent yen weakness that shows up as the single largest positive contributor to the risk barometer. In EM, USD/TRY and USD/MXN both rose, up 0.10% and 1.37%, with USD/BRL adding 0.36%. The dollar's broad bid against a backdrop of rising equities is the session's clearest cross-asset tension.",
+    "commodities": "Energy was mixed: WTI rose 2.75% to 92.91 while Brent fell 1.28% to 102.21, a divergence worth flagging rather than explaining from this data. Natural gas fell 2.51%. Precious metals firmed, with gold up 0.50% to 4,207.80 and silver up 2.08% to 61.35, platinum up 1.81%. Palladium was the outlier, down 1.16%. Copper rose 0.27% to 6.576, holding its uptrend. In ags, sugar jumped 7.54%, a session high for the complex, while wheat and corn posted modest gains and soybeans slipped 0.75%.",
+    "volatility": "VIX rose 0.31% to 16.39, still a low-vol print in absolute terms, while VIX3M rose further to 18.58, steepening the front of the curve slightly. VIX9D fell 1.41% to 14.00, so the very front end eased even as term vol firmed. VVIX rose 2.83% to 92.01 and SKEW ticked up to 142.77. The combination, a calm spot VIX with rising VVIX and a steeper 9-day to 3-month curve, reads as modest demand for medium-dated protection rather than any front-end stress.",
+    "digital": "Bitcoin rose 1.23% to 84,583.88, outperforming most of the traditional risk complex on the day and contributing the second-largest positive score to the risk barometer after USD/JPY. Ether rose 0.37% and XRP added 0.39%, while Solana was flat to slightly lower at -0.10%. Digital assets traded with a risk-on beta today even as credit sold off, another instance of the day's cross-asset disagreement.",
+    "international": "European markets closed broadly lower ahead of the US session, with the EURO STOXX 50 down 1.49%, the CAC down 1.62%, and the FTSE MIB down 2.21%, the weakest of the major bourses. The IBEX fell 2.17% and the FTSE 100 dropped 1.68%, a uniformly red session across the region. Asia was mixed heading into New York: the Nikkei rose 1.94% to a fresh high and the TAIEX added 0.65%, while the KOSPI slipped 0.48% and the Sensex was roughly flat. The handoff to New York was a weak Europe and a firm Japan, and US equities chose to follow neither closely, trading on their own narrow, mega-cap-led path.",
+    "correlation": "The session's defining feature is a correlation breakdown between equities and credit. Equities rose, credit spreads widened, and the dollar strengthened, a combination that does not fit the standard risk-on or risk-off template. The risk barometer captures this directly: its largest negative contributors were DXY, EMB and HYG, while its largest positive contributors were BTC, USDJPY and MOVE, a scattered mix that nets out to a neutral -0.30 score rather than a clean read in either direction.\n\nA break in this divergence would matter more than the divergence itself. If credit stabilizes while the dollar holds its bid, the equity rally gets a cleaner bill of health. If instead equities start trading down with HYG and EMB, the correlation reasserts itself the hard way and the mega-cap, low-breadth rally loses its main support. Either resolution is more informative than today's print, which mostly says the asset classes are not listening to each other yet."
+  },
+  "closes": {
+    "spx": {
+      "last": 7666.45,
+      "chg": 0.195,
+      "stale": false
+    },
+    "ndx": {
+      "last": 30501.561,
+      "chg": 0.306,
+      "stale": false
+    },
+    "rut": {
+      "last": 2806.625,
+      "chg": 0.349,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6175.45,
+      "chg": -1.493,
+      "stale": false
+    },
+    "nky": {
+      "last": 66753.719,
+      "chg": 1.943,
+      "stale": true
+    },
+    "vix": {
+      "last": 16.39,
+      "chg": 0.306,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.29,
+      "chg": 3.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.125,
+      "chg": -0.802,
+      "stale": false
+    },
+    "wti": {
+      "last": 92.91,
+      "chg": 2.754,
+      "stale": false
+    },
+    "gold": {
+      "last": 4207.8,
+      "chg": 0.504,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 36927759135,
+    "artifact_id": 11194174045,
+    "created_at": "2026-10-01T21:20:38Z"
+  }
+}

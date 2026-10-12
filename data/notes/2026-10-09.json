@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-09",
+  "published": true,
+  "edition": null,
+  "figure_check": "passed",
+  "note": {
+    "headline": "Stocks rise and yields fall together as curve bull-flattens, breadth confirms",
+    "standfirst": "The S&P closed at a fresh high while the 10-year yield fell 6bp, a combination that argues the rally has duration support rather than just a short squeeze. Breadth confirmed the move, with advancers outpacing decliners better than three to one.",
+    "takeaways": [
+      "The S&P and the 10-year yield moved in the same direction, equities up and yields down, which is the cleaner signal of the day.",
+      "Breadth confirmed the index gain: 20 advancers against 6 decliners, ratio 3.33.",
+      "Copper rose 2.95% and led every component in the risk barometer, pointing to a commodity bid that sits oddly against falling yields.",
+      "Volatility compressed hard across tenors, with VIX down 3.70% and VIX9D down 7.78%, leaving the curve inverted toward calm."
+    ],
+    "desk_view": "The session confirms a market willing to buy duration and risk at the same time. The 2s10s curve flattened 4bp to 47bp, the 5s30s flattened 3bp to 61bp, and every point on the Treasury curve from 2-year to 30-year richened. That is not a rates selloff repricing growth down, and it is not a flight to safety either, because the S&P printed a new high alongside it. The level that decides whether this holds is the 10-year yield, now at 5.22%. A break back above the recent range on the next auction or data print would force equities to answer whether the rally was built on falling yields or on earnings momentum from names like ORCL and AMZN.\n\nThe other tension is gold up 1.52% and copper up 2.95% on the same day the dollar index also closed at a high, up 0.09%. Gold and the dollar rising together is unusual, and copper's size of move, the single largest contributor to the risk barometer at +2.18, suggests a growth or inflation story in industrial metals that isn't fully showing up in breakevens, which fell across the curve. Watch whether commodity strength is a standalone supply story or whether it starts to bleed into the breakeven complex. Right now it hasn't, and that gap is worth tracking into next week.",
+    "watching": [
+      "Whether the 10-year yield holds below 5.22% or reverses on the next data point.",
+      "Whether copper's move is confirmed or faded, given its outsized pull on the risk barometer.",
+      "Communications services, the only sector in the red today at -1.51%, and whether that is Netflix-specific or broader.",
+      "VIX term structure, now compressed, for signs of re-steepening if equities give back today's gain."
+    ],
+    "equities": "The S&P closed up 0.60% at a fresh high, alongside the Nasdaq 100's 0.51% gain and the Dow's 0.83% gain. The Russell 2000 added 0.46% and the MidCap index rose 0.53%, so the advance wasn't confined to mega-cap. Breadth backed it: 20 advancers to 6 decliners, a 3.33 ratio, with dispersion at 1.45 suggesting the gains were fairly broad rather than concentrated in a handful of names.\n\nSector rotation favored health care (+1.58%) and real estate (+1.86%) over communications services, the lone sector decliner at -1.51%. Financials rose 0.92% and consumer discretionary gained 1.02%. At the stock level, ORCL led at +4.21%, followed by AMZN at +3.29%, V at +2.76%, and MSFT at +2.38%. AMD lagged at -2.03%, with NFLX down 1.77% and AAPL down 1.11%, both likely weighing on the communications and tech complex even as the sector indices they sit in posted gains elsewhere.",
+    "rates": "The curve bull-flattened. 2s10s came in 4bp to 47bp, 5s30s came in 3bp to 61bp, and 3m10y narrowed 7bp to 99bp. Every tenor from the 2-year to the 30-year fell in yield: the 2-year down 2bp to 4.75%, the 5-year down 4bp to 4.99%, the 10-year down 6bp to 5.22%, and the 30-year down 7bp to 5.60%. The long end led the move, consistent with duration demand rather than a front-end repricing of policy expectations.\n\nBreakevens fell alongside nominal yields. The 5-year breakeven dropped 3bp to 2.34%, the 10-year breakeven fell 2bp to 2.33%, and the 5y5y forward eased 1bp to 2.32%. Real yields did the heavy lifting: the 10-year TIPS yield fell 5bp to 2.87%. That combination, nominal yields down and breakevens down, points to a real-rate driven rally rather than an inflation scare easing.",
+    "credit": "Credit was mixed but leaned constructive. High yield, as tracked by HYG, rose 0.12% even as it closed at a new low on the year, a reminder that the YTD drawdown of -4.26% remains deep. EM sovereign debt, EMB, gained 0.23% and leveraged loans, BKLN, fell 0.10%. Investment grade, LQD, slipped 0.06%, lagging the high yield bid. The tone was one of modest risk-seeking within credit rather than a broad-based rally.",
+    "fx": "The dollar index rose 0.09% to a fresh high, a gain that sat alongside strength in several of its crosses rather than broad dollar demand. USD/CAD and USD/INR both closed at highs, while EUR/USD closed at a low despite rising 0.04% on the day to 1.121. GBP/USD gained 0.14% to 1.323. In EM, USD/MXN jumped 2.14% to 18.36, while USD/BRL fell 0.53% and USD/TRY eased 0.11%, a split tape rather than a uniform EM move.",
+    "commodities": "Metals led. Platinum rose 4.29%, silver gained 3.46%, copper rose 2.95%, and palladium added 3.15%, a broad industrial and precious metals bid that stood out against a firmer dollar. Gold rose 1.52%. Energy was muted by comparison: WTI added 0.19% and Brent gained 0.14%. Natural gas rose 1.14%. Grains diverged, with corn down 3.95% and wheat down 1.83%, while soybeans edged up 0.37%.",
+    "volatility": "The vol surface compressed across the curve. VIX fell 3.70%, VIX9D dropped 7.78%, and VIX3M eased 1.72%, steepening the front end's discount to longer-dated vol. VVIX fell 3.17%, consistent with lower demand for vol-of-vol protection. SKEW rose 3.45%, so while the cost of near-dated protection fell, the market paid up slightly for tail hedges. MOVE, the rates vol gauge, fell 2.21%, aligning with the calmer tone in Treasuries.",
+    "digital": "Bitcoin rose 1.01%, a gain that tracked the broader risk tone without leading it. Ether added 0.38% and XRP rose 0.96%, while Solana slipped 0.34%. The moves were modest relative to the swings in metals or single stocks, suggesting digital assets traded as a secondary beta to the equity and rates move rather than a standalone catalyst.",
+    "international": "European markets closed broadly higher ahead of the US session, with the DAX up 1.13%, the FTSE up 1.06%, and the CAC up 0.95%. Asia told a different story: the Nikkei fell 1.42%, the Hang Seng fell 1.43%, the KOSPI dropped 2.62%, and the SENSEX fell 1.44% to a fresh low. New York inherited a weak Asia handoff and a firm Europe handoff, and chose to follow Europe, extending gains through the US afternoon.",
+    "correlation": "The session's defining feature is equities and duration rallying together, a pattern that only holds when the market reads falling yields as supportive of growth rather than as a recession signal. That read is backed by copper's 2.95% gain and broad metals strength, which argue against a demand-destruction story. If that correlation breaks, meaning yields keep falling while equities stall, it would flag that the rates move has shifted from a tailwind to a warning.\n\nThe second correlation worth flagging is gold and the dollar rising together, both printing gains with the dollar index at a fresh high. That pairing is less common and suggests specific flows into gold, possibly hedging demand, that aren't simply inverse to the greenback. A continuation of this pattern into next week, dollar strength with gold strength, would mean commodity moves are being driven by something other than standard FX accounting and deserves closer tracking against breakevens, which did not confirm the move."
+  },
+  "closes": {
+    "spx": {
+      "last": 7811.54,
+      "chg": 0.595,
+      "stale": false
+    },
+    "ndx": {
+      "last": 30883.148,
+      "chg": 0.512,
+      "stale": false
+    },
+    "rut": {
+      "last": 2806.981,
+      "chg": 0.46,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6173.37,
+      "chg": 0.761,
+      "stale": false
+    },
+    "nky": {
+      "last": 69042.109,
+      "chg": -1.419,
+      "stale": true
+    },
+    "vix": {
+      "last": 14.84,
+      "chg": -3.699,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.22,
+      "chg": -6.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.121,
+      "chg": 0.039,
+      "stale": false
+    },
+    "wti": {
+      "last": 91.66,
+      "chg": 0.186,
+      "stale": false
+    },
+    "gold": {
+      "last": 4220.3,
+      "chg": 1.523,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 37993256842,
+    "artifact_id": 11645604264,
+    "created_at": "2026-10-09T21:27:46Z"
+  }
+}

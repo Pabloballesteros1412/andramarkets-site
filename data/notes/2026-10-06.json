@@ -1,0 +1,90 @@
+{
+  "date": "2026-10-06",
+  "published": true,
+  "edition": null,
+  "figure_check": "passed",
+  "note": {
+    "headline": "Stocks grind to a high while bonds sell off and nobody blinks",
+    "standfirst": "The S&P 500 and Nasdaq 100 closed at fresh highs even as the long end of the curve sold off for a third straight session. Equity risk appetite and rate risk are pricing two different stories, and the gap is widening, not closing.",
+    "takeaways": [
+      "Breadth was strong with 21 advancers against 5 decliners, but small caps diverged lower while mega-cap tech led.",
+      "The curve bear steepened again, with 10s up 3bp and 30s up 3bp while 2s were flatter, pushing 2s10s to 47bp.",
+      "Credit and the dollar both firmed, with the risk barometer at 0.71 driven mostly by HYG, EMB, DXY and MOVE contributions.",
+      "Gold and bitcoin fell alongside a weaker VIX, an unusual pairing that suggests a rotation out of hedges rather than genuine risk-seeking."
+    ],
+    "desk_view": "The session confirms that equity investors are not pricing the bond selloff as a threat. The S&P 500 closed at +0.58%, and the Nasdaq 100 at +0.48%, both at highs on the extremes list alongside the dollar index. That is a market telling you higher long rates are a growth story, not a funding problem, at least for now. The level that decides whether this holds is the 10-year yield at 5.31%, up 3bp today and part of a steepening move that has now pushed 30s to 5.66%. If that yield keeps grinding higher without equities stalling, the read is durable. If equities stall first, the read was wrong.\n\nWhat contradicts the constructive tape is the Russell 2000, down 0.59% while every other major index rose, and the single largest negative contributor to the risk barometer. Small caps carry more floating-rate and refinancing exposure than the mega-caps driving the index highs, so a falling Russell against a rising 10-year yield is the one piece of evidence that higher rates are starting to bite somewhere. Watch whether that divergence widens. A Russell that keeps falling while AVGO, AMD and the rest of the leaders list keep rising is not broad risk appetite, it is a narrow one wearing a broad index's clothes.",
+    "watching": [
+      "Whether the 10-year yield holds above 5.30% without further equity upside stalling.",
+      "Russell 2000 relative performance against the S&P 500, the one clean divergence in today's tape.",
+      "Treasury auction demand given the MOVE index fell 7.39% but yields still rose across the curve.",
+      "Dollar index follow-through after a session at highs alongside EUR/USD also firmer, an unusual pair to watch unwind."
+    ],
+    "equities": "The S&P 500 (+0.58%), Nasdaq 100 (+0.48%) and Dow (+0.49%) all closed at or near highs, with breadth strongly positive at 21 advancers to 5 decliners. The Russell 2000 was the exception, down 0.59% and the single biggest negative driver in the risk barometer, pointing to a market that bought large caps and sold small caps on the same day rates rose.\n\nSector rotation favored defensives and cyclicals together, an odd combination. Utilities led at +2.98%, consumer discretionary rose 1.18% and real estate added 1.06%, while health care was the only sector in the red at -0.17% and communications was flat at +0.04%. Technology added 0.53% with AVGO (+3.67%) and AMD (+2.80%) the standout leaders, while CRM fell 2.09% as the clearest single-name laggard. Dispersion ran at 1.17, consistent with a session where the average stock participated but a handful of names did the heavy lifting.",
+    "rates": "The curve bear steepened for a second consecutive look, with 2s10s widening 2bp to 47bp and 5s30s widening 3bp to 60bp. The 10-year yield rose 3bp to 5.31%, the 30-year rose 3bp to 5.66%, while the 2-year was roughly flat at 4.84% and the 5-year unchanged at 5.06%. Long Treasuries and 7-10 year Treasuries both sit on the lows list, confirming the long end absorbed the selling.\n\nBreakevens were mixed and small: the 5-year breakeven rose 1bp to 2.37%, the 10-year was flat at 2.36%, and the 5y5y forward slipped 1bp to 2.35%. Real yields did the work instead, with 10-year TIPS up 3bp to 2.95%, consistent with a selloff driven by term premium or growth expectations rather than inflation repricing. The MOVE index fell 7.39% to 105.2 even as yields rose, a combination that argues the move was orderly rather than disorderly.",
+    "credit": "Credit traded firm across the board, with LQD up 0.30%, HYG up 0.38% and EMB up 0.68%, all contributing positively to the risk barometer and EMB the single largest positive driver at 1.92. That is credit spreads tightening into a rate selloff, the opposite of a flight-to-quality signal. Leveraged loans added 0.15%. Nothing in primary this session, but the tone across IG, high yield and EM sovereign paper was uniformly constructive.",
+    "fx": "The dollar index rose to a high close, up 0.31% on the session, even as EUR/USD also gained 0.05% to 1.126, a pairing that does not fit a clean dollar-strength narrative. USD/JPY rose 0.24% to 158.12 and sits on the highs list. USD/CAD fell 0.33% to 1.421 while USD/TRY ground higher to another high at 49.172. USD/BRL fell 4.65% to 4.98, the standout EM move of the session. USD/MXN fell 1.14%.",
+    "commodities": "Crude held a bid, with WTI up 0.54% to 89.91 and Brent up 0.83% to 101.15. Gold rose 0.86% even as it registered as a negative contributor to the risk barometer, a sign the move was modest relative to its own range rather than a flight to safety. Silver added 1.37% and copper rose 1.12% to 6.66, copper's gain reading as a genuine cyclical signal given its positive barometer contribution. Grains were firm across the board, with corn up 2.26%, soybeans up 1.87% and wheat up 1.77%.",
+    "volatility": "Vol compressed hard into the equity highs. VIX fell 3.29% to 15.01, VIX9D fell 6.38% to 12.03, and VVIX fell 3.36% to 82.59. SKEW eased 1.28% to 141.21. The term structure between VIX9D and VIX3M (17.64) remains in contango, consistent with a market pricing calm near-term and some premium further out. Protection is cheap here by the numbers, with the MOVE index's 7.39% drop the larger story given it came alongside rising yields.",
+    "digital": "Digital assets sold off modestly while equities and credit firmed, a clean beta breakdown. Bitcoin fell 0.32%, Ether fell 0.55%, Solana was roughly flat at -0.01% and XRP fell 0.46%. All four contributed negatively to the risk barometer, with bitcoin the smallest drag. The asset class is not confirming the risk-on tape elsewhere.",
+    "international": "Asia closed broadly higher and handed New York a constructive setup, led by the Nikkei 225 up 2.40% and TAIEX up 2.55%, both on the highs list. Hang Seng added 0.28%, KOSPI rose 0.47% and the ASX 200 gained 0.57%. Europe followed through, with the DAX up 0.77%, FTSE MIB up 0.87% and EURO STOXX 50 up 0.48%, the AEX closing at a high. The global tape into the US open was uniformly positive, with no major index lower.",
+    "correlation": "The standout break today is equities and small caps decoupling from each other while equities and credit moved in the same direction. Large-cap indices, high yield and EM sovereign debt all rose together, the classic risk-on correlation, but the Russell 2000 fell on the same day, meaning the correlation held for credit and large-cap beta while failing for the broader domestic cyclical complex. That is a specific break, not a general one.\n\nThe second break is gold and bitcoin both falling while equities rose, decoupling the traditional hedge pair from risk assets in the same direction rather than the usual inverse. If that gap closes with gold and bitcoin catching a bid while equities hold, it would read as genuine hedging demand returning. If it closes with equities giving back the day's gains instead, the hedges will have been right and early."
+  },
+  "closes": {
+    "spx": {
+      "last": 7818.93,
+      "chg": 0.579,
+      "stale": false
+    },
+    "ndx": {
+      "last": 31224.473,
+      "chg": 0.476,
+      "stale": false
+    },
+    "rut": {
+      "last": 2830.297,
+      "chg": -0.592,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6272.23,
+      "chg": 0.482,
+      "stale": false
+    },
+    "nky": {
+      "last": 69946.859,
+      "chg": 2.397,
+      "stale": true
+    },
+    "vix": {
+      "last": 15.01,
+      "chg": -3.286,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 5.31,
+      "chg": 3.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.126,
+      "chg": 0.048,
+      "stale": false
+    },
+    "wti": {
+      "last": 89.91,
+      "chg": 0.537,
+      "stale": false
+    },
+    "gold": {
+      "last": 4192.7,
+      "chg": 0.864,
+      "stale": false
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 37532845386,
+    "artifact_id": 11445431632,
+    "created_at": "2026-10-06T21:20:18Z"
+  }
+}

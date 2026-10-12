@@ -1,0 +1,456 @@
+{
+  "artifacts": {
+    "10080249728": {
+      "created_at": "2026-09-08T22:53:20Z",
+      "reason": "the artifact has no note file",
+      "run_id": 34287405560,
+      "status": "rejected"
+    },
+    "10127390716": {
+      "created_at": "2026-09-09T22:17:49Z",
+      "reason": "the artifact has no note file",
+      "run_id": 34410617039,
+      "status": "rejected"
+    },
+    "10128186306": {
+      "created_at": "2026-09-09T22:43:39Z",
+      "reason": "the artifact has no note file",
+      "run_id": 34413095043,
+      "status": "rejected"
+    },
+    "10176232595": {
+      "created_at": "2026-09-10T22:36:08Z",
+      "reason": "the artifact has no note file",
+      "run_id": 34537600553,
+      "status": "rejected"
+    },
+    "10282259773": {
+      "created_at": "2026-09-11T21:24:59Z",
+      "reason": "the artifact has no note file",
+      "run_id": 34648426208,
+      "status": "rejected"
+    },
+    "10374250938": {
+      "created_at": "2026-09-14T23:38:00Z",
+      "reason": "the artifact has no note file",
+      "run_id": 34909074715,
+      "status": "rejected"
+    },
+    "10418739472": {
+      "created_at": "2026-09-15T21:20:12Z",
+      "date": "2026-09-15",
+      "run_id": 35024612239,
+      "status": "published"
+    },
+    "10420270967": {
+      "created_at": "2026-09-15T21:46:07Z",
+      "date": "2026-09-15",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/5",
+      "reasons": [
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 35026847006,
+      "status": "held"
+    },
+    "10469952113": {
+      "created_at": "2026-09-16T21:39:44Z",
+      "date": "2026-09-16",
+      "run_id": 35153186436,
+      "status": "published"
+    },
+    "10522208135": {
+      "created_at": "2026-09-17T22:12:17Z",
+      "date": "2026-09-17",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/6",
+      "reasons": [
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 35279900498,
+      "status": "held"
+    },
+    "10567059193": {
+      "created_at": "2026-09-18T21:20:10Z",
+      "date": "2026-09-18",
+      "run_id": 35395389684,
+      "status": "published"
+    },
+    "10570084861": {
+      "created_at": "2026-09-18T22:12:59Z",
+      "date": "2026-09-18",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/7",
+      "reasons": [
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 35400256673,
+      "status": "held"
+    },
+    "10668480924": {
+      "created_at": "2026-09-21T22:29:10Z",
+      "date": "2026-09-21",
+      "run_id": 35662582866,
+      "status": "published"
+    },
+    "10723725776": {
+      "created_at": "2026-09-22T22:48:46Z",
+      "date": "2026-09-22",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/8",
+      "reasons": [
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 35794037679,
+      "status": "held"
+    },
+    "10775889216": {
+      "created_at": "2026-09-23T20:59:04Z",
+      "date": "2026-09-23",
+      "run_id": 35919134004,
+      "status": "published"
+    },
+    "10839396825": {
+      "created_at": "2026-09-24T23:45:13Z",
+      "date": "2026-09-24",
+      "run_id": 36074066296,
+      "status": "published"
+    },
+    "10887308372": {
+      "created_at": "2026-09-25T20:56:10Z",
+      "date": "2026-09-25",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/9",
+      "reasons": [
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 36188375899,
+      "status": "held"
+    },
+    "10916049501": {
+      "created_at": "2026-09-26T21:42:03Z",
+      "date": "2026-09-26",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/10",
+      "reasons": [
+        "Saturday 26 September 2026 was not an NYSE trading day.",
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 36273633718,
+      "status": "held"
+    },
+    "10942512735": {
+      "created_at": "2026-09-27T21:40:33Z",
+      "date": "2026-09-27",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/11",
+      "reasons": [
+        "Sunday 27 September 2026 was not an NYSE trading day.",
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 36352393921,
+      "status": "held"
+    },
+    "11001299113": {
+      "created_at": "2026-09-28T22:17:27Z",
+      "date": "2026-09-28",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/12",
+      "reasons": [
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 36491134602,
+      "status": "held"
+    },
+    "11064086677": {
+      "created_at": "2026-09-29T21:33:40Z",
+      "date": "2026-09-29",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/13",
+      "reasons": [
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 36633541740,
+      "status": "held"
+    },
+    "11128736705": {
+      "created_at": "2026-09-30T21:56:31Z",
+      "date": "2026-09-30",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/14",
+      "reasons": [
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 36782255591,
+      "status": "held"
+    },
+    "11194174045": {
+      "created_at": "2026-10-01T21:20:38Z",
+      "date": "2026-10-01",
+      "run_id": 36927759135,
+      "status": "published"
+    },
+    "11274086622": {
+      "created_at": "2026-10-03T12:22:46Z",
+      "date": "2026-10-03",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/15",
+      "reasons": [
+        "Saturday 3 October 2026 was not an NYSE trading day.",
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 37122516904,
+      "status": "held"
+    },
+    "11285902296": {
+      "created_at": "2026-10-03T21:44:23Z",
+      "date": "2026-10-03",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/16",
+      "reasons": [
+        "Saturday 3 October 2026 was not an NYSE trading day.",
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 37155987401,
+      "status": "held"
+    },
+    "11372061989": {
+      "created_at": "2026-10-05T21:35:56Z",
+      "date": "2026-10-05",
+      "run_id": 37375983779,
+      "status": "published"
+    },
+    "11445431632": {
+      "created_at": "2026-10-06T21:20:18Z",
+      "date": "2026-10-06",
+      "run_id": 37532845386,
+      "status": "published"
+    },
+    "11577608366": {
+      "created_at": "2026-10-08T20:46:41Z",
+      "date": "2026-10-08",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/17",
+      "reasons": [
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 37841586991,
+      "status": "held"
+    },
+    "11645604264": {
+      "created_at": "2026-10-09T21:27:46Z",
+      "date": "2026-10-09",
+      "run_id": 37993256842,
+      "status": "published"
+    },
+    "9427841672": {
+      "created_at": "2026-08-20T23:06:56Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32427164967,
+      "status": "rejected"
+    },
+    "9462857906": {
+      "created_at": "2026-08-21T21:20:25Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32525064408,
+      "status": "rejected"
+    },
+    "9462989239": {
+      "created_at": "2026-08-21T21:25:22Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32528212310,
+      "status": "rejected"
+    },
+    "9463228237": {
+      "created_at": "2026-08-21T21:34:24Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32528798077,
+      "status": "rejected"
+    },
+    "9463445736": {
+      "created_at": "2026-08-21T21:42:53Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32529679697,
+      "status": "rejected"
+    },
+    "9463487616": {
+      "created_at": "2026-08-21T21:44:34Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32529799421,
+      "status": "rejected"
+    },
+    "9463811352": {
+      "created_at": "2026-08-21T21:58:08Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32530195378,
+      "status": "rejected"
+    },
+    "9464378710": {
+      "created_at": "2026-08-21T22:22:13Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32532029237,
+      "status": "rejected"
+    },
+    "9468208944": {
+      "created_at": "2026-08-22T01:59:24Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32544612904,
+      "status": "rejected"
+    },
+    "9538406377": {
+      "created_at": "2026-08-24T21:02:20Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32776376142,
+      "status": "rejected"
+    },
+    "9539455709": {
+      "created_at": "2026-08-24T21:34:36Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32780092199,
+      "status": "rejected"
+    },
+    "9539800895": {
+      "created_at": "2026-08-24T21:45:43Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32781078137,
+      "status": "rejected"
+    },
+    "9539917854": {
+      "created_at": "2026-08-24T21:49:41Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32781416985,
+      "status": "rejected"
+    },
+    "9581592449": {
+      "created_at": "2026-08-25T20:44:09Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32896172806,
+      "status": "rejected"
+    },
+    "9582121107": {
+      "created_at": "2026-08-25T20:59:27Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32897624533,
+      "status": "rejected"
+    },
+    "9582988784": {
+      "created_at": "2026-08-25T21:24:49Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32900041440,
+      "status": "rejected"
+    },
+    "9584015601": {
+      "created_at": "2026-08-25T21:57:22Z",
+      "reason": "the artifact has no note file",
+      "run_id": 32902899432,
+      "status": "rejected"
+    },
+    "9625377023": {
+      "created_at": "2026-08-26T22:04:16Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33017490040,
+      "status": "rejected"
+    },
+    "9667723511": {
+      "created_at": "2026-08-27T22:54:57Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33123892754,
+      "status": "rejected"
+    },
+    "9674184164": {
+      "created_at": "2026-08-28T04:24:46Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33141657731,
+      "status": "rejected"
+    },
+    "9675383184": {
+      "created_at": "2026-08-28T05:30:03Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33144863364,
+      "status": "rejected"
+    },
+    "9702307066": {
+      "created_at": "2026-08-28T21:32:39Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33212919060,
+      "status": "rejected"
+    },
+    "9702781992": {
+      "created_at": "2026-08-28T21:51:49Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33213700524,
+      "status": "rejected"
+    },
+    "9708225581": {
+      "created_at": "2026-08-29T02:56:56Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33229927486,
+      "status": "rejected"
+    },
+    "9708526247": {
+      "created_at": "2026-08-29T03:21:31Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33230790118,
+      "status": "rejected"
+    },
+    "9779676489": {
+      "created_at": "2026-08-31T23:28:03Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33450175254,
+      "status": "rejected"
+    },
+    "9780504364": {
+      "created_at": "2026-09-01T00:04:09Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33452654176,
+      "status": "rejected"
+    },
+    "9781581146": {
+      "created_at": "2026-09-01T00:51:05Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33455683795,
+      "status": "rejected"
+    },
+    "9822945774": {
+      "created_at": "2026-09-01T22:17:40Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33563258323,
+      "status": "rejected"
+    },
+    "9823692415": {
+      "created_at": "2026-09-01T22:41:46Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33566778168,
+      "status": "rejected"
+    },
+    "9823807815": {
+      "created_at": "2026-09-01T22:45:41Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33567308934,
+      "status": "rejected"
+    },
+    "9824973311": {
+      "created_at": "2026-09-01T23:28:42Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33570707133,
+      "status": "rejected"
+    },
+    "9869945595": {
+      "created_at": "2026-09-02T22:32:19Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33690084080,
+      "status": "rejected"
+    },
+    "9870510731": {
+      "created_at": "2026-09-02T22:51:38Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33691634590,
+      "status": "rejected"
+    },
+    "9871461806": {
+      "created_at": "2026-09-02T23:26:22Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33694756577,
+      "status": "rejected"
+    },
+    "9916091482": {
+      "created_at": "2026-09-03T22:47:54Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33814031226,
+      "status": "rejected"
+    },
+    "9956689740": {
+      "created_at": "2026-09-04T22:28:43Z",
+      "reason": "the artifact has no note file",
+      "run_id": 33925373346,
+      "status": "rejected"
+    }
+  }
+}
