@@ -114,7 +114,7 @@ def heat_cells(rows, cols, seed, w, h, gap=3, diag=False):
             if diag and c < r:
                 continue
             cls = "up" if v >= 0 else "down"
-            op = 0.18 + 0.82 * abs(v)
+            op = 0.45 + 0.55 * abs(v)
             cells.append(f'<rect class="{cls}" x="{c * (cw + gap):.1f}" y="{r * (ch + gap):.1f}" width="{cw:.1f}" height="{ch:.1f}" opacity="{op:.2f}"/>')
     return "".join(cells)
 
@@ -261,7 +261,7 @@ def c_explainer(w=560, h=240):
 
 # Icons -----------------------------------------------------------------------
 
-ICON_NAMES = ["arrow-right", "arrow-up-right", "linkedin-logo", "tiktok-logo", "youtube-logo", "list", "x", "play", "sun", "moon"]
+ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "linkedin-logo", "tiktok-logo", "youtube-logo", "list", "x", "play", "sun", "moon"]
 
 
 def sprite():
@@ -282,35 +282,41 @@ TAPE = ["S&amp;P 500", "Nasdaq 100", "Russell 2000", "Euro Stoxx 50", "Nikkei 22
         "VIX", "US 10Y yield", "EUR/USD", "WTI crude", "Gold"]
 
 CATEGORIES = [
-    ("rates", "Rates and credit"),
-    ("macro", "Macro and the Fed"),
-    ("equities", "Equities"),
-    ("cross", "Cross-asset"),
+    ("rates", "Rates and credit", "Rates"),
+    ("macro", "Macro and the Fed", "Macro"),
+    ("equities", "Equities", "Equities"),
+    ("cross", "Cross-asset", "Cross-asset"),
 ]
 
 DASHBOARDS = [
-    ("rates", "Yield curve", "The Treasury curve today against a month ago.", c_yield_curve, ("Today", "1 month ago")),
-    ("macro", "Fed path", "Where futures price the policy rate, meeting by meeting.", c_fed_path, ("Implied path", "Current rate")),
-    ("equities", "Sector heatmap", "Every S&amp;P 500 sector, ranked by the day's move.", c_sector_heatmap, None),
-    ("cross", "Volatility term structure", "Implied volatility across expiries, and how its shape is shifting.", c_vol_term, ("Today", "1 week ago")),
-    ("equities", "Global indices", "Major equity benchmarks across the US, Europe and Asia.", c_global_indices, None),
-    ("cross", "FX majors", "The dollar against the major currencies.", c_fx, None),
-    ("cross", "Commodities", "Energy, metals and agriculture, rebased to the same start.", c_commodities, ("Oil", "Gold")),
-    ("rates", "Credit spreads", "High yield and investment grade spreads over Treasuries.", c_credit, ("High yield", "Investment grade")),
-    ("macro", "Inflation and labour", "Inflation prints alongside the monthly jobs report.", c_inflation_labour, None),
-    ("equities", "Earnings season tracker", "Beats and misses as companies report, sector by sector.", c_earnings, None),
-    ("equities", "Market breadth", "Advancers, decliners and new highs across the market.", c_breadth, None),
-    ("cross", "Cross-asset correlation", "How stocks, bonds, the dollar and commodities move together.", c_correlation, None),
+    ("rates", "Yield curve", "The Treasury curve today against a month ago.", c_yield_curve, [("line", "Today"), ("dash", "1 month ago")]),
+    ("macro", "Fed path", "Where futures price the policy rate, meeting by meeting.", c_fed_path, [("line", "Implied path"), ("dash", "Current rate")]),
+    ("equities", "Sector heatmap", "Every S&amp;P 500 sector, ranked by the day's move.", c_sector_heatmap, [("up", "Up"), ("down", "Down")]),
+    ("cross", "Volatility term structure", "Implied volatility across expiries, and how its shape is shifting.", c_vol_term, [("line", "Today"), ("dash", "1 week ago")]),
+    ("equities", "Global indices", "Major equity benchmarks across the US, Europe and Asia.", c_global_indices, [("up", "Up"), ("down", "Down")]),
+    ("cross", "FX majors", "The dollar against the major currencies.", c_fx, [("up", "Stronger"), ("down", "Weaker")]),
+    ("cross", "Commodities", "Energy, metals and agriculture, rebased to the same start.", c_commodities, [("line", "Oil"), ("dash", "Gold")]),
+    ("rates", "Credit spreads", "High yield and investment grade spreads over Treasuries.", c_credit, [("line", "High yield"), ("dash", "Investment grade")]),
+    ("macro", "Inflation and labour", "Inflation prints alongside the monthly jobs report.", c_inflation_labour, [("line", "Inflation"), ("up", "Jobs added")]),
+    ("equities", "Earnings season tracker", "Beats and misses as companies report, sector by sector.", c_earnings, [("up", "Beats"), ("down", "Misses")]),
+    ("equities", "Market breadth", "Advancers, decliners and new highs across the market.", c_breadth, [("up", "Advancers"), ("down", "Decliners")]),
+    ("cross", "Cross-asset correlation", "How stocks, bonds, the dollar and commodities move together.", c_correlation, [("up", "Positive"), ("down", "Negative")]),
 ]
 
 CALENDAR = [
-    ("Macro", "Consumer prices (CPI)", "[consensus]", "[prior]"),
-    ("Earnings", "[Company] quarterly results", "EPS [consensus]", "EPS [prior]"),
-    ("Macro", "Retail sales", "[consensus]", "[prior]"),
-    ("Fed", "FOMC rate decision", "[consensus]", "[prior]"),
-    ("Fed", "Fed Chair press conference", "", ""),
-    ("Earnings", "[Company] quarterly results", "EPS [consensus]", "EPS [prior]"),
-    ("Macro", "Nonfarm payrolls", "[consensus]", "[prior]"),
+    ("[Day, date]", [
+        ("Macro", "Consumer prices (CPI)", "[consensus]", "[prior]"),
+        ("Earnings", "[Company] quarterly results", "EPS [consensus]", "EPS [prior]"),
+    ]),
+    ("[Day, date]", [
+        ("Macro", "Retail sales", "[consensus]", "[prior]"),
+        ("Fed", "FOMC rate decision", "[consensus]", "[prior]"),
+        ("Fed", "Fed Chair press conference", "", ""),
+    ]),
+    ("[Day, date]", [
+        ("Earnings", "[Company] quarterly results", "EPS [consensus]", "EPS [prior]"),
+        ("Macro", "Nonfarm payrolls", "[consensus]", "[prior]"),
+    ]),
 ]
 
 LEARN = [
@@ -337,7 +343,8 @@ THEME_BOOT = (
     "(function(){var t='light';try{var q=new URLSearchParams(location.search).get('theme');"
     "if(q==='light'||q==='dark'){t=q;localStorage.setItem('andra-theme',q)}"
     "else{var s=localStorage.getItem('andra-theme');if(s==='light'||s==='dark')t=s}}catch(e){}"
-    "document.documentElement.setAttribute('data-theme',t)})();"
+    "document.documentElement.setAttribute('data-theme',t);"
+    "var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0a0c0d':'#f4f6f6'})();"
 )
 
 
@@ -347,32 +354,38 @@ def page():
         f'<span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li>'
         for n in TAPE
     )
-    filters = f'<button type="button" class="chip" data-filter="all" aria-pressed="true">All <span class="chip__n">{len(DASHBOARDS)}</span></button>' + "".join(
-        f'<button type="button" class="chip" data-filter="{key}" aria-pressed="false">{label} '
+    filters = f'<button type="button" class="chip" data-filter="all" data-label="All" aria-pressed="true">All <span class="chip__n">{len(DASHBOARDS)}</span></button>' + "".join(
+        f'<button type="button" class="chip" data-filter="{key}" data-label="{label}" aria-pressed="false">{short} '
         f'<span class="chip__n">{sum(1 for x in DASHBOARDS if x[0] == key)}</span></button>'
-        for key, label in CATEGORIES
+        for key, label, short in CATEGORIES
     )
-    cat_label = dict(CATEGORIES)
+    cat_label = {k: label for k, label, _ in CATEGORIES}
+    swatch = {"line": "k-solid", "dash": "k-dash", "up": "sw-up", "down": "sw-down"}
 
     def key_html(leg):
-        if not leg:
-            return ""
-        return f'<p class="key"><span><i class="k-solid"></i>{leg[0]}</span><span><i class="k-dash"></i>{leg[1]}</span></p>'
+        items = "".join(f'<span><i class="{swatch[kind]}"></i>{label}</span>' for kind, label in leg)
+        return f'<p class="key">{items}<span class="key__note">Illustrative</span></p>'
 
     tiles = "".join(
         f'<li class="dash-tile reveal" data-cat="{cat}" style="--i:{i % 3}">'
         f'<a href="#dashboards" class="dash-tile__link">'
         f'<div class="dash-tile__chart draw">{fn()}</div>{key_html(leg)}'
         f'<div class="dash-tile__text"><p class="dash-tile__cat">{cat_label[cat]}</p>'
-        f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p></div>'
+        f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p>'
+        f'<p class="dash-tile__src">{ph("[source]")}, {ph("[date]")}</p></div>'
         f'<span class="dash-tile__go">{icon("arrow-up-right")}</span></a></li>'
         for i, (cat, name, desc, fn, leg) in enumerate(DASHBOARDS)
     )
     calendar = "".join(
-        f'<tr><td class="ph">[date]</td><td class="ph">[time]</td>'
-        f'<th scope="row">{fill(event)}</th><td><span class="tag tag--{kind.lower()}">{kind}</span></td>'
-        f'<td>{fill(cons)}</td><td>{fill(prior)}</td></tr>'
-        for kind, event, cons, prior in CALENDAR
+        f'<tbody><tr class="cal__day"><th scope="rowgroup" colspan="5">{fill(day)}</th></tr>'
+        + "".join(
+            f'<tr><td class="cal__time ph">[time]</td>'
+            f'<th scope="row">{fill(event)}</th><td class="cal__type"><span class="tag tag--{kind.lower()}">{kind}</span></td>'
+            f'<td class="cal__cons" data-label="Consensus">{fill(cons)}</td><td class="cal__prior" data-label="Prior">{fill(prior)}</td></tr>'
+            for kind, event, cons, prior in rows
+        )
+        + "</tbody>"
+        for day, rows in CALENDAR
     )
     archive = "".join(
         f'<li><a href="#note"><span class="ph">[date]</span><span class="note-list__title"><span class="ph ph--ink">[Close note headline]</span></span>{icon("arrow-right")}</a></li>'
@@ -400,8 +413,7 @@ def page():
 <title>Andra Markets: markets research platform (prototype)</title>
 <meta name="description" content="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, explainers and videos.">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#f4f6f6" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#0a0c0d" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f4f6f6">
 <script>{THEME_BOOT}</script>
 <link rel="icon" href="assets/andra-horse.png">
 <link rel="preload" href="assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -424,6 +436,7 @@ def page():
       <a href="#note">Daily note</a>
       <a href="#learn">Learn</a>
       <a href="#watch">Watch</a>
+      <a class="nav__subscribe" href="#subscribe">Subscribe</a>
     </nav>
     <button class="theme-btn" type="button" aria-label="Switch to dark theme">
       <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
@@ -456,9 +469,10 @@ def page():
     <div class="wrap">
       <div class="tape__head">
         <h2 id="tape-title">Markets {ph("[date]")}, {ph("[time]")} ET</h2>
-        <span>Last and daily change. Source {ph("[data vendor]")}</span>
+        <a class="tape__note" href="#note"><span>Latest close note, {ph("[date]")}: <span class="ph ph--ink">[headline]</span></span>{icon("arrow-right")}</a>
       </div>
       <ul class="tape__list" tabindex="0" aria-label="Market levels">{tape}</ul>
+      <p class="tape__src">Last and daily change. Source {ph("[data vendor]")}</p>
     </div>
   </section>
 
@@ -520,8 +534,8 @@ def page():
       </div>
       <div class="cal-wrap reveal">
         <table class="cal">
-          <thead><tr><th scope="col">Date</th><th scope="col">Time</th><th scope="col">Event</th><th scope="col">Type</th><th scope="col">Consensus</th><th scope="col">Prior</th></tr></thead>
-          <tbody>{calendar}</tbody>
+          <thead><tr><th scope="col">Time</th><th scope="col">Event</th><th scope="col">Type</th><th scope="col">Consensus</th><th scope="col">Prior</th></tr></thead>
+          {calendar}
         </table>
       </div>
     </div>
@@ -585,7 +599,7 @@ def page():
   <section class="section about" id="about" aria-labelledby="about-title">
     <div class="wrap grid">
       <h2 class="visually-hidden" id="about-title">About Andra Markets</h2>
-      <p class="about__statement reveal">Andra Markets is a markets research platform. Its pipeline reads the data every trading day and keeps the dashboards, tools, calendar and notes current.</p>
+      <p class="about__statement reveal">Andra Markets reads the data every trading day and keeps the dashboards, tools, calendar and notes current. Built for professionals, written so anyone can learn from it.</p>
       <dl class="reveal" style="--i:1">
         <div><dt>Covers</dt><dd>US and global markets: rates, equities, macro, FX and commodities</dd></div>
         <div><dt>Publishes</dt><dd>A close note every US trading day</dd></div>
@@ -606,7 +620,7 @@ def page():
             <button class="btn" type="submit">Subscribe</button>
           </div>
           <p class="field__help" id="email-help">The daily close note and new tools. Unsubscribe in one click.</p>
-          <p class="field__status" id="email-status" role="status" aria-live="polite"></p>
+          <p class="field__status" id="email-status" role="status" aria-live="polite"><span class="field__icon">{icon("warning-circle")}</span><span class="field__msg"></span></p>
         </div>
       </form>
     </div>
@@ -620,7 +634,7 @@ def page():
         <span class="brand__mark"><img src="assets/andra-horse.png" alt="" width="64" height="64" loading="lazy"></span>
         <span class="brand__name">Andra Markets</span>
       </a>
-      <p>A markets research platform.</p>
+      <p>Research on US and global markets.</p>
     </div>
     <nav class="foot__nav" aria-label="Footer">
       <a href="#dashboards">Dashboards</a>

@@ -20,6 +20,8 @@
   function syncThemeBtn() {
     var dark = root.getAttribute("data-theme") === "dark";
     themeBtn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", dark ? "#0a0c0d" : "#f4f6f6");
   }
   if (themeBtn) {
     syncThemeBtn();
@@ -62,7 +64,7 @@
       filterStatus.textContent =
         cat === "all"
           ? "Showing all " + tiles.length + " dashboards"
-          : "Showing " + shown + " of " + tiles.length + " dashboards: " + chip.firstChild.textContent.trim();
+          : "Showing " + shown + " of " + tiles.length + " dashboards: " + chip.getAttribute("data-label");
     });
   });
 
@@ -74,6 +76,7 @@
     menuBtn.setAttribute("aria-expanded", String(open));
     menuBtn.querySelector("span").textContent = open ? "Close" : "Menu";
     menuBtn.querySelector("use").setAttribute("href", open ? "#i-x" : "#i-list");
+    if (open) nav.querySelector("a").focus();
   }
   if (menuBtn && nav) {
     menuBtn.addEventListener("click", function () {
@@ -118,6 +121,7 @@
   if (form) {
     var input = form.querySelector("input");
     var status = form.querySelector(".field__status");
+    var msg = form.querySelector(".field__msg");
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var value = input.value.trim();
@@ -125,19 +129,19 @@
       input.setAttribute("aria-invalid", String(!ok));
       status.classList.toggle("is-error", !ok);
       if (!ok) {
-        status.textContent = value
+        msg.textContent = value
           ? "That email address looks incomplete. Check it and try again."
           : "Enter your email address to subscribe.";
         input.focus();
         return;
       }
-      status.textContent = "Subscribed. The next close note goes to " + value + ".";
+      msg.textContent = "Subscribed. The next close note goes to " + value + ".";
       form.closest(".signup").classList.add("is-done");
     });
     input.addEventListener("input", function () {
       if (input.getAttribute("aria-invalid") === "true") {
         input.removeAttribute("aria-invalid");
-        status.textContent = "";
+        msg.textContent = "";
         status.classList.remove("is-error");
       }
     });
