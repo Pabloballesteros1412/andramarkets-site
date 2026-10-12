@@ -1133,15 +1133,19 @@ def report(rec, newer, older):
     sections = ""
     for field, heading in SECTIONS:
         v = n.get(field)
-        if not v:
+        chart = margin_chart(field, rec)
+        if not v and not chart:
             continue
         sid = f"s-{field.replace('_', '-')}"
-        if isinstance(v, list):
+        if not v:
+            # The chart has data but the note has no text here (quantitative mode).
+            content = "<p>No commentary for this section in this edition.</p>"
+        elif isinstance(v, list):
             content = '<ol class="ruled">' + "".join(f"<li>{esc(t)}</li>" for t in v) + "</ol>"
         else:
             content = paragraphs(v)
         sections += f'\n      <section aria-labelledby="{sid}"><h2 id="{sid}">{heading}</h2>{content}</section>'
-        sections += margin_chart(field, rec)
+        sections += chart
     checked = "Every figure in this note was checked against the session's verified fact pack."
     if rec.get("figure_check") == "failed":
         checked = ("This edition did not fully pass the automated figure check against the "
