@@ -304,6 +304,17 @@
       "status": "published",
       "v": 2
     },
+    "12010460792": {
+      "created_at": "2026-10-15T22:02:39Z",
+      "date": "2026-10-15",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/26",
+      "reasons": [
+        "The figure check failed: the PDF carries a Control note."
+      ],
+      "run_id": 38813847377,
+      "status": "held",
+      "v": 2
+    },
     "9427841672": {
       "created_at": "2026-08-20T23:06:56Z",
       "date": "2026-08-20",
