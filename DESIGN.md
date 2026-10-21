@@ -563,7 +563,7 @@ For methodology and future sub-pages, sharing the same header and footer. Top pa
 ### Horse placements
 - **Hero:** `.hero__art` absolutely placed at `left 63%`, `top 50%`, size `min(167svh, 200vw)` square, `translate(-49%, -50.5%)`, with `--horse-filter` and `--horse-blend`; the image has `--horse-opacity`. It fills the right two thirds on desktop; at 860px and below it moves to `52% / 36%`; at 520px and below it is `180vw` at `y 27%`. The hero is `min-height: calc(100svh - 56px)`, copy bottom-left, with the vignette over it.
 - **Closing plate:** `.signup__art` at `50% / 46%`, `min(150svh, 190vw)`, same filter and blend, container opacity 0.32, no entrance animation.
-- **Brand mark:** the transparent marks (see Brand assets), `assets/andra-mark-light.png` in the light theme and `assets/andra-mark-dark.png` in the dark theme, swapped by `data-theme` in CSS like the theme icons. Height 34px (36px above 960px), width auto, vertically centred with the wordmark by the brand's flex row, 10px gap. No box, background, border, filter or blend. The same marks are used in the footer.
+- **Brand mark:** the transparent marks (see Brand assets), `assets/andra-mark-light.png` in the light theme and `assets/andra-mark-dark.png` in the dark theme, swapped by `data-theme` in CSS like the theme icons. Height `1lh` (fallback `1.55em`): the wordmark's line box, 26px at the brand's 1.0625rem, at every width; width auto, vertically centred with the wordmark by the brand's flex row, 10px gap. No box, background, border, filter or blend. The same marks are used in the footer.
 - **Video frames:** a contained background at `screen` and 0.22 opacity on the dark frame.
 - **Favicon and touch icon:** the owner-approved head-and-neck crop; see Brand assets.
 

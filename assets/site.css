@@ -341,11 +341,13 @@ ul {
   z-index: 1;
 }
 
-/* Transparent marks (tools/make_mark.py), one per theme: no box, no blend. */
+/* Transparent marks (tools/make_mark.py), one per theme: no box, no blend.
+   As tall as the wordmark's line box, so the two centre on one axis. */
 .brand__mark {
   display: block;
   flex: none;
-  height: 34px;
+  height: 1.55em;
+  height: 1lh;
 }
 
 .brand__mark img {
@@ -357,12 +359,6 @@ ul {
 :root[data-theme="dark"] .brand__mark--light,
 :root:not([data-theme="dark"]) .brand__mark--dark {
   display: none;
-}
-
-@media (min-width: 961px) {
-  .brand__mark {
-    height: 36px;
-  }
 }
 
 .nav {
