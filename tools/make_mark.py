@@ -17,7 +17,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "andra-horse.png"
-HEIGHT = 160          # px; shown at 32 to 36 px, so sharp up to 4x screens
+HEIGHT = 160          # px; shown at 26 px, so sharp beyond 4x screens
 FLOOR = 6             # luminance at or below this is ground (JPEG-style noise)
 WHITE = 160           # ~99th percentile of the horse's luminance -> fully opaque
 INKS = {"light": (0x0E, 0x12, 0x15), "dark": (0xE9, 0xEC, 0xEB)}
