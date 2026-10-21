@@ -17,10 +17,9 @@ latest note's closing levels. No PDF or facts file is ever linked: the site is
 free, and those downloads are reserved for paid subscribers later.
 
 Dashboard tiles draw real figures from .cache/dashboards/tiles.json, written
-at deploy time by tools/dashboard_data.py, with their source and date. A tile
-without a record, and every Lab and Learn chart, is a schematic shape from a
-seeded random walk: not market data, and labelled "Illustrative". Follow
-DESIGN.md.
+at deploy time by tools/dashboard_data.py, with their source and date; a tile
+without a record is left off the page. Lab and Learn charts are schematic
+shapes, not market data, and labelled "Illustrative". Follow DESIGN.md.
 """
 import datetime as dt
 import html
@@ -68,15 +67,6 @@ SITE_URL = ""
 
 # Chart helpers ---------------------------------------------------------------
 
-def walk(n, seed, drift=0.0, vol=1.0, start=0.0):
-    rng = random.Random(seed)
-    y, out = start, []
-    for _ in range(n):
-        y += drift + rng.gauss(0, vol)
-        out.append(y)
-    return out
-
-
 def fit(series, w, h, pad=8, lo=None, hi=None):
     """Scale one or more series into a shared w x h box."""
     flat = [v for s in series for v in s]
@@ -109,157 +99,6 @@ def svg(w, h, body, label, stretch=True):
 
 
 W, H = 320, 160  # dashboard tile charts
-
-
-def c_yield_curve():
-    tenors = [0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 30]
-    now = [0.62, 0.66, 0.7, 0.66, 0.63, 0.62, 0.64, 0.68, 0.78, 0.8]
-    ago = [0.7, 0.73, 0.74, 0.7, 0.66, 0.63, 0.63, 0.65, 0.72, 0.74]
-
-    def pts(vals):
-        return [(12 + (W - 24) * math.sqrt(t) / math.sqrt(30), H - 12 - (H - 24) * (v - 0.55) / 0.3) for t, v in zip(tenors, vals)]
-
-    a, b = pts(now), pts(ago)
-    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5"/>' for x, y in a)
-    return svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d(b)}"/><path class="line" d="{d(a)}"/>' + dots, "Yield curve shape, today against one month ago", stretch=False)
-
-
-def c_fed_path():
-    steps = [5, 5, 4.75, 4.75, 4.5, 4.5, 4.25, 4.25, 4.0, 4.0]
-    implied = [5, 4.95, 4.82, 4.7, 4.58, 4.46, 4.36, 4.24, 4.15, 4.08]
-    pa, pb = fit([steps, implied], W, H, 14)
-    stair = []
-    for i, (x, y) in enumerate(pa):
-        if i:
-            stair.append((x, pa[i - 1][1]))
-        stair.append((x, y))
-    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5"/>' for x, y in pb)
-    return svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d(stair)}"/><path class="line" d="{d(pb)}"/>' + dots, "Policy rate path implied by futures against the current rate", stretch=False)
-
-
-def c_credit():
-    ig = [abs(v) + 6 for v in walk(80, 31, 0, 0.4)]
-    hy = [v * 2.6 + 2 for v in ig]
-    rng = random.Random(32)
-    hy = [v + rng.gauss(0, 0.8) for v in hy]
-    pa, pb = fit([hy, ig], W, H, 8)
-    area = d(pb) + f" L{pb[-1][0]:.1f} {H} L{pb[0][0]:.1f} {H} Z"
-    return svg(W, H, grid_lines(W, H, 3) + f'<path class="area" d="{area}"/><path class="line" d="{d(pa)}"/><path class="dash" d="{d(pb)}"/>', "Credit spreads, high yield against investment grade")
-
-
-def heat_cells(rows, cols, seed, w, h, gap=3, diag=False):
-    rng = random.Random(seed)
-    cw, ch = (w - gap * (cols - 1)) / cols, (h - gap * (rows - 1)) / rows
-    cells = []
-    for r in range(rows):
-        for c in range(cols):
-            v = 1.0 if diag and r == c else max(-1, min(1, rng.gauss(0.1, 0.55)))
-            if diag and c < r:
-                continue
-            cls = "up" if v >= 0 else "down"
-            op = 0.45 + 0.55 * abs(v)
-            cells.append(f'<rect class="{cls}" x="{c * (cw + gap):.1f}" y="{r * (ch + gap):.1f}" width="{cw:.1f}" height="{ch:.1f}" opacity="{op:.2f}"/>')
-    return "".join(cells)
-
-
-def c_sector_heatmap():
-    return svg(W, H, heat_cells(3, 4, 41, W, H), "Sector performance heatmap", stretch=False)
-
-
-def c_correlation():
-    return svg(H, H, heat_cells(5, 5, 42, H, H, diag=True), "Cross-asset correlation matrix", stretch=False)
-
-
-def hbars(vals, w, h, gap=4):
-    m = max(abs(v) for v in vals)
-    rh = (h - gap * (len(vals) - 1)) / len(vals)
-    mid = w / 2
-    out = [f'<line class="ref" x1="{mid}" x2="{mid}" y1="0" y2="{h}"/>']
-    for i, v in enumerate(vals):
-        bw = abs(v) / m * (mid - 6)
-        x = mid if v >= 0 else mid - bw
-        out.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{x:.1f}" y="{i * (rh + gap):.1f}" width="{bw:.1f}" height="{rh:.1f}"/>')
-    return "".join(out)
-
-
-def c_global_indices():
-    rng = random.Random(51)
-    vals = sorted((rng.gauss(0.2, 1) for _ in range(8)), reverse=True)
-    return svg(W, H, hbars(vals, W, H), "Global equity index moves")
-
-
-def c_fx():
-    rng = random.Random(61)
-    vals = sorted((rng.gauss(0, 1) for _ in range(7)), reverse=True)
-    return svg(W, H, hbars(vals, W, H, 6), "Major currency moves against the US dollar")
-
-
-def vbars(vals, w, h, gap=3):
-    m = max(abs(v) for v in vals)
-    bw = (w - gap * (len(vals) - 1)) / len(vals)
-    mid = h / 2
-    out = [f'<line class="ref" x1="0" x2="{w}" y1="{mid}" y2="{mid}"/>']
-    for i, v in enumerate(vals):
-        bh = abs(v) / m * (mid - 4)
-        y = mid - bh if v >= 0 else mid
-        out.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{i * (bw + gap):.1f}" y="{y:.1f}" width="{bw:.1f}" height="{bh:.1f}"/>')
-    return "".join(out)
-
-
-def c_breadth():
-    rng = random.Random(3)
-    return svg(W, H, vbars([rng.gauss(0.15, 1) for _ in range(30)], W, H), "Advancers minus decliners")
-
-
-def c_earnings():
-    rng = random.Random(71)
-    n, gap = 12, 4
-    bw = (W - gap * (n - 1)) / n
-    out = []
-    for i in range(n):
-        share = rng.uniform(0.6, 0.85)
-        reported = (i + 3) / (n + 2) * 0.92
-        beat, miss = share * reported, (1 - share) * reported
-        hb, hm = beat * (H - 8), miss * (H - 8)
-        x = i * (bw + gap)
-        out.append(f'<rect class="up" x="{x:.1f}" y="{H - hb:.1f}" width="{bw:.1f}" height="{hb:.1f}"/>')
-        out.append(f'<rect class="down" x="{x:.1f}" y="{H - hb - hm - 2:.1f}" width="{bw:.1f}" height="{hm:.1f}"/>')
-    return svg(W, H, "".join(out), "Earnings beats and misses as companies report")
-
-
-def c_vol_term():
-    tenors = [1, 2, 3, 4, 6, 9, 12]
-    now = [0.42, 0.5, 0.56, 0.6, 0.65, 0.69, 0.72]
-    ago = [0.6, 0.62, 0.63, 0.64, 0.66, 0.68, 0.7]
-
-    def pts(vals):
-        return [(14 + (W - 28) * (t - 1) / 11, H - 12 - (H - 24) * (v - 0.38) / 0.38) for t, v in zip(tenors, vals)]
-
-    a, b = pts(now), pts(ago)
-    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5"/>' for x, y in a)
-    return svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d(b)}"/><path class="line" d="{d(a)}"/>' + dots, "Volatility term structure, today against one week ago", stretch=False)
-
-
-def c_commodities():
-    a, b = walk(70, 81, 0.05, 1), walk(70, 82, -0.04, 1)
-    pa, pb = fit([a, b], W, H, 8)
-    return svg(W, H, grid_lines(W, H, 3) + f'<path class="line" d="{d(pa)}"/><path class="dash" d="{d(pb)}"/>', "Oil and gold, rebased")
-
-
-def c_inflation_labour():
-    infl = [abs(v) * 0.4 + 2 for v in walk(48, 91, 0, 0.5, 3)]
-    rng = random.Random(92)
-    jobs = [1 + rng.gauss(0, 0.7) for _ in range(48)]
-    pa, = fit([infl], W, H * 0.55, 8)
-    pb_vals = jobs
-    m = max(abs(v) for v in pb_vals)
-    bw = W / len(pb_vals)
-    base = H - 4
-    bars = "".join(
-        f'<rect class="{"up" if v >= 0 else "down"}" x="{i * bw + 1:.1f}" y="{base - abs(v) / m * 36:.1f}" width="{bw - 2:.1f}" height="{abs(v) / m * 36:.1f}"/>'
-        for i, v in enumerate(pb_vals)
-    )
-    return svg(W, H, f'<path class="line" d="{d(pa)}"/>' + bars, "Inflation line above monthly payroll changes")
 
 
 def c_momentum(w=640, h=260):
@@ -303,9 +142,8 @@ def c_explainer(w=560, h=240):
 
 
 # Dashboard tiles with real data ---------------------------------------------
-# Figures from tools/dashboard_data.py (.cache/dashboards/tiles.json), drawn in
-# the same shapes as the illustrative previews. A tile without a record keeps
-# its preview and its "Illustrative" stamp.
+# Figures from tools/dashboard_data.py (.cache/dashboards/tiles.json). A tile
+# without a record is left off the page: no dashboard tile is illustrative.
 
 DASH_DATA = ROOT / ".cache" / "dashboards" / "tiles.json"
 
@@ -498,11 +336,29 @@ def r_correlation(rec):
     return data_svg(H, H, "".join(cells), label, stretch=False), [("up", "Positive"), ("down", "Negative")]
 
 
+def r_breadth(rec):
+    d = rec["data"]
+    net = [(day, adv - dec, adv, dec) for day, adv, dec, _ in d["sessions"]]
+    m = max(abs(v) for _, v, _, _ in net) or 1
+    gap = 3
+    bw = (W - gap * (len(net) - 1)) / len(net)
+    mid = H / 2
+    bars = [f'<line class="ref" x1="0" x2="{W}" y1="{mid}" y2="{mid}"/>']
+    for i, (day, v, adv, dec) in enumerate(net):
+        bh = max(abs(v) / m * (mid - 4), 1.0)
+        y = mid - bh if v >= 0 else mid
+        bars.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{i * (bw + gap):.1f}" y="{y:.1f}" width="{bw:.1f}" height="{bh:.1f}">'
+                    f'{tip(f"{short_day(day)}: {adv} up, {dec} down")}</rect>')
+    label = (f"Advancers less decliners across the Andra Markets watchlist of {d['size']} US large caps, "
+             f"{len(net)} sessions to {short_day(rec['asof'])}: " + ", ".join(f"{short_day(day)} {signed(v, 0)}" for day, v, _, _ in net))
+    return data_svg(W, H, "".join(bars), label), [("up", "More advancers"), ("down", "More decliners")]
+
+
 REAL = {
     "yield_curve": r_yield_curve, "fed_path": r_fed_path, "sector_heatmap": r_sector_heatmap,
     "vol_term": r_vol_term, "global_indices": r_global_indices, "fx_majors": r_fx_majors,
     "commodities": r_commodities, "credit_spreads": r_credit_spreads,
-    "inflation_labour": r_inflation_labour, "correlation": r_correlation,
+    "inflation_labour": r_inflation_labour, "breadth": r_breadth, "correlation": r_correlation,
 }
 
 
@@ -558,21 +414,20 @@ CATEGORIES = [
     ("cross", "Cross-asset", "Cross-asset"),
 ]
 
-# (key, category, title, description, illustrative preview, preview key). The key
-# names the tile's record from tools/dashboard_data.py.
+# (key, category, title, description). The key names the tile's record from
+# tools/dashboard_data.py; a tile without one is left off the page.
 DASHBOARDS = [
-    ("yield_curve", "rates", "Yield curve", "The Treasury curve today against a month ago.", c_yield_curve, [("line", "Today"), ("dash", "1 month ago")]),
-    ("fed_path", "macro", "Fed path", "Where futures price the policy rate, meeting by meeting.", c_fed_path, [("line", "Implied path"), ("dash", "Current rate")]),
-    ("sector_heatmap", "equities", "Sector heatmap", "Every S&amp;P 500 sector, ranked by the day's move.", c_sector_heatmap, [("up", "Up"), ("down", "Down")]),
-    ("vol_term", "cross", "Volatility term structure", "Implied volatility across expiries, and how its shape is shifting.", c_vol_term, [("line", "Today"), ("dash", "1 week ago")]),
-    ("global_indices", "equities", "Global indices", "Major equity benchmarks across the US, Europe and Asia.", c_global_indices, [("up", "Up"), ("down", "Down")]),
-    ("fx_majors", "cross", "FX majors", "The dollar against the major currencies.", c_fx, [("up", "Stronger"), ("down", "Weaker")]),
-    ("commodities", "cross", "Commodities", "Energy, metals and agriculture, rebased to the same start.", c_commodities, [("line", "Oil"), ("dash", "Gold")]),
-    ("credit_spreads", "rates", "Credit spreads", "High yield and investment grade spreads over Treasuries.", c_credit, [("line", "High yield"), ("dash", "Investment grade")]),
-    ("inflation_labour", "macro", "Inflation and labour", "Inflation prints alongside the monthly jobs report.", c_inflation_labour, [("line", "Inflation"), ("up", "Jobs added")]),
-    ("earnings", "equities", "Earnings season tracker", "Beats and misses as companies report, sector by sector.", c_earnings, [("up", "Beats"), ("down", "Misses")]),
-    ("breadth", "equities", "Market breadth", "Advancers, decliners and new highs across the market.", c_breadth, [("up", "Advancers"), ("down", "Decliners")]),
-    ("correlation", "cross", "Cross-asset correlation", "How stocks, bonds, the dollar and commodities move together.", c_correlation, [("up", "Positive"), ("down", "Negative")]),
+    ("yield_curve", "rates", "Yield curve", "The Treasury curve today against a month ago."),
+    ("fed_path", "macro", "Fed path", "Where futures price the policy rate, month by month."),
+    ("sector_heatmap", "equities", "Sector heatmap", "Every S&amp;P 500 sector, ranked by the day's move."),
+    ("vol_term", "cross", "Volatility term structure", "Implied volatility across expiries, and how its shape is shifting."),
+    ("global_indices", "equities", "Global indices", "Major equity benchmarks across the US, Europe and Asia."),
+    ("fx_majors", "cross", "FX majors", "The dollar against the major currencies."),
+    ("commodities", "cross", "Commodities", "Oil and gold, rebased to the same start."),
+    ("credit_spreads", "rates", "Credit spreads", "High yield and investment grade spreads over Treasuries."),
+    ("inflation_labour", "macro", "Inflation and labour", "Inflation prints alongside the monthly jobs report."),
+    ("breadth", "equities", "Watchlist breadth", "Advancers less decliners across the Andra Markets watchlist of US large caps, session by session."),
+    ("correlation", "cross", "Cross-asset correlation", "How stocks, bonds, the dollar and commodities move together."),
 ]
 
 CALENDAR = [
@@ -734,37 +589,29 @@ def page(notes):
         tape_note = (f'<a class="tape__note" href="#note"><span>Latest close note, {ph("[date]")}: '
                      f'<span class="ph ph--ink">[headline]</span></span>{icon("arrow-right")}</a>')
         tape_src = f'Last and daily change. Source {ph("[data vendor]")}'
-    filters = f'<button type="button" class="chip" data-filter="all" data-label="All" aria-pressed="true">All <span class="chip__n">{len(DASHBOARDS)}</span></button>' + "".join(
+    dash_data = load_dash_data()
+    live = [t for t in DASHBOARDS if t[0] in dash_data and t[0] in REAL]
+    filters = f'<button type="button" class="chip" data-filter="all" data-label="All" aria-pressed="true">All <span class="chip__n">{len(live)}</span></button>' + "".join(
         f'<button type="button" class="chip" data-filter="{key}" data-label="{label}" aria-pressed="false">{short} '
-        f'<span class="chip__n">{sum(1 for x in DASHBOARDS if x[1] == key)}</span></button>'
-        for key, label, short in CATEGORIES
+        f'<span class="chip__n">{n}</span></button>'
+        for key, label, short in CATEGORIES if (n := sum(1 for x in live if x[1] == key))
     )
     cat_label = {k: label for k, label, _ in CATEGORIES}
     swatch = {"line": "k-solid", "dash": "k-dash", "up": "sw-up", "down": "sw-down"}
 
-    def key_html(leg, illustrative):
+    def tile(i, key, cat, name, desc):
+        rec = dash_data[key]
+        chart, leg = REAL[key](rec)
         items = "".join(f'<span><i class="{swatch[kind]}"></i>{label}</span>' for kind, label in leg)
-        note = '<span class="key__note">Illustrative</span>' if illustrative else ""
-        return f'<p class="key">{items}{note}</p>'
-
-    dash_data = load_dash_data()
-
-    def tile(i, key, cat, name, desc, fn, leg):
-        rec = dash_data.get(key)
-        if rec and key in REAL:
-            chart, leg = REAL[key](rec)
-            src = f"{cat_label[cat]}. {esc(rec['source'])}, {tile_asof(key, rec)}"
-        else:
-            chart, src = fn(), f'{cat_label[cat]}. {ph("[source]")}, {ph("[date]")}'
         return (f'<li class="dash-tile reveal" data-cat="{cat}" style="--i:{i % 3}">'
                 f'<a href="#dashboards" class="dash-tile__link">'
-                f'<div class="dash-tile__chart draw">{chart}</div>{key_html(leg, not (rec and key in REAL))}'
+                f'<div class="dash-tile__chart draw">{chart}</div><p class="key">{items}</p>'
                 f'<div class="dash-tile__text">'
                 f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p>'
-                f'<p class="dash-tile__src">{src}</p></div>'
+                f'<p class="dash-tile__src">{cat_label[cat]}. {esc(rec["source"])}, {tile_asof(key, rec)}</p></div>'
                 f'<span class="dash-tile__go">{icon("arrow-up-right")}</span></a></li>')
 
-    tiles = "".join(tile(i, *t) for i, t in enumerate(DASHBOARDS))
+    tiles = "".join(tile(i, *t) for i, t in enumerate(live))
     calendar = "".join(
         f'<tbody><tr class="cal__day"><th scope="rowgroup" colspan="5">{fill(day)}</th></tr>'
         + "".join(
@@ -856,7 +703,7 @@ def page(notes):
         <p class="lede reveal">Interactive views across rates, equities, macro and cross-asset. Each preview names its source and date.</p>
       </div>
       <div class="filters" role="group" aria-label="Filter dashboards by category">{filters}</div>
-      <p class="filters__status" role="status" aria-live="polite">Showing all {len(DASHBOARDS)} dashboards</p>
+      <p class="filters__status" role="status" aria-live="polite">Showing all {len(live)} dashboards</p>
       <ul class="dash-grid">{tiles}</ul>
     </div>
   </section>

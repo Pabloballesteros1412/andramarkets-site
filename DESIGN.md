@@ -425,7 +425,7 @@ Two-part section splits: content in columns 1 to 6 (or 1 to 8 for the About stat
 - **1020px:** primary nav becomes the mobile sheet; the menu button appears; Subscribe appears as the last item in the sheet; header gap tightens 24px to 8px.
 - **960px:** note, Learn, About, signup columns and the footer brand go full width; footer nav and social split 6/6; Lab tools go full width; in the mixed Watch layout the grid becomes 2 columns with the YouTube frame spanning both at 16:9 (the TikTok-only row keeps 4).
 - **860px:** hero horse moves to `x 52%`, `y 36%` (above the headline).
-- **640px:** section padding 72px; body 1rem; section heads stack; tape columns become `40vw` each; dashboard tiles compact (still 2 columns, 14px padding, description hidden, title 1rem, source and key 0.75rem, Illustrative note on its own row); calendar becomes stacked rows (see Components); note archive stacks date over title; Watch becomes a horizontal snap scroller (wide 84vw, tall 44vw); signup input and button stack; hero buttons stretch; footer links grow to 44px.
+- **640px:** section padding 72px; body 1rem; section heads stack; tape columns become `40vw` each; dashboard tiles compact (still 2 columns, 14px padding, description hidden, title 1rem, source and key 0.75rem); calendar becomes stacked rows (see Components); note archive stacks date over title; Watch becomes a horizontal snap scroller (wide 84vw, tall 44vw); signup input and button stack; hero buttons stretch; footer links grow to 44px.
 - **520px:** header Subscribe button hidden (the sheet and hero carry it); menu button shows its icon only; horse size `180vw`, `y 27%`.
 
 Tap targets are at least 44px (chips, links, theme and menu buttons, tape note link, footer links on mobile); buttons are 48px (40px small, 52px in the signup row).
@@ -488,14 +488,14 @@ A full-width band below the hero, ground fill, `--rule` top and bottom.
 - **Pressed (`aria-pressed="true"`):** ink fill, ground label, count at 0.7 opacity. Exactly one chip is pressed.
 - **Hover (unpressed, fine pointers):** border to `--rule-strong`, label to ink.
 - **Row:** horizontal scroll with hidden scrollbar, bleeding to the gutter.
-- **Status:** a polite live region below the chips at 0.875rem ink-2: "Showing all 12 dashboards" or "Showing n of 12 dashboards: [category]". Matching tiles fade in over 260ms on filter.
+- **Status:** a polite live region below the chips at 0.875rem ink-2: "Showing all n dashboards" or "Showing n of m dashboards: [category]", counting only the tiles on the page. A category chip appears only when it has a tile.. Matching tiles fade in over 260ms on filter.
 
 ### Dashboard tile
 A cell in the hairline lattice; no card chrome.
 - **Order, top to bottom:** chart (2:1 box), key row, then text block: title (h3), description, source line. A hover arrow (`arrow-up-right`, 1.125rem) sits top right, hidden until hover.
-- **Key row:** the chart key items; on an illustrative tile, then the "Illustrative" stamp pushed right (`margin-left: auto`), dropping to its own row on mobile tiles. A tile with real data has no stamp, and its key names what it shows (dates for the curve and volatility comparisons).
-- **Source line:** "[Category]. [source], [date]" at 0.8125rem ink-3, e.g. "Rates and credit. FRED, US Treasury, 19 Oct 2026". The date is the data's own as-of date (the month for monthly data), never the build date. Until a tile has data both stay placeholders.
-- **Data:** fetched at deploy time by `tools/dashboard_data.py` (the agent's archived facts of published notes, FRED, Yahoo Finance) and drawn in the preview's own shape. Values live in each mark's native tooltip and the SVG's aria-label, not as text on the chart. A source that fails keeps the tile's last good figures and their date; a tile that never had data keeps its illustrative preview. Earnings season tracker and Market breadth stay illustrative: no reliable free source.
+- **Key row:** the chart key items, naming what the chart shows (dates for the curve and volatility comparisons). No "Illustrative" stamp: every dashboard tile is real data.
+- **Source line:** "[Category]. [source], [date]" at 0.8125rem ink-3, e.g. "Rates and credit. FRED, US Treasury, 19 Oct 2026". The date is the data's own as-of date (the month for monthly data), never the build date.
+- **Data:** fetched at deploy time by `tools/dashboard_data.py` (the agent's archived facts of published notes, FRED, Yahoo Finance) and drawn in the preview's own shape. Values live in each mark's native tooltip and the SVG's aria-label, not as text on the chart. A source that fails keeps the tile's last good figures and their date; a tile that has never had data is left off the page. **No illustrative tiles:** a dashboard is listed only once it has a real source. The earnings season tracker is out until one exists; market breadth is shown as "Watchlist breadth" (advancers less decliners across the Andra Markets watchlist, from the agent's archive), never as market-wide breadth.
 - **No kicker:** nothing sits above the title except the chart and its key. The category lives in the source line.
 - **Hover (fine pointers):** tile fills to `--ground-2` over 200ms; the arrow fades in from `translate(-4px, 4px)`.
 - **Padding:** `clamp(18px, 2vw, 28px)`; 14px at 640px and below, where the description is hidden.
@@ -594,7 +594,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Do** set every colour through the theme custom properties so both themes and the Lab plate work without per-component overrides.
 - **Do** use the one `--font` stack ending in `sans-serif`, with variable weights between 400 and 650 as recorded in Typography.
 - **Do** apply tabular figures only to elements that hold numbers.
-- **Do** give every chart a key, an "Illustrative" stamp until real data exists, and a source and date line.
+- **Do** give every chart a key and a source and date line. Lab and Learn charts carry an "Illustrative" stamp until real data exists; dashboard tiles never do.
 - **Do** write unknown values as bracketed placeholders in `.ph` (or `.ph--ink` for a headline).
 - **Do** separate with 1px hairlines (`--rule`, `--rule-strong`) and tonal steps rather than boxes.
 - **Do** gate every hover effect behind `@media (hover: hover) and (pointer: fine)`.

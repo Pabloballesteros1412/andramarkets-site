@@ -142,7 +142,11 @@ Actions cache, never committed or published.
 | Credit spreads | ICE BofA US high yield and corporate OAS via FRED | Latest observation |
 | Inflation and labour | BLS CPI (year on year) and payrolls via FRED | Latest month |
 | Cross-asset correlation | 60 sessions of daily returns: S&P 500, TLT, dollar index, WTI, gold, Yahoo Finance | Last session |
-| Earnings season tracker, Market breadth | None: no reliable free source. Illustrative | n/a |
+| Watchlist breadth | Agent archive: advancers less decliners across the Andra Markets watchlist of US large caps, last 30 published sessions | Newest published session |
+
+The earnings season tracker is not on the site: there is no reliable free
+source of beats and misses. Market-wide breadth has no free source either, so
+the breadth tile is labelled as the watchlist's.
 
 From the archive, only the facts of the run behind each published note on an
 NYSE trading day are read, never a series the facts flag as not yet published
@@ -150,7 +154,7 @@ or from another session, and the full facts file is never written to disk.
 Reading the archive releases needs **Contents: Read-only** on the agent repo
 in `AGENT_ARTIFACTS_TOKEN` (step 1 below, in addition to Actions). When a
 source fails, the tile keeps its last figures and their date; a tile that
-never had data stays illustrative. Neither stops the deploy.
+has never had data is left off the page (no illustrative tiles). Neither stops the deploy.
 
 ## Placeholders still to fill
 
