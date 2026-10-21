@@ -3,8 +3,8 @@
 
 Run by .github/workflows/pages.yml before tools/build_site.py. Writes one
 small file, .cache/dashboards/tiles.json: for each tile, the few numbers its
-preview draws, the source and the as-of date. build_site.py reads it; a tile
-with no record keeps its illustrative preview and says so.
+chart draws, the source and the as-of date. build_site.py reads it; a tile
+with no record is left off the page.
 
 Sources:
     the agent's archive   releases archive-YYYY-MM-DD in the agent repo; only
@@ -163,6 +163,21 @@ def tile_fx(archive):
     day, rows = latest_complete(archive, [("fx", k, n) for k, n, _ in FX])
     usd = [[n, -c if quote else c] for (n, _, c), (_, _, quote) in zip(rows, FX)]
     return day, "Yahoo Finance", {"rows": sorted(usd, key=lambda r: -r[1])}
+
+
+def tile_breadth(archive):
+    """Advancers and decliners across the agent's watchlist, session by session."""
+    rows = []
+    for day, facts in archive.sessions(45):
+        b = facts.get("breadth") if isinstance(facts.get("breadth"), dict) else {}
+        adv, dec, unch = (b.get(k) for k in ("advancers", "decliners", "unchanged"))
+        if all(isinstance(v, int) and not isinstance(v, bool) and v >= 0 for v in (adv, dec, unch)) and adv + dec:
+            rows.append([day.isoformat(), adv, dec, unch])
+    rows = rows[:30][::-1]
+    if len(rows) < 10:
+        raise LookupError("too few sessions with breadth")
+    return dt.date.fromisoformat(rows[-1][0]), "Andra Markets watchlist, Yahoo Finance", {
+        "sessions": rows, "size": sum(rows[-1][1:])}
 
 
 def curve_at(day, facts):
@@ -387,6 +402,7 @@ TILES = {
     "yield_curve": ("archive", tile_curve),
     "fed_path": (None, tile_fed),
     "sector_heatmap": ("archive", tile_sectors),
+    "breadth": ("archive", tile_breadth),
     "vol_term": (None, tile_vol),
     "global_indices": ("archive", tile_indices),
     "fx_majors": ("archive", tile_fx),

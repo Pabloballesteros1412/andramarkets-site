@@ -45,10 +45,11 @@ record. The daily note is one module among others, not the centrepiece.
 
 ## Capabilities and Constraints
 
-- Modules: dashboards (12 proposed: yield curve, Fed path, sector heatmap,
-  volatility term structure, global indices, FX majors, commodities, credit
-  spreads, inflation and labour, earnings season tracker, market breadth,
-  cross-asset correlation), Lab tools, economic calendar, daily close note,
+- Modules: dashboards (11, each on real data: yield curve, Fed path, sector
+  heatmap, volatility term structure, global indices, FX majors, commodities,
+  credit spreads, inflation and labour, watchlist breadth, cross-asset
+  correlation; an earnings season tracker returns once it has a real source;
+  no illustrative dashboard tiles), Lab tools, economic calendar, daily close note,
   Learn, Watch.
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
