@@ -51,6 +51,8 @@ jobs:
     # Deploy what was published even if another artifact was rejected.
     if: ${{ always() && needs.import.outputs.published == 'true' }}
     uses: ./.github/workflows/pages.yml
+    # The dashboards read the agent's archive with the same token.
+    secrets: inherit
     permissions:
       contents: read
       pages: write

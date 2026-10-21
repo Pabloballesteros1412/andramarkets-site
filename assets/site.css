@@ -931,6 +931,7 @@ ul {
 .dash-tile__src {
   margin-top: 10px;
   font-size: 0.8125rem;
+  color: var(--ink-3);
 }
 
 .dash-tile h3 {

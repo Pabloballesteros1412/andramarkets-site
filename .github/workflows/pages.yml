@@ -9,6 +9,10 @@ on:
       - "tools/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
+  # Refresh the dashboard tiles on weekdays, before the US open, even when no
+  # note is published.
+  schedule:
+    - cron: "17 11 * * 1-5"
   # Called by publish-notes.yml after it commits a note. A push made by a
   # workflow does not start other workflows on its own.
   workflow_call:
@@ -36,6 +40,23 @@ jobs:
         with:
           python-version: "3.12"
       - uses: actions/configure-pages@v5
+      # The tiles' last good figures, so a source that is down keeps them
+      # (with their own date). Only the figures the tiles draw are cached.
+      - name: Restore dashboard figures
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/dashboards
+          key: dashboards-${{ github.run_id }}
+          restore-keys: dashboards-
+      - name: Fetch dashboard figures
+        env:
+          AGENT_ARTIFACTS_TOKEN: ${{ secrets.AGENT_ARTIFACTS_TOKEN }}
+        run: python3 tools/dashboard_data.py
+      - name: Save dashboard figures
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/dashboards
+          key: dashboards-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Build pages
         run: python3 tools/build_site.py
       # Publish only the public site, never repo docs, briefs, data or tooling.

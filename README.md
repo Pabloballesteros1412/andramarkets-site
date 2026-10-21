@@ -6,6 +6,7 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `assets/`: stylesheet, script, self-hosted font, brand mark.
 - `tools/build_site.py`: generates every page from one shell. Edit markup here.
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
+- `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
 - `data/notes/<date>.json`: one record per close note: its text and the ten
   closing levels for the tape. No PDF or facts file is ever stored here.
@@ -90,8 +91,9 @@ Until then, notes dated in that year are held for review.
    week before it expires.
 7. **Repository access:** **Only select repositories** → pick `andramarkets`
    (the agent repo, not the site).
-8. **Permissions** → **Repository permissions** → **Actions** → **Read-only**.
-   Leave everything else on **No access** (Metadata: Read-only is added
+8. **Permissions** → **Repository permissions** → **Actions** → **Read-only**,
+   and **Contents** → **Read-only** (for the dashboards' archive). Leave
+   everything else on **No access** (Metadata: Read-only is added
    automatically and is required).
 9. **Generate token**, then **copy** it. GitHub shows it only once.
 
@@ -121,10 +123,39 @@ Held ones appear under **Pull requests**.
 When the token expires the run fails and GitHub emails you: repeat step 1,
 then in step 2 open the existing secret and **Update** it.
 
+## Dashboard data
+
+`.github/workflows/pages.yml` runs `tools/dashboard_data.py` before each
+build, and at 11:17 UTC on weekdays so the tiles refresh without a new note.
+It writes `.cache/dashboards/tiles.json`: for each tile only the figures it
+draws, its source and its as-of date. The file is kept between runs in the
+Actions cache, never committed or published.
+
+| Tile | Source | As of |
+|---|---|---|
+| Yield curve | Agent archive (FRED Treasury yields), latest against about a month before | The curve's own session |
+| Fed path | CME 30-day fed funds futures via Yahoo Finance (100 minus price), effective rate from FRED | Latest settled session |
+| Sector heatmap, FX majors | Agent archive (Yahoo Finance) | The newest published note in which every instrument printed |
+| Volatility term structure | Cboe VIX9D, VIX, VIX3M, VIX6M via Yahoo Finance, against 5 sessions before | Latest close |
+| Global indices | Yahoo Finance, each at its own latest local close | Newest of those closes |
+| Commodities | WTI and gold front-month futures via Yahoo Finance, rebased to 100 | Latest settled session |
+| Credit spreads | ICE BofA US high yield and corporate OAS via FRED | Latest observation |
+| Inflation and labour | BLS CPI (year on year) and payrolls via FRED | Latest month |
+| Cross-asset correlation | 60 sessions of daily returns: S&P 500, TLT, dollar index, WTI, gold, Yahoo Finance | Last session |
+| Earnings season tracker, Market breadth | None: no reliable free source. Illustrative | n/a |
+
+From the archive, only the facts of the run behind each published note on an
+NYSE trading day are read, never a series the facts flag as not yet published
+or from another session, and the full facts file is never written to disk.
+Reading the archive releases needs **Contents: Read-only** on the agent repo
+in `AGENT_ARTIFACTS_TOKEN` (step 1 below, in addition to Actions). When a
+source fails, the tile keeps its last figures and their date; a tile that
+never had data stays illustrative. Neither stops the deploy.
+
 ## Placeholders still to fill
 
 Everything in square brackets on the site is a placeholder, never invented
-data: dashboard sources and dates, calendar values and company names, Lab
+data: calendar values and company names, Lab
 parameters and upcoming tools, video titles and durations, copyright year, and
 the Methodology sections. The tape and the daily note module fill themselves
 once the first close note is published.
@@ -132,8 +163,8 @@ once the first close note is published.
 Social channels live in `SOCIALS` and the Watch videos in `VIDEOS`, both at the
 top of `tools/build_site.py`. Andra has no YouTube channel yet: set
 `YOUTUBE_URL` and add `("YouTube", "wide")` to the front of `VIDEOS` to bring
-back the footer link and the 16:9 frame; the Watch grid adapts by itself. All charts are illustrative
-shapes until real data is wired in, and say so. The signup form is a
+back the footer link and the 16:9 frame; the Watch grid adapts by itself. Lab and Learn charts
+are illustrative shapes until real data is wired in, and say so. The signup form is a
 placeholder until the free newsletter launches on a newsletter platform
 (Substack, Beehiiv or Ghost); it will then link there. See PRODUCT.md,
 Business Model.

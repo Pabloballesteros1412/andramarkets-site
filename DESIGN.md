@@ -493,8 +493,9 @@ A full-width band below the hero, ground fill, `--rule` top and bottom.
 ### Dashboard tile
 A cell in the hairline lattice; no card chrome.
 - **Order, top to bottom:** chart (2:1 box), key row, then text block: title (h3), description, source line. A hover arrow (`arrow-up-right`, 1.125rem) sits top right, hidden until hover.
-- **Key row:** the chart key items, then the "Illustrative" stamp pushed right (`margin-left: auto`); on mobile tiles the stamp drops to its own row.
-- **Source line:** "[Category]. [source], [date]" at 0.8125rem.
+- **Key row:** the chart key items; on an illustrative tile, then the "Illustrative" stamp pushed right (`margin-left: auto`), dropping to its own row on mobile tiles. A tile with real data has no stamp, and its key names what it shows (dates for the curve and volatility comparisons).
+- **Source line:** "[Category]. [source], [date]" at 0.8125rem ink-3, e.g. "Rates and credit. FRED, US Treasury, 19 Oct 2026". The date is the data's own as-of date (the month for monthly data), never the build date. Until a tile has data both stay placeholders.
+- **Data:** fetched at deploy time by `tools/dashboard_data.py` (the agent's archived facts of published notes, FRED, Yahoo Finance) and drawn in the preview's own shape. Values live in each mark's native tooltip and the SVG's aria-label, not as text on the chart. A source that fails keeps the tile's last good figures and their date; a tile that never had data keeps its illustrative preview. Earnings season tracker and Market breadth stay illustrative: no reliable free source.
 - **No kicker:** nothing sits above the title except the chart and its key. The category lives in the source line.
 - **Hover (fine pointers):** tile fills to `--ground-2` over 200ms; the arrow fades in from `translate(-4px, 4px)`.
 - **Padding:** `clamp(18px, 2vw, 28px)`; 14px at 640px and below, where the description is hidden.
@@ -577,8 +578,8 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Heatmap:** cell opacity `0.45 + 0.55 x |value|`, so the floor is 0.45 and no cell fades into the ground. Cells have a 3px gap.
 - **Boxes:** tiles use a 320x160 viewBox in a 2:1 box; Lab charts 640x260; explainer 560x240. Time series stretch (`preserveAspectRatio="none"`); shaped charts (curves, heatmaps, matrices) keep their aspect.
 - **Key:** below every chart, 0.8125rem ink-2: a 16px solid or dashed line swatch for series, a 12px square for up/down, then the "Illustrative" stamp.
-- **Accessibility:** each SVG is `role="img"` with an aria-label ending ", illustrative, not market data".
-- **Data:** previews are schematic seeded random walks, never real or invented figures.
+- **Accessibility:** each SVG is `role="img"`. An illustrative chart's aria-label ends ", illustrative, not market data"; a real one lists its values and dates.
+- **Data:** real figures with a source and date, or a schematic seeded random walk stamped Illustrative. Never invented figures.
 
 ### Brand assets
 - **Favicon and touch icon** (`assets/favicon-32.png`, `assets/favicon-48.png`, `assets/apple-touch-icon.png` at 180px): a head-and-neck crop of `andra-horse.png` (source box x462 to 646, y252 to 436) on its own black ground, pixels otherwise unaltered, resized with Lanczos. The owner asked for "a favicon (head and neck crop of the horse)" and approved the proposal as shown. This is the only approved crop of the mark.
