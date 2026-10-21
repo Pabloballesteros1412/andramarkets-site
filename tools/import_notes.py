@@ -5,16 +5,20 @@ Run by .github/workflows/publish-notes.yml. For every artifact the agent
 uploaded that this repo has not seen yet (data/import-state.json), oldest
 first:
 
-  1. download the zip with a read-only token and take at most three files:
-     AndraMarkets_Close_YYYYMMDD.pdf, facts_YYYYMMDD.json and, from runs since
-     15 September 2026, note_YYYYMMDD.json. Earlier runs saved no note file:
-     their text is recovered from the PDF (tools/pdf_note.py) and always held
-  2. check them (the PDF is read in memory for the figure check and edition)
+  1. download the zip with a read-only token and take at most four files:
+     AndraMarkets_Close_YYYYMMDD.pdf, facts_YYYYMMDD.json, from runs since
+     15 September 2026 note_YYYYMMDD.json, and from runs since 22 October 2026
+     manifest_YYYYMMDD.json. Earlier runs saved no note file: their text is
+     recovered from the PDF (tools/pdf_note.py) and always held
+  2. check them. The figure check result and edition come from the manifest;
+     for runs without one they are read from the PDF, in memory
        broken (missing PDF or facts, bad JSON, not a PDF, dates disagree):
          rejected, nothing is published and the run fails so GitHub emails you
        not an NYSE trading day, dated in the future, made before that day's
-         close, the figure check failed ("Control note." in the PDF), or the
-         text was recovered from the PDF: held, opened as a pull request
+         close, the figure check failed (audit_ok false in the manifest, or
+         "Control note." in the PDF), a demo run, a print from another
+         session (series_off_session in the facts is not empty), or the text
+         was recovered from the PDF: held, opened as a pull request
        otherwise: published straight to main
   3. one note per session date: the newest clean run is published; a held
      run newer than it goes to review (for recovered text, the most complete
@@ -75,6 +79,7 @@ FILES = {
     "pdf": re.compile(r"AndraMarkets_Close_(\d{8})\.pdf"),
     "note": re.compile(r"note_(\d{8})\.json"),
     "facts": re.compile(r"facts_(\d{8})\.json"),
+    "manifest": re.compile(r"manifest_(\d{8})\.json"),
 }
 # The note text published on the site. linkedin and tiktok are left out.
 NOTE_FIELDS = ("headline", "standfirst", "takeaways", "desk_view", "watching",
@@ -158,7 +163,7 @@ def list_artifacts(token):
 # Checks ----------------------------------------------------------------------
 
 def unpack(blob):
-    """Return (YYYYMMDD, {"pdf": bytes, "facts": bytes[, "note": bytes]})."""
+    """Return (YYYYMMDD, {"pdf": bytes, "facts": bytes[, "note": bytes, "manifest": bytes]})."""
     found = {}
     try:
         z = zipfile.ZipFile(io.BytesIO(blob))
@@ -199,9 +204,19 @@ def number(v):
     return float(v) if math.isfinite(v) else None
 
 
+def unprinted(facts):
+    """Keys with no print for the session: not yet published, or from another session."""
+    keys = set()
+    for field in ("series_not_yet_published", "series_off_session"):
+        v = facts.get(field)
+        if isinstance(v, list):
+            keys.update(k for k in v if isinstance(k, str))
+    return keys
+
+
 def closes(facts):
     """The tape's closing level and daily change, from the facts file."""
-    stale = set(facts.get("series_not_yet_published") or [])
+    stale = unprinted(facts)
     out = {}
     for block, key in TAPE:
         rows = facts.get(block) if isinstance(facts.get(block), list) else []
@@ -222,17 +237,16 @@ BARS = {
                ("credit", "ief", "7-10Y UST (IEF)"), ("credit", "tlt", "Long UST (TLT)")],
     "volatility": [("volatility", "vix", "VIX"), ("volatility", "vix9d", "VIX 9-day"),
                    ("volatility", "vix3m", "VIX 3-month"), ("volatility", "vvix", "VVIX"),
-                   ("volatility", "move", "MOVE"), ("volatility", "vstoxx", "VSTOXX")],
+                   ("volatility", "move", "MOVE")],
     "commodities": [("commodities", "wti", "WTI crude"), ("commodities", "brent", "Brent"),
                     ("commodities", "natgas", "Natural gas"), ("commodities", "gold", "Gold"),
                     ("commodities", "silver", "Silver"), ("commodities", "copper", "Copper")],
     "fx": [("fx", "dxy", "Dollar index"), ("fx", "eurusd", "EUR/USD"), ("fx", "usdjpy", "USD/JPY"),
-           ("fx", "gbpusd", "GBP/USD"), ("fx", "usdcnh", "USD/CNH"), ("fx", "usdmxn", "USD/MXN")],
+           ("fx", "gbpusd", "GBP/USD"), ("fx", "usdcny", "USD/CNY"), ("fx", "usdmxn", "USD/MXN")],
     "international": [("europe", "sx5e", "Euro Stoxx 50"), ("europe", "dax", "DAX 40"),
                       ("europe", "ftse", "FTSE 100"), ("apac", "nky", "Nikkei 225"),
-                      ("apac", "hsi", "Hang Seng"), ("apac", "csi300", "CSI 300"),
-                      ("apac", "kospi", "KOSPI"), ("americas", "ibov", "Bovespa"),
-                      ("americas", "tsx", "S&P/TSX")],
+                      ("apac", "hsi", "Hang Seng"), ("apac", "kospi", "KOSPI"),
+                      ("americas", "ibov", "Bovespa"), ("americas", "tsx", "S&P/TSX")],
     "digital": [("digital", "btc", "Bitcoin"), ("digital", "eth", "Ether"),
                 ("digital", "sol", "Solana"), ("digital", "xrp", "XRP")],
 }
@@ -243,7 +257,7 @@ CURVE = ("ust1m", "ust3m", "ust6m", "ust1y", "ust2y", "ust3y", "ust5y", "ust7y",
 
 def charts(facts):
     """Only what the report page charts need: the curve, risk score and breadth."""
-    stale = set(facts.get("series_not_yet_published") or [])
+    stale = unprinted(facts)
     rows = {r.get("key"): r for r in facts.get("treasury_curve") or [] if isinstance(r, dict)}
     curve = [{"key": k, "tenor": clean_text(rows[k].get("name"))[:20],
               "last": number(rows[k].get("last")), "chg": number(rows[k].get("chg")),
@@ -291,14 +305,58 @@ def pdf_text(pdf):
     return " ".join(page.extract_text() or "" for page in reader.pages)
 
 
+def manifest_checks(manifest, hold):
+    """Figure check and edition from manifest_YYYYMMDD.json (runs since 22 October 2026)."""
+    edition = manifest.get("edition")
+    edition = str(edition) if (isinstance(edition, (int, str)) and not isinstance(edition, bool)
+                               and re.fullmatch(r"\d{1,6}", str(edition))) else None
+    if manifest.get("demo"):
+        hold.append("The manifest marks this as a demo run: its figures are not market data.")
+    audit = manifest.get("audit_ok")
+    if audit is True:
+        return edition, "passed"
+    if audit is False:
+        unsupported = manifest.get("unsupported")
+        listed = (": " + ", ".join(clean_text(str(x))[:40] for x in unsupported[:12])
+                  if isinstance(unsupported, list) and unsupported else "")
+        hold.append(f"The figure check failed: the manifest lists figures not in the facts{listed}.")
+        return edition, "failed"
+    hold.append("The manifest has no figure check result (audit_ok), so it could not be confirmed.")
+    return edition, "unknown"
+
+
+def pdf_checks(pdf, hold):
+    """Figure check and edition from the PDF text, for runs that saved no manifest."""
+    edition, figure_check = None, "unknown"
+    try:
+        body = re.sub(r"\s+", " ", pdf_text(pdf))
+    except Exception as e:  # noqa: BLE001
+        body = ""
+        hold.append(f"The PDF text could not be read ({type(e).__name__}), so the "
+                    "figure check could not be confirmed.")
+    else:
+        if not body.strip():
+            hold.append("The PDF has no extractable text, so the figure check "
+                        "could not be confirmed.")
+        if re.search(r"Control\s*note", body):
+            figure_check = "failed"
+            hold.append("The figure check failed: the PDF carries a Control note.")
+        elif body.strip():
+            figure_check = "passed"
+        m = re.search(r"Edition\s*(\d{1,6})\b", body, re.I)
+        edition = m.group(1) if m else None
+    return edition, figure_check
+
+
 def check(stamp, files, artifact, today):
     """Build the note record. Returns (record, hold_reasons) or raises Rejected."""
     try:
         note = json.loads(files["note"]) if "note" in files else None
         facts = json.loads(files["facts"])
+        manifest = json.loads(files["manifest"]) if "manifest" in files else None
     except ValueError as e:
         raise Rejected(f"a JSON file does not parse ({e})")
-    if not isinstance(facts, dict) or not isinstance(note, (dict, type(None))):
+    if not isinstance(facts, dict) or not all(isinstance(x, (dict, type(None))) for x in (note, manifest)):
         raise Rejected("a JSON file is not an object")
     try:
         day = dt.date.fromisoformat(str(facts.get("date"))[:10])
@@ -306,6 +364,8 @@ def check(stamp, files, artifact, today):
         raise Rejected("the facts file has no valid session date")
     if day.strftime("%Y%m%d") != stamp:
         raise Rejected(f"the facts file is dated {day} but the files are named {stamp}")
+    if manifest is not None and str(manifest.get("date"))[:10] != day.isoformat():
+        raise Rejected(f"the manifest is dated {manifest.get('date')} and the facts file {day}")
     if not files["pdf"].startswith(b"%PDF-"):
         raise Rejected("the PDF file is not a PDF")
     source = "agent"
@@ -330,7 +390,8 @@ def check(stamp, files, artifact, today):
 
     hold = []
     # The agent's fallback when its writer fails: a generic headline, no prose.
-    quantitative = text["standfirst"].startswith("Published in quantitative mode")
+    quantitative = (text["standfirst"].startswith("Published in quantitative mode")
+                    or (manifest or {}).get("mode") == "quantitative")
     if not quantitative:
         empty = [LABELS[f] for f in LABELS if not text[f]]
         short = [LABELS[f] for f in LABELS if f not in LIST_FIELDS and text[f]
@@ -356,25 +417,21 @@ def check(stamp, files, artifact, today):
                     f"before the {day.day} {day:%B} close, so its figures cannot be that session's.")
     if source == "pdf":
         hold.append(RECOVERED)
+    # Runs since 22 October 2026 list every row whose own print date is not
+    # the session's (a market closed that day, a late or missing print).
+    off = facts.get("series_off_session")
+    if off is not None and not isinstance(off, list):
+        hold.append("The facts file's series_off_session is not a list, so the "
+                    "print dates could not be confirmed.")
+    elif off:
+        keys = ", ".join(clean_text(str(k))[:20] for k in off)
+        hold.append(f"Prints from another session: {keys} "
+                    f"{'is' if len(off) == 1 else 'are'} not dated {day}, so the note would mix dates.")
 
-    edition, figure_check = None, "unknown"
-    try:
-        body = re.sub(r"\s+", " ", pdf_text(files["pdf"]))
-    except Exception as e:  # noqa: BLE001
-        body = ""
-        hold.append(f"The PDF text could not be read ({type(e).__name__}), so the "
-                    "figure check could not be confirmed.")
+    if manifest is not None:
+        edition, figure_check = manifest_checks(manifest, hold)
     else:
-        if not body.strip():
-            hold.append("The PDF has no extractable text, so the figure check "
-                        "could not be confirmed.")
-        if re.search(r"Control\s*note", body):
-            figure_check = "failed"
-            hold.append("The figure check failed: the PDF carries a Control note.")
-        elif body.strip():
-            figure_check = "passed"
-        m = re.search(r"Edition\s*(\d{1,6})\b", body, re.I)
-        edition = m.group(1) if m else None
+        edition, figure_check = pdf_checks(files["pdf"], hold)
 
     record = {
         "date": day.isoformat(),
@@ -495,6 +552,10 @@ def short_reason(reason):
         return "text recovered from the PDF"
     if reason.startswith("The figure check failed"):
         return "figure check failed"
+    if reason.startswith("Prints from another session: "):
+        return "prints from another session (" + re.split(r" (?:is|are) not dated ", reason)[0].split(": ", 1)[1] + ")"
+    if reason.startswith("The manifest marks this as a demo run"):
+        return "demo run"
     if "not an NYSE trading day" in reason:
         return f"not a trading day ({reason.split(' was ')[0]})"
     if reason.startswith("The run finished"):

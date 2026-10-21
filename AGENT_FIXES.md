@@ -92,9 +92,9 @@ files records it, and the edition number is not in any JSON either.
 
 - **Fix:** write `manifest_YYYYMMDD.json` next to the other outputs:
   `{"date", "edition", "audit_ok", "unsupported", "mode": "model" | "quantitative", "demo": false}`.
-- **Site today:** reads the PDF text, holds the note if it finds "Control
-  note", and reads "Edition NNNN" from the PDF. Once the manifest exists the
-  importer should read it instead (a small change in `tools/import_notes.py`).
+- **Done (agent, 21 Oct 2026):** the agent writes the manifest. The site
+  reads the figure check and edition from it, holds a demo run, and falls
+  back to the PDF ("Control note", "Edition NNNN") only for runs without one.
 
 ## 8. The daily workflow has no schedule
 
