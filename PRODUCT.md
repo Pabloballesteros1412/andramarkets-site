@@ -49,7 +49,7 @@ record. The daily note is one module among others, not the centrepiece.
   heatmap, volatility term structure, global indices, FX majors, commodities,
   credit spreads, inflation and labour, watchlist breadth, cross-asset
   correlation; an earnings season tracker returns once it has a real source;
-  no illustrative dashboard tiles), Lab tools, economic calendar, daily close note,
+  no illustrative dashboard tiles; a tile waiting for data says "Data pending"), Lab tools, economic calendar, daily close note,
   Learn, Watch.
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication

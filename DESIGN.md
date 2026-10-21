@@ -488,14 +488,14 @@ A full-width band below the hero, ground fill, `--rule` top and bottom.
 - **Pressed (`aria-pressed="true"`):** ink fill, ground label, count at 0.7 opacity. Exactly one chip is pressed.
 - **Hover (unpressed, fine pointers):** border to `--rule-strong`, label to ink.
 - **Row:** horizontal scroll with hidden scrollbar, bleeding to the gutter.
-- **Status:** a polite live region below the chips at 0.875rem ink-2: "Showing all n dashboards" or "Showing n of m dashboards: [category]", counting only the tiles on the page. A category chip appears only when it has a tile.. Matching tiles fade in over 260ms on filter.
+- **Status:** a polite live region below the chips at 0.875rem ink-2: "Showing all 11 dashboards" or "Showing n of 11 dashboards: [category]".. Matching tiles fade in over 260ms on filter.
 
 ### Dashboard tile
 A cell in the hairline lattice; no card chrome.
 - **Order, top to bottom:** chart (2:1 box), key row, then text block: title (h3), description, source line. A hover arrow (`arrow-up-right`, 1.125rem) sits top right, hidden until hover.
 - **Key row:** the chart key items, naming what the chart shows (dates for the curve and volatility comparisons). No "Illustrative" stamp: every dashboard tile is real data.
 - **Source line:** "[Category]. [source], [date]" at 0.8125rem ink-3, e.g. "Rates and credit. FRED, US Treasury, 19 Oct 2026". The date is the data's own as-of date (the month for monthly data), never the build date.
-- **Data:** fetched at deploy time by `tools/dashboard_data.py` (the agent's archived facts of published notes, FRED, Yahoo Finance) and drawn in the preview's own shape. Values live in each mark's native tooltip and the SVG's aria-label, not as text on the chart. A source that fails keeps the tile's last good figures and their date; a tile that has never had data is left off the page. **No illustrative tiles:** a dashboard is listed only once it has a real source. The earnings season tracker is out until one exists; market breadth is shown as "Watchlist breadth" (advancers less decliners across the Andra Markets watchlist, from the agent's archive), never as market-wide breadth.
+- **Data:** fetched at deploy time by `tools/dashboard_data.py` (the agent's archived facts of published notes, FRED, Yahoo Finance) and drawn in the preview's own shape. Values live in each mark's native tooltip and the SVG's aria-label, not as text on the chart. A source that fails keeps the tile's last good figures and their date; a tile that has no figures yet keeps its place: its 2:1 chart box holds one line, "Data pending" (0.8125rem ink-3, centred), with no chart and no key, and its source line names the real source without a date. **No illustrative tiles:** the earnings season tracker is out until it has a real source; market breadth is shown as "Watchlist breadth" (advancers less decliners across the Andra Markets watchlist, from the agent's archive), never as market-wide breadth.
 - **No kicker:** nothing sits above the title except the chart and its key. The category lives in the source line.
 - **Hover (fine pointers):** tile fills to `--ground-2` over 200ms; the arrow fades in from `translate(-4px, 4px)`.
 - **Padding:** `clamp(18px, 2vw, 28px)`; 14px at 640px and below, where the description is hidden.
