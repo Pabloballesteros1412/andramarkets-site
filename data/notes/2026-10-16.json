@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-17",
+  "date": "2026-10-16",
   "published": true,
   "edition": "0036",
   "figure_check": "failed",
@@ -34,32 +34,32 @@
     "spx": {
       "last": 7659.44,
       "chg": -1.093,
-      "stale": true
+      "stale": false
     },
     "ndx": {
       "last": 29187.551,
       "chg": -2.499,
-      "stale": true
+      "stale": false
     },
     "rut": {
       "last": 2721.37,
       "chg": -1.659,
-      "stale": true
+      "stale": false
     },
     "sx5e": {
       "last": 6204.23,
       "chg": 0.583,
-      "stale": true
+      "stale": false
     },
     "nky": {
       "last": 65324.289,
       "chg": 1.394,
-      "stale": true
+      "stale": false
     },
     "vix": {
       "last": 19.99,
       "chg": 21.446,
-      "stale": true
+      "stale": false
     },
     "ust10y": {
       "last": 5.1,
@@ -69,40 +69,199 @@
     "eurusd": {
       "last": 1.124,
       "chg": 0.433,
-      "stale": true
+      "stale": false
     },
     "wti": {
       "last": 101.41,
       "chg": 3.511,
-      "stale": true
+      "stale": false
     },
     "gold": {
       "last": 4181.1,
       "chg": 0.264,
-      "stale": true
+      "stale": false
     }
   },
   "charts": {
     "v": 2,
     "bars": {
       "sectors": {
-        "rows": [],
-        "left_out": 11
+        "rows": [
+          [
+            "Technology",
+            183.47,
+            -3.023
+          ],
+          [
+            "Financials",
+            55.52,
+            0.452
+          ],
+          [
+            "Health care",
+            176.71,
+            -0.271
+          ],
+          [
+            "Cons. discretionary",
+            112.46,
+            -0.838
+          ],
+          [
+            "Cons. staples",
+            87.62,
+            1.084
+          ],
+          [
+            "Energy",
+            68.24,
+            2.524
+          ],
+          [
+            "Industrials",
+            167.76,
+            -0.077
+          ],
+          [
+            "Materials",
+            50.92,
+            0.712
+          ],
+          [
+            "Real estate",
+            42.16,
+            0.405
+          ],
+          [
+            "Utilities",
+            42.21,
+            1.345
+          ],
+          [
+            "Communications",
+            110.32,
+            -1.885
+          ]
+        ],
+        "left_out": 0
       },
       "credit": {
-        "rows": [],
-        "left_out": 6
+        "rows": [
+          [
+            "US IG (LQD)",
+            103.4,
+            -0.097
+          ],
+          [
+            "US HY (HYG)",
+            76.86,
+            -0.35
+          ],
+          [
+            "EM USD (EMB)",
+            91.52,
+            -0.327
+          ],
+          [
+            "Loans (BKLN)",
+            20.44,
+            -0.147
+          ],
+          [
+            "7-10Y UST (IEF)",
+            90.42,
+            0.077
+          ],
+          [
+            "Long UST (TLT)",
+            80.05,
+            0.1
+          ]
+        ],
+        "left_out": 0
       },
       "volatility": {
-        "rows": [],
-        "left_out": 5
+        "rows": [
+          [
+            "VIX",
+            19.99,
+            21.446
+          ],
+          [
+            "VIX 9-day",
+            20.12,
+            44.023
+          ],
+          [
+            "VIX 3-month",
+            20.5,
+            10.871
+          ],
+          [
+            "VVIX",
+            109.91,
+            18.732
+          ],
+          [
+            "MOVE",
+            101.1,
+            -1.356
+          ]
+        ],
+        "left_out": 0
       },
       "commodities": {
-        "rows": [],
-        "left_out": 6
+        "rows": [
+          [
+            "WTI crude",
+            101.41,
+            3.511
+          ],
+          [
+            "Brent",
+            109.86,
+            3.72
+          ],
+          [
+            "Natural gas",
+            3.116,
+            -3.708
+          ],
+          [
+            "Gold",
+            4181.1,
+            0.264
+          ],
+          [
+            "Silver",
+            56.995,
+            0.278
+          ],
+          [
+            "Copper",
+            6.531,
+            0.299
+          ]
+        ],
+        "left_out": 0
       },
       "fx": {
         "rows": [
+          [
+            "Dollar index",
+            101.84,
+            -0.157
+          ],
+          [
+            "EUR/USD",
+            1.124,
+            0.433
+          ],
+          [
+            "USD/JPY",
+            157.987,
+            0.019
+          ],
           [
             "GBP/USD",
             1.333,
@@ -114,36 +273,56 @@
             0.202
           ]
         ],
-        "left_out": 3
+        "left_out": 0
       },
       "international": {
-        "rows": [],
-        "left_out": 8
-      },
-      "digital": {
         "rows": [
           [
-            "Bitcoin",
-            81460.312,
-            -0.05
+            "Euro Stoxx 50",
+            6204.23,
+            0.583
           ],
           [
-            "Ether",
-            2433.15,
-            0.553
+            "DAX 40",
+            25622.609,
+            0.945
           ],
           [
-            "Solana",
-            104.64,
-            0.329
+            "FTSE 100",
+            10881.9,
+            0.383
           ],
           [
-            "XRP",
-            1.304,
-            -0.468
+            "Nikkei 225",
+            65324.289,
+            1.394
+          ],
+          [
+            "Hang Seng",
+            24186.83,
+            0.516
+          ],
+          [
+            "KOSPI",
+            5668.05,
+            2.049
+          ],
+          [
+            "Bovespa",
+            205430.0,
+            0.541
+          ],
+          [
+            "S&P/TSX",
+            36176.602,
+            0.109
           ]
         ],
         "left_out": 0
+      },
+      "digital": {
+        "rows": [],
+        "left_out": 4
       }
     },
     "movers": {
