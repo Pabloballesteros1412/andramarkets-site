@@ -30,8 +30,10 @@ with a read-only token, and for each one:
   (text and tape closes) to `main`, then deploys the site;
 - **holds it in a pull request** titled "Held close note: <date>" when the
   date was not an NYSE trading day, is in the future, the run finished before
-  that day's close, the figure check failed, or the note is incomplete (a
-  section missing or cut short). Merge to publish, close to discard;
+  that day's close, the figure check failed, the run was a demo, an
+  instrument's print is from another session (`series_off_session` in the
+  facts), or the note is incomplete (a section missing or cut short). Merge
+  to publish, close to discard;
 - **rejects it** when files are missing or broken. Nothing is published and
   the run fails, so GitHub emails you.
 
@@ -50,7 +52,12 @@ Runs before 15 September 2026 saved no note text file. For those, the text is
 read back from the report PDF (`tools/pdf_note.py`, checked against all 23
 later runs: every field matched exactly) and always held for review.
 
-The PDF is read only for the checks and, for old runs, the text; it and the
+The figure check result and edition come from the run's
+`manifest_YYYYMMDD.json`. Runs from before the agent wrote one (22 October
+2026) have them read from the PDF instead (a "Control note." means the check
+failed).
+
+The PDF is read only for those older checks and, for old runs, the text; it and the
 full facts file are never committed (this repo is public) or offered on the
 site. They stay in the agent's artifacts. To publish at once:
 **Actions** → **Publish close notes** → **Run workflow**.
