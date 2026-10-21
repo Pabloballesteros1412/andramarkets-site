@@ -154,7 +154,7 @@ or from another session, and the full facts file is never written to disk.
 Reading the archive releases needs **Contents: Read-only** on the agent repo
 in `AGENT_ARTIFACTS_TOKEN` (step 1 below, in addition to Actions). When a
 source fails, the tile keeps its last figures and their date; a tile that
-has never had data is left off the page (no illustrative tiles). Neither stops the deploy.
+has no figures yet shows its source and "Data pending", never a stand-in chart. Neither stops the deploy.
 
 ## Placeholders still to fill
 

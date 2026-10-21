@@ -35,6 +35,7 @@ import math
 import os
 import re
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -404,7 +405,7 @@ TILES = {
     "sector_heatmap": ("archive", tile_sectors),
     "breadth": ("archive", tile_breadth),
     "vol_term": (None, tile_vol),
-    "global_indices": ("archive", tile_indices),
+    "global_indices": (None, tile_indices),
     "fx_majors": ("archive", tile_fx),
     "commodities": (None, tile_commodities),
     "credit_spreads": (None, tile_credit),
@@ -422,8 +423,14 @@ def main():
     try:
         archive = Archive(os.environ.get("AGENT_ARTIFACTS_TOKEN"))
     except Exception as e:  # noqa: BLE001
-        log(f"Agent archive unavailable ({type(e).__name__}: {e}); archive tiles keep their last record. "
-            "The token needs Contents: read on the agent repo.", "warning")
+        why = f"{type(e).__name__}: {e}"
+        if isinstance(e, urllib.error.HTTPError):
+            try:  # GitHub says why, e.g. "Resource not accessible by personal access token"
+                why += f" ({json.loads(e.read(4096)).get('message')})"
+            except Exception:  # noqa: BLE001
+                pass
+        log(f"Agent archive unavailable, {why}; archive tiles keep their last record or show as pending. "
+            "Reading releases needs Contents: read on the agent repo for AGENT_ARTIFACTS_TOKEN.", "warning")
     for key, (needs, fn) in TILES.items():
         if needs == "archive" and archive is None:
             continue

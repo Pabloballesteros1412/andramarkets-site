@@ -18,7 +18,7 @@ free, and those downloads are reserved for paid subscribers later.
 
 Dashboard tiles draw real figures from .cache/dashboards/tiles.json, written
 at deploy time by tools/dashboard_data.py, with their source and date; a tile
-without a record is left off the page. Lab and Learn charts are schematic
+without a record shows its source and "Data pending". Lab and Learn charts are schematic
 shapes, not market data, and labelled "Illustrative". Follow DESIGN.md.
 """
 import datetime as dt
@@ -143,7 +143,7 @@ def c_explainer(w=560, h=240):
 
 # Dashboard tiles with real data ---------------------------------------------
 # Figures from tools/dashboard_data.py (.cache/dashboards/tiles.json). A tile
-# without a record is left off the page: no dashboard tile is illustrative.
+# without a record shows "Data pending": no dashboard tile is illustrative.
 
 DASH_DATA = ROOT / ".cache" / "dashboards" / "tiles.json"
 
@@ -414,20 +414,21 @@ CATEGORIES = [
     ("cross", "Cross-asset", "Cross-asset"),
 ]
 
-# (key, category, title, description). The key names the tile's record from
-# tools/dashboard_data.py; a tile without one is left off the page.
+# (key, category, title, description, source). The key names the tile's record
+# from tools/dashboard_data.py. A tile still waiting for its first figures
+# shows its source and "Data pending", never a stand-in chart.
 DASHBOARDS = [
-    ("yield_curve", "rates", "Yield curve", "The Treasury curve today against a month ago."),
-    ("fed_path", "macro", "Fed path", "Where futures price the policy rate, month by month."),
-    ("sector_heatmap", "equities", "Sector heatmap", "Every S&amp;P 500 sector, ranked by the day's move."),
-    ("vol_term", "cross", "Volatility term structure", "Implied volatility across expiries, and how its shape is shifting."),
-    ("global_indices", "equities", "Global indices", "Major equity benchmarks across the US, Europe and Asia."),
-    ("fx_majors", "cross", "FX majors", "The dollar against the major currencies."),
-    ("commodities", "cross", "Commodities", "Oil and gold, rebased to the same start."),
-    ("credit_spreads", "rates", "Credit spreads", "High yield and investment grade spreads over Treasuries."),
-    ("inflation_labour", "macro", "Inflation and labour", "Inflation prints alongside the monthly jobs report."),
-    ("breadth", "equities", "Watchlist breadth", "Advancers less decliners across the Andra Markets watchlist of US large caps, session by session."),
-    ("correlation", "cross", "Cross-asset correlation", "How stocks, bonds, the dollar and commodities move together."),
+    ("yield_curve", "rates", "Yield curve", "The Treasury curve today against a month ago.", "FRED, US Treasury"),
+    ("fed_path", "macro", "Fed path", "Where futures price the policy rate, month by month.", "CME futures, Yahoo Finance; FRED"),
+    ("sector_heatmap", "equities", "Sector heatmap", "Every S&amp;P 500 sector, ranked by the day's move.", "Yahoo Finance, sector ETFs"),
+    ("vol_term", "cross", "Volatility term structure", "Implied volatility across expiries, and how its shape is shifting.", "Cboe, Yahoo Finance"),
+    ("global_indices", "equities", "Global indices", "Major equity benchmarks across the US, Europe and Asia.", "Yahoo Finance, local closes"),
+    ("fx_majors", "cross", "FX majors", "The dollar against the major currencies.", "Yahoo Finance"),
+    ("commodities", "cross", "Commodities", "Oil and gold, rebased to the same start.", "Futures, Yahoo Finance"),
+    ("credit_spreads", "rates", "Credit spreads", "High yield and investment grade spreads over Treasuries.", "ICE BofA, FRED"),
+    ("inflation_labour", "macro", "Inflation and labour", "Inflation prints alongside the monthly jobs report.", "BLS, FRED"),
+    ("breadth", "equities", "Watchlist breadth", "Advancers less decliners across the Andra Markets watchlist of US large caps, session by session.", "Andra Markets watchlist, Yahoo Finance"),
+    ("correlation", "cross", "Cross-asset correlation", "How stocks, bonds, the dollar and commodities move together.", "Yahoo Finance, daily returns"),
 ]
 
 CALENDAR = [
@@ -590,28 +591,32 @@ def page(notes):
                      f'<span class="ph ph--ink">[headline]</span></span>{icon("arrow-right")}</a>')
         tape_src = f'Last and daily change. Source {ph("[data vendor]")}'
     dash_data = load_dash_data()
-    live = [t for t in DASHBOARDS if t[0] in dash_data and t[0] in REAL]
-    filters = f'<button type="button" class="chip" data-filter="all" data-label="All" aria-pressed="true">All <span class="chip__n">{len(live)}</span></button>' + "".join(
+    filters = f'<button type="button" class="chip" data-filter="all" data-label="All" aria-pressed="true">All <span class="chip__n">{len(DASHBOARDS)}</span></button>' + "".join(
         f'<button type="button" class="chip" data-filter="{key}" data-label="{label}" aria-pressed="false">{short} '
-        f'<span class="chip__n">{n}</span></button>'
-        for key, label, short in CATEGORIES if (n := sum(1 for x in live if x[1] == key))
+        f'<span class="chip__n">{sum(1 for x in DASHBOARDS if x[1] == key)}</span></button>'
+        for key, label, short in CATEGORIES
     )
     cat_label = {k: label for k, label, _ in CATEGORIES}
     swatch = {"line": "k-solid", "dash": "k-dash", "up": "sw-up", "down": "sw-down"}
 
-    def tile(i, key, cat, name, desc):
-        rec = dash_data[key]
-        chart, leg = REAL[key](rec)
-        items = "".join(f'<span><i class="{swatch[kind]}"></i>{label}</span>' for kind, label in leg)
+    def tile(i, key, cat, name, desc, source):
+        rec = dash_data.get(key)
+        if rec:
+            chart, leg = REAL[key](rec)
+            items = "".join(f'<span><i class="{swatch[kind]}"></i>{label}</span>' for kind, label in leg)
+            figure = f'<div class="dash-tile__chart draw">{chart}</div><p class="key">{items}</p>'
+            src = f'{cat_label[cat]}. {esc(rec["source"])}, {tile_asof(key, rec)}'
+        else:
+            figure = '<div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p>'
+            src = f"{cat_label[cat]}. {source}."
         return (f'<li class="dash-tile reveal" data-cat="{cat}" style="--i:{i % 3}">'
-                f'<a href="#dashboards" class="dash-tile__link">'
-                f'<div class="dash-tile__chart draw">{chart}</div><p class="key">{items}</p>'
+                f'<a href="#dashboards" class="dash-tile__link">{figure}'
                 f'<div class="dash-tile__text">'
                 f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p>'
-                f'<p class="dash-tile__src">{cat_label[cat]}. {esc(rec["source"])}, {tile_asof(key, rec)}</p></div>'
+                f'<p class="dash-tile__src">{src}</p></div>'
                 f'<span class="dash-tile__go">{icon("arrow-up-right")}</span></a></li>')
 
-    tiles = "".join(tile(i, *t) for i, t in enumerate(live))
+    tiles = "".join(tile(i, *t) for i, t in enumerate(DASHBOARDS))
     calendar = "".join(
         f'<tbody><tr class="cal__day"><th scope="rowgroup" colspan="5">{fill(day)}</th></tr>'
         + "".join(
@@ -703,7 +708,7 @@ def page(notes):
         <p class="lede reveal">Interactive views across rates, equities, macro and cross-asset. Each preview names its source and date.</p>
       </div>
       <div class="filters" role="group" aria-label="Filter dashboards by category">{filters}</div>
-      <p class="filters__status" role="status" aria-live="polite">Showing all {len(live)} dashboards</p>
+      <p class="filters__status" role="status" aria-live="polite">Showing all {len(DASHBOARDS)} dashboards</p>
       <ul class="dash-grid">{tiles}</ul>
     </div>
   </section>

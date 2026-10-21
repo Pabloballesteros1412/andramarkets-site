@@ -920,6 +920,15 @@ ul {
   height: 100%;
 }
 
+/* No figures yet: the chart's box stays, with one quiet line, never a stand-in chart. */
+.dash-tile__chart--pending {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
 .dash-tile__text {
   padding-top: 16px;
 }
