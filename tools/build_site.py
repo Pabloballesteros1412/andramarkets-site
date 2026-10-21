@@ -16,8 +16,11 @@ With none published, the home page keeps its placeholders. The tape shows the
 latest note's closing levels. No PDF or facts file is ever linked: the site is
 free, and those downloads are reserved for paid subscribers later.
 
-Every chart is a schematic shape from a seeded random walk. None of it is
-market data, and the page labels it "Illustrative". Follow DESIGN.md.
+Dashboard tiles draw real figures from .cache/dashboards/tiles.json, written
+at deploy time by tools/dashboard_data.py, with their source and date. A tile
+without a record, and every Lab and Learn chart, is a schematic shape from a
+seeded random walk: not market data, and labelled "Illustrative". Follow
+DESIGN.md.
 """
 import datetime as dt
 import html
@@ -299,6 +302,217 @@ def c_explainer(w=560, h=240):
     return svg(w, h, grid_lines(w, h, 4) + f'<path class="line" d="{d(normal)}"/><path class="dash" d="{d(inverted)}"/>', "Diagram of a normal and an inverted yield curve", stretch=False)
 
 
+# Dashboard tiles with real data ---------------------------------------------
+# Figures from tools/dashboard_data.py (.cache/dashboards/tiles.json), drawn in
+# the same shapes as the illustrative previews. A tile without a record keeps
+# its preview and its "Illustrative" stamp.
+
+DASH_DATA = ROOT / ".cache" / "dashboards" / "tiles.json"
+
+
+def load_dash_data():
+    try:
+        return json.loads(DASH_DATA.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def data_svg(w, h, body, label, stretch=True):
+    par = ' preserveAspectRatio="none"' if stretch else ""
+    return f'<svg class="chart" viewBox="0 0 {w} {h}" role="img" aria-label="{esc(label)}"{par}>{body}</svg>'
+
+
+d_path = d  # the path helper, renamed here: "d" is each tile's data below
+
+TENOR_NAME = {"ust1m": "1-month", "ust3m": "3-month", "ust6m": "6-month", "ust1y": "1-year",
+              "ust2y": "2-year", "ust3y": "3-year", "ust5y": "5-year", "ust7y": "7-year",
+              "ust10y": "10-year", "ust20y": "20-year", "ust30y": "30-year"}
+
+
+def tip(text):
+    return f"<title>{esc(text)}</title>"
+
+
+def chg(v):
+    return signed(v, 2, "%")
+
+
+def pct(v, dec=2):
+    return f"{v:.{dec}f}%".replace("-", MINUS)
+
+
+def short_day(iso):
+    d = dt.date.fromisoformat(iso)
+    return f"{d.day} {d:%b}"
+
+
+def month_name(iso):
+    return f"{dt.date.fromisoformat(iso):%b %Y}"
+
+
+def span(vals, pad_frac=0.12, floor=0.05):
+    lo, hi = min(vals), max(vals)
+    pad = max((hi - lo) * pad_frac, floor)
+    return lo - pad, hi + pad
+
+
+def r_yield_curve(rec):
+    d = rec["data"]
+    years = [TENOR_YEARS[k] for k in d["tenors"]]
+    lo, hi = span(d["now"] + d["before"])
+    X = lambda t: 12 + (W - 24) * math.sqrt(t) / math.sqrt(30)  # noqa: E731
+    Y = lambda v: H - 12 - (H - 24) * (v - lo) / (hi - lo)  # noqa: E731
+    a = [(X(t), Y(v)) for t, v in zip(years, d["now"])]
+    b = [(X(t), Y(v)) for t, v in zip(years, d["before"])]
+    now, then = short_day(rec["asof"]), short_day(d["then"])
+    names = [TENOR_NAME[k] for k in d["tenors"]]
+    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5">{tip(f"{n}: {pct(v)} ({then}: {pct(o)})")}</circle>'
+                   for (x, y), n, v, o in zip(a, names, d["now"], d["before"]))
+    label = (f"US Treasury yield curve on {now} against {then}: "
+             + ", ".join(f"{n} {pct(v)}" for n, v in zip(names, d["now"])))
+    return (data_svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d_path(b)}"/><path class="line" d="{d_path(a)}"/>' + dots, label, stretch=False),
+            [("line", now), ("dash", then)])
+
+
+def r_fed_path(rec):
+    d = rec["data"]
+    months, implied, effr = [m for m, _ in d["months"]], [v for _, v in d["months"]], d["effr"]
+    lo, hi = span(implied + [effr])
+    pa, pb = fit([implied, [effr] * len(implied)], W, H, 14, lo, hi)
+    names = [month_name(m + "-01") for m in months]
+    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5">{tip(f"{n}: {pct(v)}")}</circle>'
+                   for (x, y), n, v in zip(pa, names, implied))
+    label = (f"Fed funds rate implied by futures, month by month, against the effective rate of {pct(effr)} on "
+             f"{short_day(d['effr_date'])}: " + ", ".join(f"{n} {pct(v)}" for n, v in zip(names, implied)))
+    return (data_svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d_path(pb)}"/><path class="line" d="{d_path(pa)}"/>' + dots, label, stretch=False),
+            [("line", "Implied path"), ("dash", "Effective rate")])
+
+
+def r_sector_heatmap(rec):
+    rows = rec["data"]["rows"]
+    rows_n, cols, gap = 3, 4, 3
+    cw, ch = (W - gap * (cols - 1)) / cols, (H - gap * (rows_n - 1)) / rows_n
+    m = max(abs(v) for _, v in rows) or 1
+    cells = "".join(
+        f'<rect class="{"up" if v >= 0 else "down"}" x="{(i % cols) * (cw + gap):.1f}" y="{(i // cols) * (ch + gap):.1f}" '
+        f'width="{cw:.1f}" height="{ch:.1f}" opacity="{0.45 + 0.55 * abs(v) / m:.2f}">{tip(f"{n}: {chg(v)}")}</rect>'
+        for i, (n, v) in enumerate(rows))
+    label = "S&P 500 sector ETFs ranked by the day's move: " + ", ".join(f"{n} {chg(v)}" for n, v in rows)
+    return data_svg(W, H, cells, label, stretch=False), [("up", "Up"), ("down", "Down")]
+
+
+def r_hbars(rows, label, gap):
+    m = max(abs(r[1]) for r in rows) or 1
+    rh = (H - gap * (len(rows) - 1)) / len(rows)
+    mid = W / 2
+    out = [f'<line class="ref" x1="{mid}" x2="{mid}" y1="0" y2="{H}"/>']
+    for i, r in enumerate(rows):
+        n, v = r[0], r[1]
+        bw = max(1.0, abs(v) / m * (mid - 6))
+        x = mid if v >= 0 else mid - bw
+        out.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{x:.1f}" y="{i * (rh + gap):.1f}" width="{bw:.1f}" height="{rh:.1f}">'
+                   f'{tip(f"{n}: {chg(v)}" + (f", {short_day(r[2])}" if len(r) > 2 else ""))}</rect>')
+    return data_svg(W, H, "".join(out), label)
+
+
+def r_global_indices(rec):
+    rows = rec["data"]["rows"]
+    label = "Equity index moves at each latest local close: " + ", ".join(
+        f"{n} {chg(v)}" + ("" if day == rec["asof"] else f" ({short_day(day)})") for n, v, day in rows)
+    return r_hbars(rows, label, 4), [("up", "Up"), ("down", "Down")]
+
+
+def r_fx_majors(rec):
+    rows = rec["data"]["rows"]
+    label = "The US dollar's move against each major currency: " + ", ".join(f"{n} {chg(v)}" for n, v in rows)
+    return r_hbars([[f"Dollar against the {n.lower()}" if n != "Euro" else "Dollar against the euro", v] for n, v in rows], label, 6), \
+        [("up", "Dollar stronger"), ("down", "Dollar weaker")]
+
+
+def r_vol_term(rec):
+    d = rec["data"]
+    lo, hi = span(d["now"] + d["before"], 0.15, 0.5)
+    X = lambda t: 14 + (W - 28) * (math.sqrt(t) - math.sqrt(d["days"][0])) / (math.sqrt(d["days"][-1]) - math.sqrt(d["days"][0]))  # noqa: E731
+    Y = lambda v: H - 12 - (H - 24) * (v - lo) / (hi - lo)  # noqa: E731
+    a = [(X(t), Y(v)) for t, v in zip(d["days"], d["now"])]
+    b = [(X(t), Y(v)) for t, v in zip(d["days"], d["before"])]
+    now, then = short_day(rec["asof"]), short_day(d["then"])
+    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5">{tip(f"{lb}: {v:.2f} ({then}: {o:.2f})")}</circle>'
+                   for (x, y), lb, v, o in zip(a, d["labels"], d["now"], d["before"]))
+    label = (f"Cboe S&P 500 implied volatility by expiry on {now} against {then}: "
+             + ", ".join(f"{lb} {v:.2f}" for lb, v in zip(d["labels"], d["now"])))
+    return (data_svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d_path(b)}"/><path class="line" d="{d_path(a)}"/>' + dots, label, stretch=False),
+            [("line", now), ("dash", then)])
+
+
+def r_commodities(rec):
+    d = rec["data"]
+    pa, pb = fit([d["oil"], d["gold"]], W, H, 8)
+    label = (f"WTI crude and gold front-month futures, rebased to 100 on {short_day(d['start'])}: "
+             f"WTI {d['oil'][-1]:.1f}, gold {d['gold'][-1]:.1f} on {short_day(rec['asof'])}")
+    return (data_svg(W, H, grid_lines(W, H, 3) + f'<path class="line" d="{d_path(pa)}"/><path class="dash" d="{d_path(pb)}"/>', label),
+            [("line", "WTI crude"), ("dash", "Gold")])
+
+
+def r_credit_spreads(rec):
+    d = rec["data"]
+    pa, pb = fit([d["hy"], d["ig"]], W, H, 8, 0, max(d["hy"]) * 1.08)
+    area = d_path(pb) + f" L{pb[-1][0]:.1f} {H} L{pb[0][0]:.1f} {H} Z"
+    label = (f"Option-adjusted spreads over Treasuries since {short_day(d['start'])}: high yield {pct(d['hy'][-1])}, "
+             f"investment grade {pct(d['ig'][-1])} on {short_day(rec['asof'])}")
+    return (data_svg(W, H, grid_lines(W, H, 3) + f'<path class="area" d="{area}"/><path class="line" d="{d_path(pa)}"/><path class="dash" d="{d_path(pb)}"/>', label),
+            [("line", "High yield"), ("dash", "Investment grade")])
+
+
+def r_inflation_labour(rec):
+    d = rec["data"]
+    infl = [v for _, v in d["cpi"]]
+    pa, = fit([infl], W, H * 0.55, 8)
+    jobs = d["jobs"]
+    m = max(abs(v) for _, v in jobs) or 1
+    bw = W / len(jobs)
+    base = H - 4
+    bars = "".join(
+        f'<rect class="{"up" if v >= 0 else "down"}" x="{i * bw + 1:.1f}" y="{base - abs(v) / m * 36:.1f}" width="{bw - 2:.1f}" height="{max(abs(v) / m * 36, 0.5):.1f}">'
+        f'{tip(f"{month_name(day)}: {signed(v, 0)}k jobs")}</rect>'
+        for i, (day, v) in enumerate(jobs))
+    label = (f"US consumer price inflation, year on year, {pct(infl[-1], 1)} in {month_name(d['cpi_month'])}, "
+             f"above monthly payroll changes, {signed(jobs[-1][1], 0)} thousand in {month_name(d['jobs_month'])}")
+    return data_svg(W, H, f'<path class="line" d="{d_path(pa)}"/>' + bars, label), [("line", "Inflation, y/y"), ("up", "Jobs added")]
+
+
+def r_correlation(rec):
+    d = rec["data"]
+    names, mx = d["names"], d["matrix"]
+    n, gap = len(names), 3
+    c = (H - gap * (n - 1)) / n
+    cells = []
+    for r in range(n):
+        for col in range(r, n):
+            v = mx[r][col]
+            cells.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{col * (c + gap):.1f}" y="{r * (c + gap):.1f}" '
+                         f'width="{c:.1f}" height="{c:.1f}" opacity="{0.45 + 0.55 * abs(v):.2f}">'
+                         f'{tip(f"{names[r]} and {names[col]}: {v:+.2f}".replace("-", MINUS))}</rect>')
+    pairs = [f"{names[r]} and {names[col]} {mx[r][col]:+.2f}".replace("-", MINUS) for r in range(n) for col in range(r + 1, n)]
+    label = f"Correlation of daily returns over {d['sessions']} sessions to {short_day(rec['asof'])}: " + ", ".join(pairs)
+    return data_svg(H, H, "".join(cells), label, stretch=False), [("up", "Positive"), ("down", "Negative")]
+
+
+REAL = {
+    "yield_curve": r_yield_curve, "fed_path": r_fed_path, "sector_heatmap": r_sector_heatmap,
+    "vol_term": r_vol_term, "global_indices": r_global_indices, "fx_majors": r_fx_majors,
+    "commodities": r_commodities, "credit_spreads": r_credit_spreads,
+    "inflation_labour": r_inflation_labour, "correlation": r_correlation,
+}
+
+
+def tile_asof(key, rec):
+    """The tile's date: the month for monthly data, else the session."""
+    if key == "inflation_labour":
+        return month_name(rec["asof"])
+    return day_med(dt.date.fromisoformat(rec["asof"]))
+
+
 # Icons -----------------------------------------------------------------------
 
 ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "play", "sun", "moon"] + [
@@ -344,19 +558,21 @@ CATEGORIES = [
     ("cross", "Cross-asset", "Cross-asset"),
 ]
 
+# (key, category, title, description, illustrative preview, preview key). The key
+# names the tile's record from tools/dashboard_data.py.
 DASHBOARDS = [
-    ("rates", "Yield curve", "The Treasury curve today against a month ago.", c_yield_curve, [("line", "Today"), ("dash", "1 month ago")]),
-    ("macro", "Fed path", "Where futures price the policy rate, meeting by meeting.", c_fed_path, [("line", "Implied path"), ("dash", "Current rate")]),
-    ("equities", "Sector heatmap", "Every S&amp;P 500 sector, ranked by the day's move.", c_sector_heatmap, [("up", "Up"), ("down", "Down")]),
-    ("cross", "Volatility term structure", "Implied volatility across expiries, and how its shape is shifting.", c_vol_term, [("line", "Today"), ("dash", "1 week ago")]),
-    ("equities", "Global indices", "Major equity benchmarks across the US, Europe and Asia.", c_global_indices, [("up", "Up"), ("down", "Down")]),
-    ("cross", "FX majors", "The dollar against the major currencies.", c_fx, [("up", "Stronger"), ("down", "Weaker")]),
-    ("cross", "Commodities", "Energy, metals and agriculture, rebased to the same start.", c_commodities, [("line", "Oil"), ("dash", "Gold")]),
-    ("rates", "Credit spreads", "High yield and investment grade spreads over Treasuries.", c_credit, [("line", "High yield"), ("dash", "Investment grade")]),
-    ("macro", "Inflation and labour", "Inflation prints alongside the monthly jobs report.", c_inflation_labour, [("line", "Inflation"), ("up", "Jobs added")]),
-    ("equities", "Earnings season tracker", "Beats and misses as companies report, sector by sector.", c_earnings, [("up", "Beats"), ("down", "Misses")]),
-    ("equities", "Market breadth", "Advancers, decliners and new highs across the market.", c_breadth, [("up", "Advancers"), ("down", "Decliners")]),
-    ("cross", "Cross-asset correlation", "How stocks, bonds, the dollar and commodities move together.", c_correlation, [("up", "Positive"), ("down", "Negative")]),
+    ("yield_curve", "rates", "Yield curve", "The Treasury curve today against a month ago.", c_yield_curve, [("line", "Today"), ("dash", "1 month ago")]),
+    ("fed_path", "macro", "Fed path", "Where futures price the policy rate, meeting by meeting.", c_fed_path, [("line", "Implied path"), ("dash", "Current rate")]),
+    ("sector_heatmap", "equities", "Sector heatmap", "Every S&amp;P 500 sector, ranked by the day's move.", c_sector_heatmap, [("up", "Up"), ("down", "Down")]),
+    ("vol_term", "cross", "Volatility term structure", "Implied volatility across expiries, and how its shape is shifting.", c_vol_term, [("line", "Today"), ("dash", "1 week ago")]),
+    ("global_indices", "equities", "Global indices", "Major equity benchmarks across the US, Europe and Asia.", c_global_indices, [("up", "Up"), ("down", "Down")]),
+    ("fx_majors", "cross", "FX majors", "The dollar against the major currencies.", c_fx, [("up", "Stronger"), ("down", "Weaker")]),
+    ("commodities", "cross", "Commodities", "Energy, metals and agriculture, rebased to the same start.", c_commodities, [("line", "Oil"), ("dash", "Gold")]),
+    ("credit_spreads", "rates", "Credit spreads", "High yield and investment grade spreads over Treasuries.", c_credit, [("line", "High yield"), ("dash", "Investment grade")]),
+    ("inflation_labour", "macro", "Inflation and labour", "Inflation prints alongside the monthly jobs report.", c_inflation_labour, [("line", "Inflation"), ("up", "Jobs added")]),
+    ("earnings", "equities", "Earnings season tracker", "Beats and misses as companies report, sector by sector.", c_earnings, [("up", "Beats"), ("down", "Misses")]),
+    ("breadth", "equities", "Market breadth", "Advancers, decliners and new highs across the market.", c_breadth, [("up", "Advancers"), ("down", "Decliners")]),
+    ("correlation", "cross", "Cross-asset correlation", "How stocks, bonds, the dollar and commodities move together.", c_correlation, [("up", "Positive"), ("down", "Negative")]),
 ]
 
 CALENDAR = [
@@ -520,26 +736,35 @@ def page(notes):
         tape_src = f'Last and daily change. Source {ph("[data vendor]")}'
     filters = f'<button type="button" class="chip" data-filter="all" data-label="All" aria-pressed="true">All <span class="chip__n">{len(DASHBOARDS)}</span></button>' + "".join(
         f'<button type="button" class="chip" data-filter="{key}" data-label="{label}" aria-pressed="false">{short} '
-        f'<span class="chip__n">{sum(1 for x in DASHBOARDS if x[0] == key)}</span></button>'
+        f'<span class="chip__n">{sum(1 for x in DASHBOARDS if x[1] == key)}</span></button>'
         for key, label, short in CATEGORIES
     )
     cat_label = {k: label for k, label, _ in CATEGORIES}
     swatch = {"line": "k-solid", "dash": "k-dash", "up": "sw-up", "down": "sw-down"}
 
-    def key_html(leg):
+    def key_html(leg, illustrative):
         items = "".join(f'<span><i class="{swatch[kind]}"></i>{label}</span>' for kind, label in leg)
-        return f'<p class="key">{items}<span class="key__note">Illustrative</span></p>'
+        note = '<span class="key__note">Illustrative</span>' if illustrative else ""
+        return f'<p class="key">{items}{note}</p>'
 
-    tiles = "".join(
-        f'<li class="dash-tile reveal" data-cat="{cat}" style="--i:{i % 3}">'
-        f'<a href="#dashboards" class="dash-tile__link">'
-        f'<div class="dash-tile__chart draw">{fn()}</div>{key_html(leg)}'
-        f'<div class="dash-tile__text">'
-        f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p>'
-        f'<p class="dash-tile__src">{cat_label[cat]}. {ph("[source]")}, {ph("[date]")}</p></div>'
-        f'<span class="dash-tile__go">{icon("arrow-up-right")}</span></a></li>'
-        for i, (cat, name, desc, fn, leg) in enumerate(DASHBOARDS)
-    )
+    dash_data = load_dash_data()
+
+    def tile(i, key, cat, name, desc, fn, leg):
+        rec = dash_data.get(key)
+        if rec and key in REAL:
+            chart, leg = REAL[key](rec)
+            src = f"{cat_label[cat]}. {esc(rec['source'])}, {tile_asof(key, rec)}"
+        else:
+            chart, src = fn(), f'{cat_label[cat]}. {ph("[source]")}, {ph("[date]")}'
+        return (f'<li class="dash-tile reveal" data-cat="{cat}" style="--i:{i % 3}">'
+                f'<a href="#dashboards" class="dash-tile__link">'
+                f'<div class="dash-tile__chart draw">{chart}</div>{key_html(leg, not (rec and key in REAL))}'
+                f'<div class="dash-tile__text">'
+                f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p>'
+                f'<p class="dash-tile__src">{src}</p></div>'
+                f'<span class="dash-tile__go">{icon("arrow-up-right")}</span></a></li>')
+
+    tiles = "".join(tile(i, *t) for i, t in enumerate(DASHBOARDS))
     calendar = "".join(
         f'<tbody><tr class="cal__day"><th scope="rowgroup" colspan="5">{fill(day)}</th></tr>'
         + "".join(
@@ -628,7 +853,7 @@ def page(notes):
     <div class="wrap">
       <div class="section-head">
         <h2 class="section-title reveal" id="dash-title">Dashboards</h2>
-        <p class="lede reveal">Interactive views across rates, equities, macro and cross-asset. Previews are illustrative.</p>
+        <p class="lede reveal">Interactive views across rates, equities, macro and cross-asset. Each preview names its source and date.</p>
       </div>
       <div class="filters" role="group" aria-label="Filter dashboards by category">{filters}</div>
       <p class="filters__status" role="status" aria-live="polite">Showing all {len(DASHBOARDS)} dashboards</p>
