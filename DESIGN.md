@@ -467,7 +467,7 @@ Ink slabs with square corners; quiet, confident, no colour.
 - **Focus:** every focusable element gets a 2px `--focus` outline at 3px offset (chips at -4px offset; inputs at 0).
 
 ### Header and nav
-- **Structure:** fixed, 64px, z-index 20. Left to right: brand (mark plus wordmark, pushes the rest right), nav, theme toggle, small Subscribe button, menu button (1020px and below).
+- **Structure:** fixed, 64px, z-index 20. Left to right: brand (mark plus wordmark, pushes the rest right), nav, search button, theme toggle, small Subscribe button, menu button (1020px and below).
 - **Transparent to solid:** over the hero the header is transparent with a transparent bottom border. An IntersectionObserver watches an 8px sentinel at the top of the hero; once it leaves the viewport the header gains `is-solid` (ground fill, `--rule` bottom border, 240ms transition). Pages without a hero sentinel (inner pages) are solid from the first paint. The header is also solid while the menu is open.
 - **Nav links:** 0.9375rem, ink-2 at rest, ink on hover, gap 24px, no underline.
 - **Mobile sheet (1020px and below):** the nav becomes a fixed panel under the header, ground fill, `--rule` bottom border, links at 1.375rem/500/-0.02em in ink, 12px vertical padding, separated by `--rule` hairlines. Opens with opacity and `translateY(-8px)` to rest over 200ms ease-out. The menu button reads "Menu" with a list icon, then "Close" with an x icon; `aria-expanded` tracks state; the first link takes focus on open; Escape closes and returns focus; any link click closes.
@@ -475,20 +475,23 @@ Ink slabs with square corners; quiet, confident, no colour.
 
 ### Theme toggle
 A 44px icon button, no border or fill, ink icon at 1.25rem. Light shows the moon (switch to dark); dark shows the sun (switch to light), toggled by CSS on `data-theme`. On fine-pointer hover the icon rotates -20deg over 300ms. Behaviour and persistence are described under Colors.
+- **Reveal (owner-approved, 22 Oct 2026):** the new theme opens as a circle from the button's centre until it covers the page (View Transition, `clip-path` circle, 560ms `--ease-in-out`), instead of the cross-fade. Instant under reduced motion or where View Transitions are missing.
 
 ### Tape
 A full-width band below the hero, ground fill, `--rule` top and bottom.
 - **Head:** h2 "Markets [date], [time] ET" at 0.9375rem/600 ink, and a right-aligned link to the latest close note (550, ink, arrow nudges 3px on hover). Head text otherwise 0.875rem ink-2.
 - **List:** 10 instruments in a grid of `minmax(124px, 1fr)` columns that scrolls horizontally with snap; at 640px and below each column is `40vw`. Items separated by vertical `--rule` hairlines, 16px padding. Name 0.8125rem ink-2; level 1.1875rem/500 tabular; change 0.875rem.
+- **Rolling figures (owner-approved, 22 Oct 2026):** levels and changes roll up from zero, digit by digit, once the tape enters view (640ms ease-out, staggered 45ms per instrument). Each digit is a column of 0 to 9 in tabular figures; separators and letters stay still. Screen readers get the plain figure. A live feed can update a figure through the same roll (`AndraRoll` in `assets/site.js`), which moves only the digits that change. No roll under reduced motion; the figures are plain text without JS.
 - **Source line:** "Last and daily change. Source [data vendor]" at 0.8125rem ink-3.
 - **With a published note:** the head reads "Markets 9 Oct 2026, 4:00 pm ET" (1:00 pm on NYSE early closes) and links to that note's page. Levels are the note's official closes (stored in its note record), with thousands separators and each instrument's decimals; changes carry a sign and a true minus (U+2212), percent to two decimals, the 10-year yield in whole basis points. No colour on the tape. A series with no print for the session shows its level and "Prior close" as the change; a missing value reads "n/a". Source line: "Close and daily change. Sources: Yahoo Finance, FRED for the US 10Y yield.", plus "Prior close: no print yet for the session." when it applies.
 
 ### Filter chips and status
 - **Chip:** 44px tall, padding 0 16px, `--rule` border, transparent, ink-2 label at 0.875rem/550, count in tabular figures at 450 in ink-3.
 - **Pressed (`aria-pressed="true"`):** ink fill, ground label, count at 0.7 opacity. Exactly one chip is pressed.
+- **Glide (owner-approved, 22 Oct 2026):** with JS, one ink fill per chip group slides and resizes to the pressed chip (420ms ease-out) while labels change colour over 260ms. Applies to every `.filters` group: the home dashboard filters and the dashboard page range chips. Without JS or under reduced motion the fill jumps.
 - **Hover (unpressed, fine pointers):** border to `--rule-strong`, label to ink.
 - **Row:** horizontal scroll with hidden scrollbar, bleeding to the gutter.
-- **Status:** a polite live region below the chips at 0.875rem ink-2: "Showing all 11 dashboards" or "Showing n of 11 dashboards: [category]".. Matching tiles fade in over 260ms on filter.
+- **Status:** a polite live region below the chips at 0.875rem ink-2: "Showing all 11 dashboards" or "Showing n of 11 dashboards: [category]". Matching tiles fade in and rise 6px over 320ms on filter, staggered 35ms.
 
 ### Dashboard tile
 A cell in the hairline lattice; no card chrome.
@@ -532,7 +535,7 @@ An inner page. Head: page title "Daily close notes", lede "Every US trading day,
 
 ### Report page (`/reports/<date>/`)
 An inner page, one per note.
-- **Head:** the headline in the section title scale (540, `clamp(2rem, 4.2vw, 3.5rem)`, 1.02, -0.035em, balanced): a model headline runs 8 to 13 words, too long for the page title scale. Then the standfirst as the lede, the meta row (long date, edition, read time; 0.875rem ink-2, 20px gaps, 20px above), then the share row 28px below: a primary "Share this note" button and a polite status line beside it (0.875rem ink-2, 20px gap). The button opens the system share sheet where the browser has one, else copies the page link and says "Link copied." (or shows the link to copy by hand). The row is hidden without JS. On mobile the button goes full width. No meta or label above the headline (no eyebrows).
+- **Head:** the headline in the section title scale (540, `clamp(2rem, 4.2vw, 3.5rem)`, 1.02, -0.035em, balanced): a model headline runs 8 to 13 words, too long for the page title scale. Then the standfirst as the lede, the meta row (long date, edition, read time; 0.875rem ink-2, 20px gaps, 20px above), then the share row 28px below: a primary "Share this note" button and a polite status line beside it (0.875rem ink-2, 20px gap). The button (link icon) opens the system share sheet where the browser has one, else copies the page link: its label swaps to "Link copied" with a tick that draws in (220ms blur cross-fade, 2.4s, then back), and the status line says "Link copied." to screen readers only. If copying fails it shows the link to copy by hand. The row is hidden without JS. On mobile the button goes full width. No meta or label above the headline (no eyebrows).
 - **Body:** inner page sections in reading order, each only when it has text: Takeaways, Desk view, What we watch, Equities, Rates, Credit, FX, Commodities, Volatility, Digital assets, International, Correlation, then Sources (with the figure check statement and "For information only. Not investment advice."). Takeaways and What we watch are ruled lists: `--rule` top border, rows padded 12px with `--rule` separators, ink-2 text. Consecutive paragraphs are 12px apart.
 - **Layout and side panel.** The report is a 12-column grid. At 1280px and up: text (head and sections) in columns 1 to 6, margin charts in 7 to 9, and the panel "The session in numbers" in 10 to 12, sticky (`top: nav-h + 24px`) for the whole article. From 961px to 1279px: text 1 to 7; the panel (not sticky) and the margin charts share columns 9 to 12. At 960px and below: one column, the panel after the head (summary and Share), each margin chart right after its section, closed by a `--rule` hairline.
 - **Panel contents:** title at 0.9375rem/600 over a `--rule-strong` rule (the tape head style); a 2-column ruled grid in the tape item style (name 0.8125rem ink-2, level 1.1875rem/500 tabular, change 0.875rem tabular, no colour, `--rule` hairlines, no boxes): S&P 500, Nasdaq 100, US 10Y yield, VIX, risk score with its label, breadth as "up / down"; then a source line (0.8125rem ink-3). It is short enough to fit any desktop viewport.
@@ -571,6 +574,17 @@ A statement paragraph (statement style, columns 1 to 8) beside a definition list
 
 ### Inner page (`.page`)
 For methodology and future sub-pages, sharing the same header and footer. Top padding `nav-h + clamp(48px, 9vh, 112px)`, bottom `--section`. The head is max 44rem: page title and lede (16px gap) over a `--rule-strong` bottom rule, with `clamp(32px, 5vw, 56px)` padding. The body is max 44rem: sections padded 28px with `--rule` bottom borders, h2 at 1.375rem/540, paragraphs ink-2 max 65ch. The header is solid from the first paint.
+
+### Methodology questions (owner-approved, 22 Oct 2026)
+A "Questions" section closes the methodology body: an accordion under a `--rule-strong` top rule, rows separated by `--rule` hairlines. Each question is an h3 button (1.0625rem/540 ink, 16px vertical padding, plus sign that turns to a minus); the answer is ink-2 body text. One answer is open at a time, the first by default. Panels open to their own height (grid rows, 380ms ease-out) and the text fades in 80ms later. Without JS every answer shows.
+
+### Search
+- **Button:** in the header between the nav and the theme toggle, hidden without JS. Above 1200px a 40px outline button (`--rule` border, magnifying glass, "Search", and the shortcut "⌘K" or "Ctrl K" after a hairline in ink-3); at 1200px and below a 44px icon button like the theme toggle.
+- **Palette:** ⌘K or Ctrl K (or "/") opens it from any page. A scrim (`--scrim`) over the page and a 560px panel at 12vh: ground fill, `--rule-strong` border, square, no shadow. A 56px input row, then results grouped as Dashboards, Close notes and Pages (group labels 0.8125rem ink-3), each row a title (0.9375rem/500) and meta (type or date, 0.8125rem ink-3). A `--ground-2` band glides to the active row (220ms); arrows move it, Enter opens, Esc or a click outside closes and returns focus. Opens with a fade and `translateY(-8px) scale(0.985)` to rest over 240ms.
+- **Index:** `assets/search-index.js`, written by `tools/build_site.py` from the dashboards, the published notes and the main pages, loaded the first time search opens (a .js file because the deploy refuses JSON). Matches the title first, then keywords (descriptions, sources, dates); letters-in-order matching only from four characters.
+
+### Motion components and licence
+The rolling figures, chip glide, theme reveal, search palette, share swap and questions accordion were adapted from beUI (owner-approved proposal, 22 Oct 2026), rewritten in plain JS and CSS with these tokens: square, flat, ink only, no bounce. beUI is MIT licensed; its notice is kept in `assets/LICENSE-beui.txt` and cited at the top of `assets/site.js` and the components block of `assets/site.css`.
 
 ### Horse placements
 - **Hero:** `.hero__art` absolutely placed at `left 63%`, `top 50%`, size `min(167svh, 200vw)` square, `translate(-49%, -50.5%)`, with `--horse-filter` and `--horse-blend`; the image has `--horse-opacity`. It fills the right two thirds on desktop; at 860px and below it moves to `52% / 36%`; at 520px and below it is `180vw` at `y 27%`. The hero is `min-height: calc(100svh - 56px)`, copy bottom-left, with the vignette over it.
@@ -613,7 +627,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Do** use the shared motion tokens: `--ease-out` `cubic-bezier(0.23, 1, 0.32, 1)` for entrances, hovers and the sheet, and `--ease-in-out` `cubic-bezier(0.77, 0, 0.175, 1)` for the chart draw. Durations: 120ms press, 160ms colour, 200ms nudges and fills, 240ms header, 260ms tile fade and theme cross-fade, 300ms theme icon, 900ms rise and reveal, 1400ms chart draw (150ms delay), 1600ms horse entrance.
 - **Do** stagger the hero entrance at `240ms + i x 80ms` (rise from 14px) and scroll reveals at `i x 70ms` (rise from 18px, once, IntersectionObserver with a -12% bottom margin and 0.05 threshold; dashboard tiles stagger by column, `i mod 3`).
 - **Do** draw charts in with `clip-path: inset(0 100% 0 0)` to `none`, and let the hero horse recede on scroll (`animation-timeline` on the hero's view timeline, exit 0% to 100%, to `translate(-49%, -44%) scale(0.94)` at 0.25 opacity) only where `animation-timeline: view()` is supported.
-- **Do** cross-fade theme changes with View Transitions (260ms), and switch instantly under reduced motion.
+- **Do** reveal theme changes as a circle from the toggle with View Transitions (560ms), and switch instantly under reduced motion.
 - **Do** under `prefers-reduced-motion: reduce` keep only gentle fades: reveals fade in place (opacity, 300ms, no movement); drop the horse entrance, hero rise, chart draw, recede, filter tile fade, smooth scroll and view-transition animation.
 - **Do** show the horse whole and change it only through `--horse-filter`, `--horse-blend`, opacity and placement (the brand mark uses its approved transparent derivatives).
 - **Do** publish only as "Andra Markets".

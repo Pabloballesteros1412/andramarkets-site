@@ -4,7 +4,7 @@ The Andra Markets website: a markets research platform with dashboards, quant
 tools, an economic calendar, a daily close note, explainers and videos.
 
 - `assets/`: stylesheet, script, self-hosted font, brand mark.
-- `tools/build_site.py`: generates every page from one shell. Edit markup here.
+- `tools/build_site.py`: generates every page from one shell. Edit markup here. It also writes `assets/search-index.js` (the header search index, not committed).
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
 - `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
