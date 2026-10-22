@@ -159,6 +159,18 @@ in `AGENT_ARTIFACTS_TOKEN` (step 1 below, in addition to Actions). When a
 source fails, the tile keeps its last figures and their date; a tile that
 has no figures yet shows its source and "Data pending", never a stand-in chart. Neither stops the deploy.
 
+## FRED API key
+
+The dashboards and the calendar read FRED through its official API
+(`api.stlouisfed.org`), which needs a key; the keyless download they used
+before kept timing out from GitHub's runners. Add it once as a repository
+secret: **Settings → Secrets and variables → Actions → New repository
+secret**, name `FRED_API_KEY`, value the key the agent repo uses. The deploy
+and the Calendar check pass it to the fetchers only. It is never printed: any
+FRED error is logged with the key replaced by `***`, and GitHub masks it in
+the logs too. Without it, FRED counts as down and the tiles and calendar keep
+their last good figures.
+
 ## Calendar data
 
 `.github/workflows/pages.yml` runs `tools/calendar_data.py` before each build,

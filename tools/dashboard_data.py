@@ -11,7 +11,7 @@ Sources:
                           the facts of the run behind a published note, on an
                           NYSE trading day, and never a series the facts mark
                           as not yet published or from another session
-    FRED                  fredgraph.csv, no key
+    FRED                  the official API (api.stlouisfed.org), with FRED_API_KEY
     Yahoo Finance         the public chart endpoint
 
 When a source fails, the tile keeps its last good record (restored by the
@@ -26,10 +26,10 @@ Environment:
     AGENT_ARTIFACTS_TOKEN  fine-grained token on the agent repo; reading the
                            archive releases needs Contents: read
     AGENT_REPO             default Pabloballesteros1412/andramarkets
+    FRED_API_KEY           FRED API key (repository secret); never printed: any
+                           error naming the request has it replaced by ***
 """
-import csv
 import datetime as dt
-import io
 import json
 import math
 import os
@@ -316,35 +316,66 @@ FRED_DOWN = []
 
 
 def fred(series, start):
-    """{series: [(date, value)]} from fredgraph.csv, skipping missing values."""
+    """{series: [(date, value)]} from the FRED API, skipping missing values."""
     if FRED_DOWN:
         raise FRED_DOWN[0]
     try:
         return _fred(series, start)
-    except (OSError, ValueError) as e:
-        FRED_DOWN.append(e)  # one outage: don't wait on every later series
+    except FredError as e:
+        if e.outage:
+            FRED_DOWN.append(e)  # one outage: don't wait on every later series
         raise
 
 
+FRED_API = "https://api.stlouisfed.org/fred/series/observations"
+
+
+class FredError(ValueError):
+    """A FRED failure whose message never carries the API key. outage is False
+    when FRED answered but refused one series, so the others are still tried."""
+
+    def __init__(self, message, outage=True):
+        super().__init__(message)
+        self.outage = outage
+
+
 def _fred(series, start):
-    url = ("https://fred.stlouisfed.org/graph/fredgraph.csv?"
-           + urllib.parse.urlencode({"id": ",".join(series), "cosd": start.isoformat()}))
-    text = get(url).decode("utf-8-sig")
-    if not text.lstrip().lower().startswith(("observation_date", "date")):
-        raise ValueError("FRED did not answer with a CSV (maintenance page?)")
-    out = {s: [] for s in series}
-    for row in csv.DictReader(io.StringIO(text)):
-        day = dt.date.fromisoformat(row.get("observation_date") or row.get("DATE"))
-        for s in series:
+    key = os.environ.get("FRED_API_KEY", "").strip()
+    if not key:
+        raise FredError("FRED_API_KEY is not set")
+
+    def hide(text):
+        return str(text).replace(key, "***")
+
+    out = {}
+    for sid in series:
+        q = urllib.parse.urlencode({"series_id": sid, "observation_start": start.isoformat(),
+                                    "file_type": "json", "api_key": key})
+        req = urllib.request.Request(f"{FRED_API}?{q}", headers={"User-Agent": UA})
+        try:
+            with urllib.request.urlopen(req, timeout=40) as r:
+                raw = r.read(MAX_JSON + 1)
+        except urllib.error.HTTPError as e:
+            try:  # FRED says why, e.g. "Bad Request. The series does not exist."
+                why = json.loads(e.read(4096)).get("error_message", "")
+            except Exception:  # noqa: BLE001
+                why = ""
+            raise FredError(hide(f"FRED {sid}: HTTP {e.code} {why}".strip()), outage=e.code >= 500) from None
+        except (OSError, ValueError) as e:
+            raise FredError(hide(f"FRED {sid}: {type(e).__name__}: {e}")) from None
+        if len(raw) > MAX_JSON:
+            raise FredError(f"FRED {sid}: response too large")
+        rows = []
+        for o in json.loads(raw).get("observations", []):
             try:
-                v = float(row.get(s, ""))
-            except ValueError:
+                v = float(o["value"])  # "." marks a missing observation
+            except (KeyError, ValueError):
                 continue
             if math.isfinite(v):
-                out[s].append((day, v))
-    for s in series:
-        if not out[s]:
-            raise ValueError(f"FRED {s}: no observations")
+                rows.append((dt.date.fromisoformat(o["date"]), v))
+        if not rows:
+            raise FredError(f"FRED {sid}: no observations", outage=False)
+        out[sid] = rows
     return out
 
 
