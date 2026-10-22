@@ -1890,6 +1890,15 @@ def load_companies():
     return {"order": order, "co": data["companies"], "spx": data.get("spx") or []}
 
 
+def co_logo(t):
+    """The company's logo file: the official SVG where there is one, else the PNG."""
+    for ext in (".svg", ".png"):
+        f = CO_DATA.parent / "logos" / f"{t}{ext}"
+        if f.exists():
+            return f
+    return None
+
+
 def co_slug(t):
     return t.lower()
 
@@ -2322,8 +2331,9 @@ def company_page(t, data, cal):
     else:
         flow_sec = "<p>Data pending.</p>"
     logo_html = ""
-    if (CO_DATA.parent / "logos" / f"{t}.png").exists():
-        logo_html = f'<span class="co-logo"><img src="logo.png" alt="{esc(name)} logo" width="200" height="200"></span>'
+    logo_file = co_logo(t)
+    if logo_file:
+        logo_html = f'<span class="co-logo"><img src="logo{logo_file.suffix}" alt="{esc(name)} logo" width="200" height="200"></span>'
     hist = co_hist(rec)
     quarters = co_quarters(rec)
     pe_hist = co_pe_hist(rec)
@@ -2608,9 +2618,9 @@ def main():
             folder = OUT / "companies" / co_slug(t)
             folder.mkdir(parents=True, exist_ok=True)
             (folder / "index.html").write_text(company_page(t, companies, cal))
-            logo = CO_DATA.parent / "logos" / f"{t}.png"
-            if logo.exists():
-                shutil.copyfile(logo, folder / "logo.png")
+            logo = co_logo(t)
+            if logo:
+                shutil.copyfile(logo, folder / f"logo{logo.suffix}")
         print(f"wrote {len(companies['order'])} company pages")
     print(f"wrote index.html, methodology/index.html, reports/index.html, {len(DASHBOARDS)} dashboard pages, "
           f"{len(notes)} report page(s) and the calendar with {len(weeks)} week page(s)")
