@@ -27,6 +27,11 @@
   function num(v, dec) {
     return v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec }).replace("-", MINUS);
   }
+  // Rises in green, falls in red, read from the printed sign (DESIGN.md,
+  // The Rise and Fall Rule); a figure that rounds to zero stays in ink.
+  function moveClass(text) {
+    return text.charAt(0) === "+" ? " mv--up" : text.charAt(0) === MINUS ? " mv--down" : "";
+  }
   function signed(v, dec, unit) {
     var r = Number(v.toFixed(dec));
     return (r > 0 ? "+" : r < 0 ? MINUS : "") + num(Math.abs(r), dec) + (unit || "");
@@ -292,7 +297,8 @@
       var y = T + i * row, bwid = Math.max(Math.abs(p[1]) / m * half, 1);
       svg.appendChild(el("text", { "class": "chart__label", x: 0, y: y + 17 }, p[0]));
       svg.appendChild(el("rect", { "class": p[1] >= 0 ? "up" : "down", x: p[1] >= 0 ? x0 : x0 - bwid, y: y + 6, width: bwid, height: 14 }));
-      svg.appendChild(el("text", { "class": "chart__value", x: w, y: y + 17, "text-anchor": "end" }, signed(p[1], 2, "%")));
+      var lab = signed(p[1], 2, "%");
+      svg.appendChild(el("text", { "class": "chart__value" + moveClass(lab), x: w, y: y + 17, "text-anchor": "end" }, lab));
       return y;
     });
     var band = el("rect", { "class": "hover-band", x: 0, y: 0, width: w, height: row });
@@ -348,6 +354,8 @@
   }
 
   var KINDS = { lines: lines, macro: macro, breadth: breadth, curve: curve, perf: perf, matrix: matrix };
+  // The readout colours its signed figures as moves; correlations are not moves.
+  if (D.kind !== "matrix") out.setAttribute("data-moves", "");
 
   function draw() {
     var w = plot.clientWidth, h = plot.clientHeight;
