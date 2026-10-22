@@ -87,6 +87,22 @@ def text(url, **kw):
     return body
 
 
+PROBE_KEYS = {"conference_board": r"[Rr]elease", "fed_g17": r"20\d\d", "fed_speeches": r"Speech",
+              "boj": r"20\d\d|Meeting", "ecb_speeches": r"Lagarde|[Ss]peech", "ism": r"PMI|Manufacturing"}
+
+
+def snippets(key):
+    t = re.sub(r"\s+", " ", strip(LAST.get("body") or ""))
+    out = []
+    for m in re.finditer(PROBE_KEYS.get(key, r"$^"), t):
+        if out and m.start() < out[-1][1]:
+            continue
+        out.append((max(0, m.start() - 150), m.end() + 250))
+        if len(out) == 6:
+            break
+    return "\n".join(f"    ...{t[a:b]}..." for a, b in out)
+
+
 def excerpt():
     """What the last page said, for the probe log."""
     body = LAST.get("body") or ""
@@ -228,6 +244,9 @@ def in_window(day):
     return start <= day <= end
 
 
+ICS_ZONES = {"US-Eastern": "America/New_York", "US/Eastern": "America/New_York", "Eastern Standard Time": "America/New_York"}
+
+
 def ics_events(raw):
     """[(dtstart aware or date, summary, description, url)] from an iCalendar file."""
     raw = re.sub(r"\r?\n[ \t]", "", raw)  # unfold lines
@@ -251,7 +270,8 @@ def ics_events(raw):
             if v.endswith("Z"):
                 start = d.replace(tzinfo=UTC)
             else:
-                start = d.replace(tzinfo=ZoneInfo(tzid.strip('"') if tzid else "America/New_York"))
+                tz = (tzid or "America/New_York").strip('"')
+                start = d.replace(tzinfo=ZoneInfo(ICS_ZONES.get(tz, tz)))
         out.append((start, props.get("SUMMARY", ([], ""))[1], props.get("DESCRIPTION", ([], ""))[1],
                     props.get("URL", ([], ""))[1]))
     return out
@@ -394,15 +414,16 @@ def census():
 def g17():
     """Industrial production, Federal Reserve G.17, 9:15 am ET."""
     ev = Events("fed_g17")
-    page = text("https://www.federalreserve.gov/releases/g17/release_dates.htm")
-    for m in re.finditer(r"\b([A-Z][a-z]+)\.? (\d{1,2}), (\d{4})", strip(page)):
+    t = re.sub(r"\s+", " ", strip(text("https://www.federalreserve.gov/releases/g17/release_dates.htm")))
+    today = window()[0]
+    for m in re.finditer(r"\b([A-Z][a-z]{2,8})\.? (\d{1,2})(?:, (\d{4}))?\b", t):
         if not month_num(m.group(1)):
             continue
-        day = dt.date(int(m.group(3)), month_num(m.group(1)), int(m.group(2)))
-        if in_window(day):
+        day = (dt.date(int(m.group(3)), month_num(m.group(1)), int(m.group(2))) if m.group(3)
+               else nearest_year(month_num(m.group(1)), int(m.group(2)), today))
+        if day and in_window(day):
             ev.add(day, "Industrial production", country="US", imp="Medium", when=(9, 15),
                    tz="America/New_York", ind="ip", url="https://www.federalreserve.gov/releases/g17/current/default.htm")
-    # The page also lists past dates; one entry per day.
     return list({e["id"]: e for e in ev.items}.values())
 
 
@@ -511,7 +532,7 @@ def treasury():
         if not in_window(day):
             continue
         term = s.get("securityTerm", "").replace("-Year", "-year").replace("-Month", "-month")
-        tips = (s.get("inflationIndexSecurity") or "").lower() == "yes"
+        tips = (s.get("inflationIndexSecurity") or "").lower() == "yes" or bool(s.get("cpiBaseReferencePeriod"))
         title = f"{term} {'TIPS' if tips else kind.lower()} auction"
         if (s.get("reopening") or "").lower() == "yes":
             title += ", reopening"
@@ -554,6 +575,8 @@ def federal_holidays(year):
 def ism():
     ev = Events("ism")
     page = text("https://www.ismworld.org/supply-management-news-and-reports/reports/rob-report-calendar/")
+    if "Report On Business" not in page and "Manufacturing" not in page:
+        raise ValueError(f"the calendar page did not load ({len(page)} bytes, likely a bot check)")
     today = window()[0]
     for r in rows(page):
         for key, title in (("Manufacturing", "ISM manufacturing PMI"), ("Services", "ISM services PMI")):
@@ -614,19 +637,19 @@ def conference_board():
 
 
 def umich():
+    """The home page names the next release: "Next data release: Friday, October 23,
+    2026 for Final October data at 10am ET"."""
     ev = Events("umich")
-    page = text("https://www.sca.isr.umich.edu/")
-    today = window()[0]
-    t = strip(page)
-    for m in re.finditer(r"(Preliminary|Final)[^.]{0,80}?([A-Z][a-z]+) (\d{1,2})(?:, (\d{4}))?", t):
-        if not month_num(m.group(2)):
-            continue
-        day = (dt.date(int(m.group(4)), month_num(m.group(2)), int(m.group(3))) if m.group(4)
-               else nearest_year(month_num(m.group(2)), int(m.group(3)), today))
-        if in_window(day):
-            ev.add(day, f"Consumer sentiment, {m.group(1).lower()} (University of Michigan)", country="US",
-                   imp="Medium", when=(10, 0), tz="America/New_York", ind="umich")
-    return list({e["id"]: e for e in ev.items}.values())
+    t = re.sub(r"\s+", " ", strip(text("https://www.sca.isr.umich.edu/")))
+    m = re.search(r"Next data release: [A-Z][a-z]+, ([A-Z][a-z]+) (\d{1,2}), (\d{4}) for (Preliminary|Final) "
+                  r"([A-Z][a-z]+) data(?: at ([\d:]+ ?[ap]m))?", t)
+    if not m or not month_num(m.group(1)):
+        raise ValueError("no next release on the Surveys of Consumers page")
+    day = dt.date(int(m.group(3)), month_num(m.group(1)), int(m.group(2)))
+    if in_window(day):
+        ev.add(day, f"Consumer sentiment, {m.group(5)}, {m.group(4).lower()} (University of Michigan)", country="US",
+               imp="Medium", when=parse_clock(m.group(6) or "") or (10, 0), tz="America/New_York", ind="umich")
+    return ev.items
 
 
 def ecb():
@@ -781,6 +804,38 @@ def boj():
     return list({e["id"]: e for e in ev.items}.values())
 
 
+NBS = [  # (row contains, title, importance)
+    ("National Economic Performance", "Activity data: industrial production, retail sales, investment", "High"),
+    ("Purchasing Managers", "Official PMIs", "High"),
+    ("Consumer Price Index", "Consumer and producer prices (CPI, PPI)", "High"),
+]
+WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+
+def nbs_days(row, year):
+    """Release days in a calendar row: one "DD/Day" cell or "......" per month in order,
+    a moved release sitting in the next month's cell; the weekday settles the month."""
+    out, month, last = [], 1, 0
+    for m in re.finditer(r"(\d{1,2})/(Mon|Tue|Wed|Thu|Fri|Sat|Sun)|\u2026\u2026|\.{6}", row):
+        if not m.group(1):
+            month += 1
+            continue
+        d, wd = int(m.group(1)), WEEKDAYS.index(m.group(2))
+        fits = []
+        for mo in range(max(1, last), 13):
+            try:
+                day = dt.date(year, mo, d)
+            except ValueError:
+                continue
+            if day.weekday() == wd:
+                fits.append((abs(mo - month), mo, day))
+        if fits:
+            _, mo, day = min(fits)
+            out.append(day)
+            last, month = mo, mo + 1
+    return out
+
+
 def nbs():
     ev = Events("nbs")
     index = "https://www.stats.gov.cn/english/PressRelease/ReleaseCalendar/"
@@ -789,28 +844,18 @@ def nbs():
     if not pages:
         raise ValueError(f"no {year} calendar linked from the NBS index")
     page = text(pages[0])
-    names = [("Gross Domestic Product", "GDP", "High"), ("Industrial Production", "Industrial production", "Medium"),
-             ("Retail Sales", "Retail sales", "Medium"), ("Consumer Price", "Consumer and producer prices (CPI, PPI)", "High"),
-             ("Purchasing Managers", "Official PMIs", "High"), ("Fixed Assets", "Fixed asset investment", "Medium")]
-    today = window()[0]
     for r in rows(page):
-        hit = next((n for n in names if n[0].lower() in r.lower()), None)
+        hit = next((n for n in NBS if n[0] in r), None)
         if not hit:
             continue
-        for dm in re.finditer(r"\b(\d{1,2})/(\d{1,2})(?:/(\d{4}))?\b|\b([A-Z][a-z]+)\.? (\d{1,2})\b", r):
-            if dm.group(1):
-                m, d = int(dm.group(1)), int(dm.group(2))
-            elif month_num(dm.group(4) or ""):
-                m, d = month_num(dm.group(4)), int(dm.group(5))
-            else:
-                continue
-            try:
-                day = dt.date(int(dm.group(3)), m, d) if dm.group(3) else nearest_year(m, d, today)
-            except ValueError:
-                continue
-            if day and in_window(day):
-                hm = parse_clock(r) or ((9, 30) if hit[0] in ("Consumer Price", "Purchasing Managers") else (10, 0))
-                ev.add(day, hit[1], country="China", imp=hit[2], when=hm, tz="Asia/Shanghai")
+        hm = parse_clock(r) or (10, 0)
+        for day in nbs_days(r, year):
+            if in_window(day):
+                title = hit[1]
+                if hit[0] == "National Economic Performance" and day.month in (1, 4, 7, 10):
+                    title = "GDP and activity data: industrial production, retail sales, investment"
+                ev.add(day, title, country="China", imp=hit[2], when=hm, tz="Asia/Shanghai",
+                       url=pages[0])
     return list({e["id"]: e for e in ev.items}.values())
 
 
@@ -1078,7 +1123,8 @@ IND = {
     "uk_cpi": (lambda: ons_points("/economy/inflationandpriceindices/timeseries/d7g7/mm23", "M"), pct("y/y", False)),
     "uk_unemp": (lambda: ons_points("/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms", "M"),
                  pct("", False)),
-    "uk_gdpm": (lambda: ons_points("/economy/grossdomesticproductgdp/timeseries/ecy2/mgdp", "M"), pct("m/m")),
+    "uk_gdpm": (lambda: transform(ons_points("/economy/grossdomesticproductgdp/timeseries/ecy2/mgdp", "M"), "pct", 1),
+                pct("m/m")),
     "uk_gdpq": (lambda: ons_points("/economy/grossdomesticproductgdp/timeseries/ihyq/qna", "Q"), pct("q/q")),
     "boe_rate": (boe_points, lambda v: f"{v:.2f}%"),
 }
@@ -1179,7 +1225,7 @@ def auction_values(events, now):
         term = e.get("term")
         same = [p for p in past if p.get("securityType") == e.get("stype")
                 and (p.get("originalSecurityTerm") or p.get("securityTerm")) in (term, e.get("orig_term"))
-                and ((p.get("inflationIndexSecurity") or "").lower() == "yes") == e.get("tips")
+                and ((p.get("inflationIndexSecurity") or "").lower() == "yes" or bool(p.get("cpiBaseReferencePeriod"))) == e.get("tips")
                 and (p.get("floatingRate") or "").lower() != "yes" and p.get("highYield")]
         adate = lambda p: (p.get("auctionDate") or p.get("competitiveAuctionCloseDate") or "")[:10]  # noqa: E731
         before = sorted((p for p in same if adate(p) and adate(p) < e["date"]), key=adate)
@@ -1428,7 +1474,7 @@ def main():
             st["error"] = f"{type(e).__name__}: {e}"[:300]
             log(f"{key}: {st['error']}; keeping the last good copy ({st.get('ok') or 'none'})", "warning")
             if PROBE and LAST:
-                print(excerpt())
+                print(snippets(key) if key in PROBE_KEYS else excerpt())
             continue
         merge(cache, key, fresh, now)
         status[key] = {"ok": now.isoformat(timespec="seconds"), "error": None, "n": len(fresh)}
@@ -1437,7 +1483,7 @@ def main():
             for e in fresh[:6]:
                 print("   ", e["date"], e.get("utc") or "all day", e["title"], e.get("ref") or "")
             if LAST and len(fresh) < 3:
-                print(excerpt())
+                print(snippets(key) if key in PROBE_KEYS else excerpt())
     yahoo = None
     try:
         fresh, yahoo = earnings(cache)
