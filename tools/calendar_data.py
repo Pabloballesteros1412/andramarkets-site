@@ -94,6 +94,17 @@ def excerpt():
     return f"    last page {LAST.get('url')} ({len(body)} bytes): {t[:1500]}"
 
 
+# The full set a browser sends on a page load; some sites refuse a request without it.
+NAVIGATE = {"Sec-Fetch-Dest": "document", "Sec-Fetch-Mode": "navigate", "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1", "Upgrade-Insecure-Requests": "1", "Cache-Control": "no-cache"}
+
+
+def links(page, base):
+    """[(absolute url, link text)] in a page."""
+    return [(urllib.parse.urljoin(base, html.unescape(h)), re.sub(r"\s+", " ", strip(t)))
+            for h, t in re.findall(r'(?is)<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', page)]
+
+
 def strip(fragment):
     """Plain text of an HTML fragment, whitespace collapsed."""
     fragment = re.sub(r"(?is)<(script|style)\b.*?</\1>", " ", fragment)
@@ -159,6 +170,9 @@ def ref_quarter(s):
     m = re.search(r"\bQ([1-4])\s*[/ ]\s*(\d{4})\b", s)
     if m:
         return f"{m.group(2)}-Q{m.group(1)}"
+    m = re.search(r"\b(January|April|July|October) to (March|June|September|December),? (\d{4})", s)
+    if m:
+        return f"{m.group(3)}-Q{month_num(m.group(2)) // 3}"
     words = {"first": 1, "1st": 1, "second": 2, "2nd": 2, "third": 3, "3rd": 3, "fourth": 4, "4th": 4}
     m = re.search(r"\b(first|1st|second|2nd|third|3rd|fourth|4th) quarter,? (\d{4})", s, re.I)
     if m:
@@ -256,14 +270,14 @@ def bls():
     ev = Events("bls")
     found = []
     try:
-        for start, summary, desc, _ in ics_events(text("https://www.bls.gov/schedule/news_release/bls.ics", ua=BOT)):
+        for start, summary, desc, _ in ics_events(text("https://www.bls.gov/schedule/news_release/bls.ics", headers=NAVIGATE)):
             found.append((start, f"{summary} {desc}"))
     except Exception as e:  # noqa: BLE001  the monthly schedule pages say the same
         log(f"bls: calendar file failed ({type(e).__name__}: {e}); reading the schedule pages", "warning")
         today, start, end = window()
         months = sorted({(d.year, d.month) for d in (start, today, end)})
         for y, m in months:
-            page = text(f"https://www.bls.gov/schedule/{y}/{m:02d}_sched_list.htm", ua=BOT)
+            page = text(f"https://www.bls.gov/schedule/{y}/{m:02d}_sched_list.htm", headers=NAVIGATE)
             for r in rows(page):
                 dm = re.search(r"([A-Z][a-z]+day), ([A-Z][a-z]+) (\d{1,2}), (\d{4})", r)
                 hm = parse_clock(r)
@@ -337,34 +351,43 @@ CENSUS = [
 
 
 def census():
+    """The list view shows one year; the year pages it links to hold the rest."""
     ev = Events("census")
-    page = text("https://www.census.gov/economic-indicators/calendar-listview.html")
-    for r in rows(page):
-        for prefix, title, imp, ind, url in CENSUS:
-            if prefix.lower() not in r.lower():
-                continue
-            dm = re.search(r"\b([A-Z][a-z]+)\.? (\d{1,2}),? (\d{4})\b", r) or re.search(r"\b(\d{1,2})/(\d{1,2})/(\d{4})\b", r)
-            if not dm:
-                continue
-            if dm.group(1).isdigit():
-                day = dt.date(int(dm.group(3)), int(dm.group(1)), int(dm.group(2)))
-            elif month_num(dm.group(1)):
+    base = "https://www.census.gov/economic-indicators/calendar-listview.html"
+    first = text(base)
+    _, start, end = window()
+    pages = {base: first}
+    for y in sorted({start.year, end.year}):
+        if f"{y} Economic Indicator Release Schedule" in strip(first):
+            continue
+        for href, label in links(first, base):
+            if str(y) in label and "calendar" in label.lower():
+                page = text(href)
+                lv = [h for h, t in links(page, href) if "list view" in t.lower() and str(y) in h]
+                if lv:
+                    href, page = lv[0], text(lv[0])
+                pages[href] = page
+                break
+    seen = set()
+    for page in pages.values():
+        for r in rows(page):
+            for prefix, title, imp, ind, url in CENSUS:
+                if prefix.lower() not in r.lower():
+                    continue
+                dm = re.search(r"\b([A-Z][a-z]+) (\d{1,2}), (\d{4})\b", r)
+                if not dm or not month_num(dm.group(1)):
+                    continue
                 day = dt.date(int(dm.group(3)), month_num(dm.group(1)), int(dm.group(2)))
-            else:
-                continue
-            if not in_window(day):
-                continue
-            ref = None
-            rm = re.search(r"\b(January|February|March|April|May|June|July|August|September|October|November|December)\b(?! \d{1,2},)", r)
-            if rm:
-                m = month_num(rm.group(1))
-                y = day.year if m <= day.month else day.year - 1
-                ref = f"{y}-{m:02d}"
-            # Census releases at 8:30 am ET, new home sales at 10:00 am, when the row gives no time.
-            hm = parse_clock(r) or ((10, 0) if ind == "nhs" else (8, 30))
-            ev.add(day, f"{title}, {period_label(ref)}" if ref else title, country="US", imp=imp,
-                   when=hm, tz="America/New_York", ind=ind, ref=ref, url=url)
-            break
+                if not in_window(day) or (ind, day) in seen:
+                    continue
+                seen.add((ind, day))
+                after = r[dm.end():]
+                ref = ref_month(after)
+                # Census releases at 8:30 am ET, new home sales at 10:00 am, when the row gives no time.
+                hm = parse_clock(after[:20]) or ((10, 0) if ind == "nhs" else (8, 30))
+                ev.add(day, f"{title}, {period_label(ref)}" if ref else title, country="US", imp=imp,
+                       when=hm, tz="America/New_York", ind=ind, ref=ref, url=url)
+                break
     return ev.items
 
 
@@ -481,7 +504,10 @@ def treasury():
         kind = s.get("securityType", "")
         if kind not in ("Note", "Bond") or (s.get("floatingRate") or "").lower() == "yes":
             continue
-        day = dt.date.fromisoformat(s["auctionDate"][:10])
+        when = s.get("auctionDate") or s.get("competitiveAuctionCloseDate")
+        if not when:
+            raise ValueError(f"no auction date among {sorted(k for k in s if 'ate' in k)[:20]}")
+        day = dt.date.fromisoformat(when[:10])
         if not in_window(day):
             continue
         term = s.get("securityTerm", "").replace("-Year", "-year").replace("-Month", "-month")
@@ -489,7 +515,7 @@ def treasury():
         title = f"{term} {'TIPS' if tips else kind.lower()} auction"
         if (s.get("reopening") or "").lower() == "yes":
             title += ", reopening"
-        close = parse_clock(s.get("closingTimeCompetitive") or "") or (13, 0)
+        close = parse_clock(s.get("closingTimeCompetitive") or s.get("competitiveAuctionCloseTime") or "") or (13, 0)
         ev.add(day, title, country="US", imp="Medium", when=close, tz="America/New_York",
                ind="auction", extra={"cusip": s.get("cusip"), "term": s.get("securityTerm"), "stype": kind, "tips": tips},
                url="https://www.treasurydirect.gov/auctions/upcoming/")
@@ -545,35 +571,31 @@ def ism():
 
 
 PMI = [  # (title contains, region, label, importance)
-    ("Flash US", "US", "S&P Global flash US PMIs", "High"),
-    ("Flash Eurozone", "Euro area", "HCOB flash euro area PMIs", "High"),
-    ("Flash UK", "UK", "S&P Global flash UK PMIs", "High"),
-    ("Flash Japan", "Japan", "S&P Global flash Japan PMIs", "Medium"),
-    ("China General Manufacturing", "China", "RatingDog China manufacturing PMI", "Medium"),
-    ("China General Services", "China", "RatingDog China services PMI", "Medium"),
+    ("Flash US PMI", "US", "S&P Global flash US PMIs", "High"),
+    ("Flash Eurozone PMI", "Euro area", "S&P Global flash euro area PMIs", "High"),
+    ("Flash UK PMI", "UK", "S&P Global flash UK PMIs", "High"),
+    ("Flash Japan PMI", "Japan", "S&P Global flash Japan PMIs", "Medium"),
+    ("China General Manufacturing PMI", "China", "RatingDog China manufacturing PMI", "Medium"),
+    ("China General Services PMI", "China", "RatingDog China services PMI", "Medium"),
 ]
+MONTH_RE = "January|February|March|April|May|June|July|August|September|October|November|December"
 
 
 def pmi():
+    """The page lists days ("October 23") each followed by "00:30 UTC [title]" lines."""
     ev = Events("spglobal")
-    page = text("https://www.pmi.spglobal.com/Public/Release/ReleaseDates")
-    for r in rows(page):
-        hit = next((p for p in PMI if p[0].lower() in r.lower()), None)
-        if not hit:
+    t = re.sub(r"\s+", " ", strip(text("https://www.pmi.spglobal.com/Public/Release/ReleaseDates")))
+    t = t[t.find("Upcoming"):] if "Upcoming" in t else t
+    today = window()[0]
+    day = None
+    item = re.compile(rf"\b({MONTH_RE}) (\d{{1,2}}) (?=\d{{2}}:\d{{2}} UTC)|(\d{{2}}):(\d{{2}}) UTC (.+?)(?= \d{{2}}:\d{{2}} UTC| (?:{MONTH_RE}) \d{{1,2}} \d{{2}}:\d{{2}} UTC|$)")
+    for m in item.finditer(t):
+        if m.group(1):
+            day = nearest_year(month_num(m.group(1)), int(m.group(2)), today)
             continue
-        dm = re.search(r"\b(\d{1,2})[ /-]([A-Za-z]{3,9}|\d{1,2})[ /-](\d{4})\b", r) or re.search(r"\b([A-Z][a-z]+) (\d{1,2}),? (\d{4})", r)
-        if not dm:
-            continue
-        a, b, y = dm.group(1), dm.group(2), int(dm.group(3))
-        if a.isdigit():
-            day = dt.date(y, month_num(b) if not b.isdigit() else int(b), int(a))
-        else:
-            day = dt.date(y, month_num(a), int(b))
-        if not in_window(day):
-            continue
-        hm = parse_clock(r)
-        ev.add(day, hit[2], country=hit[1], imp=hit[3], when=hm, tz="UTC",
-               url="https://www.pmi.spglobal.com/Public/Release/ReleaseDates")
+        hit = next((x for x in PMI if x[0].lower() in m.group(5).lower()), None)
+        if hit and day and in_window(day):
+            ev.add(day, hit[2], country=hit[1], imp=hit[3], when=(int(m.group(3)), int(m.group(4))), tz="UTC")
     return list({e["id"]: e for e in ev.items}.values())
 
 
@@ -712,42 +734,28 @@ def ons():
     ev = Events("ons")
     _, start, end = window()
     found = []
-    try:
-        q = urllib.parse.urlencode({"limit": 200, "release-type": "type-upcoming,type-published",
-                                    "fromDate": start.isoformat(), "toDate": end.isoformat()})
-        data = json.loads(text(f"https://api.beta.ons.gov.uk/v1/search/releases?{q}"))
-        for r in data.get("releases", []):
-            d = r.get("description", {})
-            found.append((d.get("release_date") or r.get("release_date"), d.get("title") or r.get("title"),
-                          r.get("uri")))
-    except Exception as e:  # noqa: BLE001
-        log(f"ons: search API failed ({type(e).__name__}: {e}); reading the release calendar page", "warning")
+    for n in (1, 2, 3):
         page = text("https://www.ons.gov.uk/releasecalendar?" + urllib.parse.urlencode(
             {"release-type": "type-upcoming", "after-date": start.isoformat(), "before-date": end.isoformat(),
-             "limit": 100}))
-        for item in re.findall(r"(?is)<li\b.*?</li>", page):
+             "limit": 50, "page": n}))
+        items = re.findall(r"(?is)<li\b.*?</li>", page)
+        for item in items:
             t = strip(item)
-            dm = re.search(r"(\d{1,2}) ([A-Z][a-z]+) (\d{4})(?: (\d{1,2}:\d{2}) ?([ap]m)?)?", t)
+            dm = re.search(r"(\d{1,2}) ([A-Z][a-z]+) (\d{4})", t)
             link = re.search(r'href="(/releases/[^"]+)"', item)
-            if dm and month_num(dm.group(2)):
-                found.append((f"{dm.group(3)}-{month_num(dm.group(2)):02d}-{int(dm.group(1)):02d}T07:00:00+00:00", t,
-                              link.group(1) if link else None))
-    for when, title, uri in found:
-        if not when or not title:
+            if dm and month_num(dm.group(2)) and link:
+                found.append((dt.date(int(dm.group(3)), month_num(dm.group(2)), int(dm.group(1))),
+                              parse_clock(t[dm.end():dm.end() + 12]), re.sub(r"\s+", " ", t), link.group(1)))
+        if "page=" + str(n + 1) not in page:
+            break
+    for day, hm, title, uri in found:
+        hit = next((x for x in ONS if x[0] in title), None)
+        if not hit or not in_window(day):
             continue
-        hit = next((x for x in ONS if title.startswith(x[0])), None)
-        if not hit:
-            continue
-        stamp = dt.datetime.fromisoformat(when.replace("Z", "+00:00"))
-        local = stamp.astimezone(ZoneInfo("Europe/London"))
-        if not in_window(local.date()):
-            continue
-        tail = title.split(":", 1)[1] if ":" in title else ""
+        tail = title.split(hit[0], 1)[1]
         ref = ref_quarter(tail) or (ref_month(tail) if hit[3] in ("uk_cpi", "uk_gdpm", None) else None)
-        hm = (local.hour, local.minute) if (local.hour, local.minute) != (0, 0) else (7, 0)
-        ev.add(local.date(), f"{hit[1]}, {period_label(ref)}" if ref else hit[1], country="UK", imp=hit[2],
-               when=hm, tz="Europe/London", ind=hit[3], ref=ref,
-               url=f"https://www.ons.gov.uk{uri}" if uri else None)
+        ev.add(day, f"{hit[1]}, {period_label(ref)}" if ref else hit[1], country="UK", imp=hit[2],
+               when=hm or (7, 0), tz="Europe/London", ind=hit[3], ref=ref, url=f"https://www.ons.gov.uk{uri}")
     return list({e["id"]: e for e in ev.items}.values())
 
 
@@ -775,7 +783,12 @@ def boj():
 
 def nbs():
     ev = Events("nbs")
-    page = text("https://www.stats.gov.cn/english/PressRelease/ReleaseCalendar/")
+    index = "https://www.stats.gov.cn/english/PressRelease/ReleaseCalendar/"
+    year = window()[0].year
+    pages = [h for h, t in links(text(index), index) if f"Calendar of NBS in {year}" in t]
+    if not pages:
+        raise ValueError(f"no {year} calendar linked from the NBS index")
+    page = text(pages[0])
     names = [("Gross Domestic Product", "GDP", "High"), ("Industrial Production", "Industrial production", "Medium"),
              ("Retail Sales", "Retail sales", "Medium"), ("Consumer Price", "Consumer and producer prices (CPI, PPI)", "High"),
              ("Purchasing Managers", "Official PMIs", "High"), ("Fixed Assets", "Fixed asset investment", "Medium")]
@@ -1095,6 +1108,8 @@ def resolve(ev, values, now):
     if not ind or ind not in IND or ind not in values:
         return
     pts = [tuple(p) for p in values[ind]["obs"]]
+    if not pts:
+        return
     fmt = IND[ind][1]
     release = dt.datetime.fromisoformat(ev["utc"]) if ev.get("utc") else \
         dt.datetime.combine(dt.date.fromisoformat(ev["date"]), dt.time(23, 59), NY)
@@ -1166,10 +1181,11 @@ def auction_values(events, now):
                 and (p.get("originalSecurityTerm") or p.get("securityTerm")) in (term, e.get("orig_term"))
                 and ((p.get("inflationIndexSecurity") or "").lower() == "yes") == e.get("tips")
                 and (p.get("floatingRate") or "").lower() != "yes" and p.get("highYield")]
-        before = sorted((p for p in same if p["auctionDate"][:10] < e["date"]), key=lambda p: p["auctionDate"])
+        adate = lambda p: (p.get("auctionDate") or p.get("competitiveAuctionCloseDate") or "")[:10]  # noqa: E731
+        before = sorted((p for p in same if adate(p) and adate(p) < e["date"]), key=adate)
         if before and "actual" not in e:
             e["previous"] = f"{float(before[-1]['highYield']):.3f}%"
-        mine = [p for p in past if p.get("cusip") == e.get("cusip") and p["auctionDate"][:10] == e["date"] and p.get("highYield")]
+        mine = [p for p in past if p.get("cusip") == e.get("cusip") and adate(p) == e["date"] and p.get("highYield")]
         if mine and "actual" not in e:
             e["actual"], e["actual_seen"] = f"{float(mine[0]['highYield']):.3f}%", now.isoformat(timespec="seconds")
             e["actual_url"] = "https://www.treasurydirect.gov/auctions/announcements-data-results/"
@@ -1418,8 +1434,10 @@ def main():
         status[key] = {"ok": now.isoformat(timespec="seconds"), "error": None, "n": len(fresh)}
         print(f"{key}: {len(fresh)} events")
         if PROBE:
-            for e in fresh[:4]:
+            for e in fresh[:6]:
                 print("   ", e["date"], e.get("utc") or "all day", e["title"], e.get("ref") or "")
+            if LAST and len(fresh) < 3:
+                print(excerpt())
     yahoo = None
     try:
         fresh, yahoo = earnings(cache)
@@ -1436,7 +1454,10 @@ def main():
     live = [e for e in events if (now.date() - dt.date.fromisoformat(e["date"])).days <= 10]
     fetch_values(cache, {e["ind"] for e in live if e.get("ind") in IND})
     for e in live:
-        resolve(e, cache["values"], now)
+        try:
+            resolve(e, cache["values"], now)
+        except Exception as err:  # noqa: BLE001  a bad figure never stops the calendar
+            log(f"values for {e['id']}: {type(err).__name__}: {err}", "warning")
         if e.get("ind") in IND:
             e["value_source"] = value_source(e["ind"])
     try:
