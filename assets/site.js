@@ -14,6 +14,12 @@
   // Rolling figures: each digit is a column of 0 to 9 that slides to its
   // value. Screen readers get the plain text; the columns are hidden from them.
   // Also used by assets/dashboard.js for the chart readout.
+  // A column holds ten lines, so each digit is 10% of its height. Set as a
+  // plain transform: Safari can leave a transition on a custom property
+  // stuck halfway.
+  function shift(d) {
+    return "translateY(" + -10 * d + "%)";
+  }
   function Roll(el, text) {
     this.el = el;
     this.sr = document.createElement("span");
@@ -37,16 +43,24 @@
       box.className = "roll__w";
       for (var i = 0; i < word.length; i++) {
         var c = word[i];
+        var slot = document.createElement("span");
         if (c >= "0" && c <= "9") {
+          slot.className = "roll__d";
           var col = document.createElement("span");
           col.className = "roll__col";
-          col.textContent = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9";
-          col.style.setProperty("--n", c);
+          for (var n = 0; n < 10; n++) {
+            var line = document.createElement("span");
+            line.textContent = n;
+            col.appendChild(line);
+          }
+          col.style.transform = shift(c);
+          slot.appendChild(col);
           cols.push(col);
-          box.appendChild(col);
         } else {
-          box.appendChild(document.createTextNode(c));
+          slot.className = "roll__s";
+          slot.textContent = c;
         }
+        box.appendChild(slot);
       }
       vis.appendChild(box);
     });
@@ -62,7 +76,7 @@
     var k = 0;
     for (var i = 0; i < text.length; i++) {
       var c = text[i];
-      if (c >= "0" && c <= "9") this.cols[k++].style.setProperty("--n", c);
+      if (c >= "0" && c <= "9") this.cols[k++].style.transform = shift(c);
     }
   };
   // Builds at zero, then rolls up to the real figure.

@@ -2329,22 +2329,39 @@ ul {
   --roll-h: 1.55em;
 }
 
+/* One clipped slot per character; the digit column slides inside it. */
 .roll__w {
-  display: inline-flex;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.roll__d,
+.roll__s {
+  display: inline-block;
   height: var(--roll-h);
-  overflow: hidden;
-  vertical-align: top;
   line-height: var(--roll-h);
+  vertical-align: top;
+}
+
+.roll__d {
+  position: relative;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+
+.roll__s {
   white-space: pre;
 }
 
 .roll__col {
   display: block;
-  font-variant-numeric: tabular-nums;
-  white-space: pre;
-  line-height: var(--roll-h);
-  transform: translateY(calc(var(--n, 0) * -1 * var(--roll-h)));
   transition: transform 640ms var(--ease-out);
+  will-change: transform;
+}
+
+.roll__col > span {
+  display: block;
+  height: var(--roll-h);
 }
 
 .dd__read .roll__col {
