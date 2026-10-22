@@ -3470,3 +3470,161 @@ html.js .acc__item:not(.is-open) .acc__panel p {
     display: none;
   }
 }
+
+/* Company pages, second pass (owner's request, 22 Oct 2026): logo beside the
+   name, where revenue goes, results over time, shareholder returns, valuation
+   over time, period returns and risk. */
+
+.co .dd__head {
+  max-width: none;
+}
+
+.co-title {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px clamp(16px, 4vw, 48px);
+}
+
+.co-logo {
+  display: grid;
+  place-items: center;
+  width: clamp(72px, 12vw, 152px);
+  aspect-ratio: 1;
+  max-width: 100%;
+  padding: clamp(10px, 1.6vw, 20px);
+  background: #ffffff;
+  border: 1px solid var(--rule);
+}
+
+.co-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.co-lead {
+  font-size: 1.0625rem;
+}
+
+.page__body p.co-lead {
+  color: var(--ink);
+  max-width: 44rem;
+}
+
+.chart .co-seg {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ground);
+  font-variant-numeric: tabular-nums;
+}
+
+.key .sw-fill,
+.key .sw-hollow {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--chart-line);
+}
+
+.key .sw-fill {
+  background: var(--chart-fill);
+}
+
+.key .sw-hollow {
+  border-style: dashed;
+}
+
+.co-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px clamp(16px, 3vw, 32px);
+}
+
+@media (max-width: 640px) {
+  .co-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.co-h3 {
+  margin-top: 18px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.co-pair .co-chart {
+  margin-top: 8px;
+}
+
+.co-ret {
+  width: 100%;
+  margin-top: 16px;
+  border-collapse: collapse;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.co-ret th,
+.co-ret td {
+  padding: 12px 0 12px 16px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.9375rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.co-ret thead th {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  border-bottom-color: var(--rule-strong);
+}
+
+.co-ret th:first-child {
+  padding-left: 0;
+  white-space: normal;
+}
+
+.co-ret tbody th {
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.co-ret .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.co-ret__self th,
+.co-ret__self td {
+  font-weight: 600;
+}
+
+.co-ret tbody .co-ret__self th {
+  color: var(--ink);
+}
+
+.kpi.co-risk {
+  margin-top: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--rule-strong);
+}
+
+.kpi.co-risk .kpi__item {
+  padding: 12px 12px 12px 0;
+}
+
+.kpi.co-risk .kpi__item + .kpi__item {
+  padding-left: 14px;
+  border-left: 1px solid var(--rule);
+}
+
+@media (max-width: 760px) {
+  .kpi.co-risk {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kpi.co-risk .kpi__item:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+}
