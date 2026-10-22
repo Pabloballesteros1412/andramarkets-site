@@ -8,6 +8,7 @@ per visitor. Writes:
     methodology/index.html     methodology (placeholder page)
     reports/index.html         every published close note
     reports/<date>/index.html  one page per note, rendered from its text
+    dashboards/<slug>/         one page per dashboard (assets/dashboard.js draws the chart)
 
     python3 tools/build_site.py
 
@@ -214,16 +215,18 @@ def r_yield_curve(rec):
 
 def r_fed_path(rec):
     d = rec["data"]
-    months, implied, effr = [m for m, _ in d["months"]], [v for _, v in d["months"]], d["effr"]
-    lo, hi = span(implied + [effr])
-    pa, pb = fit([implied, [effr] * len(implied)], W, H, 14, lo, hi)
+    months, implied, effr = [m for m, _ in d["months"]], [v for _, v in d["months"]], d.get("effr")
+    lo, hi = span(implied + ([effr] if effr is not None else []))
+    pa, pb = fit([implied, [effr if effr is not None else implied[0]] * len(implied)], W, H, 14, lo, hi)
     names = [month_name(m + "-01") for m in months]
     dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5">{tip(f"{n}: {pct(v)}")}</circle>'
                    for (x, y), n, v in zip(pa, names, implied))
-    label = (f"Fed funds rate implied by futures, month by month, against the effective rate of {pct(effr)} on "
-             f"{short_day(d['effr_date'])}: " + ", ".join(f"{n} {pct(v)}" for n, v in zip(names, implied)))
-    return (data_svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d_path(pb)}"/><path class="line" d="{d_path(pa)}"/>' + dots, label, stretch=False),
-            [("line", "Implied path"), ("dash", "Effective rate")])
+    label = "Fed funds rate implied by futures, month by month: " + ", ".join(f"{n} {pct(v)}" for n, v in zip(names, implied))
+    ref, leg = "", [("line", "Implied path")]
+    if effr is not None:
+        label += f"; effective rate {pct(effr)} on {short_day(d['effr_date'])}"
+        ref, leg = f'<path class="dash" d="{d_path(pb)}"/>', leg + [("dash", "Effective rate")]
+    return (data_svg(W, H, grid_lines(W, H, 4) + ref + f'<path class="line" d="{d_path(pa)}"/>' + dots, label, stretch=False), leg)
 
 
 def r_sector_heatmap(rec):
@@ -431,6 +434,227 @@ DASHBOARDS = [
     ("correlation", "cross", "Cross-asset correlation", "How stocks, bonds, the dollar and commodities move together.", "Yahoo Finance, daily returns"),
 ]
 
+# Dashboard pages: key -> (slug, default range, how to read it, source).
+DASH_PAGES = {
+    "yield_curve": ("yield-curve", "1M",
+        "Each dot is the yield on a US Treasury of that maturity; the solid line is the latest close, the dashed one the curve "
+        "at the start of the range. Maturities are spaced by the square root of their length, so the short end is not squeezed. "
+        "An upward slope is normal: lenders ask more to lend for longer. A curve that falls from left to right (inverted) has "
+        "often come before a slowdown. A move in the short end is mostly about Fed policy; a move in the long end about growth, "
+        "inflation and the supply of bonds.",
+        "Daily Treasury par yields, published by the US Treasury and served by FRED (series DGS1MO to DGS30). FRED posts each "
+        "day's curve late in the evening, so the latest curve is usually the previous session's. While FRED is unreachable the "
+        "curve comes from the Andra Markets archive of the same FRED figures."),
+    "fed_path": ("fed-path", "1M",
+        "Each point is one month's 30-day fed funds future: 100 minus its price is the average overnight rate the market expects "
+        "for that month. A path that slopes down prices rate cuts; one that rises prices hikes. The dashed line is the same path "
+        "as it was priced at the start of the range, so the gap shows how expectations have moved. Futures carry a small risk "
+        "premium, so they are a guide to expectations, not a forecast.",
+        "CBOT 30-day fed funds futures, daily settlement, from Yahoo Finance. The effective federal funds rate is from the "
+        "Federal Reserve Bank of New York, served by FRED (series EFFR), when FRED is reachable."),
+    "sector_heatmap": ("sector-heatmap", "1D",
+        "Each bar is one of the eleven S&amp;P 500 sectors, through the Select Sector SPDR ETF that tracks it, over the chosen "
+        "range. Leaders and laggards show where money is rotating: defensive sectors (staples, utilities, health care) tend to "
+        "lead when investors are cautious, cyclical ones (technology, discretionary, financials, energy) when they are confident.",
+        "Select Sector SPDR ETFs (XLK, XLF, XLV, XLY, XLP, XLE, XLI, XLB, XLRE, XLU, XLC), price change between daily closes, "
+        "from Yahoo Finance. Prices only; dividends are not included."),
+    "vol_term": ("volatility-term-structure", "1M",
+        "Each dot is a Cboe index of the S&amp;P 500 volatility that options imply over a horizon: 9 days, 1, 3 and 6 months. "
+        "Normally the line rises with the horizon (contango): calm now, more uncertainty further out. When near-term volatility "
+        "rises above longer-term volatility (backwardation), the market is pricing stress now. The dashed line is the structure "
+        "at the start of the range.",
+        "Cboe VIX9D, VIX, VIX3M and VIX6M index closes, from Yahoo Finance. Levels are in volatility points (annualised percent)."),
+    "global_indices": ("global-indices", "1D",
+        "Each bar is a major equity benchmark's price change over the range, measured from each index's own local closes, so "
+        "Asian, European and American markets are compared on their own sessions. Changes are in local currency and leave out "
+        "dividends.",
+        "S&amp;P 500, Euro Stoxx 50, DAX 40, FTSE 100, Nikkei 225, Hang Seng, Bovespa and S&amp;P/TSX closes, from Yahoo Finance."),
+    "fx_majors": ("fx-majors", "1D",
+        "Each bar is the US dollar's move against one major currency over the range. A bar to the right means the dollar "
+        "gained: it buys more of that currency. A broad move in one direction says more about the dollar itself; a single "
+        "outlier says more about that currency.",
+        "Spot exchange rates (EUR/USD, USD/JPY, GBP/USD, USD/CHF, USD/CAD, AUD/USD), daily closes from Yahoo Finance. For pairs "
+        "quoted against the dollar (EUR/USD) the sign is flipped so every bar reads as the dollar's move."),
+    "commodities": ("commodities", "3M",
+        "Both lines start at 100 on the first day of the range, so the gap between them is the difference in performance, "
+        "not in price. Above 100 means a gain since then, below 100 a loss. Oil moves with growth and supply news; gold with "
+        "real yields, the dollar and demand for safety, so the two often part ways.",
+        "NYMEX WTI crude (CL) and COMEX gold (GC) front-month futures, daily closes, from Yahoo Finance. A session still trading "
+        "is left out. The front month rolls to the next contract near expiry, which can add a small jump."),
+    "credit_spreads": ("credit-spreads", "6M",
+        "Each line is the extra yield companies pay over Treasuries of the same maturity: high yield (below investment grade) "
+        "and investment grade. Spreads widen when investors fear defaults and tighten when they are confident, so a sudden "
+        "widening in high yield is an early sign of stress.",
+        "ICE BofA US High Yield and US Corporate option-adjusted spreads (BAMLH0A0HYM2, BAMLC0A0CM), daily, served by FRED. "
+        "FRED carries ICE data with a short delay."),
+    "inflation_labour": ("inflation-and-labour", "2Y",
+        "The line is consumer price inflation: the change in the CPI over the same month a year earlier. The bars are the jobs "
+        "the economy added or lost each month (nonfarm payrolls, in thousands). Together they are the two halves of the Fed's "
+        "mandate: stable prices and maximum employment. Both are revised after release; the figures here are the latest vintage.",
+        "US Bureau of Labor Statistics: CPI for all urban consumers, seasonally adjusted (CPIAUCSL), and total nonfarm "
+        "payrolls (PAYEMS), served by FRED. A month without a release is left blank."),
+    "breadth": ("watchlist-breadth", "1M",
+        "Each bar is one trading session: the number of stocks on the Andra Markets watchlist that rose, less the number that "
+        "fell. Tall green bars mean the gains were broad; an index that rises while most bars are red is being carried by a few "
+        "large names. This is the watchlist's breadth, not the whole market's.",
+        "The Andra Markets watchlist of US large caps, closes from Yahoo Finance, as recorded in each published close note's "
+        "verified figures. History starts with the first archived note."),
+    "correlation": ("cross-asset-correlation", "3M",
+        "Each cell is the correlation of two assets' daily returns over the window, from +1 (they move together) to &minus;1 "
+        "(they move in opposite directions). Stocks and bonds moving apart is the classic hedge; when they start moving "
+        "together, a balanced portfolio loses its cushion.",
+        "Daily closes from Yahoo Finance: S&amp;P 500, iShares 20+ Year Treasury Bond ETF (TLT), ICE US Dollar Index, WTI "
+        "crude and gold front-month futures. Log returns over the sessions all five traded."),
+}
+SHORT = {"S&P 500": "S&P", "Long Treasuries": "TLT", "Dollar index": "USD", "WTI crude": "WTI", "Gold": "Gold"}
+
+
+def latest_rows(key, rec):
+    """The page's "Latest" table: (name, level, note) rows."""
+    det, asof = rec["detail"], rec["asof"]
+    if det["kind"] == "curve":
+        cmp = det["compare"].get("1M") or next(iter(det["compare"].values()))
+        rows = []
+        idx = {lb: i for i, lb in enumerate(det["labels"])}
+        pick = {"yield_curve": ["3M", "2Y", "10Y", "30Y"], "vol_term": det["labels"]}.get(key)
+        if key == "fed_path":
+            pick = [det["labels"][i] for i in (0, min(2, len(det["labels"]) - 1), min(5, len(det["labels"]) - 1), len(det["labels"]) - 1)]
+        for lb in pick:
+            i = idx[lb]
+            v, o = det["values"][i], cmp["values"][i]
+            if det.get("unit") == "%" or key == "yield_curve":
+                rows.append((("Implied, " if key == "fed_path" else "") + lb, pct(v, 2), f"{signed((v - o) * 100, 0, 'bp')} since {short_day(cmp['date'])}"))
+            else:
+                rows.append((f"VIX {lb}", f"{v:.2f}", f"{signed(v - o, 2)} since {short_day(cmp['date'])}"))
+        if key == "yield_curve":
+            v = (det["values"][idx["10Y"]] - det["values"][idx["2Y"]]) * 100
+            o = (cmp["values"][idx["10Y"]] - cmp["values"][idx["2Y"]]) * 100
+            rows.append(("10Y less 2Y", signed(v, 0, "bp"), f"{signed(v - o, 0, 'bp')} since {short_day(cmp['date'])}"))
+        if det.get("ref"):
+            rows.append((det["ref"]["name"], pct(det["ref"]["value"], 2), short_day(det["ref"]["date"])))
+        return rows
+    if det["kind"] == "perf":
+        r = det["ranges"]["1D"]
+        rows = sorted(zip(det["names"], r["values"], r["to"]), key=lambda x: -x[1])
+        return [(esc(n), chg(v), "on the day" if t == asof else f"close of {short_day(t)}") for n, v, t in rows]
+    if det["kind"] == "lines":
+        out = []
+        for sr in det["series"]:
+            v = sr["values"]
+            dec = sr.get("dec", det.get("dec", 2))
+            if det.get("rebase"):
+                out.append((sr["name"], f"{v[-1]:,.{dec}f}", f"{chg((v[-1] / v[-2] - 1) * 100)} on the day"))
+                out.append((f"{sr['name']}, 1 year", chg((v[-1] / v[0] - 1) * 100), f"since {short_day(det['dates'][0])}"))
+            else:
+                base = det["dates"].index(next(x for x in det["dates"] if x >= months_back_iso(det["dates"][-1], 1)))
+                out.append((sr["name"], pct(v[-1], 2), f"{signed((v[-1] - v[base]) * 100, 0, 'bp')} since {short_day(det['dates'][base])}"))
+        return out
+    if det["kind"] == "macro":
+        cpi = [(dte, v) for dte, v in zip(det["dates"], det["cpi"]) if v is not None]
+        jobs = [(dte, v) for dte, v in zip(det["dates"], det["jobs"]) if v is not None]
+        avg3 = sum(v for _, v in jobs[-3:]) / 3
+        return [("Inflation, y/y", pct(cpi[-1][1], 1), month_name(cpi[-1][0])),
+                ("Month before", pct(cpi[-2][1], 1), month_name(cpi[-2][0])),
+                ("Payrolls", f"{signed(jobs[-1][1], 0)}k", month_name(jobs[-1][0])),
+                ("3-month average", f"{signed(avg3, 0)}k", f"to {month_name(jobs[-1][0])}")]
+    if det["kind"] == "breadth":
+        ss = det["sessions"]
+        last = ss[-1]
+        avg = sum(a - b for _, a, b, _ in ss[-20:]) / len(ss[-20:])
+        return [("Advancers", str(last[1]), short_day(last[0])), ("Decliners", str(last[2]), short_day(last[0])),
+                ("Net", signed(last[1] - last[2], 0), short_day(last[0])),
+                ("Net, 20-session average", signed(avg, 1), f"of {sum(last[1:])} stocks")]
+    if det["kind"] == "matrix":
+        win = det["windows"].get("3M") or next(iter(det["windows"].values()))
+        m, names = win["matrix"], det["names"]
+        return [(f"S&amp;P 500 and {esc(names[j])}", signed(m[0][j], 2), f"{win['sessions']} sessions")
+                for j in range(1, len(names))]
+    return []
+
+
+def months_back_iso(iso_day, n):
+    d = dt.date.fromisoformat(iso_day)
+    y, m = divmod(d.month - 1 - n, 12)
+    y, m = d.year + y, m + 1
+    for day in range(d.day, 27, -1):
+        try:
+            return dt.date(y, m, day).isoformat()
+        except ValueError:
+            continue
+    return dt.date(y, m, min(d.day, 28)).isoformat()
+
+
+def dash_ranges(det):
+    if det["kind"] == "curve":
+        return list(det["compare"])
+    if det["kind"] == "perf":
+        return list(det["ranges"])
+    if det["kind"] == "matrix":
+        return list(det["windows"])
+    return det["ranges"]
+
+
+def dashboard_page(key, cat, name, desc, source, rec):
+    slug, default, how, long_source = DASH_PAGES[key]
+    cat_label = {k: label for k, label, _ in CATEGORIES}[cat]
+    crumbs = f'<p class="dd__crumbs"><a href="../../#dashboards">Dashboards</a> <span aria-hidden="true">/</span> {cat_label}</p>'
+    if rec:
+        det = dict(rec["detail"])
+        if key == "fx_majors":
+            det["sign"] = True
+        if det["kind"] == "matrix":
+            det["short"] = [SHORT.get(n, n) for n in det["names"]]
+        ranges = dash_ranges(det)
+        cur = default if default in ranges else ranges[-1]
+        chips = "".join(f'<button type="button" class="chip" data-range="{r}" aria-pressed="{"true" if r == cur else "false"}">{r}</button>'
+                        for r in ranges)
+        asof = tile_asof(key, rec)
+        meta = f'{esc(rec["source"])}. As of {asof}.'
+        payload = json.dumps(det, separators=(",", ":")).replace("</", "<\\/")
+        rows = latest_rows(key, rec)
+        kpis = "".join(f'<li class="kpi__item"><span class="kpi__name">{n}</span><span class="kpi__level">{lv}</span>'
+                       f'<span class="kpi__chg">{note}</span></li>' for n, lv, note in rows)
+        figure = (f'<div class="filters dd__ranges" role="group" aria-label="Time range">{chips}</div>'
+                  f'<figure class="dd__chart"><div class="dd__plot dd__plot--{det["kind"]}" role="img" tabindex="0" aria-label="{esc(name)}"></div>'
+                  f'<figcaption><p class="key dd__key"></p><p class="dd__read" aria-live="polite"></p></figcaption></figure>'
+                  f'<noscript><p class="dd__pending">The chart needs JavaScript. The latest values are in the table.</p></noscript>'
+                  f'<script type="application/json" id="dd-data">{payload}</script>')
+        side = (f'<aside class="report__side dd__side" aria-labelledby="side-title">'
+                f'<h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{kpis}</ul>'
+                f'<p class="report__src">{esc(rec["source"])}, {asof}.</p></aside>')
+        data_attrs = f' data-dash data-range="{cur}" data-title="{esc(name)}" data-asof="{asof}"'
+        scripts = ("dashboard.js",)
+    else:
+        meta = f"{source}. Data pending."
+        figure = '<div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div>'
+        side, data_attrs, scripts = "", "", ()
+    body = f"""<main id="main" class="page dd"{data_attrs}>
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      {crumbs}
+      <h1 class="page__title">{name}</h1>
+      <p class="lede">{desc}</p>
+      <p class="note__meta">{meta}</p>
+    </header>
+    <section class="dd__main" aria-label="Chart">{figure}</section>
+    {side}
+    <div class="page__body dd__text">
+      <section aria-labelledby="dd-how"><h2 id="dd-how">How to read it</h2><p>{how}</p></section>
+      <section aria-labelledby="dd-src"><h2 id="dd-src">Source</h2><p>{long_source}</p><p>For information only. Not investment advice.</p></section>
+    </div>
+  </div>
+</main>"""
+    return shell(
+        title=f"{name}: Andra Markets dashboard",
+        desc=esc(html.unescape(desc)),
+        body=body,
+        home="../../",
+        base="../../",
+        path=f"dashboards/{slug}/",
+        scripts=scripts,
+    )
+
+
 CALENDAR = [
     ("[Day, date]", [
         ("Macro", "Consumer prices (CPI)", "[consensus]", "[prior]"),
@@ -610,7 +834,7 @@ def page(notes):
             figure = '<div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p>'
             src = f"{cat_label[cat]}. {source}."
         return (f'<li class="dash-tile reveal" data-cat="{cat}" style="--i:{i % 3}">'
-                f'<a href="#dashboards" class="dash-tile__link">{figure}'
+                f'<a href="dashboards/{DASH_PAGES[key][0]}/" class="dash-tile__link">{figure}'
                 f'<div class="dash-tile__text">'
                 f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p>'
                 f'<p class="dash-tile__src">{src}</p></div>'
@@ -910,7 +1134,7 @@ def site_footer(home, base):
 </footer>"""
 
 
-def shell(title, desc, body, home, base, path=""):
+def shell(title, desc, body, home, base, path="", scripts=()):
     url = f"{SITE_URL}/{path}" if SITE_URL else ""
     og_image = f"{SITE_URL}/assets/og-image.png" if SITE_URL else f"{base}assets/og-image.png"
     canonical = f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n' if url else ""
@@ -948,7 +1172,7 @@ def shell(title, desc, body, home, base, path=""):
 
 {site_footer(home, base)}
 
-<script src="{base}assets/site.js" defer></script>
+<script src="{base}assets/site.js" defer></script>{"".join(f'<script src="{base}assets/{js}" defer></script>' for js in scripts)}
 </body>
 </html>
 """
@@ -1280,7 +1504,15 @@ def main():
         older = notes[i + 1] if i + 1 < len(notes) else None
         (REPORTS / rec["date"]).mkdir(exist_ok=True)
         (REPORTS / rec["date"] / "index.html").write_text(report(rec, newer, older))
-    print(f"wrote index.html, methodology/index.html, reports/index.html and {len(notes)} report page(s)")
+    dash_data = load_dash_data()
+    for key, cat, name, desc, source in DASHBOARDS:
+        folder = OUT / "dashboards" / DASH_PAGES[key][0]
+        folder.mkdir(parents=True, exist_ok=True)
+        rec = dash_data.get(key)
+        # A record cached before the pages existed has no history yet: pending until refetched.
+        (folder / "index.html").write_text(dashboard_page(key, cat, name, desc, source, rec if rec and rec.get("detail") else None))
+    print(f"wrote index.html, methodology/index.html, reports/index.html, {len(DASHBOARDS)} dashboard pages "
+          f"and {len(notes)} report page(s)")
 
 
 if __name__ == "__main__":

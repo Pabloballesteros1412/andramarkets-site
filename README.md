@@ -14,10 +14,10 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `PRODUCT.md`: product truth and brand commitments.
 - `AGENT_FIXES.md`: known problems in the agent repo, to fix next.
 
-The HTML pages (`index.html`, `methodology/`, `reports/`) are generated at
+The HTML pages (`index.html`, `methodology/`, `reports/`, `dashboards/`) are generated at
 deploy time and are not stored in the repo. Pushes to `main` deploy to GitHub
 Pages via `.github/workflows/pages.yml`, which builds the pages and publishes
-only `index.html`, `methodology/`, `reports/` and `assets/`. To preview
+only `index.html`, `methodology/`, `reports/`, `dashboards/` and `assets/`. To preview
 locally: `python3 tools/build_site.py`.
 
 ## Publishing the close note
@@ -127,22 +127,23 @@ then in step 2 open the existing secret and **Update** it.
 
 `.github/workflows/pages.yml` runs `tools/dashboard_data.py` before each
 build, and at 11:17 UTC on weekdays so the tiles refresh without a new note.
-It writes `.cache/dashboards/tiles.json`: for each tile only the figures it
-draws, its source and its as-of date. The file is kept between runs in the
+It writes `.cache/dashboards/tiles.json`: for each dashboard the figures its
+tile draws, the history its page (`dashboards/<slug>/`) draws, its source and
+its as-of date. The file is kept between runs in the
 Actions cache, never committed or published.
 
-| Tile | Source | As of |
+| Dashboard | Source | As of |
 |---|---|---|
-| Yield curve | Agent archive (FRED Treasury yields), latest against about a month before | The curve's own session |
+| Yield curve | FRED Treasury yields (DGS1MO to DGS30), latest against 1M to 1Y before; the agent archive's copy while FRED is down | The curve's own session |
 | Fed path | CME 30-day fed funds futures via Yahoo Finance (100 minus price), effective rate from FRED | Latest settled session |
-| Sector heatmap, FX majors | Agent archive (Yahoo Finance) | The newest published note in which every instrument printed |
+| Sector heatmap, FX majors | Yahoo Finance: sector ETFs, spot FX; changes over 1D to 1Y | Latest close |
 | Volatility term structure | Cboe VIX9D, VIX, VIX3M, VIX6M via Yahoo Finance, against 5 sessions before | Latest close |
 | Global indices | Yahoo Finance, each at its own latest local close | Newest of those closes |
 | Commodities | WTI and gold front-month futures via Yahoo Finance, rebased to 100 | Latest settled session |
 | Credit spreads | ICE BofA US high yield and corporate OAS via FRED | Latest observation |
 | Inflation and labour | BLS CPI (year on year) and payrolls via FRED | Latest month |
 | Cross-asset correlation | 60 sessions of daily returns: S&P 500, TLT, dollar index, WTI, gold, Yahoo Finance | Last session |
-| Watchlist breadth | Agent archive: advancers less decliners across the Andra Markets watchlist of US large caps, last 30 published sessions | Newest published session |
+| Watchlist breadth | Agent archive: advancers less decliners across the Andra Markets watchlist of US large caps, every published session | Newest published session |
 
 The earnings season tracker is not on the site: there is no reliable free
 source of beats and misses. Market-wide breadth has no free source either, so

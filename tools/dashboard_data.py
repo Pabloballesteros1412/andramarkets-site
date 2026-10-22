@@ -3,8 +3,8 @@
 
 Run by .github/workflows/pages.yml before tools/build_site.py. Writes one
 small file, .cache/dashboards/tiles.json: for each tile, the few numbers its
-chart draws, the source and the as-of date. build_site.py reads it; a tile
-with no record is left off the page.
+chart draws, the history its dashboard page draws, the source and the as-of
+date. build_site.py reads it; a dashboard with no record says "Data pending".
 
 Sources:
     the agent's archive   releases archive-YYYY-MM-DD in the agent repo; only
@@ -146,39 +146,108 @@ def latest_complete(archive, spec):
     raise LookupError("no recent session prints every instrument")
 
 
-SECTORS = [("sectors", k, None) for k in ("xlk", "xlf", "xlv", "xly", "xlp", "xle",
-                                          "xli", "xlb", "xlre", "xlu", "xlc")]
-# Majors against the dollar; True when the dollar is the quote currency
+# Ranges on the dashboard pages. A series shorter than a range is offered up
+# to the first range it does not fully cover, which then shows all it has.
+RANGES = [("1M", 1), ("3M", 3), ("6M", 6), ("1Y", 12)]
+
+
+def months_back(d, n):
+    y, m = divmod(d.month - 1 - n, 12)
+    y += d.year
+    m += 1
+    return d.replace(year=y, month=m, day=min(d.day, [31, 29 if y % 4 == 0 and (y % 100 or y % 400 == 0) else 28,
+                                                         31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1]))
+
+
+def at_or_before(days, d):
+    """The last date in sorted days on or before d, or None."""
+    best = None
+    for x in days:
+        if x > d:
+            break
+        best = x
+    return best
+
+
+def offered(first, last, ranges=RANGES):
+    """Range labels the history from first to last can show (see RANGES)."""
+    out = []
+    for label, n in ranges:
+        out.append(label)
+        if months_back(last, n) < first:
+            break
+    return out
+
+
+def iso(d):
+    return d.isoformat()
+
+
+def perf(series, names, sign=None):
+    """Changes over 1D and each range, each instrument from its own latest close."""
+    sign = sign or [1] * len(series)
+    out = {}
+    for label, n in [("1D", 0)] + RANGES:
+        vals, frm, to = [], [], []
+        for s, k in zip(series, sign):
+            days = [d for d, _ in s]
+            last_d, last = s[-1]
+            base_d = days[-2] if n == 0 else at_or_before(days, months_back(last_d, n))
+            if base_d is None:  # history too short for this range
+                vals = None
+                break
+            base = dict(s)[base_d]
+            vals.append(round(k * (last / base - 1) * 100, 3))
+            frm.append(iso(base_d))
+            to.append(iso(last_d))
+        if vals is None:
+            break
+        out[label] = {"values": vals, "from": frm, "to": to}
+    return {"kind": "perf", "names": names, "ranges": out}
+
+
+SECTORS = [("XLK", "Technology"), ("XLF", "Financials"), ("XLV", "Health care"),
+           ("XLY", "Cons. discretionary"), ("XLP", "Cons. staples"), ("XLE", "Energy"),
+           ("XLI", "Industrials"), ("XLB", "Materials"), ("XLRE", "Real estate"),
+           ("XLU", "Utilities"), ("XLC", "Communications")]
+# Majors against the dollar; -1 where the dollar is the quote currency
 # (EUR/USD), so the dollar's own move is the opposite sign.
-FX = [("eurusd", "Euro", True), ("usdjpy", "Japanese yen", False), ("gbpusd", "Pound", True),
-      ("usdchf", "Swiss franc", False), ("usdcad", "Canadian dollar", False),
-      ("audusd", "Australian dollar", True)]
+FX = [("EURUSD=X", "Euro", -1), ("JPY=X", "Japanese yen", 1), ("GBPUSD=X", "Pound", -1),
+      ("CHF=X", "Swiss franc", 1), ("CAD=X", "Canadian dollar", 1), ("AUDUSD=X", "Australian dollar", -1)]
 
 
-def tile_sectors(archive):
-    day, rows = latest_complete(archive, SECTORS)
-    return day, "Yahoo Finance, sector ETFs", {"rows": sorted(([n, c] for n, _, c in rows), key=lambda r: -r[1])}
+def perf_tile(spec, source, sign=None, dated=False):
+    series = [yahoo(sym, "2y") for sym, *_ in spec]
+    names = [x[1] for x in spec]
+    detail = perf(series, names, sign)
+    day = detail["ranges"]["1D"]
+    rows = [[n, v] + ([t] if dated else []) for n, v, t in zip(names, day["values"], day["to"])]
+    asof = max(dt.date.fromisoformat(t) for t in day["to"])
+    return asof, source, {"rows": sorted(rows, key=lambda r: -r[1])}, detail
 
 
-def tile_fx(archive):
-    day, rows = latest_complete(archive, [("fx", k, n) for k, n, _ in FX])
-    usd = [[n, -c if quote else c] for (n, _, c), (_, _, quote) in zip(rows, FX)]
-    return day, "Yahoo Finance", {"rows": sorted(usd, key=lambda r: -r[1])}
+def tile_sectors(_):
+    return perf_tile(SECTORS, "Yahoo Finance, sector ETFs")
+
+
+def tile_fx(_):
+    return perf_tile(FX, "Yahoo Finance", [k for *_, k in FX])
 
 
 def tile_breadth(archive):
     """Advancers and decliners across the agent's watchlist, session by session."""
     rows = []
-    for day, facts in archive.sessions(45):
+    for day, facts in archive.sessions(len(archive.runs)):
         b = facts.get("breadth") if isinstance(facts.get("breadth"), dict) else {}
         adv, dec, unch = (b.get(k) for k in ("advancers", "decliners", "unchanged"))
         if all(isinstance(v, int) and not isinstance(v, bool) and v >= 0 for v in (adv, dec, unch)) and adv + dec:
             rows.append([day.isoformat(), adv, dec, unch])
-    rows = rows[:30][::-1]
+    rows = rows[::-1]
     if len(rows) < 10:
         raise LookupError("too few sessions with breadth")
-    return dt.date.fromisoformat(rows[-1][0]), "Andra Markets watchlist, Yahoo Finance", {
-        "sessions": rows, "size": sum(rows[-1][1:])}
+    first, last = dt.date.fromisoformat(rows[0][0]), dt.date.fromisoformat(rows[-1][0])
+    return last, "Andra Markets watchlist, Yahoo Finance", {"sessions": rows[-30:], "size": sum(rows[-1][1:])}, {
+        "kind": "breadth", "sessions": rows, "ranges": offered(first, last)}
 
 
 def curve_at(day, facts):
@@ -192,23 +261,53 @@ def curve_at(day, facts):
     return (prev_session(day) if cv[0]["stale"] else day), pts
 
 
+def compare(curves, keys, labels, x):
+    """Latest curve against the curve on or before each range's start."""
+    days = sorted(curves)
+    now = days[-1]
+    cmp = {}
+    for label, n in RANGES:
+        then = at_or_before(days, months_back(now, n))
+        if then is None or (months_back(now, n) - then).days > 7:
+            break
+        cmp[label] = {"date": iso(then), "values": [curves[then][k] for k in keys]}
+    if not cmp:
+        raise LookupError("no curve a month before the latest")
+    return now, {"kind": "curve", "labels": labels, "x": x, "date": iso(now),
+                 "values": [curves[now][k] for k in keys], "compare": cmp}
+
+
+TENORS = [("ust1m", "DGS1MO", "1M", 1 / 12), ("ust3m", "DGS3MO", "3M", 0.25), ("ust6m", "DGS6MO", "6M", 0.5),
+          ("ust1y", "DGS1", "1Y", 1), ("ust2y", "DGS2", "2Y", 2), ("ust3y", "DGS3", "3Y", 3),
+          ("ust5y", "DGS5", "5Y", 5), ("ust7y", "DGS7", "7Y", 7), ("ust10y", "DGS10", "10Y", 10),
+          ("ust20y", "DGS20", "20Y", 20), ("ust30y", "DGS30", "30Y", 30)]
+
+
 def tile_curve(archive):
-    curves = {}
-    for day, facts in archive.sessions(40):
-        c = curve_at(day, facts)
-        if c:
-            curves.setdefault(c[0], c[1])
-    if not curves:
-        raise LookupError("no curve in the archive")
-    now = max(curves)
-    target = now - dt.timedelta(days=30)
-    then = min((d for d in curves if d < now), key=lambda d: abs((d - target).days), default=None)
-    if then is None or abs((then - target).days) > 5:
-        raise LookupError("no curve about a month before the latest")
-    keys = [k for k in curves[now] if k in curves[then]]
-    return now, "FRED, US Treasury", {"then": then.isoformat(), "tenors": keys,
-                                      "now": [curves[now][k] for k in keys],
-                                      "before": [curves[then][k] for k in keys]}
+    """FRED's Treasury yields; while FRED is down, the curves in the agent's archive."""
+    try:
+        s = fred([f for _, f, _, _ in TENORS], months_back(dt.date.today(), 13))
+        by = {}
+        for key, f, _, _ in TENORS:
+            for d, v in s[f]:
+                by.setdefault(d, {})[key] = v
+        curves = {d: c for d, c in by.items() if len(c) == len(TENORS)}
+        source = "FRED, US Treasury"
+    except (OSError, ValueError):
+        if archive is None:
+            raise
+        curves = {}
+        for day, facts in archive.sessions(len(archive.runs)):
+            c = curve_at(day, facts)
+            if c and all(k in c[1] for k, *_ in TENORS):
+                curves.setdefault(c[0], c[1])
+        source = "FRED, US Treasury, via the Andra Markets archive"
+    keys = [k for k, *_ in TENORS]
+    now, detail = compare(curves, keys, [lb for *_, lb, _ in TENORS], [math.sqrt(t) for *_, t in TENORS])
+    detail["unit"], detail["dec"] = "%", 2
+    month = detail["compare"]["1M"]
+    return now, source, {"then": month["date"], "tenors": keys, "now": detail["values"],
+                         "before": month["values"]}, detail
 
 
 # FRED -----------------------------------------------------------------------
@@ -251,30 +350,43 @@ def _fred(series, start):
 
 def tile_credit(_):
     today = dt.date.today()
-    s = fred(["BAMLH0A0HYM2", "BAMLC0A0CM"], today - dt.timedelta(days=190))
+    s = fred(["BAMLH0A0HYM2", "BAMLC0A0CM"], months_back(today, 13))
     hy, ig = dict(s["BAMLH0A0HYM2"]), dict(s["BAMLC0A0CM"])
-    days = sorted(set(hy) & set(ig))[-120:]
+    days = sorted(set(hy) & set(ig))
     if len(days) < 20:
         raise LookupError("too few common observations")
+    tile = days[-120:]
     return days[-1], "ICE BofA, FRED", {
-        "start": days[0].isoformat(), "hy": [hy[d] for d in days], "ig": [ig[d] for d in days]}
+        "start": iso(tile[0]), "hy": [hy[d] for d in tile], "ig": [ig[d] for d in tile]}, {
+        "kind": "lines", "dates": [iso(d) for d in days], "ranges": offered(days[0], days[-1]),
+        "series": [{"name": "High yield", "style": "line", "values": [hy[d] for d in days]},
+                   {"name": "Investment grade", "style": "dash", "values": [ig[d] for d in days], "area": True}],
+        "unit": "%", "dec": 2}
 
 
 def tile_inflation(_):
     today = dt.date.today()
-    s = fred(["CPIAUCSL", "PAYEMS"], today.replace(day=1) - dt.timedelta(days=366 * 5 + 31))
+    s = fred(["CPIAUCSL", "PAYEMS"], months_back(today.replace(day=1), 12 * 6 + 2))
     cpi, pay = dict(s["CPIAUCSL"]), s["PAYEMS"]
     yoy = [(d, (v / cpi[d.replace(year=d.year - 1)] - 1) * 100) for d, v in sorted(cpi.items())
            if d.replace(year=d.year - 1) in cpi]
-    jobs = [(d, v - pv) for (pd, pv), (d, v) in zip(pay, pay[1:])
-            if (d.year * 12 + d.month) - (pd.year * 12 + pd.month) == 1]
-    yoy, jobs = yoy[-48:], jobs[-48:]
+    jobs = dict((d, v - pv) for (pd, pv), (d, v) in zip(pay, pay[1:])
+                if (d.year * 12 + d.month) - (pd.year * 12 + pd.month) == 1)
+    yoy = yoy[-60:]
     if len(yoy) < 24 or len(jobs) < 24:
         raise LookupError("too few months")
-    asof = max(yoy[-1][0], jobs[-1][0])
-    return asof, "BLS, FRED", {"cpi_month": yoy[-1][0].isoformat(), "jobs_month": jobs[-1][0].isoformat(),
-                               "cpi": [[d.isoformat(), round(v, 2)] for d, v in yoy],
-                               "jobs": [[d.isoformat(), round(v)] for d, v in jobs]}
+    months = sorted(set(d for d, _ in yoy) | set(d for d in jobs if d >= yoy[0][0]))
+    cpi_y = dict(yoy)
+    last_job = max(jobs)
+    asof = max(yoy[-1][0], last_job)
+    tile_jobs = sorted(jobs.items())[-48:]
+    return asof, "BLS, FRED", {"cpi_month": iso(yoy[-1][0]), "jobs_month": iso(last_job),
+                               "cpi": [[iso(d), round(v, 2)] for d, v in yoy[-48:]],
+                               "jobs": [[iso(d), round(v)] for d, v in tile_jobs]}, {
+        "kind": "macro", "dates": [iso(d) for d in months],
+        "cpi": [round(cpi_y[d], 2) if d in cpi_y else None for d in months],
+        "jobs": [round(jobs[d]) if d in jobs else None for d in months],
+        "ranges": [lb for lb, n in (("1Y", 12), ("2Y", 24), ("5Y", 60)) if len(months) >= n - 1]}
 
 
 # Yahoo Finance --------------------------------------------------------------
@@ -315,26 +427,36 @@ VOL = [("^VIX9D", 9, "9D"), ("^VIX", 30, "1M"), ("^VIX3M", 93, "3M"), ("^VIX6M",
 
 
 def tile_vol(_):
-    series = {s: dict((yahoo(s, "3mo"))) for s, _, _ in VOL}
+    series = {s: dict(yahoo(s, "2y")) for s, _, _ in VOL}
     days = sorted(set.intersection(*(set(v) for v in series.values())))
     if len(days) < 6:
         raise LookupError("too few common sessions")
-    now, then = days[-1], days[-6]
-    return now, "Cboe, Yahoo Finance", {"then": then.isoformat(), "days": [n for _, n, _ in VOL],
+    curves = {d: {s: series[s][d] for s, _, _ in VOL} for d in days}
+    now, detail = compare(curves, [s for s, _, _ in VOL], [lb for *_, lb in VOL],
+                          [math.sqrt(n) for _, n, _ in VOL])
+    detail["unit"], detail["dec"] = "", 2
+    then = days[-6]
+    detail["compare"] = {"1W": {"date": iso(then), "values": [series[s][then] for s, _, _ in VOL]}, **detail["compare"]}
+    return now, "Cboe, Yahoo Finance", {"then": iso(then), "days": [n for _, n, _ in VOL],
                                          "labels": [lb for _, _, lb in VOL],
                                          "now": [series[s][now] for s, _, _ in VOL],
-                                         "before": [series[s][then] for s, _, _ in VOL]}
+                                         "before": [series[s][then] for s, _, _ in VOL]}, detail
 
 
 def tile_commodities(_):
-    oil, gold = dict((yahoo("CL=F", "6mo"))), dict((yahoo("GC=F", "6mo")))
-    days = sorted(set(oil) & set(gold))[-90:]
+    oil, gold = dict(yahoo("CL=F", "2y")), dict(yahoo("GC=F", "2y"))
+    days = sorted(set(oil) & set(gold))
+    days = [d for d in days if d >= months_back(days[-1], 13)]
     if len(days) < 30:
         raise LookupError("too few common sessions")
+    tile = days[-90:]
     return days[-1], "Futures, Yahoo Finance", {
-        "start": days[0].isoformat(),
-        "oil": [round(oil[d] / oil[days[0]] * 100, 2) for d in days],
-        "gold": [round(gold[d] / gold[days[0]] * 100, 2) for d in days]}
+        "start": iso(tile[0]),
+        "oil": [round(oil[d] / oil[tile[0]] * 100, 2) for d in tile],
+        "gold": [round(gold[d] / gold[tile[0]] * 100, 2) for d in tile]}, {
+        "kind": "lines", "rebase": True, "dates": [iso(d) for d in days], "ranges": offered(days[0], days[-1]),
+        "series": [{"name": "WTI crude", "style": "line", "values": [round(oil[d], 2) for d in days], "dec": 2},
+                   {"name": "Gold", "style": "dash", "values": [round(gold[d], 1) for d in days], "dec": 1}]}
 
 
 # Each at its own latest local close: the agent's facts flag Asian closes as
@@ -345,34 +467,38 @@ INDICES = [("^GSPC", "S&P 500"), ("^STOXX50E", "Euro Stoxx 50"), ("^GDAXI", "DAX
 
 
 def tile_indices(_):
-    rows, asof = [], None
-    for sym, name in INDICES:
-        (_, a), (d1, b) = yahoo(sym, "1mo")[-2:]
-        rows.append([name, round((b / a - 1) * 100, 3), d1.isoformat()])
-        asof = max(asof or d1, d1)
-    return asof, "Yahoo Finance, local closes", {"rows": sorted(rows, key=lambda r: -r[1])}
+    return perf_tile(INDICES, "Yahoo Finance, local closes", dated=True)
 
 
 CORR = [("^GSPC", "S&P 500"), ("TLT", "Long Treasuries"), ("DX-Y.NYB", "Dollar index"),
         ("CL=F", "WTI crude"), ("GC=F", "Gold")]
+WINDOWS = [("1M", 21), ("3M", 63), ("6M", 126), ("1Y", 250)]
 
 
-def tile_correlation(_):
-    series = [dict((yahoo(s, "6mo"))) for s, _ in CORR]
-    days = sorted(set.intersection(*(set(v) for v in series)))[-61:]
-    if len(days) < 41:
-        raise LookupError("too few common sessions")
-    rets = [[math.log(s[b] / s[a]) for a, b in zip(days, days[1:])] for s in series]
-
+def corr_matrix(rets):
     def corr(x, y):
         mx, my = sum(x) / len(x), sum(y) / len(y)
         sxy = sum((a - mx) * (b - my) for a, b in zip(x, y))
         sxx, syy = sum((a - mx) ** 2 for a in x), sum((b - my) ** 2 for b in y)
         return sxy / math.sqrt(sxx * syy)
+    return [[round(corr(a, b), 2) for b in rets] for a in rets]
 
-    m = [[round(corr(a, b), 2) for b in rets] for a in rets]
-    return days[-1], "Yahoo Finance, daily returns", {"names": [n for _, n in CORR], "matrix": m,
-                                                      "sessions": len(days) - 1}
+
+def tile_correlation(_):
+    series = [dict(yahoo(s, "2y")) for s, _ in CORR]
+    days = sorted(set.intersection(*(set(v) for v in series)))
+    if len(days) < 41:
+        raise LookupError("too few common sessions")
+    rets = [[math.log(s[b] / s[a]) for a, b in zip(days, days[1:])] for s in series]
+    windows = {}
+    for label, n in WINDOWS:
+        if len(rets[0]) < n:
+            break
+        windows[label] = {"sessions": n, "from": iso(days[-n - 1]), "matrix": corr_matrix([r[-n:] for r in rets])}
+    tile = corr_matrix([r[-60:] for r in rets])
+    names = [n for _, n in CORR]
+    return days[-1], "Yahoo Finance, daily returns", {"names": names, "matrix": tile, "sessions": 60}, {
+        "kind": "matrix", "names": names, "windows": windows}
 
 
 MONTH_CODES = "FGHJKMNQUVXZ"
@@ -381,32 +507,45 @@ MONTH_CODES = "FGHJKMNQUVXZ"
 def tile_fed(_):
     """30-day fed funds futures: 100 minus the price is the month's expected average rate."""
     today = dt.date.today()
-    months, asof = [], None
+    months, hist = [], []
     for i in range(12):
         y, m = divmod(today.month - 1 + i, 12)
         y += today.year
         sym = f"ZQ{MONTH_CODES[m]}{y % 100:02d}.CBT"
         try:
-            day, price = (yahoo(sym, "1mo"))[-1]
+            h = dict(yahoo(sym, "2y"))
         except Exception:  # noqa: BLE001  a contract Yahoo does not list ends the path
             break
-        months.append([f"{y}-{m + 1:02d}", round(100 - price, 3)])
-        asof = max(asof or day, day)
+        months.append(f"{y}-{m + 1:02d}")
+        hist.append(h)
     if len(months) < 6:
         raise LookupError("too few fed funds futures")
-    effr = fred(["EFFR"], today - dt.timedelta(days=20))["EFFR"][-1]
-    return asof, "CME futures, Yahoo Finance; FRED", {
-        "months": months, "effr": effr[1], "effr_date": effr[0].isoformat()}
+    # A date counts when every contract on the path settled that day.
+    days = sorted(set.intersection(*(set(h) for h in hist)))
+    curves = {d: {mo: round(100 - h[d], 3) for mo, h in zip(months, hist)} for d in days}
+    now, detail = compare(curves, months, [f"{dt.date.fromisoformat(mo + '-01'):%b %y}" for mo in months],
+                          list(range(len(months))))
+    detail["unit"], detail["dec"] = "%", 3
+    try:
+        effr = fred(["EFFR"], today - dt.timedelta(days=20))["EFFR"][-1]
+        detail["ref"] = {"name": "Effective rate", "value": effr[1], "date": iso(effr[0])}
+        source = "CME futures, Yahoo Finance; FRED"
+    except (OSError, ValueError):
+        effr, source = None, "CME futures, Yahoo Finance"
+    tile = {"months": [[mo, v] for mo, v in zip(months, detail["values"])]}
+    if effr:
+        tile.update(effr=effr[1], effr_date=iso(effr[0]))
+    return now, source, tile, detail
 
 
 TILES = {
-    "yield_curve": ("archive", tile_curve),
+    "yield_curve": (None, tile_curve),
     "fed_path": (None, tile_fed),
-    "sector_heatmap": ("archive", tile_sectors),
+    "sector_heatmap": (None, tile_sectors),
     "breadth": ("archive", tile_breadth),
     "vol_term": (None, tile_vol),
     "global_indices": (None, tile_indices),
-    "fx_majors": ("archive", tile_fx),
+    "fx_majors": (None, tile_fx),
     "commodities": (None, tile_commodities),
     "credit_spreads": (None, tile_credit),
     "inflation_labour": (None, tile_inflation),
@@ -435,12 +574,12 @@ def main():
         if needs == "archive" and archive is None:
             continue
         try:
-            asof, source, data = fn(archive)
+            asof, source, data, detail = fn(archive)
         except Exception as e:  # noqa: BLE001  one source failing never stops the deploy
             kept = tiles.get(key, {}).get("asof", "none")
             log(f"{key}: {type(e).__name__}: {e}; keeping the last record ({kept})", "warning")
             continue
-        tiles[key] = {"asof": asof.isoformat(), "source": source, "data": data,
+        tiles[key] = {"asof": asof.isoformat(), "source": source, "data": data, "detail": detail,
                       "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
         print(f"{key}: {source}, {asof}")
     CACHE.parent.mkdir(parents=True, exist_ok=True)
