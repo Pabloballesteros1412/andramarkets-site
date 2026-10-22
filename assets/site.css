@@ -1746,6 +1746,123 @@ ul {
   overflow-wrap: anywhere;
 }
 
+/* Lab tool pages (lab/<slug>/): inputs, chart and result, all in the browser. */
+
+.lt-tool[hidden] {
+  display: none;
+}
+
+.lt-inputs {
+  display: grid;
+  gap: 20px;
+}
+
+.lt-group {
+  display: grid;
+  gap: 8px;
+}
+
+.lt-group .cl__glabel {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.lt-chips {
+  flex-wrap: wrap;
+  overflow: visible;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+.lt-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+  gap: 16px;
+}
+
+.lt-field {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.lt-field[hidden] {
+  display: none;
+}
+
+.lt-field label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+  font-size: 0.875rem;
+  font-weight: 550;
+}
+
+.lt-unit {
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.lt-field input {
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.lt-field input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 0;
+}
+
+.lt-field input[aria-invalid="true"] {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.lt-reset {
+  justify-self: start;
+}
+
+.lt-status {
+  font-size: 0.875rem;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.lt-status:empty {
+  display: none;
+}
+
+.lt .kpi__level {
+  font-size: 1.0625rem;
+}
+
+/* The notes under each result are words with figures in them: proportional. */
+.lt .kpi__chg {
+  font-variant-numeric: normal;
+}
+
+.lt .report__pager {
+  margin-top: 32px;
+}
+
+.lab-index {
+  max-width: 44rem;
+}
+
+.lab-index__next {
+  max-width: 44rem;
+  margin-top: 24px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
 /* About */
 
 .about {

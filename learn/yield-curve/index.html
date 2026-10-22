@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to read the yield curve: Andra Markets explainer</title>
+<meta name="description" content="What the curve is, why it usually slopes up, and what it means when it turns upside down.">
+<meta name="theme-color" content="#f4f6f6">
+<script>(function(){var t='light';try{var q=new URLSearchParams(location.search).get('theme');if(q==='light'||q==='dark'){t=q;localStorage.setItem('andra-theme',q)}else{var s=localStorage.getItem('andra-theme');if(s==='light'||s==='dark')t=s}}catch(e){}document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0a0c0d':'#f4f6f6'})();</script>
+<link rel="icon" href="../../assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="../../assets/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="../../assets/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Andra Markets">
+<meta property="og:title" content="How to read the yield curve: Andra Markets explainer">
+<meta property="og:description" content="What the curve is, why it usually slopes up, and what it means when it turns upside down.">
+<meta property="og:image" content="../../assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Andra Markets engraved horse beside the line Markets, on the record.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="../../assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../../assets/site.css?v=cf51d41b3d">
+</head>
+<body data-base="../../">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-warning-circle" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"/></symbol><symbol id="i-arrow-right" viewBox="0 0 256 256"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></symbol><symbol id="i-arrow-up-right" viewBox="0 0 256 256"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></symbol><symbol id="i-list" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"/></symbol><symbol id="i-x" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></symbol><symbol id="i-play" viewBox="0 0 256 256"><path d="M232.4,114.49,88.32,26.35a16,16,0,0,0-16.2-.3A15.86,15.86,0,0,0,64,39.87V216.13A15.94,15.94,0,0,0,80,232a16.07,16.07,0,0,0,8.36-2.35L232.4,141.51a15.81,15.81,0,0,0,0-27ZM80,215.94V40l143.83,88Z"/></symbol><symbol id="i-sun" viewBox="0 0 256 256"><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"/></symbol><symbol id="i-moon" viewBox="0 0 256 256"><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></symbol><symbol id="i-magnifying-glass" viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></symbol><symbol id="i-check" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></symbol><symbol id="i-link" viewBox="0 0 256 256"><path d="M240,88.23a54.43,54.43,0,0,1-16,37L189.25,160a54.27,54.27,0,0,1-38.63,16h-.05A54.63,54.63,0,0,1,96,119.84a8,8,0,0,1,16,.45A38.62,38.62,0,0,0,150.58,160h0a38.39,38.39,0,0,0,27.31-11.31l34.75-34.75a38.63,38.63,0,0,0-54.63-54.63l-11,11A8,8,0,0,1,135.7,59l11-11A54.65,54.65,0,0,1,224,48,54.86,54.86,0,0,1,240,88.23ZM109,185.66l-11,11A38.41,38.41,0,0,1,70.6,208h0a38.63,38.63,0,0,1-27.29-65.94L78,107.31A38.63,38.63,0,0,1,144,135.71a8,8,0,0,0,16,.45A54.86,54.86,0,0,0,144,96a54.65,54.65,0,0,0-77.27,0L32,130.75A54.62,54.62,0,0,0,70.56,224h0a54.28,54.28,0,0,0,38.64-16l11-11A8,8,0,0,0,109,185.66Z"/></symbol><symbol id="i-linkedin-logo" viewBox="0 0 256 256"><path d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24Zm0,192H40V40H216V216ZM96,112v64a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm88,28v36a8,8,0,0,1-16,0V140a20,20,0,0,0-40,0v36a8,8,0,0,1-16,0V112a8,8,0,0,1,15.79-1.78A36,36,0,0,1,184,140ZM100,84A12,12,0,1,1,88,72,12,12,0,0,1,100,84Z"/></symbol><symbol id="i-tiktok-logo" viewBox="0 0 256 256"><path d="M224,72a48.05,48.05,0,0,1-48-48,8,8,0,0,0-8-8H128a8,8,0,0,0-8,8V156a20,20,0,1,1-28.57-18.08A8,8,0,0,0,96,130.69V88a8,8,0,0,0-9.4-7.88C50.91,86.48,24,119.1,24,156a76,76,0,0,0,152,0V116.29A103.25,103.25,0,0,0,224,128a8,8,0,0,0,8-8V80A8,8,0,0,0,224,72Zm-8,39.64a87.19,87.19,0,0,1-43.33-16.15A8,8,0,0,0,160,102v54a60,60,0,0,1-120,0c0-25.9,16.64-49.13,40-57.6v27.67A36,36,0,1,0,136,156V32h24.5A64.14,64.14,0,0,0,216,87.5Z"/></symbol></svg>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="../../" aria-label="Andra Markets, home">
+      <span class="brand__mark"><img class="brand__mark--light" src="../../assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="../../assets/andra-mark-dark.png" alt="" width="140" height="160"></span>
+      <span class="brand__name">Andra Markets</span>
+    </a>
+    <nav class="nav" id="site-nav" aria-label="Primary">
+      <a href="../../#dashboards">Dashboards</a>
+      <a href="../../companies/">Companies</a>
+      <a href="../../#lab">Lab</a>
+      <a href="../../calendar/">Calendar</a>
+      <a href="../../#note">Daily note</a>
+      <a href="../../learn/">Learn</a>
+      <a href="../../#watch">Watch</a>
+      <a class="nav__subscribe" href="../../#subscribe">Subscribe</a>
+    </nav>
+    <button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
+      <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
+    </button>
+    <button class="theme-btn" type="button" aria-label="Switch to dark theme">
+      <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
+      <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
+    </button>
+    <a class="btn btn--sm" href="../../#subscribe">Subscribe</a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
+      <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
+    </button>
+  </div>
+</header>
+
+<main id="main" class="page learnp">
+  <div class="wrap">
+    <article>
+      <header class="page__head">
+        <p class="dd__crumbs"><a href="../">Learn</a> <span aria-hidden="true">/</span> Explainer</p>
+        <h1 class="page__title">How to read the yield curve</h1>
+        <p class="lede">What the curve is, why it usually slopes up, and what it means when it turns upside down.</p>
+        <p class="note__meta"><span>4 min read</span></p>
+      </header>
+      <div class="page__body"><section aria-labelledby="l-0"><h2 id="l-0">What the curve is</h2><p>The US government borrows for many lengths of time, from a few weeks to thirty years. Each of those loans, a Treasury bill, note or bond, pays a yield: the return a buyer locks in by holding it to maturity. Plot those yields against their maturities, shortest on the left and longest on the right, and the line that joins them is the yield curve.</p><p>The US Treasury publishes the curve every business day as par yields for maturities from one month to thirty years. Because the borrower is the same in every case, the differences between points on the curve are not about credit risk. They are about time: what investors expect short-term rates to do, and how much extra they want for tying their money up for longer.</p></section><section aria-labelledby="l-1"><h2 id="l-1">Why it usually slopes up</h2><p>Most of the time the curve rises from left to right. A ten-year note usually yields more than a three-month bill, for two reasons.</p><p>The first is expectations. A ten-year yield is roughly the average of the short-term rates investors expect over the next ten years. If they expect rates to stay where they are or rise, the long yield sits above the short one.</p><p>The second is the term premium. A long bond&#x27;s price swings more when rates change, and inflation over a decade is harder to predict than inflation over three months. Investors ask to be paid for carrying that risk, so long yields usually include a premium on top of expected short rates. The premium is not observed directly; economists estimate it with models, and the estimates differ.</p></section><section aria-labelledby="l-2"><h2 id="l-2">What moves each end</h2><p>The short end, from one month to about two years, follows the Federal Reserve. The Fed sets a target range for the overnight federal funds rate, and bill yields track where investors think that rate will be over the life of the bill. A change in the expected path of policy moves the two-year yield more than almost anything else.</p><p>The long end, ten to thirty years, depends on more: expected growth and inflation over many years, the term premium, the amount of debt the Treasury issues and the demand for safe assets at home and abroad. The long end can move a lot on days when the Fed does nothing.</p></section><section aria-labelledby="l-3"><h2 id="l-3">Steeper, flatter, inverted</h2><p>The shape is often summarised by a spread between two points, most commonly the ten-year yield less the two-year, or the ten-year less the three-month. When the spread widens, the curve steepens; when it narrows, the curve flattens. A bull steepener is a steepening driven by falling short yields, often when markets expect rate cuts. A bear flattener is a flattening driven by rising short yields, often when the Fed is raising rates.</p><p>When short yields rise above long ones, the curve is inverted. Investors are then accepting less to lend for ten years than for three months, which usually means they expect short rates to fall in the future, most often because they expect the economy to weaken and the Fed to cut.</p></section><section aria-labelledby="l-4"><h2 id="l-4">Why inversions get attention</h2><p>Research at the Federal Reserve Bank of New York found that the spread between the ten-year and three-month Treasury yields has been a useful predictor of US recessions, and that an inverted curve has come before each US recession since the late 1960s. Academic work using decades of data reached a similar conclusion: the slope of the curve has been one of the more reliable financial indicators of a recession a year or so ahead.</p><p>There are good reasons to hold that finding lightly. The lead time has varied from a few months to about two years. A low term premium, for example when central banks hold large amounts of long-term bonds, can flatten or invert the curve without any change in the growth outlook. And a signal that has worked over a handful of recessions is a small sample. An inversion is a statement about market expectations, not a forecast with a date attached.</p></section><section aria-labelledby="l-5"><h2 id="l-5">Reading it on the dashboard</h2><p>The yield curve dashboard plots the latest curve as a solid line against the curve at the start of the chosen range as a dashed line. Maturities are spaced by the square root of their length, so the short end is not squeezed into a corner. Three questions get you most of the way: is the curve sloping up or down, has it moved up or down as a whole, and has the short end or the long end moved more? The panel beside the chart gives the ten-year less two-year spread and its change over the range, so a steepening or flattening is in numbers as well as shape.</p></section><section aria-labelledby="l-live"><h2 id="l-live">See it live</h2><p><a class="link" href="../../dashboards/yield-curve/">Open the yield curve dashboard <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></p></section><section aria-labelledby="l-src"><h2 id="l-src">Sources</h2><ol class="ruled learnp__src"><li><a href="https://home.treasury.gov/policy-issues/financing-the-government/interest-rate-statistics">US Department of the Treasury, Interest Rate Statistics: daily Treasury par yield curve rates</a></li><li><a href="https://www.newyorkfed.org/research/capital_markets/ycfaq.html">Federal Reserve Bank of New York, The Yield Curve as a Leading Indicator</a></li><li><a href="https://doi.org/10.1162/003465398557320">Predicting U.S. Recessions: Financial Variables as Leading Indicators, The Review of Economics and Statistics, 1998</a></li><li><a href="https://fred.stlouisfed.org/series/T10Y3M">FRED, 10-Year Treasury Constant Maturity Minus 3-Month Treasury Constant Maturity (T10Y3M)</a></li></ol><p>An Andra Markets explainer, for education. For information only. Not investment advice.</p></section></div>
+    </article>
+    <nav class="report__pager" aria-label="More explainers"><a class="link" href="../vix/">Next: What moves the VIX <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a><a class="link" href="../">All explainers <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></a></nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap grid">
+    <div class="foot__brand">
+      <a class="brand" href="../../" aria-label="Andra Markets, home">
+        <span class="brand__mark"><img class="brand__mark--light" src="../../assets/andra-mark-light.png" alt="" width="140" height="160" loading="lazy"><img class="brand__mark--dark" src="../../assets/andra-mark-dark.png" alt="" width="140" height="160" loading="lazy"></span>
+        <span class="brand__name">Andra Markets</span>
+      </a>
+      <p>Research on US and global markets.</p>
+    </div>
+    <nav class="foot__nav" aria-label="Footer">
+      <a href="../../#dashboards">Dashboards</a>
+      <a href="../../companies/">Companies</a>
+      <a href="../../#lab">Lab</a>
+      <a href="../../calendar/">Calendar</a>
+      <a href="../../#note">Daily note</a>
+      <a href="../../learn/">Learn</a>
+      <a href="../../#watch">Watch</a>
+      <a href="../../#about">About</a>
+      <a href="../../reports/">All notes</a>
+      <a href="../../methodology/">Methodology</a>
+    </nav>
+    <ul class="foot__social" aria-label="Andra Markets on social media">
+      <li><a href="https://www.linkedin.com/company/andramarkets/" rel="me"><svg class="icon" aria-hidden="true"><use href="#i-linkedin-logo"/></svg>LinkedIn</a></li>
+      <li><a href="https://www.tiktok.com/@andramarkets" rel="me"><svg class="icon" aria-hidden="true"><use href="#i-tiktok-logo"/></svg>TikTok</a></li>
+    </ul>
+    <div class="foot__legal">
+      <span>&copy; <span class="ph">[year]</span> Andra Markets</span>
+      <span>For information only. Not investment advice.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="../../assets/site.js?v=f3a2840875" defer></script>
+</body>
+</html>

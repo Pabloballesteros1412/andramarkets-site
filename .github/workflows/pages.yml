@@ -136,6 +136,7 @@ jobs:
           if [ -d companies ]; then cp -r companies _site/; fi
           cp -r watch _site/
           cp -r learn _site/
+          cp -r lab _site/
           rm -rf _site/assets/icons
       # The site is free: no PDF or data file may ever be published.
       - name: Check no downloads are published
