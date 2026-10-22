@@ -31,6 +31,7 @@ import json
 import math
 import random
 import re
+import shutil
 import sys
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -2022,6 +2023,141 @@ def co_flow(rec):
     return steps
 
 
+def co_hist(rec):
+    """The last fiscal years side by side, in $bn (EPS in dollars)."""
+    ha = rec.get("hist_a") or {}
+    years = sorted({d for v in ha.values() for d, _ in v})[-4:]
+    if not years:
+        return None
+    def col(key, scale=1e9, sign=1, dec=2):
+        vals = dict(ha.get(key) or [])
+        return [None if vals.get(y) is None else round(sign * vals[y] / scale, dec) for y in years]
+    return {
+        "years": [fy_label(y) for y in years],
+        "rev": col("TotalRevenue"), "ni": col("NetIncomeCommonStockholders"),
+        "ocf": col("OperatingCashFlow"), "capex": col("CapitalExpenditure"), "fcf": col("FreeCashFlow"),
+        "cash": col("CashCashEquivalentsAndShortTermInvestments"), "debt": col("TotalDebt"),
+        "equity": col("StockholdersEquity"),
+        "div": col("CashDividendsPaid", sign=-1), "buy": col("RepurchaseOfCapitalStock", sign=-1),
+        "eps": col("DilutedEPS", scale=1),
+    }
+
+
+def co_quarters(rec):
+    hq = rec.get("hist_q") or {}
+    rev, eps = dict(hq.get("TotalRevenue") or []), dict(hq.get("DilutedEPS") or [])
+    # The quarters with revenue; EPS that Yahoo has not posted yet shows as n/a.
+    qs = sorted(rev)[-8:] if len(rev) >= 2 else sorted(eps)[-8:]
+    if len(qs) < 2:
+        return None
+    return {"labels": [fy_label(q) for q in qs],
+            "rev": [None if rev.get(q) is None else round(rev[q] / 1e9, 2) for q in qs],
+            "eps": [eps.get(q) for q in qs]}
+
+
+def co_pe_hist(rec):
+    """Month-end P/E on the last fiscal year's diluted EPS known at the time."""
+    eps = sorted((d, v) for d, v in (rec.get("hist_a") or {}).get("DilutedEPS") or [])
+    out = []
+    for d, close in rec.get("monthly") or []:
+        known = [v for fy, v in eps if fy <= d]
+        if known and known[-1] > 0:
+            out.append([d, round(close / known[-1], 1)])
+    return out if len(out) >= 6 else None
+
+
+def period_returns(closes):
+    """1M, 3M, year to date and 1Y returns (%) from [(date, close)]."""
+    if len(closes) < 30:
+        return [None] * 4
+    last_d, last = closes[-1]
+    def back(n):
+        return (last / closes[-1 - n][1] - 1) * 100 if len(closes) > n else None
+    year = last_d[:4]
+    prior = [c for d, c in closes if d < f"{year}-01-01"]
+    ytd = (last / prior[-1] - 1) * 100 if prior else None
+    return [back(21), back(63), ytd, (last / closes[0][1] - 1) * 100]
+
+
+def co_returns(t, data):
+    rec = data["co"][t]
+    sector = rec["sector"]
+    mates = [x for x in data["order"] if data["co"][x]["sector"] == sector]
+    rows = [(co_name(rec), period_returns(rec["closes"]))]
+    if len(mates) >= 3:
+        rs = [period_returns(data["co"][x]["closes"]) for x in mates]
+        avg = [None if any(r[i] is None for r in rs) else sum(r[i] for r in rs) / len(rs) for i in range(4)]
+        rows.append((f"{SHORT_SECTOR.get(sector, sector)} average ({len(mates)})", avg))
+    if data["spx"]:
+        rows.append(("S&amp;P 500", period_returns([tuple(p) for p in data["spx"]])))
+    return rows
+
+
+def co_risk(rec, spx):
+    """Annualised volatility, beta to the S&P 500, the year's deepest fall and its path."""
+    closes = rec["closes"]
+    if len(closes) < 60:
+        return None
+    sp = {d: c for d, c in spx}
+    rows = [(d, c, sp.get(d)) for d, c in closes]
+    r, m = [], []
+    for (d0, c0, s0), (d1, c1, s1) in zip(rows, rows[1:]):
+        r.append(c1 / c0 - 1)
+        if s0 and s1:
+            m.append((c1 / c0 - 1, s1 / s0 - 1))
+    mean = sum(r) / len(r)
+    vol = math.sqrt(sum((x - mean) ** 2 for x in r) / (len(r) - 1)) * math.sqrt(252) * 100
+    beta = None
+    if len(m) > 60:
+        ma = sum(b for _, b in m) / len(m)
+        sa = sum(a for a, _ in m) / len(m)
+        cov = sum((a - sa) * (b - ma) for a, b in m) / (len(m) - 1)
+        var = sum((b - ma) ** 2 for _, b in m) / (len(m) - 1)
+        beta = cov / var if var else None
+    peak, peak_d, mdd, mdd_peak, mdd_d, dd = closes[0][1], closes[0][0], 0.0, closes[0][0], closes[0][0], []
+    for d, c in closes:
+        if c > peak:
+            peak, peak_d = c, d
+        x = (c / peak - 1) * 100
+        dd.append([d, round(x, 2)])
+        if x < mdd:
+            mdd, mdd_peak, mdd_d = x, peak_d, d
+    spx_vol = None
+    if len(spx) > 60:
+        sr = [spx[i + 1][1] / spx[i][1] - 1 for i in range(len(spx) - 1)]
+        sm = sum(sr) / len(sr)
+        spx_vol = math.sqrt(sum((x - sm) ** 2 for x in sr) / (len(sr) - 1)) * math.sqrt(252) * 100
+    return {"vol": vol, "spx_vol": spx_vol, "beta": beta, "mdd": mdd, "mdd_from": mdd_peak, "mdd_to": mdd_d,
+            "now": dd[-1][1], "dd": dd}
+
+
+def co_comp(flow):
+    """Where revenue goes: costs, tax and other deductions, and what is left as net income."""
+    if not flow or flow[-1][0] != "Net income":
+        return None
+    rev = flow[0][1]
+    parts, extra = [], 0.0
+    for f in flow[1:-1]:
+        if len(f) > 2 and f[2] == "total":
+            continue
+        if f[1] < 0:
+            parts.append([f[0], round(-f[1], 2)])
+        else:
+            extra += f[1]
+    return {"rev": rev, "parts": parts, "extra": round(extra, 2), "ni": flow[-1][1]}
+
+
+def returns_table(rows):
+    head = "".join(f'<th scope="col" class="num">{h}</th>' for h in ("1 month", "3 months", "Year to date", "1 year"))
+    body = []
+    for i, (label, vals) in enumerate(rows):
+        cells = "".join(f'<td class="num">{mv(signed(v, 1, "%")) if v is not None else "n/a"}</td>' for v in vals)
+        cls = ' class="co-ret__self"' if i == 0 else ""
+        body.append(f'<tr{cls}><th scope="row">{label}</th>{cells}</tr>')
+    return (f'<div class="co-tab__wrap"><table class="co-ret"><thead><tr><th scope="col"><span class="visually-hidden">Series</span></th>'
+            f'{head}</tr></thead><tbody>{"".join(body)}</tbody></table></div>')
+
+
 def co_peer_row(t, rec):
     m = co_metrics(rec)
     r = lambda v, d=2: None if v is None else round(v, d)  # noqa: E731
@@ -2092,19 +2228,24 @@ def company_page(t, data, cal):
                       f"to compare on their own. Tap or hover a dot to read it.")
     flow = co_flow(rec)
     cagr, _ = co_cagr(rec)
+    risk = co_risk(rec, data["spx"])
     can_dcf = rec.get("dcf") and m["fcf"] and m["fcf"] > 0 and rec.get("shares") and m["mcap"]
     payload = {
         "t": t, "name": name, "price": m["price"], "date": m["date"],
         "peers": [co_peer_row(x, data["co"][x]) for x in peers],
-        "flow": flow, "fy": fy,
+        "comp": co_comp(flow), "fy": fy,
+        "years": co_hist(rec), "quarters": co_quarters(rec), "pe": co_pe_hist(rec),
+        "risk": None,
         "dcf": {"fcf": round(m["fcf"] / 1e9, 3), "net_debt": round((m["net_debt"] or 0) / 1e9, 3),
                 "shares": round(rec["shares"] / 1e9, 4), "cagr": None if cagr is None else round(cagr, 1)} if can_dcf else None,
         "hist": [[dd, c] for dd, c in rec["closes"]],
         "spx": [[dd, c] for dd, c in data["spx"]],
     }
+    if risk:
+        payload["risk"] = {"dd": risk["dd"]}
     json_payload = json.dumps(payload, separators=(",", ":")).replace("</", "<\\/")
 
-    chg = f'{"+" if m["chg"] >= 0 else MINUS}${abs(m["chg"]):,.2f} ({signed(m["chg_pct"], 2, "%")})'
+    chg = f'{mv(("+" if m["chg"] >= 0 else MINUS) + "$" + format(abs(m["chg"]), ",.2f"))} ({mv(signed(m["chg_pct"], 2, "%"))})'
     lede = f"{SHORT_SECTOR.get(sector, sector)}{(', ' + esc(rec['industry'])) if rec.get('industry') else ''}. Revenue of {money(m['rev'])} in the year to {fy}"
     if m["revg"] is not None:
         lede += f", {'up' if m['revg'] >= 0 else 'down'} {abs(m['revg']):.1f}%"
@@ -2116,7 +2257,7 @@ def company_page(t, data, cal):
         kpi("Market value", money(m["mcap"]), f'{rec["shares"] / 1e9:.2f}bn shares' if m["mcap"] else "Not shown: share classes"),
         kpi("P/E, last 12 months", f'{m["pe"]:.1f}x' if m["pe"] else "n/a",
             f'EPS {usd_signed(rec["ttm_eps"])}' if rec.get("ttm_eps") is not None else "No EPS yet"),
-        kpi("Revenue growth", signed(m["revg"], 1, "%") if m["revg"] is not None else "n/a", f"Year to {fy}"),
+        kpi("Revenue growth", mv(signed(m["revg"], 1, "%")) if m["revg"] is not None else "n/a", f"Year to {fy}"),
         kpi("Operating margin", pct1(m["om"]) if m["om"] is not None else "n/a", f"Year to {fy}" if m["om"] is not None else "Not reported for banks"),
     ]
     if rec.get("dcf"):
@@ -2161,19 +2302,96 @@ def company_page(t, data, cal):
         val = (f"<p>Not modelled yet: free cash flow was {money(m['fcf'])} in the year to {fy}, and a cash flow model "
                "needs a positive starting point to mean anything.</p>")
 
-    flow_sec = ('<div class="co-chart" id="co-flow"></div>'
-                '<p class="key"><span><i class="sw-down"></i>Costs and tax</span>'
-                '<span><i class="sw-up"></i>Income</span>'
-                '<span><i class="sw-ink"></i>Totals</span></p>'
-                f'<p class="co-src">Annual report for the year to {fy}, via Yahoo Finance. Steps under 0.5% of revenue are folded into the next total.</p>'
-                if flow else "<p>Data pending.</p>")
+    comp = co_comp(flow)
+    if comp and comp["rev"] > 0:
+        keep = comp["ni"] / comp["rev"] * 100
+        if comp["ni"] >= 0:
+            comp_line = f"Of every $100 of revenue in the year to {fy}, {esc(name)} kept ${keep:.0f} as net income."
+        else:
+            comp_line = f"In the year to {fy} costs exceeded revenue: {esc(name)} lost ${-keep:.0f} for every $100 of revenue."
+        if comp["extra"] > 0:
+            comp_line += f" That includes {money(comp['extra'] * 1e9)} of income on top of revenue, such as interest and investment gains."
+        flow_sec = (f'<p class="co-lead">{comp_line}</p><div class="co-chart" id="co-flow"></div>'
+                    f'<p class="co-src">Annual report for the year to {fy}, via Yahoo Finance. Items under 0.5% of revenue are folded into the next line.</p>')
+    else:
+        flow_sec = "<p>Data pending.</p>"
+    logo_html = ""
+    if (CO_DATA.parent / "logos" / f"{t}.png").exists():
+        logo_html = f'<span class="co-logo"><img src="logo.png" alt="{esc(name)} logo" width="200" height="200"></span>'
+    hist = co_hist(rec)
+    quarters = co_quarters(rec)
+    pe_hist = co_pe_hist(rec)
+    rets = co_returns(t, data)
+    nyears = len(hist["years"]) if hist else 0
+
+    def sec(key, title, inner):
+        return f'<section aria-labelledby="co-{key}-t"><h2 id="co-{key}-t">{title}</h2>{inner}</section>'
+
+    src_ar = "Annual reports, via Yahoo Finance."
+    s_years = sec("years", f"Revenue and profit, {nyears} years",
+                  f'<p>Revenue and net income each fiscal year, in billions of dollars. Tap or hover a year to read it.</p>'
+                  f'<div class="co-chart" id="co-years"></div>'
+                  f'<p class="key"><span><i class="sw-fill"></i>Revenue</span><span><i class="sw-ink"></i>Net income</span></p>'
+                  f'<p class="co-read" id="co-years-read" aria-live="polite"></p><p class="co-src">{src_ar}</p>') if hist else ""
+    s_q = ""
+    if quarters:
+        s_q = sec("q", f"Last {len(quarters['labels'])} quarters",
+                  '<p>Revenue in billions of dollars and diluted earnings per share, quarter by quarter.</p>'
+                  '<div class="co-pair"><div><h3 class="co-h3">Revenue</h3><div class="co-chart" id="co-qrev"></div></div>'
+                  '<div><h3 class="co-h3">Earnings per share</h3><div class="co-chart" id="co-qeps"></div></div></div>'
+                  '<p class="co-read" id="co-q-read" aria-live="polite"></p>'
+                  '<p class="co-src">Quarterly reports, via Yahoo Finance. Quarters are named by the month they end.</p>')
+    s_cash = sec("cash", "Cash flow and investment",
+                 '<p>Cash from operations, what went into capital spending, and the free cash flow left, in billions of dollars.</p>'
+                 '<div class="co-chart" id="co-cash"></div>'
+                 '<p class="key"><span><i class="sw-fill"></i>Cash from operations</span><span><i class="sw-down"></i>Capital spending</span><span><i class="sw-ink"></i>Free cash flow</span></p>'
+                 f'<p class="co-read" id="co-cash-read" aria-live="polite"></p><p class="co-src">{src_ar}</p>') if hist else ""
+    s_bs = sec("bs", "Balance sheet",
+               '<p>Cash and short-term investments, debt and shareholders&rsquo; equity at each fiscal year end, in billions of dollars.</p>'
+               '<div class="co-chart" id="co-bs"></div>'
+               '<p class="key"><span><i class="sw-fill"></i>Cash and investments</span><span><i class="sw-ink"></i>Debt</span><span><i class="sw-hollow"></i>Equity</span></p>'
+               f'<p class="co-read" id="co-bs-read" aria-live="polite"></p><p class="co-src">{src_ar} Debt excludes leases.</p>') if hist else ""
+    s_sh = sec("sh", "Returns to shareholders",
+               '<p>Dividends paid and shares bought back each fiscal year, against net income, in billions of dollars.</p>'
+               '<div class="co-chart" id="co-sh"></div>'
+               '<p class="key"><span><i class="sw-ink"></i>Dividends</span><span><i class="sw-fill"></i>Buybacks</span><span><i class="k-solid"></i>Net income</span></p>'
+               f'<p class="co-read" id="co-sh-read" aria-live="polite"></p><p class="co-src">{src_ar}</p>') if hist else ""
+    s_pe = sec("pe", "Valuation over time",
+               '<p>The price to earnings ratio at each month end, on the last fiscal year&rsquo;s diluted earnings per share known at the time, against its average over the period.</p>'
+               '<div class="co-chart" id="co-pe"></div>'
+               '<p class="key"><span><i class="k-solid"></i>P/E</span><span><i class="k-dash"></i>Average</span></p>'
+               '<p class="co-read" id="co-pe-read" aria-live="polite"></p>'
+               '<p class="co-src">Month-end closes and annual reports, via Yahoo Finance.</p>') if pe_hist else ""
+    s_ret = sec("ret", "Share price returns",
+                f'<p>Price change over each period to the close of {day_med(d)}, without dividends.</p>{returns_table(rets)}'
+                '<p class="co-src">Yahoo Finance daily closes. The sector average is the simple average of its companies among the 50.</p>')
+    s_risk = ""
+    if risk:
+        beta = f'{risk["beta"]:.2f}' if risk["beta"] is not None else "n/a"
+        spx_vol = f'; the S&amp;P 500 moved {risk["spx_vol"]:.0f}%' if risk.get("spx_vol") else ""
+        vol_txt = f'{risk["vol"]:.0f}%'
+        fall_dates = f'{day_med(dt.date.fromisoformat(risk["mdd_from"]))} to {day_med(dt.date.fromisoformat(risk["mdd_to"]))}'
+        below = mv(signed(risk["now"], 1, "%")) if risk["now"] < -0.05 else "At its high"
+        figs = ('<ul class="kpi co-risk">'
+                + kpi("Volatility, 1 year", vol_txt, "Annualised daily moves" + spx_vol)
+                + kpi("Beta to the S&amp;P 500", beta, "1.0 moves with the market")
+                + kpi("Deepest fall, 1 year", mv(signed(risk["mdd"], 1, "%")), fall_dates)
+                + kpi("Below its high", below, "Against the year&rsquo;s highest close")
+                + '</ul>')
+        s_risk = sec("risk", "Risk",
+                     f'<p>How much the shares move, and how far they have fallen from their high over the past year.</p>{figs}'
+                     '<div class="co-chart" id="co-dd"></div><p class="co-read" id="co-dd-read" aria-live="polite"></p>'
+                     '<p class="co-src">Yahoo Finance daily closes. Beta from daily returns against the S&amp;P 500.</p>')
 
     spx_note = "" if data["spx"] else " The S&amp;P 500 series is pending."
     body = f"""<main id="main" class="page dd co" data-co>
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
       <p class="dd__crumbs"><a href="../">Companies</a> <span aria-hidden="true">/</span> {SHORT_SECTOR.get(sector, sector)}</p>
-      <h1 class="page__title">{esc(name)}</h1>
+      <div class="co-title">
+        <h1 class="page__title">{esc(name)}</h1>
+        {logo_html}
+      </div>
       <p class="co-quote"><span class="co-px">${m["price"]:,.2f}</span><span class="co-chg">{chg} on the day</span><span class="note__meta">{t}, {esc(rec.get("exchange") or "")}. Close {day_med(d)}.</span></p>
       <p class="lede">{lede}</p>
       <div class="co-acts">
@@ -2199,11 +2417,17 @@ def company_page(t, data, cal):
         <h2 id="co-val-t">Valuation</h2>
         {val}
       </section>
+      {s_pe}
       <section aria-labelledby="co-flow-t">
-        <h2 id="co-flow-t">From revenue to profit</h2>
-        <p>Where revenue went in the year to {fy}, in billions of dollars and as a share of revenue.</p>
+        <h2 id="co-flow-t">Where revenue goes</h2>
         {flow_sec}
       </section>
+      {s_years}
+      {s_q}
+      {s_cash}
+      {s_bs}
+      {s_sh}
+      {s_ret}
       <section aria-labelledby="co-ctx-t">
         <h2 id="co-ctx-t">Against the market</h2>
         <p>{esc(name)} and the S&amp;P 500 over the past year, both rebased to 100.{spx_note}</p>
@@ -2212,6 +2436,7 @@ def company_page(t, data, cal):
         <p class="co-read" id="co-ctx-read" aria-live="polite"></p>
         <p class="co-src">Yahoo Finance, daily closes to {day_med(d)}.</p>
       </section>
+      {s_risk}
       <section aria-labelledby="co-memo-t">
         <h2 id="co-memo-t">Investment memo</h2>
         <div class="co-gate">
@@ -2262,7 +2487,7 @@ def companies_index(data):
             f'<td class="co-tab__name"><a href="{co_slug(t)}/">{esc(co_name(rec))}</a><span>{t}</span></td>'
             f'<td class="co-tab__sec" data-label="Sector">{SHORT_SECTOR.get(rec["sector"], rec["sector"])}</td>'
             f'<td class="num" data-label="Close">${m["price"]:,.2f}</td>'
-            f'<td class="num" data-label="Day">{signed(m["chg_pct"], 2, "%")}</td>'
+            f'<td class="num" data-label="Day">{mv(signed(m["chg_pct"], 2, "%"))}</td>'
             f'<td class="num" data-label="Value">{money(m["mcap"])}</td>'
             f'<td class="num" data-label="P/E">{pe_txt}</td></tr>')
     body = f"""<main id="main" class="page co-index">
@@ -2379,6 +2604,9 @@ def main():
             folder = OUT / "companies" / co_slug(t)
             folder.mkdir(parents=True, exist_ok=True)
             (folder / "index.html").write_text(company_page(t, companies, cal))
+            logo = CO_DATA.parent / "logos" / f"{t}.png"
+            if logo.exists():
+                shutil.copyfile(logo, folder / "logo.png")
         print(f"wrote {len(companies['order'])} company pages")
     print(f"wrote index.html, methodology/index.html, reports/index.html, {len(DASHBOARDS)} dashboard pages, "
           f"{len(notes)} report page(s) and the calendar with {len(weeks)} week page(s)")

@@ -60,9 +60,15 @@
       var top = r * rowH;
       el("text", { "class": "chart__value", x: 0, y: top + 16, "font-weight": 550 }, m.n, svg);
       var mine = self[m.k];
-      el("text", { "class": "chart__label", x: w, y: top + 16, "text-anchor": "end" },
-        w < 520 ? (mine == null ? "n/a" : m.f(mine)) :
-          (mine == null ? D.name + ": n/a" : D.name + " " + m.f(mine) + (m.note ? ", " + m.note : "")), svg);
+      var lab = el("text", { "class": "chart__label", x: w, y: top + 16, "text-anchor": "end" }, null, svg);
+      if (mine == null) lab.textContent = w < 520 ? "n/a" : D.name + ": n/a";
+      else {
+        if (w >= 520) el("tspan", {}, D.name + " ", lab);
+        var fig = m.f(mine);
+        // Revenue growth is a rise or a fall: its figure takes the colour.
+        el("tspan", { "class": m.k === "g" && /^[+\u2212]/.test(fig) ? (fig[0] === "+" ? "mv--up" : "mv--down") : null, fill: m.k === "g" && /^[+\u2212]/.test(fig) ? (fig[0] === "+" ? "var(--up-text)" : "var(--down-text)") : null }, fig, lab);
+        if (w >= 520 && m.note) el("tspan", {}, ", " + m.note, lab);
+      }
       var y = top + 40;
       el("line", { "class": "grid-line", x1: 0, x2: w - R, y1: y, y2: y }, null, svg);
       if (vals.length < 2) return;
@@ -91,8 +97,8 @@
     });
     marks.forEach(function (mk) {
       mk.c.style.cursor = "pointer";
-      mk.c.addEventListener("pointerenter", function () { peersRead.textContent = mk.text; });
-      mk.c.addEventListener("click", function () { peersRead.textContent = mk.text; });
+      mk.c.addEventListener("pointerenter", function () { setRead(peersRead, mk.text); });
+      mk.c.addEventListener("click", function () { setRead(peersRead, mk.text); });
     });
     if (!peersRead.textContent) peersRead.textContent = "Dashed tick: the median. A dashed dot sits beyond the axis, which spans the middle 90% of values.";
   }
@@ -175,46 +181,265 @@
     });
   }
 
-  /* Revenue to profit: totals from zero, steps from where the last bar ended. */
+  /* Where revenue goes: one bar split into what each $100 of revenue paid for,
+     red for costs and tax, green for what was kept; rows below give each line. */
   var flowBox = document.getElementById("co-flow");
   function drawFlow() {
-    var F = D.flow, w = flowBox.clientWidth;
-    if (!w || !F) return;
-    var rev = F[0][1];
-    var narrow = w < 560, rowH = 30, labW = Math.min(150, w * 0.36), R = narrow ? 92 : 180, T = 18, bh = 16;
-    var h = F.length * rowH + T;
-    var svg = svgIn(flowBox, w, h, "Revenue of $" + rev.toFixed(1) + "bn down to net income in the year to " + D.fy);
-    var run = 0, lo = 0, hi = rev;
-    F.forEach(function (f) {
-      if (f[2] === "total") run = f[1]; else run += f[1];
-      lo = Math.min(lo, run); hi = Math.max(hi, run);
+    var C = D.comp, w = flowBox ? flowBox.clientWidth : 0;
+    if (!w || !C) return;
+    var parts = C.parts.map(function (p, i) { return { n: p[0], v: p[1], cls: "down", op: Math.max(0.35, 1 - i * 0.16) }; });
+    if (C.ni > 0) parts.push({ n: "Net income", v: C.ni, cls: "up", op: 1 });
+    var total = parts.reduce(function (a, p) { return a + p.v; }, 0);
+    var rowH = 26, barH = 40, T = 4, gap = 22;
+    var h = T + barH + gap + parts.length * rowH + (C.ni < 0 ? rowH : 0);
+    var svg = svgIn(flowBox, w, h, "Of revenue of $" + C.rev.toFixed(1) + "bn in the year to " + D.fy + ": " +
+      parts.map(function (p) { return p.n + " $" + p.v.toFixed(1) + "bn"; }).join(", "));
+    var x = 0;
+    parts.forEach(function (p) {
+      var pw = w * p.v / total;
+      var r = el("rect", { "class": p.cls, x: x, y: T, width: Math.max(1, pw - 1), height: barH, opacity: p.op }, null, svg);
+      el("title", {}, p.n + ": $" + p.v.toFixed(1) + "bn, " + (p.v / C.rev * 100).toFixed(1) + "% of revenue", r);
+      if (pw > 44) el("text", { "class": "co-seg", x: x + 8, y: T + barH / 2 + 4 }, (p.v / C.rev * 100).toFixed(0) + "%", svg);
+      x += pw;
     });
-    var X = function (v) { return labW + (w - labW - R) * (v - lo) / (hi - lo); };
-    var step = Math.pow(10, Math.floor(Math.log10(hi / 2)));
-    if (hi / step > 6) step *= 2;
-    for (var v = 0; v <= hi; v += step) {
-      el("line", { "class": v ? "grid-line" : "zero-line", x1: X(v), x2: X(v), y1: T - 4, y2: h }, null, svg);
-      if (!narrow || v === 0 || v + step > hi) el("text", { "class": "chart__label", x: X(v), y: 10, "text-anchor": v ? "middle" : "start" }, "$" + v + "bn", svg);
+    if (C.extra > 0 || C.ni < 0) {
+      var rx = w * C.rev / total;
+      el("line", { x1: rx, x2: rx, y1: T - 4, y2: T + barH + 6, stroke: "var(--ink)", "stroke-width": 1.5 }, null, svg);
+      el("text", { "class": "chart__label", x: Math.min(rx, w - 4), y: T + barH + 18, "text-anchor": rx > w - 80 ? "end" : "middle" }, "Revenue", svg);
     }
-    run = 0;
-    var prevEnd = null, prevY = null;
-    F.forEach(function (f, i) {
-      var tot = f[2] === "total", a, b, cls;
-      var y = T + i * rowH + (rowH - bh) / 2;
-      if (tot) { a = 0; b = f[1]; cls = "bar"; }
-      else { a = run; b = run + f[1]; cls = f[1] < 0 ? "down" : "up"; }
-      run = b;
-      var x0 = X(Math.min(a, b)), x1 = X(Math.max(a, b));
-      if (prevY !== null) el("line", { x1: X(prevEnd), x2: X(prevEnd), y1: prevY + bh, y2: y, stroke: "var(--ink-3)", "stroke-dasharray": "2 2" }, null, svg);
-      prevEnd = b;
-      prevY = y;
-      el("text", { "class": "chart__value", x: 0, y: y + bh / 2 + 4, "font-weight": tot ? 600 : 400 }, f[0], svg);
-      var rect = el("rect", { "class": cls, x: x0, y: y, width: Math.max(1.5, x1 - x0), height: bh }, null, svg);
-      var pct = Math.abs(f[1]) / rev * 100;
-      el("title", {}, f[0] + ": " + (tot ? "$" : (f[1] < 0 ? MINUS : "+") + "$") + Math.abs(f[1]).toFixed(1) + "bn, " + pct.toFixed(1) + "% of revenue", rect);
-      var t = el("text", { "class": "chart__value", x: X(hi) + 10, y: y + bh / 2 + 4, "font-weight": tot ? 600 : 400 },
-        (tot ? "" : f[1] < 0 ? MINUS : "+") + Math.abs(f[1]).toFixed(1), svg);
-      if (i > 0) el("tspan", { "class": "chart__label", "font-weight": 400 }, "  " + (f[3] && !narrow ? f[3] + " " : "") + pct.toFixed(0) + "%", t);
+    var y0 = T + barH + gap;
+    var narrow = w < 520, colV = narrow ? w : w - 130, colP = w;
+    parts.forEach(function (p, i) {
+      var y = y0 + i * rowH;
+      el("rect", { "class": p.cls, x: 0, y: y + 5, width: 12, height: 12, opacity: p.op }, null, svg);
+      el("text", { "class": "chart__value", x: 22, y: y + 15, "font-weight": p.cls === "up" ? 600 : 400 }, p.n, svg);
+      var pctTxt = (p.v / C.rev * 100).toFixed(0) + "%";
+      if (narrow) {
+        var tv = el("text", { "class": "chart__value", x: colV, y: y + 15, "text-anchor": "end" }, "$" + p.v.toFixed(1) + "bn", svg);
+        el("tspan", { "class": "chart__label" }, "  " + pctTxt, tv);
+      } else {
+        el("text", { "class": "chart__value", x: colV, y: y + 15, "text-anchor": "end" }, "$" + p.v.toFixed(1) + "bn", svg);
+        el("text", { "class": "chart__label", x: colP, y: y + 15, "text-anchor": "end" }, pctTxt + " of revenue", svg);
+      }
+      el("line", { "class": "grid-line", x1: 0, x2: w, y1: y + rowH - 2, y2: y + rowH - 2 }, null, svg);
+    });
+    if (C.ni < 0) {
+      var yl = y0 + parts.length * rowH;
+      el("text", { "class": "chart__value", x: 22, y: yl + 15, "font-weight": 600 }, "Net loss", svg);
+      el("text", { "class": "chart__value mv--down", x: colV, y: yl + 15, "text-anchor": "end" }, MINUS + "$" + Math.abs(C.ni).toFixed(1) + "bn", svg);
+    }
+  }
+
+  /* Colour signed percentages in a readout (DESIGN.md, The Rise and Fall Rule). */
+  function setRead(node, text) {
+    node.textContent = "";
+    text.split(/([+−]\d[\d,.]*%)/).forEach(function (part) {
+      if (!part) return;
+      if (/^[+−]\d/.test(part) && /%$/.test(part)) {
+        var sp = document.createElement("span");
+        sp.className = part[0] === "+" ? "mv--up" : "mv--down";
+        sp.textContent = part;
+        node.appendChild(sp);
+      } else node.appendChild(document.createTextNode(part));
+    });
+  }
+
+  /* Column charts over fiscal years or quarters: grouped series around a zero
+     line, an optional line series, a readout for the column under the pointer. */
+  function nice(max) {
+    var p = Math.pow(10, Math.floor(Math.log10(max || 1))), m = max / p;
+    return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p;
+  }
+  function columns(box, read, cats, series, opt) {
+    var w = box ? box.clientWidth : 0;
+    if (!w) return;
+    opt = opt || {};
+    var h = opt.h || Math.max(180, Math.min(260, w * 0.42)), T = 16, B = 24, R = 46;
+    var vals = [];
+    series.forEach(function (s) { s.vals.forEach(function (v) { if (v != null) vals.push(v); }); });
+    if (!vals.length) { box.textContent = ""; return; }
+    var hi = Math.max(0, Math.max.apply(null, vals)), lo = Math.min(0, Math.min.apply(null, vals));
+    var step = nice((hi - lo) / 4);
+    hi = Math.ceil(hi / step) * step; lo = Math.floor(lo / step) * step;
+    if (hi === lo) hi = lo + step;
+    var Y = function (v) { return T + (h - T - B) * (hi - v) / (hi - lo); };
+    var svg = svgIn(box, w, h, opt.label || "");
+    for (var v = lo; v <= hi + step / 2; v += step) {
+      el("line", { "class": Math.abs(v) < step / 1e6 ? "zero-line" : "grid-line", x1: 0, x2: w - R, y1: Y(v), y2: Y(v) }, null, svg);
+      el("text", { "class": "chart__label", x: w - R + 6, y: Y(v) + 4 }, (opt.fmt || String)(v), svg);
+    }
+    var bars = series.filter(function (s) { return s.type !== "line"; });
+    var cw = (w - R) / cats.length, inner = cw * 0.72, bw = inner / bars.length;
+    var band = el("rect", { "class": "hover-band", x: 0, y: T, width: cw, height: h - T - B, opacity: 0 }, null, svg);
+    svg.insertBefore(band, svg.firstChild);
+    cats.forEach(function (c, i) {
+      var x0 = i * cw + (cw - inner) / 2;
+      bars.forEach(function (s, k) {
+        var v = s.vals[i];
+        if (v == null) return;
+        var y = Math.min(Y(v), Y(0)), bh = Math.max(1, Math.abs(Y(v) - Y(0)));
+        var r = el("rect", { "class": s.cls, x: x0 + k * bw + 1, y: y, width: Math.max(2, bw - 2), height: bh }, null, svg);
+        if (s.cls === "fill") { r.setAttribute("fill", "var(--chart-fill)"); r.setAttribute("stroke", "var(--chart-line)"); }
+        if (s.cls === "hollow") { r.setAttribute("fill", "none"); r.setAttribute("stroke", "var(--chart-line)"); r.setAttribute("stroke-dasharray", "3 2"); }
+      });
+      el("text", { "class": "chart__label", x: i * cw + cw / 2, y: h - 6, "text-anchor": "middle" }, w < 480 && cats.length > 5 ? c.replace(/^(\w{3}) \d\d(\d\d)$/, "$1 $2") : c, svg);
+    });
+    series.filter(function (s) { return s.type === "line"; }).forEach(function (s) {
+      var pts = [];
+      s.vals.forEach(function (v, i) { if (v != null) pts.push([i * cw + cw / 2, Y(v)]); });
+      if (pts.length > 1) el("path", { "class": "line", d: "M" + pts.map(function (p) { return p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" L") }, null, svg);
+      pts.forEach(function (p) { el("circle", { "class": "dot", cx: p[0], cy: p[1], r: 3.5 }, null, svg); });
+    });
+    function show(i) {
+      i = Math.max(0, Math.min(cats.length - 1, i));
+      band.setAttribute("x", i * cw);
+      band.setAttribute("opacity", 1);
+      if (read) setRead(read, cats[i] + ": " + series.map(function (s) {
+        return s.name + " " + (s.vals[i] == null ? "n/a" : (opt.fmtRead || opt.fmt || String)(s.vals[i], s));
+      }).join(", ") + (opt.extra ? opt.extra(i) : ""));
+    }
+    svg.setAttribute("tabindex", "0");
+    svg.addEventListener("pointermove", function (e) {
+      var b = svg.getBoundingClientRect();
+      show(Math.floor((e.clientX - b.left) / (b.width * (w - R) / w) * cats.length));
+    });
+    svg.addEventListener("keydown", function (e) {
+      var cur = +(band.getAttribute("x")) / cw;
+      var st = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
+      if (st) { e.preventDefault(); show(Math.round(cur) + st); }
+    });
+    show(cats.length - 1);
+  }
+  var bn = function (v) { return (v < 0 ? MINUS : "") + "$" + Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: Math.abs(v) < 10 ? 1 : 0 }) + "bn"; };
+  var axisBn = function (v) { return (v < 0 ? MINUS : "") + "$" + Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: 1 }); };
+  function yoy(arr, i, back) {
+    var a = arr[i], b = arr[i - back];
+    if (a == null || b == null || b <= 0) return null;
+    return (a / b - 1) * 100;
+  }
+
+  function drawYears() {
+    var Y = D.years;
+    if (!Y) return;
+    columns(document.getElementById("co-years"), document.getElementById("co-years-read"), Y.years, [
+      { name: "Revenue", vals: Y.rev, cls: "fill" },
+      { name: "Net income", vals: Y.ni, cls: "bar" }
+    ], { fmt: axisBn, fmtRead: bn, label: D.name + " revenue and net income by fiscal year",
+      extra: function (i) {
+        var g = yoy(Y.rev, i, 1), m = Y.rev[i] && Y.ni[i] != null ? Y.ni[i] / Y.rev[i] * 100 : null;
+        return (m != null ? ", net margin " + m.toFixed(1) + "%" : "") + (g != null ? ". Revenue " + signed(g, 1, "%") + " on the year before" : "");
+      } });
+  }
+  function drawQuarters() {
+    var Q = D.quarters;
+    if (!Q) return;
+    var read = document.getElementById("co-q-read");
+    var extra = function (i) {
+      var g = yoy(Q.rev, i, 4);
+      return g != null ? ". Revenue " + signed(g, 1, "%") + " on a year earlier" : "";
+    };
+    var both = [{ name: "Revenue", vals: Q.rev, cls: "fill" }];
+    columns(document.getElementById("co-qrev"), read, Q.labels, both, { fmt: axisBn, fmtRead: bn, h: 190, label: "Quarterly revenue", extra: extra });
+    columns(document.getElementById("co-qeps"), read, Q.labels, [{ name: "EPS", vals: Q.eps, cls: "bar" }],
+      { fmt: function (v) { return (v < 0 ? MINUS : "") + "$" + Math.abs(v).toFixed(v % 1 ? 2 : 0); }, h: 190, label: "Quarterly diluted EPS",
+        fmtRead: function (v) { return (v < 0 ? MINUS : "") + "$" + Math.abs(v).toFixed(2); } });
+    // Start the shared readout on the latest quarter with revenue growth.
+    setRead(read, Q.labels[Q.labels.length - 1] + ": Revenue " + (Q.rev[Q.rev.length - 1] == null ? "n/a" : bn(Q.rev[Q.rev.length - 1])) +
+      ", EPS " + (Q.eps[Q.eps.length - 1] == null ? "n/a" : "$" + Q.eps[Q.eps.length - 1].toFixed(2)) + extra(Q.labels.length - 1));
+  }
+  function drawCash() {
+    var Y = D.years;
+    if (!Y) return;
+    columns(document.getElementById("co-cash"), document.getElementById("co-cash-read"), Y.years, [
+      { name: "Cash from operations", vals: Y.ocf, cls: "fill" },
+      { name: "Capital spending", vals: Y.capex, cls: "down" },
+      { name: "Free cash flow", vals: Y.fcf, cls: "bar" }
+    ], { fmt: axisBn, fmtRead: bn, label: D.name + " cash flow by fiscal year" });
+  }
+  function drawBalance() {
+    var Y = D.years;
+    if (!Y) return;
+    var ser = [];
+    if (Y.cash.some(function (v) { return v != null; })) ser.push({ name: "Cash and investments", vals: Y.cash, cls: "fill" });
+    ser.push({ name: "Debt", vals: Y.debt, cls: "bar" });
+    ser.push({ name: "Equity", vals: Y.equity, cls: "hollow" });
+    columns(document.getElementById("co-bs"), document.getElementById("co-bs-read"), Y.years, ser,
+      { fmt: axisBn, fmtRead: bn, label: D.name + " cash, debt and equity by fiscal year" });
+  }
+  function drawShareholders() {
+    var Y = D.years;
+    if (!Y) return;
+    columns(document.getElementById("co-sh"), document.getElementById("co-sh-read"), Y.years, [
+      { name: "Dividends", vals: Y.div.map(function (v) { return v == null ? 0 : v; }), cls: "bar" },
+      { name: "Buybacks", vals: Y.buy.map(function (v) { return v == null ? 0 : v; }), cls: "fill" },
+      { name: "Net income", vals: Y.ni, type: "line" }
+    ], { fmt: axisBn, fmtRead: bn, label: D.name + " dividends and buybacks against net income",
+      extra: function (i) {
+        var paid = (Y.div[i] || 0) + (Y.buy[i] || 0);
+        return Y.ni[i] > 0 ? ". Paid out " + (paid / Y.ni[i] * 100).toFixed(0) + "% of net income" : "";
+      } });
+  }
+
+  /* One line over dates, with a dashed reference: P/E over time, drawdown. */
+  function lineChart(box, read, pts, opt) {
+    var w = box ? box.clientWidth : 0;
+    if (!w || !pts || pts.length < 2) return;
+    var h = opt.h || Math.max(180, Math.min(260, w * 0.38)), T = 10, B = 24, R = 46;
+    var vs = pts.map(function (p) { return p[1]; });
+    var lo = Math.min.apply(null, vs.concat(opt.ref != null ? [opt.ref] : [])), hi = Math.max.apply(null, vs.concat(opt.ref != null ? [opt.ref] : []));
+    if (opt.floor0) hi = Math.max(hi, 0);
+    var step = nice((hi - lo) / 4 || 1);
+    lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+    var X = function (i) { return (w - R) * i / (pts.length - 1); };
+    var Yf = function (v) { return T + (h - T - B) * (hi - v) / (hi - lo); };
+    var svg = svgIn(box, w, h, opt.label);
+    for (var v = lo; v <= hi + step / 2; v += step) {
+      el("line", { "class": "grid-line", x1: 0, x2: w - R, y1: Yf(v), y2: Yf(v) }, null, svg);
+      el("text", { "class": "chart__label", x: w - R + 6, y: Yf(v) + 4 }, opt.fmt(v), svg);
+    }
+    var lab = opt.monthly ? function (d) { return day(d).replace(/^\d+ /, ""); } : day;
+    el("text", { "class": "chart__label", x: 0, y: h - 6 }, lab(pts[0][0]), svg);
+    el("text", { "class": "chart__label", x: w - R, y: h - 6, "text-anchor": "end" }, lab(pts[pts.length - 1][0]), svg);
+    var d = "M" + pts.map(function (p, i) { return X(i).toFixed(1) + " " + Yf(p[1]).toFixed(1); }).join(" L");
+    if (opt.area) el("path", { d: d + " L" + X(pts.length - 1).toFixed(1) + " " + Yf(0) + " L0 " + Yf(0) + " Z", "class": "band-down" }, null, svg);
+    if (opt.ref != null) el("line", { "class": "ref", x1: 0, x2: w - R, y1: Yf(opt.ref), y2: Yf(opt.ref) }, null, svg);
+    el("path", { "class": "line", d: d }, null, svg);
+    var xh = el("line", { "class": "cross", y1: T, y2: h - B }, null, svg);
+    var dot = el("circle", { "class": "dot", r: 3.5 }, null, svg);
+    var cur = pts.length - 1;
+    function show(i) {
+      cur = Math.max(0, Math.min(pts.length - 1, i));
+      xh.setAttribute("x1", X(cur)); xh.setAttribute("x2", X(cur));
+      dot.setAttribute("cx", X(cur)); dot.setAttribute("cy", Yf(pts[cur][1]));
+      if (read) setRead(read, opt.read(pts[cur]));
+    }
+    svg.setAttribute("tabindex", "0");
+    svg.addEventListener("pointermove", function (e) {
+      var b = svg.getBoundingClientRect();
+      show(Math.round((e.clientX - b.left) / (b.width * (w - R) / w) * (pts.length - 1)));
+    });
+    svg.addEventListener("keydown", function (e) {
+      var st = { ArrowLeft: -1, ArrowRight: 1 }[e.key];
+      if (st) { e.preventDefault(); show(cur + st); }
+    });
+    show(cur);
+  }
+  function drawPE() {
+    var P = D.pe;
+    if (!P) return;
+    var avg = P.reduce(function (a, p) { return a + p[1]; }, 0) / P.length;
+    lineChart(document.getElementById("co-pe"), document.getElementById("co-pe-read"), P, {
+      ref: avg, monthly: true, label: D.name + " P/E over time against its average of " + avg.toFixed(1) + "x",
+      fmt: function (v) { return v.toFixed(0) + "x"; },
+      read: function (p) { return day(p[0]).replace(/^\d+ /, "") + ": P/E " + p[1].toFixed(1) + "x, average " + avg.toFixed(1) + "x"; }
+    });
+  }
+  function drawDD() {
+    if (!D.risk) return;
+    lineChart(document.getElementById("co-dd"), document.getElementById("co-dd-read"), D.risk.dd, {
+      area: true, floor0: true, label: D.name + " below its highest close so far, over the past year",
+      fmt: function (v) { return (v < 0 ? MINUS : "") + Math.abs(v).toFixed(0) + "%"; },
+      read: function (p) { return day(p[0]) + ": " + (p[1] < -0.05 ? signed(p[1], 1, "%") + " below the high so far" : "at its high so far"); }
     });
   }
 
@@ -260,8 +485,8 @@
       xh.setAttribute("x1", X(cur)); xh.setAttribute("x2", X(cur));
       d1.setAttribute("cx", X(cur)); d1.setAttribute("cy", Y(A[cur]));
       if (d2) { d2.setAttribute("cx", X(cur)); d2.setAttribute("cy", Y(Bv[cur])); }
-      ctxRead.textContent = day(rows[cur][0]) + ": " + D.name + " " + usd(rows[cur][1]) + " (" + signed(A[cur] - 100, 1, "%") + ")" +
-        (both ? ", S&P 500 " + spx[rows[cur][0]].toLocaleString("en-US", { maximumFractionDigits: 0 }) + " (" + signed(Bv[cur] - 100, 1, "%") + ")" : "");
+      setRead(ctxRead, day(rows[cur][0]) + ": " + D.name + " " + usd(rows[cur][1]) + " (" + signed(A[cur] - 100, 1, "%") + ")" +
+        (both ? ", S&P 500 " + spx[rows[cur][0]].toLocaleString("en-US", { maximumFractionDigits: 0 }) + " (" + signed(Bv[cur] - 100, 1, "%") + ")" : ""));
     }
     function at(e) {
       var b = svg.getBoundingClientRect();
@@ -283,6 +508,13 @@
     if (M && gIn) update();
     drawFlow();
     drawCtx();
+    drawYears();
+    drawQuarters();
+    drawCash();
+    drawBalance();
+    drawShareholders();
+    drawPE();
+    drawDD();
   }
   drawAll();
   var t;

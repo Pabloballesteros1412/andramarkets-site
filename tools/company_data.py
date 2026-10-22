@@ -7,6 +7,7 @@ S&P 500 and, for each, the figures its page draws. build_site.py reads it;
 with no file there are no company pages.
 
 Sources:
+    Financial Modeling Prep  company logos (image-stock), fetched once and kept
     State Street       the SPY ETF's daily holdings: which companies, ranked
                        by their weight in the index (one per company, so
                        Alphabet appears once)
@@ -71,9 +72,17 @@ NO_DCF = set("BRK-B JPM BAC GS WFC MS C AXP BLK SCHW PGR CB COF".split())
 
 ANNUAL = ["TotalRevenue", "CostOfRevenue", "GrossProfit", "ResearchAndDevelopment", "SellingGeneralAndAdministration",
           "OperatingIncome", "PretaxIncome", "TaxProvision", "NetIncomeCommonStockholders", "FreeCashFlow",
-          "CapitalExpenditure", "OperatingCashFlow", "StockholdersEquity", "TotalDebt"]
+          "CapitalExpenditure", "OperatingCashFlow", "StockholdersEquity", "TotalDebt",
+          "CashCashEquivalentsAndShortTermInvestments", "CashDividendsPaid", "RepurchaseOfCapitalStock", "DilutedEPS"]
 QUARTERLY = ["DilutedEPS", "OrdinarySharesNumber", "TotalDebt", "CashCashEquivalentsAndShortTermInvestments",
-             "StockholdersEquity"]
+             "StockholdersEquity", "TotalRevenue", "NetIncomeCommonStockholders"]
+# Annual and quarterly series the page charts over time.
+HISTORY_ANNUAL = ["TotalRevenue", "NetIncomeCommonStockholders", "OperatingCashFlow", "CapitalExpenditure",
+                  "FreeCashFlow", "CashCashEquivalentsAndShortTermInvestments", "TotalDebt", "StockholdersEquity",
+                  "CashDividendsPaid", "RepurchaseOfCapitalStock", "DilutedEPS"]
+HISTORY_QUARTERLY = ["TotalRevenue", "DilutedEPS", "NetIncomeCommonStockholders"]
+LOGOS = CACHE.parent / "logos"
+LOGO_URL = "https://financialmodelingprep.com/image-stock/{}.png"
 
 
 def log(msg, level="notice"):
@@ -153,10 +162,10 @@ def series(symbol):
     return out
 
 
-def chart(symbol):
-    """A year of closes (completed sessions only), dividends and the quote meta."""
+def chart(symbol, rng="1y", interval="1d"):
+    """Closes (completed sessions only), dividends and the quote meta."""
     url = (f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(symbol)}?"
-           + urllib.parse.urlencode({"range": "1y", "interval": "1d", "events": "div"}))
+           + urllib.parse.urlencode({"range": rng, "interval": interval, "events": "div"}))
     res = get_json(url)["chart"]["result"][0]
     meta = res["meta"]
     offset = meta.get("gmtoffset") or 0
@@ -167,7 +176,7 @@ def chart(symbol):
             closes[day(t)] = round(c, 4)
     # A session still trading (or within 30 minutes of its close) is not a close yet.
     end = ((meta.get("currentTradingPeriod") or {}).get("regular") or {}).get("end")
-    if end and time.time() < end + 1800:
+    if interval == "1d" and end and time.time() < end + 1800:
         closes.pop(day(end), None)
     divs = sorted((day(d["date"]), d["amount"]) for d in ((res.get("events") or {}).get("dividends") or {}).values())
     return sorted(closes.items()), divs, meta
@@ -201,6 +210,13 @@ def record(symbol, holdings_name, profile):
     div_ttm = sum(a for d, a in divs if d > cutoff)
     fcf_hist = [(d, v) for d, v in (s.get("annualFreeCashFlow") or [])]
     name = meta.get("longName") or meta.get("shortName") or holdings_name.title()
+    try:
+        monthly, _, _ = chart(symbol, "5y", "1mo")
+    except Exception as e:  # noqa: BLE001
+        log(f"{symbol} 5y monthly: {type(e).__name__}: {e}", "notice")
+        monthly = []
+    hist_a = {t: [[d, v] for d, v in (s.get("annual" + t) or [])][-5:] for t in HISTORY_ANNUAL}
+    hist_q = {t: [[d, v] for d, v in (s.get("quarterly" + t) or [])][-8:] for t in HISTORY_QUARTERLY}
     return {
         "ticker": symbol,
         "name": name,
@@ -223,8 +239,25 @@ def record(symbol, holdings_name, profile):
         "equity": (latest(s, "quarterlyStockholdersEquity") or latest(s, "annualStockholdersEquity") or [None, None])[1],
         "bs_date": (latest(s, "quarterlyTotalDebt") or latest(s, "quarterlyCashCashEquivalentsAndShortTermInvestments") or [None])[0],
         "dcf": symbol not in NO_DCF,
+        "hist_a": hist_a,
+        "hist_q": hist_q,
+        "monthly": monthly,
         "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
     }
+
+
+def logo(symbol):
+    """The company's logo (PNG with transparency), kept once fetched."""
+    path = LOGOS / f"{symbol}.png"
+    if path.exists() and path.stat().st_size > 200:
+        return
+    req = urllib.request.Request(LOGO_URL.format(urllib.parse.quote(symbol)), headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        raw = r.read(2 * 1024 * 1024 + 1)
+    if not raw.startswith(b"\x89PNG") or len(raw) > 2 * 1024 * 1024:
+        raise ValueError("not a PNG")
+    LOGOS.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(raw)
 
 
 def profiles(symbols):
@@ -265,6 +298,10 @@ def main():
                 log(f"{t}: {type(e).__name__}: {e}; keeping the record of {old[t].get('fetched')}", "warning")
             else:
                 log(f"{t}: {type(e).__name__}: {e}; no record yet", "warning")
+        try:
+            logo(t)
+        except Exception as e:  # noqa: BLE001
+            log(f"{t} logo: {type(e).__name__}: {e}", "notice")
         time.sleep(0.4)
     try:
         spx, _, _ = chart("^GSPC")
