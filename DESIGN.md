@@ -404,7 +404,7 @@ Self-hosted variable font: `assets/fonts/schibsted-grotesk-latin.woff2`, `font-w
 No uppercase, no letter-spaced labels, no italics are used.
 
 ### Named Rules
-**The Tabular Numbers Rule.** `font-variant-numeric: tabular-nums` is applied only to elements that hold numbers: tape levels and changes, chip counts, and calendar time, consensus and prior cells. Never on prose or punctuation-bearing text; the mobile calendar's text labels (`Consensus`, `Prior`) reset to `normal`.
+**The Tabular Numbers Rule.** `font-variant-numeric: tabular-nums` is applied only to elements that hold numbers: tape levels and changes and chip counts. Never on prose or punctuation-bearing text: the calendar's times and figures stay proportional, because tabular colons and points open wide gaps in this face ("10 : 00").
 
 **The One Family Rule.** Every `font-family` resolves to the single `--font` stack ending in `sans-serif`. Form controls use `font: inherit`.
 
@@ -421,11 +421,11 @@ Two-part section splits: content in columns 1 to 6 (or 1 to 8 for the About stat
 **Nav height.** `--nav-h` = `64px`. `scroll-padding-top` is `nav-h + 16px` so anchors land clear of the fixed header.
 
 **Breakpoints (max-width) and what each collapses:**
-- **1100px:** dashboard grid 3 to 2 columns.
+- **1100px:** dashboard grid 3 to 2 columns; the calendar drops its Type column.
 - **1020px:** primary nav becomes the mobile sheet; the menu button appears; Subscribe appears as the last item in the sheet; header gap tightens 24px to 8px.
 - **960px:** note, Learn, About, signup columns and the footer brand go full width; footer nav and social split 6/6; Lab tools go full width; in the mixed Watch layout the grid becomes 2 columns with the YouTube frame spanning both at 16:9 (the TikTok-only row keeps 4).
 - **860px:** hero horse moves to `x 52%`, `y 36%` (above the headline).
-- **640px:** section padding 72px; body 1rem; section heads stack; tape columns become `40vw` each; dashboard tiles compact (still 2 columns, 14px padding, description hidden, title 1rem, source and key 0.75rem); calendar becomes stacked rows (see Components); note archive stacks date over title; Watch becomes a horizontal snap scroller (wide 84vw, tall 44vw); signup input and button stack; hero buttons stretch; footer links grow to 44px.
+- **640px:** section padding 72px; body 1rem; section heads stack; tape columns become `40vw` each; dashboard tiles compact (still 2 columns, 14px padding, description hidden, title 1rem, source and key 0.75rem); calendar becomes stacked rows and its filter labels sit above their chips (see Components); note archive stacks date over title; Watch becomes a horizontal snap scroller (wide 84vw, tall 44vw); signup input and button stack; hero buttons stretch; footer links grow to 44px.
 - **520px:** header Subscribe button hidden (the sheet and hero carry it); menu button shows its icon only; horse size `180vw`, `y 27%`.
 
 Tap targets are at least 44px (chips, links, theme and menu buttons, tape note link, footer links on mobile); buttons are 48px (40px small, 52px in the signup row).
@@ -520,10 +520,23 @@ Owner-approved from the Commodities mock. One page per dashboard, `dashboards/<s
 - **Hover:** card fills to `--plate-hover` over 200ms.
 - **"Next in the Lab":** full-width row, transparent with a `--plate-rule` outline, title at 1.25rem, text and a Subscribe link in a wrapping row.
 
-### Calendar table
-- **Desktop:** a full-width table with a `--rule-strong` top rule; columns Time, Event, Type, Consensus, Prior. Head cells 0.8125rem/500 ink-2. Rows are grouped by day: each day is its own `<tbody>` opened by a day row (0.875rem/600 ink, 28px top padding, 16px for the first day, `--rule-strong` bottom rule). Event cells are 1.0625rem/540, 40% wide; time 6rem; cells padded 16px with `--rule` bottom borders.
-- **Type tag:** square outline tag, 0.8125rem ink-2, padding 2px 8px, `--rule` border; Fed tags use `--rule-strong` border and ink text. Types: Macro, Earnings, Fed. No colour.
-- **Mobile (640px and below):** the header row is hidden; each event row becomes a grid of `4.5rem | 1fr | auto`: time, event (1rem) and type tag on line one, consensus and prior on line two at 0.875rem ink-2 with their text label prefixed from `data-label`. Empty cells disappear. Day rows become plain block headings with a strong rule.
+### Calendar (owner-approved mock, 22 Oct 2026)
+One component, `.cl__table`, on three surfaces: the calendar page (`calendar/`), one archive page per week (`calendar/week/<monday>/`) and the homepage section. Built from `.cache/calendar/calendar.json` (see README, Calendar data).
+- **Page head:** page title "Calendar", lede, then "Official schedules. Updated [date, time] ET." in the note meta style; `--rule-strong` under it.
+- **Week tabs:** the existing chips (`aria-pressed`, gliding fill), one per week, Monday to Sunday: "This week, 19 to 25 Oct", "Next week, 26 Oct to 1 Nov", then three more by range. Five weeks, so at least four lie ahead. The tab holding today's New York date is pressed on load; a `#d-YYYY-MM-DD` link opens that day's week.
+- **Filters:** three chip groups, each with a 0.8125rem ink-3 label (Type, Region, Importance) to its left; at 640px and below the label sits above its own scrolling row. Type: All, Macro, Market structure, Earnings. Region: All, US, Euro area, UK, Japan, China. Importance: All, High. A polite status line under them: "Showing all n events this week" or "Showing n of m events this week". With no JS the controls stay hidden and every week shows.
+- **Table, desktop:** `--rule-strong` top rule; columns New York, Madrid, Event, Region, Type, Importance, Previous, Actual (head cells 0.8125rem/500 ink-2). Each day is its own `<tbody>` with a day row (0.875rem/600 ink, 28px top padding, 16px for the first day, `--rule-strong` bottom rule), grouped by the New York date. Rows: 14px vertical padding, `--rule` bottom borders. Event cell 1.0625rem/540, 34% wide, linked (no underline until hover) to the publisher's page, with its source under it (0.8125rem ink-3). Times are each city's local clock ("8:30 am", "2:30 pm"), converted per date, so the weeks when only one city has changed its clocks read right. At 1100px and below the Type column hides.
+- **Order within a day:** all-day items (market structure), then by time; earnings before the open sit just before 9:30 am ET, after the close at 4:00 pm, and "Time not given" last.
+- **Importance:** text, no colour, no marker: "High" in ink at 600, "Medium" in ink-2 at 0.875rem.
+- **Previous and Actual:** Previous in ink-2. Actual, once released, is the figure as first printed, underlined in `--rule-strong` with an `arrow-up-right` icon, linked to the official release. A released event still waiting for its figure reads "Figures pending" (0.875rem ink-3). No consensus column.
+- **Earnings rows:** the two time cells merge into "Before open", "After close" or "Time not given"; under the company a square tag "Confirmed date" or "Estimated date" (`.tag`); Previous is "EPS x.xx, quarter to [Mon YYYY]" (diluted EPS a year earlier); Actual the reported diluted EPS, linked to the company's financials on Yahoo Finance.
+- **Rows without a time:** "All day" (market structure) or "Time not given" (a release the publisher dates but does not time, such as Bank of Japan decisions), across both time cells.
+- **Today:** the day row reads "Today, Thursday 22 Oct" and that day's rows sit on `--ground-2` (full bleed on mobile). Checked again in the browser against the New York date, since the page is built ahead.
+- **Mobile (640px and below):** head row hidden; each row is a grid of `4.75rem | 1fr | auto`: New York time over the Madrid time (with a 0.75rem ink-3 "Madrid" under it) on the left, the event with "[Region]. [source]" under it in the middle, importance on the right; Previous and Actual below the event at 0.875rem with their label from `data-label`. Region and Type cells hide; empty cells disappear.
+- **Sources:** an inner page section (h2 1.375rem/540) after the table: how the figures are read, then a ruled list of every source with the day of its copy (0.875rem; date ink-3, right-aligned; stacked on mobile). A failing source reads "Last good copy [date]", a figures source "Last good figures [date]", one never read yet "Not available yet". Ends "For information only. Not investment advice."
+- **Week archive page:** crumbs "Calendar / Week of [date]", title "Week of 19 Oct", the filters without tabs, the week's table, a pager (previous and next week, "The calendar, five weeks ahead"), then Sources.
+- **Homepage section:** the section head links "Full calendar" to `calendar/`; the table shows today's and the rest of the week's high-importance rows (carrying into next week late in the week), up to ten.
+- **Close notes:** from the calendar's first week on, each note's pager carries "The calendar for this session", linking to `calendar/week/<monday>/#d-<date>`.
 
 ### Daily note module
 - **Latest (columns 1 to 6):** section title, then an article: note title (note-title style, 28px above), summary (max 46ch), meta row (date and read time, 0.875rem ink-2, 20px gap), and a primary "Read the note" button.

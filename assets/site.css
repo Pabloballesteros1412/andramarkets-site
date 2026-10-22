@@ -1091,49 +1091,147 @@ ul {
   }
 }
 
-/* Calendar */
+/* Calendar: owner-approved mock, 22 Oct 2026 (DESIGN.md, Calendar) */
 
-.cal-wrap {
-  overflow-x: auto;
+.cl__head {
+  max-width: 44rem;
+}
+
+.cl__controls {
+  margin-top: clamp(24px, 4vw, 40px);
+}
+
+.cl__weeks {
+  margin-bottom: 20px;
+}
+
+.cl__groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+}
+
+.cl__group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.cl__glabel {
+  flex: none;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.cl__group .filters {
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+.cl-wrap {
   border-top: 1px solid var(--rule-strong);
 }
 
-.cal {
+.cl__table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9375rem;
 }
 
-.cal__time,
-.cal__cons,
-.cal__prior {
-  font-variant-numeric: tabular-nums;
-}
-
-.cal th,
-.cal td {
-  padding: 16px 16px 16px 0;
+.cl__table th,
+.cl__table td {
+  padding: 14px 16px 14px 0;
   text-align: left;
   vertical-align: baseline;
   border-bottom: 1px solid var(--rule);
   white-space: nowrap;
 }
 
-.cal thead th {
+.cl__table thead th {
   padding-block: 12px;
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--ink-2);
 }
 
-.cal tbody th {
-  font-weight: 540;
+.cl__table tbody th[scope="row"] {
+  width: 34%;
   font-size: 1.0625rem;
+  font-weight: 540;
   white-space: normal;
-  width: 40%;
 }
 
-.cal__day th {
+.cl__table tbody[hidden],
+.cl__table tr[hidden] {
+  display: none;
+}
+
+.cl__ev {
+  display: block;
+}
+
+.cl__src {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cl__meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.cl__mregion {
+  display: none;
+}
+
+.cl__table tbody th .tag {
+  margin-top: 6px;
+  font-weight: 400;
+}
+
+.cl__ny,
+.cl__md {
+  width: 5.5rem;
+}
+
+.cl__md,
+.cl__region,
+.cl__prior {
+  color: var(--ink-2);
+}
+
+.cl__imp {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.cl__imp[data-imp="High"] {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.cl__act {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 550;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.22em;
+}
+
+.cl__pending {
+  font-size: 0.875rem;
+  color: var(--ink-3);
+  white-space: normal;
+}
+
+.cl__day th {
   padding-top: 28px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -1141,12 +1239,88 @@ ul {
   border-bottom-color: var(--rule-strong);
 }
 
-.cal tbody:first-of-type .cal__day th {
+.cl__table tbody:first-of-type .cl__day th {
   padding-top: 16px;
 }
 
-.cal__time {
-  width: 6rem;
+.is-today .cl__row {
+  background: var(--ground-2);
+}
+
+.is-today .cl__row > :first-child {
+  padding-left: 12px;
+}
+
+.is-today .cl__row > :last-child {
+  padding-right: 16px;
+}
+
+.cl__empty,
+.cl__none {
+  padding: 24px 0;
+  color: var(--ink-2);
+}
+
+.cl__sources {
+  max-width: 44rem;
+  margin-top: clamp(48px, 8vw, 88px);
+}
+
+.cl__sources h2 {
+  margin: 0 0 12px;
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.cl__sources p {
+  max-width: 65ch;
+  margin: 0 0 12px;
+  color: var(--ink-2);
+}
+
+.cl__srclist {
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule);
+}
+
+.cl__srclist li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.875rem;
+}
+
+.cl__srclist a {
+  color: var(--ink);
+}
+
+.cl__srclist span:last-child {
+  color: var(--ink-3);
+  text-align: right;
+}
+
+.cl .report__pager {
+  margin-top: 32px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cl__src:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 0.18em;
+  }
+}
+
+@media (max-width: 1100px) {
+  .cl__table .cl__type,
+  .cl__table thead th:nth-child(5) {
+    display: none;
+  }
 }
 
 .tag {
@@ -1155,11 +1329,6 @@ ul {
   border: 1px solid var(--rule);
   font-size: 0.8125rem;
   color: var(--ink-2);
-}
-
-.tag--fed {
-  border-color: var(--rule-strong);
-  color: var(--ink);
 }
 
 /* Daily note */
@@ -1736,73 +1905,123 @@ ul {
   .dash-tile .key__note {
     flex-basis: 100%;
   }
-  .cal thead {
-    display: none;
-  }
-  .cal-wrap {
-    border-top: 0;
-  }
-  .cal,
-  .cal tbody,
-  .cal tr,
-  .cal th,
-  .cal td {
+  .cl__groups {
     display: block;
   }
-  .cal tr {
+  .cl__group {
+    display: block;
+  }
+  .cl__group + .cl__group {
+    margin-top: 12px;
+  }
+  .cl__glabel {
+    display: block;
+    margin-bottom: 4px;
+  }
+  .cl__group .filters {
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+  }
+  .cl-wrap {
+    border-top: 0;
+  }
+  .cl__table thead {
+    display: none;
+  }
+  .cl__table,
+  .cl__table tbody,
+  .cl__table tr,
+  .cl__table th,
+  .cl__table td {
+    display: block;
+  }
+  .cl__table tr.cl__row {
     display: grid;
-    grid-template-columns: 4.5rem minmax(0, 1fr) auto;
-    gap: 6px 12px;
+    grid-template-columns: 4.75rem minmax(0, 1fr) auto;
+    gap: 4px 12px;
     padding: 14px 0;
     border-bottom: 1px solid var(--rule);
   }
-  .cal tr.cal__day {
-    display: block;
+  .cl__table tr.cl__day {
     padding: 24px 0 8px;
-    border-bottom-color: var(--rule-strong);
+    border-bottom: 1px solid var(--rule-strong);
   }
-  .cal th,
-  .cal td {
+  .cl__table th,
+  .cl__table td {
     padding: 0;
     border: 0;
     white-space: normal;
   }
-  .cal__day th {
+  .cl__table .cl__day th,
+  .cl__table tbody:first-of-type .cl__day th {
     padding: 0;
   }
-  .cal tbody th[scope="row"] {
-    grid-column: 2;
+  .cl__ny {
+    grid-column: 1;
     grid-row: 1;
+  }
+  .cl__md {
+    grid-column: 1;
+    grid-row: 2;
+    font-size: 0.875rem;
+  }
+  .cl__md::after {
+    content: "Madrid";
+    display: block;
+    font-size: 0.75rem;
+    color: var(--ink-3);
+  }
+  .cl__ny[colspan] {
+    grid-row: 1 / 3;
+    font-size: 0.875rem;
+  }
+  .cl__table tbody th[scope="row"] {
+    grid-column: 2;
+    grid-row: 1 / 3;
     width: auto;
     font-size: 1rem;
   }
-  .cal__time {
-    width: auto;
-  }
-  .cal__type {
+  .cl__imp {
     grid-column: 3;
     grid-row: 1;
+    text-align: right;
   }
-  .cal__cons,
-  .cal__prior {
-    grid-row: 2;
+  .cl__table .cl__region,
+  .cl__table .cl__type {
+    display: none;
+  }
+  .cl__mregion {
+    display: inline;
+  }
+  .cl__prior,
+  .cl__actual {
+    grid-column: 2 / 4;
     font-size: 0.875rem;
     color: var(--ink-2);
   }
-  .cal__cons {
-    grid-column: 2;
-  }
-  .cal__prior {
-    grid-column: 3;
-  }
-  .cal__cons:empty,
-  .cal__prior:empty {
+  .cl__table .cl__prior:empty,
+  .cl__table .cl__actual:empty {
     display: none;
   }
-  .cal__cons::before,
-  .cal__prior::before {
+  .cl__prior::before,
+  .cl__actual::before {
     content: attr(data-label) " ";
-    font-variant-numeric: normal;
+    color: var(--ink-3);
+  }
+  .cl__table .is-today tr.cl__row {
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+  }
+  .cl__table .is-today .cl__row > :first-child,
+  .cl__table .is-today .cl__row > :last-child {
+    padding-inline: 0;
+  }
+  .cl__srclist li {
+    flex-direction: column;
+    gap: 2px;
+  }
+  .cl__srclist span:last-child {
+    text-align: left;
   }
   .note-list a {
     grid-template-columns: minmax(0, 1fr) 20px;
