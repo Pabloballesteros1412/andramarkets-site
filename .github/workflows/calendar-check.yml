@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "tools/calendar_data.py"
+      - "tools/dashboard_data.py"
       - "tools/build_site.py"
       - "assets/calendar.js"
       - ".github/workflows/calendar-check.yml"
@@ -26,6 +27,8 @@ jobs:
         with:
           python-version: "3.12"
       - name: Fetch every source
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python3 tools/calendar_data.py --probe
       - name: Build with the fetched calendar
         run: |

@@ -53,6 +53,7 @@ jobs:
       - name: Fetch dashboard figures
         env:
           AGENT_ARTIFACTS_TOKEN: ${{ secrets.AGENT_ARTIFACTS_TOKEN }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python3 tools/dashboard_data.py
       - name: Save dashboard figures
         uses: actions/cache/save@v4
@@ -68,6 +69,8 @@ jobs:
           key: calendar-${{ github.run_id }}
           restore-keys: calendar-
       - name: Fetch calendar
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python3 tools/calendar_data.py
       - name: Save calendar
         uses: actions/cache/save@v4
