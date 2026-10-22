@@ -226,8 +226,9 @@ an excerpt of any page that failed to parse.
 
 Everything in square brackets on the site is a placeholder, never invented
 data: Lab
-parameters and upcoming tools, video titles and durations, copyright year, and
-the Methodology sections. The tape and the daily note module fill themselves
+parameters and upcoming tools, video titles and durations, and the copyright year.
+The Methodology page (`methodology()` in `tools/build_site.py`) describes the
+note pipeline, sources and limits: update it when a source or check changes. The tape and the daily note module fill themselves
 once the first close note is published.
 
 Social channels live in `SOCIALS` and the Watch videos in `VIDEOS`, both at the
