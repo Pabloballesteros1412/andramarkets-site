@@ -1450,6 +1450,9 @@ STOXX600_HOLDINGS = [
     "https://www.ishares.com/de/privatanleger/de/produkte/251931/ishares-stoxx-europe-600-ucits-etf-de-fund/"
     "1478358465952.ajax?fileType=csv&fileName=EXSA_holdings&dataType=fund",
 ]
+# When a holdings address serves the fund's web page instead (iShares has rebuilt
+# its site), the page's own download link for the holdings is followed.
+HOLDINGS_LINK = re.compile(r'(?:fileType=csv|holdings[^"\'<>\s]*\.(?:csv|xlsx)|[Hh]oldings[^"\'<>\s]*download)')
 EXCHANGE_SUFFIX = [("london", ".L"), ("xetra", ".DE"), ("deutsche b", ".DE"), ("frankfurt", ".DE"),
                    ("amsterdam", ".AS"), ("paris", ".PA"), ("brussels", ".BR"), ("lisbon", ".LS"),
                    ("italiana", ".MI"), ("milan", ".MI"), ("madrid", ".MC"), ("bolsa", ".MC"), ("swiss", ".SW"),
@@ -1479,6 +1482,21 @@ def stoxx600_members():
         lines = raw.lstrip("\ufeff").splitlines()
         # The English file separates with commas, the German one with semicolons.
         head = next((i for i, ln in enumerate(lines) if re.search(r'(^|[,;])"?(Ticker|Emittententicker)"?[,;]', ln)), None)
+        if head is None and raw.lstrip().lower().startswith("<!doctype html"):
+            found = [h for h, _ in links(raw, url) if HOLDINGS_LINK.search(h)]
+            if PROBE:
+                hrefs = sorted({h for h, t in links(raw, url) if re.search(r"csv|xls|holding|download|bestand|positionen",
+                                                                          h + " " + t, re.I)})
+                print(f"    {url[:70]}... served the fund page; download-like links: {hrefs[:12]}")
+            if found:
+                try:
+                    raw = text(found[0])
+                except Exception as e:  # noqa: BLE001
+                    last = e
+                    continue
+                lines = raw.lstrip("\ufeff").splitlines()
+                head = next((i for i, ln in enumerate(lines)
+                             if re.search(r'(^|[,;])"?(Ticker|Emittententicker)"?[,;]', ln)), None)
         if head is None:
             if PROBE:
                 print(f"    {url[:70]}... answered: " + re.sub(r"\s+", " ", raw[:400]))
