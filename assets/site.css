@@ -3479,20 +3479,30 @@ html.js .acc__item:not(.is-open) .acc__panel p {
   max-width: none;
 }
 
-.co-title {
+/* The logo fills the empty right side of the head, as tall as its text. */
+.co-head--logo {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 16px clamp(16px, 4vw, 48px);
+  column-gap: clamp(24px, 5vw, 80px);
+  align-items: start;
+}
+
+.co-head--logo > * {
+  grid-column: 1;
+}
+
+.co-head--logo > .co-logo {
+  grid-column: 2;
+  grid-row: 1 / span 6;
+  align-self: center;
 }
 
 .co-logo {
   display: grid;
   place-items: center;
-  width: clamp(72px, 12vw, 152px);
+  width: clamp(160px, 24vw, 320px);
   aspect-ratio: 1;
-  max-width: 100%;
-  padding: clamp(10px, 1.6vw, 20px);
+  padding: clamp(20px, 3vw, 40px);
   background: #ffffff;
   border: 1px solid var(--rule);
 }
@@ -3502,6 +3512,23 @@ html.js .acc__item:not(.is-open) .acc__panel p {
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+.co-logo--light {
+  background: #0e1215;
+  border-color: #0e1215;
+}
+
+@media (max-width: 760px) {
+  .co-head--logo > *:not(.dd__crumbs):not(.page__title):not(.co-logo) {
+    grid-column: 1 / -1;
+  }
+  .co-head--logo > .co-logo {
+    grid-row: 1 / span 2;
+    align-self: start;
+    width: clamp(72px, 22vw, 120px);
+    padding: 10px;
+  }
 }
 
 .co-lead {
