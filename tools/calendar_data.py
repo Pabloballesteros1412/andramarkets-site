@@ -1445,6 +1445,8 @@ def usd_cap(q, rates):
 # Europe 600 ETF (EXSA). Each holding's exchange (or, failing that, its
 # country) gives the Yahoo Finance suffix.
 STOXX600_HOLDINGS = [
+    # The rebuilt site's holdings file, linked from the fund page (22 Oct 2026).
+    "https://www.ishares.com/de/privatanleger/de/produkte/251931/ishares-stoxx-europe-600-ucits-etf-de/latest-holdings.csv",
     "https://www.ishares.com/uk/individual/en/products/251931/ishares-stoxx-europe-600-ucits-etf-de-fund/"
     "1478358465952.ajax?fileType=csv&fileName=EXSA_holdings&dataType=fund",
     "https://www.ishares.com/de/privatanleger/de/produkte/251931/ishares-stoxx-europe-600-ucits-etf-de-fund/"
@@ -1452,7 +1454,7 @@ STOXX600_HOLDINGS = [
 ]
 # When a holdings address serves the fund's web page instead (iShares has rebuilt
 # its site), the page's own download link for the holdings is followed.
-HOLDINGS_LINK = re.compile(r'(?:fileType=csv|holdings[^"\'<>\s]*\.(?:csv|xlsx)|[Hh]oldings[^"\'<>\s]*download)')
+HOLDINGS_LINK = re.compile(r'(?:holdings\.csv|fileType=csv|holdings[^"\'<>\s]*\.(?:csv|xlsx)|[Hh]oldings[^"\'<>\s]*download)')
 EXCHANGE_SUFFIX = [("london", ".L"), ("xetra", ".DE"), ("deutsche b", ".DE"), ("frankfurt", ".DE"),
                    ("amsterdam", ".AS"), ("paris", ".PA"), ("brussels", ".BR"), ("lisbon", ".LS"),
                    ("italiana", ".MI"), ("milan", ".MI"), ("madrid", ".MC"), ("bolsa", ".MC"), ("swiss", ".SW"),
@@ -1483,7 +1485,9 @@ def stoxx600_members():
         # The English file separates with commas, the German one with semicolons.
         head = next((i for i, ln in enumerate(lines) if re.search(r'(^|[,;])"?(Ticker|Emittententicker)"?[,;]', ln)), None)
         if head is None and raw.lstrip().lower().startswith("<!doctype html"):
-            found = [h for h, _ in links(raw, url) if HOLDINGS_LINK.search(h)]
+            # A plain .csv file first; never the address that served this page.
+            found = [h for h, _ in links(raw, url) if HOLDINGS_LINK.search(h) and h.split("#")[0] != url]
+            found.sort(key=lambda h: not h.split("?")[0].endswith(".csv"))
             if PROBE:
                 hrefs = sorted({h for h, t in links(raw, url) if re.search(r"csv|xls|holding|download|bestand|positionen",
                                                                           h + " " + t, re.I)})
