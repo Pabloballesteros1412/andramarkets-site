@@ -1732,6 +1732,20 @@ ul {
   color: var(--ink-3);
 }
 
+/* Learn pages (learn/, learn/<slug>/) */
+
+.learnp__list {
+  max-width: 44rem;
+}
+
+.page__body .learnp__src li {
+  color: var(--ink-2);
+}
+
+.learnp__src a {
+  overflow-wrap: anywhere;
+}
+
 /* About */
 
 .about {

@@ -10,6 +10,7 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `tools/company_data.py`: fetches the figures behind the company pages (the 50 largest S&P 500 companies) at deploy time, into `.cache/companies/`.
 - `tools/calendar_data.py`: fetches the calendar at deploy time (below).
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
+- `tools/learn_content.py`: the text and sources of the six Learn explainers (`learn/`).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
 - `data/notes/<date>.json`: one record per close note: its text and the ten

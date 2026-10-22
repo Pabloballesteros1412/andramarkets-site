@@ -573,6 +573,10 @@ An inner page, one per note.
 - **Feature (columns 1 to 6):** a `--ground-2` panel, padding `clamp(20px, 2.4vw, 32px)`, explainer diagram on top with its key ending in the stamp "Diagram, not market data", then the title (feature-title style, 28px above), description (ink-2, max 46ch) and read time.
 - **List (columns 8 to 12):** `--rule-strong` top rule, ruled rows with title (1.1875rem/540), description (0.9375rem ink-2) and read time (0.8125rem ink-3).
 - **Hover:** titles underline (1px, offset 0.18em).
+- **Links:** the feature and rows open the explainers; the section head links "All explainers" to `learn/`.
+
+### Learn pages (`learn/`, `learn/<slug>/`)
+Six evergreen explainers from `tools/learn_content.py`, 600 to 900 words each, neutral, sourced to official or academic references cited by title and publisher (no personal names), no current figures. **Index:** inner page head, then the Learn list rows (title, description, read time at 230 words a minute) at 44rem. **Explainer:** inner page; head with crumbs ("Learn / Explainer"), page title, the description as lede, read time in the note meta style; body sections (h2 1.375rem/540, ink-2 paragraphs); "See it live" with a text link to the matching dashboard (earnings season links to the calendar, which carries the earnings rows); "Sources" as a `.ruled` ordered list of links, then "For information only. Not investment advice."; a pager (previous, next, all explainers).
 
 ### Video placeholder frame
 - **Frame:** square-cornered, `--video-ground` fill in both themes, 1px `--rule` border, 16:9 (YouTube) or 9:16 (TikTok). The horse sits inside as a centred, contained background at `screen` blend and 0.22 opacity.
