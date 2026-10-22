@@ -7,7 +7,8 @@ S&P 500 and, for each, the figures its page draws. build_site.py reads it;
 with no file there are no company pages.
 
 Sources:
-    Financial Modeling Prep  company logos (image-stock), fetched once and kept
+    Wikidata, Commons  official company logos as SVG (property P154), fetched
+                       once and kept; Financial Modeling Prep's PNG where none
     State Street       the SPY ETF's daily holdings: which companies, ranked
                        by their weight in the index (one per company, so
                        Alphabet appears once)
@@ -83,6 +84,10 @@ HISTORY_ANNUAL = ["TotalRevenue", "NetIncomeCommonStockholders", "OperatingCashF
 HISTORY_QUARTERLY = ["TotalRevenue", "DilutedEPS", "NetIncomeCommonStockholders"]
 LOGOS = CACHE.parent / "logos"
 LOGO_URL = "https://financialmodelingprep.com/image-stock/{}.png"
+WIKIDATA = "https://query.wikidata.org/sparql"
+# Where Wikidata lists several logos for a company, the one to use (a word in
+# its file name); where its only file is wrong or not vector, None (PNG then).
+LOGO_PICK = {"GOOGL": "Alphabet", "GOOG": "Alphabet", "AAPL": "black", "AMAT": "Applied", "WMT": "2025", "LIN": None}
 
 
 def log(msg, level="notice"):
@@ -246,18 +251,67 @@ def record(symbol, holdings_name, profile):
     }
 
 
-def logo(symbol):
-    """The company's logo (PNG with transparency), kept once fetched."""
-    path = LOGOS / f"{symbol}.png"
-    if path.exists() and path.stat().st_size > 200:
+def wikidata_logos(symbols):
+    """{ticker: Commons file URL} for the official logos on Wikidata (property
+    P154), found through each company's NYSE or Nasdaq ticker."""
+    tickers = " ".join(f'"{t.replace("-", ".")}"' for t in symbols)
+    q = ("SELECT ?ticker ?logo WHERE { VALUES ?ticker { %s } ?item p:P414 ?st . ?st pq:P249 ?ticker ; ps:P414 ?ex . "
+         "VALUES ?ex { wd:Q82059 wd:Q13677 } ?item wdt:P154 ?logo . }" % tickers)
+    req = urllib.request.Request(f"{WIKIDATA}?{urllib.parse.urlencode({'query': q, 'format': 'json'})}",
+                                 headers={"User-Agent": "andramarkets-site/1.0 (https://github.com/Pabloballesteros1412/andramarkets-site)"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        rows = json.loads(r.read())["results"]["bindings"]
+    found = {}
+    for b in rows:
+        found.setdefault(b["ticker"]["value"].replace(".", "-"), []).append(b["logo"]["value"])
+    out = {}
+    for t, urls in found.items():
+        svgs = sorted(u for u in urls if u.lower().endswith(".svg"))
+        if t in LOGO_PICK:
+            word = LOGO_PICK[t]
+            svgs = [u for u in svgs if word and word.lower() in urllib.parse.unquote(u).lower()]
+        if svgs:
+            out[t] = svgs[0]
+    return out
+
+
+def logo(symbol, svg_url=None):
+    """The company's logo, kept once fetched: the official SVG from Wikimedia
+    Commons where Wikidata has one, else a PNG from Financial Modeling Prep."""
+    LOGOS.mkdir(parents=True, exist_ok=True)
+    svg, png = LOGOS / f"{symbol}.svg", LOGOS / f"{symbol}.png"
+    if svg_url:
+        if svg.exists() and svg.stat().st_size > 100:
+            return
+        url = svg_url.replace("http://", "https://")
+        req = urllib.request.Request(url, headers={"User-Agent": "andramarkets-site/1.0 (https://github.com/Pabloballesteros1412/andramarkets-site)"})
+        # Commons asks scripts to go slowly: wait between files, and longer on a 429.
+        for wait in (20, 60, None):
+            time.sleep(2)
+            try:
+                with urllib.request.urlopen(req, timeout=30) as r:
+                    raw = r.read(3 * 1024 * 1024 + 1)
+                break
+            except urllib.error.HTTPError as e:
+                if e.code != 429 or wait is None:
+                    raise
+                time.sleep(wait)
+        head = raw[:600].lower()
+        if len(raw) > 3 * 1024 * 1024 or (b"<svg" not in head and b"<?xml" not in head):
+            raise ValueError("not an SVG")
+        # Served only through <img>, where scripts never run; dropped anyway.
+        if b"<script" in raw.lower():
+            raise ValueError("SVG with a script")
+        svg.write_bytes(raw)
+        return
+    if png.exists() and png.stat().st_size > 200:
         return
     req = urllib.request.Request(LOGO_URL.format(urllib.parse.quote(symbol)), headers={"User-Agent": UA})
     with urllib.request.urlopen(req, timeout=30) as r:
         raw = r.read(2 * 1024 * 1024 + 1)
     if not raw.startswith(b"\x89PNG") or len(raw) > 2 * 1024 * 1024:
         raise ValueError("not a PNG")
-    LOGOS.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(raw)
+    png.write_bytes(raw)
 
 
 def profiles(symbols):
@@ -284,6 +338,11 @@ def main():
     tops = members(cache)
     symbols = [t for t, _ in tops]
     prof = profiles(symbols)
+    try:
+        svgs = wikidata_logos(symbols)
+    except Exception as e:  # noqa: BLE001
+        log(f"Wikidata logos: {type(e).__name__}: {e}; PNG logos only", "notice")
+        svgs = {}
     for t in symbols:
         if t not in SECTOR and not (prof.get(t) or {}).get("sector"):
             log(f"{t}: no sector; add it to SECTORS in tools/company_data.py", "warning")
@@ -299,9 +358,14 @@ def main():
             else:
                 log(f"{t}: {type(e).__name__}: {e}; no record yet", "warning")
         try:
-            logo(t)
+            logo(t, svgs.get(t))
         except Exception as e:  # noqa: BLE001
             log(f"{t} logo: {type(e).__name__}: {e}", "notice")
+            if svgs.get(t):
+                try:
+                    logo(t)
+                except Exception as e2:  # noqa: BLE001
+                    log(f"{t} PNG logo: {type(e2).__name__}: {e2}", "notice")
         time.sleep(0.4)
     try:
         spx, _, _ = chart("^GSPC")
