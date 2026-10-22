@@ -87,7 +87,7 @@ def text(url, **kw):
     return body
 
 
-PROBE_KEYS = {"conference_board": r"[Rr]elease", "fed_g17": r"20\d\d", "fed_speeches": r"Speech",
+PROBE_KEYS = {"conference_board": r"Consumer Confidence", "fed_g17": r"2026", "fed_speeches": r"Speech|title",
               "boj": r"20\d\d|Meeting", "ecb_speeches": r"Lagarde|[Ss]peech", "ism": r"PMI|Manufacturing"}
 
 
@@ -289,14 +289,9 @@ BLS = [  # (summary starts with, title, importance, indicator, release page)
 def bls():
     ev = Events("bls")
     found = []
+    today, start, end = window()
     try:
-        for start, summary, desc, _ in ics_events(text("https://www.bls.gov/schedule/news_release/bls.ics", headers=NAVIGATE)):
-            found.append((start, f"{summary} {desc}"))
-    except Exception as e:  # noqa: BLE001  the monthly schedule pages say the same
-        log(f"bls: calendar file failed ({type(e).__name__}: {e}); reading the schedule pages", "warning")
-        today, start, end = window()
-        months = sorted({(d.year, d.month) for d in (start, today, end)})
-        for y, m in months:
+        for y, m in sorted({(d.year, d.month) for d in (start, today, end)}):
             page = text(f"https://www.bls.gov/schedule/{y}/{m:02d}_sched_list.htm", headers=NAVIGATE)
             for r in rows(page):
                 dm = re.search(r"([A-Z][a-z]+day), ([A-Z][a-z]+) (\d{1,2}), (\d{4})", r)
@@ -304,6 +299,10 @@ def bls():
                 if dm and hm and month_num(dm.group(2)):
                     d = dt.date(int(dm.group(4)), month_num(dm.group(2)), int(dm.group(3)))
                     found.append((dt.datetime(d.year, d.month, d.day, *hm, tzinfo=NY), r))
+    except Exception as e:  # noqa: BLE001  the calendar file has the dates, without reference periods
+        log(f"bls: schedule pages failed ({type(e).__name__}: {e}); reading the calendar file", "warning")
+        found = [(start_, f"{summary} {desc}") for start_, summary, desc, _ in
+                 ics_events(text("https://www.bls.gov/schedule/news_release/bls.ics", headers=NAVIGATE))]
     for start, label in found:
         day = start.astimezone(NY).date() if isinstance(start, dt.datetime) else start
         if not in_window(day):
@@ -316,7 +315,7 @@ def bls():
                        when=when, tz="America/New_York", ind=ind, ref=ref,
                        url=f"https://www.bls.gov/news.release/{page}.nr0.htm")
                 break
-    return ev.items
+    return list({e["id"]: e for e in ev.items}.values())
 
 
 BEA = [
@@ -374,7 +373,18 @@ def census():
     """The list view shows one year; the year pages it links to hold the rest."""
     ev = Events("census")
     base = "https://www.census.gov/economic-indicators/calendar-listview.html"
-    first = text(base)
+    first = ""
+    for attempt in range(3):
+        first = text(base)
+        if "Release Schedule" in first:
+            break
+        # Sometimes the indicators landing page is served instead; it links the schedule.
+        lv = [h for h, t in links(first, base) if "calendar" in h.lower() and "list" in h.lower()]
+        if lv:
+            first = text(lv[0])
+            if "Release Schedule" in first:
+                break
+        time.sleep(3)
     _, start, end = window()
     pages = {base: first}
     for y in sorted({start.year, end.year}):
@@ -412,16 +422,14 @@ def census():
 
 
 def g17():
-    """Industrial production, Federal Reserve G.17, 9:15 am ET."""
+    """Industrial production, Federal Reserve G.17, 9:15 am ET. Dates read "17-November-2026"."""
     ev = Events("fed_g17")
-    t = re.sub(r"\s+", " ", strip(text("https://www.federalreserve.gov/releases/g17/release_dates.htm")))
-    today = window()[0]
-    for m in re.finditer(r"\b([A-Z][a-z]{2,8})\.? (\d{1,2})(?:, (\d{4}))?\b", t):
-        if not month_num(m.group(1)):
+    t = strip(text("https://www.federalreserve.gov/releases/g17/release_dates.htm"))
+    for m in re.finditer(r"\b(\d{1,2})-([A-Z][a-z]+)-(\d{4})\b", t):
+        if not month_num(m.group(2)):
             continue
-        day = (dt.date(int(m.group(3)), month_num(m.group(1)), int(m.group(2))) if m.group(3)
-               else nearest_year(month_num(m.group(1)), int(m.group(2)), today))
-        if day and in_window(day):
+        day = dt.date(int(m.group(3)), month_num(m.group(2)), int(m.group(1)))
+        if in_window(day):
             ev.add(day, "Industrial production", country="US", imp="Medium", when=(9, 15),
                    tz="America/New_York", ind="ip", url="https://www.federalreserve.gov/releases/g17/current/default.htm")
     return list({e["id"]: e for e in ev.items}.values())
@@ -492,29 +500,32 @@ FED_SPEAKERS = [("Chair", "High"), ("Vice Chair for Supervision", "Medium"), ("V
 
 
 def fed_speeches():
-    """Speeches by the Chair and Vice Chairs from the Board's calendar."""
+    """Speeches by the Chair and Vice Chairs, from the data behind the Board's calendar."""
     ev = Events("fed_speeches")
-    _, start, end = window()
-    months = sorted({(d.year, d.month) for d in (start, start + dt.timedelta(days=14), end)})
-    for y, m in months:
-        page = text(f"https://www.federalreserve.gov/newsevents/{y}-{cal.month_name[m].lower()}.htm")
-        for block in re.split(r'(?i)<div class="row(?: [^"]*)?">', page)[1:]:
-            t = strip(block[:4000])
-            if "Speech" not in t:
-                continue
-            who = next(((role, imp) for role, imp in FED_SPEAKERS if re.search(rf"\b{role}\b", t)), None)
-            if not who or "Governor" in t.split("Speech")[0] and who[0] == "Chair":
-                continue
-            dm = re.search(r"\b([A-Z][a-z]+)\.? (\d{1,2}), (\d{4})", t) or re.search(r"\b(\d{1,2})/(\d{1,2})/(\d{4})", t)
-            if not dm:
-                continue
-            day = (dt.date(int(dm.group(3)), month_num(dm.group(1)), int(dm.group(2)))
-                   if not dm.group(1).isdigit() else dt.date(int(dm.group(3)), int(dm.group(1)), int(dm.group(2))))
-            if not in_window(day):
-                continue
-            name = re.search(r"(Chair|Vice Chair(?: for Supervision)?) ([A-Z][A-Za-z.\- ]+?)(?:\s{2,}| at | to |,|$)", t)
-            title = f"Speech by Fed {name.group(1)} {name.group(2).strip()}" if name else f"Speech by Fed {who[0]}"
-            ev.add(day, title, country="US", imp=who[1], when=parse_clock(t), tz="America/New_York")
+    data = json.loads(text("https://www.federalreserve.gov/json/calendar.json").lstrip("\ufeff"))
+    items = data.get("events", data) if isinstance(data, dict) else data
+    today = window()[0]
+    for e in items if isinstance(items, list) else []:
+        if not isinstance(e, dict):
+            continue
+        title = strip(str(e.get("title") or ""))
+        kind = str(e.get("type") or "")
+        if "Speech" not in kind and not title.startswith("Speech"):
+            continue
+        who = next(((role, imp) for role, imp in FED_SPEAKERS if re.search(rf"\b{role}\b", title)), None)
+        if not who or "Governor" in title.split(who[0])[0]:
+            continue
+        month = str(e.get("month") or "")
+        days = re.findall(r"\d{1,2}", str(e.get("days") or ""))
+        if not re.fullmatch(r"\d{4}-\d{2}", month) or not days:
+            continue
+        day = dt.date(int(month[:4]), int(month[5:]), int(days[0]))
+        if not in_window(day):
+            continue
+        name = re.search(r"(Vice Chair for Supervision|Vice Chair|Chair) ([A-Z][A-Za-z.\- ]+?)(?:$| at | on | to |,| -)", title)
+        label = f"Speech by Fed {name.group(1)} {name.group(2).strip()}" if name else f"Speech by Fed {who[0]}"
+        ev.add(day, label, country="US", imp=who[1], when=parse_clock(str(e.get("time") or "")), tz="America/New_York")
+    del today
     return ev.items
 
 
@@ -623,16 +634,28 @@ def pmi():
 
 
 def conference_board():
+    """The topic page shows the last release; the next is on the Release Calendar it links."""
     ev = Events("conference_board")
-    page = strip(text("https://www.conference-board.org/topics/consumer-confidence"))
-    for m in re.finditer(r"([A-Z][a-z]+), ([A-Z][a-z]+) (\d{1,2}), (\d{4})(?:,? (?:at )?(\d{1,2}(?::\d{2})? ?[ap]\.?m\.?))?", page):
-        if not month_num(m.group(2)):
+    base = "https://www.conference-board.org/topics/consumer-confidence"
+    page = text(base)
+    cal_pages = [h for h, t in links(page, base) if t.strip().lower() == "release calendar"]
+    if cal_pages:
+        page = text(cal_pages[0])
+    t = re.sub(r"\s+", " ", strip(page))
+    for m in re.finditer(r"Consumer Confidence", t):
+        near = t[max(0, m.start() - 160):m.end() + 160]
+        dm = re.search(r"([A-Z][a-z]+)\.? (\d{1,2}),? (\d{4})", near) or re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", near)
+        if not dm:
             continue
-        day = dt.date(int(m.group(4)), month_num(m.group(2)), int(m.group(3)))
-        ctx = page[max(0, m.start() - 80):m.start()].lower()
-        if in_window(day) and "release" in ctx:
+        if dm.group(1).isdigit():
+            day = dt.date(int(dm.group(3)), int(dm.group(1)), int(dm.group(2)))
+        elif month_num(dm.group(1)):
+            day = dt.date(int(dm.group(3)), month_num(dm.group(1)), int(dm.group(2)))
+        else:
+            continue
+        if in_window(day):
             ev.add(day, "Consumer confidence (Conference Board)", country="US", imp="High",
-                   when=parse_clock(m.group(5) or "") or (10, 0), tz="America/New_York")
+                   when=parse_clock(near[dm.end():dm.end() + 30]) or (10, 0), tz="America/New_York", url=base)
     return list({e["id"]: e for e in ev.items}.values())
 
 
@@ -678,18 +701,27 @@ def ecb():
 
 
 def ecb_speeches():
+    """Speeches and hearings by the President from the ECB's weekly schedule."""
     ev = Events("ecb_speeches")
-    page = text("https://www.ecb.europa.eu/press/calendars/weekly/html/index.en.html")
-    for d, what in re.findall(r"(?is)<dt[^>]*>(.*?)</dt>\s*<dd[^>]*>(.*?)</dd>", page):
-        dm = re.search(r"(\d{1,2})/(\d{1,2})/(\d{4})", strip(d))
-        t = strip(what)
-        if not dm or "Lagarde" not in t or not re.search(r"speech|remarks|address|testimony|hearing", t, re.I):
+    t = re.sub(r"\s+", " ", strip(text("https://www.ecb.europa.eu/press/calendars/weekly/html/index.en.html")))
+    heads = list(re.finditer(r"(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), (\d{1,2}) ([A-Z][a-z]+) (\d{4})(?! -)", t))
+    for i, h in enumerate(heads):
+        if not month_num(h.group(2)):
             continue
-        day = dt.date(int(dm.group(3)), int(dm.group(2)), int(dm.group(1)))
-        if in_window(day):
-            hm = parse_clock(t)
-            title = "ECB President Lagarde testifies" if re.search(r"hearing|testimony", t, re.I) else "Speech by ECB President Lagarde"
-            ev.add(day, title, country="Euro area", imp="Medium", when=hm, tz="Europe/Berlin")
+        day = dt.date(int(h.group(3)), month_num(h.group(2)), int(h.group(1)))
+        chunk = t[h.end():heads[i + 1].start() if i + 1 < len(heads) else len(t)]
+        for entry in re.split(r"(?=Board member: )", chunk):
+            if "Lagarde" not in entry:
+                continue
+            what = re.search(r"Event: (.+?)(?: Time: | Venue: | Contact | Text: |$)", entry)
+            what = what.group(1) if what else ""
+            if not re.search(r"speech|remarks|address|hearing|testimony|introductory statement", what, re.I):
+                continue
+            hm = re.search(r"Time: (\d{1,2}:\d{2})", entry)
+            title = ("ECB President Lagarde at the European Parliament" if re.search(r"hearing|Parliament", what, re.I)
+                     else "Speech by ECB President Lagarde")
+            if in_window(day):
+                ev.add(day, title, country="Euro area", imp="Medium", when=hm.group(1) if hm else None, tz="Europe/Berlin")
     return list({e["id"]: e for e in ev.items}.values())
 
 
@@ -782,25 +814,45 @@ def ons():
     return list({e["id"]: e for e in ev.items}.values())
 
 
+def boj_dates(cell, year):
+    """Dates in a cell like "Oct. 29 (Thurs.), 30 (Fri.)" or "Apr. 30 (Thurs.), May 1 (Fri.)"."""
+    out, month = [], None
+    for mon, d, y in re.findall(r"(?:([A-Z][a-z]{2,8})\.? )?(\d{1,2}) \([A-Z][a-z]{2,4}\.?\)(?:, (\d{4}))?", cell):
+        if mon and month_num(mon):
+            month = month_num(mon)
+        if month:
+            out.append(dt.date(int(y) if y else year, month, int(d)))
+    return out
+
+
 def boj():
     ev = Events("boj")
-    page = text("https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm")
     url = "https://www.boj.or.jp/en/mopo/mpmsche_minu/index.htm"
-    for r in rows(page):
-        # "October 29 (Thu.), 30 (Fri.)" or "Apr. 30 (Thu.), May 1 (Fri.)"; the year is in the table caption.
-        y = re.search(r"\b(20\d\d)\b", r)
-        dates = re.findall(r"\b([A-Z][a-z]{2,8})\.? (\d{1,2}) \(([A-Z][a-z]{2})\.?\)(?:, (\d{1,2}) \(([A-Z][a-z]{2})\.?\))?", r)
-        if not dates:
+    page = text(url)
+    for table in re.findall(r"(?is)<table\b.*?</table>", page):
+        y = re.search(r"Table\s*:\s*(\d{4})|<caption[^>]*>\D*(\d{4})", table)
+        if not y:
             continue
-        mon, d1, _, d2, _ = dates[0]
-        if not month_num(mon):
-            continue
-        year = int(y.group(1)) if y else window()[0].year
-        last_mon, last_day = (dates[1][0], dates[1][1]) if len(dates) > 1 and month_num(dates[1][0]) else (mon, d2 or d1)
-        day = dt.date(year, month_num(last_mon), int(last_day))
-        if in_window(day):
-            ev.add(day, "Bank of Japan rate decision", country="Japan", imp="High", url=url,
-                   extra={"no_time": True})
+        year = int(y.group(1) or y.group(2))
+        for row in re.findall(r"(?is)<tr\b.*?</tr>", table):
+            cells = [strip(c) for c in re.findall(r"(?is)<t[hd]\b[^>]*>(.*?)</t[hd]>", row)]
+            if len(cells) < 4:
+                continue
+            meeting = boj_dates(cells[0], year)
+            if not meeting:
+                continue
+            day = meeting[-1]
+            if in_window(day):
+                ev.add(day, "Bank of Japan rate decision", country="Japan", imp="High", url=url,
+                       extra={"no_time": True})
+            for d in boj_dates(cells[2], year):
+                if in_window(d):
+                    ev.add(d, f"Bank of Japan summary of opinions, {day.day} {cal.month_abbr[day.month]} meeting",
+                           country="Japan", imp="Medium", when=(8, 50), tz="Asia/Tokyo", url=url)
+            for d in boj_dates(cells[3], year):
+                if in_window(d):
+                    ev.add(d, f"Bank of Japan minutes, {meeting[0].day} {cal.month_abbr[meeting[0].month]} meeting",
+                           country="Japan", imp="Medium", when=(8, 50), tz="Asia/Tokyo", url=url)
     return list({e["id"]: e for e in ev.items}.values())
 
 
@@ -951,7 +1003,8 @@ SOURCES = {
 }
 # Sources that always have something in a five-week window: an empty answer
 # means the page changed, so it counts as a failure and the last copy stays.
-EXPECTED = {"bls", "census", "dol", "eurostat", "ons", "treasury", "market", "spglobal", "nbs"}
+EXPECTED = {"bls", "census", "dol", "eurostat", "ons", "treasury", "market", "spglobal", "nbs", "fed_g17",
+            "conference_board"}
 
 
 # Previous and Actual ----------------------------------------------------------
