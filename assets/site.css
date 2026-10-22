@@ -1650,6 +1650,82 @@ ul {
   }
 }
 
+/* Watch page (watch/): TikTok's official embeds, newest first. */
+
+.wfeed {
+  max-width: 780px;
+  min-height: 480px;
+  padding-top: clamp(24px, 4vw, 40px);
+}
+
+.wfeed.is-failed {
+  min-height: 0;
+}
+
+.wfeed__embed {
+  margin: 0;
+  max-width: 780px;
+  min-width: 288px;
+}
+
+.wfeed__embed a {
+  color: var(--ink);
+  font-weight: 550;
+  text-underline-offset: 0.22em;
+  text-decoration-color: var(--rule-strong);
+}
+
+.wfeed__status {
+  margin-top: 12px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.wfeed__status:empty {
+  display: none;
+}
+
+.wv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: clamp(16px, 2vw, 32px);
+  padding-top: clamp(24px, 4vw, 40px);
+}
+
+.wv__frame {
+  aspect-ratio: 9 / 16;
+  background: var(--video-ground);
+  border: 1px solid var(--rule);
+}
+
+.wv__frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.wv__title {
+  margin-top: 12px;
+  font-weight: 540;
+}
+
+.wv__meta {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.watchp__more {
+  margin-top: 32px;
+}
+
+.watchp__legal {
+  margin-top: 8px;
+  max-width: 65ch;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
 /* About */
 
 .about {

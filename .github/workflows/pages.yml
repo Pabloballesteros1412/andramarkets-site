@@ -103,6 +103,7 @@ jobs:
           mkdir _site
           cp -r index.html methodology reports dashboards calendar assets _site/
           if [ -d companies ]; then cp -r companies _site/; fi
+          cp -r watch _site/
           rm -rf _site/assets/icons
       # The site is free: no PDF or data file may ever be published.
       - name: Check no downloads are published

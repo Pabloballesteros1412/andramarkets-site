@@ -579,7 +579,10 @@ An inner page, one per note.
 - **Platform label:** bottom left, 0.8125rem `--video-ink-2`, with the platform icon.
 - **Below the frame:** title (540, an ink placeholder) and duration (0.8125rem).
 - **Layout:** built from `VIDEOS` in `tools/build_site.py`; only channels with a URL render. TikTok only (current): `.watch-grid--tall`, four equal 9:16 frames in a row on desktop. With a YouTube frame: `.watch-grid--mixed`, desktop `7fr 2.5fr 2.5fr` with the wide frame stretching to the TikTok height; at 960px and below two columns with the wide frame spanning both at 16:9. At 640px and below either layout becomes a snap scroller.
-- **Links:** each frame links to the channel's profile until real embeds exist; the lede names the platforms shown.
+- **Links:** each homepage frame opens the Watch page (`watch/`); the section head links "All videos" there. Once `TIKTOK_VIDEOS` lists videos, the frames carry their titles and dates, newest first.
+
+### Watch page (`watch/`)
+An inner page. Head: page title "Watch", lede, meta "From TikTok, @andramarkets. Nothing loads from TikTok until you scroll to the videos." Body: with `TIKTOK_VIDEOS` set in `tools/build_site.py`, a grid of 9:16 frames (`repeat(auto-fill, minmax(260px, 1fr))`, `--video-ground`, `--rule` border, square) each holding TikTok's official embed player (`tiktok.com/player/v1/<id>`, `loading="lazy"`), title (540) and date (0.8125rem ink-2) below, newest first. While the list is empty, TikTok's official creator embed (`data-embed-type="creator"`), which lists the account's videos newest first; `assets/watch.js` loads TikTok's script only when it nears the viewport, and says so in ink-2 if it fails. Then a "Follow @andramarkets on TikTok" link and a 0.8125rem ink-3 line that TikTok's player and policy apply.
 
 ### About
 A statement paragraph (statement style, columns 1 to 8) beside a definition list (columns 9 to 12, bottom-aligned). Each `dt`/`dd` pair sits in a row with a `--rule` top border and 14px padding; terms are 0.8125rem ink-2. The section heading is visually hidden. The section has a `--rule` top border.
