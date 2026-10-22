@@ -1607,8 +1607,10 @@ def europe_universe(cache, yahoo, n=50):
             groups.setdefault(company(q.get("longName") or q.get("shortName") or q["symbol"]), []).append(q)
     top = sorted((max(g, key=lambda q: q["_usd"]) for g in groups.values()), key=lambda q: -q["_usd"])[:n]
     if PROBE:
-        print(f"    STOXX Europe 600: {len(members)} holdings, {len(quotes)} on Yahoo; top: "
-              + ", ".join(q["symbol"] for q in top[:12]))
+        print(f"    STOXX Europe 600: {len(members)} holdings, {len(quotes)} on Yahoo; top {n}:")
+        for i, q in enumerate(top, 1):
+            print(f"      {i:2} {q['symbol']:<12} {q.get('exchange', ''):<4} {q.get('longName') or q.get('shortName')}"
+                  f" (${q['_usd'] / 1e9:,.0f}bn)")
     return top
 
 
