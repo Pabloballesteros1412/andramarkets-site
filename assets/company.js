@@ -4,6 +4,30 @@
    tools/build_site.py). Tokens and rules: DESIGN.md, Company page. */
 (function () {
   "use strict";
+  // A logo drawn in white or pale colours (made for dark backgrounds) gets the
+  // dark plate instead of the white one.
+  var logo = document.querySelector(".co-logo img");
+  function plate() {
+    try {
+      var c = document.createElement("canvas"), n = 48;
+      c.width = c.height = n;
+      var x = c.getContext("2d");
+      x.drawImage(logo, 0, 0, n, n);
+      var px = x.getImageData(0, 0, n, n).data, sum = 0, count = 0;
+      for (var i = 0; i < px.length; i += 4) {
+        if (px[i + 3] < 128) continue;
+        sum += 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
+        count++;
+      }
+      // Mostly light ink, and enough transparency that the plate shows through.
+      if (count && count < n * n * 0.9 && sum / count > 205) logo.parentNode.classList.add("co-logo--light");
+    } catch (e) { /* a logo the canvas cannot read keeps the white plate */ }
+  }
+  if (logo) {
+    if (logo.complete && logo.naturalWidth) plate();
+    else logo.addEventListener("load", plate);
+  }
+
   var src = document.getElementById("co-data");
   if (!src) return;
   var D = JSON.parse(src.textContent);

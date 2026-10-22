@@ -1133,6 +1133,12 @@ def site_footer(home, base):
 </footer>"""
 
 
+def ver(name):
+    """A short hash of an asset, so browsers fetch it again whenever it changes."""
+    import hashlib
+    return hashlib.sha1((ROOT / "assets" / name).read_bytes()).hexdigest()[:10]
+
+
 def shell(title, desc, body, home, base, path="", scripts=()):
     url = f"{SITE_URL}/{path}" if SITE_URL else ""
     og_image = f"{SITE_URL}/assets/og-image.png" if SITE_URL else f"{base}assets/og-image.png"
@@ -1159,7 +1165,7 @@ def shell(title, desc, body, home, base, path="", scripts=()):
 <meta property="og:image:alt" content="The Andra Markets engraved horse beside the line Markets, on the record.">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="{base}assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{base}assets/site.css">
+<link rel="stylesheet" href="{base}assets/site.css?v={ver("site.css")}">
 </head>
 <body data-base="{base}">
 {sprite()}
@@ -1171,7 +1177,7 @@ def shell(title, desc, body, home, base, path="", scripts=()):
 
 {site_footer(home, base)}
 
-<script src="{base}assets/site.js" defer></script>{"".join(f'<script src="{base}assets/{js}" defer></script>' for js in scripts)}
+<script src="{base}assets/site.js?v={ver("site.js")}" defer></script>{"".join(f'<script src="{base}assets/{js}?v={ver(js)}" defer></script>' for js in scripts)}
 </body>
 </html>
 """
@@ -2386,12 +2392,10 @@ def company_page(t, data, cal):
     spx_note = "" if data["spx"] else " The S&amp;P 500 series is pending."
     body = f"""<main id="main" class="page dd co" data-co>
   <div class="wrap dd__grid">
-    <header class="page__head dd__head">
+    <header class="page__head dd__head{" co-head--logo" if logo_html else ""}">
       <p class="dd__crumbs"><a href="../">Companies</a> <span aria-hidden="true">/</span> {SHORT_SECTOR.get(sector, sector)}</p>
-      <div class="co-title">
-        <h1 class="page__title">{esc(name)}</h1>
-        {logo_html}
-      </div>
+      <h1 class="page__title">{esc(name)}</h1>
+      {logo_html}
       <p class="co-quote"><span class="co-px">${m["price"]:,.2f}</span><span class="co-chg">{chg} on the day</span><span class="note__meta">{t}, {esc(rec.get("exchange") or "")}. Close {day_med(d)}.</span></p>
       <p class="lede">{lede}</p>
       <div class="co-acts">
