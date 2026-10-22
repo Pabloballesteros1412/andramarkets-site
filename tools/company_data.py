@@ -275,6 +275,15 @@ def wikidata_logos(symbols):
     return out
 
 
+def commons_file(url):
+    """The file's direct address on upload.wikimedia.org, instead of the
+    Special:FilePath redirect, which Commons rate-limits more tightly."""
+    import hashlib
+    name = urllib.parse.unquote(url.rsplit("/", 1)[-1]).replace(" ", "_")
+    h = hashlib.md5(name.encode("utf-8")).hexdigest()
+    return f"https://upload.wikimedia.org/wikipedia/commons/{h[0]}/{h[:2]}/{urllib.parse.quote(name)}"
+
+
 def logo(symbol, svg_url=None):
     """The company's logo, kept once fetched: the official SVG from Wikimedia
     Commons where Wikidata has one, else a PNG from Financial Modeling Prep."""
@@ -283,7 +292,7 @@ def logo(symbol, svg_url=None):
     if svg_url:
         if svg.exists() and svg.stat().st_size > 100:
             return
-        url = svg_url.replace("http://", "https://")
+        url = commons_file(svg_url)
         req = urllib.request.Request(url, headers={"User-Agent": "andramarkets-site/1.0 (https://github.com/Pabloballesteros1412/andramarkets-site)"})
         # Commons asks scripts to go slowly: wait between files, and longer on a 429.
         for wait in (20, 60, None):
