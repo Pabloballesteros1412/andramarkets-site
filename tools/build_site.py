@@ -37,7 +37,7 @@ from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nyse  # noqa: E402
-from calendar_data import SOURCES as CAL_SOURCES  # noqa: E402
+from calendar_data import MOVES as CAL_MOVES, SOURCES as CAL_SOURCES  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT
@@ -529,31 +529,32 @@ def latest_rows(key, rec):
             i = idx[lb]
             v, o = det["values"][i], cmp["values"][i]
             if det.get("unit") == "%" or key == "yield_curve":
-                rows.append((("Implied, " if key == "fed_path" else "") + lb, pct(v, 2), f"{signed((v - o) * 100, 0, 'bp')} since {short_day(cmp['date'])}"))
+                rows.append((("Implied, " if key == "fed_path" else "") + lb, pct(v, 2), mv(f"{signed((v - o) * 100, 0, 'bp')} since {short_day(cmp['date'])}")))
             else:
-                rows.append((f"VIX {lb}", f"{v:.2f}", f"{signed(v - o, 2)} since {short_day(cmp['date'])}"))
+                rows.append((f"VIX {lb}", f"{v:.2f}", mv(f"{signed(v - o, 2)} since {short_day(cmp['date'])}")))
         if key == "yield_curve":
             v = (det["values"][idx["10Y"]] - det["values"][idx["2Y"]]) * 100
             o = (cmp["values"][idx["10Y"]] - cmp["values"][idx["2Y"]]) * 100
-            rows.append(("10Y less 2Y", signed(v, 0, "bp"), f"{signed(v - o, 0, 'bp')} since {short_day(cmp['date'])}"))
+            # The spread is a level (ink); its change since then is a move.
+            rows.append(("10Y less 2Y", signed(v, 0, "bp"), mv(f"{signed(v - o, 0, 'bp')} since {short_day(cmp['date'])}")))
         if det.get("ref"):
             rows.append((det["ref"]["name"], pct(det["ref"]["value"], 2), short_day(det["ref"]["date"])))
         return rows
     if det["kind"] == "perf":
         r = det["ranges"]["1D"]
         rows = sorted(zip(det["names"], r["values"], r["to"]), key=lambda x: -x[1])
-        return [(esc(n), chg(v), "on the day" if t == asof else f"close of {short_day(t)}") for n, v, t in rows]
+        return [(esc(n), mv(chg(v)), "on the day" if t == asof else f"close of {short_day(t)}") for n, v, t in rows]
     if det["kind"] == "lines":
         out = []
         for sr in det["series"]:
             v = sr["values"]
             dec = sr.get("dec", det.get("dec", 2))
             if det.get("rebase"):
-                out.append((sr["name"], f"{v[-1]:,.{dec}f}", f"{chg((v[-1] / v[-2] - 1) * 100)} on the day"))
-                out.append((f"{sr['name']}, 1 year", chg((v[-1] / v[0] - 1) * 100), f"since {short_day(det['dates'][0])}"))
+                out.append((sr["name"], f"{v[-1]:,.{dec}f}", mv(f"{chg((v[-1] / v[-2] - 1) * 100)} on the day")))
+                out.append((f"{sr['name']}, 1 year", mv(chg((v[-1] / v[0] - 1) * 100)), f"since {short_day(det['dates'][0])}"))
             else:
                 base = det["dates"].index(next(x for x in det["dates"] if x >= months_back_iso(det["dates"][-1], 1)))
-                out.append((sr["name"], pct(v[-1], 2), f"{signed((v[-1] - v[base]) * 100, 0, 'bp')} since {short_day(det['dates'][base])}"))
+                out.append((sr["name"], pct(v[-1], 2), mv(f"{signed((v[-1] - v[base]) * 100, 0, 'bp')} since {short_day(det['dates'][base])}")))
         return out
     if det["kind"] == "macro":
         cpi = [(dte, v) for dte, v in zip(det["dates"], det["cpi"]) if v is not None]
@@ -561,15 +562,15 @@ def latest_rows(key, rec):
         avg3 = sum(v for _, v in jobs[-3:]) / 3
         return [("Inflation, y/y", pct(cpi[-1][1], 1), month_name(cpi[-1][0])),
                 ("Month before", pct(cpi[-2][1], 1), month_name(cpi[-2][0])),
-                ("Payrolls", f"{signed(jobs[-1][1], 0)}k", month_name(jobs[-1][0])),
-                ("3-month average", f"{signed(avg3, 0)}k", f"to {month_name(jobs[-1][0])}")]
+                ("Payrolls", mv(f"{signed(jobs[-1][1], 0)}k"), month_name(jobs[-1][0])),
+                ("3-month average", mv(f"{signed(avg3, 0)}k"), f"to {month_name(jobs[-1][0])}")]
     if det["kind"] == "breadth":
         ss = det["sessions"]
         last = ss[-1]
         avg = sum(a - b for _, a, b, _ in ss[-20:]) / len(ss[-20:])
         return [("Advancers", str(last[1]), short_day(last[0])), ("Decliners", str(last[2]), short_day(last[0])),
-                ("Net", signed(last[1] - last[2], 0), short_day(last[0])),
-                ("Net, 20-session average", signed(avg, 1), f"of {sum(last[1:])} stocks")]
+                ("Net", mv(signed(last[1] - last[2], 0)), short_day(last[0])),
+                ("Net, 20-session average", mv(signed(avg, 1)), f"of {sum(last[1:])} stocks")]
     if det["kind"] == "matrix":
         win = det["windows"].get("3M") or next(iter(det["windows"].values()))
         m, names = win["matrix"], det["names"]
@@ -747,6 +748,23 @@ def signed(v, decimals, unit=""):
     return f"{'+' if r > 0 else MINUS}{abs(r):,.{decimals}f}{unit}"
 
 
+def move_class(text):
+    """"mv--up" or "mv--down" for a figure that shows a rise or a fall, read from
+    its sign as printed (a figure that rounds to zero has none and stays in ink)."""
+    t = re.sub(r"<[^>]+>", "", str(text)).lstrip("(")
+    return "mv--up" if t.startswith("+") else "mv--down" if t.startswith(MINUS) else ""
+
+
+def mv(text):
+    """A rise or a fall in red or green, its sign kept (DESIGN.md, The Rise and Fall
+    Rule). Colours the leading signed figure only: "+5bp since 3 Oct" keeps its
+    words in ink."""
+    m = re.match(r"([+\u2212][^\s,]*)(.*)", str(text), re.S)
+    if not m:
+        return text
+    return f'<span class="mv {move_class(m.group(1))}">{m.group(1)}</span>{m.group(2)}'
+
+
 def tape_items(rec):
     """Closing level and daily change for each tape instrument."""
     items, any_stale = [], False
@@ -785,7 +803,7 @@ def page(notes, cal):
         items, any_stale = tape_items(latest)
         tape = "".join(
             f'<li class="tape__item"><span class="tape__name">{n}</span>'
-            f'<span class="tape__level">{level}</span><span class="tape__chg">{change}</span></li>'
+            f'<span class="tape__level">{level}</span><span class="tape__chg {move_class(change)}">{change}</span></li>'
             for n, level, change in items
         )
         tape_title = f'Markets {day_med(d)}, {nyse.close_time(d)} ET'
@@ -1298,7 +1316,7 @@ def bar_chart(rows, label):
         body += (f'<g><title>{esc(tip)}</title>'
                  f'<text class="chart__label" x="0" y="{y + 13}">{esc(name)}</text>'
                  f'<rect class="{"up" if chg >= 0 else "down"}" x="{x:.1f}" y="{y + 4.5}" width="{wbar:.1f}" height="10"/>'
-                 f'<text class="chart__value" x="{W}" y="{y + 13}" text-anchor="end">{signed(chg, 2, "%")}</text></g>')
+                 f'<text class="chart__value {move_class(signed(chg, 2, "%"))}" x="{W}" y="{y + 13}" text-anchor="end">{signed(chg, 2, "%")}</text></g>')
     aria = f"{label}, change at the close: " + ", ".join(f"{n} {signed(c, 2, '%')}" for n, c, _ in rows)
     return real_svg(W, H, body, aria)
 
@@ -1426,7 +1444,7 @@ def side_panel(rec):
     if not items:
         return ""
     kpis = "".join(f'<li class="kpi__item"><span class="kpi__name">{n}</span>'
-                   f'<span class="kpi__level">{lv}</span><span class="kpi__chg">{chg}</span></li>' for n, lv, chg in items)
+                   f'<span class="kpi__level">{lv}</span><span class="kpi__chg">{mv(chg)}</span></li>' for n, lv, chg in items)
     return (f'<aside class="report__side" aria-labelledby="side-title">'
             f'<h2 class="report__side-title" id="side-title">The session in numbers</h2>'
             f'<ul class="kpi">{kpis}</ul>'
@@ -1519,6 +1537,14 @@ MADRID = ZoneInfo("Europe/Madrid")
 CAL_TYPES = [("macro", "Macro"), ("market", "Market structure"), ("earnings", "Earnings")]
 CAL_REGIONS = ["US", "Euro area", "UK", "Japan", "China"]
 TIMING = {"before": "Before open", "after": "After close", "none": "Time not given"}
+CAL_MARKETS = [("us", "US"), ("europe", "Europe"), ("asia", "Asia")]
+EURO_AREA = {"Germany", "France", "Netherlands", "Italy", "Spain", "Belgium", "Ireland", "Finland", "Austria",
+             "Portugal", "Luxembourg", "Greece", "Slovakia", "Slovenia", "Croatia", "Bulgaria"}
+
+
+def region_chip(country):
+    """The Region chip an earnings row also answers to: its home economy."""
+    return ("Euro area" if country in EURO_AREA else "China" if country in ("China", "Hong Kong") else country)
 CAL_CITED = {"cboe": "market", "spdji": "market"}  # read by the market rules, not fetched
 
 
@@ -1563,10 +1589,30 @@ def cal_sort(e):
     return ((2, 0) if e.get("no_time") else (0, 0)), e["title"]
 
 
+def cal_reaction(e, now):
+    """The stock's move on its first full session after the report, coloured as a
+    rise or a fall, and its benchmark's move that session (DESIGN.md, Calendar)."""
+    r = e.get("reaction")
+    if r:
+        bench = (f", {esc(r['bench'])} {mv(signed(r['bench_move'], 2, '%'))}" if r.get("bench_move") is not None else "")
+        return (f'<span class="cl__react"><span class="cl__rlabel">First session</span> '
+                f'{mv(signed(r["move"], 2, "%"))}<span class="cl__bench">{bench}</span></span>')
+    day = dt.date.fromisoformat(e.get("local_day") or e["date"])
+    if 0 <= (now.date() - day).days <= 3 and now.date() >= day:
+        return '<span class="cl__react"><span class="cl__rlabel">First session</span> <span class="cl__pending">not closed yet</span></span>'
+    return ""
+
+
 def cal_row(e, sources, now):
     """One table row, in the approved mock's shape (DESIGN.md, Calendar)."""
     kind = e.get("kind", "macro")
-    if kind == "earnings":
+    market = e.get("market", "us")
+    if kind == "earnings" and market != "us" and e.get("timing") in ("before", "after") and e.get("stamp"):
+        # A known time outside New York: the clocks, and the session it falls in.
+        t = dt.datetime.fromisoformat(e["stamp"])
+        times = (f'<td class="cl__ny"><time datetime="{e["stamp"]}">{clock(t.astimezone(NY))}</time></td>'
+                 f'<td class="cl__md">{clock(t.astimezone(MADRID))}</td>')
+    elif kind == "earnings":
         times = f'<td class="cl__ny" colspan="2">{TIMING[e.get("timing") or "none"]}</td>'
     elif e.get("utc"):
         t = dt.datetime.fromisoformat(e["utc"])
@@ -1578,29 +1624,40 @@ def cal_row(e, sources, now):
     src = sources.get(e["src"], {}).get("name", "")
     if kind == "earnings":
         status = "Estimated date" if e.get("status") != "confirmed" else "Confirmed date"
-        meta = f'<span class="cl__meta"><span class="cl__mregion">{e["country"]}. </span>Yahoo Finance</span><span class="tag">{status}</span>'
+        tags = f'<span class="tag">{status}</span>'
+        if e.get("report_type"):
+            tags += f'<span class="tag">{esc(e["report_type"])}</span>'
+        local = ""
+        if market != "us" and e.get("timing") in ("before", "after") and e.get("stamp"):
+            local = f'. {"Before" if e["timing"] == "before" else "After"} the local {"open" if e["timing"] == "before" else "close"}'
+        meta = (f'<span class="cl__meta"><span class="cl__mregion">{e["country"]}. </span>Yahoo Finance{local}</span>'
+                f'<span class="cl__tags">{tags}</span>')
     else:
         meta = f'<span class="cl__meta"><span class="cl__mregion">{e["country"]}. </span>{esc(src)}</span>'
-    prev = esc(e.get("previous") or "")
+    figure = mv if e.get("ind") in CAL_MOVES else (lambda x: x)
+    prev = figure(esc(e.get("previous") or ""))
     if prev and e.get("prev_period") and kind == "earnings":
         prev += f", {esc(e['prev_period'])}"
     released = now >= (dt.datetime.fromisoformat(e["utc"]) if e.get("utc")
                        else dt.datetime.combine(dt.date.fromisoformat(e["date"]), dt.time(23, 59), NY))
     if e.get("actual"):
         href = esc(e.get("actual_url") or e["url"])
-        actual = f'<a class="cl__act" href="{href}">{esc(e["actual"])} {icon("arrow-up-right")}</a>'
+        actual = f'<a class="cl__act" href="{href}">{figure(esc(e["actual"]))} {icon("arrow-up-right")}</a>'
     elif released and (e.get("ind") or kind == "earnings") and (e.get("previous") or kind == "earnings"):
         actual = '<span class="cl__pending">Figures pending</span>'
     else:
         actual = ""
+    if kind == "earnings":
+        actual += cal_reaction(e, now)
     label = "Year ago" if kind == "earnings" else "Previous"
     type_label = dict(CAL_TYPES)[kind]
     title = esc(e["title"])
     if e.get("url") and kind != "earnings":
         title = f'<a class="cl__src" href="{esc(e["url"])}">{title}</a>'
-    return (f'<tr class="cl__row" data-type="{kind}" data-region="{e["country"]}" data-imp="{e["imp"]}">{times}'
+    er = f' data-er="{market}"' if kind == "earnings" else ""
+    return (f'<tr class="cl__row" data-type="{kind}" data-region="{esc(region_chip(e["country"]))}"{er} data-imp="{e["imp"]}">{times}'
             f'<th scope="row"><span class="cl__ev">{title}</span>{meta}</th>'
-            f'<td class="cl__region">{e["country"]}</td><td class="cl__type"><span class="tag">{type_label}</span></td>'
+            f'<td class="cl__region">{esc(e["country"])}</td><td class="cl__type"><span class="tag">{type_label}</span></td>'
             f'<td class="cl__imp" data-imp="{e["imp"]}">{e["imp"]}</td>'
             f'<td class="cl__prior" data-label="{label}">{prev}</td>'
             f'<td class="cl__actual" data-label="Actual">{actual}</td></tr>')
@@ -1653,18 +1710,26 @@ def cal_sources_section(cal):
         when = day_med(dt.date.fromisoformat(max(oks)[:10])) if oks else None
         note = (f"Last good figures {when}" if failing and when else "Not available yet" if not when else when)
         rows.append(f'<li><span class="cl__srcname">{esc(ind_src)}, figures</span><span>{note}</span></li>')
-    spy = cal.get("spy") or {}
-    if spy.get("ok"):
-        when = day_med(dt.date.fromisoformat(spy["ok"][:10]))
-        rows.append(f'<li><a href="{esc(CAL_SOURCES["spy"]["url"])}">{esc(CAL_SOURCES["spy"]["name"])}</a>'
-                    f'<span>{"Last good copy " if spy.get("error") else ""}{when}</span></li>')
+    for key in ("spy", "stoxx600"):  # the membership lists
+        lst = cal.get(key) or {}
+        when = day_med(dt.date.fromisoformat(lst["ok"][:10])) if lst.get("ok") else None
+        note = ("Last good copy " + when if lst.get("error") and when else when or "Not available yet")
+        rows.append(f'<li><a href="{esc(CAL_SOURCES[key]["url"])}">{esc(CAL_SOURCES[key]["name"])}</a><span>{note}</span></li>')
     return (f'<section class="cl__sources" aria-labelledby="cl-src"><h2 id="cl-src">Sources</h2>'
             f"<p>Every date and time comes from the publisher's own schedule, and every actual figure links to its "
             f"release. Previous is the last published figure; Actual is the first print, taken within a week of the "
-            f"release. No consensus forecasts: no free source is reliable enough. Earnings are the next report of the 100 "
-            f"largest S&amp;P 500 companies by market cap (members from State Street's SPY holdings, market cap, dates "
-            f"and diluted EPS from Yahoo Finance); an estimated date is always marked as estimated, and a report time "
-            f"Yahoo does not give is never guessed. When a source fails, its last good copy stays, with its date.</p>"
+            f"release. No consensus forecasts: no free source is reliable enough. When a source fails, its last good "
+            f"copy stays, with its date.</p>"
+            f"<p>Earnings are the next report of the 100 largest S&amp;P 500 companies (members from State Street's SPY "
+            f"holdings), the 50 largest in the STOXX Europe 600 (members from iShares' holdings of its STOXX Europe 600 "
+            f"ETF) and the 20 largest listed in Japan, Taiwan, South Korea, Hong Kong, mainland China and India, one "
+            f"listing each, ranked by market cap in dollars. Market caps, dates and diluted EPS from Yahoo Finance; EPS "
+            f"in the company's reporting currency, only when Yahoo has it. An estimated date is always marked as "
+            f"estimated, and a report time Yahoo does not give, or gives exactly on the market close, is never guessed. "
+            f"The report type is read from the periods the company publishes EPS for, and left out when unclear. First "
+            f"session is the stock's close-to-close move on the first full session after the report (the next session "
+            f"when the time is not given), with its benchmark's move that session: S&amp;P 500, STOXX Europe 600, "
+            f"Nikkei 225, TAIEX, KOSPI, Hang Seng, CSI 300 or Nifty 50.</p>"
             f'<ul class="cl__srclist">{"".join(rows)}</ul>'
             f"<p>For information only. Not investment advice.</p></section>")
 
@@ -1681,6 +1746,8 @@ def cal_filters():
             f'<div class="filters" role="group" aria-labelledby="cl-g-type">{cal_chips("type", [("all", "All")] + CAL_TYPES)}</div></div>'
             f'<div class="cl__group"><span class="cl__glabel" id="cl-g-region">Region</span>'
             f'<div class="filters" role="group" aria-labelledby="cl-g-region">{cal_chips("region", [("all", "All")] + [(r, r) for r in CAL_REGIONS])}</div></div>'
+            f'<div class="cl__group"><span class="cl__glabel" id="cl-g-er">Earnings</span>'
+            f'<div class="filters" role="group" aria-labelledby="cl-g-er">{cal_chips("er", [("all", "All")] + CAL_MARKETS)}</div></div>'
             f'<div class="cl__group"><span class="cl__glabel" id="cl-g-imp">Importance</span>'
             f'<div class="filters" role="group" aria-labelledby="cl-g-imp">{cal_chips("imp", [("all", "All"), ("High", "High")])}</div></div>'
             f'</div><p class="filters__status cl__status" role="status" aria-live="polite"></p>')
@@ -1708,7 +1775,7 @@ def calendar_page(cal, now):
   <div class="wrap">
     <header class="page__head cl__head">
       <h1 class="page__title">Calendar</h1>
-      <p class="lede">Releases, central banks, market structure and the earnings of the 100 largest S&amp;P 500 companies, five weeks ahead. Times in New York and Madrid.</p>
+      <p class="lede">Releases, central banks, market structure and the earnings of the largest companies in the US, Europe and Asia, five weeks ahead. Times in New York and Madrid.</p>
       <p class="note__meta">{cal_updated(cal)}</p>
     </header>
     <div class="cl__controls" hidden>
@@ -1721,7 +1788,7 @@ def calendar_page(cal, now):
 </main>"""
     return shell(
         title="Calendar: Andra Markets",
-        desc="Market-moving releases, central bank meetings, market structure and the earnings of the 100 largest S&amp;P 500 companies, five weeks ahead, in New York and Madrid time.",
+        desc="Market-moving releases, central bank meetings, market structure and the earnings of the largest companies in the US, Europe and Asia, five weeks ahead, in New York and Madrid time.",
         body=body, home="../", base="../", path="calendar/", scripts=("calendar.js",))
 
 

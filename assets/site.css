@@ -55,6 +55,10 @@
   --chart-fill: rgba(14, 18, 21, 0.08);
   --up: #00a050;
   --down: #e0202a;
+  /* Rise and fall as text: darker than the chart pair so small figures pass
+     WCAG AA (4.5:1) on ground and ground-2. */
+  --up-text: #00773b;
+  --down-text: #d01c25;
   --up-tint: rgba(0, 160, 80, 0.24);
   --down-tint: rgba(224, 32, 42, 0.22);
   --horse-filter: invert(1) grayscale(1) brightness(0.85) contrast(3);
@@ -89,6 +93,8 @@
   --chart-fill: rgba(233, 236, 235, 0.08);
   --up: #1fd27a;
   --down: #ff4b52;
+  --up-text: #1fd27a;
+  --down-text: #ff4b52;
   --up-tint: rgba(31, 210, 122, 0.2);
   --down-tint: rgba(255, 75, 82, 0.2);
   --horse-filter: none;
@@ -1007,6 +1013,8 @@ ul {
   --btn-fg: var(--plate);
   --focus: var(--plate-ink);
   --up: var(--plate-up);
+  --up-text: var(--plate-up);
+  --down-text: var(--plate-down);
   --down: var(--plate-down);
   --up-tint: var(--plate-up-tint);
   --down-tint: var(--plate-down-tint);
@@ -1089,6 +1097,25 @@ ul {
   a.tool:hover {
     background: var(--plate-hover);
   }
+}
+
+/* Rise and fall (DESIGN.md, The Rise and Fall Rule): the figure only, its sign
+   kept; labels, prose and headings stay in ink. */
+
+.mv--up {
+  color: var(--up-text);
+}
+
+.mv--down {
+  color: var(--down-text);
+}
+
+.chart .chart__value.mv--up {
+  fill: var(--up-text);
+}
+
+.chart .chart__value.mv--down {
+  fill: var(--down-text);
 }
 
 /* Calendar: owner-approved mock, 22 Oct 2026 (DESIGN.md, Calendar) */
@@ -1188,9 +1215,35 @@ ul {
   display: none;
 }
 
-.cl__table tbody th .tag {
+.cl__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-top: 6px;
+}
+
+.cl__table tbody th .tag {
   font-weight: 400;
+}
+
+.cl__actual {
+  white-space: normal;
+}
+
+.cl__react {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.cl__rlabel {
+  color: var(--ink-3);
+}
+
+.cl__react > .mv {
+  font-weight: 600;
 }
 
 .cl__ny,
@@ -2002,6 +2055,9 @@ ul {
   .cl__table .cl__prior:empty,
   .cl__table .cl__actual:empty {
     display: none;
+  }
+  .cl__react {
+    white-space: normal;
   }
   .cl__prior::before,
   .cl__actual::before {

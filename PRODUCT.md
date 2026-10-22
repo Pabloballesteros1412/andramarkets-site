@@ -64,6 +64,14 @@ record. The daily note is one module among others, not the centrepiece.
   date is never shown as confirmed and a report time Yahoo does not give is
   never guessed. A failing source keeps its last good copy with its date.
   Close notes link to their session's events from the calendar's first week.
+  Earnings also cover the 50 largest STOXX Europe 600 companies (iShares
+  holdings for membership) and the 20 largest listed in Japan, Taiwan, South
+  Korea, Hong Kong, mainland China and India (Yahoo Finance, one listing each:
+  the mainland A-share for dual listings, the Hong Kong listing for Chinese
+  companies whose primary listing is in New York), ranked by market cap in
+  dollars, with the report type when the EPS history makes it clear, EPS in the
+  reporting currency, and every row's move on its first full session after the
+  report against its benchmark.
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
   time, newsletter platform (Substack, Beehiiv or Ghost), a YouTube channel.
@@ -86,7 +94,7 @@ record. The daily note is one module among others, not the centrepiece.
   The homepage direction was approved as final; DESIGN.md is the system.
 - Tone: premium and serious, never playful. References the owner likes for
   their principles (not their look): spacex.com, canyon.com, quartr.com.
-- Red and green appear only inside charts, vivid and saturated, readable on both themes.
+- Red and green mean a rise or a fall, and nothing else: inside charts and on every figure that shows a move, always with its + or − sign; labels, prose and headings stay in ink (owner's rule, 22 Oct 2026).
 
 ## Evidence on Hand
 

@@ -1,6 +1,6 @@
 ---
 name: Andra Markets
-description: A markets research platform on the record. Engraved horse, one grotesque, hairline rules, square corners, colour only inside charts.
+description: A markets research platform on the record. Engraved horse, one grotesque, hairline rules, square corners, red and green only for rises and falls.
 colors:
   ground: "#f4f6f6"
   ground-2: "#e9eded"
@@ -23,6 +23,8 @@ colors:
   chart-fill: "rgba(14, 18, 21, 0.08)"
   up: "#00a050"
   down: "#e0202a"
+  up-text: "#00773b"
+  down-text: "#d01c25"
   up-tint: "rgba(0, 160, 80, 0.24)"
   down-tint: "rgba(224, 32, 42, 0.22)"
   select: "rgba(14, 18, 21, 0.14)"
@@ -48,6 +50,8 @@ colors:
   chart-fill-dark: "rgba(233, 236, 235, 0.08)"
   up-dark: "#1fd27a"
   down-dark: "#ff4b52"
+  up-text-dark: "#1fd27a"
+  down-text-dark: "#ff4b52"
   up-tint-dark: "rgba(31, 210, 122, 0.2)"
   down-tint-dark: "rgba(255, 75, 82, 0.2)"
   select-dark: "rgba(233, 236, 235, 0.22)"
@@ -288,7 +292,7 @@ Source of truth: `assets/site.css`, `assets/site.js` and `tools/build_site.py`, 
 
 One engraved, rearing horse and a single grotesque carry the whole identity. In the light theme the page is cool off-white paper with ink type and the horse printed onto it as an engraving; in the dark theme the page is near-black and the horse is a dim, cinematic presence. Everything else is catalogue: full-bleed plates and ruled lists, one idea per screen, hairlines instead of boxes, square corners, no shadows.
 
-Colour is withheld on purpose. The UI is monochrome ink on ground in both themes; vivid red and green exist only inside charts and their keys, where they carry meaning. Seriousness comes from restraint, tabular figures, dated and sourced numbers, and bracketed placeholders wherever a real number does not yet exist.
+Colour is withheld on purpose. The UI is monochrome ink on ground in both themes; vivid red and green carry one meaning only, a rise or a fall: inside charts, and on every figure that shows a move (see The Rise and Fall Rule). Seriousness comes from restraint, tabular figures, dated and sourced numbers, and bracketed placeholders wherever a real number does not yet exist.
 
 The system refuses the fintech template: no gradient hero, no metric tiles, no three equal feature cards, no accent colour in UI.
 
@@ -298,7 +302,7 @@ The system refuses the fintech template: no gradient hero, no metric tiles, no t
 - Hairline rules (1px) and tonal layering instead of shadows or cards.
 - Square corners everywhere.
 - The horse is the only image, shown whole and untouched on every page, treated only with CSS filter and blend. The single exception is the owner-approved favicon and touch icon (see Brand assets).
-- Red and green only inside charts; errors are ink only.
+- Red and green only for rises and falls (charts, and figures with a sign); errors are ink only.
 - Motion is quiet and gated: content visible by default, reduced motion respected.
 
 ## Colors
@@ -348,6 +352,10 @@ Inside `.lab`: `--ink` becomes `--plate-ink`, `--ink-2` and `--ink-3` become `--
 | `--down` | `#e0202a` | `#ff4b52` | `#ff4b52` | Fall, negative, misses, decliners, weaker. |
 | `--up-tint` | `rgba(0, 160, 80, 0.24)` | `rgba(31, 210, 122, 0.2)` | `rgba(31, 210, 122, 0.3)` | Positive regime bands. |
 | `--down-tint` | `rgba(224, 32, 42, 0.22)` | `rgba(255, 75, 82, 0.2)` | `rgba(255, 75, 82, 0.3)` | Negative regime bands. |
+| `--up-text` | `#00773b` | `#1fd27a` | `#1fd27a` | A rise as text. Light: 5.23:1 on ground, 4.81:1 on ground-2; dark: 9.86:1 and 8.98:1. |
+| `--down-text` | `#d01c25` | `#ff4b52` | `#ff4b52` | A fall as text. Light: 5.00:1 on ground, 4.59:1 on ground-2; dark: 5.96:1 and 5.42:1. |
+
+The chart pair is too light for small text in the light theme (`#00a050` is 3.15:1 on ground), so figures use the darker text pair, which passes WCAG AA (4.5:1) on ground and ground-2 in both themes. Bars, cells and keys keep the chart pair.
 
 ### Horse and mark treatment
 | Token | Light | Dark | Role |
@@ -364,7 +372,7 @@ In light, the inverted file turns the black ground white and multiply makes it v
 - **Dark hero vignette** (`rgba(10, 12, 13, 0.75)`): outer stop of the dark theme's radial vignette.
 
 ### Named Rules
-**The Charts-Only Colour Rule.** Red and green appear only inside charts and their keys. Never in buttons, links, tags, status messages, errors, success messages or decoration.
+**The Rise and Fall Rule** (owner's change, 22 Oct 2026; it replaces the charts-only rule). Red and green mean a rise or a fall, and nothing else. They colour chart marks and keys, and every figure on the site that shows a rise or a fall: price moves and percentage changes, the tape, the close-note panel, chart value labels, dashboard "Latest" panels and readouts, calendar changes (m/m, q/q, monthly changes) and earnings first-session moves. The figure always keeps its + or − sign, so colour is never the only cue; a figure that rounds to zero has no sign and stays in ink. Labels, prose, headings, units and words beside the figure ("on the day", "since 3 Oct", "q/q") stay in ink. Levels stay in ink even when signed: yields, rates, inflation rates, spreads, correlations, scores, EPS. Never in buttons, links, tags, status messages, errors, success messages or decoration. As text the figure uses `--up-text` / `--down-text` (`.mv--up`, `.mv--down`; SVG labels take the same classes); `build_site.py` reads the class from the printed sign (`mv()`, `move_class()`), and the rolling figures colour a signed word when their element carries `data-moves`.
 
 **The One Plate Rule.** The Lab is the one dark plate on the page. It inverts by re-mapping tokens, never by hand-picking colours per component.
 
@@ -483,7 +491,7 @@ A full-width band below the hero, ground fill, `--rule` top and bottom.
 - **List:** 10 instruments in a grid of `minmax(124px, 1fr)` columns that scrolls horizontally with snap; at 640px and below each column is `40vw`. Items separated by vertical `--rule` hairlines, 16px padding. Name 0.8125rem ink-2; level 1.1875rem/500 tabular; change 0.875rem.
 - **Rolling figures (owner-approved, 22 Oct 2026):** levels and changes roll up from zero, digit by digit, once the tape enters view (640ms ease-out, staggered 45ms per instrument). Each digit is a column of 0 to 9 in tabular figures; separators and letters stay still. Screen readers get the plain figure. A live feed can update a figure through the same roll (`AndraRoll` in `assets/site.js`), which moves only the digits that change. No roll under reduced motion; the figures are plain text without JS.
 - **Source line:** "Last and daily change. Source [data vendor]" at 0.8125rem ink-3.
-- **With a published note:** the head reads "Markets 9 Oct 2026, 4:00 pm ET" (1:00 pm on NYSE early closes) and links to that note's page. Levels are the note's official closes (stored in its note record), with thousands separators and each instrument's decimals; changes carry a sign and a true minus (U+2212), percent to two decimals, the 10-year yield in whole basis points. No colour on the tape. A series with no print for the session shows its level and "Prior close" as the change; a missing value reads "n/a". Source line: "Close and daily change. Sources: Yahoo Finance, FRED for the US 10Y yield.", plus "Prior close: no print yet for the session." when it applies.
+- **With a published note:** the head reads "Markets 9 Oct 2026, 4:00 pm ET" (1:00 pm on NYSE early closes) and links to that note's page. Levels are the note's official closes (stored in its note record), with thousands separators and each instrument's decimals; changes carry a sign and a true minus (U+2212), percent to two decimals, the 10-year yield in whole basis points. Changes are coloured as rises and falls (The Rise and Fall Rule); levels and names stay in ink. A series with no print for the session shows its level and "Prior close" as the change; a missing value reads "n/a". Source line: "Close and daily change. Sources: Yahoo Finance, FRED for the US 10Y yield.", plus "Prior close: no print yet for the session." when it applies.
 
 ### Filter chips and status
 - **Chip:** 44px tall, padding 0 16px, `--rule` border, transparent, ink-2 label at 0.875rem/550, count in tabular figures at 450 in ink-3.
@@ -524,12 +532,13 @@ Owner-approved from the Commodities mock. One page per dashboard, `dashboards/<s
 One component, `.cl__table`, on three surfaces: the calendar page (`calendar/`), one archive page per week (`calendar/week/<monday>/`) and the homepage section. Built from `.cache/calendar/calendar.json` (see README, Calendar data).
 - **Page head:** page title "Calendar", lede, then "Official schedules. Updated [date, time] ET." in the note meta style; `--rule-strong` under it.
 - **Week tabs:** the existing chips (`aria-pressed`, gliding fill), one per week, Monday to Sunday: "This week, 19 to 25 Oct", "Next week, 26 Oct to 1 Nov", then three more by range. Five weeks, so at least four lie ahead. The tab holding today's New York date is pressed on load; a `#d-YYYY-MM-DD` link opens that day's week.
-- **Filters:** three chip groups, each with a 0.8125rem ink-3 label (Type, Region, Importance) to its left; at 640px and below the label sits above its own scrolling row. Type: All, Macro, Market structure, Earnings. Region: All, US, Euro area, UK, Japan, China. Importance: All, High. A polite status line under them: "Showing all n events this week" or "Showing n of m events this week". With no JS the controls stay hidden and every week shows.
+- **Filters:** four chip groups, each with a 0.8125rem ink-3 label (Type, Region, Earnings, Importance) to its left; at 640px and below the label sits above its own scrolling row. Type: All, Macro, Market structure, Earnings. Region: All, US, Euro area, UK, Japan, China; an earnings row also answers to its company's home economy (euro-area countries under Euro area, Hong Kong under China). Earnings (owner-approved mock, 22 Oct 2026): All, US, Europe, Asia, showing the markets together or apart; only earnings rows answer to it. Importance: All, High. A polite status line under them: "Showing all n events this week" or "Showing n of m events this week". With no JS the controls stay hidden and every week shows.
 - **Table, desktop:** `--rule-strong` top rule; columns New York, Madrid, Event, Region, Type, Importance, Previous, Actual (head cells 0.8125rem/500 ink-2). Each day is its own `<tbody>` with a day row (0.875rem/600 ink, 28px top padding, 16px for the first day, `--rule-strong` bottom rule), grouped by the New York date. Rows: 14px vertical padding, `--rule` bottom borders. Event cell 1.0625rem/540, 34% wide, linked (no underline until hover) to the publisher's page, with its source under it (0.8125rem ink-3). Times are each city's local clock ("8:30 am", "2:30 pm"), converted per date, so the weeks when only one city has changed its clocks read right. At 1100px and below the Type column hides.
 - **Order within a day:** all-day items (market structure), then by time; earnings before the open sit just before 9:30 am ET, after the close at 4:00 pm, and "Time not given" last.
 - **Importance:** text, no colour, no marker: "High" in ink at 600, "Medium" in ink-2 at 0.875rem.
-- **Previous and Actual:** Previous in ink-2. Actual, once released, is the figure as first printed, underlined in `--rule-strong` with an `arrow-up-right` icon, linked to the official release. A released event still waiting for its figure reads "Figures pending" (0.875rem ink-3). No consensus column.
-- **Earnings rows:** the two time cells merge into "Before open", "After close" or "Time not given"; under the company a square tag "Confirmed date" or "Estimated date" (`.tag`); Previous is "EPS x.xx, quarter to [Mon YYYY]" (diluted EPS a year earlier); Actual the reported diluted EPS, linked to the company's financials on Yahoo Finance.
+- **Previous and Actual:** Previous in ink-2; a change (m/m, q/q, a monthly change) is coloured as a rise or a fall, a level stays in ink. Actual, once released, is the figure as first printed, underlined in `--rule-strong` with an `arrow-up-right` icon, linked to the official release. A released event still waiting for its figure reads "Figures pending" (0.875rem ink-3). No consensus column.
+- **Earnings rows** (US, Europe, Asia; owner-approved mock, 22 Oct 2026): Region shows the company's country. The two time cells merge into "Before open", "After close" or "Time not given", judged against the company's own market hours; a known time outside New York shows its New York and Madrid clocks instead, and the source line adds "Before the local open" or "After the local close". Under the company a row of square tags (`.cl__tags`, 6px gap): "Confirmed date" or "Estimated date", then the report type when it is clear (Quarterly results, Half-year results, Full-year results, Trading update). Previous is "EPS x.xx [currency], quarter to [Mon YYYY]" (diluted EPS a year earlier; the currency code on non-US rows); Actual the reported diluted EPS, linked to the company's financials on Yahoo Finance.
+- **First session:** once results are out, a second line in the Actual cell (`.cl__react`, 0.8125rem): "First session" in ink-3, the stock's move at 600 coloured as a rise or a fall, then its benchmark and the benchmark's move that session ("S&P 500 +0.28%"), also coloured. Until that session closes it reads "First session not closed yet" (ink-3), for three days at most.
 - **Rows without a time:** "All day" (market structure) or "Time not given" (a release the publisher dates but does not time, such as Bank of Japan decisions), across both time cells.
 - **Today:** the day row reads "Today, Thursday 22 Oct" and that day's rows sit on `--ground-2` (full bleed on mobile). Checked again in the browser against the New York date, since the page is built ahead.
 - **Mobile (640px and below):** head row hidden; each row is a grid of `4.75rem | 1fr | auto`: New York time over the Madrid time (with a 0.75rem ink-3 "Madrid" under it) on the left, the event with "[Region]. [source]" under it in the middle, importance on the right; Previous and Actual below the event at 0.875rem with their label from `data-label`. Region and Type cells hide; empty cells disappear.
@@ -551,9 +560,9 @@ An inner page, one per note.
 - **Head:** the headline in the section title scale (540, `clamp(2rem, 4.2vw, 3.5rem)`, 1.02, -0.035em, balanced): a model headline runs 8 to 13 words, too long for the page title scale. Then the standfirst as the lede, the meta row (long date, edition, read time; 0.875rem ink-2, 20px gaps, 20px above), then the share row 28px below: a primary "Share this note" button and a polite status line beside it (0.875rem ink-2, 20px gap). The button (link icon) opens the system share sheet where the browser has one, else copies the page link: its label swaps to "Link copied" with a tick that draws in (220ms blur cross-fade, 2.4s, then back), and the status line says "Link copied." to screen readers only. If copying fails it shows the link to copy by hand. The row is hidden without JS. On mobile the button goes full width. No meta or label above the headline (no eyebrows).
 - **Body:** inner page sections in reading order, each only when it has text: Takeaways, Desk view, What we watch, Equities, Rates, Credit, FX, Commodities, Volatility, Digital assets, International, Correlation, then Sources (with the figure check statement and "For information only. Not investment advice."). Takeaways and What we watch are ruled lists: `--rule` top border, rows padded 12px with `--rule` separators, ink-2 text. Consecutive paragraphs are 12px apart.
 - **Layout and side panel.** The report is a 12-column grid. At 1280px and up: text (head and sections) in columns 1 to 6, margin charts in 7 to 9, and the panel "The session in numbers" in 10 to 12, sticky (`top: nav-h + 24px`) for the whole article. From 961px to 1279px: text 1 to 7; the panel (not sticky) and the margin charts share columns 9 to 12. At 960px and below: one column, the panel after the head (summary and Share), each margin chart right after its section, closed by a `--rule` hairline.
-- **Panel contents:** title at 0.9375rem/600 over a `--rule-strong` rule (the tape head style); a 2-column ruled grid in the tape item style (name 0.8125rem ink-2, level 1.1875rem/500 tabular, change 0.875rem tabular, no colour, `--rule` hairlines, no boxes): S&P 500, Nasdaq 100, US 10Y yield, VIX, risk score with its label, breadth as "up / down"; then a source line (0.8125rem ink-3). It is short enough to fit any desktop viewport.
+- **Panel contents:** title at 0.9375rem/600 over a `--rule-strong` rule (the tape head style); a 2-column ruled grid in the tape item style (name 0.8125rem ink-2, level 1.1875rem/500 tabular, change 0.875rem tabular and coloured as a rise or a fall, `--rule` hairlines, no boxes): S&P 500, Nasdaq 100, US 10Y yield, VIX, risk score with its label, breadth as "up / down"; then a source line (0.8125rem ink-3). It is short enough to fit any desktop viewport.
 - **Margin charts:** one per section that has data in that note, aligned with the section's heading (28px top padding), title at 0.9375rem/600, source and date under it (0.8125rem ink-3), with a count of instruments left out when they had no print that day. Takeaways: the day's moves (tape instruments in percent). Desk view: biggest gainers and losers from the watchlist. Equities: S&P 500 sector ETFs. Rates: the Treasury curve. Credit: listed proxies (LQD, HYG, EMB, BKLN, IEF, TLT). FX: dollar index and five pairs. Commodities: WTI, Brent, natural gas, gold, silver, copper. Volatility: VIX, VIX 9-day, VIX 3-month, VVIX, MOVE. Digital assets: bitcoin, ether, solana, XRP. International: Euro Stoxx 50, DAX, FTSE 100, Nikkei 225, Hang Seng, KOSPI, Bovespa, S&P/TSX. A chart with fewer than 3 instruments is not drawn.
-- **Bar charts** (all margin charts but the curve): diverging horizontal bars from a dashed zero line, sorted by change, `--up` / `--down` fills, signed value at the right in ink. Direction and the signed label carry the polarity too, so colour is never the only cue (the red and green pair falls below the colour-blind separation target in the light theme, so this redundancy is required). No key: one series.
+- **Bar charts** (all margin charts but the curve): diverging horizontal bars from a dashed zero line, sorted by change, `--up` / `--down` fills, signed value at the right in `--up-text` / `--down-text`. Direction and the signed label carry the polarity too, so colour is never the only cue (the red and green pair falls below the colour-blind separation target in the light theme, so this redundancy is required). No key: one series.
 - **Curve chart:** the latest published curve (solid `--chart-line`, dots) against the session before (dashed `--ink-3`), tenors spaced by square root of maturity, 3 gridlines with yield labels, key with the two dates, source line naming the close it shows. FRED usually publishes after the note is written, so the curve is normally the previous session's and the source line says so.
 - **All report charts** are real data: no "Illustrative" stamp. 300-unit-wide inline SVG; text 12px (labels ink-2, values ink and tabular). Each SVG has an aria-label listing its values and a native tooltip per mark.
 - **Pager:** text links below the body, 32px above, 24px apart: "Previous note, [date]", "Next note, [date]", "All notes", "Get the note by email" (to the signup plate).
@@ -649,7 +658,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Don't** round any corner; everything is square (0px).
 - **Don't** add shadows. The inset ring on an invalid input is the one border treatment allowed.
 - **Don't** use gradients anywhere except the hero vignettes.
-- **Don't** use red or green outside charts and their keys, including for errors, success, tags or links.
+- **Don't** use red or green for anything but a rise or a fall: not for errors, success, tags, links, labels or prose, and never on a figure without its sign.
 - **Don't** put an eyebrow, kicker or category label above a heading.
 - **Don't** use em dashes or en dashes in copy; use commas, colons or full stops.
 - **Don't** put a personal name anywhere on the site.

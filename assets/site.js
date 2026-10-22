@@ -34,13 +34,16 @@
     this.cols = [];
     if (text != null) this.set(text);
   }
+  // With data-moves on the element, a word that starts with a sign ("+0.42%",
+  // "(−12)") is a rise or a fall and takes the up or down colour.
   Roll.prototype.build = function (text) {
-    var vis = this.vis, cols = [];
+    var vis = this.vis, cols = [], moves = this.el.hasAttribute("data-moves");
     vis.textContent = "";
     text.split(" ").forEach(function (word, w) {
       if (w) vis.appendChild(document.createTextNode(" "));
       var box = document.createElement("span");
-      box.className = "roll__w";
+      var sign = moves && /^\(?([+\u2212])\d/.exec(word);
+      box.className = "roll__w" + (sign ? (sign[1] === "+" ? " mv--up" : " mv--down") : "");
       for (var i = 0; i < word.length; i++) {
         var c = word[i];
         var slot = document.createElement("span");

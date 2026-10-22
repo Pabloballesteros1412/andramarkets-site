@@ -1,4 +1,4 @@
-// Andra Markets calendar: week tabs, filters by type, region and importance,
+// Andra Markets calendar: week tabs, filters by type, region, earnings market and importance,
 // and today's date in New York (the page is built ahead of time, so the day
 // it marks as today is checked again here). Without JS every week shows.
 (function () {
@@ -9,7 +9,7 @@
   var status = document.querySelector(".cl__status");
   var empty = document.querySelector(".cl__empty");
   var tabs = Array.prototype.slice.call(document.querySelectorAll(".cl__weeks .chip"));
-  var state = { week: null, type: "all", region: "all", imp: "all" };
+  var state = { week: null, type: "all", region: "all", er: "all", imp: "all" };
 
   var today = new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit"
@@ -47,6 +47,8 @@
       g.querySelectorAll(".cl__row").forEach(function (r) {
         var ok = (state.type === "all" || r.getAttribute("data-type") === state.type) &&
           (state.region === "all" || r.getAttribute("data-region") === state.region) &&
+          // Earnings by market: only earnings rows answer to it.
+          (state.er === "all" || !r.hasAttribute("data-er") || r.getAttribute("data-er") === state.er) &&
           (state.imp === "all" || r.getAttribute("data-imp") === state.imp);
         if (inWeek) total++;
         r.hidden = !(inWeek && ok);
@@ -81,7 +83,7 @@
         });
       });
     }
-    ["type", "region", "imp"].forEach(function (key) {
+    ["type", "region", "er", "imp"].forEach(function (key) {
       var chips = Array.prototype.slice.call(controls.querySelectorAll(".chip[data-" + key + "]"));
       chips.forEach(function (chip) {
         chip.addEventListener("click", function () {

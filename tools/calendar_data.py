@@ -21,11 +21,11 @@ published: the deploy refuses any .json in the site.
                                              print what each source returned
 """
 import calendar as cal
+import csv
 import datetime as dt
 import html
 import io
 import json
-import os
 import re
 import sys
 import time
@@ -1000,12 +1000,24 @@ SOURCES = {
     "cboe": {"name": "Cboe, expiration calendar", "url": "https://www.cboe.com/about/hours/us-options/", "fn": None},
     "spdji": {"name": "S&P Dow Jones Indices", "url": "https://www.spglobal.com/spdji/en/indices/equity/sp-500/", "fn": None},
     "one_off": {"name": "One-off events", "url": "https://www.usa.gov/midterm-elections", "fn": one_off},
-    "earnings": {"name": "Yahoo Finance, earnings", "url": "https://finance.yahoo.com/calendar/earnings", "fn": None},
+    "earnings": {"name": "Yahoo Finance, US earnings", "url": "https://finance.yahoo.com/calendar/earnings", "fn": None},
+    "earnings_europe": {"name": "Yahoo Finance, European earnings", "url": "https://finance.yahoo.com/calendar/earnings",
+                        "fn": None},
+    "earnings_asia": {"name": "Yahoo Finance, Asian earnings and market caps",
+                      "url": "https://finance.yahoo.com/research-hub/screener/", "fn": None},
+    "stoxx600": {"name": "iShares, STOXX Europe 600 holdings",
+                 "url": "https://www.ishares.com/uk/individual/en/products/251931/ishares-stoxx-europe-600-ucits-etf-de-fund",
+                 "fn": None},
     "spy": {"name": "State Street, SPY holdings",
             "url": "https://www.ssga.com/us/en/intermediary/etfs/spdr-sp-500-etf-trust-spy", "fn": None},
 }
 # Sources that always have something in a five-week window: an empty answer
 # means the page changed, so it counts as a failure and the last copy stays.
+# Indicators whose figure is a change (a rise or a fall: coloured, DESIGN.md);
+# the rest are levels (rates, inflation, sentiment, balances) and stay in ink.
+MOVES = {"payrolls", "ppi", "eci", "gdp", "retail", "durables", "ip", "ea_gdp", "ea_ip", "ea_retail", "uk_gdpm",
+         "uk_gdpq"}
+
 EXPECTED = {"bls", "census", "dol", "eurostat", "ons", "treasury", "market", "spglobal", "nbs", "fed_g17",
             "conference_board"}
 
@@ -1352,19 +1364,29 @@ class Yahoo:
         if not self.crumb or "<" in self.crumb:
             raise ValueError("Yahoo: no crumb")
 
-    def _open(self, url):
+    def _open(self, url, data=None):
         """Body at url, waiting and retrying when Yahoo rate-limits (429)."""
         for wait in (5, 20, 60, None):
             try:
-                return self.op.open(url, timeout=45).read()
+                req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"} if data else {})
+                return self.op.open(req, timeout=45).read()
             except urllib.error.HTTPError as e:
                 if e.code != 429 or wait is None:
                     raise
                 time.sleep(wait)
 
-    def json(self, url):
+    def json(self, url, body=None):
         sep = "&" if "?" in url else "?"
-        return json.loads(self._open(f"{url}{sep}crumb={urllib.parse.quote(self.crumb)}"))
+        data = json.dumps(body).encode() if body is not None else None
+        return json.loads(self._open(f"{url}{sep}crumb={urllib.parse.quote(self.crumb)}", data))
+
+    def screener(self, region, size):
+        """The largest equities of one market by market cap."""
+        body = {"offset": 0, "size": size, "sortField": "intradaymarketcap", "sortType": "desc", "quoteType": "equity",
+                "query": {"operator": "and", "operands": [{"operator": "eq", "operands": ["region", region]}]},
+                "userId": "", "userIdType": "guid"}
+        res = self.json("https://query1.finance.yahoo.com/v1/finance/screener?lang=en-US&region=US&formatted=false", body)
+        return res["finance"]["result"][0]["quotes"]
 
     def quotes(self, symbols):
         out = []
@@ -1374,26 +1396,195 @@ class Yahoo:
         return out
 
     def eps(self, symbol):
-        """[(quarter end, diluted EPS)] as reported."""
-        q = urllib.parse.urlencode({"type": "quarterlyDilutedEPS", "period1": 1600000000,
+        """([(quarter end, diluted EPS)], [(year end, diluted EPS)], currency) as reported."""
+        q = urllib.parse.urlencode({"type": "quarterlyDilutedEPS,annualDilutedEPS", "period1": 1500000000,
                                     "period2": int(dt.datetime.now().timestamp()) + 86400})
         res = self.json(f"https://query1.finance.yahoo.com/ws/fundamentals-timeseries/v1/finance/timeseries/{symbol}?{q}")
-        out = []
+        out, cur = {"quarterlyDilutedEPS": [], "annualDilutedEPS": []}, None
         for r in res["timeseries"]["result"]:
-            for x in r.get("quarterlyDilutedEPS") or []:
-                if x and x.get("reportedValue"):
-                    out.append((dt.date.fromisoformat(x["asOfDate"]), x["reportedValue"]["raw"]))
-        return sorted(out)
+            for k in out:
+                for x in r.get(k) or []:
+                    if x and x.get("reportedValue"):
+                        out[k].append((dt.date.fromisoformat(x["asOfDate"]), x["reportedValue"]["raw"]))
+                        cur = cur or x.get("currencyCode")
+        return sorted(out["quarterlyDilutedEPS"]), sorted(out["annualDilutedEPS"]), cur
 
 
 def company(name):
     """One key per company across share classes ('Alphabet Inc.' for GOOGL and GOOG)."""
-    return re.sub(r"\b(class [a-z]|cl [a-z]|inc|corp|corporation|co|plc|ltd|new)\b|[^a-z0-9 ]", "", name.lower()).strip()
+    return re.sub(r"\b(class [a-z]|cl [a-z]|inc|corp|corporation|co|plc|ltd|limited|new|ag|se|sa|nv|asa|ab)\b|[^a-z0-9 ]",
+                  "", name.lower()).strip()
 
 
-def earnings(cache):
-    """The next report of the 100 largest S&P 500 companies by market cap."""
-    ev = Events("earnings")
+def major(currency):
+    """The major unit of a Yahoo currency code: GBp (pence) is GBP."""
+    return {"GBp": "GBP", "GBX": "GBP", "ZAc": "ZAR", "ILA": "ILS"}.get(currency or "", currency or "")
+
+
+def usd_rates(yahoo, currencies):
+    """US dollars per unit of each currency, from Yahoo's FX quotes."""
+    want = sorted({major(c) for c in currencies if c and major(c) != "USD"})
+    rates = {"USD": 1.0}
+    for q in yahoo.quotes([f"{c}USD=X" for c in want]) if want else []:
+        if q.get("regularMarketPrice"):
+            rates[q["symbol"][:3]] = q["regularMarketPrice"]
+    return rates
+
+
+def usd_cap(q, rates):
+    """Market cap in US dollars; price times shares when Yahoo gives no cap."""
+    cap = q.get("marketCap")
+    if not cap and q.get("sharesOutstanding") and q.get("regularMarketPrice"):
+        price = q["regularMarketPrice"] / (100 if q.get("currency") == "GBp" else 1)
+        cap = price * q["sharesOutstanding"]
+    rate = rates.get(major(q.get("currency")))
+    return cap * rate if cap and rate else None
+
+
+# Europe: the STOXX Europe 600 from iShares' published holdings of its STOXX
+# Europe 600 ETF (EXSA). Each holding's exchange (or, failing that, its
+# country) gives the Yahoo Finance suffix.
+STOXX600_HOLDINGS = [
+    "https://www.ishares.com/uk/individual/en/products/251931/ishares-stoxx-europe-600-ucits-etf-de-fund/"
+    "1478358465952.ajax?fileType=csv&fileName=EXSA_holdings&dataType=fund",
+    "https://www.ishares.com/de/privatanleger/de/produkte/251931/ishares-stoxx-europe-600-ucits-etf-de-fund/"
+    "1478358465952.ajax?fileType=csv&fileName=EXSA_holdings&dataType=fund",
+]
+EXCHANGE_SUFFIX = [("london", ".L"), ("xetra", ".DE"), ("deutsche b", ".DE"), ("frankfurt", ".DE"),
+                   ("amsterdam", ".AS"), ("paris", ".PA"), ("brussels", ".BR"), ("lisbon", ".LS"),
+                   ("italiana", ".MI"), ("milan", ".MI"), ("madrid", ".MC"), ("bolsa", ".MC"), ("swiss", ".SW"),
+                   ("copenhagen", ".CO"), ("stockholm", ".ST"), ("helsinki", ".HE"), ("oslo", ".OL"),
+                   ("irish", ".IR"), ("dublin", ".IR"), ("wiener", ".VI"), ("vienna", ".VI"), ("warsaw", ".WA")]
+COUNTRY_SUFFIX = {"United Kingdom": ".L", "Germany": ".DE", "France": ".PA", "Netherlands": ".AS",
+                  "Switzerland": ".SW", "Denmark": ".CO", "Sweden": ".ST", "Finland": ".HE", "Norway": ".OL",
+                  "Spain": ".MC", "Italy": ".MI", "Belgium": ".BR", "Portugal": ".LS", "Ireland": ".IR",
+                  "Austria": ".VI", "Poland": ".WA"}
+COUNTRY_EN = {"Deutschland": "Germany", "Frankreich": "France", "Niederlande": "Netherlands", "Schweiz": "Switzerland",
+              "Dänemark": "Denmark", "Schweden": "Sweden", "Finnland": "Finland", "Norwegen": "Norway",
+              "Spanien": "Spain", "Italien": "Italy", "Belgien": "Belgium", "Irland": "Ireland",
+              "Österreich": "Austria", "Polen": "Poland", "Vereinigtes Königreich": "United Kingdom"}
+
+
+def stoxx600_members():
+    """[(Yahoo symbol, country)] of the STOXX Europe 600, from the ETF's holdings file."""
+    last = None
+    for url in STOXX600_HOLDINGS:
+        try:
+            raw = text(url)
+        except Exception as e:  # noqa: BLE001  the other site may answer
+            last = e
+            continue
+        lines = raw.lstrip("﻿").splitlines()
+        head = next((i for i, ln in enumerate(lines) if re.search(r'(^|,)"?(Ticker|Emittententicker)"?,', ln)), None)
+        if head is None:
+            last = ValueError(f"{url}: no holdings table")
+            continue
+        reader = csv.DictReader(io.StringIO("\n".join(lines[head:])))
+        out = []
+        for r in reader:
+            tick = (r.get("Ticker") or r.get("Emittententicker") or "").strip()
+            kind = (r.get("Asset Class") or r.get("Anlageklasse") or "").strip()
+            if not tick or (kind and kind not in ("Equity", "Aktien")):
+                continue
+            country = COUNTRY_EN.get((r.get("Location") or r.get("Standort") or "").strip(),
+                                     (r.get("Location") or r.get("Standort") or "").strip())
+            exch = (r.get("Exchange") or r.get("Börse") or "").lower()
+            suffix = next((sx for key, sx in EXCHANGE_SUFFIX if key in exch), None) or COUNTRY_SUFFIX.get(country)
+            if not suffix:
+                continue
+            sym = re.sub(r"[ /]+", "-", tick.rstrip(".")) + suffix
+            out.append((sym, country))
+        if len(out) >= 500:
+            return out
+        last = ValueError(f"{url}: only {len(out)} equity holdings")
+    raise last or ValueError("no holdings file")
+
+
+# Asia: Yahoo Finance's screener ranks each market by market cap; the top 20
+# companies across the six markets, one listing each.
+ASIA = {"jp": "Japan", "tw": "Taiwan", "kr": "South Korea", "hk": "Hong Kong", "cn": "China", "in": "India"}
+# Companies whose primary listing is London, quoted in Hong Kong: they belong to
+# Europe's list (STOXX Europe 600), not Asia's. Yahoo has no primary-listing flag.
+NOT_PRIMARY = {"0005.HK": "HSBC Holdings, London", "2888.HK": "Standard Chartered, London",
+               "2378.HK": "Prudential, London"}
+SUFFIX_COUNTRY = {".T": "Japan", ".TW": "Taiwan", ".TWO": "Taiwan", ".KS": "South Korea", ".KQ": "South Korea",
+                  ".HK": "Hong Kong", ".SS": "China", ".SZ": "China", ".NS": "India", ".BO": "India"}
+
+
+def suffix(sym):
+    return "." + sym.rsplit(".", 1)[1] if "." in sym else ""
+
+
+def pick_listing(group):
+    """One listing per company (owner's rules, 22 Oct 2026): the mainland A-share
+    for companies listed in mainland China and Hong Kong; the Hong Kong listing
+    for a Chinese company whose primary listing is in New York (only its Asian
+    listings are screened); NSE over BSE in India; otherwise the largest."""
+    mainland = [q for q in group if suffix(q["symbol"]) in (".SS", ".SZ")]
+    if mainland:
+        return max(mainland, key=lambda q: q["_usd"])
+    nse = [q for q in group if suffix(q["symbol"]) == ".NS"]
+    if nse:
+        return max(nse, key=lambda q: q["_usd"])
+    return max(group, key=lambda q: q["_usd"])
+
+
+def asia_universe(yahoo, n=20):
+    found = []
+    for region in ASIA:
+        found += yahoo.screener(region, 30)
+    # Korean preferred shares trade under codes not ending in 0 (005935 for Samsung).
+    found = [q for q in found if not (suffix(q["symbol"]) in (".KS", ".KQ") and not q["symbol"].split(".")[0].endswith("0"))
+             and q["symbol"] not in NOT_PRIMARY]
+    rates = usd_rates(yahoo, [q.get("currency") for q in found])
+    groups = {}
+    for q in found:
+        q["_usd"] = usd_cap(q, rates)
+        if q["_usd"]:
+            groups.setdefault(company(q.get("longName") or q.get("shortName") or q["symbol"]), []).append(q)
+    picked = sorted((pick_listing(g) for g in groups.values()), key=lambda q: -q["_usd"])[:n]
+    if len(picked) < n:
+        raise ValueError(f"Yahoo screener: only {len(picked)} Asian companies")
+    # Yahoo gives some NSE lines no market cap, so an Indian company can rank on
+    # its BSE line; the NSE listing is still the one shown.
+    nse = {q["symbol"]: q["symbol"][:-3] + ".NS" for q in picked if q["symbol"].endswith(".BO")}
+    full = {q["symbol"]: q for q in yahoo.quotes([q["symbol"] for q in picked] + list(nse.values()))}
+    out = []
+    for q in picked:
+        alt = full.get(nse.get(q["symbol"], ""))
+        f = alt if alt and alt.get("regularMarketPrice") else full.get(q["symbol"], q)
+        f["_usd"], f["_country"] = q["_usd"], SUFFIX_COUNTRY.get(suffix(q["symbol"]), "")
+        out.append(f)
+    return out
+
+
+def europe_universe(cache, yahoo, n=50):
+    try:
+        members = stoxx600_members()
+        cache["stoxx600"] = {"members": members, "ok": dt.datetime.now(UTC).isoformat(timespec="seconds"), "error": None}
+    except Exception as e:  # noqa: BLE001
+        members = (cache.get("stoxx600") or {}).get("members")
+        log(f"stoxx600: {type(e).__name__}: {e}; using the last good list ({(cache.get('stoxx600') or {}).get('ok')})", "warning")
+        cache.setdefault("stoxx600", {})["error"] = f"{type(e).__name__}: {e}"[:200]
+        if not members:
+            raise ValueError("no STOXX Europe 600 membership list yet") from e
+    country = dict((s, c) for s, c in members)
+    quotes = yahoo.quotes(list(country))
+    rates = usd_rates(yahoo, [q.get("currency") for q in quotes])
+    groups = {}
+    for q in quotes:
+        q["_usd"] = usd_cap(q, rates)
+        if q["_usd"]:
+            q["_country"] = "UK" if country[q["symbol"]] == "United Kingdom" else country[q["symbol"]]
+            groups.setdefault(company(q.get("longName") or q.get("shortName") or q["symbol"]), []).append(q)
+    top = sorted((max(g, key=lambda q: q["_usd"]) for g in groups.values()), key=lambda q: -q["_usd"])[:n]
+    if PROBE:
+        print(f"    STOXX Europe 600: {len(members)} holdings, {len(quotes)} on Yahoo; top: "
+              + ", ".join(q["symbol"] for q in top[:12]))
+    return top
+
+
+def us_universe(cache, yahoo, n=100):
     try:
         members = spy_members()
         cache["spy"] = {"tickers": members, "ok": dt.datetime.now(UTC).isoformat(timespec="seconds"), "error": None}
@@ -1403,7 +1594,6 @@ def earnings(cache):
         cache.setdefault("spy", {})["error"] = f"{type(e).__name__}: {e}"[:200]
         if not members:
             raise ValueError("no S&P 500 membership list yet") from e
-    yahoo = Yahoo()
     quotes = [q for q in yahoo.quotes(members) if q.get("marketCap")]
     quotes.sort(key=lambda q: -q["marketCap"])
     top, seen = [], set()
@@ -1412,34 +1602,85 @@ def earnings(cache):
         if key in seen:
             continue
         seen.add(key)
+        q["_country"] = "US"
         top.append(q)
-        if len(top) == 100:
+        if len(top) == n:
             break
     cache["top100"] = [q["symbol"] for q in top]
-    for rank, q in enumerate(top):
+    return top
+
+
+# Exchange sessions, local wall clock (open, close). Yahoo dates European and
+# Asian reports at the exchange's close when it has no time, so a time exactly
+# on the close reads "Time not given" (owner's rule, 22 Oct 2026).
+SESSIONS = {"LSE": ((8, 0), (16, 30)), "IOB": ((8, 0), (16, 30)), "GER": ((9, 0), (17, 30)), "FRA": ((9, 0), (17, 30)),
+            "PAR": ((9, 0), (17, 30)), "AMS": ((9, 0), (17, 30)), "BRU": ((9, 0), (17, 30)), "LIS": ((9, 0), (17, 30)),
+            "MIL": ((9, 0), (17, 30)), "MCE": ((9, 0), (17, 30)), "EBS": ((9, 0), (17, 30)), "VTX": ((9, 0), (17, 30)),
+            "VIE": ((9, 0), (17, 30)), "ISE": ((8, 0), (16, 30)), "CPH": ((9, 0), (17, 0)), "STO": ((9, 0), (17, 30)),
+            "HEL": ((10, 0), (18, 30)), "OSL": ((9, 0), (16, 20)), "WSE": ((9, 0), (17, 0)),
+            "JPX": ((9, 0), (15, 30)), "TAI": ((9, 0), (13, 30)), "TWO": ((9, 0), (13, 30)), "KSC": ((9, 0), (15, 30)),
+            "KOE": ((9, 0), (15, 30)), "HKG": ((9, 30), (16, 0)), "SHH": ((9, 30), (15, 0)), "SHZ": ((9, 30), (15, 0)),
+            "NSI": ((9, 15), (15, 30)), "BSE": ((9, 15), (15, 30))}
+CLOSE_STAMPS = {"HKG": {(16, 10)}}  # Hong Kong's closing auction ends at 16:10
+BENCH = {"us": ("^GSPC", "S&P 500"), "europe": ("^STOXX", "STOXX Europe 600"),
+         "Japan": ("^N225", "Nikkei 225"), "Taiwan": ("^TWII", "TAIEX"), "South Korea": ("^KS11", "KOSPI"),
+         "Hong Kong": ("^HSI", "Hang Seng"), "China": ("000300.SS", "CSI 300"), "India": ("^NSEI", "Nifty 50")}
+
+
+def report_timing(q, market, estimated, stamp_ny):
+    """'before', 'after' or 'none' for the open and close of the company's own market."""
+    if estimated:
+        return "none"
+    if market == "us":
+        if (stamp_ny.hour, stamp_ny.minute) <= (9, 30):
+            return "before"
+        return "after" if stamp_ny.hour >= 16 else "none"
+    hours = SESSIONS.get(q.get("exchange"))
+    tz = q.get("exchangeTimezoneName")
+    if not hours or not tz:
+        return "none"
+    local = stamp_ny.astimezone(ZoneInfo(tz))
+    hm = (local.hour, local.minute)
+    if hm == (0, 0) or hm == hours[1] or hm in CLOSE_STAMPS.get(q.get("exchange"), ()):
+        return "none"
+    return "before" if hm < hours[0] else "after" if hm > hours[1] else "none"
+
+
+def report_events(src, quotes, market, high):
+    """One row per company with a report date in the window."""
+    ev = Events(src)
+    for rank, q in enumerate(quotes):
         ts = q.get("earningsTimestampStart") or q.get("earningsTimestamp")
         if not ts:
             continue
         stamp = dt.datetime.fromtimestamp(ts, UTC).astimezone(NY)
         end = q.get("earningsTimestampEnd")
         estimated = bool(q.get("isEarningsDateEstimate")) or (end and end != ts) or q.get("isEarningsDateEstimate") is None
-        if estimated:
-            timing = "none"
-        elif (stamp.hour, stamp.minute) <= (9, 30):
-            timing = "before"
-        elif stamp.hour >= 16:
-            timing = "after"
-        else:
-            timing = "none"
-        day = stamp.date()
+        timing = report_timing(q, market, estimated, stamp)
+        tz = q.get("exchangeTimezoneName") or "America/New_York"
+        local_day = stamp.astimezone(ZoneInfo(tz)).date()
+        # A known time places the row on its New York day; otherwise the market's own date.
+        day = stamp.date() if timing != "none" else local_day
         if not in_window(day):
             continue
-        name = (q.get("longName") or q.get("shortName") or q["symbol"]).replace("&amp;", "&")
-        ev.add(day, f"{name}, {q['symbol']}", country="US", imp="High" if rank < 25 else "Medium", kind="earnings",
+        name = html.unescape(q.get("longName") or q.get("shortName") or q["symbol"])
+        country = q.get("_country") or "US"
+        bench = BENCH["us" if market == "us" else "europe" if market == "europe" else country]
+        ev.add(day, f"{name}, {q['symbol']}", country=country, imp="High" if rank < high else "Medium", kind="earnings",
                timing=timing, url=f"https://finance.yahoo.com/quote/{q['symbol']}/financials/",
                extra={"ticker": q["symbol"], "company": name, "status": "estimated" if estimated else "confirmed",
-                      "rank": rank + 1})
-    return ev.items, yahoo
+                      "rank": rank + 1, "market": market, "local_day": local_day.isoformat(), "tz": tz,
+                      "stamp": stamp.isoformat() if timing != "none" else None,
+                      "currency": major(q.get("financialCurrency") or q.get("currency")) or "USD",
+                      "bench": bench[0], "bench_name": bench[1]})
+    return ev.items
+
+
+EARNINGS = [  # (source key, market, universe, rows marked High)
+    ("earnings", "us", lambda cache, y: us_universe(cache, y), 25),
+    ("earnings_europe", "europe", lambda cache, y: europe_universe(cache, y), 12),
+    ("earnings_asia", "asia", lambda cache, y: asia_universe(y), 5),
+]
 
 
 def quarter_ends(obs):
@@ -1460,35 +1701,126 @@ def near(obs, day, days):
     return min(hits)[1:] if hits else None
 
 
+def year_before(d):
+    return d.replace(year=d.year - 1) if not (d.month == 2 and d.day == 29) else d - dt.timedelta(days=366)
+
+
+def period_end(day, fye_month):
+    """The fiscal period a report on day covers: the last quarter end (in the
+    company's fiscal calendar) at least ten days before it."""
+    ends = []
+    for y in (day.year - 1, day.year):
+        for k in range(4):
+            m = (fye_month + 3 * k - 1) % 12 + 1
+            ends.append(dt.date(y, m, cal.monthrange(y, m)[1]))
+    ends = [d for d in ends if d <= day - dt.timedelta(days=10)]
+    return max(ends) if ends else None
+
+
+def report_type(qobs, aobs, end):
+    """The report type, inferred from the periods Yahoo holds EPS for (owner's
+    rule, 22 Oct 2026); None when the history does not settle it.
+
+    A company with annual EPS and no quarterly EPS reports in full twice a year:
+    its year end is full-year results, six months on half-year results, the
+    quarters between trading updates. A company with EPS for at least three of
+    the six quarters before the period reports every quarter."""
+    if not aobs or not end:
+        return None
+    fye = aobs[-1][0].month
+    if not qobs:
+        gap = (end.month - fye) % 12
+        return {0: "Full-year results", 6: "Half-year results", 3: "Trading update", 9: "Trading update"}.get(gap)
+    recent = {(d.year, d.month) for d, _ in qobs if dt.timedelta(0) <= end - d <= dt.timedelta(days=550)}
+    return "Quarterly results" if len(recent) >= 3 else None
+
+
 def earnings_values(events, yahoo, now):
-    """Year-ago diluted EPS, and the reported figure once Yahoo has it."""
+    """Report type, year-ago diluted EPS, and the reported figure once Yahoo has it,
+    in the company's reporting currency."""
     for e in events:
         if e.get("kind") != "earnings" or "actual" in e:
             continue
-        day = dt.date.fromisoformat(e["date"])
+        day = dt.date.fromisoformat(e.get("local_day") or e["date"])
         if (now.date() - day).days > 21:
             continue
         try:
-            obs = yahoo.eps(e["ticker"])
+            qobs, aobs, cur = yahoo.eps(e["ticker"])
         except Exception as err:  # noqa: BLE001
             log(f"eps {e['ticker']}: {type(err).__name__}: {err}", "warning")
             continue
-        q = max((d for d in quarter_ends(obs) if d <= day - dt.timedelta(days=10)), default=None)
-        if not q:
-            continue
-        ago = near(obs, q.replace(year=q.year - 1) if not (q.month == 2 and q.day == 29) else q - dt.timedelta(days=366), 20)
+        fye = aobs[-1][0].month if aobs else (qobs[-1][0].month if qobs else 12)
+        end = period_end(day, fye)
+        kind = report_type(qobs, aobs, end)
+        if kind:
+            e["report_type"] = kind
+        code = cur or e.get("currency") or ""
+        cur = "" if e.get("market", "us") == "us" else f" {code}".rstrip()
+        dec = 0 if code == "KRW" else 2
+        series, label = (aobs, "year") if kind == "Full-year results" and not qobs else (qobs, "quarter")
+        if kind in ("Half-year results", "Trading update") or not end:
+            continue  # Yahoo holds no half-year or interim EPS
+        ago = near(series, year_before(end), 20)
         if ago:
-            e["previous"] = f"EPS {unsigned(ago[1], 2)}"
-            e["prev_period"] = f"quarter to {cal.month_abbr[ago[0].month]} {ago[0].year}"
+            e["previous"] = f"EPS {unsigned(ago[1], dec)}{cur}"
+            e["prev_period"] = f"{label} to {cal.month_abbr[ago[0].month]} {ago[0].year}"
         if now.date() >= day:
-            got = near(obs, q, 10)
+            got = near(series, end, 10)
             if got:
-                e["actual"], e["actual_seen"] = f"EPS {unsigned(got[1], 2)}", now.isoformat(timespec="seconds")
+                e["actual"], e["actual_seen"] = f"EPS {unsigned(got[1], dec)}{cur}", now.isoformat(timespec="seconds")
+
+
+def first_session(closes, day, timing):
+    """Index of the first full session after a report on day: that day's session
+    for a report before the open, the next one otherwise (owner's rule when the
+    time is not given, 22 Oct 2026)."""
+    for i, (d, _) in enumerate(closes):
+        if (d >= day if timing == "before" else d > day) and i > 0:
+            return i
+    return None
+
+
+def reactions(events, now):
+    """The stock's move on the first full session after its report, and the same
+    session's move of its benchmark, from Yahoo Finance daily closes. A session
+    still trading is left out, so a move is only ever a close-to-close move."""
+    from dashboard_data import yahoo as closes_of
+    charts = {}
+
+    def closes(sym):
+        if sym not in charts:
+            try:
+                charts[sym] = closes_of(sym, "1mo")
+            except Exception as err:  # noqa: BLE001
+                log(f"reaction {sym}: {type(err).__name__}: {err}", "warning")
+                charts[sym] = []
+        return charts[sym]
+
+    for e in events:
+        if e.get("kind") != "earnings" or e.get("reaction"):
+            continue
+        day = dt.date.fromisoformat(e.get("local_day") or e["date"])
+        if day > now.date() or (now.date() - day).days > 14:
+            continue
+        stock = closes(e["ticker"])
+        i = first_session(stock, day, e.get("timing") or "none")
+        if i is None:
+            continue
+        session, move = stock[i][0], (stock[i][1] / stock[i - 1][1] - 1) * 100
+        bench = closes(e.get("bench") or "^GSPC")
+        days = [d for d, _ in bench]
+        bmove = None
+        if session in days:
+            j = days.index(session)
+            if j > 0:
+                bmove = (bench[j][1] / bench[j - 1][1] - 1) * 100
+        e["reaction"] = {"session": session.isoformat(), "move": round(move, 2), "bench": e.get("bench_name", "S&P 500"),
+                         "bench_move": round(bmove, 2) if bmove is not None else None}
 
 
 # Merge and write ----------------------------------------------------------------
 
-KEEP = ("previous", "prev_period", "actual", "actual_seen", "actual_url", "base")
+KEEP = ("previous", "prev_period", "actual", "actual_seen", "actual_url", "base", "report_type", "reaction")
 
 
 def merge(cache, src, fresh, now):
@@ -1542,16 +1874,26 @@ def main():
                 print(snippets(key) if key in PROBE_KEYS else excerpt())
     yahoo = None
     try:
-        fresh, yahoo = earnings(cache)
-        if not fresh:
-            raise ValueError("no reports in the window")
-        merge(cache, "earnings", fresh, now)
-        status["earnings"] = {"ok": now.isoformat(timespec="seconds"), "error": None, "n": len(fresh)}
-        print(f"earnings: {len(fresh)} reports from the top {len(cache.get('top100', []))}")
+        yahoo = Yahoo()
     except Exception as e:  # noqa: BLE001
-        st = status.setdefault("earnings", {})
-        st["error"] = f"{type(e).__name__}: {e}"[:300]
-        log(f"earnings: {st['error']}; keeping the last good copy ({st.get('ok') or 'none'})", "warning")
+        log(f"Yahoo Finance: {type(e).__name__}: {e}; earnings keep their last good copy", "warning")
+    for key, market, universe, high in EARNINGS if yahoo else []:
+        # Each market keeps its own last good copy.
+        try:
+            quotes = universe(cache, yahoo)
+            fresh = report_events(key, quotes, market, high)
+            if not fresh:
+                raise ValueError("no reports in the window")
+            merge(cache, key, fresh, now)
+            status[key] = {"ok": now.isoformat(timespec="seconds"), "error": None, "n": len(fresh)}
+            print(f"{key}: {len(fresh)} reports from the top {len(quotes)}")
+            if PROBE:
+                for e in sorted(fresh, key=lambda e: e["date"])[:6]:
+                    print("   ", e["date"], e["timing"], e["status"], e["country"], e["title"])
+        except Exception as e:  # noqa: BLE001
+            st = status.setdefault(key, {})
+            st["error"] = f"{type(e).__name__}: {e}"[:300]
+            log(f"{key}: {st['error']}; keeping the last good copy ({st.get('ok') or 'none'})", "warning")
     events = list(cache.get("events", {}).values())
     live = [e for e in events if (now.date() - dt.date.fromisoformat(e["date"])).days <= 10]
     fetch_values(cache, {e["ind"] for e in live if e.get("ind") in IND})
@@ -1568,6 +1910,7 @@ def main():
         log(f"treasury yields: {type(e).__name__}: {e}", "warning")
     if yahoo:
         earnings_values(live, yahoo, now)
+    reactions([e for e in events if e.get("kind") == "earnings"], now)
     cache["updated"] = now.isoformat(timespec="seconds")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(cache, indent=1, sort_keys=True), encoding="utf-8")
