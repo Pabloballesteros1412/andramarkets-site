@@ -1473,13 +1473,19 @@ def stoxx600_members():
             raw = text(url)
         except Exception as e:  # noqa: BLE001  the other site may answer
             last = e
+            if PROBE:
+                print(f"    {url[:70]}... failed: {type(e).__name__}: {e}")
             continue
-        lines = raw.lstrip("﻿").splitlines()
-        head = next((i for i, ln in enumerate(lines) if re.search(r'(^|,)"?(Ticker|Emittententicker)"?,', ln)), None)
+        lines = raw.lstrip("\ufeff").splitlines()
+        # The English file separates with commas, the German one with semicolons.
+        head = next((i for i, ln in enumerate(lines) if re.search(r'(^|[,;])"?(Ticker|Emittententicker)"?[,;]', ln)), None)
         if head is None:
+            if PROBE:
+                print(f"    {url[:70]}... answered: " + re.sub(r"\s+", " ", raw[:400]))
             last = ValueError(f"{url}: no holdings table")
             continue
-        reader = csv.DictReader(io.StringIO("\n".join(lines[head:])))
+        sep = ";" if lines[head].count(";") > lines[head].count(",") else ","
+        reader = csv.DictReader(io.StringIO("\n".join(lines[head:])), delimiter=sep)
         out = []
         for r in reader:
             tick = (r.get("Ticker") or r.get("Emittententicker") or "").strip()
