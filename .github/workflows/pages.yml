@@ -77,6 +77,24 @@ jobs:
         with:
           path: .cache/calendar
           key: calendar-${{ github.run_id }}-${{ github.run_attempt }}
+      # Each company's last good figures, so a Yahoo hiccup keeps its page
+      # (with its own dates). Only the figures the pages draw are cached.
+      - name: Restore company figures
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/companies
+          key: companies-${{ github.run_id }}
+          restore-keys: companies-
+      # A Yahoo outage must not stop the deploy: the pages keep their last
+      # good figures, or are left out until the first good fetch.
+      - name: Fetch company figures
+        continue-on-error: true
+        run: python3 tools/company_data.py
+      - name: Save company figures
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/companies
+          key: companies-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Build pages
         run: python3 tools/build_site.py
       # Publish only the public site, never repo docs, briefs, data or tooling.
@@ -84,6 +102,7 @@ jobs:
         run: |
           mkdir _site
           cp -r index.html methodology reports dashboards calendar assets _site/
+          if [ -d companies ]; then cp -r companies _site/; fi
           rm -rf _site/assets/icons
       # The site is free: no PDF or data file may ever be published.
       - name: Check no downloads are published

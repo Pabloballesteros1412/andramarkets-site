@@ -361,6 +361,40 @@
     });
   }
 
+  // Companies index: filter the table by sector.
+  var coChips = document.querySelectorAll(".chip[data-cofilter]");
+  if (coChips.length) {
+    var coRows = document.querySelectorAll(".co-tab tbody tr");
+    var coStatus = document.querySelector(".co-index__status");
+    coChips.forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        var sec = chip.getAttribute("data-cofilter");
+        var shown = 0;
+        coChips.forEach(function (c) {
+          c.setAttribute("aria-pressed", String(c === chip));
+        });
+        coRows.forEach(function (row) {
+          var on = sec === "all" || row.getAttribute("data-sector") === sec;
+          row.hidden = !on;
+          if (on) shown++;
+        });
+        coStatus.textContent =
+          sec === "all"
+            ? "Showing all " + coRows.length + " companies"
+            : "Showing " + shown + " of " + coRows.length + " companies: " + chip.firstChild.textContent.trim();
+      });
+    });
+  }
+
+  // Features that are not live yet say so where they are pressed.
+  document.querySelectorAll("[data-soon]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var box = btn.closest(".co-acts, .co-gate");
+      var out = box && box.querySelector(".co-acts__status, .co-gate__status");
+      if (out) out.textContent = btn.getAttribute("data-soon");
+    });
+  });
+
   // Methodology questions: one open at a time. Without JS every answer shows.
   var acc = document.querySelector(".acc");
   if (acc) {
@@ -396,7 +430,7 @@
     pal.innerHTML =
       '<div class="pal__panel" role="dialog" aria-modal="true" aria-label="Search Andra Markets">' +
       '<div class="pal__field"><svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg>' +
-      '<input id="pal-q" type="text" placeholder="Search dashboards, notes and pages" autocomplete="off" spellcheck="false"' +
+      '<input id="pal-q" type="text" placeholder="Search companies, dashboards and notes" autocomplete="off" spellcheck="false"' +
       ' role="combobox" aria-expanded="true" aria-controls="pal-list" aria-autocomplete="list" aria-label="Search">' +
       '<button class="pal__esc" type="button">Esc</button></div>' +
       '<ul class="pal__list" id="pal-list" role="listbox" aria-label="Results"><li class="pal__glide" aria-hidden="true"></li></ul>' +
@@ -410,9 +444,9 @@
     var lastFocus = null;
     var loading = false;
 
-    var GROUPS = ["Dashboards", "Close notes", "Pages"];
+    var GROUPS = ["Companies", "Dashboards", "Close notes", "Pages"];
     var score = function (item, query) {
-      if (!query) return item.g === "Close notes" ? 1 : 2;
+      if (!query) return item.g === "Close notes" || item.g === "Companies" ? 1 : 2;
       var t = item.t.toLowerCase();
       var at = t.indexOf(query);
       if (at === 0) return 6;

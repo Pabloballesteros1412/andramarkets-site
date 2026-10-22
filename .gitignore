@@ -6,6 +6,7 @@ __pycache__/
 /methodology/
 /reports/
 /dashboards/
+/companies/
 /calendar/
 # This repo is public: PDFs stay in the agent repo, never here.
 *.pdf

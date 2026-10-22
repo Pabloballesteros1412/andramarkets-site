@@ -1072,6 +1072,7 @@ def site_header(home, base):
     </a>
     <nav class="nav" id="site-nav" aria-label="Primary">
       <a href="{home}#dashboards">Dashboards</a>
+      <a href="{base}companies/">Companies</a>
       <a href="{home}#lab">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{home}#note">Daily note</a>
@@ -1110,6 +1111,7 @@ def site_footer(home, base):
     </div>
     <nav class="foot__nav" aria-label="Footer">
       <a href="{home}#dashboards">Dashboards</a>
+      <a href="{base}companies/">Companies</a>
       <a href="{home}#lab">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{home}#note">Daily note</a>
@@ -1856,6 +1858,439 @@ def calendar_link(cal, d):
     return f"calendar/week/{week_of(d)}/#d-{d}"
 
 
+# Company pages ----------------------------------------------------------------
+# One page per company among the 50 largest in the S&P 500, from
+# .cache/companies/companies.json (tools/company_data.py). Owner-approved
+# design, 22 Oct 2026. assets/company.js draws the charts from the figures
+# embedded in each page.
+
+CO_DATA = ROOT / ".cache" / "companies" / "companies.json"
+SHORT_SECTOR = {
+    "Information Technology": "Technology", "Communication Services": "Communication",
+    "Consumer Discretionary": "Consumer discretionary", "Consumer Staples": "Consumer staples",
+    "Health Care": "Health care", "Real Estate": "Real estate",
+}
+
+
+def load_companies():
+    try:
+        data = json.loads(CO_DATA.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    order = [t for t in data.get("order") or [] if t in (data.get("companies") or {})]
+    if not order:
+        return None
+    return {"order": order, "co": data["companies"], "spx": data.get("spx") or []}
+
+
+def co_slug(t):
+    return t.lower()
+
+
+# The names people use, for the companies in the list today; a company that
+# joins later gets its Yahoo name with the legal suffix taken off.
+CO_NAMES = {
+    "NVDA": "Nvidia", "AAPL": "Apple", "MSFT": "Microsoft", "AMZN": "Amazon", "GOOGL": "Alphabet", "GOOG": "Alphabet",
+    "AVGO": "Broadcom", "META": "Meta", "TSLA": "Tesla", "MU": "Micron", "LLY": "Eli Lilly", "BRK-B": "Berkshire Hathaway",
+    "AMD": "AMD", "JPM": "JPMorgan Chase", "XOM": "Exxon Mobil", "V": "Visa", "JNJ": "Johnson & Johnson", "WMT": "Walmart",
+    "MA": "Mastercard", "ABBV": "AbbVie", "PLTR": "Palantir", "INTC": "Intel", "CVX": "Chevron", "COST": "Costco",
+    "CSCO": "Cisco", "UNH": "UnitedHealth", "MRK": "Merck", "PG": "Procter & Gamble", "KO": "Coca-Cola",
+    "CAT": "Caterpillar", "BAC": "Bank of America", "LRCX": "Lam Research", "AMAT": "Applied Materials",
+    "HD": "Home Depot", "PM": "Philip Morris", "GE": "GE Aerospace", "PANW": "Palo Alto Networks", "NFLX": "Netflix",
+    "GS": "Goldman Sachs", "TXN": "Texas Instruments", "RTX": "RTX", "TMO": "Thermo Fisher", "WFC": "Wells Fargo",
+    "GEV": "GE Vernova", "CRWD": "CrowdStrike", "AMGN": "Amgen", "IBM": "IBM", "LIN": "Linde", "MS": "Morgan Stanley",
+    "ORCL": "Oracle", "MRVL": "Marvell", "KLAC": "KLA", "SNDK": "SanDisk", "CRM": "Salesforce", "ADI": "Analog Devices",
+    "APH": "Amphenol", "DIS": "Disney", "ANET": "Arista Networks", "GILD": "Gilead", "QCOM": "Qualcomm", "PEP": "PepsiCo",
+    "VZ": "Verizon", "COP": "ConocoPhillips", "MCD": "McDonald's", "ABT": "Abbott", "UNP": "Union Pacific",
+    "AXP": "American Express", "PFE": "Pfizer", "WELL": "Welltower", "BLK": "BlackRock", "NEE": "NextEra Energy",
+    "TJX": "TJX", "DE": "Deere", "NOW": "ServiceNow",
+}
+
+
+def co_name(rec):
+    """Plain company name: 'Microsoft' for 'Microsoft Corporation'."""
+    if rec.get("ticker") in CO_NAMES:
+        return CO_NAMES[rec["ticker"]]
+    n = html.unescape(rec["name"]).replace("&amp;", "&")
+    n = re.sub(r"^The\s+", "", n)
+    n = re.sub(r"\s*(&|and)\s*(Co\.?|Company)$", "", n)
+    n = re.sub(r",?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Company|Co\.?|plc|N\.V\.|Ltd\.?|Holdings?|Platforms|Technologies)$", "", n)
+    n = re.sub(r",?\s+(Inc\.?|Corporation|Corp\.?)$", "", n)
+    return {"Alphabet": "Alphabet", "Berkshire Hathaway": "Berkshire Hathaway"}.get(n, n).strip()
+
+
+def money(v, short=True):
+    """$3.96tn, $331.8bn, $867m."""
+    if v is None:
+        return "n/a"
+    a = abs(v)
+    sign = MINUS if v < 0 else ""
+    if a >= 1e12:
+        return f"{sign}${a / 1e12:.2f}tn"
+    if a >= 1e9:
+        return f"{sign}${a / 1e9:,.1f}bn"
+    return f"{sign}${a / 1e6:,.0f}m"
+
+
+def pct1(v):
+    """12.3%, -0.04 as 0.0%, negatives with a true minus."""
+    r = round(v, 1)
+    if r == 0:
+        return "0.0%"
+    return f"{MINUS if r < 0 else ''}{abs(r):.1f}%"
+
+
+def usd_signed(v):
+    return f"{MINUS if v < 0 else ''}${abs(v):,.2f}"
+
+
+def fy_label(iso):
+    d = dt.date.fromisoformat(iso)
+    return f"{d:%b} {d.year}"
+
+
+def co_metrics(rec):
+    a = rec["annual"]
+    closes = rec["closes"]
+    price, prev = closes[-1][1], closes[-2][1]
+    rev, rev0 = a["TotalRevenue"]["fy"], a["TotalRevenue"]["prev"]
+    op = a["OperatingIncome"]["fy"]
+    shares = rec.get("shares")
+    mcap = price * shares if shares else None
+    if mcap is not None and mcap < 1e10:  # a share count in another class (Berkshire)
+        mcap = None
+    eps = rec.get("ttm_eps")
+    debt, cash, eq = rec.get("debt"), rec.get("cash"), rec.get("equity")
+    return {
+        "price": price, "prev": prev, "date": closes[-1][0],
+        "chg": price - prev, "chg_pct": (price / prev - 1) * 100,
+        "mcap": mcap,
+        "pe": price / eps if eps and eps > 0 else None,
+        "rev": rev, "revg": (rev / rev0 - 1) * 100 if rev and rev0 else None,
+        "om": op / rev * 100 if op is not None and rev else None,
+        "fcf": a["FreeCashFlow"]["fy"], "capex": a["CapitalExpenditure"]["fy"],
+        "net_debt": (debt or 0) - (cash or 0) if debt is not None or cash is not None else None,
+        "debt": debt, "cash": cash,
+        "de": debt / eq * 100 if debt is not None and eq and eq > 0 else None,
+        "dy": rec["div_ttm"] / price * 100 if rec.get("div_ttm") else 0.0,
+        "ni": a["NetIncomeCommonStockholders"]["fy"], "ni0": a["NetIncomeCommonStockholders"]["prev"],
+    }
+
+
+def co_flow(rec):
+    """Revenue down to net income for the last fiscal year, in $bn: steps that reconcile."""
+    a = {k: v["fy"] for k, v in rec["annual"].items()}
+    rev = a["TotalRevenue"]
+    if not rev:
+        return None
+    bn = lambda v: round(v / 1e9, 2)  # noqa: E731
+    small = abs(rev) * 0.005
+    steps = [["Revenue", bn(rev), "total"]]
+    base = rev
+    cogs, gross = a["CostOfRevenue"], a["GrossProfit"]
+    if cogs and gross:
+        steps += [["Cost of revenue", -bn(cogs)], ["Gross profit", bn(gross), "total", "Gross margin"]]
+        base = gross
+    op = a["OperatingIncome"]
+    pre, tax, ni = a["PretaxIncome"], a["TaxProvision"], a["NetIncomeCommonStockholders"]
+    if op is not None:
+        rd, sga = a["ResearchAndDevelopment"] or 0, a["SellingGeneralAndAdministration"] or 0
+        if rd:
+            steps.append(["Research", -bn(rd)])
+        if sga:
+            steps.append(["Sales and admin", -bn(sga)])
+        other = base - rd - sga - op
+        if abs(other) > small:
+            steps.append(["Other operating costs" if other > 0 else "Other operating income", bn(-other)])
+        steps.append(["Operating profit", bn(op), "total", "Operating margin"])
+        base = op
+    if pre is None:
+        return steps if len(steps) > 1 else None
+    if op is None:
+        steps.append(["Costs and provisions" if base > pre else "Other income", bn(pre - base)])
+    elif abs(pre - base) > small:
+        steps.append(["Other income" if pre > base else "Other expense", bn(pre - base)])
+    steps.append(["Pre-tax profit", bn(pre), "total"])
+    if ni is None:
+        return steps
+    if tax:
+        steps.append(["Tax", -bn(tax)])
+    rest = pre - (tax or 0) - ni
+    if abs(rest) > small:
+        steps.append(["Minorities and other", bn(-rest)])
+    steps.append(["Net income", bn(ni), "total", "Net margin"])
+    return steps
+
+
+def co_peer_row(t, rec):
+    m = co_metrics(rec)
+    r = lambda v, d=2: None if v is None else round(v, d)  # noqa: E731
+    return {"t": t, "n": co_name(rec), "pe": r(m["pe"], 1), "g": r(m["revg"], 1), "om": r(m["om"], 1),
+            "de": r(m["de"], 0), "dy": r(m["dy"], 2)}
+
+
+def co_cagr(rec):
+    """Free cash flow growth a year over the last three fiscal years, when all are positive."""
+    h = [v for _, v in rec.get("fcf_hist") or []]
+    if len(h) >= 4 and h[-4] > 0 and h[-1] > 0:
+        return ((h[-1] / h[-4]) ** (1 / 3) - 1) * 100, len(h)
+    return None, None
+
+
+def co_earnings(cal, t):
+    out = []
+    for e in (cal.get("events") or {}).values():
+        if e.get("kind") == "earnings" and e.get("ticker") == t and e["date"] >= cal_today().isoformat():
+            out.append(e)
+    return sorted(out, key=lambda e: e["date"])[:1]
+
+
+def co_ahead(cal, t, base):
+    rows = []
+    for e in co_earnings(cal, t):
+        d = dt.date.fromisoformat(e["date"])
+        when = {"before": "before the open", "after": "after the close"}.get(e.get("timing"), "")
+        bits = []
+        if e.get("status") == "estimated":
+            bits.append("Date estimated, not yet confirmed by the company")
+        elif when:
+            bits.append(f"Reports {when}")
+        if e.get("previous"):
+            bits.append(f"a year earlier: {esc(e['previous'])}" + (f", {esc(e['prev_period'])}" if e.get("prev_period") else ""))
+        link = calendar_link(cal, d)
+        title = "Quarterly results"
+        if link:
+            title = f'<a class="link" href="{base}{link}">Quarterly results</a>'
+        rows.append(f'<li><time datetime="{d}">{day_med(d)}</time><div><b>{title}</b>'
+                    f'<span>{"; ".join(bits).capitalize() if bits else ""}</span></div></li>')
+    if not rows:
+        return '<p>No results date in the calendar yet. It appears here once the company or Yahoo Finance posts one.</p>'
+    return f'<ul class="co-cal">{"".join(rows)}</ul><p class="co-src">From the Andra Markets calendar, Yahoo Finance.</p>'
+
+
+def kpi(name, level, note):
+    return (f'<li class="kpi__item"><span class="kpi__name">{name}</span><span class="kpi__level">{level}</span>'
+            f'<span class="kpi__chg">{note}</span></li>')
+
+
+def company_page(t, data, cal):
+    rec = data["co"][t]
+    m = co_metrics(rec)
+    name = co_name(rec)
+    sector = rec["sector"]
+    d = dt.date.fromisoformat(m["date"])
+    fy = fy_label(rec["fy"])
+    base = "../../"
+    peers_all = [x for x in data["order"] if data["co"][x]["sector"] == sector]
+    if len(peers_all) >= 4:
+        peers = peers_all
+        peers_lede = (f"{name} (filled) against the other {len(peers) - 1} {SHORT_SECTOR.get(sector, sector).lower()} "
+                      f"companies among the 50 largest in the S&amp;P 500. Tap or hover a dot to read it.")
+    else:
+        peers = data["order"]
+        peers_lede = (f"{name} (filled) against the 50 largest companies in the S&amp;P 500; too few in its sector "
+                      f"to compare on their own. Tap or hover a dot to read it.")
+    flow = co_flow(rec)
+    cagr, _ = co_cagr(rec)
+    can_dcf = rec.get("dcf") and m["fcf"] and m["fcf"] > 0 and rec.get("shares") and m["mcap"]
+    payload = {
+        "t": t, "name": name, "price": m["price"], "date": m["date"],
+        "peers": [co_peer_row(x, data["co"][x]) for x in peers],
+        "flow": flow, "fy": fy,
+        "dcf": {"fcf": round(m["fcf"] / 1e9, 3), "net_debt": round((m["net_debt"] or 0) / 1e9, 3),
+                "shares": round(rec["shares"] / 1e9, 4), "cagr": None if cagr is None else round(cagr, 1)} if can_dcf else None,
+        "hist": [[dd, c] for dd, c in rec["closes"]],
+        "spx": [[dd, c] for dd, c in data["spx"]],
+    }
+    json_payload = json.dumps(payload, separators=(",", ":")).replace("</", "<\\/")
+
+    chg = f'{"+" if m["chg"] >= 0 else MINUS}${abs(m["chg"]):,.2f} ({signed(m["chg_pct"], 2, "%")})'
+    lede = f"{SHORT_SECTOR.get(sector, sector)}{(', ' + esc(rec['industry'])) if rec.get('industry') else ''}. Revenue of {money(m['rev'])} in the year to {fy}"
+    if m["revg"] is not None:
+        lede += f", {'up' if m['revg'] >= 0 else 'down'} {abs(m['revg']):.1f}%"
+    if m["om"] is not None:
+        lede += f", with an operating margin of {pct1(m['om'])}"
+    lede += "."
+
+    kp = [
+        kpi("Market value", money(m["mcap"]), f'{rec["shares"] / 1e9:.2f}bn shares' if m["mcap"] else "Not shown: share classes"),
+        kpi("P/E, last 12 months", f'{m["pe"]:.1f}x' if m["pe"] else "n/a",
+            f'EPS {usd_signed(rec["ttm_eps"])}' if rec.get("ttm_eps") is not None else "No EPS yet"),
+        kpi("Revenue growth", signed(m["revg"], 1, "%") if m["revg"] is not None else "n/a", f"Year to {fy}"),
+        kpi("Operating margin", pct1(m["om"]) if m["om"] is not None else "n/a", f"Year to {fy}" if m["om"] is not None else "Not reported for banks"),
+    ]
+    if rec.get("dcf"):
+        kp += [
+            kpi("Free cash flow", money(m["fcf"]), f"After {money(abs(m['capex']))} capex" if m["capex"] else f"Year to {fy}"),
+            kpi("Net debt" if (m["net_debt"] or 0) >= 0 else "Net cash", money(abs(m["net_debt"])) if m["net_debt"] is not None else "n/a",
+                f"{money(m['debt'])} debt, {money(m['cash'])} cash" if m["debt"] is not None else ""),
+        ]
+    else:
+        # A lender's cash flow and debt are its customers' money: show earnings and book value instead.
+        eq = rec.get("equity")
+        kp += [
+            kpi("Net income", money(m["ni"]), f"Year to {fy}"),
+            kpi("Shareholders' equity", money(eq), f"Price to book {m['mcap'] / eq:.1f}x" if m["mcap"] and eq and eq > 0 else "Book value"),
+        ]
+    kp += [
+        kpi("Dividend yield", f'{m["dy"]:.2f}%' if m["dy"] else "None", f'${rec["div_ttm"]:.2f} a share, last 12 months' if m["dy"] else "No dividend in the last year"),
+        kpi("52-week range", f'${rec["low52"]:,.0f}&ndash;{rec["high52"]:,.0f}' if rec.get("low52") else "n/a", f"Close ${m['price']:,.2f}"),
+    ]
+
+    if can_dcf:
+        val = f"""<p>A ten-year discounted cash flow model on the last reported free cash flow. Every assumption is on the page: move it and the value follows.</p>
+        <div class="co-model">
+          <div class="co-ctls">
+            <div class="co-ctl"><label for="co-g">Cash flow growth, years 1 to 5 <output id="co-g-o"></output></label><input id="co-g" type="range" min="-5" max="35" step="0.5" value="10"></div>
+            <div class="co-ctl"><label for="co-r">Discount rate <output id="co-r-o"></output></label><input id="co-r" type="range" min="6" max="13" step="0.25" value="9"></div>
+            <div class="co-ctl"><label for="co-tg">Growth after year 10 <output id="co-tg-o"></output></label><input id="co-tg" type="range" min="0" max="4.5" step="0.25" value="3"></div>
+            <button class="co-reset" type="button" id="co-reset">Reset assumptions</button>
+          </div>
+          <div class="co-verdict">
+            <div class="co-v"><span class="co-v__n">Value per share on these assumptions</span><span class="co-v__v" id="co-fv"></span><span class="co-v__c" id="co-fv-c"></span></div>
+            <div class="co-v"><span class="co-v__n">Growth the price implies</span><span class="co-v__v" id="co-ig"></span><span class="co-v__c" id="co-ig-c"></span></div>
+          </div>
+        </div>
+        <div class="co-chart" id="co-val"></div>
+        <p class="co-src">Base: free cash flow of {money(m["fcf"])} in the year to {fy}, {"net debt" if (m["net_debt"] or 0) >= 0 else "net cash"} of {money(abs(m["net_debt"] or 0))}, {rec["shares"] / 1e9:.2f}bn shares. Growth fades in a straight line from year 6 to year 10. An Andra Markets model, not a recommendation.</p>"""
+    elif not rec.get("dcf"):
+        val = ("<p>Not modelled on cash flow. A bank's, insurer's or asset manager's cash flows are mostly its customers' "
+               "money, so a free cash flow model says little about its value. Its P/E and dividend sit in the peer "
+               "comparison above.</p>")
+    else:
+        val = (f"<p>Not modelled yet: free cash flow was {money(m['fcf'])} in the year to {fy}, and a cash flow model "
+               "needs a positive starting point to mean anything.</p>")
+
+    flow_sec = ('<div class="co-chart" id="co-flow"></div>'
+                '<p class="key"><span><i class="sw-down"></i>Costs and tax</span>'
+                '<span><i class="sw-up"></i>Income</span>'
+                '<span><i class="sw-ink"></i>Totals</span></p>'
+                f'<p class="co-src">Annual report for the year to {fy}, via Yahoo Finance. Steps under 0.5% of revenue are folded into the next total.</p>'
+                if flow else "<p>Data pending.</p>")
+
+    spx_note = "" if data["spx"] else " The S&amp;P 500 series is pending."
+    body = f"""<main id="main" class="page dd co" data-co>
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <p class="dd__crumbs"><a href="../">Companies</a> <span aria-hidden="true">/</span> {SHORT_SECTOR.get(sector, sector)}</p>
+      <h1 class="page__title">{esc(name)}</h1>
+      <p class="co-quote"><span class="co-px">${m["price"]:,.2f}</span><span class="co-chg">{chg} on the day</span><span class="note__meta">{t}, {esc(rec.get("exchange") or "")}. Close {day_med(d)}.</span></p>
+      <p class="lede">{lede}</p>
+      <div class="co-acts">
+        <button class="btn" type="button" data-soon="The portfolio monitor is coming soon: you will be able to follow {esc(name)} and your other holdings here.">Add to portfolio monitor</button>
+        <button class="btn btn--ghost" type="button" data-soon="Alerts are coming soon: you will get an email before and after {esc(name)}'s results.">Alert me on results</button>
+        <p class="co-acts__status" role="status" aria-live="polite"></p>
+      </div>
+    </header>
+    <aside class="report__side dd__side" aria-labelledby="side-title">
+      <h2 class="report__side-title" id="side-title">Key figures</h2>
+      <ul class="kpi">{"".join(kp)}</ul>
+      <p class="report__src">Yahoo Finance: annual report for the year to {fy}, balance sheet at {fy_label(rec["bs_date"]) if rec.get("bs_date") else fy}, close of {day_med(d)}.</p>
+    </aside>
+    <div class="page__body co__body dd__main">
+      <section aria-labelledby="co-peers-t">
+        <h2 id="co-peers-t">Against its peers</h2>
+        <p>{peers_lede}</p>
+        <div class="co-chart" id="co-peers"></div>
+        <p class="co-read" id="co-peers-read" aria-live="polite"></p>
+        <p class="co-src">Yahoo Finance, {day_med(d)}. P/E on the last four quarters' diluted EPS; revenue growth and operating margin for each company's last fiscal year; debt to equity at the last balance sheet; dividend yield on the last 12 months' dividends.</p>
+      </section>
+      <section aria-labelledby="co-val-t">
+        <h2 id="co-val-t">Valuation</h2>
+        {val}
+      </section>
+      <section aria-labelledby="co-flow-t">
+        <h2 id="co-flow-t">From revenue to profit</h2>
+        <p>Where revenue went in the year to {fy}, in billions of dollars and as a share of revenue.</p>
+        {flow_sec}
+      </section>
+      <section aria-labelledby="co-ctx-t">
+        <h2 id="co-ctx-t">Against the market</h2>
+        <p>{esc(name)} and the S&amp;P 500 over the past year, both rebased to 100.{spx_note}</p>
+        <div class="co-chart" id="co-ctx"></div>
+        <p class="key"><span><i class="k-solid"></i>{esc(name)}</span><span><i class="k-dash"></i>S&amp;P 500</span></p>
+        <p class="co-read" id="co-ctx-read" aria-live="polite"></p>
+        <p class="co-src">Yahoo Finance, daily closes to {day_med(d)}.</p>
+      </section>
+      <section aria-labelledby="co-memo-t">
+        <h2 id="co-memo-t">Investment memo</h2>
+        <div class="co-gate">
+          <p>Coming with the Andra Markets subscription: a full memo on {esc(name)}, written for professionals.</p>
+          <ul>
+            <li>The thesis and what would change it</li>
+            <li>Segment by segment, with the model's full workings</li>
+            <li>Three scenarios with their assumptions</li>
+            <li>What to watch at the next results</li>
+          </ul>
+          <button class="btn" type="button" data-soon="Subscriptions open soon. Get the free close note by email in the meantime, from the home page.">Subscribe for the memo</button>
+          <p class="co-gate__status" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+      <section aria-labelledby="co-ahead-t">
+        <h2 id="co-ahead-t">Ahead</h2>
+        {co_ahead(cal, t, base)}
+      </section>
+      <p class="co-legal">For information only. Not investment advice.</p>
+    </div>
+  </div>
+  <script type="application/json" id="co-data">{json_payload}</script>
+</main>"""
+    return shell(
+        title=f"{esc(name)} ({t}): Andra Markets",
+        desc=esc(f"{name}: valuation, peers, revenue to profit and the share price against the market. {html.unescape(lede)}"),
+        body=body, home=base, base=base, path=f"companies/{co_slug(t)}/", scripts=("company.js",),
+    )
+
+
+def companies_index(data):
+    sectors = {}
+    for t in data["order"]:
+        sectors.setdefault(data["co"][t]["sector"], []).append(t)
+    order = sorted(sectors, key=lambda s: (-len(sectors[s]), s))
+    chips = (f'<button type="button" class="chip" data-cofilter="all" aria-pressed="true">All <span class="chip__n">{len(data["order"])}</span></button>'
+             + "".join(f'<button type="button" class="chip" data-cofilter="{slug_s(s)}" aria-pressed="false">{SHORT_SECTOR.get(s, s)} '
+                       f'<span class="chip__n">{len(sectors[s])}</span></button>' for s in order))
+    rows = []
+    last = None
+    for i, t in enumerate(data["order"], 1):
+        rec = data["co"][t]
+        m = co_metrics(rec)
+        last = max(last or m["date"], m["date"])
+        pe_txt = f'{m["pe"]:.1f}x' if m["pe"] else "n/a"
+        rows.append(
+            f'<tr data-sector="{slug_s(rec["sector"])}"><td class="co-tab__rank">{i}</td>'
+            f'<td class="co-tab__name"><a href="{co_slug(t)}/">{esc(co_name(rec))}</a><span>{t}</span></td>'
+            f'<td class="co-tab__sec" data-label="Sector">{SHORT_SECTOR.get(rec["sector"], rec["sector"])}</td>'
+            f'<td class="num" data-label="Close">${m["price"]:,.2f}</td>'
+            f'<td class="num" data-label="Day">{signed(m["chg_pct"], 2, "%")}</td>'
+            f'<td class="num" data-label="Value">{money(m["mcap"])}</td>'
+            f'<td class="num" data-label="P/E">{pe_txt}</td></tr>')
+    body = f"""<main id="main" class="page co-index">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Companies</h1>
+      <p class="lede">The 50 largest companies in the S&amp;P 500, by their weight in the index. Each has a page with its valuation, its peers, where its revenue goes and how the shares have done against the market.</p>
+    </header>
+    <div class="filters" role="group" aria-label="Filter companies by sector">{chips}</div>
+    <p class="filters__status co-index__status" role="status" aria-live="polite">Showing all {len(data["order"])} companies</p>
+    <div class="co-tab__wrap">
+      <table class="co-tab">
+        <thead><tr><th scope="col"><span class="visually-hidden">Rank</span></th><th scope="col">Company</th><th scope="col">Sector</th><th scope="col" class="num">Close</th><th scope="col" class="num">Day</th><th scope="col" class="num">Market value</th><th scope="col" class="num">P/E</th></tr></thead>
+        <tbody>{"".join(rows)}</tbody>
+      </table>
+    </div>
+    <p class="co-src">Members and ranking: State Street SPY holdings. Prices and figures: Yahoo Finance, close of {day_med(dt.date.fromisoformat(last))}. P/E on the last four quarters' diluted EPS.</p>
+  </div>
+</main>"""
+    return shell(title="Companies: Andra Markets",
+                 desc="The 50 largest companies in the S&amp;P 500, each with valuation, peers and results.",
+                 body=body, home="../", base="../", path="companies/")
+
+
+def slug_s(s):
+    return re.sub(r"[^a-z]+", "-", s.lower()).strip("-")
+
+
 # Search index for the header palette (site.js loads it on first open). A .js
 # file, not .json: the deploy refuses JSON files on the published site.
 SEARCH_TERMS = {
@@ -1875,6 +2310,7 @@ SEARCH_TERMS = {
 SEARCH_PAGES = [
     ("Dashboards", "#dashboards", "Home"),
     ("The Lab", "#lab", "Home"),
+    ("Companies", "companies/", "Page"),
     ("Economic calendar", "calendar/", "Page"),
     ("Daily close note", "#note", "Home"),
     ("Learn", "#learn", "Home"),
@@ -1886,8 +2322,12 @@ SEARCH_PAGES = [
 ]
 
 
-def search_index(notes):
+def search_index(notes, companies=None):
     items = []
+    for t in (companies or {}).get("order", []):
+        rec = companies["co"][t]
+        items.append({"g": "Companies", "t": co_name(rec), "m": t, "u": f"companies/{co_slug(t)}/",
+                      "k": f"{t} {html.unescape(rec['name'])} {rec['sector']} {rec.get('industry') or ''}"})
     for key, cat, name, desc, source in DASHBOARDS:
         items.append({"g": "Dashboards", "t": html.unescape(name), "m": "Dashboard",
                       "u": f"dashboards/{DASH_PAGES[key][0]}/",
@@ -1906,7 +2346,8 @@ def main():
     notes = load_notes()
     cal = load_calendar()
     now = dt.datetime.now(dt.timezone.utc)
-    (OUT / "assets" / "search-index.js").write_text(search_index(notes), encoding="utf-8")
+    companies = load_companies()
+    (OUT / "assets" / "search-index.js").write_text(search_index(notes, companies), encoding="utf-8")
     (OUT / "index.html").write_text(page(notes, cal))
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
@@ -1931,6 +2372,14 @@ def main():
         rec = dash_data.get(key)
         # A record cached before the pages existed has no history yet: pending until refetched.
         (folder / "index.html").write_text(dashboard_page(key, cat, name, desc, source, rec if rec and rec.get("detail") else None))
+    if companies:
+        (OUT / "companies").mkdir(exist_ok=True)
+        (OUT / "companies" / "index.html").write_text(companies_index(companies))
+        for t in companies["order"]:
+            folder = OUT / "companies" / co_slug(t)
+            folder.mkdir(parents=True, exist_ok=True)
+            (folder / "index.html").write_text(company_page(t, companies, cal))
+        print(f"wrote {len(companies['order'])} company pages")
     print(f"wrote index.html, methodology/index.html, reports/index.html, {len(DASHBOARDS)} dashboard pages, "
           f"{len(notes)} report page(s) and the calendar with {len(weeks)} week page(s)")
 
