@@ -87,7 +87,7 @@ def text(url, **kw):
     return body
 
 
-PROBE_KEYS = {"conference_board": r"Consumer Confidence", "fed_g17": r"2026", "fed_speeches": r"Speech|title",
+PROBE_KEYS = {"conference_board": r"Consumer Confidence|[Rr]elease [Cc]alendar", "fed_g17": r"2026", "fed_speeches": r"Speech|title",
               "boj": r"20\d\d|Meeting", "ecb_speeches": r"Lagarde|[Ss]peech", "ism": r"PMI|Manufacturing"}
 
 
@@ -496,7 +496,8 @@ def fed_blackout():
     return ev.items
 
 
-FED_SPEAKERS = [("Chair", "High"), ("Vice Chair for Supervision", "Medium"), ("Vice Chair", "Medium")]
+# The Board's calendar writes "Chairman"; fireside chats are listed as "Discussion".
+FED_SPEAKERS = [("Vice Chair for Supervision", "Medium"), ("Vice Chair", "Medium"), ("Chairman", "High"), ("Chair", "High")]
 
 
 def fed_speeches():
@@ -510,7 +511,7 @@ def fed_speeches():
             continue
         title = strip(str(e.get("title") or ""))
         kind = str(e.get("type") or "")
-        if "Speech" not in kind and not title.startswith("Speech"):
+        if "Speech" not in kind and not re.match(r"(Speech|Discussion|Testimony)\b", title):
             continue
         who = next(((role, imp) for role, imp in FED_SPEAKERS if re.search(rf"\b{role}\b", title)), None)
         if not who or "Governor" in title.split(who[0])[0]:
@@ -522,8 +523,10 @@ def fed_speeches():
         day = dt.date(int(month[:4]), int(month[5:]), int(days[0]))
         if not in_window(day):
             continue
-        name = re.search(r"(Vice Chair for Supervision|Vice Chair|Chair) ([A-Z][A-Za-z.\- ]+?)(?:$| at | on | to |,| -)", title)
-        label = f"Speech by Fed {name.group(1)} {name.group(2).strip()}" if name else f"Speech by Fed {who[0]}"
+        name = re.search(r"(Vice Chair for Supervision|Vice Chair|Chairman|Chair) ([A-Z][A-Za-z.\- ]+?)(?:$| at | on | to |,| -)", title)
+        what = "Testimony" if title.startswith("Testimony") else "Discussion" if title.startswith("Discussion") else "Speech"
+        role = name.group(1).replace("Chairman", "Chair") if name else who[0].replace("Chairman", "Chair")
+        label = f"{what} by Fed {role} {name.group(2).strip()}" if name else f"{what} by Fed {role}"
         ev.add(day, label, country="US", imp=who[1], when=parse_clock(str(e.get("time") or "")), tz="America/New_York")
     del today
     return ev.items
@@ -638,7 +641,7 @@ def conference_board():
     ev = Events("conference_board")
     base = "https://www.conference-board.org/topics/consumer-confidence"
     page = text(base)
-    cal_pages = [h for h, t in links(page, base) if t.strip().lower() == "release calendar"]
+    cal_pages = [h for h, t in links(page, base) if "release calendar" in t.lower() or "release-calendar" in h.lower()]
     if cal_pages:
         page = text(cal_pages[0])
     t = re.sub(r"\s+", " ", strip(page))
