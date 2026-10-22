@@ -373,9 +373,13 @@
     // Start on the latest point, the top bar, or the first pair off the diagonal.
     show(index >= 0 && index < count ? index : chart.xs ? count - 1 : chart.cells ? 1 : 0);
   }
+  // The readout's figures roll to each new point (AndraRoll, assets/site.js).
+  var roll = window.AndraRoll ? new window.AndraRoll(out) : null;
   function show(k) {
     index = k;
-    out.textContent = hover.show(k);
+    var text = hover.show(k);
+    if (roll) roll.set(text);
+    else out.textContent = text;
   }
   plot.addEventListener("keydown", function (e) {
     if (!hover) return;

@@ -374,7 +374,8 @@ def tile_asof(key, rec):
 
 # Icons -----------------------------------------------------------------------
 
-ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "play", "sun", "moon"] + [
+ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "play", "sun", "moon",
+              "magnifying-glass", "check", "link"] + [
     icon_name for _, url, icon_name in SOCIALS if url
 ]
 
@@ -1086,6 +1087,9 @@ def site_header(home, base):
       <a href="{home}#watch">Watch</a>
       <a class="nav__subscribe" href="{home}#subscribe">Subscribe</a>
     </nav>
+    <button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
+      <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
+    </button>
     <button class="theme-btn" type="button" aria-label="Switch to dark theme">
       <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
       <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
@@ -1162,7 +1166,7 @@ def shell(title, desc, body, home, base, path="", scripts=()):
 <link rel="preload" href="{base}assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{base}assets/site.css">
 </head>
-<body>
+<body data-base="{base}">
 {sprite()}
 <a class="skip" href="#main">Skip to content</a>
 
@@ -1176,6 +1180,34 @@ def shell(title, desc, body, home, base, path="", scripts=()):
 </body>
 </html>
 """
+
+
+METHOD_QA = [
+    ("Where do the figures come from?",
+     "Every chart names its source and date under it: FRED and the US Treasury for rates, Yahoo Finance for prices, "
+     "Cboe for volatility, CME futures for the Fed path, ICE BofA for credit spreads, the BLS for jobs and inflation, "
+     "and the archive of published Andra Markets close notes."),
+    ("When is the close note published?",
+     "Every US trading day after the close. The site looks for a new note every half hour through the European evening "
+     "and night, and publishes it once it passes every check. A note dated on a day the NYSE did not trade is held back, "
+     "never published."),
+    ("What happens when a source fails?",
+     "The dashboard keeps its last good figures and shows their own date, so you can always see how old a number is. "
+     "A dashboard with no figures yet says Data pending instead of showing a made-up chart."),
+]
+
+
+def questions():
+    """Methodology questions: the first open; site.js keeps one open at a time."""
+    out = []
+    for i, (q, a) in enumerate(METHOD_QA):
+        first = i == 0
+        out.append(
+            f'<div class="acc__item{" is-open" if first else ""}">'
+            f'<h3><button type="button" class="acc__btn" id="qa-b{i}" aria-expanded="{"true" if first else "false"}" aria-controls="qa-p{i}">'
+            f'<span>{q}</span><span class="acc__plus" aria-hidden="true"></span></button></h3>'
+            f'<div class="acc__panel" id="qa-p{i}" role="region" aria-labelledby="qa-b{i}"><div><p>{a}</p></div></div></div>')
+    return "".join(out)
 
 
 def methodology():
@@ -1201,6 +1233,10 @@ def methodology():
       <section aria-labelledby="m-corrections">
         <h2 id="m-corrections">Corrections</h2>
         <p>{ph("[How errors are reported, corrected and logged]")}</p>
+      </section>
+      <section aria-labelledby="m-questions">
+        <h2 id="m-questions">Questions</h2>
+        <div class="acc">{questions()}</div>
       </section>
     </div>
   </div>
@@ -1470,7 +1506,7 @@ def report(rec, newer, older):
         {f'<p class="lede">{esc(standfirst)}</p>' if standfirst else ""}
         <p class="note__meta">{meta}</p>
         <div class="report__share" hidden>
-          <button class="btn" type="button" data-share>Share this note</button>
+          <button class="btn" type="button" data-share><span class="swap"><span class="swap__a">{icon("link")}Share this note</span><span class="swap__b" aria-hidden="true">{icon("check")}Link copied</span></span></button>
           <p class="report__share-status" role="status" aria-live="polite"></p>
         </div>
       </header>
@@ -1492,8 +1528,55 @@ def report(rec, newer, older):
     )
 
 
+# Search index for the header palette (site.js loads it on first open). A .js
+# file, not .json: the deploy refuses JSON files on the published site.
+SEARCH_TERMS = {
+    "yield_curve": "Treasury yields 2Y 10Y 30Y inversion",
+    "fed_path": "FOMC policy rate cuts hikes",
+    "sector_heatmap": "S&P 500 sectors ETFs",
+    "vol_term": "VIX implied volatility",
+    "global_indices": "Europe Asia Euro Stoxx DAX Nikkei",
+    "fx_majors": "dollar DXY EUR/USD USD/JPY currencies",
+    "commodities": "oil gold WTI Brent",
+    "credit_spreads": "high yield investment grade",
+    "inflation_labour": "CPI payrolls jobs inflation",
+    "breadth": "advancers decliners",
+    "correlation": "stocks bonds dollar",
+}
+
+SEARCH_PAGES = [
+    ("Dashboards", "#dashboards", "Home"),
+    ("The Lab", "#lab", "Home"),
+    ("Economic calendar", "#calendar", "Home"),
+    ("Daily close note", "#note", "Home"),
+    ("Learn", "#learn", "Home"),
+    ("Watch", "#watch", "Home"),
+    ("Subscribe", "#subscribe", "Home"),
+    ("About", "#about", "Home"),
+    ("All close notes", "reports/", "Archive"),
+    ("Methodology", "methodology/", "Page"),
+]
+
+
+def search_index(notes):
+    items = []
+    for key, cat, name, desc, source in DASHBOARDS:
+        items.append({"g": "Dashboards", "t": html.unescape(name), "m": "Dashboard",
+                      "u": f"dashboards/{DASH_PAGES[key][0]}/",
+                      "k": " ".join([html.unescape(desc), source, SEARCH_TERMS.get(key, "")])})
+    for rec in notes:
+        d = rec["day"]
+        items.append({"g": "Close notes", "t": rec["note"]["headline"], "m": day_med(d),
+                      "u": f"reports/{rec['date']}/", "k": f"{day_long(d)} {day_med(d)} {d.day} {d:%b}"})
+    for title, url, meta in SEARCH_PAGES:
+        items.append({"g": "Pages", "t": title, "m": meta, "u": url, "k": ""})
+    payload = json.dumps(items, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    return "// Generated by tools/build_site.py. Do not edit.\nwindow.ANDRA_SEARCH=" + payload + ";\n"
+
+
 def main():
     notes = load_notes()
+    (OUT / "assets" / "search-index.js").write_text(search_index(notes), encoding="utf-8")
     (OUT / "index.html").write_text(page(notes))
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
