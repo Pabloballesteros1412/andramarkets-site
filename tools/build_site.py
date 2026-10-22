@@ -786,6 +786,74 @@ def tape_items(rec):
     return items, any_stale
 
 
+# Market strip ------------------------------------------------------------------
+# The tape between deploys: .cache/strip/strip.json, written by
+# tools/strip_data.py every 15 minutes while the NYSE is open and once after
+# the European and Asian closes. Shown in place of the latest note's closes
+# when it is newer than that note's close; each figure carries its own time.
+
+STRIP_DATA = ROOT / ".cache" / "strip" / "strip.json"
+
+
+def strip_when(it):
+    """"2:45 pm ET" for a market still trading, "Close, 22 Oct" once it has shut."""
+    if it.get("state") == "open" and it.get("time"):
+        return f'{clock(dt.datetime.fromisoformat(it["time"]).astimezone(NY))} ET'
+    return f'Close, {short_day(it["day"])}'
+
+
+def load_strip(latest):
+    """(tape items, title, source line) from the strip, or None to use the note."""
+    try:
+        strip = json.loads(STRIP_DATA.read_text(encoding="utf-8"))
+        updated = dt.datetime.fromisoformat(strip["updated"]).astimezone(NY)
+        items = strip["items"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    if latest:
+        close_h = 13 if nyse.close_time(latest["day"]) == "1:00 pm" else 16
+        if updated <= dt.datetime.combine(latest["day"], dt.time(close_h), NY):
+            return None  # the note's closes are newer
+    closes = (latest or {}).get("closes") or {}
+    rows, srcs = [], set()
+    for label, key, dec in TAPE:
+        it = items.get(key)
+        if it and finite(it.get("last")) and finite(it.get("chg")):
+            last, chg = it["last"], it["chg"]
+            when = strip_when(it)
+            srcs.add(it.get("src", "Yahoo Finance"))
+        elif latest and finite((closes.get(key) or {}).get("last")):
+            # Never fetched yet: the note's close, dated.
+            last, chg = closes[key]["last"], (closes[key].get("chg") if finite(closes[key].get("chg")) else None)
+            when = f'Close, {short_day(latest["date"])}'
+        else:
+            rows.append((label, "n/a", "", ""))
+            continue
+        if key in RATES:
+            level = f"{last:.{dec}f}%"
+            change = signed(chg, 0, "bp") if chg is not None else "n/a"
+        else:
+            level = f"{last:,.{dec}f}"
+            change = signed(chg, 2, "%") if chg is not None else "n/a"
+        rows.append((label, level, change, when))
+    tape = "".join(
+        f'<li class="tape__item"><span class="tape__name">{n}</span>'
+        f'<span class="tape__level">{level}</span><span class="tape__chg {move_class(change)}">{change}</span>'
+        f'<span class="tape__when">{when}</span></li>'
+        for n, level, change, when in rows)
+    title = f'Markets {day_med(updated.date())}, as of {clock(updated)} ET'
+    ten = items.get("ust10y") or {}
+    ten_src = ("FRED for the US 10Y yield" if ten.get("src") == "FRED"
+               else "the CBOE 10-year yield index for the US 10Y yield" if ten else "")
+    src = ("Last price and change on the previous close, each with its time or close date. Sources: Yahoo Finance"
+           + (f", {ten_src}" if ten_src else "") + ". Futures and FX may be delayed.")
+    return tape, title, src
+
+
+def finite(v):
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+
 # Page ------------------------------------------------------------------------
 
 THEME_BOOT = (
@@ -799,7 +867,10 @@ THEME_BOOT = (
 
 def page(notes, cal):
     latest = notes[0] if notes else None
-    if latest:
+    strip = load_strip(latest)
+    if strip:
+        tape, tape_title, tape_src = strip
+    elif latest:
         d = latest["day"]
         items, any_stale = tape_items(latest)
         tape = "".join(
@@ -808,8 +879,6 @@ def page(notes, cal):
             for n, level, change in items
         )
         tape_title = f'Markets {day_med(d)}, {nyse.close_time(d)} ET'
-        tape_note = (f'<a class="tape__note" href="reports/{latest["date"]}/"><span>Latest close note, {day_med(d)}: '
-                     f'{esc(latest["note"]["headline"])}</span>{icon("arrow-right")}</a>')
         tape_src = "Close and daily change. Sources: Yahoo Finance, FRED for the US 10Y yield."
         if any_stale:
             tape_src += " Prior close: no print yet for the session."
@@ -820,9 +889,14 @@ def page(notes, cal):
             for n, *_ in TAPE
         )
         tape_title = f'Markets {ph("[date]")}, {ph("[time]")} ET'
+        tape_src = f'Last and daily change. Source {ph("[data vendor]")}'
+    if latest:
+        # Always the newest published note, whatever the strip shows.
+        tape_note = (f'<a class="tape__note" href="reports/{latest["date"]}/"><span>Latest close note, {day_med(latest["day"])}: '
+                     f'{esc(latest["note"]["headline"])}</span>{icon("arrow-right")}</a>')
+    else:
         tape_note = (f'<a class="tape__note" href="#note"><span>Latest close note, {ph("[date]")}: '
                      f'<span class="ph ph--ink">[headline]</span></span>{icon("arrow-right")}</a>')
-        tape_src = f'Last and daily change. Source {ph("[data vendor]")}'
     dash_data = load_dash_data()
     filters = f'<button type="button" class="chip" data-filter="all" data-label="All" aria-pressed="true">All <span class="chip__n">{len(DASHBOARDS)}</span></button>' + "".join(
         f'<button type="button" class="chip" data-filter="{key}" data-label="{label}" aria-pressed="false">{short} '

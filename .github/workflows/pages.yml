@@ -15,9 +15,15 @@ on:
   schedule:
     - cron: "17 11 * * 1-5"
     - cron: "47 15 * * 1-5"
-  # Called by publish-notes.yml after it commits a note. A push made by a
-  # workflow does not start other workflows on its own.
+  # Called by publish-notes.yml after it commits a note (a push made by a
+  # workflow does not start other workflows on its own), and by
+  # market-strip.yml with strip_only, which refreshes the tape and rebuilds
+  # from the other sources' cached figures without fetching them again.
   workflow_call:
+    inputs:
+      strip_only:
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,9 +33,11 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Deploys queue rather than cancel: a strip refresh every 15 minutes must
+    # never cut short a full deploy before it has saved its fetched figures.
     concurrency:
       group: pages
-      cancel-in-progress: true
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -51,11 +59,13 @@ jobs:
           key: dashboards-${{ github.run_id }}
           restore-keys: dashboards-
       - name: Fetch dashboard figures
+        if: ${{ !inputs.strip_only }}
         env:
           AGENT_ARTIFACTS_TOKEN: ${{ secrets.AGENT_ARTIFACTS_TOKEN }}
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python3 tools/dashboard_data.py
       - name: Save dashboard figures
+        if: ${{ !inputs.strip_only }}
         uses: actions/cache/save@v4
         with:
           path: .cache/dashboards
@@ -69,10 +79,12 @@ jobs:
           key: calendar-${{ github.run_id }}
           restore-keys: calendar-
       - name: Fetch calendar
+        if: ${{ !inputs.strip_only }}
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python3 tools/calendar_data.py
       - name: Save calendar
+        if: ${{ !inputs.strip_only }}
         uses: actions/cache/save@v4
         with:
           path: .cache/calendar
@@ -88,13 +100,32 @@ jobs:
       # A Yahoo outage must not stop the deploy: the pages keep their last
       # good figures, or are left out until the first good fetch.
       - name: Fetch company figures
+        if: ${{ !inputs.strip_only }}
         continue-on-error: true
         run: python3 tools/company_data.py
       - name: Save company figures
+        if: ${{ !inputs.strip_only }}
         uses: actions/cache/save@v4
         with:
           path: .cache/companies
           key: companies-${{ github.run_id }}-${{ github.run_attempt }}
+      # The tape between deploys (tools/strip_data.py): every figure keeps
+      # its last good value and time when a source fails.
+      - name: Restore market strip
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/strip
+          key: strip-${{ github.run_id }}
+          restore-keys: strip-
+      - name: Fetch market strip
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python3 tools/strip_data.py
+      - name: Save market strip
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/strip
+          key: strip-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Build pages
         run: python3 tools/build_site.py
       # Publish only the public site, never repo docs, briefs, data or tooling.

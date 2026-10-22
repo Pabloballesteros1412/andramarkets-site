@@ -682,6 +682,12 @@ ul {
   font-variant-numeric: tabular-nums;
 }
 
+/* Each strip figure's own time, or its close date once its market has shut. */
+.tape__when {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
 /* Sections */
 
 .section {

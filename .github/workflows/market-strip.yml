@@ -1,0 +1,63 @@
+name: Refresh market strip
+
+# Refreshes the homepage tape (tools/strip_data.py) and redeploys the site
+# from the other sources' cached figures: every 15 minutes while the NYSE is
+# open (and the closing prints, up to 45 minutes after), and once after the
+# Euro Stoxx 50 and Nikkei 225 close. Cron runs in UTC, so the US schedule
+# covers both daylight-saving offsets and the "due" check decides, from the
+# NYSE calendar in tools/nyse.py (holidays and 1:00 pm early closes).
+
+on:
+  schedule:
+    # US session: 13:37 to 21:52 UTC covers 9:30 am to 4:45 pm ET in summer
+    # and in winter. Off the hour and half hour, when GitHub queues are long.
+    - cron: "7,22,37,52 13-21 * * 1-5"
+    # After the Euro Stoxx 50 close (5:30 pm in Frankfurt: 15:30 UTC in
+    # summer, 16:30 UTC in winter).
+    - cron: "52 16 * * 1-5"
+    # After the Tokyo close (3:30 pm JST, 06:30 UTC all year).
+    - cron: "52 6 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer run replaces one still waiting; a run already deploying finishes.
+concurrency:
+  group: market-strip
+  cancel-in-progress: false
+
+jobs:
+  due:
+    runs-on: ubuntu-latest
+    outputs:
+      due: ${{ steps.check.outputs.due }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Is a refresh due?
+        id: check
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          case "$SCHEDULE" in
+            "") echo "due=true" >> "$GITHUB_OUTPUT" ;;  # run by hand
+            "52 16 * * 1-5") python3 tools/strip_data.py --due europe >> "$GITHUB_OUTPUT" ;;
+            "52 6 * * 1-5") python3 tools/strip_data.py --due asia >> "$GITHUB_OUTPUT" ;;
+            *) python3 tools/strip_data.py --due us >> "$GITHUB_OUTPUT" ;;
+          esac
+          cat "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: due
+    if: ${{ needs.due.outputs.due == 'true' }}
+    uses: ./.github/workflows/pages.yml
+    with:
+      strip_only: true
+    secrets: inherit
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
