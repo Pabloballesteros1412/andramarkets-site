@@ -7,6 +7,7 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `tools/build_site.py`: generates every page from one shell. Edit markup here. It also writes `assets/search-index.js` (the header search index, not committed).
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
 - `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
+- `tools/company_data.py`: fetches the figures behind the company pages (the 50 largest S&P 500 companies) at deploy time, into `.cache/companies/`.
 - `tools/calendar_data.py`: fetches the calendar at deploy time (below).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.

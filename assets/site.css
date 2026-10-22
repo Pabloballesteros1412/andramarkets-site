@@ -2983,3 +2983,434 @@ html.js .acc__item:not(.is-open) .acc__panel p {
     filter: none;
   }
 }
+
+/* Company pages (/companies/ and /companies/<ticker>/). Owner-approved
+   design, 22 Oct 2026. Charts drawn by assets/company.js. */
+
+.chart .bar {
+  fill: var(--chart-line);
+}
+
+.chart .zero-line {
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+}
+
+.key .sw-ink {
+  width: 12px;
+  height: 12px;
+  background: var(--chart-line);
+}
+
+.co-quote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 20px;
+  margin-top: 18px;
+}
+
+.co-px {
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 540;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.co-chg {
+  font-size: 1rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.co-quote .note__meta {
+  margin: 0;
+}
+
+.co .page__head .lede {
+  margin-top: 16px;
+}
+
+.co-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.co-acts__status,
+.co-gate__status {
+  flex: 1 1 100%;
+  min-height: 1.55em;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+@media (max-width: 520px) {
+  .co-acts .btn {
+    flex: 1 1 100%;
+  }
+}
+
+.page__body.co__body {
+  max-width: none;
+}
+
+.co__body section:first-child {
+  padding-top: 0;
+}
+
+.co-chart {
+  margin-top: 18px;
+}
+
+.co-read {
+  min-height: 1.55em;
+  font-size: 0.875rem;
+}
+
+.page__body p.co-read {
+  color: var(--ink);
+}
+
+.page__body p.co-src,
+.co-src {
+  margin-top: 12px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.co-legal {
+  padding-top: 28px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+/* Cash flow model */
+.co-model {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px 32px;
+  margin-top: 20px;
+}
+
+@media (max-width: 640px) {
+  .co-model {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.co-ctls {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.co-ctl {
+  display: grid;
+  gap: 4px;
+}
+
+.co-ctl label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.co-ctl output {
+  color: var(--ink);
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+
+.co-ctl input[type="range"] {
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  background: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.co-ctl input[type="range"]::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--rule-strong);
+}
+
+.co-ctl input[type="range"]::-moz-range-track {
+  height: 2px;
+  background: var(--rule-strong);
+}
+
+.co-ctl input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 4px;
+  height: 22px;
+  margin-top: -10px;
+  border: 0;
+  border-radius: 0;
+  background: var(--ink);
+}
+
+.co-ctl input[type="range"]::-moz-range-thumb {
+  width: 4px;
+  height: 22px;
+  border: 0;
+  border-radius: 0;
+  background: var(--ink);
+}
+
+.co-reset {
+  justify-self: start;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--rule);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 550;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .co-reset:hover {
+    border-color: var(--rule-strong);
+  }
+}
+
+.co-verdict {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.co-v {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.co-v:last-child {
+  border-bottom: 0;
+}
+
+.co-v__n {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.co-v__v {
+  font-size: 1.75rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.co-v__c {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+/* Memo notice */
+.co-gate {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px solid var(--rule-strong);
+}
+
+.page__body .co-gate p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.9375rem;
+}
+
+.co-gate ul {
+  display: grid;
+  gap: 4px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.co-gate li::before {
+  content: "\2014\00a0";
+}
+
+.page__body .co-gate .co-gate__status {
+  color: var(--ink-2);
+  font-size: 0.875rem;
+}
+
+/* Ahead */
+.co-cal {
+  margin-top: 16px;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.co-cal li {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 4px 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.co-cal time {
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.co-cal b {
+  font-weight: 540;
+}
+
+.co-cal span {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+@media (max-width: 520px) {
+  .co-cal li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Companies index */
+.co-index .filters {
+  margin-top: clamp(24px, 4vw, 40px);
+}
+
+.co-tab__wrap {
+  overflow-x: auto;
+}
+
+.co-tab {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.co-tab th {
+  padding: 12px 16px 12px 0;
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.co-tab td {
+  padding: 14px 16px 14px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.9375rem;
+  vertical-align: baseline;
+}
+
+.co-tab .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.co-tab th:last-child,
+.co-tab td:last-child {
+  padding-right: 0;
+}
+
+.co-tab__rank {
+  width: 2.5rem;
+  color: var(--ink-3);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.co-tab__name a {
+  color: var(--ink);
+  font-weight: 540;
+  text-decoration: none;
+}
+
+.co-tab__name span {
+  margin-left: 10px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.co-tab__sec {
+  color: var(--ink-2);
+}
+
+.co-tab tbody tr {
+  transition: background-color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .co-tab tbody tr:hover {
+    background: var(--ground-2);
+  }
+  .co-tab__name a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+@media (max-width: 640px) {
+  .co-tab thead {
+    display: none;
+  }
+  .co-tab,
+  .co-tab tbody {
+    display: block;
+  }
+  .co-tab tr {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr) auto;
+    gap: 2px 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .co-tab tr[hidden] {
+    display: none;
+  }
+  .co-tab td {
+    padding: 0;
+    border: 0;
+  }
+  .co-tab__rank {
+    grid-row: span 2;
+  }
+  .co-tab__name {
+    grid-column: 2;
+  }
+  .co-tab__sec {
+    grid-column: 2;
+    font-size: 0.8125rem;
+  }
+  .co-tab td.num {
+    grid-column: 3;
+    text-align: right;
+    font-size: 0.875rem;
+  }
+  .co-tab td[data-label="Close"] {
+    grid-row: 1;
+    font-size: 0.9375rem;
+  }
+  .co-tab td[data-label="Day"] {
+    grid-row: 2;
+    color: var(--ink-2);
+  }
+  .co-tab td[data-label="Value"],
+  .co-tab td[data-label="P/E"] {
+    display: none;
+  }
+}
