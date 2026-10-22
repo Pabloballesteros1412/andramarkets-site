@@ -1586,6 +1586,32 @@ def asia_universe(yahoo, n=20):
     return out
 
 
+# The holdings file can carry a secondary line or a minor share class; each
+# company's main listing on Yahoo Finance instead (owner's rule, 22 Oct 2026).
+# Checked against the live top 50 and the large dual-listed members on Yahoo,
+# 22 Oct 2026. Roche: Yahoo has no ROG.SW; ROP.SW is the same line (the
+# Genussschein SIX trades as ROG, by far Roche's most traded).
+MAIN_LISTING = {
+    "SHELL.AS": "SHEL.L",      # Shell: London primary, Amsterdam secondary
+    "UNA.AS": "ULVR.L",        # Unilever
+    "REN.AS": "REL.L",         # RELX
+    "AIR.DE": "AIR.PA",        # Airbus: Paris primary
+    "NDA-SE.ST": "NDA-FI.HE",  # Nordea: Helsinki primary
+    "ABB.ST": "ABBN.SW",       # ABB: Zurich primary
+    "STLAP.PA": "STLAM.MI",    # Stellantis: Milan primary
+    "RO.SW": "ROP.SW",         # Roche bearer shares: the Genussschein line instead
+}
+
+
+def traded_usd(q, rates):
+    """Average daily traded value over three months, in US dollars."""
+    vol, price = q.get("averageDailyVolume3Month"), q.get("regularMarketPrice")
+    rate = rates.get(major(q.get("currency")))
+    if not (vol and price and rate):
+        return 0
+    return vol * price / (100 if q.get("currency") == "GBp" else 1) * rate
+
+
 def europe_universe(cache, yahoo, n=50):
     try:
         members = stoxx600_members()
@@ -1597,15 +1623,34 @@ def europe_universe(cache, yahoo, n=50):
         if not members:
             raise ValueError("no STOXX Europe 600 membership list yet") from e
     country = dict((s, c) for s, c in members)
-    quotes = yahoo.quotes(list(country))
+    main = {s: MAIN_LISTING[s] for s in country if s in MAIN_LISTING}
+    quotes = yahoo.quotes(list(country) + [m for m in main.values() if m not in country])
+    found = {q["symbol"] for q in quotes if q.get("regularMarketPrice")}
+    # The file's own line stays only where Yahoo lacks the main one; the
+    # country stays the file's (Shell is UK either way).
+    for s, m in main.items():
+        if m in found:
+            country.setdefault(m, country[s])
+            country.pop(s)
+    quotes = [q for q in quotes if q["symbol"] in country]
     rates = usd_rates(yahoo, [q.get("currency") for q in quotes])
     groups = {}
     for q in quotes:
         q["_usd"] = usd_cap(q, rates)
-        if q["_usd"]:
+        if q.get("regularMarketPrice"):
             q["_country"] = "UK" if country[q["symbol"]] == "United Kingdom" else country[q["symbol"]]
             groups.setdefault(company(q.get("longName") or q.get("shortName") or q["symbol"]), []).append(q)
-    top = sorted((max(g, key=lambda q: q["_usd"]) for g in groups.values()), key=lambda q: -q["_usd"])[:n]
+    # A company with two share classes in the file (Atlas Copco A and B) shows
+    # its most traded one and ranks by the larger of their caps; Yahoo gives
+    # some main classes (Investor B) no cap of their own.
+    top = []
+    for g in groups.values():
+        cap = max((x["_usd"] for x in g if x["_usd"]), default=None)
+        if cap:
+            q = max(g, key=lambda q: (traded_usd(q, rates), q["_usd"] or 0))
+            q["_usd"] = cap
+            top.append(q)
+    top = sorted(top, key=lambda q: -q["_usd"])[:n]
     if PROBE:
         print(f"    STOXX Europe 600: {len(members)} holdings, {len(quotes)} on Yahoo; top {n}:")
         for i, q in enumerate(top, 1):
