@@ -7,6 +7,8 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `tools/build_site.py`: generates every page from one shell. Edit markup here. It also writes `assets/search-index.js` (the header search index, not committed).
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
 - `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
+- `tools/calendar_data.py`: fetches the calendar at deploy time (below).
+- `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
 - `data/notes/<date>.json`: one record per close note: its text and the ten
   closing levels for the tape. No PDF or facts file is ever stored here.
@@ -14,10 +16,10 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `PRODUCT.md`: product truth and brand commitments.
 - `AGENT_FIXES.md`: known problems in the agent repo, to fix next.
 
-The HTML pages (`index.html`, `methodology/`, `reports/`, `dashboards/`) are generated at
+The HTML pages (`index.html`, `methodology/`, `reports/`, `dashboards/`, `calendar/`) are generated at
 deploy time and are not stored in the repo. Pushes to `main` deploy to GitHub
 Pages via `.github/workflows/pages.yml`, which builds the pages and publishes
-only `index.html`, `methodology/`, `reports/`, `dashboards/` and `assets/`. To preview
+only `index.html`, `methodology/`, `reports/`, `dashboards/`, `calendar/` and `assets/`. To preview
 locally: `python3 tools/build_site.py`.
 
 ## Publishing the close note
@@ -157,10 +159,57 @@ in `AGENT_ARTIFACTS_TOKEN` (step 1 below, in addition to Actions). When a
 source fails, the tile keeps its last figures and their date; a tile that
 has no figures yet shows its source and "Data pending", never a stand-in chart. Neither stops the deploy.
 
+## Calendar data
+
+`.github/workflows/pages.yml` runs `tools/calendar_data.py` before each build,
+at 11:17 UTC on weekdays and again at 15:47 UTC, after the US morning
+releases. It writes `.cache/calendar/calendar.json`, kept in the Actions cache
+(never committed or published): every event since the calendar's first week,
+the last good copy of each source with the day it was read, and the series
+behind Previous and Actual. `tools/build_site.py` turns it into `calendar/`
+(this week and the next four), `calendar/week/<monday>/` (one page per week,
+the close notes link there) and the homepage section.
+
+| Rows | Schedule from | Previous and Actual from |
+|---|---|---|
+| Payrolls, CPI, PPI, JOLTS, ECI | BLS calendar file (schedule pages as fallback) | FRED |
+| GDP, PCE, trade balance | BEA release schedule | FRED |
+| Retail sales, housing starts, new home sales, durable goods | Census economic indicators calendar | FRED |
+| Jobless claims | Department of Labor: Thursdays 8:30 am ET, a day earlier on a federal holiday | FRED |
+| Industrial production | Federal Reserve G.17 release dates | FRED |
+| FOMC decision, press conference, minutes; blackout | Federal Reserve FOMC calendar; the blackout from its communications policy | FRED target range |
+| Fed Chair and Vice Chair speeches | Federal Reserve monthly calendar | |
+| Treasury note and bond auctions | TreasuryDirect upcoming auctions | TreasuryDirect high yields |
+| ISM PMIs, S&P Global flash PMIs, RatingDog China PMIs | ISM and S&P Global release calendars | |
+| Consumer confidence, consumer sentiment | The Conference Board, University of Michigan | FRED (sentiment) |
+| ECB decision, press conference, account; Lagarde speeches | ECB Governing Council and weekly calendars | ECB deposit rate |
+| Euro area HICP, GDP, unemployment, production, retail, sentiment | Eurostat euro indicators calendar | Eurostat |
+| Bank of England decision | BoE MPC dates | BoE Bank Rate |
+| UK CPI, labour market, GDP, retail sales | ONS release calendar | ONS time series |
+| Bank of Japan decision | BoJ meeting schedule (date only) | |
+| China activity, prices, PMIs | NBS release calendar | |
+| Loan prime rates | PBoC: the 20th, 9:00 am Beijing, next working day | |
+| NYSE holidays and early closes, options expiry, quad witching, S&P 500 rebalance | `tools/nyse.py` and the exchanges' published rules | |
+| One-off events | `ONE_OFF` in `tools/calendar_data.py`, each with its official source | |
+| Earnings | SPY holdings (State Street) for membership; Yahoo Finance for market cap, dates and diluted EPS | Yahoo Finance |
+
+When a source fails, its events stay as last read and the Sources list on the
+page shows the day of that copy; FRED being down keeps the last good figures,
+dated the same way. A source that should always have rows in five weeks and
+returns none counts as failed, so a changed page never empties the calendar.
+Actual is the first print, taken within a week of the release, so a revision
+or a later estimate never stands in for it. Add one-off events (OPEC+
+meetings, Jackson Hole, debt-ceiling deadlines, elections) to `ONE_OFF` as
+they are announced, with their source.
+
+The **Calendar check** workflow runs the fetcher against the live sources on
+every pull request that touches it and prints what each source returned, with
+an excerpt of any page that failed to parse.
+
 ## Placeholders still to fill
 
 Everything in square brackets on the site is a placeholder, never invented
-data: calendar values and company names, Lab
+data: Lab
 parameters and upcoming tools, video titles and durations, copyright year, and
 the Methodology sections. The tape and the daily note module fill themselves
 once the first close note is published.

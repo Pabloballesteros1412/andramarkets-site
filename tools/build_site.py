@@ -9,6 +9,8 @@ per visitor. Writes:
     reports/index.html         every published close note
     reports/<date>/index.html  one page per note, rendered from its text
     dashboards/<slug>/         one page per dashboard (assets/dashboard.js draws the chart)
+    calendar/                  the calendar, five weeks (assets/calendar.js: tabs and filters)
+    calendar/week/<monday>/    one page per week since the calendar started
 
     python3 tools/build_site.py
 
@@ -20,7 +22,8 @@ free, and those downloads are reserved for paid subscribers later.
 Dashboard tiles draw real figures from .cache/dashboards/tiles.json, written
 at deploy time by tools/dashboard_data.py, with their source and date; a tile
 without a record shows its source and "Data pending". Lab and Learn charts are schematic
-shapes, not market data, and labelled "Illustrative". Follow DESIGN.md.
+shapes, not market data, and labelled "Illustrative". The calendar reads
+.cache/calendar/calendar.json, written by tools/calendar_data.py. Follow DESIGN.md.
 """
 import datetime as dt
 import html
@@ -30,9 +33,11 @@ import random
 import re
 import sys
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nyse  # noqa: E402
+from calendar_data import SOURCES as CAL_SOURCES  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT
@@ -656,22 +661,6 @@ def dashboard_page(key, cat, name, desc, source, rec):
     )
 
 
-CALENDAR = [
-    ("[Day, date]", [
-        ("Macro", "Consumer prices (CPI)", "[consensus]", "[prior]"),
-        ("Earnings", "[Company] quarterly results", "EPS [consensus]", "EPS [prior]"),
-    ]),
-    ("[Day, date]", [
-        ("Macro", "Retail sales", "[consensus]", "[prior]"),
-        ("Fed", "FOMC rate decision", "[consensus]", "[prior]"),
-        ("Fed", "Fed Chair press conference", "", ""),
-    ]),
-    ("[Day, date]", [
-        ("Earnings", "[Company] quarterly results", "EPS [consensus]", "EPS [prior]"),
-        ("Macro", "Nonfarm payrolls", "[consensus]", "[prior]"),
-    ]),
-]
-
 LEARN = [
     ("What moves bond yields", "Inflation, growth and the Fed, in plain terms."),
     ("What the VIX actually measures", "Why it is called the fear gauge, and where that breaks down."),
@@ -789,7 +778,7 @@ THEME_BOOT = (
 )
 
 
-def page(notes):
+def page(notes, cal):
     latest = notes[0] if notes else None
     if latest:
         d = latest["day"]
@@ -842,17 +831,7 @@ def page(notes):
                 f'<span class="dash-tile__go">{icon("arrow-up-right")}</span></a></li>')
 
     tiles = "".join(tile(i, *t) for i, t in enumerate(DASHBOARDS))
-    calendar = "".join(
-        f'<tbody><tr class="cal__day"><th scope="rowgroup" colspan="5">{fill(day)}</th></tr>'
-        + "".join(
-            f'<tr><td class="cal__time ph">[time]</td>'
-            f'<th scope="row">{fill(event)}</th><td class="cal__type"><span class="tag tag--{kind.lower()}">{kind}</span></td>'
-            f'<td class="cal__cons" data-label="Consensus">{fill(cons)}</td><td class="cal__prior" data-label="Prior">{fill(prior)}</td></tr>'
-            for kind, event, cons, prior in rows
-        )
-        + "</tbody>"
-        for day, rows in CALENDAR
-    )
+    calendar = calendar_home(cal, dt.datetime.now(dt.timezone.utc)) or '<p class="cl__none reveal">The calendar fills at the next deploy.</p>'
     if latest:
         archive = "".join(
             f'<li><a href="reports/{r["date"]}/"><time datetime="{r["date"]}">{day_med(r["day"])}</time>'
@@ -980,16 +959,11 @@ def page(notes):
       <div class="section-head">
         <div>
           <h2 class="section-title reveal" id="cal-title">Calendar</h2>
-          <p class="lede reveal">Macro releases, Fed meetings and earnings for the week of {ph("[date]")}. Times in ET.</p>
+          <p class="lede reveal">This week's high-importance releases, central bank meetings and earnings. Times in New York and Madrid.</p>
         </div>
-        <a class="link reveal" href="#calendar">Full calendar {icon("arrow-right")}</a>
+        <a class="link reveal" href="calendar/">Full calendar {icon("arrow-right")}</a>
       </div>
-      <div class="cal-wrap reveal">
-        <table class="cal">
-          <thead><tr><th scope="col">Time</th><th scope="col">Event</th><th scope="col">Type</th><th scope="col">Consensus</th><th scope="col">Prior</th></tr></thead>
-          {calendar}
-        </table>
-      </div>
+      <div class="reveal">{calendar}</div>
     </div>
   </section>
 
@@ -1081,7 +1055,7 @@ def site_header(home, base):
     <nav class="nav" id="site-nav" aria-label="Primary">
       <a href="{home}#dashboards">Dashboards</a>
       <a href="{home}#lab">Lab</a>
-      <a href="{home}#calendar">Calendar</a>
+      <a href="{base}calendar/">Calendar</a>
       <a href="{home}#note">Daily note</a>
       <a href="{home}#learn">Learn</a>
       <a href="{home}#watch">Watch</a>
@@ -1119,7 +1093,7 @@ def site_footer(home, base):
     <nav class="foot__nav" aria-label="Footer">
       <a href="{home}#dashboards">Dashboards</a>
       <a href="{home}#lab">Lab</a>
-      <a href="{home}#calendar">Calendar</a>
+      <a href="{base}calendar/">Calendar</a>
       <a href="{home}#note">Daily note</a>
       <a href="{home}#learn">Learn</a>
       <a href="{home}#watch">Watch</a>
@@ -1460,7 +1434,7 @@ def side_panel(rec):
             f'risk score and breadth by Andra Markets.</p></aside>')
 
 
-def report(rec, newer, older):
+def report(rec, newer, older, cal):
     n = rec["note"]
     d = rec["day"]
     meta = f'<time datetime="{rec["date"]}">{day_long(d)}</time>'
@@ -1495,6 +1469,9 @@ def report(rec, newer, older):
         pager += f'<a class="link" href="../{older["date"]}/">Previous note, {day_med(older["day"])} {icon("arrow-right")}</a>'
     if newer:
         pager += f'<a class="link" href="../{newer["date"]}/">Next note, {day_med(newer["day"])} {icon("arrow-right")}</a>'
+    session = calendar_link(cal, d)
+    if session:
+        pager += f'<a class="link" href="../../{session}">The calendar for this session {icon("arrow-right")}</a>'
     pager += f'<a class="link" href="../">All notes {icon("arrow-right")}</a>'
     pager += f'<a class="link" href="../../#subscribe">Get the note by email {icon("arrow-right")}</a>'
     standfirst = " ".join(n.get("standfirst", "").split())
@@ -1528,6 +1505,290 @@ def report(rec, newer, older):
     )
 
 
+# Calendar ---------------------------------------------------------------------
+#
+# Read from .cache/calendar/calendar.json, written at deploy time by
+# tools/calendar_data.py. calendar/ holds this week and the next four behind
+# week tabs; calendar/week/<monday>/ keeps every week since the calendar
+# started, so each close note links to the events of its session.
+
+CAL_DATA = ROOT / ".cache" / "calendar" / "calendar.json"
+CAL_WEEKS = 5
+NY = ZoneInfo("America/New_York")
+MADRID = ZoneInfo("Europe/Madrid")
+CAL_TYPES = [("macro", "Macro"), ("market", "Market structure"), ("earnings", "Earnings")]
+CAL_REGIONS = ["US", "Euro area", "UK", "Japan", "China"]
+TIMING = {"before": "Before open", "after": "After close", "none": "Time not given"}
+CAL_CITED = {"cboe": "market", "spdji": "market"}  # read by the market rules, not fetched
+
+
+def load_calendar():
+    try:
+        return json.loads(CAL_DATA.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def cal_today():
+    return dt.datetime.now(NY).date()
+
+
+def week_of(d):
+    return d - dt.timedelta(days=d.weekday())
+
+
+def clock(t):
+    return f"{t.hour % 12 or 12}:{t.minute:02d} {'am' if t.hour < 12 else 'pm'}"
+
+
+def cal_day_label(d):
+    return f"{d:%A} {d.day} {d:%b}"
+
+
+def week_label(monday):
+    sunday = monday + dt.timedelta(days=6)
+    if monday.month == sunday.month:
+        return f"{monday.day} to {sunday.day} {sunday:%b}"
+    return f"{monday.day} {monday:%b} to {sunday.day} {sunday:%b}"
+
+
+def cal_sort(e):
+    """All-day items first, then by time; before the open sits just before 9:30 am ET,
+    after the close at 4:00 pm, and a time not given last."""
+    if e.get("kind") == "earnings":
+        return {"before": (1, 9 * 60 + 29), "after": (1, 16 * 60), "none": (2, 0)}[e.get("timing") or "none"], e["title"]
+    if e.get("utc"):
+        t = dt.datetime.fromisoformat(e["utc"]).astimezone(NY)
+        return (1, t.hour * 60 + t.minute), e["title"]
+    return ((2, 0) if e.get("no_time") else (0, 0)), e["title"]
+
+
+def cal_row(e, sources, now):
+    """One table row, in the approved mock's shape (DESIGN.md, Calendar)."""
+    kind = e.get("kind", "macro")
+    if kind == "earnings":
+        times = f'<td class="cl__ny" colspan="2">{TIMING[e.get("timing") or "none"]}</td>'
+    elif e.get("utc"):
+        t = dt.datetime.fromisoformat(e["utc"])
+        ny, md = t.astimezone(NY), t.astimezone(MADRID)
+        times = (f'<td class="cl__ny"><time datetime="{e["utc"]}">{clock(ny)}</time></td>'
+                 f'<td class="cl__md">{clock(md)}</td>')
+    else:
+        times = f'<td class="cl__ny" colspan="2">{"Time not given" if e.get("no_time") else "All day"}</td>'
+    src = sources.get(e["src"], {}).get("name", "")
+    if kind == "earnings":
+        status = "Estimated date" if e.get("status") != "confirmed" else "Confirmed date"
+        meta = f'<span class="cl__meta"><span class="cl__mregion">{e["country"]}. </span>Yahoo Finance</span><span class="tag">{status}</span>'
+    else:
+        meta = f'<span class="cl__meta"><span class="cl__mregion">{e["country"]}. </span>{esc(src)}</span>'
+    prev = esc(e.get("previous") or "")
+    if prev and e.get("prev_period") and kind == "earnings":
+        prev += f", {esc(e['prev_period'])}"
+    released = now >= (dt.datetime.fromisoformat(e["utc"]) if e.get("utc")
+                       else dt.datetime.combine(dt.date.fromisoformat(e["date"]), dt.time(23, 59), NY))
+    if e.get("actual"):
+        href = esc(e.get("actual_url") or e["url"])
+        actual = f'<a class="cl__act" href="{href}">{esc(e["actual"])} {icon("arrow-up-right")}</a>'
+    elif released and (e.get("ind") or kind == "earnings") and (e.get("previous") or kind == "earnings"):
+        actual = '<span class="cl__pending">Figures pending</span>'
+    else:
+        actual = ""
+    label = "Year ago" if kind == "earnings" else "Previous"
+    type_label = dict(CAL_TYPES)[kind]
+    title = esc(e["title"])
+    if e.get("url") and kind != "earnings":
+        title = f'<a class="cl__src" href="{esc(e["url"])}">{title}</a>'
+    return (f'<tr class="cl__row" data-type="{kind}" data-region="{e["country"]}" data-imp="{e["imp"]}">{times}'
+            f'<th scope="row"><span class="cl__ev">{title}</span>{meta}</th>'
+            f'<td class="cl__region">{e["country"]}</td><td class="cl__type"><span class="tag">{type_label}</span></td>'
+            f'<td class="cl__imp" data-imp="{e["imp"]}">{e["imp"]}</td>'
+            f'<td class="cl__prior" data-label="{label}">{prev}</td>'
+            f'<td class="cl__actual" data-label="Actual">{actual}</td></tr>')
+
+
+def cal_table(days, sources, now, today, label="Calendar"):
+    """Day groups (NY date -> events) as the calendar table."""
+    bodies = ""
+    for d in sorted(days):
+        rows = "".join(cal_row(e, sources, now) for e in sorted(days[d], key=cal_sort))
+        today_cls = " is-today" if d == today else ""
+        head = f"Today, {cal_day_label(d)}" if d == today else cal_day_label(d)
+        bodies += (f'<tbody class="cl__day-group{today_cls}" id="d-{d}" data-day="{d}" data-week="{week_of(d)}">'
+                   f'<tr class="cl__day"><th scope="rowgroup" colspan="8" data-label="{cal_day_label(d)}">{head}</th></tr>{rows}</tbody>')
+    return (f'<div class="cl-wrap"><table class="cl__table" aria-label="{label}"><thead><tr><th scope="col">New York</th>'
+            f'<th scope="col">Madrid</th><th scope="col">Event</th><th scope="col">Region</th><th scope="col">Type</th>'
+            f'<th scope="col">Importance</th><th scope="col">Previous</th><th scope="col">Actual</th></tr></thead>'
+            f'{bodies}</table><p class="cl__empty" hidden>Nothing matches these filters this week.</p></div>')
+
+
+def cal_days(events, start, end):
+    days = {}
+    for e in events:
+        d = dt.date.fromisoformat(e["date"])
+        if start <= d <= end:
+            days.setdefault(d, []).append(e)
+    return days
+
+
+def cal_sources_section(cal):
+    """Each source with the day of its copy; a failing source shows its last good copy."""
+    status = cal.get("sources", {})
+    used = {e["src"] for e in cal.get("events", {}).values()} | set(status)
+    rows = []
+    for key, meta in CAL_SOURCES.items():
+        if key not in used:
+            continue
+        st = status.get(CAL_CITED.get(key, key), {})
+        ok = st.get("ok")
+        when = day_med(dt.date.fromisoformat(ok[:10])) if ok else None
+        if st.get("error"):
+            note = f"Last good copy {when}" if when else "Not available yet"
+        else:
+            note = when or "Not available yet"
+        rows.append(f'<li><a href="{esc(meta["url"])}">{esc(meta["name"])}</a><span>{note}</span></li>')
+    for ind_src in sorted({v.get("source", "FRED") for v in cal.get("values", {}).values()}):
+        vals = [v for v in cal["values"].values() if v.get("source", "FRED") == ind_src]
+        oks = [v["ok"] for v in vals if v.get("ok")]
+        failing = any(v.get("error") for v in vals)
+        when = day_med(dt.date.fromisoformat(max(oks)[:10])) if oks else None
+        note = (f"Last good figures {when}" if failing and when else "Not available yet" if not when else when)
+        rows.append(f'<li><span class="cl__srcname">{esc(ind_src)}, figures</span><span>{note}</span></li>')
+    spy = cal.get("spy") or {}
+    if spy.get("ok"):
+        when = day_med(dt.date.fromisoformat(spy["ok"][:10]))
+        rows.append(f'<li><a href="{esc(CAL_SOURCES["spy"]["url"])}">{esc(CAL_SOURCES["spy"]["name"])}</a>'
+                    f'<span>{"Last good copy " if spy.get("error") else ""}{when}</span></li>')
+    return (f'<section class="cl__sources" aria-labelledby="cl-src"><h2 id="cl-src">Sources</h2>'
+            f"<p>Every date and time comes from the publisher's own schedule, and every actual figure links to its "
+            f"release. Previous is the last published figure; Actual is the first print, taken within a week of the "
+            f"release. No consensus forecasts: no free source is reliable enough. Earnings are the next report of the 100 "
+            f"largest S&amp;P 500 companies by market cap (members from State Street's SPY holdings, market cap, dates "
+            f"and diluted EPS from Yahoo Finance); an estimated date is always marked as estimated, and a report time "
+            f"Yahoo does not give is never guessed. When a source fails, its last good copy stays, with its date.</p>"
+            f'<ul class="cl__srclist">{"".join(rows)}</ul>'
+            f"<p>For information only. Not investment advice.</p></section>")
+
+
+def cal_chips(group, values):
+    return "".join(
+        f'<button type="button" class="chip" data-{group}="{v}" aria-pressed="{"true" if i == 0 else "false"}">{label}</button>'
+        for i, (v, label) in enumerate(values))
+
+
+def cal_filters():
+    return (f'<div class="cl__groups">'
+            f'<div class="cl__group"><span class="cl__glabel" id="cl-g-type">Type</span>'
+            f'<div class="filters" role="group" aria-labelledby="cl-g-type">{cal_chips("type", [("all", "All")] + CAL_TYPES)}</div></div>'
+            f'<div class="cl__group"><span class="cl__glabel" id="cl-g-region">Region</span>'
+            f'<div class="filters" role="group" aria-labelledby="cl-g-region">{cal_chips("region", [("all", "All")] + [(r, r) for r in CAL_REGIONS])}</div></div>'
+            f'<div class="cl__group"><span class="cl__glabel" id="cl-g-imp">Importance</span>'
+            f'<div class="filters" role="group" aria-labelledby="cl-g-imp">{cal_chips("imp", [("all", "All"), ("High", "High")])}</div></div>'
+            f'</div><p class="filters__status cl__status" role="status" aria-live="polite"></p>')
+
+
+def cal_updated(cal):
+    if not cal.get("updated"):
+        return "Official schedules. Not fetched yet."
+    t = dt.datetime.fromisoformat(cal["updated"]).astimezone(NY)
+    return f"Official schedules. Updated {day_med(t.date())}, {clock(t)} ET."
+
+
+def calendar_page(cal, now):
+    today = cal_today()
+    first = week_of(today)
+    weeks = [first + dt.timedelta(weeks=i) for i in range(CAL_WEEKS)]
+    end = weeks[-1] + dt.timedelta(days=6)
+    events = list(cal.get("events", {}).values())
+    days = cal_days(events, first, end)
+    tabs = "".join(
+        f'<button type="button" class="chip" data-week="{w}" aria-pressed="{"true" if i == 0 else "false"}">'
+        f'{"This week, " if i == 0 else "Next week, " if i == 1 else ""}{week_label(w)}</button>'
+        for i, w in enumerate(weeks))
+    body = f"""<main id="main" class="page cl">
+  <div class="wrap">
+    <header class="page__head cl__head">
+      <h1 class="page__title">Calendar</h1>
+      <p class="lede">Releases, central banks, market structure and the earnings of the 100 largest S&amp;P 500 companies, five weeks ahead. Times in New York and Madrid.</p>
+      <p class="note__meta">{cal_updated(cal)}</p>
+    </header>
+    <div class="cl__controls" hidden>
+      <div class="filters cl__weeks" role="group" aria-label="Week">{tabs}</div>
+      {cal_filters()}
+    </div>
+    {cal_table(days, CAL_SOURCES, now, today) if days else '<p class="cl__none">The calendar fills at the next deploy.</p>'}
+    {cal_sources_section(cal)}
+  </div>
+</main>"""
+    return shell(
+        title="Calendar: Andra Markets",
+        desc="Market-moving releases, central bank meetings, market structure and the earnings of the 100 largest S&amp;P 500 companies, five weeks ahead, in New York and Madrid time.",
+        body=body, home="../", base="../", path="calendar/", scripts=("calendar.js",))
+
+
+def calendar_week(cal, monday, now, weeks):
+    today = cal_today()
+    events = list(cal.get("events", {}).values())
+    days = cal_days(events, monday, monday + dt.timedelta(days=6))
+    i = weeks.index(monday)
+    pager = ""
+    if i > 0:
+        pager += f'<a class="link" href="../{weeks[i - 1]}/">Week of {day_med(weeks[i - 1])} {icon("arrow-right")}</a>'
+    if i + 1 < len(weeks):
+        pager += f'<a class="link" href="../{weeks[i + 1]}/">Week of {day_med(weeks[i + 1])} {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../../">The calendar, five weeks ahead {icon("arrow-right")}</a>'
+    body = f"""<main id="main" class="page cl">
+  <div class="wrap">
+    <header class="page__head cl__head">
+      <p class="dd__crumbs"><a href="../../">Calendar</a> <span aria-hidden="true">/</span> Week of {day_med(monday)}</p>
+      <h1 class="page__title">Week of {monday.day} {monday:%b}</h1>
+      <p class="lede">Every release and event of the week, with the figures as first published. Times in New York and Madrid.</p>
+      <p class="note__meta">{cal_updated(cal)}</p>
+    </header>
+    <div class="cl__controls" hidden>{cal_filters()}</div>
+    {cal_table(days, CAL_SOURCES, now, today, f"Week of {day_med(monday)}") if days else '<p class="cl__none">Nothing was recorded this week.</p>'}
+    <nav class="report__pager" aria-label="More weeks">{pager}</nav>
+    {cal_sources_section(cal)}
+  </div>
+</main>"""
+    return shell(
+        title=f"Calendar, week of {day_med(monday)}: Andra Markets",
+        desc=f"Economic releases, central banks, market structure and earnings for the week of {day_long(monday)}, with the figures as first published.",
+        body=body, home="../../../", base="../../../", path=f"calendar/week/{monday}/", scripts=("calendar.js",))
+
+
+def calendar_weeks(cal):
+    """Mondays from the calendar's first week to the last week the tabs show."""
+    if not cal.get("first_week"):
+        return []
+    first = dt.date.fromisoformat(cal["first_week"])
+    last = week_of(cal_today()) + dt.timedelta(weeks=CAL_WEEKS - 1)
+    return [first + dt.timedelta(weeks=i) for i in range((last - first).days // 7 + 1)]
+
+
+def calendar_home(cal, now):
+    """This week's high-importance rows, from today on, for the homepage."""
+    today = cal_today()
+    events = [e for e in cal.get("events", {}).values() if e.get("imp") == "High"]
+    start, end = today, week_of(today) + dt.timedelta(days=6)
+    days = cal_days(events, start, end)
+    if sum(len(v) for v in days.values()) < 3:  # late in the week: carry on into the next
+        days = cal_days(events, start, end + dt.timedelta(days=7))
+    keep, n = {}, 0
+    for d in sorted(days):
+        for e in sorted(days[d], key=cal_sort):
+            if n < 10:
+                keep.setdefault(d, []).append(e)
+                n += 1
+    return cal_table(keep, CAL_SOURCES, now, today, "This week's high-importance events") if keep else ""
+
+
+def calendar_link(cal, d):
+    """The archive page anchor for a session, from the calendar's first week on."""
+    if not cal.get("first_week") or d < dt.date.fromisoformat(cal["first_week"]):
+        return None
+    return f"calendar/week/{week_of(d)}/#d-{d}"
+
+
 # Search index for the header palette (site.js loads it on first open). A .js
 # file, not .json: the deploy refuses JSON files on the published site.
 SEARCH_TERMS = {
@@ -1547,7 +1808,7 @@ SEARCH_TERMS = {
 SEARCH_PAGES = [
     ("Dashboards", "#dashboards", "Home"),
     ("The Lab", "#lab", "Home"),
-    ("Economic calendar", "#calendar", "Home"),
+    ("Economic calendar", "calendar/", "Page"),
     ("Daily close note", "#note", "Home"),
     ("Learn", "#learn", "Home"),
     ("Watch", "#watch", "Home"),
@@ -1576,8 +1837,10 @@ def search_index(notes):
 
 def main():
     notes = load_notes()
+    cal = load_calendar()
+    now = dt.datetime.now(dt.timezone.utc)
     (OUT / "assets" / "search-index.js").write_text(search_index(notes), encoding="utf-8")
-    (OUT / "index.html").write_text(page(notes))
+    (OUT / "index.html").write_text(page(notes, cal))
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
     REPORTS.mkdir(exist_ok=True)
@@ -1586,7 +1849,14 @@ def main():
         newer = notes[i - 1] if i > 0 else None
         older = notes[i + 1] if i + 1 < len(notes) else None
         (REPORTS / rec["date"]).mkdir(exist_ok=True)
-        (REPORTS / rec["date"] / "index.html").write_text(report(rec, newer, older))
+        (REPORTS / rec["date"] / "index.html").write_text(report(rec, newer, older, cal))
+    (OUT / "calendar").mkdir(exist_ok=True)
+    (OUT / "calendar" / "index.html").write_text(calendar_page(cal, now))
+    weeks = calendar_weeks(cal)
+    for monday in weeks:
+        folder = OUT / "calendar" / "week" / monday.isoformat()
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / "index.html").write_text(calendar_week(cal, monday, now, weeks))
     dash_data = load_dash_data()
     for key, cat, name, desc, source in DASHBOARDS:
         folder = OUT / "dashboards" / DASH_PAGES[key][0]
@@ -1594,8 +1864,8 @@ def main():
         rec = dash_data.get(key)
         # A record cached before the pages existed has no history yet: pending until refetched.
         (folder / "index.html").write_text(dashboard_page(key, cat, name, desc, source, rec if rec and rec.get("detail") else None))
-    print(f"wrote index.html, methodology/index.html, reports/index.html, {len(DASHBOARDS)} dashboard pages "
-          f"and {len(notes)} report page(s)")
+    print(f"wrote index.html, methodology/index.html, reports/index.html, {len(DASHBOARDS)} dashboard pages, "
+          f"{len(notes)} report page(s) and the calendar with {len(weeks)} week page(s)")
 
 
 if __name__ == "__main__":

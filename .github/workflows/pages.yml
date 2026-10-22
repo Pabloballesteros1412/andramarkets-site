@@ -9,10 +9,12 @@ on:
       - "tools/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
-  # Refresh the dashboard tiles on weekdays, before the US open, even when no
-  # note is published.
+  # Refresh the dashboard tiles and the calendar on weekdays, before the US
+  # open, even when no note is published; again after the US morning releases
+  # (8:30 and 10:00 am ET) so their figures show the same day.
   schedule:
     - cron: "17 11 * * 1-5"
+    - cron: "47 15 * * 1-5"
   # Called by publish-notes.yml after it commits a note. A push made by a
   # workflow does not start other workflows on its own.
   workflow_call:
@@ -57,13 +59,28 @@ jobs:
         with:
           path: .cache/dashboards
           key: dashboards-${{ github.run_id }}-${{ github.run_attempt }}
+      # The calendar's last good copy of each source, and every week since it
+      # started (the close notes link to their session).
+      - name: Restore calendar
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/calendar
+          key: calendar-${{ github.run_id }}
+          restore-keys: calendar-
+      - name: Fetch calendar
+        run: python3 tools/calendar_data.py
+      - name: Save calendar
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/calendar
+          key: calendar-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Build pages
         run: python3 tools/build_site.py
       # Publish only the public site, never repo docs, briefs, data or tooling.
       - name: Stage site
         run: |
           mkdir _site
-          cp -r index.html methodology reports dashboards assets _site/
+          cp -r index.html methodology reports dashboards calendar assets _site/
           rm -rf _site/assets/icons
       # The site is free: no PDF or data file may ever be published.
       - name: Check no downloads are published

@@ -51,6 +51,19 @@ record. The daily note is one module among others, not the centrepiece.
   correlation; an earnings season tracker returns once it has a real source;
   no illustrative dashboard tiles; a tile waiting for data says "Data pending"), Lab tools, economic calendar, daily close note,
   Learn, Watch.
+- Calendar (real data, owner-approved 22 Oct 2026): five weeks of market-moving
+  releases and events for the US, euro area, UK, Japan and China, central bank
+  decisions, minutes and key speeches, Treasury note and bond auctions, NYSE
+  holidays and early closes, options expiry, the S&P 500 rebalance, the Fed
+  blackout and one-off events, plus the next report of the 100 largest S&P 500
+  companies. Dates from each publisher's own schedule; times in New York and
+  Madrid; Previous and Actual from FRED, Eurostat, the ECB, the ONS, the Bank
+  of England and TreasuryDirect, each Actual linked to its release. No
+  consensus forecasts (no reliable free source). Earnings: SPY holdings for
+  membership, Yahoo Finance for market cap, dates and diluted EPS; an estimated
+  date is never shown as confirmed and a report time Yahoo does not give is
+  never guessed. A failing source keeps its last good copy with its date.
+  Close notes link to their session's events from the calendar's first week.
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
   time, newsletter platform (Substack, Beehiiv or Ghost), a YouTube channel.
