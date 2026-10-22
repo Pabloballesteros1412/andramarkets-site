@@ -3497,26 +3497,52 @@ html.js .acc__item:not(.is-open) .acc__panel p {
   align-self: center;
 }
 
+/* The logo sits cut out on the page ground: no plate, trimmed to its own
+   outline (company.js measures it), filling a fixed area at the right. */
 .co-logo {
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
   width: clamp(160px, 24vw, 320px);
-  aspect-ratio: 1;
-  padding: clamp(20px, 3vw, 40px);
-  background: #ffffff;
-  border: 1px solid var(--rule);
+  height: clamp(110px, 13vw, 190px);
+  max-width: 100%;
 }
 
-.co-logo img {
+.co-logo > img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  object-position: right center;
 }
 
-.co-logo--light {
-  background: #0e1215;
-  border-color: #0e1215;
+.co-logo__crop {
+  position: relative;
+  overflow: hidden;
+  flex: none;
+}
+
+.co-logo__crop img {
+  position: absolute;
+  display: block;
+  max-width: none;
+  height: auto;
+}
+
+/* A one-colour logo takes the theme's ink, so a black logo stays visible on
+   the dark theme and a white one on the light theme. Colour logos keep theirs. */
+:root[data-theme="dark"] .co-logo--mono-dark img {
+  filter: brightness(0) invert(0.92);
+}
+
+/* On the dark theme, a colour logo with black or navy lettering flips its
+   lightness and keeps its hues, so the lettering turns light. */
+:root[data-theme="dark"] .co-logo--dark-parts img {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+:root:not([data-theme="dark"]) .co-logo--mono-light img {
+  filter: brightness(0);
 }
 
 @media (max-width: 760px) {
@@ -3526,8 +3552,8 @@ html.js .acc__item:not(.is-open) .acc__panel p {
   .co-head--logo > .co-logo {
     grid-row: 1 / span 2;
     align-self: start;
-    width: clamp(72px, 22vw, 120px);
-    padding: 10px;
+    width: clamp(64px, 22vw, 112px);
+    height: 64px;
   }
 }
 

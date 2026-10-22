@@ -4,28 +4,72 @@
    tools/build_site.py). Tokens and rules: DESIGN.md, Company page. */
 (function () {
   "use strict";
-  // A logo drawn in white or pale colours (made for dark backgrounds) gets the
-  // dark plate instead of the white one.
-  var logo = document.querySelector(".co-logo img");
-  function plate() {
-    try {
-      var c = document.createElement("canvas"), n = 48;
-      c.width = c.height = n;
-      var x = c.getContext("2d");
-      x.drawImage(logo, 0, 0, n, n);
-      var px = x.getImageData(0, 0, n, n).data, sum = 0, count = 0;
-      for (var i = 0; i < px.length; i += 4) {
-        if (px[i + 3] < 128) continue;
-        sum += 0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2];
-        count++;
+  // The logo, cut out: measure its drawn outline (pixels that are not
+  // transparent), then show only that, as large as the area allows. A logo in
+  // one colour is marked dark or light so CSS can give it the theme's ink.
+  var logoBox = document.querySelector(".co-logo");
+  var logo = logoBox && logoBox.querySelector("img");
+  var cut = null;
+  function measure() {
+    var nw = logo.naturalWidth || 300, nh = logo.naturalHeight || 300;
+    var k = 400 / Math.max(nw, nh), w = Math.max(1, Math.round(nw * k)), h = Math.max(1, Math.round(nh * k));
+    var c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    var x = c.getContext("2d");
+    x.drawImage(logo, 0, 0, w, h);
+    var px = x.getImageData(0, 0, w, h).data;
+    var x0 = w, y0 = h, x1 = -1, y1 = -1, lum = 0, sat = 0, n = 0, dark = 0;
+    for (var y = 0; y < h; y++) {
+      for (var i = 0; i < w; i++) {
+        var o = (y * w + i) * 4;
+        if (px[o + 3] < 24) continue;
+        if (i < x0) x0 = i; if (i > x1) x1 = i; if (y < y0) y0 = y; if (y > y1) y1 = y;
+        var r = px[o], g = px[o + 1], b = px[o + 2], mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+        var l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+        lum += l;
+        // Black, grey or navy ink only: a deep red is the brand, not lettering to flip.
+        if (l < 90 && ((mx ? (mx - mn) / mx : 0) < 0.35 || (b > r && b >= g))) dark++;
+        sat += mx ? (mx - mn) / mx : 0;
+        n++;
       }
-      // Mostly light ink, and enough transparency that the plate shows through.
-      if (count && count < n * n * 0.9 && sum / count > 205) logo.parentNode.classList.add("co-logo--light");
-    } catch (e) { /* a logo the canvas cannot read keeps the white plate */ }
+    }
+    if (x1 < 0) return null;
+    lum /= n; sat /= n;
+    var fill = n / ((x1 + 1 - x0) * (y1 + 1 - y0));
+    return { darkParts: sat >= 0.12 && dark / n > 0.12 && fill < 0.6, x0: x0 / w, y0: y0 / h, x1: (x1 + 1) / w, y1: (y1 + 1) / h, ratio: ((x1 + 1 - x0) / (y1 + 1 - y0)),
+      mono: sat < 0.12 ? (lum < 110 ? "dark" : lum > 200 ? "light" : null) : null };
+  }
+  function place() {
+    if (!cut) return;
+    var bw = logoBox.clientWidth, bh = logoBox.clientHeight;
+    var cw = Math.min(bw, bh * cut.m.ratio), ch = cw / cut.m.ratio;
+    cut.box.style.width = cw + "px";
+    cut.box.style.height = ch + "px";
+    var iw = cw / (cut.m.x1 - cut.m.x0);
+    var ih = ch / (cut.m.y1 - cut.m.y0);
+    cut.img.style.width = iw + "px";
+    cut.img.style.height = ih + "px";
+    cut.img.style.left = -cut.m.x0 * iw + "px";
+    cut.img.style.top = -cut.m.y0 * ih + "px";
+  }
+  function trim() {
+    var m;
+    try { m = measure(); } catch (e) { return; /* unreadable: stays contained, untrimmed */ }
+    if (!m) return;
+    if (m.mono) logoBox.classList.add("co-logo--mono-" + m.mono);
+    // A colour logo with black or navy lettering, and no background of its own.
+    else if (m.darkParts) logoBox.classList.add("co-logo--dark-parts");
+    var box = document.createElement("span");
+    box.className = "co-logo__crop";
+    logoBox.replaceChild(box, logo);
+    box.appendChild(logo);
+    cut = { box: box, img: logo, m: m };
+    place();
+    window.addEventListener("resize", place);
   }
   if (logo) {
-    if (logo.complete && logo.naturalWidth) plate();
-    else logo.addEventListener("load", plate);
+    if (logo.complete && logo.naturalWidth) trim();
+    else logo.addEventListener("load", trim);
   }
 
   var src = document.getElementById("co-data");
