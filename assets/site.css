@@ -2130,6 +2130,117 @@ ul {
   font-weight: 600;
 }
 
+/* Dashboard pages: head, chart with range chips (1-8), Latest panel (10-12), notes */
+.dd__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(16px, 2vw, 32px);
+  row-gap: clamp(32px, 5vw, 48px);
+}
+
+.dd__head,
+.dd__main,
+.dd__side,
+.dd__text {
+  grid-column: 1 / -1;
+}
+
+.dd .dd__side {
+  grid-row: auto;
+  position: static;
+  margin-top: 0;
+}
+
+@media (min-width: 961px) {
+  .dd__main,
+  .dd__text {
+    grid-column: 1 / span 8;
+  }
+  .dd .dd__side {
+    grid-column: 10 / -1;
+    grid-row: 2 / span 2;
+    align-self: start;
+    position: sticky;
+    top: calc(var(--nav-h) + 24px);
+  }
+}
+
+.dd__crumbs {
+  margin-bottom: 16px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.dd__crumbs a {
+  color: var(--ink-2);
+}
+
+.dd__chart {
+  margin-top: 20px;
+}
+
+.dd__plot {
+  position: relative;
+  height: clamp(240px, 42vw, 380px);
+  touch-action: pan-y;
+}
+
+.dd__plot--perf,
+.dd__plot--matrix {
+  height: auto;
+  min-height: 120px;
+}
+
+.dd__plot:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+
+.dd__plot .chart {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.chart .cross {
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+}
+
+.chart .hover-band {
+  fill: var(--ground-2);
+}
+
+.chart .cell-ring {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.key .k-ref {
+  border-top: 1px dashed var(--rule-strong);
+}
+
+.dd__read {
+  min-height: 1.55em;
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: var(--ink);
+}
+
+.dd__plot--pending {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--rule);
+}
+
+.dd__pending {
+  font-size: 0.875rem;
+  color: var(--ink-3);
+}
+
 .kpi {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

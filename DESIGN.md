@@ -499,6 +499,17 @@ A cell in the hairline lattice; no card chrome.
 - **No kicker:** nothing sits above the title except the chart and its key. The category lives in the source line.
 - **Hover (fine pointers):** tile fills to `--ground-2` over 200ms; the arrow fades in from `translate(-4px, 4px)`.
 - **Padding:** `clamp(18px, 2vw, 28px)`; 14px at 640px and below, where the description is hidden.
+- **Link:** every tile opens its dashboard page, `dashboards/<slug>/`.
+
+### Dashboard page
+Owner-approved from the Commodities mock. One page per dashboard, `dashboards/<slug>/`, built from the same record as its tile; no downloads (the chart's figures are embedded in the page, which the owner approved).
+- **Grid:** 12 columns, row gap `clamp(32px, 5vw, 48px)`. Head full width; the chart in columns 1 to 8; the "Latest" panel in 10 to 12, sticky (`top: nav-h + 24px`); "How to read it" and "Source" in 1 to 8 under the chart. At 960px and below one column in that order: head, chart, Latest, notes.
+- **Head:** crumbs ("Dashboards / [Category]", 0.8125rem ink-3, the link ink-2), the page title, the tile's description as the lede, then "[source]. As of [date]." in the note meta style; `--rule-strong` under it, as on every page.
+- **Range selector:** the existing chips (`aria-pressed`), 1M, 3M, 6M and 1Y where the history covers them; a range the history does not fully cover is offered once and shows all there is. Changes over a range add 1D (sector heatmap, global indices, FX majors); the volatility curve adds 1W (its tile's comparison); inflation and labour uses 1Y, 2Y and 5Y. Defaults: the tile's own view (1D, 1M or 1W comparisons), 3M for commodities and correlation, 6M for credit, 2Y for inflation.
+- **Chart:** drawn by `assets/dashboard.js` at the plot's pixel width (height `clamp(240px, 42vw, 380px)`; bar lists and the matrix size to their rows), so labels stay 12px on a phone. Series, grid, reference lines, dots and bars follow Charts; a vertical crosshair in `--rule-strong`, a `--ground-2` band behind the hovered bar, a 1.5px ink ring on the hovered matrix cell. Changes over a range are labelled diverging bars (name left, signed value right, largest gain first), never colour alone. The correlation matrix shows every pair with its value; cell opacity `0.12 + 0.45 x |r|` keeps the ink figures readable in both themes.
+- **Key and readout:** the key below the chart (dates for curve comparisons); under it a live readout (0.875rem ink, `aria-live="polite"`) for the point under the pointer, or under the arrow keys once the chart has focus (Home and End jump to the ends). It starts on the latest point.
+- **Latest:** the close-note panel style (`.kpi`): four to eleven rows of name, level and what the change is measured against, then a source line.
+- **Pending:** a page whose dashboard has no figures yet keeps its head, notes and source, and its chart area holds "Data pending" (0.875rem ink-3, centred) above a `--rule` hairline; no chips, no Latest panel.
 
 ### Lab tool card and the plate
 - **Plate:** the `.lab` section, `--plate` fill, all ink tokens re-mapped (see Colors).

@@ -42,7 +42,7 @@
   }
 
   // Dashboard filters.
-  var chips = document.querySelectorAll(".chip");
+  var chips = document.querySelectorAll(".chip[data-filter]");
   var tiles = document.querySelectorAll(".dash-tile");
   var filterStatus = document.querySelector(".filters__status");
   chips.forEach(function (chip) {
