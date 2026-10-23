@@ -9,6 +9,7 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
 - `tools/company_data.py`: fetches the figures behind the company pages (the 50 largest S&P 500 companies) at deploy time, into `.cache/companies/`.
 - `tools/calendar_data.py`: fetches the calendar at deploy time (below).
+- `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
 - `data/notes/<date>.json`: one record per close note: its text and the ten
@@ -159,6 +160,29 @@ Reading the archive releases needs **Contents: Read-only** on the agent repo
 in `AGENT_ARTIFACTS_TOKEN` (step 1 below, in addition to Actions). When a
 source fails, the tile keeps its last figures and their date; a tile that
 has no figures yet shows its source and "Data pending", never a stand-in chart. Neither stops the deploy.
+
+## Market strip
+
+`.github/workflows/market-strip.yml` refreshes the homepage tape every 15
+minutes while the NYSE is open (to 45 minutes after the close, for the
+closing prints; holidays and 1:00 pm early closes from `tools/nyse.py`), once
+after the Euro Stoxx 50 close (16:52 UTC) and once after the Tokyo close
+(06:52 UTC), on weekdays. Each run calls the deploy with `strip_only`: it runs
+`tools/strip_data.py` and rebuilds from the cached dashboard, calendar and
+company figures without fetching them again. Every deploy fetches the strip
+too. The head reads "Markets 22 Oct 2026, as of 2:45 pm ET"; each figure
+carries its own time, or "Close, 22 Oct" once its market has shut.
+
+| Instrument | Source |
+|---|---|
+| S&P 500, Nasdaq 100, Russell 2000, Euro Stoxx 50, Nikkei 225, VIX, EUR/USD, WTI, gold | Yahoo Finance chart metadata: `regularMarketPrice` at `regularMarketTime` (the close once the session has ended, so Europe and Japan never read "Prior close"), change on the last daily close before that session |
+| US 10Y yield | FRED `DGS10` with `FRED_API_KEY` (daily: the latest FRED close, usually the previous session's); Yahoo `^TNX` when FRED is unavailable |
+
+The strip shows only when it is newer than the latest published note's
+close; otherwise the tape shows that note's closes as before. The "Latest
+close note" link always points to the newest published note. An instrument
+that fails keeps its last figure and time (Actions cache, never committed or
+published). Deploys queue rather than cancel each other.
 
 ## FRED API key
 
