@@ -1858,6 +1858,188 @@ ul {
   margin-top: 32px;
 }
 
+/* Risk and correlation: the company picker, the picked list and the table. */
+.lt-pick {
+  position: relative;
+  display: grid;
+  gap: 8px;
+}
+
+.lt-pick label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+  font-size: 0.875rem;
+  font-weight: 550;
+}
+
+.lt-pick input {
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.lt-pick input::placeholder {
+  color: var(--ink-3);
+}
+
+.lt-pick input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 0;
+}
+
+.lt-opts {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  list-style: none;
+  border: 1px solid var(--rule-strong);
+  border-top: 0;
+  background: var(--ground);
+}
+
+.lt-opts[hidden] {
+  display: none;
+}
+
+.lt-opts li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 16px;
+  cursor: pointer;
+}
+
+.lt-opts li[aria-selected="true"] {
+  background: var(--ground-2);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lt-opts li[data-s]:hover {
+    background: var(--ground-2);
+  }
+}
+
+.lt-opts__name {
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.lt-opts__meta,
+.lt-opts__none {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.lt-picked {
+  list-style: none;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.lt-picked:empty {
+  display: none;
+}
+
+.lt-picked li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.lt-picked__name {
+  flex: 1;
+  font-size: 0.9375rem;
+  font-weight: 540;
+}
+
+.lt-picked__name .lt-unit {
+  margin-left: 6px;
+  font-size: 0.8125rem;
+}
+
+.lt-picked__w {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.lt-picked__w input {
+  width: 5.5rem;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.lt-picked__w input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 0;
+}
+
+.lt-picked__x {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--ink-2);
+  font-size: 1.125rem;
+  cursor: pointer;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lt-picked__x:hover {
+    color: var(--ink);
+  }
+}
+
+.lt-risk {
+  margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+  .co-tab.lt-risk tr {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .co-tab.lt-risk .co-tab__name,
+  .co-tab.lt-risk .co-tab__sec {
+    grid-column: 1 / -1;
+  }
+  .co-tab.lt-risk td.num {
+    grid-column: auto;
+    grid-row: 3;
+    margin-top: 6px;
+    text-align: left;
+  }
+  .co-tab.lt-risk td.num::before {
+    content: attr(data-label) " ";
+    color: var(--ink-3);
+    font-size: 0.8125rem;
+  }
+}
+
 .lab-index {
   max-width: 44rem;
 }

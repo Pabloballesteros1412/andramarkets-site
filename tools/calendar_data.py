@@ -1751,6 +1751,18 @@ def report_events(src, quotes, market, high):
     return ev.items
 
 
+def universe_list(quotes, market):
+    """The market's companies in rank order, with each one's benchmark: the
+    list the Lab's risk tool offers (tools/lab_data.py)."""
+    out = []
+    for q in quotes:
+        country = q.get("_country") or "US"
+        bench = BENCH["us" if market == "us" else "europe" if market == "europe" else country]
+        out.append({"symbol": q["symbol"], "name": html.unescape(q.get("longName") or q.get("shortName") or q["symbol"]),
+                    "country": country, "bench": bench[0], "bench_name": bench[1]})
+    return out
+
+
 EARNINGS = [  # (source key, market, universe, rows marked High)
     ("earnings", "us", lambda cache, y: us_universe(cache, y), 25),
     ("earnings_europe", "europe", lambda cache, y: europe_universe(cache, y), 12),
@@ -1956,6 +1968,7 @@ def main():
         # Each market keeps its own last good copy.
         try:
             quotes = universe(cache, yahoo)
+            cache.setdefault("universe", {})[market] = universe_list(quotes, market)
             fresh = report_events(key, quotes, market, high)
             if not fresh:
                 raise ValueError("no reports in the window")

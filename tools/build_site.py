@@ -1067,8 +1067,9 @@ def page(notes, cal):
         </a>
         <div class="tool tool--next reveal" style="--i:2">
           <h3>Also in the Lab</h3>
-          <p>A compound growth calculator. A momentum regime backtest and an options pricer with the Greeks are in development.</p>
-          <a class="link" href="lab/compound-growth/">Compound growth {icon("arrow-right")}</a>
+          <p>Eight more tools: risk and correlation across the companies in the earnings calendar, a Black-Scholes pricer with the Greeks, yield to maturity, a two-asset efficient frontier, discounted cash flow, position sizing and value at risk, real return after inflation, and compound growth.</p>
+          <a class="link" href="lab/risk-correlation/">Risk and correlation {icon("arrow-right")}</a>
+          <a class="link" href="lab/black-scholes/">Black-Scholes pricer {icon("arrow-right")}</a>
           <a class="link" href="lab/">All Lab tools {icon("arrow-right")}</a>
         </div>
       </div>
@@ -1416,6 +1417,81 @@ LAB_TOOLS = [
      "takes to double at that return.",
      "A constant return every year, which no real investment delivers; no fees, taxes or inflation. Figures are in "
      "whatever currency you think in. An illustration of compounding, not a forecast."),
+    ("risk-correlation", "risk", "Risk and correlation",
+     "Pick companies from the calendar's earnings universe and see how they move together, how volatile each is, and how "
+     "risky they are as one portfolio.",
+     "Daily returns are the change in each company's dividend-adjusted close, as log returns, over the window you choose. "
+     "Correlation measures how closely two companies' daily returns move together, from +1 (in step) to \u22121 (opposite "
+     "ways); it is measured on the sessions every company you picked traded. Volatility is the standard deviation of a "
+     "company's daily returns over its own sessions, annualised by the square root of 252 trading days. Beta is the "
+     "company's return sensitivity to its benchmark (the S&amp;P 500 for the US, the STOXX Europe 600 for Europe, each Asian "
+     "market's main index): a beta of 1.2 means it has moved 1.2% for each 1% of the index, on average. The portfolio's "
+     "volatility combines each company's volatility, its weight and every correlation: it sits below the weighted average "
+     "of the volatilities unless every pair moves in perfect step, and the gap is the diversification benefit.",
+     "Past returns over the window, which say nothing certain about the next one. Correlations between markets in different "
+     "time zones are understated, because their sessions close hours apart: Tokyo's close cannot react to New York's "
+     "afternoon until the next day. Prices in each company's own currency, so currency moves are not included. Weights are "
+     "held constant (rebalanced daily). Mainland Chinese companies are measured against the Shanghai Composite, because "
+     "Yahoo Finance keeps no history for the CSI 300."),
+    ("black-scholes", "bs", "Black-Scholes pricer",
+     "Price a European call or put and read its Greeks: how its value moves with the price, time, volatility and rates.",
+     "The Black-Scholes model values the option as the expected payoff at expiry under a lognormal price, discounted at the "
+     "interest rate, with the dividend yield taken off the drift. Delta is the change in the option's value for a 1 move in "
+     "the underlying; gamma the change in delta for that move; vega the change in value for 1 point of volatility; theta the "
+     "change in value as one calendar day passes; rho the change for 1 point of interest rate. The chart shows the chosen "
+     "measure across prices of the underlying, today (solid) and, for the value, at expiry (dashed).",
+     "European exercise only, a constant volatility and interest rate, a continuous dividend yield, no fees or taxes, and "
+     "prices that move without jumps. Listed options trade on each strike's own implied volatility, so market prices differ. "
+     "For learning, not for pricing trades."),
+    ("yield-to-maturity", "ytm", "Yield to maturity",
+     "Solve for the yield a bond pays from its price, coupon and maturity.",
+     "The yield to maturity is the single discount rate that makes the value of every remaining coupon and the final "
+     "repayment equal to the price you enter. There is no formula for it, so the tool solves for it numerically (bisection to "
+     "a millionth of a percent). Current yield is the annual coupon over the price, ignoring the pull to par. The effective "
+     "annual yield compounds the per-period rate over a year. The chart shows the price at each yield, with your price "
+     "marked on the curve.",
+     "Priced on a coupon date (no accrued interest), coupons paid on schedule and the face value repaid in full, every cash "
+     "flow discounted at the same rate. Maturity is rounded to whole coupon periods. A yield assumes coupons can be "
+     "reinvested at that same yield, which rarely holds exactly."),
+    ("efficient-frontier", "frontier", "Two-asset efficient frontier",
+     "Mix two assets and see every combination of risk and return, the lowest-risk mix and the best mix for each unit of "
+     "risk.",
+     "Each point on the curve is one mix of the two assets, from all in the first to all in the second. The mix's expected "
+     "return is the weighted average of the two returns; its volatility depends on both volatilities and the correlation "
+     "between them, so with a correlation below 1 some mixes carry less risk than either asset alone. The minimum-variance "
+     "mix is the lowest point of risk. The tangency mix has the highest Sharpe ratio: the most return above the risk-free "
+     "rate for each point of volatility. The dashed line from the risk-free rate through it is the capital market line.",
+     "Expected returns, volatilities and the correlation are your inputs and are held constant, which real markets do not "
+     "do. No borrowing or short selling: weights run from 0% to 100%. Returns are treated as normally distributed. A "
+     "teaching model of diversification, not an allocation."),
+    ("dcf", "dcf", "Discounted cash flow",
+     "Value a business from the cash it is expected to generate, and see how much of the value lies beyond ten years.",
+     "Free cash flow grows at your first rate for years 1 to 5 and at your second rate for years 6 to 10. Each year's flow "
+     "is discounted to today at the discount rate. After year 10 the flows are assumed to grow forever at the terminal "
+     "rate, valued with the Gordon growth formula and discounted from year 10. The sum is the enterprise value; taking off "
+     "net debt gives the equity value, and dividing by the shares gives a value per share. The solid line is each year's "
+     "cash flow, the dashed line and the shaded area its value today.",
+     "The terminal growth rate must be below the discount rate, and small changes in either move the value a lot: try "
+     "them. Cash flows arrive at each year end. No dilution, tax changes or reinvestment needs beyond what the free cash flow "
+     "already nets out. A sketch of the method, not a valuation of any company."),
+    ("position-sizing", "var", "Position size and value at risk",
+     "Size a position from the amount you are willing to lose, and see how much it could lose on a bad day.",
+     "The position is sized so that a fall from the entry to the stop loses the share of the account you set: shares are "
+     "the money at risk divided by the distance to the stop. Value at risk (VaR) is the loss the position should exceed only "
+     "on the worst days at the confidence you choose (5% of days at 95%), from its annual volatility scaled to the holding "
+     "period by the square root of time. Expected shortfall is the average loss on those worst days. The chart shows both "
+     "across holding periods, with the loss at the stop as the reference line.",
+     "Parametric VaR assumes normally distributed returns with no drift; real returns have fatter tails, so large losses "
+     "are more frequent than the model says. A stop is not guaranteed: prices can gap through it. Whole shares only, no "
+     "fees or slippage. For learning, not for managing a portfolio."),
+    ("real-return", "real", "Real return after inflation",
+     "See what a return is worth once inflation, and tax if you set one, have taken their share.",
+     "The real return is the nominal return deflated by inflation: (1 + nominal) / (1 + inflation) \u2212 1, which is "
+     "slightly less than the simple difference. Tax, if set, is taken from each year's gain before inflation. The solid line "
+     "is the value in money of the day; the dashed line the same value in today's money, which is what it can buy. "
+     "Purchasing power lost is how much of the nominal end value inflation has eaten.",
+     "Constant return, inflation and tax rate every year, tax paid yearly on the gain, no fees. Figures are in whatever "
+     "currency you think in. An illustration, not a forecast."),
 ]
 
 
@@ -1454,6 +1530,62 @@ def lab_inputs(kind):
                 + lab_field("o-days", "Days to expiry", 30, 1, 1095, 1, "days")
                 + lab_field("o-rate", "Interest rate", 4, 0, 20, 0.25, "% a year")
                 + "</div>")
+    if kind == "bs":
+        return (lab_chips("type", "Option", [("call", "Call"), ("put", "Put")], "call")
+                + lab_chips("view", "Chart", [("value", "Value"), ("delta", "Delta"), ("gamma", "Gamma"), ("vega", "Vega"),
+                                              ("theta", "Theta")], "value")
+                + '<div class="lt-fields">'
+                + lab_field("p-spot", "Underlying price", 100, 0.01, 1000000, 1, "")
+                + lab_field("p-k", "Strike", 100, 0.01, 1000000, 1, "")
+                + lab_field("p-vol", "Volatility", 20, 1, 300, 1, "% a year")
+                + lab_field("p-days", "Days to expiry", 90, 1, 3650, 1, "days")
+                + lab_field("p-rate", "Interest rate", 4, -2, 25, 0.25, "% a year")
+                + lab_field("p-div", "Dividend yield", 0, 0, 20, 0.25, "% a year")
+                + "</div>")
+    if kind == "ytm":
+        return (lab_chips("freq", "Coupons", [("2", "Semi-annual"), ("1", "Annual")], "2")
+                + '<div class="lt-fields">'
+                + lab_field("y-price", "Price", 96, 1, 300, 0.01, "per 100 face")
+                + lab_field("y-cpn", "Coupon rate", 4, 0, 20, 0.125, "% a year")
+                + lab_field("y-yrs", "Years to maturity", 10, 0.5, 50, 0.5, "years")
+                + "</div>")
+    if kind == "frontier":
+        return ('<div class="lt-fields">'
+                + lab_field("f-ra", "Asset A return", 8, -20, 40, 0.1, "% a year")
+                + lab_field("f-va", "Asset A volatility", 18, 0.1, 100, 0.1, "% a year")
+                + lab_field("f-rb", "Asset B return", 4, -20, 40, 0.1, "% a year")
+                + lab_field("f-vb", "Asset B volatility", 6, 0.1, 100, 0.1, "% a year")
+                + lab_field("f-rho", "Correlation", -0.2, -1, 1, 0.05, "\u22121 to +1")
+                + lab_field("f-rf", "Risk-free rate", 3, -2, 20, 0.1, "% a year")
+                + "</div>")
+    if kind == "dcf":
+        return ('<div class="lt-fields">'
+                + lab_field("d-fcf", "Free cash flow, last year", 100, 0.01, 1e9, 1, "millions")
+                + lab_field("d-g1", "Growth, years 1 to 5", 8, -30, 60, 0.5, "% a year")
+                + lab_field("d-g2", "Growth, years 6 to 10", 4, -30, 40, 0.5, "% a year")
+                + lab_field("d-gt", "Growth after year 10", 2.5, -5, 6, 0.1, "% a year")
+                + lab_field("d-r", "Discount rate", 9, 1, 30, 0.1, "% a year")
+                + lab_field("d-debt", "Net debt", 200, -1e9, 1e9, 1, "millions, cash negative")
+                + lab_field("d-sh", "Shares outstanding", 50, 0.001, 1e6, 0.1, "millions")
+                + "</div>")
+    if kind == "var":
+        return (lab_chips("conf", "Confidence", [("95", "95%"), ("99", "99%")], "95")
+                + '<div class="lt-fields">'
+                + lab_field("v-acct", "Account size", 100000, 100, 1e10, 100, "")
+                + lab_field("v-risk", "Risk per trade", 1, 0.05, 25, 0.05, "% of the account")
+                + lab_field("v-entry", "Entry price", 50, 0.01, 1e6, 0.01, "")
+                + lab_field("v-stop", "Stop price", 46, 0.01, 1e6, 0.01, "below the entry")
+                + lab_field("v-vol", "Volatility", 30, 1, 300, 1, "% a year")
+                + lab_field("v-days", "Holding period", 1, 1, 250, 1, "trading days")
+                + "</div>")
+    if kind == "real":
+        return ('<div class="lt-fields">'
+                + lab_field("r-start", "Starting sum", 10000, 0, 1e10, 100, "")
+                + lab_field("r-nom", "Nominal return", 6, -20, 40, 0.1, "% a year")
+                + lab_field("r-inf", "Inflation", 3, -5, 50, 0.1, "% a year")
+                + lab_field("r-tax", "Tax on gains", 0, 0, 60, 1, "% of each year's gain")
+                + lab_field("r-yrs", "Years", 20, 1, 60, 1, "years")
+                + "</div>")
     return ('<div class="lt-fields">'
             + lab_field("g-start", "Starting sum", 10000, 0, 100000000, 100, "")
             + lab_field("g-add", "Added each month", 200, 0, 1000000, 10, "")
@@ -1462,14 +1594,98 @@ def lab_inputs(kind):
             + "</div>")
 
 
+LAB_CLOSES = ROOT / ".cache" / "lab" / "closes.json"
+RISK_MARKETS = [("us", "US"), ("europe", "Europe"), ("asia", "Asia")]
+
+
+def risk_data():
+    """The risk tool's company list, and its daily returns written to one
+    assets/lab-risk-<market>.js per market (loaded only when a company from that
+    market is picked; a .js file because the deploy refuses JSON). Returns are
+    log returns in basis points on a shared weekday axis, empty where a market
+    did not trade. None until the calendar universe and the closes exist."""
+    from lab_data import bench_of
+    try:
+        universe = json.loads(CAL_DATA.read_text(encoding="utf-8")).get("universe") or {}
+        closes = json.loads(LAB_CLOSES.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    usable = {s for s, v in closes.items() if len(v.get("closes") or []) >= 60}
+    last = max((v["closes"][-1][0] for s, v in closes.items() if s in usable), default=None)
+    if not last:
+        return None
+    end = dt.date.fromisoformat(last)
+    start = end - dt.timedelta(days=365 * 3 + 21)
+    start -= dt.timedelta(days=start.weekday())
+    axis, d = [], start
+    while d <= end:
+        if d.weekday() < 5:
+            axis.append(d.isoformat())
+        d += dt.timedelta(days=1)
+
+    def encode(sym):
+        by, prev, out = dict(closes[sym]["closes"]), None, []
+        for day in axis:
+            c = by.get(day)
+            if c is None:
+                out.append("")
+                continue
+            out.append("" if prev is None else str(round(math.log(c / prev) * 1e4)))
+            prev = c
+        return ",".join(out).rstrip(",")
+
+    companies, files = [], {}
+    for market, label in RISK_MARKETS:
+        series = {}
+        for c in universe.get(market) or []:
+            b, bname = bench_of(c)
+            if c["symbol"] not in usable or b not in usable:
+                continue
+            for sym in (c["symbol"], b):
+                if sym not in series:
+                    series[sym] = encode(sym)
+            companies.append({"s": c["symbol"], "n": c["name"], "c": c["country"], "m": market, "b": b, "bn": bname})
+        if series:
+            name = f"lab-risk-{market}.js"
+            payload = json.dumps({"start": axis[0], "series": series}, separators=(",", ":"))
+            (OUT / "assets" / name).write_text(
+                f"// Generated by tools/build_site.py. Do not edit.\n(window.ANDRA_RISK=window.ANDRA_RISK||{{}})"
+                f"[{json.dumps(market)}]={payload};\n", encoding="utf-8")
+            files[market] = f"{name}?v={ver(name)}"
+    if len(companies) < 2:
+        return None
+    return {"companies": companies, "files": files, "asof": last}
+
+
+def risk_inputs(data):
+    wins = [("3M", "3M"), ("6M", "6M"), ("1Y", "1Y"), ("3Y", "3Y")]
+    return (lab_chips("win", "Window", wins, "1Y")
+            + lab_chips("weights", "Weights", [("equal", "Equal"), ("custom", "Custom")], "equal")
+            + '<div class="lt-pick"><label for="r-find">Add a company<span class="lt-unit">two to ten, from '
+            f'{len(data["companies"])} in the earnings calendar</span></label>'
+            '<input id="r-find" type="search" autocomplete="off" spellcheck="false" placeholder="Name or ticker" '
+            'role="combobox" aria-expanded="false" aria-controls="r-opts" aria-autocomplete="list">'
+            '<ul class="lt-opts" id="r-opts" role="listbox" aria-label="Matching companies" hidden></ul></div>'
+            '<ul class="lt-picked" aria-label="Companies picked"></ul>')
+
+
 LAB_KEYS = {"options": [("k-solid", "Profit or loss today"), ("k-dash", "At expiry"), ("sw-up", "Gain"), ("sw-down", "Loss")],
             "bond": [("k-solid", "Price"), ("k-dash", "Duration estimate")],
-            "growth": [("k-solid", "Value"), ("k-dash", "Paid in")]}
+            "growth": [("k-solid", "Value"), ("k-dash", "Paid in")],
+            "risk": [("sw-up", "Move together"), ("sw-down", "Move apart")],
+            "bs": [("k-solid", "Today"), ("k-dash", "At expiry")],
+            "ytm": [("k-solid", "Price at each yield")],
+            "frontier": [("k-solid", "Mixes of A and B"), ("k-dash", "Capital market line")],
+            "dcf": [("k-solid", "Free cash flow"), ("k-dash", "Value today")],
+            "var": [("k-solid", "Value at risk"), ("k-dash", "Expected shortfall"), ("k-ref", "Loss at the stop")],
+            "real": [("k-solid", "Value, money of the day"), ("k-dash", "Value, today's money")]}
 
 
-def lab_page(i):
+def lab_page(i, risk=None):
     slug, kind, title, desc, how, limits = LAB_TOOLS[i]
     key = "".join(f'<span><i class="{c}"></i>{t}</span>' for c, t in LAB_KEYS[kind])
+    if kind == "risk":
+        return risk_page(i, risk, key)
     others = "".join(f'<a class="link" href="../{t[0]}/">{t[2]} {icon("arrow-right")}</a>' for j, t in enumerate(LAB_TOOLS) if j != i)
     body = f"""<main id="main" class="page dd lt" data-tool="{kind}">
   <div class="wrap dd__grid">
@@ -1502,11 +1718,60 @@ def lab_page(i):
                  path=f"lab/{slug}/", scripts=("lab.js",))
 
 
+def risk_page(i, data, key):
+    slug, kind, title, desc, how, limits = LAB_TOOLS[i]
+    others = "".join(f'<a class="link" href="../{t[0]}/">{t[2]} {icon("arrow-right")}</a>' for j, t in enumerate(LAB_TOOLS) if j != i)
+    if data:
+        payload = json.dumps(data, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+        tool = f"""<section class="dd__main lt-tool" aria-label="Calculator" hidden>
+      <div class="lt-inputs">{risk_inputs(data)}<button class="co-reset lt-reset" type="button">Reset</button>
+        <p class="lt-status" role="status" aria-live="polite"></p></div>
+      <figure class="dd__chart"><div class="dd__plot dd__plot--matrix" role="img" tabindex="0" aria-label="Correlation matrix. Use the arrow keys to read each pair."></div>
+        <figcaption><p class="key">{key}</p><p class="dd__read" aria-live="polite"></p></figcaption></figure>
+      <div class="co-tab__wrap"><table class="co-tab lt-risk">
+        <caption class="visually-hidden">Volatility and beta of each company picked</caption>
+        <thead><tr><th scope="col">Company</th><th scope="col">Benchmark</th><th scope="col" class="num">Volatility</th>
+        <th scope="col" class="num">Beta</th><th scope="col" class="num">Weight</th></tr></thead><tbody></tbody></table></div>
+      <script type="application/json" id="lt-data">{payload}</script>
+    </section>
+    <noscript><p class="dd__pending">This tool runs in your browser and needs JavaScript.</p></noscript>"""
+        meta = (f"Daily closes from Yahoo Finance to {day_med(dt.date.fromisoformat(data['asof']))}, refreshed at each deploy. "
+                "Calculated in your browser: nothing you pick is sent or stored.")
+        src = f"Yahoo Finance daily closes to {day_med(dt.date.fromisoformat(data['asof']))}, calculated in your browser."
+    else:
+        tool = '<section class="dd__main" aria-label="Calculator"><div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div></section>'
+        meta = "Daily closes from Yahoo Finance. Data pending."
+        src = "Yahoo Finance daily closes. Data pending."
+    body = f"""<main id="main" class="page dd lt" data-tool="{kind}">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <p class="dd__crumbs"><a href="../">Lab</a> <span aria-hidden="true">/</span> Calculator</p>
+      <h1 class="page__title">{title}</h1>
+      <p class="lede">{desc}</p>
+      <p class="note__meta">{meta}</p>
+    </header>
+    {tool}
+    <aside class="report__side dd__side" aria-labelledby="side-title">
+      <h2 class="report__side-title" id="side-title">Portfolio</h2>
+      <ul class="kpi lt-result" aria-live="polite"></ul>
+      <p class="report__src">{src} An Andra Markets tool, not a recommendation.</p>
+    </aside>
+    <div class="page__body dd__text">
+      <section aria-labelledby="lt-how"><h2 id="lt-how">How it works</h2><p>{how}</p></section>
+      <section aria-labelledby="lt-lim"><h2 id="lt-lim">Assumptions</h2><p>{limits}</p><p>For information and education only. Not investment advice.</p></section>
+      <nav class="report__pager" aria-label="More Lab tools">{others}<a class="link" href="../">All Lab tools {icon("arrow-right")}</a></nav>
+    </div>
+  </div>
+</main>"""
+    return shell(title=f"{title}: Andra Markets Lab", desc=desc, body=body, home="../../", base="../../",
+                 path=f"lab/{slug}/", scripts=("lab.js",) if data else ())
+
+
 def lab_index():
     rows = "".join(
         f'<li><a href="{slug}/"><span class="learn-list__title">{title}</span>'
-        f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">Calculator, runs in your browser</span></a></li>'
-        for slug, _, title, desc, _, _ in LAB_TOOLS)
+        f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">{"Yahoo Finance closes, calculated in your browser" if kind == "risk" else "Calculator, runs in your browser"}</span></a></li>'
+        for slug, kind, title, desc, _, _ in LAB_TOOLS)
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
@@ -1514,10 +1779,10 @@ def lab_index():
       <p class="lede">Interactive quant tools. Change the inputs, watch the result move. Every tool runs in your browser: nothing you enter is sent or stored.</p>
     </header>
     <ol class="learn-list lab-index">{rows}</ol>
-    <p class="lab-index__next">A momentum regime backtest and an options pricer with the Greeks are in development. New tools are announced in the daily note.</p>
+    <p class="lab-index__next">A momentum regime backtest is in development. New tools are announced in the daily note.</p>
   </div>
 </main>"""
-    return shell(title="Lab: Andra Markets", desc="Interactive quant tools that run in your browser: options payoff, bond price and duration, compound growth.",
+    return shell(title="Lab: Andra Markets", desc="Ten interactive quant tools that run in your browser: risk and correlation, options payoff and Black-Scholes Greeks, bond price, yield to maturity, efficient frontier, DCF, value at risk, real return, compound growth.",
                  body=body, home="../", base="../", path="lab/")
 
 
@@ -3011,9 +3276,10 @@ def main():
         (OUT / "learn" / a["slug"] / "index.html").write_text(learn_page(i))
     (OUT / "lab").mkdir(exist_ok=True)
     (OUT / "lab" / "index.html").write_text(lab_index())
+    risk = risk_data()
     for i, t in enumerate(LAB_TOOLS):
         (OUT / "lab" / t[0]).mkdir(exist_ok=True)
-        (OUT / "lab" / t[0] / "index.html").write_text(lab_page(i))
+        (OUT / "lab" / t[0] / "index.html").write_text(lab_page(i, risk))
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
     REPORTS.mkdir(exist_ok=True)

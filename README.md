@@ -11,7 +11,8 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `tools/calendar_data.py`: fetches the calendar at deploy time (below).
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
 - `tools/learn_content.py`: the text and sources of the six Learn explainers (`learn/`).
-- `assets/lab.js`: the three Lab calculators (`lab/`), which run entirely in the browser.
+- `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser.
+- `tools/lab_data.py`: fetches the daily closes behind the Lab's risk and correlation tool at deploy time (below).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
 - `data/notes/<date>.json`: one record per close note: its text and the ten
@@ -162,6 +163,24 @@ Reading the archive releases needs **Contents: Read-only** on the agent repo
 in `AGENT_ARTIFACTS_TOKEN` (step 1 below, in addition to Actions). When a
 source fails, the tile keeps its last figures and their date; a tile that
 has no figures yet shows its source and "Data pending", never a stand-in chart. Neither stops the deploy.
+
+## Lab data
+
+Nine of the ten Lab tools are calculators with no data. The tenth, risk and
+correlation (`lab/risk-correlation/`), offers every company in the calendar's
+earnings universe (`universe` in `.cache/calendar/calendar.json`, written by
+`tools/calendar_data.py`) with its benchmark. `tools/lab_data.py` runs after
+the calendar fetch and keeps about three years of dividend-adjusted daily
+closes for each company and benchmark from Yahoo Finance's chart endpoint in
+`.cache/lab/closes.json` (Actions cache, never committed or published). Each
+run fetches only the symbols not fetched that day, oldest first, 0.35 seconds
+apart, within a time budget (`LAB_BUDGET`, 300 seconds by default); the rest
+keep their last closes and go first next run. `tools/build_site.py` turns the
+closes into daily log returns in basis points, one `assets/lab-risk-<market>.js`
+per market (US, Europe, Asia), which the page loads only when a company from
+that market is picked. Mainland Chinese companies use the Shanghai Composite
+for beta: Yahoo keeps no CSI 300 history. With no universe or closes yet the
+page says "Data pending".
 
 ## Market strip
 
