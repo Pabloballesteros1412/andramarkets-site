@@ -39,6 +39,7 @@ from zoneinfo import ZoneInfo
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nyse  # noqa: E402
 from calendar_data import MOVES as CAL_MOVES, SOURCES as CAL_SOURCES  # noqa: E402
+from learn_content import ARTICLES  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT
@@ -673,13 +674,9 @@ def dashboard_page(key, cat, name, desc, source, rec):
     )
 
 
-LEARN = [
-    ("What moves bond yields", "Inflation, growth and the Fed, in plain terms."),
-    ("What the VIX actually measures", "Why it is called the fear gauge, and where that breaks down."),
-    ("How earnings season works", "Estimates, beats, misses and why guidance matters more."),
-    ("Momentum, explained", "Why winners keep winning, until they suddenly do not."),
-    ("What the Fed does on decision day", "Rates, the statement, the dots and the press conference."),
-]
+def learn_minutes(a):
+    words = sum(len(p.split()) for _, ps in a["sections"] for p in ps)
+    return max(1, math.ceil(words / 230))
 
 
 def ph(text):
@@ -961,10 +958,11 @@ def page(notes, cal):
         </article>"""
         all_notes = "#note"
     learn = "".join(
-        f'<li class="reveal" style="--i:{i}"><a href="#learn"><span class="learn-list__title">{t}</span>'
-        f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time"><span class="ph">[n]</span> min read</span></a></li>'
-        for i, (t, desc) in enumerate(LEARN)
+        f'<li class="reveal" style="--i:{i}"><a href="learn/{a["slug"]}/"><span class="learn-list__title">{esc(a["title"])}</span>'
+        f'<span class="learn-list__desc">{esc(a["desc"])}</span><span class="learn-list__time">{learn_minutes(a)} min read</span></a></li>'
+        for i, a in enumerate(ARTICLES[1:])
     )
+    feature = ARTICLES[0]
     channels = {label: (url, icon_name) for label, url, icon_name in SOCIALS if url}
     videos = [(platform, shape) for platform, shape in VIDEOS if platform in channels]
     tt = sorted(TIKTOK_VIDEOS, key=lambda v: v[2], reverse=True)  # newest first, titles under the frames
@@ -1091,16 +1089,19 @@ def page(notes, cal):
   <section class="section learn" id="learn" aria-labelledby="learn-title">
     <div class="wrap">
       <div class="section-head">
-        <h2 class="section-title reveal" id="learn-title">Learn</h2>
-        <p class="lede reveal">Market explainers for people starting out. No jargon left unexplained.</p>
+        <div>
+          <h2 class="section-title reveal" id="learn-title">Learn</h2>
+          <p class="lede reveal">Market explainers for people starting out. No jargon left unexplained.</p>
+        </div>
+        <a class="link reveal" href="learn/">All explainers {icon("arrow-right")}</a>
       </div>
       <div class="grid learn__grid">
-        <a class="learn-feature reveal" href="#learn">
+        <a class="learn-feature reveal" href="learn/{feature["slug"]}/">
           <div class="draw">{c_explainer()}</div>
           <p class="key"><span><i class="k-solid"></i>Normal curve</span><span><i class="k-dash"></i>Inverted curve</span><span class="key__note">Diagram, not market data</span></p>
-          <h3>How to read the yield curve</h3>
-          <p>What the curve is, why it usually slopes up, and what it means when it turns upside down.</p>
-          <span class="learn-list__time">{ph("[n]")} min read</span>
+          <h3>{esc(feature["title"])}</h3>
+          <p>{esc(feature["desc"])}</p>
+          <span class="learn-list__time">{learn_minutes(feature)} min read</span>
         </a>
         <ol class="learn-list">{learn}</ol>
       </div>
@@ -1168,7 +1169,7 @@ def site_header(home, base):
       <a href="{home}#lab">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{home}#note">Daily note</a>
-      <a href="{home}#learn">Learn</a>
+      <a href="{base}learn/">Learn</a>
       <a href="{base}watch/">Watch</a>
       <a class="nav__subscribe" href="{home}#subscribe">Subscribe</a>
     </nav>
@@ -1207,7 +1208,7 @@ def site_footer(home, base):
       <a href="{home}#lab">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{home}#note">Daily note</a>
-      <a href="{home}#learn">Learn</a>
+      <a href="{base}learn/">Learn</a>
       <a href="{base}watch/">Watch</a>
       <a href="{home}#about">About</a>
       <a href="{base}reports/">All notes</a>
@@ -1314,6 +1315,59 @@ def watch_page():
         title="Watch: Andra Markets on TikTok",
         desc="Market recaps and short explainers from Andra Markets on TikTok, newest first.",
         body=body, home="../", base="../", path="watch/", scripts=scripts)
+
+
+def learn_index():
+    rows = "".join(
+        f'<li><a href="{a["slug"]}/"><span class="learn-list__title">{esc(a["title"])}</span>'
+        f'<span class="learn-list__desc">{esc(a["desc"])}</span><span class="learn-list__time">{learn_minutes(a)} min read</span></a></li>'
+        for a in ARTICLES)
+    body = f"""<main id="main" class="page learnp">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Learn</h1>
+      <p class="lede">Market explainers for people starting out. Each is sourced to official or academic references and links to the dashboard that shows it live.</p>
+    </header>
+    <ol class="learn-list learnp__list">{rows}</ol>
+  </div>
+</main>"""
+    return shell(title="Learn: Andra Markets", desc="Market explainers for people starting out: the yield curve, the VIX, earnings season, CPI and PCE, credit spreads and how the Fed sets rates.",
+                 body=body, home="../", base="../", path="learn/")
+
+
+def learn_page(i):
+    a = ARTICLES[i]
+    secs = "".join(
+        f'<section aria-labelledby="l-{k}"><h2 id="l-{k}">{esc(h)}</h2>' + "".join(f"<p>{esc(p)}</p>" for p in ps) + "</section>"
+        for k, (h, ps) in enumerate(a["sections"]))
+    dash_url, dash_label = a["dash"]
+    live = (f'<section aria-labelledby="l-live"><h2 id="l-live">See it live</h2>'
+            f'<p><a class="link" href="../../{dash_url}">Open {esc(dash_label)} {icon("arrow-right")}</a></p></section>')
+    srcs = "".join(f'<li><a href="{esc(u)}">{esc(lb)}</a></li>' for lb, u in a["sources"])
+    sources = (f'<section aria-labelledby="l-src"><h2 id="l-src">Sources</h2><ol class="ruled learnp__src">{srcs}</ol>'
+               f"<p>An Andra Markets explainer, for education. For information only. Not investment advice.</p></section>")
+    pager = ""
+    if i > 0:
+        pager += f'<a class="link" href="../{ARTICLES[i - 1]["slug"]}/">Previous: {esc(ARTICLES[i - 1]["title"])} {icon("arrow-right")}</a>'
+    if i + 1 < len(ARTICLES):
+        pager += f'<a class="link" href="../{ARTICLES[i + 1]["slug"]}/">Next: {esc(ARTICLES[i + 1]["title"])} {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../">All explainers {icon("arrow-right")}</a>'
+    body = f"""<main id="main" class="page learnp">
+  <div class="wrap">
+    <article>
+      <header class="page__head">
+        <p class="dd__crumbs"><a href="../">Learn</a> <span aria-hidden="true">/</span> Explainer</p>
+        <h1 class="page__title">{esc(a["title"])}</h1>
+        <p class="lede">{esc(a["desc"])}</p>
+        <p class="note__meta"><span>{learn_minutes(a)} min read</span></p>
+      </header>
+      <div class="page__body">{secs}{live}{sources}</div>
+    </article>
+    <nav class="report__pager" aria-label="More explainers">{pager}</nav>
+  </div>
+</main>"""
+    return shell(title=f"{esc(a['title'])}: Andra Markets explainer", desc=esc(a["desc"]),
+                 body=body, home="../../", base="../../", path=f"learn/{a['slug']}/")
 
 
 METHOD_QA = [
@@ -2756,7 +2810,7 @@ SEARCH_PAGES = [
     ("Companies", "companies/", "Page"),
     ("Economic calendar", "calendar/", "Page"),
     ("Daily close note", "#note", "Home"),
-    ("Learn", "#learn", "Home"),
+    ("Learn", "learn/", "Page"),
     ("Watch", "watch/", "Page"),
     ("Subscribe", "#subscribe", "Home"),
     ("About", "#about", "Home"),
@@ -2779,6 +2833,9 @@ def search_index(notes, companies=None):
         d = rec["day"]
         items.append({"g": "Close notes", "t": rec["note"]["headline"], "m": day_med(d),
                       "u": f"reports/{rec['date']}/", "k": f"{day_long(d)} {day_med(d)} {d.day} {d:%b}"})
+    for a in ARTICLES:
+        items.append({"g": "Pages", "t": a["title"], "m": "Learn", "u": f"learn/{a['slug']}/",
+                      "k": a["desc"] + " " + " ".join(h for h, _ in a["sections"])})
     for title, url, meta in SEARCH_PAGES:
         items.append({"g": "Pages", "t": title, "m": meta, "u": url, "k": ""})
     payload = json.dumps(items, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
@@ -2794,6 +2851,11 @@ def main():
     (OUT / "index.html").write_text(page(notes, cal))
     (OUT / "watch").mkdir(exist_ok=True)
     (OUT / "watch" / "index.html").write_text(watch_page())
+    (OUT / "learn").mkdir(exist_ok=True)
+    (OUT / "learn" / "index.html").write_text(learn_index())
+    for i, a in enumerate(ARTICLES):
+        (OUT / "learn" / a["slug"]).mkdir(exist_ok=True)
+        (OUT / "learn" / a["slug"] / "index.html").write_text(learn_page(i))
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
     REPORTS.mkdir(exist_ok=True)
