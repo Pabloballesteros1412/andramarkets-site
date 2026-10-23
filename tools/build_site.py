@@ -147,6 +147,19 @@ def c_payoff(w=640, h=260):
     return svg(w, h, grid_lines(w, h, 4) + f'<line class="ref" x1="0" x2="{w}" y1="{zero:.1f}" y2="{zero:.1f}"/><path class="dash" d="{d(pa)}"/><path class="line" d="{d(pb)}"/>', "Call option value before expiry against its payoff at expiry")
 
 
+def c_bond(w=640, h=260):
+    # Price of a 10-year 4% annual bond against its yield (solid) and the
+    # straight line duration predicts (dashed): convexity in one picture.
+    def price(y):
+        return sum(4 / (1 + y) ** t for t in range(1, 11)) + 100 / (1 + y) ** 10
+    ys = [i / 99 * 0.10 for i in range(100)]
+    p0, mod = price(0.04), 8.11 / 1.04
+    curve = [price(y) for y in ys]
+    line = [p0 * (1 - mod * (y - 0.04)) for y in ys]
+    pa, pb = fit([curve, line], w, h, 12, lo=55, hi=145)
+    return svg(w, h, grid_lines(w, h, 4) + f'<path class="dash" d="{d(pb)}"/><path class="line" d="{d(pa)}"/>', "Bond price against yield, with the duration line")
+
+
 def c_explainer(w=560, h=240):
     # Normal against inverted curve, an explainer diagram.
     tenors = [0.25, 1, 2, 5, 10, 30]
@@ -1029,31 +1042,32 @@ def page(notes, cal):
         <p class="lede reveal">Interactive quant tools. Change the inputs, watch the result move.</p>
       </div>
       <div class="lab-grid">
-        <a class="tool tool--wide reveal" href="#lab">
-          <div class="draw">{c_momentum()}</div>
-          <p class="key"><span><i class="sw-up"></i>Trending regime</span><span><i class="sw-down"></i>Reversal regime</span><span class="key__note">Illustrative</span></p>
-          <div class="tool__text">
-            <h3>Momentum regime backtest</h3>
-            <p>Run a momentum rule across trending and reversal regimes, and see where it pays and where it breaks.</p>
-            <p class="tool__params">Lookback {ph("[n]")} months. Universe {ph("[universe]")}.</p>
-            <p class="tool__src">{ph("[source]")}, {ph("[date]")}</p>
-          </div>
-          <span class="link">Open the explorer {icon("arrow-up-right")}</span>
-        </a>
-        <a class="tool reveal" href="#lab" style="--i:1">
+        <a class="tool tool--wide reveal" href="lab/options-payoff/">
           <div class="draw">{c_payoff()}</div>
           <p class="key"><span><i class="k-solid"></i>Value today</span><span><i class="k-dash"></i>Payoff at expiry</span><span class="key__note">Illustrative</span></p>
           <div class="tool__text">
-            <h3>Options pricer</h3>
-            <p>Price European options and watch the Greeks respond as strike, volatility and time change.</p>
-            <p class="tool__src">Model {ph("[model]")}. {ph("[source]")}, {ph("[date]")}</p>
+            <h3>Options payoff diagram</h3>
+            <p>Pick a strategy, from a single call to a straddle, and see its profit or loss at expiry and today across prices of the underlying.</p>
+            <p class="tool__params">Ten strategies. Strikes, volatility, days to expiry and rate are yours to set.</p>
+            <p class="tool__src">Black-Scholes model, calculated in your browser</p>
           </div>
-          <span class="link">Open the pricer {icon("arrow-up-right")}</span>
+          <span class="link">Open the diagram {icon("arrow-up-right")}</span>
+        </a>
+        <a class="tool reveal" href="lab/bond-calculator/" style="--i:1">
+          <div class="draw">{c_bond()}</div>
+          <p class="key"><span><i class="k-solid"></i>Price</span><span><i class="k-dash"></i>Duration estimate</span><span class="key__note">Illustrative</span></p>
+          <div class="tool__text">
+            <h3>Bond price and duration</h3>
+            <p>Price a bond from its yield and see how far the price moves when the yield does.</p>
+            <p class="tool__src">Discounted cash flows, calculated in your browser</p>
+          </div>
+          <span class="link">Open the calculator {icon("arrow-up-right")}</span>
         </a>
         <div class="tool tool--next reveal" style="--i:2">
-          <h3>Next in the Lab</h3>
-          <p>{ph("[Tool name]")} and {ph("[Tool name]")} are in development. New tools are announced in the daily note.</p>
-          <a class="link" href="#subscribe">Subscribe {icon("arrow-right")}</a>
+          <h3>Also in the Lab</h3>
+          <p>A compound growth calculator. A momentum regime backtest and an options pricer with the Greeks are in development.</p>
+          <a class="link" href="lab/compound-growth/">Compound growth {icon("arrow-right")}</a>
+          <a class="link" href="lab/">All Lab tools {icon("arrow-right")}</a>
         </div>
       </div>
     </div>
@@ -1166,7 +1180,7 @@ def site_header(home, base):
     <nav class="nav" id="site-nav" aria-label="Primary">
       <a href="{home}#dashboards">Dashboards</a>
       <a href="{base}companies/">Companies</a>
-      <a href="{home}#lab">Lab</a>
+      <a href="{base}lab/">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}learn/">Learn</a>
@@ -1205,7 +1219,7 @@ def site_footer(home, base):
     <nav class="foot__nav" aria-label="Footer">
       <a href="{home}#dashboards">Dashboards</a>
       <a href="{base}companies/">Companies</a>
-      <a href="{home}#lab">Lab</a>
+      <a href="{base}lab/">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}learn/">Learn</a>
@@ -1368,6 +1382,141 @@ def learn_page(i):
 </main>"""
     return shell(title=f"{esc(a['title'])}: Andra Markets explainer", desc=esc(a["desc"]),
                  body=body, home="../../", base="../../", path=f"learn/{a['slug']}/")
+
+
+# Lab tools: (slug, data-tool, title, description, how it works, assumptions).
+# Calculated by assets/lab.js in the browser: nothing leaves it.
+LAB_TOOLS = [
+    ("options-payoff", "options", "Options payoff diagram",
+     "Pick a strategy and see its profit or loss at expiry, and today, across prices of the underlying.",
+     "Each option is priced with the Black-Scholes model from the spot price, strike, volatility, days to expiry and "
+     "interest rate you set. The dashed line is the profit or loss per share at expiry: the payoff of every leg less the "
+     "net premium. The solid line is the profit or loss if the underlying moved to that price today, valued with the same "
+     "model. Where the dashed line sits above zero the strategy gains (green tint); below, it loses (red tint). Dots mark "
+     "the break-even prices.",
+     "European options on a stock that pays no dividend, one share per leg, no fees or taxes, constant volatility and "
+     "interest rate. Real premiums differ: market prices carry each strike's own implied volatility. For learning, not "
+     "for pricing trades."),
+    ("bond-calculator", "bond", "Bond price and duration",
+     "Price a fixed-coupon bond from its yield, and see how much the price moves when the yield does.",
+     "The price is the value of every coupon and the final repayment, each discounted at the yield to maturity. Macaulay "
+     "duration is the average time to those cash flows, weighted by their value; modified duration turns it into the "
+     "percentage change in price for a one-point change in yield; convexity measures how that sensitivity itself changes. "
+     "DV01 is the price change for one basis point. The solid line is the price at each yield, the dashed line what "
+     "duration alone predicts: the gap between them is convexity.",
+     "A plain bullet bond priced on a coupon date (no accrued interest), coupons paid annually or semi-annually, the same "
+     "yield for every cash flow, no default. Maturity is rounded to whole coupon periods."),
+    ("compound-growth", "growth", "Compound growth",
+     "See how a starting sum and a monthly addition grow at a steady annual return.",
+     "The annual return is converted to its monthly equivalent and applied every month, with the monthly addition made at "
+     "the end of each month. The solid line is the value at the end of each year; the dashed line and the shaded area are "
+     "what was paid in, so the gap between them is growth on growth. Doubling time is how long the starting sum alone "
+     "takes to double at that return.",
+     "A constant return every year, which no real investment delivers; no fees, taxes or inflation. Figures are in "
+     "whatever currency you think in. An illustration of compounding, not a forecast."),
+]
+
+
+def lab_field(fid, label, value, lo, hi, step, unit):
+    return (f'<div class="lt-field"><label for="{fid}">{label}<span class="lt-unit">{unit}</span></label>'
+            f'<input id="{fid}" type="number" inputmode="decimal" value="{value}" min="{lo}" max="{hi}" step="{step}"></div>')
+
+
+def lab_chips(group, label, options, default):
+    chips = "".join(f'<button type="button" class="chip" data-value="{v}" aria-pressed="{"true" if v == default else "false"}"'
+                    f'{" data-default" if v == default else ""}>{t}</button>' for v, t in options)
+    return (f'<div class="lt-group"><span class="cl__glabel" id="lt-g-{group}">{label}</span>'
+            f'<div class="filters lt-chips" role="group" data-group="{group}" aria-labelledby="lt-g-{group}">{chips}</div></div>')
+
+
+def lab_inputs(kind):
+    if kind == "bond":
+        return (lab_chips("freq", "Coupons", [("2", "Semi-annual"), ("1", "Annual")], "2")
+                + '<div class="lt-fields">'
+                + lab_field("b-face", "Face value", 100, 1, 1000000, 1, "")
+                + lab_field("b-cpn", "Coupon rate", 4, 0, 20, 0.125, "% a year")
+                + lab_field("b-yld", "Yield to maturity", 4.5, 0, 25, 0.05, "% a year")
+                + lab_field("b-yrs", "Years to maturity", 10, 0.5, 50, 0.5, "years")
+                + "</div>")
+    if kind == "options":
+        strategies = [("long-call", "Long call"), ("long-put", "Long put"), ("short-call", "Short call"),
+                      ("short-put", "Short put"), ("bull-call", "Bull call spread"), ("bear-put", "Bear put spread"),
+                      ("straddle", "Straddle"), ("strangle", "Strangle"), ("covered-call", "Covered call"),
+                      ("protective-put", "Protective put")]
+        return (lab_chips("strategy", "Strategy", strategies, "long-call")
+                + '<div class="lt-fields">'
+                + lab_field("o-spot", "Underlying price", 100, 1, 100000, 1, "")
+                + lab_field("o-k1", "Strike", 100, 1, 100000, 1, "lower for spreads")
+                + lab_field("o-k2", "Higher strike", 110, 1, 100000, 1, "")
+                + lab_field("o-vol", "Volatility", 20, 1, 200, 1, "% a year")
+                + lab_field("o-days", "Days to expiry", 30, 1, 1095, 1, "days")
+                + lab_field("o-rate", "Interest rate", 4, 0, 20, 0.25, "% a year")
+                + "</div>")
+    return ('<div class="lt-fields">'
+            + lab_field("g-start", "Starting sum", 10000, 0, 100000000, 100, "")
+            + lab_field("g-add", "Added each month", 200, 0, 1000000, 10, "")
+            + lab_field("g-rate", "Annual return", 5, -20, 30, 0.1, "% a year")
+            + lab_field("g-yrs", "Years", 30, 1, 60, 1, "years")
+            + "</div>")
+
+
+LAB_KEYS = {"options": [("k-solid", "Profit or loss today"), ("k-dash", "At expiry"), ("sw-up", "Gain"), ("sw-down", "Loss")],
+            "bond": [("k-solid", "Price"), ("k-dash", "Duration estimate")],
+            "growth": [("k-solid", "Value"), ("k-dash", "Paid in")]}
+
+
+def lab_page(i):
+    slug, kind, title, desc, how, limits = LAB_TOOLS[i]
+    key = "".join(f'<span><i class="{c}"></i>{t}</span>' for c, t in LAB_KEYS[kind])
+    others = "".join(f'<a class="link" href="../{t[0]}/">{t[2]} {icon("arrow-right")}</a>' for j, t in enumerate(LAB_TOOLS) if j != i)
+    body = f"""<main id="main" class="page dd lt" data-tool="{kind}">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <p class="dd__crumbs"><a href="../">Lab</a> <span aria-hidden="true">/</span> Calculator</p>
+      <h1 class="page__title">{title}</h1>
+      <p class="lede">{desc}</p>
+      <p class="note__meta">Runs in your browser. Nothing you enter is sent or stored.</p>
+    </header>
+    <section class="dd__main lt-tool" aria-label="Calculator" hidden>
+      <div class="lt-inputs">{lab_inputs(kind)}<button class="co-reset lt-reset" type="button">Reset inputs</button>
+        <p class="lt-status" role="status" aria-live="polite"></p></div>
+      <figure class="dd__chart"><div class="dd__plot" role="img" tabindex="0" aria-label="{title} chart. Use the arrow keys to read values."></div>
+        <figcaption><p class="key">{key}</p><p class="dd__read" aria-live="polite"></p></figcaption></figure>
+    </section>
+    <noscript><p class="dd__pending">This calculator runs in your browser and needs JavaScript.</p></noscript>
+    <aside class="report__side dd__side" aria-labelledby="side-title">
+      <h2 class="report__side-title" id="side-title">Result</h2>
+      <ul class="kpi lt-result" aria-live="polite"></ul>
+      <p class="report__src">Calculated in your browser from the inputs. An Andra Markets tool, not a recommendation.</p>
+    </aside>
+    <div class="page__body dd__text">
+      <section aria-labelledby="lt-how"><h2 id="lt-how">How it works</h2><p>{how}</p></section>
+      <section aria-labelledby="lt-lim"><h2 id="lt-lim">Assumptions</h2><p>{limits}</p><p>For information and education only. Not investment advice.</p></section>
+      <nav class="report__pager" aria-label="More Lab tools">{others}<a class="link" href="../">All Lab tools {icon("arrow-right")}</a></nav>
+    </div>
+  </div>
+</main>"""
+    return shell(title=f"{title}: Andra Markets Lab", desc=desc, body=body, home="../../", base="../../",
+                 path=f"lab/{slug}/", scripts=("lab.js",))
+
+
+def lab_index():
+    rows = "".join(
+        f'<li><a href="{slug}/"><span class="learn-list__title">{title}</span>'
+        f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">Calculator, runs in your browser</span></a></li>'
+        for slug, _, title, desc, _, _ in LAB_TOOLS)
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Lab</h1>
+      <p class="lede">Interactive quant tools. Change the inputs, watch the result move. Every tool runs in your browser: nothing you enter is sent or stored.</p>
+    </header>
+    <ol class="learn-list lab-index">{rows}</ol>
+    <p class="lab-index__next">A momentum regime backtest and an options pricer with the Greeks are in development. New tools are announced in the daily note.</p>
+  </div>
+</main>"""
+    return shell(title="Lab: Andra Markets", desc="Interactive quant tools that run in your browser: options payoff, bond price and duration, compound growth.",
+                 body=body, home="../", base="../", path="lab/")
 
 
 METHOD_QA = [
@@ -2806,7 +2955,7 @@ SEARCH_TERMS = {
 
 SEARCH_PAGES = [
     ("Dashboards", "#dashboards", "Home"),
-    ("The Lab", "#lab", "Home"),
+    ("The Lab", "lab/", "Page"),
     ("Companies", "companies/", "Page"),
     ("Economic calendar", "calendar/", "Page"),
     ("Daily close note", "#note", "Home"),
@@ -2836,6 +2985,8 @@ def search_index(notes, companies=None):
     for a in ARTICLES:
         items.append({"g": "Pages", "t": a["title"], "m": "Learn", "u": f"learn/{a['slug']}/",
                       "k": a["desc"] + " " + " ".join(h for h, _ in a["sections"])})
+    for slug, _, title, desc, _, _ in LAB_TOOLS:
+        items.append({"g": "Pages", "t": title, "m": "Lab", "u": f"lab/{slug}/", "k": desc + " calculator"})
     for title, url, meta in SEARCH_PAGES:
         items.append({"g": "Pages", "t": title, "m": meta, "u": url, "k": ""})
     payload = json.dumps(items, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
@@ -2856,6 +3007,11 @@ def main():
     for i, a in enumerate(ARTICLES):
         (OUT / "learn" / a["slug"]).mkdir(exist_ok=True)
         (OUT / "learn" / a["slug"] / "index.html").write_text(learn_page(i))
+    (OUT / "lab").mkdir(exist_ok=True)
+    (OUT / "lab" / "index.html").write_text(lab_index())
+    for i, t in enumerate(LAB_TOOLS):
+        (OUT / "lab" / t[0]).mkdir(exist_ok=True)
+        (OUT / "lab" / t[0] / "index.html").write_text(lab_page(i))
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
     REPORTS.mkdir(exist_ok=True)

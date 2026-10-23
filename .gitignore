@@ -10,6 +10,7 @@ __pycache__/
 /calendar/
 /watch/
 /learn/
+/lab/
 # This repo is public: PDFs stay in the agent repo, never here.
 *.pdf
 # Dashboard figures fetched at deploy time (tools/dashboard_data.py).

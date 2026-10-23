@@ -11,6 +11,7 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `tools/calendar_data.py`: fetches the calendar at deploy time (below).
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
 - `tools/learn_content.py`: the text and sources of the six Learn explainers (`learn/`).
+- `assets/lab.js`: the three Lab calculators (`lab/`), which run entirely in the browser.
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
 - `data/notes/<date>.json`: one record per close note: its text and the ten
@@ -250,8 +251,7 @@ an excerpt of any page that failed to parse.
 ## Placeholders still to fill
 
 Everything in square brackets on the site is a placeholder, never invented
-data: Lab
-parameters and upcoming tools, video titles and durations, and the copyright year.
+data: video titles and durations, and the copyright year.
 The Methodology page (`methodology()` in `tools/build_site.py`) describes the
 note pipeline, sources and limits: update it when a source or check changes. The tape and the daily note module fill themselves
 once the first close note is published.
