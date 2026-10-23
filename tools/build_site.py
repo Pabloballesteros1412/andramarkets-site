@@ -678,7 +678,9 @@ def dashboard_page(key, cat, name, desc, source, rec):
 </main>"""
     return shell(
         title=f"{name}: Andra Markets dashboard",
-        desc=esc(html.unescape(desc)),
+        # The tile line alone runs 40 to 60 characters: too short for a search or share snippet.
+        desc=esc(f"{html.unescape(desc)} Interactive chart with time ranges and the latest figures, "
+                 f"from {html.unescape(source)}. By Andra Markets."),
         body=body,
         home="../../",
         base="../../",
