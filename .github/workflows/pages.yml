@@ -89,6 +89,24 @@ jobs:
         with:
           path: .cache/calendar
           key: calendar-${{ github.run_id }}-${{ github.run_attempt }}
+      # The Lab risk tool's daily closes (tools/lab_data.py): only what was not
+      # fetched today, within a time budget; the rest keep their last closes.
+      - name: Restore Lab closes
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/lab
+          key: lab-${{ github.run_id }}
+          restore-keys: lab-
+      - name: Fetch Lab closes
+        if: ${{ !inputs.strip_only }}
+        continue-on-error: true
+        run: python3 tools/lab_data.py
+      - name: Save Lab closes
+        if: ${{ !inputs.strip_only }}
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/lab
+          key: lab-${{ github.run_id }}-${{ github.run_attempt }}
       # Each company's last good figures, so a Yahoo hiccup keeps its page
       # (with its own dates). Only the figures the pages draw are cached.
       - name: Restore company figures
