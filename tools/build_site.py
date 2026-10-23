@@ -1259,16 +1259,20 @@ def shell(title, desc, body, home, base, path="", scripts=()):
 
 METHOD_QA = [
     ("Where do the figures come from?",
-     "Every chart names its source and date under it: FRED and the US Treasury for rates, Yahoo Finance for prices, "
-     "Cboe for volatility, CME futures for the Fed path, ICE BofA for credit spreads, the BLS for jobs and inflation, "
-     "and the archive of published Andra Markets close notes."),
+     "Every chart and table names its source and date under it. Prices come from Yahoo Finance; Treasury yields, "
+     "credit spreads, inflation and payrolls from FRED, the Federal Reserve Bank of St. Louis database that carries "
+     "the US Treasury, BLS and ICE BofA series; release dates from each publisher's own calendar."),
     ("When is the close note published?",
-     "Every US trading day after the close. The site looks for a new note every half hour through the European evening "
-     "and night, and publishes it once it passes every check. A note dated on a day the NYSE did not trade is held back, "
+     "Every US trading day after the close. The site looks for a new note every half hour from 20:00 to 02:59 UTC "
+     "and publishes it once it passes every check. A note dated on a day the NYSE did not trade is held back, "
      "never published."),
     ("What happens when a source fails?",
-     "The dashboard keeps its last good figures and shows their own date, so you can always see how old a number is. "
-     "A dashboard with no figures yet says Data pending instead of showing a made-up chart."),
+     "The dashboard, calendar or company page keeps its last good figures and shows their own date, so you can "
+     "always see how old a number is. A dashboard with no figures yet says Data pending instead of showing a "
+     "made-up chart."),
+    ("Is any of this investment advice?",
+     "No. Andra Markets publishes research for information only. It never publishes model portfolios or buy and "
+     "sell lists."),
 ]
 
 
@@ -1286,29 +1290,96 @@ def questions():
 
 
 def methodology():
+    def sec(sid, title, inner):
+        return f'<section aria-labelledby="m-{sid}"><h2 id="m-{sid}">{title}</h2>{inner}</section>'
+
+    def ruled(items):
+        return '<ul class="ruled">' + "".join(f"<li>{i}</li>" for i in items) + "</ul>"
+
+    dash_src = [f"<b>{html.unescape(name).replace('&', '&amp;')}</b>: {DASH_PAGES[key][3]}"
+                for key, _, name, _, _ in DASHBOARDS]
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Methodology</h1>
-      <p class="lede">How Andra Markets sources, processes and presents market data. This page is a placeholder until the methodology is published.</p>
+      <p class="lede">How the daily close note is produced and checked, where the dashboards and the calendar get their figures, and what they cannot tell you.</p>
     </header>
-    <div class="page__body">
-      <section aria-labelledby="m-data">
-        <h2 id="m-data">Data sources</h2>
-        <p>{ph("[Data vendors, coverage and update times]")}</p>
-      </section>
-      <section aria-labelledby="m-pipeline">
-        <h2 id="m-pipeline">Pipeline</h2>
-        <p>{ph("[How the daily pipeline collects, checks and publishes data and notes]")}</p>
-      </section>
-      <section aria-labelledby="m-charts">
-        <h2 id="m-charts">Charts</h2>
-        <p>Every chart states its source and date. Green marks a rise and red a fall; colour appears only inside charts. Previews marked Illustrative are not market data.</p>
-      </section>
-      <section aria-labelledby="m-corrections">
-        <h2 id="m-corrections">Corrections</h2>
-        <p>{ph("[How errors are reported, corrected and logged]")}</p>
-      </section>
+    <div class="page__body method">
+      {sec("note", "The daily close note",
+           "<p>One note for every US trading day, written after the 4:00 pm New York close (1:00 pm on early closes). "
+           "An automated research pipeline collects the session's figures into a fact pack: the closing level and "
+           "daily change of each instrument, the Treasury curve, a risk score and breadth across the Andra Markets "
+           "watchlist of US large caps. A language model then drafts the note's text from that fact pack only. "
+           "When the model fails, the pipeline publishes a quantitative edition with the figures and no commentary.</p>")}
+      {sec("data", "Data sources",
+           ruled([
+               "<b>Prices and closes</b>: Yahoo Finance, for US and international equity indices, sector ETFs, "
+               "volatility indices, currencies, commodity futures, credit ETFs, digital assets and the watchlist stocks.",
+               "<b>Treasury yields, breakevens and real yields</b>: FRED, which serves the US Treasury's daily "
+               "par yield curve.",
+               "<b>Risk score and breadth</b>: calculated by Andra Markets from the fact pack.",
+           ])
+           + "<p>Each instrument is taken at its own official close, so an Asian or European index is that market's "
+             "close, not a New York price.</p>")}
+      {sec("timing", "Timing",
+           "<p>The pipeline runs after the US close. This site looks for a new note every half hour from 20:00 to "
+           "02:59 UTC, every day, and publishes each note as soon as it passes the checks below. FRED usually posts "
+           "a day's Treasury curve late in the evening, so the curve in a note is often the previous session's; the "
+           "note's chart says which close it shows.</p>")}
+      {sec("check", "Figure check",
+           "<p>Before publication every figure in the text is compared with the session's fact pack. A figure the "
+           "fact pack does not support fails the check. A note that fails is never published automatically: it is "
+           "held for review, and if it is published after review its Sources section says that it did not fully "
+           "pass the automated check.</p>")}
+      {sec("held", "What is held and why",
+           "<p>A note is published straight away only when nothing below applies. Otherwise it is held for review, "
+           "and published only once it has been read and approved:</p>"
+           + ruled([
+               "The date was not an NYSE trading day, or lies in a year whose holidays are not yet in the calendar: "
+               "the session cannot be confirmed.",
+               "The note is dated in the future, or the run finished before that day's close: its figures cannot be "
+               "that session's.",
+               "The figure check failed.",
+               "The run was a test run, so its figures are not market data.",
+               "A figure is from another session, for example a market that was closed that day: the note would mix dates.",
+               "A section is missing or stops mid-sentence: the text was cut off.",
+               "The text had to be read back from the report rather than from the pipeline's own text file.",
+           ])
+           + "<p>A run whose files are missing or unreadable is rejected outright. There is one note per session: "
+             "the newest run that passes is published and earlier runs that day are set aside. A published note "
+             "that later fails a re-check is taken down.</p>")}
+      {sec("dashboards", "Dashboards",
+           "<p>The dashboards are refreshed at every deploy, before the US open and after the 8:30 and 10:00 am "
+           "New York releases. Each shows the date of its own figures, never the date of the build.</p>"
+           + ruled(dash_src))}
+      {sec("calendar", "Calendar",
+           "<p>Every date and time comes from the publisher's own schedule: the BLS, BEA, Census Bureau, Department "
+           "of Labor, Federal Reserve, TreasuryDirect, ISM and S&amp;P Global, The Conference Board, the University "
+           "of Michigan, the ECB, Eurostat, the Bank of England, the ONS, the Bank of Japan, China's National Bureau "
+           "of Statistics and the People's Bank of China. Previous and Actual come from FRED, Eurostat, the ECB, the "
+           "ONS, the Bank of England and TreasuryDirect; Actual is the figure as first printed, linked to its "
+           "release. Earnings dates and EPS come from Yahoo Finance, with membership from State Street's SPY "
+           "holdings and iShares' STOXX Europe 600 ETF holdings. The full list, with the date each was last read, "
+           "is on the <a href=\"../calendar/#cl-src\">calendar page</a>.</p>")}
+      {sec("limits", "Limits",
+           ruled([
+               "No consensus forecasts: there is no reliable free source, so the calendar shows Previous and Actual only.",
+               "Breadth covers the Andra Markets watchlist of US large caps, not the whole market.",
+               "Price changes leave out dividends. Futures roll to the next contract near expiry, which can add a small jump.",
+               "Economic figures are revised after release. Dashboards show the latest vintage; the calendar's Actual is the first print.",
+               "FRED carries ICE credit spreads with a short delay, and the Treasury curve usually a day late.",
+               "An earnings date marked Estimated may move, and a report time Yahoo Finance does not give is never guessed.",
+               "When a source fails, its last good figures stay up with their own date until the next good read.",
+               "The text of each note is machine-drafted. Its figures are checked against the fact pack; its reading of the session is commentary, not fact.",
+           ]))}
+      {sec("charts", "Charts and colour",
+           "<p>Every chart states its source and date. Green marks a rise and red a fall, on charts and on every "
+           "figure that shows a move, always with its + or &minus; sign so colour is never the only cue. Lab and "
+           "Learn diagrams marked Illustrative are not market data.</p>")}
+      {sec("corrections", "Corrections",
+           "<p>A published note found to be wrong is taken down and the site rebuilds without it; it stays down, "
+           "whatever later runs for that date bring, until it has been corrected and restored. Dashboards and the calendar correct themselves at the "
+           "next good read of their source.</p>")}
       <section aria-labelledby="m-questions">
         <h2 id="m-questions">Questions</h2>
         <div class="acc">{questions()}</div>
@@ -1318,7 +1389,7 @@ def methodology():
 </main>"""
     return shell(
         title="Methodology: Andra Markets",
-        desc="How Andra Markets sources, processes and presents market data.",
+        desc="How the Andra Markets close note is produced and checked, the sources behind the dashboards and the calendar, and their limits.",
         body=body,
         home="../",
         base="../",
