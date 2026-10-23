@@ -206,6 +206,19 @@ def perf(series, names, sign=None):
     return {"kind": "perf", "names": names, "ranges": out}
 
 
+def history(series, names, on=None, dec=2):
+    """Every instrument's daily closes on one shared date axis (the union of
+    their sessions, None where one did not trade), for the page's own ranges,
+    comparison dates and views. on: shown when the page opens."""
+    days = sorted(set().union(*(set(d for d, _ in s) for s in series)))
+    out = []
+    for i, (s, n) in enumerate(zip(series, names)):
+        by = dict(s)
+        out.append({"name": n, "values": [round(by[d], dec) if d in by else None for d in days],
+                    "on": True if on is None else bool(on[i])})
+    return {"dates": [iso(d) for d in days], "series": out}
+
+
 SECTORS = [("XLK", "Technology"), ("XLF", "Financials"), ("XLV", "Health care"),
            ("XLY", "Cons. discretionary"), ("XLP", "Cons. staples"), ("XLE", "Energy"),
            ("XLI", "Industrials"), ("XLB", "Materials"), ("XLRE", "Real estate"),
@@ -216,22 +229,42 @@ FX = [("EURUSD=X", "Euro", -1), ("JPY=X", "Japanese yen", 1), ("GBPUSD=X", "Poun
       ("CHF=X", "Swiss franc", 1), ("CAD=X", "Canadian dollar", 1), ("AUDUSD=X", "Australian dollar", -1)]
 
 
-def perf_tile(spec, source, sign=None, dated=False):
+def perf_tile(spec, source, sign=None, dated=False, extra=(), dec=2):
+    """Changes over each range for the tile's instruments (spec), and a page
+    history that adds the extra ones (off when the page opens)."""
     series = [yahoo(sym, "2y") for sym, *_ in spec]
     names = [x[1] for x in spec]
     detail = perf(series, names, sign)
     day = detail["ranges"]["1D"]
     rows = [[n, v] + ([t] if dated else []) for n, v, t in zip(names, day["values"], day["to"])]
     asof = max(dt.date.fromisoformat(t) for t in day["to"])
+    more = []
+    for x in extra:
+        try:
+            more.append((x, yahoo(x[0], "2y")))
+        except Exception as e:  # noqa: BLE001  a missing extra never loses the tile
+            log(f"{x[0]}: {type(e).__name__}: {e}; left off the page", "warning")
+    allspec, allseries = list(spec) + [x for x, _ in more], series + [sr for _, sr in more]
+    detail["hist"] = history(allseries, [x[1] for x in allspec], [True] * len(spec) + [False] * len(more), dec)
+    if sign:
+        detail["hist"]["sign"] = list(sign) + [x[2] for x, _ in more]
     return asof, source, {"rows": sorted(rows, key=lambda r: -r[1])}, detail
 
 
 def tile_sectors(_):
-    return perf_tile(SECTORS, "Yahoo Finance, sector ETFs")
+    return perf_tile(SECTORS, "Yahoo Finance, sector ETFs", extra=[("SPY", "S&P 500 (SPY)")])
+
+
+# Further currencies on the page (off when it opens): the other G10 and the
+# main emerging-market currencies, each as the dollar's move.
+FX_MORE = [("NZDUSD=X", "New Zealand dollar", -1), ("SEK=X", "Swedish krona", 1), ("NOK=X", "Norwegian krone", 1),
+           ("CNY=X", "Chinese yuan", 1), ("MXN=X", "Mexican peso", 1), ("INR=X", "Indian rupee", 1),
+           ("BRL=X", "Brazilian real", 1), ("KRW=X", "Korean won", 1), ("ZAR=X", "South African rand", 1),
+           ("DX-Y.NYB", "Dollar index (DXY)", 1)]
 
 
 def tile_fx(_):
-    return perf_tile(FX, "Yahoo Finance", [k for *_, k in FX])
+    return perf_tile(FX, "Yahoo Finance", [k for *_, k in FX], extra=FX_MORE, dec=4)
 
 
 def tile_breadth(archive):
@@ -286,7 +319,7 @@ TENORS = [("ust1m", "DGS1MO", "1M", 1 / 12), ("ust3m", "DGS3MO", "3M", 0.25), ("
 def tile_curve(archive):
     """FRED's Treasury yields; while FRED is down, the curves in the agent's archive."""
     try:
-        s = fred([f for _, f, _, _ in TENORS], months_back(dt.date.today(), 13))
+        s = fred([f for _, f, _, _ in TENORS], months_back(dt.date.today(), 25))
         by = {}
         for key, f, _, _ in TENORS:
             for d, v in s[f]:
@@ -305,9 +338,26 @@ def tile_curve(archive):
     keys = [k for k, *_ in TENORS]
     now, detail = compare(curves, keys, [lb for *_, lb, _ in TENORS], [math.sqrt(t) for *_, t in TENORS])
     detail["unit"], detail["dec"] = "%", 2
+    lbs = [lb for *_, lb, _ in TENORS]
+    detail["hist"] = curve_history(curves, keys, lbs, ["3M", "2Y", "10Y", "30Y"], 3)
+    # Spreads over time, in basis points: the page's second view.
+    days = sorted(curves)
+    detail["spreads"] = {"dates": detail["hist"]["dates"], "unit": "bp", "series": [
+        {"name": name, "values": [round((curves[d][keys[lbs.index(a)]] - curves[d][keys[lbs.index(b)]]) * 100, 1) for d in days],
+         "on": on} for name, a, b, on in (("10Y less 2Y", "10Y", "2Y", True), ("10Y less 3M", "10Y", "3M", True),
+                                          ("30Y less 5Y", "30Y", "5Y", False), ("2Y less 3M", "2Y", "3M", False))]}
     month = detail["compare"]["1M"]
     return now, source, {"then": month["date"], "tenors": keys, "now": detail["values"],
                          "before": month["values"]}, detail
+
+
+def curve_history(curves, keys, labels, on, dec):
+    """Every day's curve, one series per point on it: the page's comparison
+    dates and its over-time view."""
+    days = sorted(curves)
+    return {"dates": [iso(d) for d in days],
+            "series": [{"name": lb, "values": [round(curves[d][k], dec) for d in days], "on": lb in on}
+                       for k, lb in zip(keys, labels)]}
 
 
 # FRED -----------------------------------------------------------------------
@@ -379,9 +429,15 @@ def _fred(series, start):
     return out
 
 
+# Further ICE BofA option-adjusted spreads on the page, off when it opens.
+CREDIT_MORE = [("BAMLC0A4CBBB", "BBB corporate"), ("BAMLH0A1HYBB", "BB high yield"),
+               ("BAMLH0A3HYC", "CCC and lower"), ("BAMLHE00EHYIOAS", "Euro high yield"),
+               ("BAMLEMCBPIOAS", "Emerging markets corporate")]
+
+
 def tile_credit(_):
     today = dt.date.today()
-    s = fred(["BAMLH0A0HYM2", "BAMLC0A0CM"], months_back(today, 13))
+    s = fred(["BAMLH0A0HYM2", "BAMLC0A0CM"], months_back(today, 25))
     hy, ig = dict(s["BAMLH0A0HYM2"]), dict(s["BAMLC0A0CM"])
     days = sorted(set(hy) & set(ig))
     if len(days) < 20:
@@ -389,10 +445,23 @@ def tile_credit(_):
     tile = days[-120:]
     return days[-1], "ICE BofA, FRED", {
         "start": iso(tile[0]), "hy": [hy[d] for d in tile], "ig": [ig[d] for d in tile]}, {
-        "kind": "lines", "dates": [iso(d) for d in days], "ranges": offered(days[0], days[-1]),
-        "series": [{"name": "High yield", "style": "line", "values": [hy[d] for d in days]},
-                   {"name": "Investment grade", "style": "dash", "values": [ig[d] for d in days], "area": True}],
-        "unit": "%", "dec": 2}
+        "kind": "lines", "dates": [iso(d) for d in days], "ranges": offered(days[0], days[-1], RANGES_2Y),
+        "series": [{"name": "High yield", "style": "line", "values": [hy[d] for d in days], "on": True},
+                   {"name": "Investment grade", "style": "dash", "values": [ig[d] for d in days], "area": True, "on": True}]
+        + credit_more(days, today), "unit": "%", "dec": 2}
+
+
+def credit_more(days, today):
+    out = []
+    for sid, name in CREDIT_MORE:
+        try:
+            vals = carried(dict(fred([sid], months_back(today, 25))[sid]), days)
+        except (OSError, ValueError) as e:
+            log(f"{sid}: {e}; left off the page", "warning")
+            continue
+        if vals[0] is not None:
+            out.append({"name": name, "values": vals, "on": False})
+    return out
 
 
 def tile_inflation(_):
@@ -468,26 +537,62 @@ def tile_vol(_):
     detail["unit"], detail["dec"] = "", 2
     then = days[-6]
     detail["compare"] = {"1W": {"date": iso(then), "values": [series[s][then] for s, _, _ in VOL]}, **detail["compare"]}
+    detail["hist"] = curve_history(curves, [s for s, _, _ in VOL], [lb for *_, lb in VOL], ["1M", "3M"], 2)
+    # Over time, besides the four expiries: the one-day index, the volatility
+    # of the VIX itself, and the slope from one month to three.
+    for sym, name in (("^VIX1D", "VIX 1-day"), ("^VVIX", "VVIX")):
+        try:
+            h = dict(yahoo(sym, "2y"))
+            detail["hist"]["series"].append({"name": name, "on": False,
+                                             "values": [round(h[d], 2) if d in h else None for d in days]})
+        except Exception as e:  # noqa: BLE001
+            log(f"{sym}: {type(e).__name__}: {e}; left off the page", "warning")
+    detail["hist"]["series"].append({"name": "VIX less VIX 3-month", "on": False,
+                                     "values": [round(series["^VIX"][d] - series["^VIX3M"][d], 2) for d in days]})
     return now, "Cboe, Yahoo Finance", {"then": iso(then), "days": [n for _, n, _ in VOL],
                                          "labels": [lb for _, _, lb in VOL],
                                          "now": [series[s][now] for s, _, _ in VOL],
                                          "before": [series[s][then] for s, _, _ in VOL]}, detail
 
 
+# Further front-month futures on the page, off when it opens: (symbol, name, decimals).
+COMMODITIES_MORE = [("BZ=F", "Brent crude", 2), ("NG=F", "Natural gas", 3), ("SI=F", "Silver", 2),
+                    ("HG=F", "Copper", 3), ("PL=F", "Platinum", 1), ("ZC=F", "Corn", 2), ("ZW=F", "Wheat", 2)]
+RANGES_2Y = RANGES + [("2Y", 24)]
+
+
+def carried(h, days):
+    """A series' value on each day; its last value before a day it skipped."""
+    out, last = [], None
+    for d in days:
+        last = h.get(d, last)
+        out.append(last)
+    return out
+
+
 def tile_commodities(_):
     oil, gold = dict(yahoo("CL=F", "2y")), dict(yahoo("GC=F", "2y"))
     days = sorted(set(oil) & set(gold))
-    days = [d for d in days if d >= months_back(days[-1], 13)]
+    days = [d for d in days if d >= months_back(days[-1], 25)]
     if len(days) < 30:
         raise LookupError("too few common sessions")
     tile = days[-90:]
+    series = [{"name": "WTI crude", "style": "line", "values": [round(oil[d], 2) for d in days], "dec": 2, "on": True},
+              {"name": "Gold", "style": "dash", "values": [round(gold[d], 1) for d in days], "dec": 1, "on": True}]
+    for sym, name, dec in COMMODITIES_MORE:
+        try:
+            vals = carried(dict(yahoo(sym, "2y")), days)
+        except Exception as e:  # noqa: BLE001
+            log(f"{sym}: {type(e).__name__}: {e}; left off the page", "warning")
+            continue
+        if vals[0] is not None:
+            series.append({"name": name, "values": [round(v, dec) for v in vals], "dec": dec, "on": False})
     return days[-1], "Futures, Yahoo Finance", {
         "start": iso(tile[0]),
         "oil": [round(oil[d] / oil[tile[0]] * 100, 2) for d in tile],
         "gold": [round(gold[d] / gold[tile[0]] * 100, 2) for d in tile]}, {
-        "kind": "lines", "rebase": True, "dates": [iso(d) for d in days], "ranges": offered(days[0], days[-1]),
-        "series": [{"name": "WTI crude", "style": "line", "values": [round(oil[d], 2) for d in days], "dec": 2},
-                   {"name": "Gold", "style": "dash", "values": [round(gold[d], 1) for d in days], "dec": 1}]}
+        "kind": "lines", "rebase": True, "dates": [iso(d) for d in days], "ranges": offered(days[0], days[-1], RANGES_2Y),
+        "series": series}
 
 
 # Each at its own latest local close: the agent's facts flag Asian closes as
@@ -497,8 +602,13 @@ INDICES = [("^GSPC", "S&P 500"), ("^STOXX50E", "Euro Stoxx 50"), ("^GDAXI", "DAX
            ("^BVSP", "Bovespa"), ("^GSPTSE", "S&P/TSX")]
 
 
+INDICES_MORE = [("^NDX", "Nasdaq 100"), ("^RUT", "Russell 2000"), ("^FCHI", "CAC 40"), ("^IBEX", "IBEX 35"),
+                ("FTSEMIB.MI", "FTSE MIB"), ("^SSMI", "SMI"), ("^KS11", "KOSPI"), ("^TWII", "TAIEX"),
+                ("^NSEI", "Nifty 50"), ("^AXJO", "S&P/ASX 200"), ("000001.SS", "Shanghai Composite"), ("^MXX", "IPC Mexico")]
+
+
 def tile_indices(_):
-    return perf_tile(INDICES, "Yahoo Finance, local closes", dated=True)
+    return perf_tile(INDICES, "Yahoo Finance, local closes", dated=True, extra=INDICES_MORE)
 
 
 CORR = [("^GSPC", "S&P 500"), ("TLT", "Long Treasuries"), ("DX-Y.NYB", "Dollar index"),
