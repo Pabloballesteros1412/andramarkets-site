@@ -255,8 +255,10 @@ The Methodology page (`methodology()` in `tools/build_site.py`) describes the
 note pipeline, sources and limits: update it when a source or check changes. The tape and the daily note module fill themselves
 once the first close note is published.
 
-Social channels live in `SOCIALS` and the Watch videos in `VIDEOS`, both at the
-top of `tools/build_site.py`. Andra has no YouTube channel yet: set
+Social channels live in `SOCIALS` and the Watch frames in `VIDEOS`, both at the
+top of `tools/build_site.py`. The Watch page (`watch/`) shows TikTok's official
+creator embed (the account's videos, newest first) until `TIKTOK_VIDEOS` lists
+videos by id, title and date; then each plays in TikTok's official embed player. Andra has no YouTube channel yet: set
 `YOUTUBE_URL` and add `("YouTube", "wide")` to the front of `VIDEOS` to bring
 back the footer link and the 16:9 frame; the Watch grid adapts by itself. Lab and Learn charts
 are illustrative shapes until real data is wired in, and say so. The signup form is a
