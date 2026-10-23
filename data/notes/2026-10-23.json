@@ -1,0 +1,481 @@
+{
+  "date": "2026-10-23",
+  "published": true,
+  "edition": "41",
+  "figure_check": "passed",
+  "text_source": "agent",
+  "note": {
+    "headline": "Market close: quantitative read of the session",
+    "standfirst": "Published in quantitative mode. Editorial commentary is unavailable in this edition; tables and exhibits reflect the official close.",
+    "takeaways": [
+      "Cross-asset risk score at -0.25 (Neutral)."
+    ],
+    "desk_view": "",
+    "watching": [],
+    "equities": "",
+    "rates": "",
+    "credit": "",
+    "fx": "",
+    "commodities": "",
+    "volatility": "",
+    "digital": "",
+    "international": "",
+    "correlation": ""
+  },
+  "closes": {
+    "spx": {
+      "last": 7623.68,
+      "chg": -0.519,
+      "stale": false
+    },
+    "ndx": {
+      "last": 28957.527,
+      "chg": -0.004,
+      "stale": false
+    },
+    "rut": {
+      "last": 2775.899,
+      "chg": -0.292,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6068.22,
+      "chg": -0.309,
+      "stale": false
+    },
+    "nky": {
+      "last": 62693.16,
+      "chg": -0.341,
+      "stale": false
+    },
+    "vix": {
+      "last": 19.45,
+      "chg": 2.207,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.96,
+      "chg": -17.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.12,
+      "chg": -0.269,
+      "stale": false
+    },
+    "wti": {
+      "last": 103.44,
+      "chg": 3.991,
+      "stale": false
+    },
+    "gold": {
+      "last": 4010.0,
+      "chg": -1.241,
+      "stale": false
+    }
+  },
+  "charts": {
+    "v": 2,
+    "bars": {
+      "sectors": {
+        "rows": [
+          [
+            "Technology",
+            183.23,
+            0.488
+          ],
+          [
+            "Financials",
+            55.9,
+            -1.324
+          ],
+          [
+            "Health care",
+            179.28,
+            -1.114
+          ],
+          [
+            "Cons. discretionary",
+            113.1,
+            -1.661
+          ],
+          [
+            "Cons. staples",
+            88.26,
+            -1.922
+          ],
+          [
+            "Energy",
+            69.33,
+            2.605
+          ],
+          [
+            "Industrials",
+            164.62,
+            -1.266
+          ],
+          [
+            "Materials",
+            51.31,
+            -0.735
+          ],
+          [
+            "Real estate",
+            42.57,
+            0.118
+          ],
+          [
+            "Utilities",
+            42.56,
+            -0.723
+          ],
+          [
+            "Communications",
+            105.51,
+            -1.778
+          ]
+        ],
+        "left_out": 0
+      },
+      "credit": {
+        "rows": [
+          [
+            "US IG (LQD)",
+            103.85,
+            -0.412
+          ],
+          [
+            "US HY (HYG)",
+            77.05,
+            -0.065
+          ],
+          [
+            "EM USD (EMB)",
+            91.65,
+            -0.218
+          ],
+          [
+            "Loans (BKLN)",
+            20.26,
+            -0.148
+          ],
+          [
+            "7-10Y UST (IEF)",
+            91.05,
+            -0.164
+          ],
+          [
+            "Long UST (TLT)",
+            81.34,
+            -0.489
+          ]
+        ],
+        "left_out": 0
+      },
+      "volatility": {
+        "rows": [
+          [
+            "VIX",
+            19.45,
+            2.207
+          ],
+          [
+            "VIX 9-day",
+            18.7,
+            -0.848
+          ],
+          [
+            "VIX 3-month",
+            20.48,
+            1.789
+          ],
+          [
+            "VVIX",
+            109.7,
+            1.631
+          ],
+          [
+            "MOVE",
+            103.312,
+            -3.302
+          ]
+        ],
+        "left_out": 0
+      },
+      "commodities": {
+        "rows": [
+          [
+            "WTI crude",
+            103.44,
+            3.991
+          ],
+          [
+            "Brent",
+            111.66,
+            -1.334
+          ],
+          [
+            "Natural gas",
+            3.047,
+            8.977
+          ],
+          [
+            "Gold",
+            4010.0,
+            -1.241
+          ],
+          [
+            "Silver",
+            53.96,
+            -1.468
+          ],
+          [
+            "Copper",
+            6.497,
+            2.122
+          ]
+        ],
+        "left_out": 0
+      },
+      "fx": {
+        "rows": [
+          [
+            "Dollar index",
+            101.752,
+            0.14
+          ],
+          [
+            "EUR/USD",
+            1.12,
+            -0.269
+          ],
+          [
+            "USD/JPY",
+            156.814,
+            -0.833
+          ],
+          [
+            "GBP/USD",
+            1.337,
+            -0.155
+          ],
+          [
+            "USD/CNY",
+            6.661,
+            -0.259
+          ]
+        ],
+        "left_out": 1
+      },
+      "international": {
+        "rows": [
+          [
+            "Euro Stoxx 50",
+            6068.22,
+            -0.309
+          ],
+          [
+            "DAX 40",
+            25181.65,
+            -0.749
+          ],
+          [
+            "FTSE 100",
+            10690.36,
+            -0.323
+          ],
+          [
+            "Nikkei 225",
+            62693.16,
+            -0.341
+          ],
+          [
+            "Hang Seng",
+            23093.37,
+            0.692
+          ],
+          [
+            "KOSPI",
+            5550.3,
+            0.299
+          ],
+          [
+            "Bovespa",
+            205082.562,
+            0.472
+          ],
+          [
+            "S&P/TSX",
+            35788.18,
+            -0.515
+          ]
+        ],
+        "left_out": 0
+      },
+      "digital": {
+        "rows": [
+          [
+            "Bitcoin",
+            81384.172,
+            0.089
+          ],
+          [
+            "Ether",
+            2401.83,
+            0.655
+          ],
+          [
+            "Solana",
+            103.96,
+            0.403
+          ],
+          [
+            "XRP",
+            1.308,
+            0.049
+          ]
+        ],
+        "left_out": 0
+      }
+    },
+    "movers": {
+      "leaders": [
+        [
+          "CVX",
+          2.880719185228564
+        ],
+        [
+          "XOM",
+          2.7941486313791453
+        ],
+        [
+          "AMD",
+          1.744331990494996
+        ],
+        [
+          "MSFT",
+          0.6582468264542563
+        ],
+        [
+          "ORCL",
+          0.49386868094674075
+        ]
+      ],
+      "laggards": [
+        [
+          "KO",
+          -2.758545578391991
+        ],
+        [
+          "LLY",
+          -2.543065452312898
+        ],
+        [
+          "MS",
+          -2.435177310329284
+        ],
+        [
+          "NFLX",
+          -1.78971591799989
+        ],
+        [
+          "GS",
+          -1.7524958298120952
+        ]
+      ]
+    },
+    "curve": [
+      {
+        "key": "ust1m",
+        "tenor": "1 month",
+        "last": 4.11,
+        "chg": 2.0,
+        "stale": true
+      },
+      {
+        "key": "ust3m",
+        "tenor": "3 month",
+        "last": 4.22,
+        "chg": -3.0,
+        "stale": true
+      },
+      {
+        "key": "ust6m",
+        "tenor": "6 month",
+        "last": 4.29,
+        "chg": -6.0,
+        "stale": true
+      },
+      {
+        "key": "ust1y",
+        "tenor": "1 year",
+        "last": 4.41,
+        "chg": -11.0,
+        "stale": true
+      },
+      {
+        "key": "ust2y",
+        "tenor": "2 year",
+        "last": 4.65,
+        "chg": -16.0,
+        "stale": true
+      },
+      {
+        "key": "ust3y",
+        "tenor": "3 year",
+        "last": 4.72,
+        "chg": -17.0,
+        "stale": true
+      },
+      {
+        "key": "ust5y",
+        "tenor": "5 year",
+        "last": 4.78,
+        "chg": -17.0,
+        "stale": true
+      },
+      {
+        "key": "ust7y",
+        "tenor": "7 year",
+        "last": 4.86,
+        "chg": -17.0,
+        "stale": true
+      },
+      {
+        "key": "ust10y",
+        "tenor": "10 year",
+        "last": 4.96,
+        "chg": -17.0,
+        "stale": true
+      },
+      {
+        "key": "ust20y",
+        "tenor": "20 year",
+        "last": 5.32,
+        "chg": -15.0,
+        "stale": true
+      },
+      {
+        "key": "ust30y",
+        "tenor": "30 year",
+        "last": 5.29,
+        "chg": -13.0,
+        "stale": true
+      }
+    ],
+    "risk": {
+      "score": -0.25,
+      "label": "Neutral"
+    },
+    "breadth": {
+      "advancers": 5,
+      "decliners": 21
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 40024622505,
+    "artifact_id": 12532757120,
+    "created_at": "2026-10-23T21:20:49Z"
+  }
+}
