@@ -40,6 +40,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nyse  # noqa: E402
 from calendar_data import MOVES as CAL_MOVES, SOURCES as CAL_SOURCES  # noqa: E402
 from learn_content import ARTICLES  # noqa: E402
+from world_data import AXES as WORLD_AXES, MARKETS as WORLD_MARKETS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT
@@ -1295,6 +1296,7 @@ def site_header(home, base):
       <a href="{base}companies/">Companies</a>
       <a href="{base}lab/">Lab</a>
       <a href="{base}calendar/">Calendar</a>
+      <a href="{base}world/">World</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}learn/">Learn</a>
       <a href="{base}watch/">Watch</a>
@@ -1334,6 +1336,7 @@ def site_footer(home, base):
       <a href="{base}companies/">Companies</a>
       <a href="{base}lab/">Lab</a>
       <a href="{base}calendar/">Calendar</a>
+      <a href="{base}world/">World markets</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}learn/">Learn</a>
       <a href="{base}watch/">Watch</a>
@@ -3310,6 +3313,184 @@ def companies_index(data):
                  body=body, home="../", base="../", path="companies/")
 
 
+# World markets ------------------------------------------------------------------
+
+WORLD_DATA = ROOT / ".cache" / "world" / "world.json"
+# Axis key -> (label, short label for the radar, unit, is a move (red/green), note).
+WORLD_AXIS = {
+    "ret1m": ("Index return, 1 month", "1M return", "%", True, "The main index's price change over the last month, in local currency."),
+    "ytd": ("Index return, year to date", "YTD return", "%", True, "The main index's price change since the last close of last year, in local currency."),
+    "vol3m": ("Volatility, 3 months", "Volatility", "%", False, "Annualised standard deviation of the index's daily returns over three months."),
+    "fx": ("Currency against the dollar", "Currency", "%", True, "Change in the dollar value of the local currency since the end of last year: above zero, the currency gained."),
+    "y10": ("10-year government bond yield", "10Y yield", "%", False, "Long-term government bond yield, monthly average."),
+    "gdp": ("GDP growth", "GDP growth", "%", False, "Real GDP growth in the latest year the source has published."),
+    "cpi": ("Inflation", "Inflation", "%", False, "Consumer prices, year on year: the latest month where it is recent, else the latest year."),
+    "unemp": ("Unemployment", "Unemployment", "%", False, "Unemployment rate: the latest month where it is recent, else the latest year."),
+}
+WORLD_DEFAULT = ["USA", "DEU", "JPN"]
+
+
+def load_world():
+    try:
+        w = json.loads(WORLD_DATA.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return w if w.get("figures") else None
+
+
+def world_when(rec):
+    """A figure's date as printed: a day, a month or a year."""
+    d = rec["date"]
+    if len(d) == 10:
+        return day_med(dt.date.fromisoformat(d))
+    if len(d) == 7:
+        return f"{dt.date.fromisoformat(d + '-01'):%b %Y}"
+    return d
+
+
+def world_fig(axis, rec):
+    """A figure in its table cell: moves signed and coloured, levels in ink."""
+    if not rec:
+        return '<span class="wm-na">No figure</span>'
+    label, _, unit, move, _ = WORLD_AXIS[axis]
+    txt = signed(rec["v"], 2, unit) if move else f'{rec["v"]:.2f}{unit}'.replace("-", MINUS)
+    return mv(txt) if move else txt
+
+
+def world_scale(figs):
+    """Each axis's lowest and highest figure across the markets: the radar's shared scale."""
+    out = {}
+    for a in WORLD_AXES:
+        vals = [(f[a]["v"], iso) for iso, f in figs.items() if a in f]
+        if vals:
+            out[a] = {"lo": min(vals)[0], "hi": max(vals)[0], "lo_m": min(vals)[1], "hi_m": max(vals)[1]}
+    return out
+
+
+def world_mini(iso, figs, scale):
+    """A small static radar of one market, on the shared scale."""
+    size, c, R = 120, 60, 46
+    n = len(WORLD_AXES)
+    rings = "".join(f'<circle class="grid-line wm-ring" cx="{c}" cy="{c}" r="{R * k / 4:.1f}"/>' for k in (1, 2, 3, 4))
+    spokes, pts = "", []
+    for i, a in enumerate(WORLD_AXES):
+        ang = -math.pi / 2 + 2 * math.pi * i / n
+        spokes += f'<line class="grid-line" x1="{c}" y1="{c}" x2="{c + R * math.cos(ang):.1f}" y2="{c + R * math.sin(ang):.1f}"/>'
+        rec, sc = figs.get(iso, {}).get(a), scale.get(a)
+        if rec and sc:
+            t = 0.5 if sc["hi"] == sc["lo"] else (rec["v"] - sc["lo"]) / (sc["hi"] - sc["lo"])
+            r = R * (0.12 + 0.88 * t)
+            pts.append((c + r * math.cos(ang), c + r * math.sin(ang)))
+        else:
+            pts.append(None)
+    # Draw only between neighbouring axes that both have a figure.
+    segs = ""
+    for i in range(n):
+        a, b = pts[i], pts[(i + 1) % n]
+        if a and b:
+            segs += f'<line class="wm-edge" x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}"/>'
+    dots = "".join(f'<circle class="dot" cx="{p[0]:.1f}" cy="{p[1]:.1f}" r="1.8"/>' for p in pts if p)
+    return (f'<svg class="chart wm-mini__svg" viewBox="0 0 {size} {size}" aria-hidden="true">'
+            f'{rings}{spokes}{segs}{dots}</svg>')
+
+
+def world_page(w):
+    names = {m[0]: m[1] for m in WORLD_MARKETS}
+    index = {m[0]: m[3] for m in WORLD_MARKETS}
+    figs = w["figures"] if w else {}
+    if not w:
+        body = """<main id="main" class="page dd">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head"><h1 class="page__title">World markets</h1>
+      <p class="lede">Twenty-five markets compared on the same scale.</p><p class="note__meta">Data pending.</p></header>
+    <section class="dd__main"><div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div></section>
+  </div>
+</main>"""
+        return shell(title="World markets: Andra Markets", desc="Twenty-five markets compared on the same scale.",
+                     body=body, home="../", base="../", path="world/")
+    scale = world_scale(figs)
+    updated = dt.datetime.fromisoformat(w["updated"]).astimezone(NY)
+    chips = "".join(
+        f'<button type="button" class="chip" data-m="{iso}" aria-pressed="{"true" if iso in WORLD_DEFAULT else "false"}">{esc(nm)}</button>'
+        for iso, nm, *_ in WORLD_MARKETS)
+    payload = json.dumps({
+        "axes": [{"k": a, "label": WORLD_AXIS[a][0], "short": WORLD_AXIS[a][1], "unit": WORLD_AXIS[a][2], "move": WORLD_AXIS[a][3]}
+                 for a in WORLD_AXES],
+        "markets": [{"iso": iso, "name": nm, "index": idx} for iso, nm, _, idx, *_ in WORLD_MARKETS],
+        "figures": {iso: {a: {"v": r["v"], "when": world_when(r), "src": r["src"]} for a, r in f.items() if a in WORLD_AXIS}
+                    for iso, f in figs.items()},
+        "scale": scale, "start": WORLD_DEFAULT}, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+    ranges = "".join(
+        f'<li class="kpi__item"><span class="kpi__name">{WORLD_AXIS[a][1]}</span>'
+        f'<span class="kpi__level">{world_fig(a, {"v": sc["lo"]})} to {world_fig(a, {"v": sc["hi"]})}</span>'
+        f'<span class="kpi__chg">{esc(names[sc["lo_m"]])} to {esc(names[sc["hi_m"]])}</span></li>'
+        for a, sc in scale.items())
+    minis = "".join(
+        f'<li><button type="button" class="wm-mini" data-m="{iso}" aria-pressed="{"true" if iso in WORLD_DEFAULT else "false"}">'
+        f'{world_mini(iso, figs, scale)}<span class="wm-mini__name">{esc(names[iso])}</span>'
+        f'<span class="wm-mini__idx">{esc(index[iso])}</span></button></li>'
+        for iso in names)
+    head = "".join(f'<th scope="col" class="num">{WORLD_AXIS[a][1]}</th>' for a in WORLD_AXES)
+    rows = "".join(
+        f'<tr><th scope="row">{esc(names[iso])}<span>{esc(index[iso])}</span></th>'
+        + "".join(f'<td class="num">{world_fig(a, figs.get(iso, {}).get(a))}</td>' for a in WORLD_AXES) + "</tr>"
+        for iso in names)
+    # Each axis's sources, with the dates its figures carry.
+    src_rows = []
+    for a in WORLD_AXES:
+        by = {}
+        for iso, f in figs.items():
+            if a in f:
+                by.setdefault(f[a]["src"], []).append(world_when(f[a]))
+        missing = [names[iso] for iso in names if a not in figs.get(iso, {})]
+        parts = "; ".join(f"{esc(src)}, {', '.join(sorted(set(ds), key=ds.index)[:3])}{' and others' if len(set(ds)) > 3 else ''}"
+                          for src, ds in by.items())
+        gap = f" No figure for {', '.join(missing)}: no free official source publishes one." if missing else ""
+        if a == "fx" and "United States" in missing:
+            gap = gap.replace("United States", "the United States (its currency is the dollar)")
+        src_rows.append(f'<li><span>{WORLD_AXIS[a][0]}. {WORLD_AXIS[a][4]} {parts}.{gap}</span></li>')
+    body = f"""<main id="main" class="page dd wm" data-world>
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <h1 class="page__title">World markets</h1>
+      <p class="lede">Twenty-five markets on the same eight measures: how their stock markets and currencies have done, how volatile they are, what their governments pay to borrow, and how their economies are growing, pricing and hiring.</p>
+      <p class="note__meta">Yahoo Finance, OECD, World Bank, IMF. Updated {updated.day} {updated:%b %Y}, {updated:%-I:%M} {updated.strftime('%p').lower()} ET.</p>
+    </header>
+    <section class="dd__main wm-main" aria-label="Compare markets">
+      <div class="dd__cgroup"><span class="cl__glabel" id="wm-pick-l">Compare up to three</span>
+        <div class="dd__toggles wm-pick" role="group" aria-labelledby="wm-pick-l">{chips}</div></div>
+      <p class="dd__status" role="status" aria-live="polite"></p>
+      <figure class="dd__chart"><div class="dd__plot wm-plot" role="img" tabindex="0" aria-label="Radar chart of the markets compared"></div>
+        <figcaption><p class="key dd__key"></p><p class="dd__read" aria-live="polite"></p></figcaption></figure>
+      <noscript><p class="dd__pending">The radar needs JavaScript. Every figure is in the table below.</p></noscript>
+      <div class="wm-cmp__wrap"><table class="wm-cmp" hidden><caption class="visually-hidden">The markets compared, each figure with its date and source</caption>
+        <thead></thead><tbody></tbody></table></div>
+      <script type="application/json" id="wm-data">{payload}</script>
+    </section>
+    <aside class="report__side dd__side" aria-labelledby="side-title">
+      <h2 class="report__side-title" id="side-title">The scale</h2>
+      <ul class="kpi wm-scale">{ranges}</ul>
+      <p class="report__src">Each axis runs from the lowest figure among the 25 markets, near the centre, to the highest, at the edge.</p>
+    </aside>
+    <div class="page__body dd__text wm-text">
+      <section aria-labelledby="wm-each"><h2 id="wm-each">Each market</h2>
+        <ul class="wm-minis">{minis}</ul></section>
+      <section aria-labelledby="wm-all"><h2 id="wm-all">Every figure</h2>
+        <div class="wm-tab__wrap" tabindex="0"><table class="wm-tab"><caption class="visually-hidden">Eight measures for 25 markets</caption>
+          <thead><tr><th scope="col">Market</th>{head}</tr></thead><tbody>{rows}</tbody></table></div></section>
+      <section aria-labelledby="wm-how"><h2 id="wm-how">How to read it</h2>
+        <p>Each spoke is one measure, scaled from the lowest figure among the 25 markets (near the centre) to the highest (at the edge), so every market is placed against the same range. Outward means a higher figure, not a better one: higher volatility, inflation or unemployment points outward too. A gap in a market's outline is a measure with no figure: none is estimated.</p>
+        <p>Stock market and currency figures are daily. The economic figures come out monthly or yearly and are published with a lag, so each one carries its own date in the comparison table, and markets can be compared on different months or years.</p></section>
+      <section aria-labelledby="wm-src"><h2 id="wm-src">Sources</h2><ul class="ruled wm-src">{"".join(src_rows)}</ul>
+        <p>For information only. Not investment advice.</p></section>
+    </div>
+  </div>
+</main>"""
+    return shell(title="World markets: Andra Markets",
+                 desc="Twenty-five markets compared on one radar: index returns, volatility, bond yields, currency, growth, inflation and unemployment, each with its official source and date.",
+                 body=body, home="../", base="../", path="world/", scripts=("world.js",))
+
+
 def slug_s(s):
     return re.sub(r"[^a-z]+", "-", s.lower()).strip("-")
 
@@ -3335,6 +3516,7 @@ SEARCH_PAGES = [
     ("The Lab", "lab/", "Page"),
     ("Companies", "companies/", "Page"),
     ("Economic calendar", "calendar/", "Page"),
+    ("World markets", "world/", "Page"),
     ("Daily close note", "#note", "Home"),
     ("Learn", "learn/", "Page"),
     ("Watch", "watch/", "Page"),
@@ -3390,6 +3572,8 @@ def main():
     for i, t in enumerate(LAB_TOOLS):
         (OUT / "lab" / t[0]).mkdir(exist_ok=True)
         (OUT / "lab" / t[0] / "index.html").write_text(lab_page(i, risk))
+    (OUT / "world").mkdir(exist_ok=True)
+    (OUT / "world" / "index.html").write_text(world_page(load_world()))
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
     REPORTS.mkdir(exist_ok=True)

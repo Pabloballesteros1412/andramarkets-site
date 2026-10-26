@@ -107,6 +107,24 @@ jobs:
         with:
           path: .cache/lab
           key: lab-${{ github.run_id }}-${{ github.run_attempt }}
+      # The World markets page (tools/world_data.py): Yahoo, OECD, World Bank,
+      # IMF; each figure keeps its last good value and date when a source fails.
+      - name: Restore world figures
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/world
+          key: world-${{ github.run_id }}
+          restore-keys: world-
+      - name: Fetch world figures
+        if: ${{ !inputs.strip_only }}
+        continue-on-error: true
+        run: python3 tools/world_data.py
+      - name: Save world figures
+        if: ${{ !inputs.strip_only }}
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/world
+          key: world-${{ github.run_id }}-${{ github.run_attempt }}
       # Each company's last good figures, so a Yahoo hiccup keeps its page
       # (with its own dates). Only the figures the pages draw are cached.
       - name: Restore company figures
@@ -154,6 +172,7 @@ jobs:
           if [ -d companies ]; then cp -r companies _site/; fi
           cp -r watch _site/
           cp -r learn _site/
+          cp -r world _site/
           cp -r lab _site/
           rm -rf _site/assets/icons
       # The site is free: no PDF or data file may ever be published.

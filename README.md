@@ -9,6 +9,8 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
 - `tools/company_data.py`: fetches the figures behind the company pages (the 50 largest S&P 500 companies) at deploy time, into `.cache/companies/`.
 - `tools/calendar_data.py`: fetches the calendar at deploy time (below).
+- `tools/world_data.py`: fetches the World markets figures at deploy time (below).
+- `assets/world.js`: the World markets comparison radar.
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
 - `tools/learn_content.py`: the text and sources of the six Learn explainers (`learn/`).
 - `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser.
@@ -191,6 +193,27 @@ per market (US, Europe, Asia), which the page loads only when a company from
 that market is picked. Mainland Chinese companies use the Shanghai Composite
 for beta: Yahoo keeps no CSI 300 history. With no universe or closes yet the
 page says "Data pending".
+
+## World markets data
+
+`tools/world_data.py` runs before each build and writes
+`.cache/world/world.json` (Actions cache, never committed or published): 25
+markets, eight figures each, every one with its own source and date. Each
+figure keeps its last good value when a source fails.
+
+| Axis | Source |
+|---|---|
+| 1M and YTD index return, 3M volatility | Yahoo Finance, each market's main index (local currency) |
+| Currency against the dollar | Yahoo Finance, change since the end of last year in the dollar value of the local currency |
+| 10Y government bond yield | OECD long-term interest rates (monthly), one SDMX request for all countries |
+| GDP growth | World Bank real GDP growth, latest year; IMF World Economic Outlook for Taiwan (last completed year only, never a projection) |
+| Inflation, unemployment | OECD monthly figures when under six months old; otherwise World Bank, latest year; IMF for Taiwan |
+
+No figure is estimated: where no free official source publishes one (10-year
+yields for Argentina, Turkey, Hong Kong, Taiwan, Indonesia and Singapore;
+unemployment for South Africa, China and Indonesia; the dollar against itself)
+the axis stays empty and the page names the gap. The OECD answers three
+requests per run, three seconds apart (it limits bursts).
 
 ## Market strip
 

@@ -381,8 +381,17 @@ ul {
 
 .nav a {
   text-decoration: none;
+  white-space: nowrap;
   color: var(--ink-2);
   transition: color 160ms ease;
+}
+
+/* Eight links fit beside the search, theme and Subscribe buttons from 1021px
+   with a tighter gap below 1160px. */
+@media (min-width: 1021px) and (max-width: 1160px) {
+  .nav {
+    gap: 16px;
+  }
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -2052,6 +2061,324 @@ ul {
   max-width: 44rem;
   margin-top: 24px;
   font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+/* World markets (world/): the comparison radar, its picker and tables. The
+   picker, status and six line styles match the dashboard pages; they are
+   scoped here so this page does not depend on that change landing first. */
+.wm .dd__cgroup {
+  display: grid;
+  gap: 8px;
+}
+
+.wm .dd__cgroup > .cl__glabel {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.wm .dd__toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wm .dd__toggles .chip {
+  min-height: 44px;
+  padding: 0 12px;
+  gap: 8px;
+}
+
+.wm .dd__toggles .chip::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--rule-strong);
+}
+
+.wm .dd__toggles .chip[aria-pressed="true"] {
+  background: transparent;
+  border-color: var(--rule-strong);
+  color: var(--ink);
+}
+
+.wm .dd__toggles .chip[aria-pressed="true"]::before {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.wm .dd__status {
+  margin-top: 8px;
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+
+.wm .dd__status:empty {
+  display: none;
+}
+
+.wm .chart .s0,
+.wm .chart .s1,
+.wm .chart .s2 {
+  fill: none;
+  stroke-linejoin: round;
+}
+
+.wm .chart .s0 {
+  stroke: var(--chart-line);
+  stroke-width: 1.8;
+}
+
+.wm .chart .s1 {
+  stroke: var(--ink-3);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.wm .chart .s2 {
+  stroke: var(--ink-2);
+  stroke-width: 1.8;
+  stroke-dasharray: 1 3;
+  stroke-linecap: round;
+}
+
+.wm .key .key__line,
+.wm .wm-cmp__key .key__line {
+  display: inline-block;
+  width: 16px;
+  height: 6px;
+  overflow: visible;
+}
+
+.wm-ring {
+  fill: none;
+}
+
+.wm .chart .wm-axis {
+  fill: var(--ink-2);
+}
+
+.wm-plot {
+  height: auto;
+  min-height: 280px;
+}
+
+.wm-cmp__wrap,
+.wm-tab__wrap {
+  overflow-x: auto;
+}
+
+.wm-cmp {
+  width: 100%;
+  margin-top: 24px;
+  border-collapse: collapse;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.wm-cmp th,
+.wm-cmp td {
+  padding: 12px 16px 12px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+.wm-cmp thead th {
+  border-bottom-color: var(--rule-strong);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.wm-cmp tbody th {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+.wm-cmp__key {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+  font-weight: 550;
+}
+
+.wm-cmp__v {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.wm-cmp__src {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.wm-na {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.wm .kpi__level {
+  font-size: 1rem;
+}
+
+.wm .kpi__chg {
+  font-variant-numeric: normal;
+}
+
+.wm .wm-text {
+  max-width: none;
+}
+
+@media (min-width: 961px) {
+  .wm .wm-text {
+    grid-column: 1 / -1;
+  }
+  .wm .wm-text > section > p,
+  .wm .wm-text .wm-src {
+    max-width: 65ch;
+  }
+}
+
+@media (max-width: 640px) {
+  .wm .wm-pick {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+  }
+  .wm .wm-pick .chip {
+    flex: none;
+  }
+}
+
+.wm-minis {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  border-top: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
+  list-style: none;
+  margin-top: 16px;
+}
+
+.wm-mini {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  border: 0;
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+}
+
+.wm-mini[aria-pressed="true"] {
+  background: var(--ground-2);
+}
+
+.wm-mini[aria-pressed="true"] .wm-mini__name::after {
+  content: " · compared";
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .wm-mini:hover {
+    background: var(--ground-2);
+  }
+}
+
+.wm-mini:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -4px;
+}
+
+.wm-mini__svg {
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+  justify-self: center;
+}
+
+.wm-mini .wm-edge {
+  stroke: var(--chart-line);
+  stroke-width: 1.4;
+}
+
+.wm-mini__name {
+  margin-top: 6px;
+  font-size: 0.875rem;
+  font-weight: 540;
+}
+
+.wm-mini__idx {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.wm-tab {
+  width: 100%;
+  margin-top: 16px;
+  border-collapse: collapse;
+  border-top: 1px solid var(--rule-strong);
+  font-size: 0.875rem;
+}
+
+.wm-tab th,
+.wm-tab td {
+  padding: 10px 12px 10px 0;
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+
+.wm-tab thead th {
+  border-bottom-color: var(--rule-strong);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  text-align: right;
+}
+
+.wm-tab thead th:first-child,
+.wm-tab tbody th {
+  text-align: left;
+}
+
+.wm-tab tbody th {
+  font-weight: 540;
+}
+
+.wm-tab tbody th span {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.wm-tab .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.wm-tab__wrap:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.wm-src li span {
+  font-size: 0.9375rem;
   color: var(--ink-2);
 }
 
