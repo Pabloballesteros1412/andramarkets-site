@@ -152,6 +152,16 @@ Actions cache, never committed or published.
 | Cross-asset correlation | 60 sessions of daily returns: S&P 500, TLT, dollar index, WTI, gold, Yahoo Finance | Last session |
 | Watchlist breadth | Agent archive: advancers less decliners across the Andra Markets watchlist of US large caps, every published session | Newest published session |
 
+Each dashboard page carries more than its tile: two years of history (five
+for inflation), so it can compare with any date in that span, and series
+that start switched off: SPY beside the sectors; twelve more indices; ten
+more currencies and the dollar index; VIX 1-day, VVIX and the 1M less 3M
+slope; Brent, natural gas, silver, copper, platinum, corn and wheat; BBB,
+BB, CCC, euro high yield and EM corporate spreads (FRED); core CPI, PCE and
+core PCE, and the unemployment rate (FRED); Nasdaq 100, Euro Stoxx 50, HYG,
+the euro, copper and bitcoin in the correlation matrix. An extra series that
+fails is left off its page; the tile keeps working.
+
 The earnings season tracker is not on the site: there is no reliable free
 source of beats and misses. Market-wide breadth has no free source either, so
 the breadth tile is labelled as the watchlist's.

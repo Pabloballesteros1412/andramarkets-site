@@ -571,12 +571,14 @@ def latest_rows(key, rec):
         return [(esc(n), mv(chg(v)), "on the day" if t == asof else f"close of {short_day(t)}") for n, v, t in rows]
     if det["kind"] == "lines":
         out = []
-        for sr in det["series"]:
+        # The series shown when the page opens; the others are toggles.
+        for sr in [x for x in det["series"] if x.get("on", True)]:
             v = sr["values"]
             dec = sr.get("dec", det.get("dec", 2))
             if det.get("rebase"):
                 out.append((sr["name"], f"{v[-1]:,.{dec}f}", mv(f"{chg((v[-1] / v[-2] - 1) * 100)} on the day")))
-                out.append((f"{sr['name']}, 1 year", mv(chg((v[-1] / v[0] - 1) * 100)), f"since {short_day(det['dates'][0])}"))
+                yr = det["dates"].index(next(x for x in det["dates"] if x >= months_back_iso(det["dates"][-1], 12)))
+                out.append((f"{sr['name']}, 1 year", mv(chg((v[-1] / v[yr] - 1) * 100)), f"since {short_day(det['dates'][yr])}"))
             else:
                 base = det["dates"].index(next(x for x in det["dates"] if x >= months_back_iso(det["dates"][-1], 1)))
                 out.append((sr["name"], pct(v[-1], 2), mv(f"{signed((v[-1] - v[base]) * 100, 0, 'bp')} since {short_day(det['dates'][base])}")))
@@ -626,10 +628,98 @@ def dash_ranges(det):
     return det["ranges"]
 
 
+# Each dashboard page's views: (id, label), the first is the tile's own. A view
+# is offered only when the record carries its figures (see view_ok).
+PERF_VIEWS = [("main", "Ranked"), ("rebased", "Rebased")]
+CURVE_VIEWS = [("main", "Curve"), ("change", "Change"), ("time", "Over time")]
+DASH_VIEWS = {
+    "sector_heatmap": PERF_VIEWS, "global_indices": PERF_VIEWS, "fx_majors": PERF_VIEWS,
+    "yield_curve": CURVE_VIEWS + [("spreads", "Spreads")],
+    "fed_path": [("main", "Path"), ("change", "Change"), ("time", "Over time")],
+    "vol_term": CURVE_VIEWS,
+    "commodities": [("main", "Rebased"), ("ranked", "Ranked")],
+    "credit_spreads": [("main", "Levels"), ("change", "Change")],
+    "inflation_labour": [("main", "Inflation and jobs"), ("unrate", "Unemployment")],
+    "breadth": [("main", "Net"), ("cum", "Cumulative")],
+    "correlation": [("main", "Matrix"), ("rolling", "Rolling")],
+}
+# What the comparison date does on each kind of chart.
+DATE_LABEL = {"curve": "Compare with", "matrix": "Window ending"}
+
+
+def view_ok(det, v):
+    if v in ("rebased", "time"):
+        return bool(det.get("hist"))
+    if v == "spreads":
+        return bool(det.get("spreads"))
+    if v == "unrate":
+        return any(x is not None for x in det.get("unrate") or [])
+    return True
+
+
+def dash_dates(det):
+    """First and last date the comparison date can take."""
+    if det.get("hist"):
+        ds = det["hist"]["dates"]
+    elif det["kind"] == "breadth":
+        ds = [x[0] for x in det["sessions"]]
+    else:
+        ds = det.get("dates") or []
+    return (ds[0], ds[-1]) if ds else (None, None)
+
+
+# What each page adds beyond its tile: (how to read the extra views, extra sources).
+DASH_MORE = {
+    "yield_curve": ("Pick a date to compare the curve with any session in the last two years. Change shows how far each "
+                    "maturity has moved since then, in basis points. Over time follows chosen maturities day by day; "
+                    "Spreads follows the gaps between them (10Y less 2Y, 10Y less 3M, 30Y less 5Y, 2Y less 3M): a spread "
+                    "below zero is an inverted curve.", ""),
+    "fed_path": ("Pick a date to compare the path with how it was priced then. Change shows the move in each month's "
+                 "implied rate, in basis points; Over time follows chosen months' implied rates day by day.", ""),
+    "sector_heatmap": ("Pick a date to measure every sector from that close, and switch sectors on or off; the S&amp;P 500 "
+                       "itself (SPY) is there to compare. Rebased draws up to six sectors from 100 on the range's first "
+                       "day, so the paths can be compared, not only the end points.", " SPDR S&amp;P 500 ETF (SPY) for comparison."),
+    "vol_term": ("Pick a date to compare the curve with any session in the last two years. Change shows how far each "
+                 "expiry has moved since then, in volatility points. Over time follows chosen expiries, and adds the "
+                 "one-day VIX, the VVIX (the volatility of the VIX itself) and the VIX less the 3-month VIX: above zero, "
+                 "the curve is in backwardation.", " Cboe VIX1D and VVIX from Yahoo Finance in the Over time view."),
+    "global_indices": ("Twelve more benchmarks can be switched on: Nasdaq 100, Russell 2000, CAC 40, IBEX 35, FTSE MIB, SMI, "
+                       "KOSPI, TAIEX, Nifty 50, S&amp;P/ASX 200, Shanghai Composite and IPC Mexico. Pick a date to measure "
+                       "from that close; Rebased draws up to six from 100.", " The added indices from Yahoo Finance, in local currency."),
+    "fx_majors": ("Ten more can be switched on: the New Zealand dollar, Swedish krona, Norwegian krone, Chinese yuan, "
+                  "Mexican peso, Indian rupee, Brazilian real, Korean won, South African rand and the dollar index (DXY). "
+                  "Pick a date to measure from that close; Rebased draws the dollar against up to six currencies from 100, "
+                  "so a rising line is a stronger dollar.", " The added pairs and the ICE US Dollar Index from Yahoo Finance."),
+    "commodities": ("Seven more futures can be switched on: Brent crude, natural gas, silver, copper, platinum, corn and "
+                    "wheat, up to six lines at once. Pick a date to rebase from that day. Ranked shows every future's "
+                    "change over the range, largest gain first.",
+                    " Brent (BZ), natural gas (NG), silver (SI), copper (HG), platinum (PL), corn (ZC) and wheat (ZW) "
+                    "front-month futures from Yahoo Finance; a session one of them skipped carries its last close."),
+    "credit_spreads": ("Five more spreads can be switched on: BBB and BB, CCC and lower, euro high yield and emerging-market "
+                       "corporates. Change shows how far each has moved since the range's start or a date you pick, in "
+                       "basis points.", " ICE BofA BBB (BAMLC0A4CBBB), BB (BAMLH0A1HYBB), CCC and lower (BAMLH0A3HYC), "
+                       "euro high yield (BAMLHE00EHYIOAS) and emerging markets corporate (BAMLEMCBPIOAS) spreads, served by FRED."),
+    "inflation_labour": ("Core CPI, PCE prices and core PCE prices (the Fed's preferred gauge) can be drawn beside headline "
+                         "CPI. Pick a month to start from. The Unemployment view draws the unemployment rate, the other half "
+                         "of the labour picture.", " Core CPI (CPILFESL), PCE and core PCE price indexes from the Bureau of "
+                         "Economic Analysis (PCEPI, PCEPILFE) and the unemployment rate (UNRATE), served by FRED."),
+    "breadth": ("Cumulative adds up advancers less decliners from the range's start or a date you pick: the "
+                "advance-decline line. A line that falls while the index rises means fewer stocks carry the gains.", ""),
+    "correlation": ("Six more assets can be switched on: Nasdaq 100, Euro Stoxx 50, high yield bonds (HYG), the euro, copper "
+                    "and bitcoin. Pick a date to see the window that ended then. Rolling follows the first asset switched on "
+                    "against each of the others, over a trailing window the length of the range.",
+                    " Nasdaq 100, Euro Stoxx 50, iShares iBoxx High Yield (HYG), EUR/USD, copper futures and bitcoin from "
+                    "Yahoo Finance; returns on the sessions every chosen asset traded."),
+}
+
+
 def dashboard_page(key, cat, name, desc, source, rec):
     slug, default, how, long_source = DASH_PAGES[key]
     cat_label = {k: label for k, label, _ in CATEGORIES}[cat]
     crumbs = f'<p class="dd__crumbs"><a href="../../#dashboards">Dashboards</a> <span aria-hidden="true">/</span> {cat_label}</p>'
+    # A record cached before the pages carried histories draws as pending until refetched.
+    if rec and rec["detail"]["kind"] in ("perf", "matrix", "curve") and not rec["detail"].get("hist"):
+        rec = None
     if rec:
         det = dict(rec["detail"])
         if key == "fx_majors":
@@ -646,8 +736,24 @@ def dashboard_page(key, cat, name, desc, source, rec):
         rows = latest_rows(key, rec)
         kpis = "".join(f'<li class="kpi__item"><span class="kpi__name">{n}</span><span class="kpi__level">{lv}</span>'
                        f'<span class="kpi__chg">{note}</span></li>' for n, lv, note in rows)
-        figure = (f'<div class="filters dd__ranges" role="group" aria-label="Time range">{chips}</div>'
-                  f'<figure class="dd__chart"><div class="dd__plot dd__plot--{det["kind"]}" role="img" tabindex="0" aria-label="{esc(name)}"></div>'
+        views = [v for v in DASH_VIEWS.get(key, [("main", "")]) if view_ok(det, v[0])]
+        view_chips = "".join(f'<button type="button" class="chip" data-view="{v}" aria-pressed="{"true" if i == 0 else "false"}">{lb}</button>'
+                             for i, (v, lb) in enumerate(views))
+        lo, hi = dash_dates(det)
+        date_label = DATE_LABEL.get(det["kind"], "From")
+        controls = (f'<div class="dd__ctl">'
+                    + (f'<div class="dd__cgroup"><span class="cl__glabel" id="dd-view-l">View</span>'
+                       f'<div class="filters dd__views" role="group" aria-labelledby="dd-view-l">{view_chips}</div></div>' if len(views) > 1 else "")
+                    + f'<div class="dd__cgroup"><span class="cl__glabel" id="dd-range-l">Range</span>'
+                      f'<div class="dd__rangerow"><div class="filters dd__ranges" role="group" aria-labelledby="dd-range-l">{chips}</div>'
+                    + (f'<div class="dd__date"><label for="dd-from">{date_label}</label>'
+                       f'<input id="dd-from" type="date" min="{lo}" max="{hi}"></div>' if lo else "")
+                    + '</div></div>'
+                    + '<div class="dd__cgroup dd__show" hidden><span class="cl__glabel" id="dd-show-l">Show</span>'
+                      '<div class="dd__toggles" role="group" aria-labelledby="dd-show-l"></div></div>'
+                    + '<p class="dd__status" role="status" aria-live="polite"></p></div>')
+        figure = (controls
+                  + f'<figure class="dd__chart"><div class="dd__plot" role="img" tabindex="0" aria-label="{esc(name)}"></div>'
                   f'<figcaption><p class="key dd__key"></p><p class="dd__read" aria-live="polite"></p></figcaption></figure>'
                   f'<noscript><p class="dd__pending">The chart needs JavaScript. The latest values are in the table.</p></noscript>'
                   f'<script type="application/json" id="dd-data">{payload}</script>')
@@ -660,6 +766,10 @@ def dashboard_page(key, cat, name, desc, source, rec):
         meta = f"{source}. Data pending."
         figure = '<div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div>'
         side, data_attrs, scripts = "", "", ()
+    extra_how, more_src = DASH_MORE.get(key, ("", ""))
+    more_how = f"<p>{extra_how}</p>" if rec and extra_how else ""
+    if not rec:
+        more_src = ""
     body = f"""<main id="main" class="page dd"{data_attrs}>
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
@@ -671,8 +781,8 @@ def dashboard_page(key, cat, name, desc, source, rec):
     <section class="dd__main" aria-label="Chart">{figure}</section>
     {side}
     <div class="page__body dd__text">
-      <section aria-labelledby="dd-how"><h2 id="dd-how">How to read it</h2><p>{how}</p></section>
-      <section aria-labelledby="dd-src"><h2 id="dd-src">Source</h2><p>{long_source}</p><p>For information only. Not investment advice.</p></section>
+      <section aria-labelledby="dd-how"><h2 id="dd-how">How to read it</h2><p>{how}</p>{more_how}</section>
+      <section aria-labelledby="dd-src"><h2 id="dd-src">Source</h2><p>{long_source}{more_src}</p><p>For information only. Not investment advice.</p></section>
     </div>
   </div>
 </main>"""

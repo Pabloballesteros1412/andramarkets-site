@@ -188,6 +188,8 @@
     group.classList.add("has-glide");
     function place(animate) {
       var on = group.querySelector('.chip[aria-pressed="true"]');
+      // None pressed (a dashboard's comparison date replaces its range): no fill.
+      ind.style.opacity = on ? "" : "0";
       if (!on) return;
       if (!animate) ind.style.transition = "none";
       ind.style.width = on.offsetWidth + "px";
