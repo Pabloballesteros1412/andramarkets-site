@@ -35,7 +35,7 @@ CACHE = ROOT / ".cache" / "lab" / "closes.json"
 UA = "Mozilla/5.0"  # Yahoo answers 429 to a full browser string from a script
 YEARS = 3
 PAUSE = 0.35  # seconds between requests
-BUDGET = float(os.environ.get("LAB_BUDGET", "300"))
+BUDGET = float(os.environ.get("LAB_BUDGET", "240"))
 # Benchmarks Yahoo keeps no history for, and the index used for beta instead.
 RISK_BENCH = {"000300.SS": ("000001.SS", "Shanghai Composite")}
 
