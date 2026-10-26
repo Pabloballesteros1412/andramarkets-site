@@ -2879,6 +2879,178 @@ ul {
   min-height: 120px;
 }
 
+.dd__plot--auto {
+  height: auto;
+  min-height: 120px;
+}
+
+/* Dashboard page controls: view, range with a comparison date, series shown. */
+.dd__ctl {
+  display: grid;
+  gap: 16px;
+}
+
+.dd__cgroup {
+  display: grid;
+  gap: 8px;
+}
+
+.dd__cgroup[hidden] {
+  display: none;
+}
+
+.dd__cgroup > .cl__glabel {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.dd__rangerow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+}
+
+.dd__rangerow .dd__ranges {
+  flex: 0 1 auto;
+}
+
+.dd__date {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 550;
+}
+
+.dd__date[hidden] {
+  display: none;
+}
+
+.dd__date input {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 400;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.dd__date input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 0;
+}
+
+.dd__toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Toggles are many and independent: a hairline chip whose square fills when
+   the series is on, instead of the single pressed ink fill of a choice. */
+.dd__toggles .chip {
+  min-height: 44px;
+  padding: 0 12px;
+  gap: 8px;
+}
+
+.dd__toggles .chip::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border: 1px solid var(--rule-strong);
+}
+
+.dd__toggles .chip[aria-pressed="true"] {
+  background: transparent;
+  border-color: var(--rule-strong);
+  color: var(--ink);
+}
+
+.dd__toggles .chip[aria-pressed="true"]::before {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.dd__ranges .chip[hidden] {
+  display: none;
+}
+
+.dd__status {
+  font-size: 0.875rem;
+  font-weight: 650;
+  color: var(--ink);
+}
+
+.dd__status:empty {
+  display: none;
+}
+
+/* Six monochrome line styles for several series on one chart (owner-approved,
+   26 Oct 2026); each line is also named at its right end. */
+.chart .s0,
+.chart .s1,
+.chart .s2,
+.chart .s3,
+.chart .s4,
+.chart .s5 {
+  fill: none;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.chart .s0 {
+  stroke: var(--chart-line);
+  stroke-width: 1.6;
+}
+
+.chart .s1 {
+  stroke: var(--ink-3);
+  stroke-width: 1.3;
+  stroke-dasharray: 4 4;
+}
+
+.chart .s2 {
+  stroke: var(--ink-2);
+  stroke-width: 1.6;
+  stroke-dasharray: 1 3;
+  stroke-linecap: round;
+}
+
+.chart .s3 {
+  stroke: var(--ink-2);
+  stroke-width: 1.3;
+  stroke-dasharray: 9 4;
+}
+
+.chart .s4 {
+  stroke: var(--ink-3);
+  stroke-width: 1.3;
+  stroke-dasharray: 7 3 1 3;
+}
+
+.chart .s5 {
+  stroke: var(--ink-3);
+  stroke-width: 1;
+}
+
+.chart .chart__end {
+  fill: var(--ink-2);
+}
+
+.key .key__line {
+  display: inline-block;
+  width: 16px;
+  height: 6px;
+  overflow: visible;
+}
+
 .dd__plot:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 4px;

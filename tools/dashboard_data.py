@@ -464,6 +464,9 @@ def credit_more(days, today):
     return out
 
 
+INFLATION_MORE = [("CPILFESL", "Core CPI"), ("PCEPI", "PCE prices"), ("PCEPILFE", "Core PCE prices")]
+
+
 def tile_inflation(_):
     today = dt.date.today()
     s = fred(["CPIAUCSL", "PAYEMS"], months_back(today.replace(day=1), 12 * 6 + 2))
@@ -480,12 +483,30 @@ def tile_inflation(_):
     last_job = max(jobs)
     asof = max(yoy[-1][0], last_job)
     tile_jobs = sorted(jobs.items())[-48:]
+    # Further measures, year on year, toggled on the page (off when it opens),
+    # and the unemployment rate for its second view.
+    measures = [{"name": "CPI", "values": [round(cpi_y[d], 2) if d in cpi_y else None for d in months], "on": True}]
+    for sid, name in INFLATION_MORE:
+        try:
+            lv = dict(fred([sid], months_back(today.replace(day=1), 12 * 6 + 2))[sid])
+        except (OSError, ValueError) as e:
+            log(f"{sid}: {e}; left off the page", "warning")
+            continue
+        yy = {d: (v / lv[d.replace(year=d.year - 1)] - 1) * 100 for d, v in lv.items() if d.replace(year=d.year - 1) in lv}
+        measures.append({"name": name, "values": [round(yy[d], 2) if d in yy else None for d in months], "on": False})
+    unrate = None
+    try:
+        ur = dict(fred(["UNRATE"], months_back(today.replace(day=1), 12 * 6 + 2))["UNRATE"])
+        unrate = [ur.get(d) for d in months]
+    except (OSError, ValueError) as e:
+        log(f"UNRATE: {e}; left off the page", "warning")
     return asof, "BLS, FRED", {"cpi_month": iso(yoy[-1][0]), "jobs_month": iso(last_job),
                                "cpi": [[iso(d), round(v, 2)] for d, v in yoy[-48:]],
                                "jobs": [[iso(d), round(v)] for d, v in tile_jobs]}, {
         "kind": "macro", "dates": [iso(d) for d in months],
         "cpi": [round(cpi_y[d], 2) if d in cpi_y else None for d in months],
         "jobs": [round(jobs[d]) if d in jobs else None for d in months],
+        "measures": measures, "unrate": unrate,
         "ranges": [lb for lb, n in (("1Y", 12), ("2Y", 24), ("5Y", 60)) if len(months) >= n - 1]}
 
 
@@ -614,6 +635,9 @@ def tile_indices(_):
 CORR = [("^GSPC", "S&P 500"), ("TLT", "Long Treasuries"), ("DX-Y.NYB", "Dollar index"),
         ("CL=F", "WTI crude"), ("GC=F", "Gold")]
 WINDOWS = [("1M", 21), ("3M", 63), ("6M", 126), ("1Y", 250)]
+# Further assets on the page, off when it opens: (symbol, name, short label).
+CORR_MORE = [("^NDX", "Nasdaq 100", "NDX"), ("^STOXX50E", "Euro Stoxx 50", "SX5E"), ("HYG", "High yield bonds", "HYG"),
+             ("EURUSD=X", "Euro", "EUR"), ("HG=F", "Copper", "Cu"), ("BTC-USD", "Bitcoin", "BTC")]
 
 
 def corr_matrix(rets):
@@ -638,8 +662,22 @@ def tile_correlation(_):
         windows[label] = {"sessions": n, "from": iso(days[-n - 1]), "matrix": corr_matrix([r[-n:] for r in rets])}
     tile = corr_matrix([r[-60:] for r in rets])
     names = [n for _, n in CORR]
+    allseries, allnames, shorts, on = [sorted(x.items()) for x in series], list(names), \
+        ["S&P", "TLT", "USD", "WTI", "Gold"], [True] * len(CORR)
+    for sym, name, short in CORR_MORE:
+        try:
+            allseries.append(yahoo(sym, "2y"))
+        except Exception as e:  # noqa: BLE001
+            log(f"{sym}: {type(e).__name__}: {e}; left off the page", "warning")
+            continue
+        allnames.append(name)
+        shorts.append(short)
+        on.append(False)
+    hist = history(allseries, allnames, on, 4)
+    for sr, sh in zip(hist["series"], shorts):
+        sr["short"] = sh
     return days[-1], "Yahoo Finance, daily returns", {"names": names, "matrix": tile, "sessions": 60}, {
-        "kind": "matrix", "names": names, "windows": windows}
+        "kind": "matrix", "names": names, "windows": windows, "hist": hist}
 
 
 MONTH_CODES = "FGHJKMNQUVXZ"
@@ -667,6 +705,7 @@ def tile_fed(_):
     now, detail = compare(curves, months, [f"{dt.date.fromisoformat(mo + '-01'):%b %y}" for mo in months],
                           list(range(len(months))))
     detail["unit"], detail["dec"] = "%", 3
+    detail["hist"] = curve_history(curves, months, detail["labels"], [detail["labels"][0], detail["labels"][-1]], 3)
     try:
         effr = fred(["EFFR"], today - dt.timedelta(days=20))["EFFR"][-1]
         detail["ref"] = {"name": "Effective rate", "value": effr[1], "date": iso(effr[0])}
