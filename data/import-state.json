@@ -384,6 +384,17 @@
       "status": "held",
       "v": 2
     },
+    "12697413273": {
+      "created_at": "2026-10-26T23:39:02Z",
+      "date": "2026-10-26",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/62",
+      "reasons": [
+        "Prints from another session: asx, merval, real10y, twii, ust10y, ust1m, ust1y, ust20y, ust2y, ust30y, ust3m, ust3y, ust5y, ust6m, ust7y are not dated 2026-10-26, so the note would mix dates."
+      ],
+      "run_id": 40420875793,
+      "status": "held",
+      "v": 2
+    },
     "9427841672": {
       "created_at": "2026-08-20T23:06:56Z",
       "date": "2026-08-20",
