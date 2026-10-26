@@ -26,6 +26,7 @@ import datetime as dt
 import html
 import io
 import json
+import os
 import re
 import sys
 import time
@@ -1528,7 +1529,12 @@ def stoxx600_members():
     raise last or ValueError("no holdings file")
 
 
-# Asia: Yahoo Finance's screener ranks each market by market cap; the top 20
+# How many companies each market's earnings rows follow: the 200 largest in
+# the S&P 500, in the STOXX Europe 600 and across the six Asian markets
+# (owner's request, 26 Oct 2026; it was 100, 50 and 20).
+UNIVERSE = 200
+
+# Asia: Yahoo Finance's screener ranks each market by market cap; the top
 # companies across the six markets, one listing each.
 ASIA = {"jp": "Japan", "tw": "Taiwan", "kr": "South Korea", "hk": "Hong Kong", "cn": "China", "in": "India"}
 # Companies whose primary listing is London, quoted in Hong Kong: they belong to
@@ -1557,10 +1563,16 @@ def pick_listing(group):
     return max(group, key=lambda q: q["_usd"])
 
 
-def asia_universe(yahoo, n=20):
+# Each market's largest listings screened before the top companies across the
+# six are picked: enough that dual listings and preferred lines dropped below
+# never leave the list short (Yahoo's screener answers up to 250 a call).
+ASIA_SCREEN = 220
+
+
+def asia_universe(yahoo, n=UNIVERSE):
     found = []
     for region in ASIA:
-        found += yahoo.screener(region, 30)
+        found += yahoo.screener(region, ASIA_SCREEN)
     # Korean preferred shares trade under codes not ending in 0 (005935 for Samsung).
     found = [q for q in found if not (suffix(q["symbol"]) in (".KS", ".KQ") and not q["symbol"].split(".")[0].endswith("0"))
              and q["symbol"] not in NOT_PRIMARY]
@@ -1612,7 +1624,7 @@ def traded_usd(q, rates):
     return vol * price / (100 if q.get("currency") == "GBp" else 1) * rate
 
 
-def europe_universe(cache, yahoo, n=50):
+def europe_universe(cache, yahoo, n=UNIVERSE):
     try:
         members = stoxx600_members()
         cache["stoxx600"] = {"members": members, "ok": dt.datetime.now(UTC).isoformat(timespec="seconds"), "error": None}
@@ -1659,7 +1671,7 @@ def europe_universe(cache, yahoo, n=50):
     return top
 
 
-def us_universe(cache, yahoo, n=100):
+def us_universe(cache, yahoo, n=UNIVERSE):
     try:
         members = spy_members()
         cache["spy"] = {"tickers": members, "ok": dt.datetime.now(UTC).isoformat(timespec="seconds"), "error": None}
@@ -1681,7 +1693,7 @@ def us_universe(cache, yahoo, n=100):
         top.append(q)
         if len(top) == n:
             break
-    cache["top100"] = [q["symbol"] for q in top]
+    cache.pop("top100", None)  # the old name of the list now kept in cache["universe"]
     return top
 
 
@@ -1763,7 +1775,7 @@ def universe_list(quotes, market):
     return out
 
 
-EARNINGS = [  # (source key, market, universe, rows marked High)
+EARNINGS = [  # (source key, market, universe, rows marked High: the same largest companies as before)
     ("earnings", "us", lambda cache, y: us_universe(cache, y), 25),
     ("earnings_europe", "europe", lambda cache, y: europe_universe(cache, y), 12),
     ("earnings_asia", "asia", lambda cache, y: asia_universe(y), 5),
@@ -1822,20 +1834,54 @@ def report_type(qobs, aobs, end):
     return "Quarterly results" if len(recent) >= 3 else None
 
 
-def earnings_values(events, yahoo, now):
+# Per-company Yahoo requests (EPS and first-session moves) are paced and stop
+# at a time budget, so a deploy with 600 companies stays well inside its
+# 15 minutes; whatever is left is fetched first next run.
+PACE = 0.3
+YAHOO_BUDGET = float(os.environ.get("CAL_YAHOO_BUDGET", "180"))
+
+
+class Budget:
+    def __init__(self, seconds):
+        self.end = time.monotonic() + seconds
+        self.skipped = 0
+
+    def spend(self):
+        """False once the time is up; otherwise waits the pace and returns True."""
+        if time.monotonic() > self.end:
+            self.skipped += 1
+            return False
+        time.sleep(PACE)
+        return True
+
+
+def earnings_values(events, yahoo, now, budget=None):
     """Report type, year-ago diluted EPS, and the reported figure once Yahoo has it,
-    in the company's reporting currency."""
+    in the company's reporting currency. A report still ahead that already has
+    its year-ago figure is not asked again: that figure does not change. The
+    longest-waiting reports go first."""
+    budget = budget or Budget(YAHOO_BUDGET)
+    todo = []
     for e in events:
         if e.get("kind") != "earnings" or "actual" in e:
             continue
         day = dt.date.fromisoformat(e.get("local_day") or e["date"])
         if (now.date() - day).days > 21:
             continue
+        if day > now.date() and ("previous" in e and e.get("report_type") or
+                                  e.get("eps_seen", "") >= (now.date() - dt.timedelta(days=3)).isoformat()):
+            continue  # ahead, and filled in or asked within three days
+        todo.append((day, e))
+    todo.sort(key=lambda x: (x[0] > now.date(), x[0]))  # reported first, then soonest ahead
+    for day, e in todo:
+        if not budget.spend():
+            continue
         try:
             qobs, aobs, cur = yahoo.eps(e["ticker"])
         except Exception as err:  # noqa: BLE001
             log(f"eps {e['ticker']}: {type(err).__name__}: {err}", "warning")
             continue
+        e["eps_seen"] = now.date().isoformat()
         fye = aobs[-1][0].month if aobs else (qobs[-1][0].month if qobs else 12)
         end = period_end(day, fye)
         kind = report_type(qobs, aobs, end)
@@ -1867,15 +1913,18 @@ def first_session(closes, day, timing):
     return None
 
 
-def reactions(events, now):
+def reactions(events, now, budget=None):
     """The stock's move on the first full session after its report, and the same
     session's move of its benchmark, from Yahoo Finance daily closes. A session
     still trading is left out, so a move is only ever a close-to-close move."""
     from dashboard_data import yahoo as closes_of
+    budget = budget or Budget(YAHOO_BUDGET)
     charts = {}
 
     def closes(sym):
         if sym not in charts:
+            if not budget.spend():
+                return []
             try:
                 charts[sym] = closes_of(sym, "1mo")
             except Exception as err:  # noqa: BLE001
@@ -1907,7 +1956,7 @@ def reactions(events, now):
 
 # Merge and write ----------------------------------------------------------------
 
-KEEP = ("previous", "prev_period", "actual", "actual_seen", "actual_url", "base", "report_type", "reaction")
+KEEP = ("previous", "prev_period", "actual", "actual_seen", "actual_url", "base", "report_type", "reaction", "eps_seen")
 
 
 def merge(cache, src, fresh, now):
@@ -1996,9 +2045,12 @@ def main():
         auction_values(live, now)
     except Exception as e:  # noqa: BLE001
         log(f"treasury yields: {type(e).__name__}: {e}", "warning")
+    budget = Budget(YAHOO_BUDGET)
     if yahoo:
-        earnings_values(live, yahoo, now)
-    reactions([e for e in events if e.get("kind") == "earnings"], now)
+        earnings_values(live, yahoo, now, budget)
+    reactions([e for e in events if e.get("kind") == "earnings"], now, budget)
+    if budget.skipped:
+        log(f"earnings: Yahoo time budget used up; {budget.skipped} requests left for the next run", "warning")
     cache["updated"] = now.isoformat(timespec="seconds")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(cache, indent=1, sort_keys=True), encoding="utf-8")
