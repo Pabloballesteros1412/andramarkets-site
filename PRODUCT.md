@@ -72,6 +72,11 @@ record. The daily note is one module among others, not the centrepiece.
   dollars, with the report type when the EPS history makes it clear, EPS in the
   reporting currency, and every row's move on its first full session after the
   report against its benchmark.
+- World markets (`world/`): 25 markets on one radar and eight measures (1M and
+  YTD index return, 3M volatility, currency against the dollar, 10-year yield,
+  GDP growth, inflation, unemployment), up to three compared, each figure with
+  its official source and date (Yahoo Finance, OECD, World Bank, IMF); an axis
+  with no free official figure stays empty.
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
   time, newsletter platform (Substack, Beehiiv or Ghost), a YouTube channel.
