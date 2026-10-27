@@ -430,7 +430,7 @@ Two-part section splits: content in columns 1 to 6 (or 1 to 8 for the About stat
 
 **Breakpoints (max-width) and what each collapses:**
 - **1100px:** dashboard grid 3 to 2 columns; the calendar drops its Type column.
-- **1160px:** the nav gap tightens from 24px to 16px (down to 1021px), so eight links fit; nav links never wrap.
+- **1160px:** the nav gap tightens from 24px to 16px (down to 1021px), so eight links fit; nav links never wrap. **1080px:** 12px, for nine.
 - **1020px:** primary nav becomes the mobile sheet; the menu button appears; Subscribe appears as the last item in the sheet; header gap tightens 24px to 8px.
 - **960px:** note, Learn, About, signup columns and the footer brand go full width; footer nav and social split 6/6; Lab tools go full width; in the mixed Watch layout the grid becomes 2 columns with the YouTube frame spanning both at 16:9 (the TikTok-only row keeps 4).
 - **860px:** hero horse moves to `x 52%`, `y 36%` (above the headline).
@@ -536,6 +536,12 @@ Twenty-five markets on eight measures, from `tools/world_data.py` (see README, W
 - **Each market:** a lattice of 25 small static radars (120px, the same scale, one solid outline) with the market and its index under each; pressing one adds or removes it from the comparison (pressed: `--ground-2` fill and "· compared").
 - **Every figure:** a full-width table of the 25 markets by eight measures, scrolling sideways when narrow; returns and the currency move are moves (signed, red or green), every other figure is a level in ink.
 - **How to read it** and **Sources** (one row per axis: what it measures, each source with its dates, and which markets have no figure and why). No figure is ever estimated.
+
+### FX (`fx/`, `fx/<date>/`)
+- **Index (`fx/`):** inner page head ("FX", lede). With an analysis: the latest as the daily note module's article (note-title headline linked to its page, standfirst in ink-2, meta row with date, edition and read time, a primary "Read the analysis" button), closed by a `--rule` hairline. Then "Majors and emerging markets" (inner page h2): the pairs table, a 0.8125rem ink-3 source line saying how the pairs are quoted, and a text link to the FX dashboard. Then "Every analysis": the note archive pattern (month headings, `7rem | title | arrow` rows). Before the first analysis only the pairs table and the dashboard link show; no placeholder for the analysis.
+- **Pairs table (`.fx-tab`):** `--rule-strong` top rule; group rows "The dollar", "G10 majors", "Emerging markets" (0.875rem/600 over a `--rule-strong` rule); each pair's name (540) over its quote convention (0.8125rem ink-3, "USD per EUR"), then last (tabular), day, week, month and year to date, right-aligned. Every move is signed and coloured as a rise or a fall as the pair is quoted; a move that rounds to zero stays in ink; levels in ink. The analysis page adds the policy rate with the bank and its gap to the Fed in bp (ink: rates are levels). On phones each pair is a row: name and quote on the left, last over the day's move on the right, then week, month and year (and policy rate) as labelled lines.
+- **Analysis (`fx/<date>/`):** the report page layout: crumbs "FX / Daily analysis", the headline in the report title scale, standfirst, meta row, "Share this analysis"; the side panel "The session in numbers" (the dollar index and nine pairs, level and day's move); sections Takeaways (ruled list), The dollar, G10 majors, Emerging markets, Rate differentials and central banks, Levels that matter (ruled list, one line per pair), Ahead (each only when it has text), "Every pair" (the table with policy rates) and Sources. Pager: previous and next analysis, all FX analyses, the FX dashboard, the close note for the session.
+- **Nav:** "FX" between Calendar and Daily note in the header (and in the footer). With World markets as well the header holds nine links: the gap tightens to 12px from 1021px to 1080px.
 
 ### Lab tool card and the plate
 - **Plate:** the `.lab` section, `--plate` fill, all ink tokens re-mapped (see Colors).

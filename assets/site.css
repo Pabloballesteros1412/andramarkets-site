@@ -394,6 +394,13 @@ ul {
   }
 }
 
+/* Nine links (with World and FX) need 12px just above the sheet breakpoint. */
+@media (min-width: 1021px) and (max-width: 1080px) {
+  .nav {
+    gap: 12px;
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .nav a:hover {
     color: var(--ink);
@@ -2380,6 +2387,193 @@ ul {
 .wm-src li span {
   font-size: 0.9375rem;
   color: var(--ink-2);
+}
+
+/* FX (fx/, fx/<date>/): the latest analysis, the pairs table, the archive. */
+.fx-latest {
+  max-width: 44rem;
+  padding-bottom: clamp(32px, 5vw, 48px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.fx-latest__title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .fx-latest__title a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+}
+
+.fx-latest__sum {
+  margin-top: 12px;
+  max-width: 60ch;
+  color: var(--ink-2);
+}
+
+.fx-latest .note__meta {
+  margin-top: 16px;
+}
+
+.fx-latest .btn {
+  margin-top: 24px;
+}
+
+.fx-market,
+.fx-archive {
+  margin-top: clamp(40px, 6vw, 64px);
+}
+
+.fx-market h2,
+.fx-archive > h2 {
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.fx-archive .archive {
+  max-width: 44rem;
+}
+
+.fx-archive .archive__month h3 {
+  padding: 28px 0 12px;
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.fx-archive .archive__month:first-child h3 {
+  padding-top: 16px;
+}
+
+.fx-tab__wrap {
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+.fx-tab {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--rule-strong);
+  font-size: 0.9375rem;
+}
+
+.fx-tab th,
+.fx-tab td {
+  padding: 12px 16px 12px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.fx-tab th:last-child,
+.fx-tab td:last-child {
+  padding-right: 0;
+}
+
+.fx-tab thead th {
+  border-bottom-color: var(--rule-strong);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.fx-tab .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.fx-tab tbody th {
+  font-weight: 540;
+}
+
+.fx-tab tbody th span,
+.fx-tab td span:not(.mv) {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.fx-tab .fx-tab__group th {
+  padding-top: 24px;
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.fx-src {
+  margin-top: 12px;
+  max-width: 65ch;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.fx-market .link {
+  margin-top: 8px;
+}
+
+/* On phones each pair is a row of its own: name over the quote, last and
+   day on the right, week, month and year below with their labels. */
+@media (max-width: 640px) {
+  .fx-tab thead {
+    display: none;
+  }
+  .fx-tab,
+  .fx-tab tbody {
+    display: block;
+  }
+  .fx-tab tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .fx-tab .fx-tab__group {
+    display: block;
+    padding: 20px 0 8px;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .fx-tab th,
+  .fx-tab td,
+  .fx-tab .fx-tab__group th {
+    padding: 0;
+    border: 0;
+  }
+  .fx-tab tbody th {
+    grid-row: span 2;
+  }
+  .fx-tab td[data-label="Last"],
+  .fx-tab td[data-label="Day"] {
+    text-align: right;
+  }
+  .fx-tab td[data-label="Week"],
+  .fx-tab td[data-label="Month"],
+  .fx-tab td[data-label="Year to date"],
+  .fx-tab td[data-label="Policy rate"] {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+  }
+  .fx-tab td[data-label="Week"]::before,
+  .fx-tab td[data-label="Month"]::before,
+  .fx-tab td[data-label="Year to date"]::before,
+  .fx-tab td[data-label="Policy rate"]::before {
+    content: attr(data-label);
+    color: var(--ink-3);
+  }
+  .fx-tab td[data-label="Policy rate"] span {
+    display: inline;
+    margin-left: 6px;
+  }
 }
 
 /* About */

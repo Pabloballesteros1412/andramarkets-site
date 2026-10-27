@@ -11,6 +11,7 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `tools/calendar_data.py`: fetches the calendar at deploy time (below).
 - `tools/world_data.py`: fetches the World markets figures at deploy time (below).
 - `assets/world.js`: the World markets comparison radar.
+- `tools/fx_data.py`: fetches the daily FX analyses and the FX pairs table at deploy time (below).
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
 - `tools/learn_content.py`: the text and sources of the six Learn explainers (`learn/`).
 - `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser.
@@ -214,6 +215,30 @@ yields for Argentina, Turkey, Hong Kong, Taiwan, Indonesia and Singapore;
 unemployment for South Africa, China and Indonesia; the dollar against itself)
 the axis stays empty and the page names the gap. The OECD answers three
 requests per run, three seconds apart (it limits bursts).
+
+## FX section
+
+`fx/` shows the agent's daily FX analysis (agent repo, PR 14) and a table of
+the dollar index, the G10 majors and the main emerging-market pairs.
+`tools/fx_data.py` runs before each build and writes `.cache/fx/fx.json`
+(Actions cache, never committed or published):
+
+- **Analyses:** every `fx_YYYYMMDD_r<run>.json` in an `archive-*` release of
+  the agent repo (no other name or place is read), schema `andra.fx/1`, read
+  with `AGENT_ARTIFACTS_TOKEN` (Contents: read, as for the dashboards). One is
+  shown only when the date is an NYSE trading day that is not in the future,
+  the run was not a demo, the figure check passed (`audit.ok`), no trade
+  language was flagged, and that session's close note is published: a session
+  whose note is held for review or taken down shows no FX analysis. The run
+  behind the published close note is preferred, else the newest that passes.
+  Only the text and the pair figures are kept. What was not shown, and why, is
+  logged and kept under `held` in the cache.
+- **Pairs table:** last close and the moves over a day, a week, a month and
+  the year so far, as each pair is quoted, from Yahoo Finance.
+
+Until the first analysis passes, `fx/` shows only the pairs table and the link
+to the FX dashboard. Each analysis gets `fx/<date>/`, linked from the archive
+on `fx/`, with its close note.
 
 ## Market strip
 

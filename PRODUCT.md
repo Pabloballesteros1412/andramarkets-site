@@ -77,6 +77,11 @@ record. The daily note is one module among others, not the centrepiece.
   GDP growth, inflation, unemployment), up to three compared, each figure with
   its official source and date (Yahoo Finance, OECD, World Bank, IMF); an axis
   with no free official figure stays empty.
+- FX (`fx/`): the agent's daily FX analysis after the US close (the dollar,
+  G10 majors, emerging markets, rate differentials, levels, what is ahead),
+  latest on top with an archive by date, shown only when its figure check
+  passed and its session's close note is published; and a table of the dollar
+  index, majors and key EM pairs with their moves, linked to the FX dashboard.
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
   time, newsletter platform (Substack, Beehiiv or Ghost), a YouTube channel.
