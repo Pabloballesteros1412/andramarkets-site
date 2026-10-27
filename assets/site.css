@@ -334,6 +334,7 @@ ul {
 
 .brand {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 10px;
   margin-right: auto;
@@ -394,10 +395,14 @@ ul {
   }
 }
 
-/* Nine links (with World and FX) need 12px just above the sheet breakpoint. */
+/* Nine links (with World and FX) need 12px just above the sheet breakpoint,
+   and the header's own gaps 16px. */
 @media (min-width: 1021px) and (max-width: 1080px) {
   .nav {
     gap: 12px;
+  }
+  .site-header .wrap {
+    gap: 16px;
   }
 }
 
@@ -2245,6 +2250,12 @@ ul {
   .wm .wm-text {
     grid-column: 1 / -1;
   }
+  /* The scale stays beside the radar: the sections under it run full width,
+     so a sticky panel would slide over them. */
+  .dd.wm .dd__side {
+    grid-row: 2;
+    position: static;
+  }
   .wm .wm-text > section > p,
   .wm .wm-text .wm-src {
     max-width: 65ch;
@@ -2333,6 +2344,15 @@ ul {
 .wm-mini__idx {
   font-size: 0.8125rem;
   color: var(--ink-3);
+}
+
+/* The measure under the pointer on a small radar; empty (but holding its
+   line) until hovered, so the lattice never jumps. */
+.wm-mini__read {
+  min-height: 1.55em;
+  font-size: 0.8125rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .wm-tab {
@@ -2517,6 +2537,60 @@ ul {
 
 .fx-market .link {
   margin-top: 8px;
+}
+
+/* FX charts (assets/fx.js): the dashboard page's controls and plot, one
+   block per chart, each under a hairline. */
+.fx-charts {
+  margin-top: clamp(40px, 6vw, 64px);
+}
+
+.fx-charts > h2 {
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.fx-charts[hidden] {
+  display: none;
+}
+
+.fx-chart {
+  max-width: 64rem;
+  padding: 28px 0 32px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.fx-chart:first-of-type {
+  margin-top: 8px;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.fx-chart__title {
+  margin-bottom: 16px;
+  font-size: 1.0625rem;
+  font-weight: 600;
+}
+
+.fx-chart__lede {
+  max-width: 65ch;
+  margin: -8px 0 16px;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.fx-one[hidden],
+.fx-cmp[hidden] {
+  display: none;
+}
+
+@media (min-width: 641px) {
+  .fx-chart .fx-pick {
+    flex-wrap: wrap;
+    overflow: visible;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
 }
 
 /* On phones each pair is a row of its own: name over the quote, last and
@@ -3810,7 +3884,8 @@ ul {
   }
 }
 
-@media (max-width: 1200px) {
+/* Icon only below 1260px: nine nav links leave no room for the label. */
+@media (max-width: 1260px) {
   .search-btn {
     min-width: 44px;
     min-height: 44px;

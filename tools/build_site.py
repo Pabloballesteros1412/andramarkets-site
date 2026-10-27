@@ -2456,6 +2456,83 @@ def fx_page(a, newer, older):
                  body=body, home="../../", base="../../", path=f"fx/{a['date']}/")
 
 
+FX_RANGES = ["1M", "3M", "6M", "1Y"]
+
+
+def fx_chips(cls, label, options, default, toggles=False):
+    """A labelled chip group: one pressed (a choice, with the glide) or several (toggles)."""
+    chips = "".join(f'<button type="button" class="chip" data-v="{v}" aria-pressed="{"true" if (v in default if toggles else v == default) else "false"}">{t}</button>'
+                    for v, t in options)
+    gid = f"fx-{cls}-l"
+    group = (f'<div class="dd__toggles {cls}" role="group" aria-labelledby="{gid}">{chips}</div>' if toggles else
+             f'<div class="filters {cls}" role="group" aria-labelledby="{gid}">{chips}</div>')
+    return f'<div class="dd__cgroup"><span class="cl__glabel" id="{gid}">{label}</span>{group}</div>'
+
+
+def fx_charts(fx):
+    """The charts under the pairs table: the dollar index, the pairs, the
+    moves heatmap and the rate-differential scatter (assets/fx.js)."""
+    hist, rows = fx.get("hist"), fx.get("market") or {}
+    if not hist or not hist.get("dates"):
+        return ""
+    pairs = []
+    for key, r in rows.items():
+        if key not in hist["series"]:
+            continue
+        name = r["name"]
+        ccy = None if key == "dxy" else (name[:3] if name.endswith("/USD") else name[4:7])
+        pairs.append({"key": key, "name": name if key != "dxy" else "Dollar index", "quote": r["quote"], "dec": r["dec"],
+                      "group": r["group"], "ccy": ccy, "inv": bool(ccy) and name.startswith("USD/")})
+    moves = {k: {m: r.get(m) for m in ("d1", "w1", "m1", "ytd")} for k, r in rows.items()}
+    payload = json.dumps({"pairs": pairs, "hist": hist, "moves": moves, "rates": fx.get("rates") or {}},
+                         separators=(",", ":")).replace("</", "<\\/")
+    ranges = lambda d: fx_chips("dd__ranges", "Range", [(r, r) for r in FX_RANGES], d)  # noqa: E731
+    others = [(p["key"], p["name"]) for p in pairs if p["key"] != "dxy"]
+    rates = fx.get("rates") or {}
+    on_file = [p["ccy"] for p in pairs if p["ccy"] and p["ccy"] in rates]
+    missing = [p["ccy"] for p in pairs if p["ccy"] and p["ccy"] not in rates]
+    us = rates.get("USD")
+    scatter = ""
+    if us and on_file:
+        scatter = f"""<div class="fx-chart" data-chart="scatter">
+        <h3 class="fx-chart__title">Moves and rate differentials</h3>
+        <p class="fx-chart__lede">Each currency's move against the dollar (up is a stronger currency) against its 3-month interbank rate less the US's. A currency that pays more than the dollar sits to the right.</p>
+        <div class="dd__ctl">{fx_chips("fx-per", "Move over", [("d1", "Day"), ("w1", "Week"), ("m1", "Month"), ("ytd", "Year to date")], "m1")}</div>
+        <figure class="dd__chart"><div class="dd__plot" role="img" tabindex="0" aria-label="Scatter of each currency's move against its rate differential with the US"></div>
+          <figcaption><p class="key dd__key"></p><p class="dd__read" aria-live="polite"></p></figcaption></figure>
+        <p class="fx-src">Rates: OECD, 3-month interbank rates, monthly; the US at {us["rate"]:.2f}% ({dt.date.fromisoformat(us["month"] + "-01"):%b %Y}), each currency at its own latest month.{(" No OECD figure for " + ", ".join(missing) + ": left off.") if missing else ""} Moves: Yahoo Finance closes.</p>
+      </div>"""
+    return f"""<section class="fx-charts" data-fxcharts aria-labelledby="fx-ch-t" hidden>
+      <h2 id="fx-ch-t">Charts</h2>
+      <div class="fx-chart" data-chart="dxy">
+        <h3 class="fx-chart__title">The dollar index</h3>
+        <div class="dd__ctl">{ranges("6M")}</div>
+        <figure class="dd__chart"><div class="dd__plot" role="img" tabindex="0" aria-label="The dollar index"></div>
+          <figcaption><p class="key dd__key"></p><p class="dd__read" aria-live="polite"></p></figcaption></figure>
+      </div>
+      <div class="fx-chart" data-chart="pairs">
+        <h3 class="fx-chart__title">Pairs</h3>
+        <div class="dd__ctl">
+          {fx_chips("fx-views", "View", [("one", "One pair"), ("cmp", "Compare, rebased to 100")], "one")}
+          <div class="fx-one">{fx_chips("fx-pick", "Pair", others, "eurusd")}</div>
+          <div class="fx-cmp" hidden>{fx_chips("fx-picks", "Show, up to six", others, ["eurusd", "usdjpy", "gbpusd"], toggles=True)}</div>
+          {ranges("6M")}
+          <p class="dd__status" role="status" aria-live="polite"></p>
+        </div>
+        <figure class="dd__chart"><div class="dd__plot" role="img" tabindex="0" aria-label="Pair chart"></div>
+          <figcaption><p class="key dd__key"></p><p class="dd__read" aria-live="polite"></p></figcaption></figure>
+      </div>
+      <div class="fx-chart" data-chart="heat">
+        <h3 class="fx-chart__title">Moves</h3>
+        <div class="dd__ctl">{fx_chips("fx-mode", "Read as", [("quoted", "Each pair as quoted"), ("ccy", "Each currency against the dollar")], "quoted")}</div>
+        <figure class="dd__chart"><div class="dd__plot dd__plot--auto" role="img" tabindex="0" aria-label="Heatmap of moves"></div>
+          <figcaption><p class="key dd__key"></p><p class="dd__read" aria-live="polite"></p></figcaption></figure>
+      </div>
+      {scatter}
+      <script type="application/json" id="fx-data">{payload}</script>
+    </section>"""
+
+
 def fx_index(fx):
     rows = list(((fx or {}).get("market") or {}).values())
     items = sorted(((fx or {}).get("analyses") or {}).values(), key=lambda a: a["date"], reverse=True)
@@ -2501,10 +2578,12 @@ def fx_index(fx):
     </header>
     {latest}
     {market or '<p class="dd__pending">Data pending</p>'}
+    {fx_charts(fx) if fx else ""}
     {archive_html}
   </div>
 </main>"""
-    return shell(title="FX: Andra Markets", desc=lede, body=body, home="../", base="../", path="fx/")
+    return shell(title="FX: Andra Markets", desc=lede, body=body, home="../", base="../", path="fx/",
+                 scripts=("fx.js",) if fx and fx.get("hist") else ())
 
 
 # Calendar ---------------------------------------------------------------------
@@ -3577,7 +3656,11 @@ def world_mini(iso, figs, scale):
         a, b = pts[i], pts[(i + 1) % n]
         if a and b:
             segs += f'<line class="wm-edge" x1="{a[0]:.1f}" y1="{a[1]:.1f}" x2="{b[0]:.1f}" y2="{b[1]:.1f}"/>'
-    dots = "".join(f'<circle class="dot" cx="{p[0]:.1f}" cy="{p[1]:.1f}" r="1.8"/>' for p in pts if p)
+    # Each point names what it measures (a native tooltip; world.js adds a readout).
+    dots = "".join(
+        f'<circle class="dot" cx="{p[0]:.1f}" cy="{p[1]:.1f}" r="2.2"><title>{WORLD_AXIS[a][1]}: '
+        f'{html.unescape(re.sub(r"<[^>]+>", "", world_fig(a, figs[iso][a])))}, {world_when(figs[iso][a])}</title></circle>'
+        for a, p in zip(WORLD_AXES, pts) if p)
     return (f'<svg class="chart wm-mini__svg" viewBox="0 0 {size} {size}" aria-hidden="true">'
             f'{rings}{spokes}{segs}{dots}</svg>')
 
@@ -3616,7 +3699,8 @@ def world_page(w):
     minis = "".join(
         f'<li><button type="button" class="wm-mini" data-m="{iso}" aria-pressed="{"true" if iso in WORLD_DEFAULT else "false"}">'
         f'{world_mini(iso, figs, scale)}<span class="wm-mini__name">{esc(names[iso])}</span>'
-        f'<span class="wm-mini__idx">{esc(index[iso])}</span></button></li>'
+        f'<span class="wm-mini__idx">{esc(index[iso])}</span>'
+        f'<span class="wm-mini__read" aria-hidden="true"></span></button></li>'
         for iso in names)
     head = "".join(f'<th scope="col" class="num">{WORLD_AXIS[a][1]}</th>' for a in WORLD_AXES)
     rows = "".join(

@@ -233,8 +233,14 @@ the dollar index, the G10 majors and the main emerging-market pairs.
   behind the published close note is preferred, else the newest that passes.
   Only the text and the pair figures are kept. What was not shown, and why, is
   logged and kept under `held` in the cache.
-- **Pairs table:** last close and the moves over a day, a week, a month and
-  the year so far, as each pair is quoted, from Yahoo Finance.
+- **Pairs table and charts:** last close and the moves over a day, a week, a
+  month and the year so far, as each pair is quoted, and two years of daily
+  closes for the charts, from Yahoo Finance.
+- **Rate differentials:** each currency's 3-month interbank rate and the
+  US's, from the OECD (monthly, one request), for the scatter of each
+  currency's move against its differential. A figure older than six months,
+  or none (the pound, real and lira today), leaves that currency off the
+  scatter, and the page names it.
 
 Until the first analysis passes, `fx/` shows only the pairs table and the link
 to the FX dashboard. Each analysis gets `fx/<date>/`, linked from the archive

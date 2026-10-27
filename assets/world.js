@@ -94,7 +94,14 @@
         svg.appendChild(el("path", { "class": "area", d: "M" + pts.map(function (p) { return p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" L") + " Z" }));
       }
       svg.appendChild(el("path", { "class": STYLES[k], d: d }));
-      pts.forEach(function (p) { if (p) svg.appendChild(el("circle", { "class": "dot", cx: p[0], cy: p[1], r: 2.6 })); });
+      // Each point names what it measures: a native tooltip with the market, the measure and the figure.
+      pts.forEach(function (p, i) {
+        if (!p) return;
+        var c = el("circle", { "class": "dot", cx: p[0], cy: p[1], r: 2.6 });
+        var a = D.axes[i], rec = D.figures[iso][a.k];
+        c.appendChild(el("title", {}, names[iso].name + ", " + a.label + ": " + fig(a, rec) + " (" + rec.when + ")"));
+        svg.appendChild(c);
+      });
     });
     plot.replaceChildren(svg);
     key.replaceChildren();
@@ -154,6 +161,19 @@
     draw();
     renderTable();
   }
+  // The small radars: the measure nearest the pointer, read out under the market's name.
+  page.querySelectorAll(".wm-mini").forEach(function (b) {
+    var iso = b.getAttribute("data-m"), svg = b.querySelector("svg"), read = b.querySelector(".wm-mini__read");
+    if (!svg || !read) return;
+    svg.addEventListener("pointermove", function (e) {
+      var r = svg.getBoundingClientRect(), x = e.clientX - r.left - r.width / 2, y = e.clientY - r.top - r.height / 2;
+      var t = Math.atan2(y, x) + Math.PI / 2;
+      if (t < 0) t += 2 * Math.PI;
+      var a = D.axes[Math.round(t / (2 * Math.PI / D.axes.length)) % D.axes.length];
+      read.innerHTML = esc(a.short) + ": " + fig(a, (D.figures[iso] || {})[a.k], true);
+    });
+    svg.addEventListener("pointerleave", function () { read.innerHTML = ""; });
+  });
   page.addEventListener("click", function (e) {
     var b = e.target.closest("[data-m]");
     if (!b) return;
