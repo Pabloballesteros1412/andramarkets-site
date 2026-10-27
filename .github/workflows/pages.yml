@@ -125,6 +125,27 @@ jobs:
         with:
           path: .cache/world
           key: world-${{ github.run_id }}-${{ github.run_attempt }}
+      # The FX section (tools/fx_data.py): the agent's daily FX analyses from
+      # its archive releases (the same token as the dashboards) and the pairs
+      # table from Yahoo; each keeps its last good copy when a source fails.
+      - name: Restore FX
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/fx
+          key: fx-${{ github.run_id }}
+          restore-keys: fx-
+      - name: Fetch FX
+        if: ${{ !inputs.strip_only }}
+        continue-on-error: true
+        env:
+          AGENT_ARTIFACTS_TOKEN: ${{ secrets.AGENT_ARTIFACTS_TOKEN }}
+        run: python3 tools/fx_data.py
+      - name: Save FX
+        if: ${{ !inputs.strip_only }}
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/fx
+          key: fx-${{ github.run_id }}-${{ github.run_attempt }}
       # Each company's last good figures, so a Yahoo hiccup keeps its page
       # (with its own dates). Only the figures the pages draw are cached.
       - name: Restore company figures
@@ -173,6 +194,7 @@ jobs:
           cp -r watch _site/
           cp -r learn _site/
           cp -r world _site/
+          cp -r fx _site/
           cp -r lab _site/
           rm -rf _site/assets/icons
       # The site is free: no PDF or data file may ever be published.

@@ -1297,6 +1297,7 @@ def site_header(home, base):
       <a href="{base}lab/">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{base}world/">World</a>
+      <a href="{base}fx/">FX</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}learn/">Learn</a>
       <a href="{base}watch/">Watch</a>
@@ -1337,6 +1338,7 @@ def site_footer(home, base):
       <a href="{base}lab/">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{base}world/">World markets</a>
+      <a href="{base}fx/">FX</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}learn/">Learn</a>
       <a href="{base}watch/">Watch</a>
@@ -2317,6 +2319,192 @@ def report(rec, newer, older, cal):
         base="../../",
         path=f"reports/{rec['date']}/",
     )
+
+
+# FX -----------------------------------------------------------------------------
+#
+# Read from .cache/fx/fx.json, written at deploy time by tools/fx_data.py: the
+# agent's daily FX analyses that pass every check, and the market table.
+
+FX_DATA = ROOT / ".cache" / "fx" / "fx.json"
+FX_GROUPS = [("dollar", "The dollar"), ("major", "G10 majors"), ("em", "Emerging markets")]
+
+
+def load_fx():
+    try:
+        fx = json.loads(FX_DATA.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    for a in (fx.get("analyses") or {}).values():
+        a["day"] = dt.date.fromisoformat(a["date"])
+    return fx
+
+
+def fx_level(v, dec):
+    return f"{v:,.{dec}f}" if v is not None else "n/a"
+
+
+def fx_move(v):
+    return mv(signed(v, 2, "%")) if v is not None else '<span class="wm-na">n/a</span>'
+
+
+def fx_table(rows, caption, policy=False):
+    """Pairs grouped as the dollar, G10 majors and emerging markets: level and
+    moves as each pair is quoted, signed and coloured as rises and falls."""
+    body = ""
+    for g, title in FX_GROUPS:
+        part = [r for r in rows if r.get("group") == g]
+        if not part:
+            continue
+        body += f'<tbody><tr class="fx-tab__group"><th scope="rowgroup" colspan="{7 if policy else 6}">{title}</th></tr>'
+        for r in part:
+            pol = r.get("policy")
+            pol_cell = ""
+            if policy:
+                pol_cell = (f'<td class="num" data-label="Policy rate">{pol["rate"]:.2f}%'
+                            f'<span>{esc(pol["short"])}, {signed(pol["vs_fed_bp"], 0, "bp")} vs Fed</span></td>'
+                            if pol and pol.get("vs_fed_bp") is not None else '<td class="num" data-label="Policy rate"><span class="wm-na">n/a</span></td>')
+            body += (f'<tr><th scope="row">{esc(r["name"])}<span>{esc(r.get("quote") or "")}</span></th>'
+                     f'<td class="num" data-label="Last">{fx_level(r.get("last"), r.get("dec", 4))}</td>'
+                     f'<td class="num" data-label="Day">{fx_move(r.get("d1"))}</td>'
+                     f'<td class="num" data-label="Week">{fx_move(r.get("w1"))}</td>'
+                     f'<td class="num" data-label="Month">{fx_move(r.get("m1"))}</td>'
+                     f'<td class="num" data-label="Year to date">{fx_move(r.get("ytd"))}</td>{pol_cell}</tr>')
+        body += "</tbody>"
+    head = ('<thead><tr><th scope="col">Pair</th><th scope="col" class="num">Last</th><th scope="col" class="num">Day</th>'
+            '<th scope="col" class="num">Week</th><th scope="col" class="num">Month</th><th scope="col" class="num">Year to date</th>'
+            + ('<th scope="col" class="num">Policy rate</th>' if policy else "") + "</tr></thead>")
+    return (f'<div class="fx-tab__wrap"><table class="fx-tab"><caption class="visually-hidden">{caption}</caption>'
+            f"{head}{body}</table></div>")
+
+
+def fx_minutes(a):
+    words = a.get("word_count") or sum(len(p.split()) for s_ in a["sections"] for p in s_["paragraphs"])
+    return max(1, math.ceil(words / 230))
+
+
+def fx_meta(a):
+    meta = f'<time datetime="{a["date"]}">{day_long(a["day"])}</time>'
+    if isinstance(a.get("edition"), int):
+        meta += f'<span>Edition {a["edition"]}</span>'
+    return meta + f"<span>{fx_minutes(a)} min read</span>"
+
+
+def fx_page(a, newer, older):
+    sections = ""
+    if a["takeaways"]:
+        sections += ('<section aria-labelledby="fx-take"><h2 id="fx-take">Takeaways</h2><ol class="ruled">'
+                     + "".join(f"<li>{esc(t)}</li>" for t in a["takeaways"]) + "</ol></section>")
+    for sec in a["sections"]:
+        if not sec["paragraphs"]:
+            continue
+        sid = f'fx-{sec["id"]}'
+        title = esc(sec["title"] or sec["id"].title())
+        if sec["id"] == "levels":
+            content = '<ul class="ruled">' + "".join(f"<li>{esc(p)}</li>" for p in sec["paragraphs"]) + "</ul>"
+        else:
+            content = "".join(f"<p>{esc(p)}</p>" for p in sec["paragraphs"])
+        sections += f'<section aria-labelledby="{sid}"><h2 id="{sid}">{title}</h2>{content}</section>'
+    sections += (f'<section aria-labelledby="fx-pairs"><h2 id="fx-pairs">Every pair</h2>'
+                 f'{fx_table(a["pairs"], "Every pair on " + day_med(a["day"]), policy=True)}'
+                 f'<p class="fx-src">Moves as each pair is quoted: a rise in USD/JPY is a stronger dollar, a rise in EUR/USD a '
+                 f'stronger euro. Policy rates as the analysis had them on file, against the top of the Fed\'s range.</p></section>')
+    quant = (" This edition was published in quantitative mode: figures without commentary."
+             if a["mode"] == "quantitative" else "")
+    sections += (f'<section aria-labelledby="fx-src"><h2 id="fx-src">Sources</h2><p>Exchange rates and the dollar index '
+                 f'at the session close from Yahoo Finance; the Fed and ECB rates and Treasury yields from FRED. Every '
+                 f'figure in this analysis was checked against the session\'s verified fact pack.{quant}</p>'
+                 f'<p>For information only. Not investment advice.</p></section>')
+    dxy = next((p for p in a["pairs"] if p["key"] == "dxy"), None)
+    side_rows = [p for p in a["pairs"] if p["key"] in ("dxy", "eurusd", "usdjpy", "gbpusd", "usdchf", "audusd",
+                                                       "usdcny", "usdmxn", "usdbrl", "usdinr")]
+    kpis = "".join(f'<li class="kpi__item"><span class="kpi__name">{esc(p["name"])}</span>'
+                   f'<span class="kpi__level">{fx_level(p["last"], p["dec"])}</span>'
+                   f'<span class="kpi__chg">{fx_move(p["d1"])}</span></li>' for p in side_rows)
+    side = (f'<aside class="report__side" aria-labelledby="side-title"><h2 class="report__side-title" id="side-title">'
+            f'The session in numbers</h2><ul class="kpi">{kpis}</ul><p class="report__src">Close and daily change, '
+            f'{day_med(a["day"])}, as each pair is quoted. Yahoo Finance.</p></aside>') if side_rows else ""
+    pager = ""
+    if older:
+        pager += f'<a class="link" href="../{older["date"]}/">Previous analysis, {day_med(older["day"])} {icon("arrow-right")}</a>'
+    if newer:
+        pager += f'<a class="link" href="../{newer["date"]}/">Next analysis, {day_med(newer["day"])} {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../">All FX analyses {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../../dashboards/fx-majors/">FX dashboard {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../../reports/{a["date"]}/">The close note for this session {icon("arrow-right")}</a>'
+    body = f"""<main id="main" class="page report fx">
+  <div class="wrap">
+    <article class="report__grid">
+      <header class="page__head">
+        <p class="dd__crumbs"><a href="../">FX</a> <span aria-hidden="true">/</span> Daily analysis</p>
+        <h1 class="page__title report__title">{esc(a["headline"])}</h1>
+        {f'<p class="lede">{esc(a["standfirst"])}</p>' if a["standfirst"] else ""}
+        <p class="note__meta">{fx_meta(a)}</p>
+        <div class="report__share" hidden>
+          <button class="btn" type="button" data-share><span class="swap"><span class="swap__a">{icon("link")}Share this analysis</span><span class="swap__b" aria-hidden="true">{icon("check")}Link copied</span></span></button>
+          <p class="report__share-status" role="status" aria-live="polite"></p>
+        </div>
+      </header>
+      {side}
+      <div class="page__body">{sections}</div>
+    </article>
+    <nav class="report__pager" aria-label="More FX analyses">{pager}</nav>
+  </div>
+</main>"""
+    return shell(title=f"{esc(a['headline'])}: Andra Markets FX analysis, {day_med(a['day'])}",
+                 desc=esc(a["standfirst"] or f"The Andra Markets FX analysis for {day_long(a['day'])}."),
+                 body=body, home="../../", base="../../", path=f"fx/{a['date']}/")
+
+
+def fx_index(fx):
+    rows = list(((fx or {}).get("market") or {}).values())
+    items = sorted(((fx or {}).get("analyses") or {}).values(), key=lambda a: a["date"], reverse=True)
+    latest = ""
+    if items:
+        a = items[0]
+        latest = (f'<section class="fx-latest" aria-labelledby="fx-latest-t"><h2 class="visually-hidden" id="fx-latest-t">Latest analysis</h2>'
+                  f'<article><h3 class="note__title fx-latest__title"><a href="{a["date"]}/">{esc(a["headline"])}</a></h3>'
+                  + (f'<p class="fx-latest__sum">{esc(a["standfirst"])}</p>' if a["standfirst"] else "")
+                  + f'<p class="note__meta">{fx_meta(a)}</p>'
+                  f'<a class="btn" href="{a["date"]}/">Read the analysis {icon("arrow-right")}</a></article></section>')
+    market = ""
+    if rows:
+        dates = sorted({r["date"] for r in rows})
+        when = day_med(dt.date.fromisoformat(dates[-1]))
+        market = (f'<section class="fx-market" aria-labelledby="fx-market-t"><h2 id="fx-market-t">Majors and emerging markets</h2>'
+                  f'{fx_table(rows, "The dollar index, the G10 majors and the main emerging-market pairs")}'
+                  f'<p class="fx-src">Last close and moves as each pair is quoted (a rise in USD/JPY is a stronger dollar, a rise '
+                  f'in EUR/USD a stronger euro), latest close {when}; a pair whose market was shut shows its own last close. '
+                  f'Yahoo Finance, refreshed at each deploy.</p>'
+                  f'<a class="link" href="../dashboards/fx-majors/">The FX dashboard: ranges, comparisons and more currencies {icon("arrow-right")}</a></section>')
+    archive_html = ""
+    if items:
+        months = {}
+        for a in items:
+            months.setdefault((a["day"].year, a["day"].month), []).append(a)
+        archive_html = ('<section class="fx-archive" aria-labelledby="fx-arch-t"><h2 id="fx-arch-t">Every analysis</h2><div class="archive">'
+                        + "".join(
+                            f'<section class="archive__month" aria-labelledby="fx-m-{y}-{m:02d}"><h3 id="fx-m-{y}-{m:02d}">{dt.date(y, m, 1):%B %Y}</h3>'
+                            f'<ol class="note-list">' + "".join(
+                                f'<li><a href="{a["date"]}/"><time datetime="{a["date"]}">{a["day"].day} {a["day"]:%b}</time>'
+                                f'<span class="note-list__title">{esc(a["headline"])}</span>{icon("arrow-right")}</a></li>' for a in rs)
+                            + "</ol></section>" for (y, m), rs in months.items())
+                        + "</div></section>")
+    lede = ("The dollar, the G10 majors and the main emerging-market currencies: a daily analysis after the US close, "
+            "with every figure checked, and the latest moves." if items else
+            "The dollar, the G10 majors and the main emerging-market currencies, with their latest moves.")
+    body = f"""<main id="main" class="page fx-index">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">FX</h1>
+      <p class="lede">{lede}</p>
+    </header>
+    {latest}
+    {market or '<p class="dd__pending">Data pending</p>'}
+    {archive_html}
+  </div>
+</main>"""
+    return shell(title="FX: Andra Markets", desc=lede, body=body, home="../", base="../", path="fx/")
 
 
 # Calendar ---------------------------------------------------------------------
@@ -3517,6 +3705,7 @@ SEARCH_PAGES = [
     ("Companies", "companies/", "Page"),
     ("Economic calendar", "calendar/", "Page"),
     ("World markets", "world/", "Page"),
+    ("FX", "fx/", "Page"),
     ("Daily close note", "#note", "Home"),
     ("Learn", "learn/", "Page"),
     ("Watch", "watch/", "Page"),
@@ -3574,6 +3763,14 @@ def main():
         (OUT / "lab" / t[0] / "index.html").write_text(lab_page(i, risk))
     (OUT / "world").mkdir(exist_ok=True)
     (OUT / "world" / "index.html").write_text(world_page(load_world()))
+    fx = load_fx()
+    (OUT / "fx").mkdir(exist_ok=True)
+    (OUT / "fx" / "index.html").write_text(fx_index(fx))
+    fx_items = sorted(((fx or {}).get("analyses") or {}).values(), key=lambda a: a["date"], reverse=True)
+    for i, a in enumerate(fx_items):
+        (OUT / "fx" / a["date"]).mkdir(exist_ok=True)
+        (OUT / "fx" / a["date"] / "index.html").write_text(
+            fx_page(a, fx_items[i - 1] if i > 0 else None, fx_items[i + 1] if i + 1 < len(fx_items) else None))
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
     REPORTS.mkdir(exist_ok=True)
