@@ -11,7 +11,12 @@ Run by .github/workflows/pages.yml before tools/build_site.py. Writes
                archive-* release, are read (the agent's rule).
     market     the dollar index, the G10 majors and the main emerging-market
                pairs from Yahoo Finance: last close and the moves over a day,
-               a week, a month and the year so far, as each pair is quoted.
+               a week, a month and the year so far, as each pair is quoted,
+               and two years of daily closes for the page's charts.
+    rates      each currency's 3-month interbank rate and the US's, from the
+               OECD (monthly, one request): the rate differential the page's
+               scatter plots each currency's move against. A currency the OECD
+               has no figure for is left off the scatter.
 
 An analysis is shown only when every check passes: the schema is
 andra.fx/1, the date is an NYSE trading day that is not in the future, the
@@ -230,18 +235,66 @@ def moves(closes):
 
 
 def market(cache):
-    rows, bad = {}, []
+    rows, bad, hist = {}, [], {}
     for key, name, sym, group, quote, dec in PAIRS:
         try:
-            rows[key] = {"name": name, "group": group, "quote": quote, "dec": dec, **moves(yahoo(sym, "1y"))}
-        except Exception as e:  # noqa: BLE001  a pair keeps its last row
+            closes = yahoo(sym, "2y")
+            rows[key] = {"name": name, "group": group, "quote": quote, "dec": dec, **moves(closes)}
+            hist[key] = closes
+        except Exception as e:  # noqa: BLE001  a pair keeps its last row and history
             bad.append(f"{sym}: {type(e).__name__}: {e}"[:120])
             if key in (cache.get("market") or {}):
                 rows[key] = cache["market"][key]
         time.sleep(0.3)
     cache["market"] = rows
+    # The charts' history: every pair on one date axis, None where it did not trade.
+    old = cache.get("hist") or {}
+    days = sorted(set().union(*(set(d for d, _ in c) for c in hist.values()))) if hist else []
+    series = {}
+    for key, *_ in PAIRS:
+        if key in hist:
+            by, dec = dict(hist[key]), rows[key]["dec"] + 2
+            series[key] = [round(by[d], dec) if d in by else None for d in days]
+        elif key in (old.get("series") or {}) and old.get("dates"):
+            # A pair that failed keeps its last history, re-aligned to today's axis.
+            by = dict(zip(old["dates"], old["series"][key]))
+            series[key] = [by.get(d.isoformat()) for d in days]
+    if series:
+        cache["hist"] = {"dates": [d.isoformat() for d in days], "series": series}
     for b in bad:
         log(f"fx: {b}; keeping the last row", "warning")
+
+
+# The rate differential --------------------------------------------------------------
+
+OECD_IR3 = ("https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_FINMARK,/.M.IR3TIB.PA....."
+            "?startPeriod={start}&dimensionAtObservation=AllDimensions")
+# The OECD area behind each currency (the euro area for the euro).
+RATE_AREA = {"EUR": "EA20", "JPY": "JPN", "GBP": "GBR", "CHF": "CHE", "CAD": "CAN", "AUD": "AUS", "NZD": "NZL",
+             "CNY": "CHN", "MXN": "MEX", "BRL": "BRA", "INR": "IND", "KRW": "KOR", "ZAR": "ZAF", "TRY": "TUR",
+             "USD": "USA"}
+FRESH_RATE = 183  # days: an older monthly figure is left off rather than plotted as current
+
+
+def rates(cache):
+    import csv
+    import io
+    start = f"{dt.date.today().year - 1}-01"
+    raw = get(OECD_IR3.format(start=start), {"Accept": "application/vnd.sdmx.data+csv; charset=utf-8"}).decode("utf-8")
+    best = {}
+    for r in csv.DictReader(io.StringIO(raw)):
+        v = num(float(r["OBS_VALUE"])) if r.get("OBS_VALUE") else None
+        if v is not None and r["TIME_PERIOD"] > best.get(r["REF_AREA"], ("",))[0]:
+            best[r["REF_AREA"]] = (r["TIME_PERIOD"], round(v, 3))
+    today = dt.date.today()
+    out = {}
+    for ccy, area in RATE_AREA.items():
+        got = best.get(area)
+        if got and (today - dt.date.fromisoformat(got[0] + "-01")).days <= FRESH_RATE:
+            out[ccy] = {"rate": got[1], "month": got[0]}
+    if "USD" not in out:
+        raise ValueError("OECD 3-month rates: no recent US figure")
+    cache["rates"] = out
 
 
 def main():
@@ -251,6 +304,10 @@ def main():
         cache = {}
     today = dt.datetime.now(ZoneInfo("America/New_York")).date()
     market(cache)
+    try:
+        rates(cache)
+    except Exception as e:  # noqa: BLE001  the scatter keeps the last rates
+        log(f"fx: OECD 3-month rates: {type(e).__name__}: {e}; keeping the last ones", "warning")
     try:
         analyses(cache, os.environ.get("AGENT_ARTIFACTS_TOKEN"), today)
         cache["archive_ok"] = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
