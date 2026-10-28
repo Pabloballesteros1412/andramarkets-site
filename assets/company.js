@@ -1,5 +1,5 @@
 /* Andra Markets company pages: the peer strips, the cash flow model, revenue
-   to profit and the share price against the S&P 500, drawn at each chart's
+   to profit and the share price against its benchmark, drawn at each chart's
    own pixel width from the figures embedded in the page (#co-data, written by
    tools/build_site.py). Tokens and rules: DESIGN.md, Company page. */
 (function () {
@@ -101,8 +101,10 @@
     var p = iso.split("-");
     return +p[2] + " " + MONTHS[+p[1] - 1] + " " + p[0];
   }
+  // D.cur: the currency the shares trade in; D.fcur: the one the company reports in.
+  var CUR = D.cur || "$", FCUR = D.fcur || CUR, PD = D.pd == null ? 2 : D.pd;
   function usd(v) {
-    return "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return CUR + v.toLocaleString("en-US", { minimumFractionDigits: PD, maximumFractionDigits: PD });
   }
 
   /* Peers: one strip per measure, the company filled, the median a dashed tick. */
@@ -212,9 +214,9 @@
       var bh = Math.max(1, (h - T - B) * Math.max(v, 0) / max);
       var x = i * bw + 3, cw = Math.max(2, bw - 6);
       var r = el("rect", { x: x, y: h - B - bh, width: cw, height: bh, fill: last ? "var(--chart-line)" : "var(--chart-fill)", stroke: "var(--chart-line)", "stroke-width": 1 }, null, svg);
-      el("title", {}, (last ? "Value after year 10" : "Year " + (i + 1) + " cash flow") + ", today's money: $" + v.toFixed(1) + "bn", r);
+      el("title", {}, (last ? "Value after year 10" : "Year " + (i + 1) + " cash flow") + ", today's money: " + CUR + v.toFixed(1) + "bn", r);
       el("text", { "class": "chart__label", x: x + cw / 2, y: h - 6, "text-anchor": "middle" }, last ? "After 10" : String(i + 1), svg);
-      if (i === 0 || i === 9 || last) el("text", { "class": "chart__value", x: x + cw / 2, y: h - B - bh - 5, "text-anchor": "middle" }, "$" + v.toFixed(0) + "bn", svg);
+      if (i === 0 || i === 9 || last) el("text", { "class": "chart__value", x: x + cw / 2, y: h - B - bh - 5, "text-anchor": "middle" }, CUR + v.toFixed(0) + "bn", svg);
     });
   }
   function update() {
@@ -230,7 +232,7 @@
       fv.textContent = "Below zero";
       fc.textContent = "Debt outweighs the cash flows on these assumptions.";
     } else {
-      fv.textContent = usd(res.ps).replace(/\.\d\d$/, "");
+      fv.textContent = usd(res.ps).replace(/\.\d+$/, "");
       fc.textContent = Math.abs(gap).toFixed(0) + "% " + (gap >= 0 ? "above" : "below") + " the " + usd(D.price) + " close. " +
         Math.round(res.tv / (res.pv + res.tv) * 100) + "% of it comes after year 10.";
     }
@@ -260,13 +262,13 @@
     var total = parts.reduce(function (a, p) { return a + p.v; }, 0);
     var rowH = 26, barH = 40, T = 4, gap = 22;
     var h = T + barH + gap + parts.length * rowH + (C.ni < 0 ? rowH : 0);
-    var svg = svgIn(flowBox, w, h, "Of revenue of $" + C.rev.toFixed(1) + "bn in the year to " + D.fy + ": " +
-      parts.map(function (p) { return p.n + " $" + p.v.toFixed(1) + "bn"; }).join(", "));
+    var svg = svgIn(flowBox, w, h, "Of revenue of " + FCUR + C.rev.toFixed(1) + "bn in the year to " + D.fy + ": " +
+      parts.map(function (p) { return p.n + " " + FCUR + p.v.toFixed(1) + "bn"; }).join(", "));
     var x = 0;
     parts.forEach(function (p) {
       var pw = w * p.v / total;
       var r = el("rect", { "class": p.cls, x: x, y: T, width: Math.max(1, pw - 1), height: barH, opacity: p.op }, null, svg);
-      el("title", {}, p.n + ": $" + p.v.toFixed(1) + "bn, " + (p.v / C.rev * 100).toFixed(1) + "% of revenue", r);
+      el("title", {}, p.n + ": " + FCUR + p.v.toFixed(1) + "bn, " + (p.v / C.rev * 100).toFixed(1) + "% of revenue", r);
       if (pw > 44) el("text", { "class": "co-seg", x: x + 8, y: T + barH / 2 + 4 }, (p.v / C.rev * 100).toFixed(0) + "%", svg);
       x += pw;
     });
@@ -283,10 +285,10 @@
       el("text", { "class": "chart__value", x: 22, y: y + 15, "font-weight": p.cls === "up" ? 600 : 400 }, p.n, svg);
       var pctTxt = (p.v / C.rev * 100).toFixed(0) + "%";
       if (narrow) {
-        var tv = el("text", { "class": "chart__value", x: colV, y: y + 15, "text-anchor": "end" }, "$" + p.v.toFixed(1) + "bn", svg);
+        var tv = el("text", { "class": "chart__value", x: colV, y: y + 15, "text-anchor": "end" }, FCUR + p.v.toFixed(1) + "bn", svg);
         el("tspan", { "class": "chart__label" }, "  " + pctTxt, tv);
       } else {
-        el("text", { "class": "chart__value", x: colV, y: y + 15, "text-anchor": "end" }, "$" + p.v.toFixed(1) + "bn", svg);
+        el("text", { "class": "chart__value", x: colV, y: y + 15, "text-anchor": "end" }, FCUR + p.v.toFixed(1) + "bn", svg);
         el("text", { "class": "chart__label", x: colP, y: y + 15, "text-anchor": "end" }, pctTxt + " of revenue", svg);
       }
       el("line", { "class": "grid-line", x1: 0, x2: w, y1: y + rowH - 2, y2: y + rowH - 2 }, null, svg);
@@ -294,7 +296,7 @@
     if (C.ni < 0) {
       var yl = y0 + parts.length * rowH;
       el("text", { "class": "chart__value", x: 22, y: yl + 15, "font-weight": 600 }, "Net loss", svg);
-      el("text", { "class": "chart__value mv--down", x: colV, y: yl + 15, "text-anchor": "end" }, MINUS + "$" + Math.abs(C.ni).toFixed(1) + "bn", svg);
+      el("text", { "class": "chart__value mv--down", x: colV, y: yl + 15, "text-anchor": "end" }, MINUS + FCUR + Math.abs(C.ni).toFixed(1) + "bn", svg);
     }
   }
 
@@ -378,8 +380,8 @@
     });
     show(cats.length - 1);
   }
-  var bn = function (v) { return (v < 0 ? MINUS : "") + "$" + Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: Math.abs(v) < 10 ? 1 : 0 }) + "bn"; };
-  var axisBn = function (v) { return (v < 0 ? MINUS : "") + "$" + Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: 1 }); };
+  var bn = function (v) { return (v < 0 ? MINUS : "") + FCUR + Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: Math.abs(v) < 10 ? 1 : 0 }) + "bn"; };
+  var axisBn = function (v) { return (v < 0 ? MINUS : "") + FCUR + Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: 1 }); };
   function yoy(arr, i, back) {
     var a = arr[i], b = arr[i - back];
     if (a == null || b == null || b <= 0) return null;
@@ -409,11 +411,11 @@
     var both = [{ name: "Revenue", vals: Q.rev, cls: "fill" }];
     columns(document.getElementById("co-qrev"), read, Q.labels, both, { fmt: axisBn, fmtRead: bn, h: 190, label: "Quarterly revenue", extra: extra });
     columns(document.getElementById("co-qeps"), read, Q.labels, [{ name: "EPS", vals: Q.eps, cls: "bar" }],
-      { fmt: function (v) { return (v < 0 ? MINUS : "") + "$" + Math.abs(v).toFixed(v % 1 ? 2 : 0); }, h: 190, label: "Quarterly diluted EPS",
-        fmtRead: function (v) { return (v < 0 ? MINUS : "") + "$" + Math.abs(v).toFixed(2); } });
+      { fmt: function (v) { return (v < 0 ? MINUS : "") + FCUR + Math.abs(v).toFixed(v % 1 ? 2 : 0); }, h: 190, label: "Quarterly diluted EPS",
+        fmtRead: function (v) { return (v < 0 ? MINUS : "") + FCUR + Math.abs(v).toFixed(2); } });
     // Start the shared readout on the latest quarter with revenue growth.
     setRead(read, Q.labels[Q.labels.length - 1] + ": Revenue " + (Q.rev[Q.rev.length - 1] == null ? "n/a" : bn(Q.rev[Q.rev.length - 1])) +
-      ", EPS " + (Q.eps[Q.eps.length - 1] == null ? "n/a" : "$" + Q.eps[Q.eps.length - 1].toFixed(2)) + extra(Q.labels.length - 1));
+      ", EPS " + (Q.eps[Q.eps.length - 1] == null ? "n/a" : FCUR + Q.eps[Q.eps.length - 1].toFixed(2)) + extra(Q.labels.length - 1));
   }
   function drawCash() {
     var Y = D.years;
@@ -513,8 +515,8 @@
 
   /* Against the market: both rebased to 100 on the first shared session. */
   var ctxBox = document.getElementById("co-ctx"), ctxRead = document.getElementById("co-ctx-read");
-  var spx = {};
-  D.spx.forEach(function (p) { spx[p[0]] = p[1]; });
+  var spx = {}, BN = D.bn || "S&P 500";
+  (D.bench || D.spx || []).forEach(function (p) { spx[p[0]] = p[1]; });
   var H = D.hist.filter(function (p) { return spx[p[0]] != null; });
   function drawCtx() {
     var w = ctxBox.clientWidth;
@@ -530,7 +532,7 @@
     var X = function (i) { return (w - R) * i / (rows.length - 1); };
     var Y = function (v) { return T + (h - T - B) * (1 - (v - lo) / (hi - lo)); };
     var svg = svgIn(ctxBox, w, h, D.name + " " + signed(A[A.length - 1] - 100, 1, "%") +
-      (both ? " and the S&P 500 " + signed(Bv[Bv.length - 1] - 100, 1, "%") : "") + " over the year");
+      (both ? " and the " + BN + " " + signed(Bv[Bv.length - 1] - 100, 1, "%") : "") + " over the year");
     svg.setAttribute("tabindex", "0");
     var stepY = [10, 20, 25, 50, 100, 200].filter(function (k) { return (hi - lo) / k <= 6; })[0] || 500;
     lo = Math.floor(lo / stepY) * stepY;
@@ -554,7 +556,7 @@
       d1.setAttribute("cx", X(cur)); d1.setAttribute("cy", Y(A[cur]));
       if (d2) { d2.setAttribute("cx", X(cur)); d2.setAttribute("cy", Y(Bv[cur])); }
       setRead(ctxRead, day(rows[cur][0]) + ": " + D.name + " " + usd(rows[cur][1]) + " (" + signed(A[cur] - 100, 1, "%") + ")" +
-        (both ? ", S&P 500 " + spx[rows[cur][0]].toLocaleString("en-US", { maximumFractionDigits: 0 }) + " (" + signed(Bv[cur] - 100, 1, "%") + ")" : ""));
+        (both ? ", " + BN + " " + spx[rows[cur][0]].toLocaleString("en-US", { maximumFractionDigits: 0 }) + " (" + signed(Bv[cur] - 100, 1, "%") + ")" : ""));
     }
     function at(e) {
       var b = svg.getBoundingClientRect();

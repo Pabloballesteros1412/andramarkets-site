@@ -1764,14 +1764,16 @@ def report_events(src, quotes, market, high):
 
 
 def universe_list(quotes, market):
-    """The market's companies in rank order, with each one's benchmark: the
-    list the Lab's risk tool offers (tools/lab_data.py)."""
+    """The market's companies in rank order, with each one's benchmark and
+    market cap in dollars: the list the Lab's risk tool offers
+    (tools/lab_data.py) and the company pages cover (tools/company_data.py)."""
     out = []
     for q in quotes:
         country = q.get("_country") or "US"
         bench = BENCH["us" if market == "us" else "europe" if market == "europe" else country]
+        cap = q.get("_usd") or (q.get("marketCap") if market == "us" else None)
         out.append({"symbol": q["symbol"], "name": html.unescape(q.get("longName") or q.get("shortName") or q["symbol"]),
-                    "country": country, "bench": bench[0], "bench_name": bench[1]})
+                    "country": country, "bench": bench[0], "bench_name": bench[1], "cap": cap})
     return out
 
 

@@ -2920,9 +2920,10 @@ def calendar_link(cal, d):
 
 
 # Company pages ----------------------------------------------------------------
-# One page per company among the 50 largest in the S&P 500, from
+# One page per company in the calendar's earnings universe (the 200 largest in
+# the S&P 500, the STOXX Europe 600 and the six Asian markets), from
 # .cache/companies/companies.json (tools/company_data.py). Owner-approved
-# design, 22 Oct 2026. assets/company.js draws the charts from the figures
+# design, 22 Oct 2026; 600 companies since 28 Oct 2026. assets/company.js draws the charts from the figures
 # embedded in each page.
 
 CO_DATA = ROOT / ".cache" / "companies" / "companies.json"
@@ -2933,15 +2934,43 @@ SHORT_SECTOR = {
 }
 
 
+# Each market: (chip label, the list it is drawn from, as a phrase).
+CO_MARKETS = {"us": ("US", "the S&amp;P 500"), "europe": ("Europe", "the STOXX Europe 600"),
+              "asia": ("Asia", "the six Asian markets")}
+CUR_SYMBOL = {"USD": "$", "EUR": "€", "GBP": "£", "JPY": "¥", "CNY": "CN¥", "HKD": "HK$", "TWD": "NT$", "KRW": "₩",
+              "INR": "₹", "CHF": "CHF ", "DKK": "DKK ", "SEK": "SEK ", "NOK": "NOK ", "PLN": "PLN "}
+CUR_NAME = {"USD": "dollars", "EUR": "euros", "GBP": "pounds", "JPY": "yen", "CNY": "yuan", "HKD": "Hong Kong dollars",
+            "TWD": "Taiwan dollars", "KRW": "won", "INR": "rupees", "CHF": "Swiss francs", "DKK": "Danish kroner",
+            "SEK": "Swedish kronor", "NOK": "Norwegian kroner", "PLN": "zloty"}
+
+
+def cur_sym(cur):
+    return CUR_SYMBOL.get(cur or "USD", f"{cur} ")
+
+
 def load_companies():
     try:
         data = json.loads(CO_DATA.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
-    order = [t for t in data.get("order") or [] if t in (data.get("companies") or {})]
+    co = data.get("companies") or {}
+    order = [t for t in data.get("order") or [] if t in co and len(co[t].get("closes") or []) >= 2]
     if not order:
         return None
-    return {"order": order, "co": data["companies"], "spx": data.get("spx") or []}
+    usd = data.get("usd") or {"USD": 1.0}
+    bench = data.get("bench") or {}
+    if "^GSPC" not in bench and data.get("spx"):
+        bench["^GSPC"] = data["spx"]  # a cache written before the 600
+    for t in order:
+        rec = co[t]
+        rec.setdefault("market", "us")
+        rec.setdefault("bench", "^GSPC")
+        rec.setdefault("bench_name", "S&P 500")
+        px, fin = rec.get("currency") or "USD", rec.get("fin_currency") or rec.get("currency") or "USD"
+        # Reporting currency to the price's: Shell reports in dollars and trades in pounds.
+        rec["_fx"] = 1.0 if px == fin else (usd[fin] / usd[px] if usd.get(fin) and usd.get(px) else None)
+        rec["_usd"] = usd.get(px)
+    return {"order": order, "co": co, "bench": bench}
 
 
 def co_logo(t):
@@ -2954,7 +2983,8 @@ def co_logo(t):
 
 
 def co_slug(t):
-    return t.lower()
+    """URL folder: 'nvda', 'asml-as', '7203-t'."""
+    return t.lower().replace(".", "-")
 
 
 # The names people use, for the companies in the list today; a company that
@@ -2984,22 +3014,33 @@ def co_name(rec):
     n = html.unescape(rec["name"]).replace("&amp;", "&")
     n = re.sub(r"^The\s+", "", n)
     n = re.sub(r"\s*(&|and)\s*(Co\.?|Company)$", "", n)
-    n = re.sub(r",?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Company|Co\.?|plc|N\.V\.|Ltd\.?|Holdings?|Platforms|Technologies)$", "", n)
-    n = re.sub(r",?\s+(Inc\.?|Corporation|Corp\.?)$", "", n)
+    # Legal forms off the end, one at a time: 'Samsung Electronics Co., Ltd.', 'Novo Nordisk A/S'.
+    form = (r",?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|Company|Co\.?|plc|PLC|N\.V\.|NV|S\.A\.?|SA|S\.p\.A\.|SpA|SE|AG|"
+            r"A/S|ASA|AB|\(publ\)|Oyj|Ltd\.?|Limited|LIMITED|Holdings?|Platforms|Technologies|K\.K\.|Tbk)$")
+    while True:
+        m = re.sub(form, "", n).strip().rstrip(",")
+        if m == n or not m:
+            break
+        n = m
     return {"Alphabet": "Alphabet", "Berkshire Hathaway": "Berkshire Hathaway"}.get(n, n).strip()
 
 
-def money(v, short=True):
-    """$3.96tn, $331.8bn, $867m."""
+def money(v, cur="USD"):
+    """$3.96tn, €331.8bn, ¥867m."""
     if v is None:
         return "n/a"
     a = abs(v)
-    sign = MINUS if v < 0 else ""
+    sign, c = MINUS if v < 0 else "", cur_sym(cur)
     if a >= 1e12:
-        return f"{sign}${a / 1e12:.2f}tn"
+        return f"{sign}{c}{a / 1e12:,.2f}tn"
     if a >= 1e9:
-        return f"{sign}${a / 1e9:,.1f}bn"
-    return f"{sign}${a / 1e6:,.0f}m"
+        return f"{sign}{c}{a / 1e9:,.1f}bn"
+    return f"{sign}{c}{a / 1e6:,.0f}m"
+
+
+def price_txt(v, cur="USD"):
+    """$212.40, ₩55,300: won without decimals."""
+    return f"{cur_sym(cur)}{v:,.{0 if cur == 'KRW' else 2}f}"
 
 
 def pct1(v):
@@ -3010,8 +3051,8 @@ def pct1(v):
     return f"{MINUS if r < 0 else ''}{abs(r):.1f}%"
 
 
-def usd_signed(v):
-    return f"{MINUS if v < 0 else ''}${abs(v):,.2f}"
+def cur_signed(v, cur="USD"):
+    return f"{MINUS if v < 0 else ''}{price_txt(abs(v), cur)}"
 
 
 def fy_label(iso):
@@ -3026,16 +3067,18 @@ def co_metrics(rec):
     rev, rev0 = a["TotalRevenue"]["fy"], a["TotalRevenue"]["prev"]
     op = a["OperatingIncome"]["fy"]
     shares = rec.get("shares")
+    fx = rec.get("_fx")  # price currency per unit of the reporting currency
     mcap = price * shares if shares else None
-    if mcap is not None and mcap < 1e10:  # a share count in another class (Berkshire)
-        mcap = None
+    usd = mcap * rec["_usd"] if mcap and rec.get("_usd") else None
+    if usd is not None and usd < 1e10:  # a share count in another class (Berkshire)
+        mcap = usd = None
     eps = rec.get("ttm_eps")
     debt, cash, eq = rec.get("debt"), rec.get("cash"), rec.get("equity")
     return {
         "price": price, "prev": prev, "date": closes[-1][0],
         "chg": price - prev, "chg_pct": (price / prev - 1) * 100,
-        "mcap": mcap,
-        "pe": price / eps if eps and eps > 0 else None,
+        "mcap": mcap, "mcap_usd": usd, "fx": fx,
+        "pe": price / (eps * fx) if eps and eps > 0 and fx else None,
         "rev": rev, "revg": (rev / rev0 - 1) * 100 if rev and rev0 else None,
         "om": op / rev * 100 if op is not None and rev else None,
         "fcf": a["FreeCashFlow"]["fy"], "capex": a["CapitalExpenditure"]["fy"],
@@ -3048,7 +3091,8 @@ def co_metrics(rec):
 
 
 def co_flow(rec):
-    """Revenue down to net income for the last fiscal year, in $bn: steps that reconcile."""
+    """Revenue down to net income for the last fiscal year, in billions of the
+    reporting currency: steps that reconcile."""
     a = {k: v["fy"] for k, v in rec["annual"].items()}
     rev = a["TotalRevenue"]
     if not rev:
@@ -3093,7 +3137,7 @@ def co_flow(rec):
 
 
 def co_hist(rec):
-    """The last fiscal years side by side, in $bn (EPS in dollars)."""
+    """The last fiscal years side by side, in billions of the reporting currency (EPS in units)."""
     ha = rec.get("hist_a") or {}
     years = sorted({d for v in ha.values() for d, _ in v})[-4:]
     if not years:
@@ -3148,22 +3192,33 @@ def period_returns(closes):
     return [back(21), back(63), ytd, (last / closes[0][1] - 1) * 100]
 
 
+def co_mates(t, data):
+    """The company's sector in its own market (US, Europe or Asia)."""
+    rec = data["co"][t]
+    return [x for x in data["order"] if data["co"][x]["sector"] == rec["sector"] and data["co"][x]["market"] == rec["market"]]
+
+
+def co_bench(rec, data):
+    return [tuple(p) for p in data["bench"].get(rec["bench"]) or []]
+
+
 def co_returns(t, data):
     rec = data["co"][t]
     sector = rec["sector"]
-    mates = [x for x in data["order"] if data["co"][x]["sector"] == sector]
+    mates = co_mates(t, data)
     rows = [(co_name(rec), period_returns(rec["closes"]))]
     if len(mates) >= 3:
         rs = [period_returns(data["co"][x]["closes"]) for x in mates]
         avg = [None if any(r[i] is None for r in rs) else sum(r[i] for r in rs) / len(rs) for i in range(4)]
         rows.append((f"{SHORT_SECTOR.get(sector, sector)} average ({len(mates)})", avg))
-    if data["spx"]:
-        rows.append(("S&amp;P 500", period_returns([tuple(p) for p in data["spx"]])))
+    bench = co_bench(rec, data)
+    if bench:
+        rows.append((esc(rec["bench_name"]), period_returns(bench)))
     return rows
 
 
 def co_risk(rec, spx):
-    """Annualised volatility, beta to the S&P 500, the year's deepest fall and its path."""
+    """Annualised volatility, beta to the benchmark, the year's deepest fall and its path."""
     closes = rec["closes"]
     if len(closes) < 60:
         return None
@@ -3286,36 +3341,45 @@ def company_page(t, data, cal):
     d = dt.date.fromisoformat(m["date"])
     fy = fy_label(rec["fy"])
     base = "../../"
-    peers_all = [x for x in data["order"] if data["co"][x]["sector"] == sector]
+    market = rec["market"]
+    where = CO_MARKETS.get(market, CO_MARKETS["us"])[1]
+    cur, fcur, fx = rec.get("currency") or "USD", rec.get("fin_currency") or rec.get("currency") or "USD", m["fx"]
+    fmoney = lambda v: money(v, fcur)  # noqa: E731  a figure from the reports
+    in_bn = f"in billions of {CUR_NAME.get(fcur, fcur)}"
+    bench_name = esc(rec["bench_name"])
+    peers_all = co_mates(t, data)
     if len(peers_all) >= 4:
         peers = peers_all
         peers_lede = (f"{name} (filled) against the other {len(peers) - 1} {SHORT_SECTOR.get(sector, sector).lower()} "
-                      f"companies among the 50 largest in the S&amp;P 500. Tap or hover a dot to read it.")
+                      f"companies among the 200 largest in {where}. Tap or hover a dot to read it.")
     else:
-        peers = data["order"]
-        peers_lede = (f"{name} (filled) against the 50 largest companies in the S&amp;P 500; too few in its sector "
+        peers = [x for x in data["order"] if data["co"][x]["market"] == market]
+        peers_lede = (f"{name} (filled) against the 200 largest companies in {where}; too few in its sector "
                       f"to compare on their own. Tap or hover a dot to read it.")
     flow = co_flow(rec)
     cagr, _ = co_cagr(rec)
-    risk = co_risk(rec, data["spx"])
-    can_dcf = rec.get("dcf") and m["fcf"] and m["fcf"] > 0 and rec.get("shares") and m["mcap"]
+    bench = co_bench(rec, data)
+    risk = co_risk(rec, bench)
+    can_dcf = rec.get("dcf") and m["fcf"] and m["fcf"] > 0 and rec.get("shares") and m["mcap"] and fx
     payload = {
         "t": t, "name": name, "price": m["price"], "date": m["date"],
+        "cur": cur_sym(cur), "pd": 0 if cur == "KRW" else 2, "fcur": cur_sym(fcur), "bn": rec["bench_name"],
         "peers": [co_peer_row(x, data["co"][x]) for x in peers],
         "comp": co_comp(flow), "fy": fy,
         "years": co_hist(rec), "quarters": co_quarters(rec), "pe": co_pe_hist(rec),
         "risk": None,
-        "dcf": {"fcf": round(m["fcf"] / 1e9, 3), "net_debt": round((m["net_debt"] or 0) / 1e9, 3),
+        # The model runs in the price's currency, so its value per share sits beside the close.
+        "dcf": {"fcf": round(m["fcf"] * fx / 1e9, 3), "net_debt": round((m["net_debt"] or 0) * fx / 1e9, 3),
                 "shares": round(rec["shares"] / 1e9, 4), "cagr": None if cagr is None else round(cagr, 1)} if can_dcf else None,
         "hist": [[dd, c] for dd, c in rec["closes"]],
-        "spx": [[dd, c] for dd, c in data["spx"]],
+        "bench": [[dd, c] for dd, c in bench],
     }
     if risk:
         payload["risk"] = {"dd": risk["dd"]}
     json_payload = json.dumps(payload, separators=(",", ":")).replace("</", "<\\/")
 
-    chg = f'{mv(("+" if m["chg"] >= 0 else MINUS) + "$" + format(abs(m["chg"]), ",.2f"))} ({mv(signed(m["chg_pct"], 2, "%"))})'
-    lede = f"{SHORT_SECTOR.get(sector, sector)}{(', ' + esc(rec['industry'])) if rec.get('industry') else ''}. Revenue of {money(m['rev'])} in the year to {fy}"
+    chg = f'{mv(("+" if m["chg"] >= 0 else MINUS) + price_txt(abs(m["chg"]), cur))} ({mv(signed(m["chg_pct"], 2, "%"))})'
+    lede = f"{SHORT_SECTOR.get(sector, sector)}{(', ' + esc(rec['industry'])) if rec.get('industry') else ''}. Revenue of {fmoney(m['rev'])} in the year to {fy}"
     if m["revg"] is not None:
         lede += f", {'up' if m['revg'] >= 0 else 'down'} {abs(m['revg']):.1f}%"
     if m["om"] is not None:
@@ -3323,28 +3387,29 @@ def company_page(t, data, cal):
     lede += "."
 
     kp = [
-        kpi("Market value", money(m["mcap"]), f'{rec["shares"] / 1e9:.2f}bn shares' if m["mcap"] else "Not shown: share classes"),
+        kpi("Market value", money(m["mcap"], cur), (f'{rec["shares"] / 1e9:.2f}bn shares' + (f', {money(m["mcap_usd"])}' if cur != "USD" else ""))
+            if m["mcap"] else "Not shown: share classes"),
         kpi("P/E, last 12 months", f'{m["pe"]:.1f}x' if m["pe"] else "n/a",
-            f'EPS {usd_signed(rec["ttm_eps"])}' if rec.get("ttm_eps") is not None else "No EPS yet"),
+            f'EPS {cur_signed(rec["ttm_eps"], fcur)}' if rec.get("ttm_eps") is not None else "No EPS yet"),
         kpi("Revenue growth", mv(signed(m["revg"], 1, "%")) if m["revg"] is not None else "n/a", f"Year to {fy}"),
         kpi("Operating margin", pct1(m["om"]) if m["om"] is not None else "n/a", f"Year to {fy}" if m["om"] is not None else "Not reported for banks"),
     ]
     if rec.get("dcf"):
         kp += [
-            kpi("Free cash flow", money(m["fcf"]), f"After {money(abs(m['capex']))} capex" if m["capex"] else f"Year to {fy}"),
-            kpi("Net debt" if (m["net_debt"] or 0) >= 0 else "Net cash", money(abs(m["net_debt"])) if m["net_debt"] is not None else "n/a",
-                f"{money(m['debt'])} debt, {money(m['cash'])} cash" if m["debt"] is not None else ""),
+            kpi("Free cash flow", fmoney(m["fcf"]), f"After {fmoney(abs(m['capex']))} capex" if m["capex"] else f"Year to {fy}"),
+            kpi("Net debt" if (m["net_debt"] or 0) >= 0 else "Net cash", fmoney(abs(m["net_debt"])) if m["net_debt"] is not None else "n/a",
+                f"{fmoney(m['debt'])} debt, {fmoney(m['cash'])} cash" if m["debt"] is not None else ""),
         ]
     else:
         # A lender's cash flow and debt are its customers' money: show earnings and book value instead.
         eq = rec.get("equity")
         kp += [
-            kpi("Net income", money(m["ni"]), f"Year to {fy}"),
-            kpi("Shareholders' equity", money(eq), f"Price to book {m['mcap'] / eq:.1f}x" if m["mcap"] and eq and eq > 0 else "Book value"),
+            kpi("Net income", fmoney(m["ni"]), f"Year to {fy}"),
+            kpi("Shareholders' equity", fmoney(eq), f"Price to book {m['mcap'] / (eq * fx):.1f}x" if m["mcap"] and eq and eq > 0 and fx else "Book value"),
         ]
     kp += [
-        kpi("Dividend yield", f'{m["dy"]:.2f}%' if m["dy"] else "None", f'${rec["div_ttm"]:.2f} a share, last 12 months' if m["dy"] else "No dividend in the last year"),
-        kpi("52-week range", f'${rec["low52"]:,.0f}&ndash;{rec["high52"]:,.0f}' if rec.get("low52") else "n/a", f"Close ${m['price']:,.2f}"),
+        kpi("Dividend yield", f'{m["dy"]:.2f}%' if m["dy"] else "None", f'{price_txt(rec["div_ttm"], cur)} a share, last 12 months' if m["dy"] else "No dividend in the last year"),
+        kpi("52-week range", f'{cur_sym(cur)}{rec["low52"]:,.0f}&ndash;{rec["high52"]:,.0f}' if rec.get("low52") else "n/a", f"Close {price_txt(m['price'], cur)}"),
     ]
 
     if can_dcf:
@@ -3362,24 +3427,25 @@ def company_page(t, data, cal):
           </div>
         </div>
         <div class="co-chart" id="co-val"></div>
-        <p class="co-src">Base: free cash flow of {money(m["fcf"])} in the year to {fy}, {"net debt" if (m["net_debt"] or 0) >= 0 else "net cash"} of {money(abs(m["net_debt"] or 0))}, {rec["shares"] / 1e9:.2f}bn shares. Growth fades in a straight line from year 6 to year 10. An Andra Markets model, not a recommendation.</p>"""
+        <p class="co-src">Base: free cash flow of {fmoney(m["fcf"])} in the year to {fy}, {"net debt" if (m["net_debt"] or 0) >= 0 else "net cash"} of {fmoney(abs(m["net_debt"] or 0))}, {rec["shares"] / 1e9:.2f}bn shares.{f" Converted to {CUR_NAME.get(cur, cur)} at today&rsquo;s rate, the currency the shares trade in." if fcur != cur else ""} Growth fades in a straight line from year 6 to year 10. An Andra Markets model, not a recommendation.</p>"""
     elif not rec.get("dcf"):
         val = ("<p>Not modelled on cash flow. A bank's, insurer's or asset manager's cash flows are mostly its customers' "
                "money, so a free cash flow model says little about its value. Its P/E and dividend sit in the peer "
                "comparison above.</p>")
     else:
-        val = (f"<p>Not modelled yet: free cash flow was {money(m['fcf'])} in the year to {fy}, and a cash flow model "
+        val = (f"<p>Not modelled yet: free cash flow was {fmoney(m['fcf'])} in the year to {fy}, and a cash flow model "
                "needs a positive starting point to mean anything.</p>")
 
     comp = co_comp(flow)
     if comp and comp["rev"] > 0:
         keep = comp["ni"] / comp["rev"] * 100
+        c = cur_sym(fcur)
         if comp["ni"] >= 0:
-            comp_line = f"Of every $100 of revenue in the year to {fy}, {esc(name)} kept ${keep:.0f} as net income."
+            comp_line = f"Of every {c}100 of revenue in the year to {fy}, {esc(name)} kept {c}{keep:.0f} as net income."
         else:
-            comp_line = f"In the year to {fy} costs exceeded revenue: {esc(name)} lost ${-keep:.0f} for every $100 of revenue."
+            comp_line = f"In the year to {fy} costs exceeded revenue: {esc(name)} lost {c}{-keep:.0f} for every {c}100 of revenue."
         if comp["extra"] > 0:
-            comp_line += f" That includes {money(comp['extra'] * 1e9)} of income on top of revenue, such as interest and investment gains."
+            comp_line += f" That includes {fmoney(comp['extra'] * 1e9)} of income on top of revenue, such as interest and investment gains."
         flow_sec = (f'<p class="co-lead">{comp_line}</p><div class="co-chart" id="co-flow"></div>'
                     f'<p class="co-src">Annual report for the year to {fy}, via Yahoo Finance. Items under 0.5% of revenue are folded into the next line.</p>')
     else:
@@ -3399,30 +3465,30 @@ def company_page(t, data, cal):
 
     src_ar = "Annual reports, via Yahoo Finance."
     s_years = sec("years", f"Revenue and profit, {nyears} years",
-                  f'<p>Revenue and net income each fiscal year, in billions of dollars. Tap or hover a year to read it.</p>'
+                  f'<p>Revenue and net income each fiscal year, {in_bn}. Tap or hover a year to read it.</p>'
                   f'<div class="co-chart" id="co-years"></div>'
                   f'<p class="key"><span><i class="sw-fill"></i>Revenue</span><span><i class="sw-ink"></i>Net income</span></p>'
                   f'<p class="co-read" id="co-years-read" aria-live="polite"></p><p class="co-src">{src_ar}</p>') if hist else ""
     s_q = ""
     if quarters:
         s_q = sec("q", f"Last {len(quarters['labels'])} quarters",
-                  '<p>Revenue in billions of dollars and diluted earnings per share, quarter by quarter.</p>'
+                  f'<p>Revenue {in_bn} and diluted earnings per share, quarter by quarter.</p>'
                   '<div class="co-pair"><div><h3 class="co-h3">Revenue</h3><div class="co-chart" id="co-qrev"></div></div>'
                   '<div><h3 class="co-h3">Earnings per share</h3><div class="co-chart" id="co-qeps"></div></div></div>'
                   '<p class="co-read" id="co-q-read" aria-live="polite"></p>'
                   '<p class="co-src">Quarterly reports, via Yahoo Finance. Quarters are named by the month they end.</p>')
     s_cash = sec("cash", "Cash flow and investment",
-                 '<p>Cash from operations, what went into capital spending, and the free cash flow left, in billions of dollars.</p>'
+                 f'<p>Cash from operations, what went into capital spending, and the free cash flow left, {in_bn}.</p>'
                  '<div class="co-chart" id="co-cash"></div>'
                  '<p class="key"><span><i class="sw-fill"></i>Cash from operations</span><span><i class="sw-down"></i>Capital spending</span><span><i class="sw-ink"></i>Free cash flow</span></p>'
                  f'<p class="co-read" id="co-cash-read" aria-live="polite"></p><p class="co-src">{src_ar}</p>') if hist else ""
     s_bs = sec("bs", "Balance sheet",
-               '<p>Cash and short-term investments, debt and shareholders&rsquo; equity at each fiscal year end, in billions of dollars.</p>'
+               f'<p>Cash and short-term investments, debt and shareholders&rsquo; equity at each fiscal year end, {in_bn}.</p>'
                '<div class="co-chart" id="co-bs"></div>'
                '<p class="key"><span><i class="sw-fill"></i>Cash and investments</span><span><i class="sw-ink"></i>Debt</span><span><i class="sw-hollow"></i>Equity</span></p>'
                f'<p class="co-read" id="co-bs-read" aria-live="polite"></p><p class="co-src">{src_ar} Debt excludes leases.</p>') if hist else ""
     s_sh = sec("sh", "Returns to shareholders",
-               '<p>Dividends paid and shares bought back each fiscal year, against net income, in billions of dollars.</p>'
+               f'<p>Dividends paid and shares bought back each fiscal year, against net income, {in_bn}.</p>'
                '<div class="co-chart" id="co-sh"></div>'
                '<p class="key"><span><i class="sw-ink"></i>Dividends</span><span><i class="sw-fill"></i>Buybacks</span><span><i class="k-solid"></i>Net income</span></p>'
                f'<p class="co-read" id="co-sh-read" aria-live="polite"></p><p class="co-src">{src_ar}</p>') if hist else ""
@@ -3434,33 +3500,33 @@ def company_page(t, data, cal):
                '<p class="co-src">Month-end closes and annual reports, via Yahoo Finance.</p>') if pe_hist else ""
     s_ret = sec("ret", "Share price returns",
                 f'<p>Price change over each period to the close of {day_med(d)}, without dividends.</p>{returns_table(rets)}'
-                '<p class="co-src">Yahoo Finance daily closes. The sector average is the simple average of its companies among the 50.</p>')
+                f'<p class="co-src">Yahoo Finance daily closes, in {CUR_NAME.get(cur, cur)}. The sector average is the simple average of its companies among the 200 largest in {where}.</p>')
     s_risk = ""
     if risk:
         beta = f'{risk["beta"]:.2f}' if risk["beta"] is not None else "n/a"
-        spx_vol = f'; the S&amp;P 500 moved {risk["spx_vol"]:.0f}%' if risk.get("spx_vol") else ""
+        spx_vol = f'; the {bench_name} moved {risk["spx_vol"]:.0f}%' if risk.get("spx_vol") else ""
         vol_txt = f'{risk["vol"]:.0f}%'
         fall_dates = f'{day_med(dt.date.fromisoformat(risk["mdd_from"]))} to {day_med(dt.date.fromisoformat(risk["mdd_to"]))}'
         below = mv(signed(risk["now"], 1, "%")) if risk["now"] < -0.05 else "At its high"
         figs = ('<ul class="kpi co-risk">'
                 + kpi("Volatility, 1 year", vol_txt, "Annualised daily moves" + spx_vol)
-                + kpi("Beta to the S&amp;P 500", beta, "1.0 moves with the market")
+                + kpi(f"Beta to the {bench_name}", beta, "1.0 moves with the market")
                 + kpi("Deepest fall, 1 year", mv(signed(risk["mdd"], 1, "%")), fall_dates)
                 + kpi("Below its high", below, "Against the year&rsquo;s highest close")
                 + '</ul>')
         s_risk = sec("risk", "Risk",
                      f'<p>How much the shares move, and how far they have fallen from their high over the past year.</p>{figs}'
                      '<div class="co-chart" id="co-dd"></div><p class="co-read" id="co-dd-read" aria-live="polite"></p>'
-                     '<p class="co-src">Yahoo Finance daily closes. Beta from daily returns against the S&amp;P 500.</p>')
+                     f'<p class="co-src">Yahoo Finance daily closes. Beta from daily returns against the {bench_name}.</p>')
 
-    spx_note = "" if data["spx"] else " The S&amp;P 500 series is pending."
+    spx_note = "" if bench else f" The {bench_name} series is pending."
     body = f"""<main id="main" class="page dd co" data-co>
   <div class="wrap dd__grid">
     <header class="page__head dd__head{" co-head--logo" if logo_html else ""}">
       <p class="dd__crumbs"><a href="../">Companies</a> <span aria-hidden="true">/</span> {SHORT_SECTOR.get(sector, sector)}</p>
       <h1 class="page__title">{esc(name)}</h1>
       {logo_html}
-      <p class="co-quote"><span class="co-px">${m["price"]:,.2f}</span><span class="co-chg">{chg} on the day</span><span class="note__meta">{t}, {esc(rec.get("exchange") or "")}. Close {day_med(d)}.</span></p>
+      <p class="co-quote"><span class="co-px">{price_txt(m["price"], cur)}</span><span class="co-chg">{chg} on the day</span><span class="note__meta">{t}, {esc(rec.get("exchange") or "")}. Close {day_med(d)}.</span></p>
       <p class="lede">{lede}</p>
       <div class="co-acts">
         <button class="btn" type="button" data-soon="The portfolio monitor is coming soon: you will be able to follow {esc(name)} and your other holdings here.">Add to portfolio monitor</button>
@@ -3498,9 +3564,9 @@ def company_page(t, data, cal):
       {s_ret}
       <section aria-labelledby="co-ctx-t">
         <h2 id="co-ctx-t">Against the market</h2>
-        <p>{esc(name)} and the S&amp;P 500 over the past year, both rebased to 100.{spx_note}</p>
+        <p>{esc(name)} and the {bench_name} over the past year, both rebased to 100, each in its own currency.{spx_note}</p>
         <div class="co-chart" id="co-ctx"></div>
-        <p class="key"><span><i class="k-solid"></i>{esc(name)}</span><span><i class="k-dash"></i>S&amp;P 500</span></p>
+        <p class="key"><span><i class="k-solid"></i>{esc(name)}</span><span><i class="k-dash"></i>{bench_name}</span></p>
         <p class="co-read" id="co-ctx-read" aria-live="polite"></p>
         <p class="co-src">Yahoo Finance, daily closes to {day_med(d)}.</p>
       </section>
@@ -3536,47 +3602,56 @@ def company_page(t, data, cal):
 
 
 def companies_index(data):
-    sectors = {}
+    sectors, markets = {}, {}
     for t in data["order"]:
         sectors.setdefault(data["co"][t]["sector"], []).append(t)
+        markets.setdefault(data["co"][t]["market"], []).append(t)
     order = sorted(sectors, key=lambda s: (-len(sectors[s]), s))
-    chips = (f'<button type="button" class="chip" data-cofilter="all" aria-pressed="true">All <span class="chip__n">{len(data["order"])}</span></button>'
+    n = len(data["order"])
+    chips = (f'<button type="button" class="chip" data-cofilter="all" aria-pressed="true">All sectors <span class="chip__n">{n}</span></button>'
              + "".join(f'<button type="button" class="chip" data-cofilter="{slug_s(s)}" aria-pressed="false">{SHORT_SECTOR.get(s, s)} '
                        f'<span class="chip__n">{len(sectors[s])}</span></button>' for s in order))
+    mchips = (f'<button type="button" class="chip" data-comarket="all" aria-pressed="true">All markets <span class="chip__n">{n}</span></button>'
+              + "".join(f'<button type="button" class="chip" data-comarket="{k}" aria-pressed="false">{label} '
+                        f'<span class="chip__n">{len(markets[k])}</span></button>' for k, (label, _) in CO_MARKETS.items() if k in markets))
+    # One ranking across the three markets: market value in dollars.
+    ms = {t: co_metrics(data["co"][t]) for t in data["order"]}
+    ranked = sorted(data["order"], key=lambda t: -(ms[t]["mcap_usd"] or data["co"][t].get("cap") or 0))
     rows = []
     last = None
-    for i, t in enumerate(data["order"], 1):
-        rec = data["co"][t]
-        m = co_metrics(rec)
+    for i, t in enumerate(ranked, 1):
+        rec, m = data["co"][t], ms[t]
         last = max(last or m["date"], m["date"])
         pe_txt = f'{m["pe"]:.1f}x' if m["pe"] else "n/a"
+        usd = m["mcap_usd"] or rec.get("cap")
         rows.append(
-            f'<tr data-sector="{slug_s(rec["sector"])}"><td class="co-tab__rank">{i}</td>'
+            f'<tr data-sector="{slug_s(rec["sector"])}" data-market="{rec["market"]}"><td class="co-tab__rank">{i}</td>'
             f'<td class="co-tab__name"><a href="{co_slug(t)}/">{esc(co_name(rec))}</a><span>{t}</span></td>'
             f'<td class="co-tab__sec" data-label="Sector">{SHORT_SECTOR.get(rec["sector"], rec["sector"])}</td>'
-            f'<td class="num" data-label="Close">${m["price"]:,.2f}</td>'
+            f'<td class="num" data-label="Close">{price_txt(m["price"], rec.get("currency") or "USD")}</td>'
             f'<td class="num" data-label="Day">{mv(signed(m["chg_pct"], 2, "%"))}</td>'
-            f'<td class="num" data-label="Value">{money(m["mcap"])}</td>'
+            f'<td class="num" data-label="Value">{money(usd)}</td>'
             f'<td class="num" data-label="P/E">{pe_txt}</td></tr>')
     body = f"""<main id="main" class="page co-index">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Companies</h1>
-      <p class="lede">The 50 largest companies in the S&amp;P 500, by their weight in the index. Each has a page with its valuation, its peers, where its revenue goes and how the shares have done against the market.</p>
+      <p class="lede">The 200 largest companies in the S&amp;P 500, in the STOXX Europe 600 and across the six Asian markets, the companies the earnings calendar follows, ranked by market value in dollars. Each has a page with its valuation, its peers, where its revenue goes and how the shares have done against the market.</p>
     </header>
+    <div class="filters" role="group" aria-label="Filter companies by market">{mchips}</div>
     <div class="filters" role="group" aria-label="Filter companies by sector">{chips}</div>
-    <p class="filters__status co-index__status" role="status" aria-live="polite">Showing all {len(data["order"])} companies</p>
+    <p class="filters__status co-index__status" role="status" aria-live="polite">Showing all {n} companies</p>
     <div class="co-tab__wrap">
       <table class="co-tab">
         <thead><tr><th scope="col"><span class="visually-hidden">Rank</span></th><th scope="col">Company</th><th scope="col">Sector</th><th scope="col" class="num">Close</th><th scope="col" class="num">Day</th><th scope="col" class="num">Market value</th><th scope="col" class="num">P/E</th></tr></thead>
         <tbody>{"".join(rows)}</tbody>
       </table>
     </div>
-    <p class="co-src">Members and ranking: State Street SPY holdings. Prices and figures: Yahoo Finance, close of {day_med(dt.date.fromisoformat(last))}. P/E on the last four quarters' diluted EPS.</p>
+    <p class="co-src">Members: State Street SPY holdings (US), iShares STOXX Europe 600 holdings (Europe) and Yahoo Finance's screener for Japan, Taiwan, South Korea, Hong Kong, mainland China and India (Asia). Prices and figures: Yahoo Finance, latest close to {day_med(dt.date.fromisoformat(last))}. Closes in each company's own currency; market value in dollars at today's rates. P/E on the last four quarters' diluted EPS, or the last fiscal year's where a company reports half-yearly.</p>
   </div>
 </main>"""
     return shell(title="Companies: Andra Markets",
-                 desc="The 50 largest companies in the S&amp;P 500, each with valuation, peers and results.",
+                 desc="The 200 largest companies in the US, Europe and Asia, each with valuation, peers and results.",
                  body=body, home="../", base="../", path="companies/")
 
 
