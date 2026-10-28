@@ -363,27 +363,35 @@
     });
   }
 
-  // Companies index: filter the table by sector.
-  var coChips = document.querySelectorAll(".chip[data-cofilter]");
+  // Companies index: filter the table by market and by sector, both at once.
+  var coChips = document.querySelectorAll(".chip[data-cofilter], .chip[data-comarket]");
   if (coChips.length) {
     var coRows = document.querySelectorAll(".co-tab tbody tr");
     var coStatus = document.querySelector(".co-index__status");
+    var coPick = { sector: "all", market: "all" };
     coChips.forEach(function (chip) {
       chip.addEventListener("click", function () {
-        var sec = chip.getAttribute("data-cofilter");
-        var shown = 0;
-        coChips.forEach(function (c) {
+        var kind = chip.hasAttribute("data-comarket") ? "market" : "sector";
+        var attr = kind === "market" ? "data-comarket" : "data-cofilter";
+        coPick[kind] = chip.getAttribute(attr);
+        document.querySelectorAll(".chip[" + attr + "]").forEach(function (c) {
           c.setAttribute("aria-pressed", String(c === chip));
         });
+        var shown = 0;
         coRows.forEach(function (row) {
-          var on = sec === "all" || row.getAttribute("data-sector") === sec;
+          var on = (coPick.sector === "all" || row.getAttribute("data-sector") === coPick.sector) &&
+            (coPick.market === "all" || row.getAttribute("data-market") === coPick.market);
           row.hidden = !on;
           if (on) shown++;
         });
-        coStatus.textContent =
-          sec === "all"
-            ? "Showing all " + coRows.length + " companies"
-            : "Showing " + shown + " of " + coRows.length + " companies: " + chip.firstChild.textContent.trim();
+        var names = [];
+        ["comarket", "cofilter"].forEach(function (a) {
+          var on = document.querySelector('.chip[data-' + a + '][aria-pressed="true"]');
+          if (on && on.getAttribute("data-" + a) !== "all") names.push(on.firstChild.textContent.trim());
+        });
+        coStatus.textContent = names.length
+          ? "Showing " + shown + " of " + coRows.length + " companies: " + names.join(", ")
+          : "Showing all " + coRows.length + " companies";
       });
     });
   }
