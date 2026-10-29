@@ -29,6 +29,7 @@ import datetime as dt
 import html
 import json
 import math
+import os
 import random
 import re
 import shutil
@@ -82,6 +83,13 @@ TIKTOK_VIDEOS = [
 # Social cards need it for og:image and canonical links. Left empty until the
 # site has its own domain, so no account name is baked into the pages.
 SITE_URL = ""
+
+# The profile API (worker/, a Cloudflare Worker) that /profile/ calls for live
+# prices, fundamentals and news, with no trailing slash, e.g.
+# "https://andra-profile-api.<account>.workers.dev". Set at deploy time from
+# the repository variable PROFILE_API; empty, the page says it is not
+# connected yet. The vendors' keys live in the Worker, never here.
+PROFILE_API = os.environ.get("PROFILE_API", "").strip().rstrip("/")
 
 
 # Chart helpers ---------------------------------------------------------------
@@ -1294,6 +1302,7 @@ def site_header(home, base):
     <nav class="nav" id="site-nav" aria-label="Primary">
       <a href="{home}#dashboards">Dashboards</a>
       <a href="{base}companies/">Companies</a>
+      <a href="{base}profile/">Profile</a>
       <a href="{base}lab/">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{base}world/">World</a>
@@ -1335,6 +1344,7 @@ def site_footer(home, base):
     <nav class="foot__nav" aria-label="Footer">
       <a href="{home}#dashboards">Dashboards</a>
       <a href="{base}companies/">Companies</a>
+      <a href="{base}profile/">Company profile</a>
       <a href="{base}lab/">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{base}world/">World markets</a>
@@ -3858,10 +3868,172 @@ SEARCH_TERMS = {
     "correlation": "stocks bonds dollar",
 }
 
+# Company profile (/profile/) -------------------------------------------------
+
+def profile_page():
+    """The Company profile: search any US-listed ticker, then its profile.
+
+    One static page. assets/profile.js reads ?t= and fills it from the profile
+    API (PROFILE_API, the Cloudflare Worker in worker/), section by section:
+    each starts as a skeleton of its final shape and ends as content, or as an
+    error that says what failed and offers to try again. Without the API or
+    without JS the search view says so."""
+    def sk(*shapes):
+        return '<div class="pf-sk" aria-hidden="true">' + "".join(f'<span class="sk sk--{x}"></span>' for x in shapes) + "</div>"
+
+    def sec(key, title, inner, skel, part=True):
+        return (f'<section id="pf-{key}" aria-labelledby="pf-{key}-t"{" data-part" if part else ""}>'
+                f'<h2 id="pf-{key}-t">{title}</h2><div class="pf-ok">{inner}</div>{skel}'
+                f'<div class="pf-err"></div></section>')
+
+    mag = icon("magnifying-glass")
+    sections = "".join([
+        sec("about", "Overview",
+            '<p id="pf-desc"></p><dl class="pf-facts" id="pf-facts"></dl>',
+            sk("line", "line", "line-short", "block")),
+        sec("years", '<span id="pf-years-h">Revenue and profit</span>',
+            '<p>Revenue and net income each fiscal year, <span class="pf-unit">in billions of US dollars</span>. Tap or hover a year to read it.</p>'
+            '<div class="co-chart" id="pf-c-years"></div>'
+            '<p class="key"><span><i class="sw-fill"></i>Revenue</span><span><i class="sw-ink"></i>Net income</span></p>'
+            '<p class="co-read" id="pf-r-years" aria-live="polite"></p>'
+            '<p class="co-src">Annual reports, via Financial Modeling Prep.</p>',
+            sk("line-long", "chart")),
+        sec("margins", "Margins",
+            '<p>Gross, operating and net margin each fiscal year, as a share of revenue.</p>'
+            '<div class="co-chart" id="pf-c-margins"></div>'
+            '<p class="key"><span><i class="k-solid"></i>Gross</span><span><i class="k-dash"></i>Operating</span><span><i class="k-dot"></i>Net</span></p>'
+            '<p class="co-read" id="pf-r-margins" aria-live="polite"></p>'
+            '<p class="co-src">Annual reports, via Financial Modeling Prep.</p>',
+            sk("line-long", "chart")),
+        sec("st", "Financial statements",
+            '<div class="pf-tabs" role="tablist" aria-label="Statement">'
+            '<button type="button" class="chip" role="tab" id="pf-tab-is" aria-controls="pf-stmt" data-stmt="is" aria-selected="true" aria-pressed="true">Income statement</button>'
+            '<button type="button" class="chip" role="tab" id="pf-tab-bs" aria-controls="pf-stmt" data-stmt="bs" aria-selected="false" aria-pressed="false" tabindex="-1">Balance sheet</button>'
+            '<button type="button" class="chip" role="tab" id="pf-tab-cf" aria-controls="pf-stmt" data-stmt="cf" aria-selected="false" aria-pressed="false" tabindex="-1">Cash flow</button></div>'
+            '<div class="pf-scroll pf-scroll--sticky" id="pf-stmt" role="tabpanel" aria-labelledby="pf-tab-is" tabindex="0"></div>'
+            '<p class="co-src"><span class="pf-unit-cap">In billions of US dollars</span>, except per share. Annual reports, via Financial Modeling Prep. On a phone, swipe the table sideways.</p>',
+            sk("row", "row", "row", "row", "row")),
+        sec("mult", "Multiples",
+            '<p>The price to earnings ratio at each fiscal year end, against its median over the period, then today&rsquo;s multiples against the company&rsquo;s own history and its peers.</p>'
+            '<div class="pf-pe"><div class="co-chart" id="pf-c-pe"></div>'
+            '<p class="key"><span><i class="k-solid"></i>P/E</span><span><i class="k-dash"></i>Median</span></p>'
+            '<p class="co-read" id="pf-r-pe" aria-live="polite"></p></div>'
+            '<div class="pf-scroll"><table class="pf-tab"><thead><tr><th scope="col">Multiple</th><th scope="col">Now</th>'
+            '<th scope="col">5-year average</th><th scope="col">Peer median</th></tr></thead><tbody id="pf-mult-rows"></tbody></table></div>'
+            '<p class="co-src">Now: Finnhub, last twelve months. Average: Financial Modeling Prep, fiscal year ends. Peers as in the table below.</p>',
+            sk("chart", "row", "row", "row")),
+        sec("peers", "Peers",
+            '<p><span class="pf-name"></span> against the companies Finnhub lists as its peers, on the last twelve months.</p>'
+            '<div class="pf-scroll pf-scroll--sticky"><table class="pf-tab"><thead><tr><th scope="col">Company</th><th scope="col">Market value</th>'
+            '<th scope="col">Day</th><th scope="col">Revenue growth</th><th scope="col">Operating margin</th><th scope="col">P/E</th>'
+            '<th scope="col">EV / EBITDA</th></tr></thead><tbody id="pf-peer-rows"></tbody></table></div>'
+            '<p class="co-src">Peers and figures from Finnhub; the day&rsquo;s change from live prices. Each name opens its own profile.</p>',
+            sk("row", "row", "row", "row")),
+        sec("news", "News",
+            '<p>The latest headlines on <span class="pf-name"></span> from the past week. Each opens on its publisher&rsquo;s site.</p>'
+            '<ul class="pf-news" id="pf-news-list"></ul>'
+            '<p class="co-src">Finnhub company news, refreshed every 15 minutes. Andra Markets does not write or check these headlines.</p>',
+            sk("line", "line-long", "line", "line-long")),
+        sec("analysts", "What analysts say",
+            '<p id="pf-an-lede"></p><div class="pf-bar" id="pf-an-bar" role="img"></div><p class="pf-legend" id="pf-an-key"></p>'
+            '<p class="co-src">Finnhub recommendation trends, monthly. Not a recommendation from Andra Markets.</p>',
+            sk("bar", "line-short")),
+    ])
+    memo = ('<section id="pf-memo" aria-labelledby="pf-memo-t"><h2 id="pf-memo-t">Investment memo</h2><div class="co-gate">'
+            '<p>For subscribers: a full memo on <span class="pf-name">each company</span>, written for professionals.</p>'
+            '<ul class="pf-outline"><li><span>The thesis and what would change it</span></li>'
+            '<li><span>Segment by segment, with the model&rsquo;s workings</span></li>'
+            '<li><span>Three scenarios and their assumptions</span></li>'
+            '<li><span>What to watch at the next results</span></li></ul>'
+            '<button class="btn" type="button" data-soon="Subscriptions open soon. Get the free close note by email in the meantime, from the home page.">Subscribe for the memo</button>'
+            '<p class="co-gate__status" role="status" aria-live="polite"></p></div></section>')
+    kpis = "".join(f'<li class="kpi__item"><span class="kpi__name">{n}</span><span class="kpi__level" id="pf-k-{k}">&nbsp;</span>'
+                   f'<span class="kpi__chg" id="pf-k-{k}-n">&nbsp;</span></li>'
+                   for k, n in (("mcap", "Market value"), ("pe", "P/E, last 12 months"), ("ev", "EV / EBITDA"), ("ps", "Price to sales"),
+                                ("fcf", "Free cash flow yield"), ("nd", "Net debt"), ("dy", "Dividend yield"), ("range", "52-week range")))
+    body = f"""<main id="main" class="page dd co pf" data-view="search" data-api="{esc(PROFILE_API)}">
+  <div class="pf-view pf-view--search">
+    <div class="wrap">
+      <header class="page__head">
+        <h1 class="page__title">Company profile</h1>
+        <p class="lede">Any US-listed company by ticker or name: the live price, up to ten years of results, margins, multiples, peers and the latest news.</p>
+      </header>
+      <form class="pf-field" role="search" id="pf-form" hidden>
+        {mag}
+        <input type="search" id="pf-q" name="t" aria-label="Ticker or company name" placeholder="Ticker or company name" role="combobox" aria-expanded="false" aria-controls="pf-res" aria-autocomplete="list" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <kbd>Enter</kbd>
+      </form>
+      <ul class="pf-list" id="pf-res" role="listbox" aria-label="Companies" hidden></ul>
+      <p class="pf-status" id="pf-status" role="status" aria-live="polite"><noscript>The company profile needs JavaScript to fetch live prices and figures.</noscript></p>
+      <div class="pf-pop" id="pf-pop" hidden>
+        <h2>Try one</h2>
+        <ul>{"".join(f'<li><a class="chip" href="?t={t}">{t}</a></li>' for t in ("AAPL", "MSFT", "NVDA", "AMZN", "JPM", "KO"))}</ul>
+      </div>
+      <p class="pf-src">US-listed shares. Prices, peers and news from Finnhub; profile, financial statements, margins and multiples from Financial Modeling Prep, refreshed daily. For information only. Not investment advice.</p>
+    </div>
+  </div>
+
+  <div class="pf-view pf-view--profile">
+    <div class="wrap dd__grid">
+      <header class="page__head dd__head">
+        <div class="pf-headrow">
+          <p class="dd__crumbs"><a href="./">Company profile</a> <span aria-hidden="true">/</span> <span id="pf-crumb">&nbsp;</span></p>
+          <form class="pf-field pf-field--sm" role="search" id="pf-form2">
+            {mag}
+            <input type="search" id="pf-q2" name="t" aria-label="Another ticker" placeholder="Another ticker" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          </form>
+        </div>
+        <h1 class="page__title" id="pf-title">&nbsp;</h1>
+        <div class="co-quote" id="pf-quote" data-part>
+          <p class="pf-ok"><span class="co-px" id="pf-px"></span><span class="co-chg" id="pf-chg"></span><span class="note__meta" id="pf-qmeta"></span></p>
+          <div class="pf-sk" aria-hidden="true"><span class="sk sk--price"></span><span class="sk sk--line-short"></span></div>
+          <div class="pf-err"></div>
+        </div>
+        <p class="lede" id="pf-lede"></p>
+        <div class="co-acts">
+          <button class="btn" type="button" data-soon="The portfolio monitor is coming soon: you will be able to follow this company and your other holdings here.">Add to portfolio monitor</button>
+          <button class="btn btn--ghost" type="button" data-soon="Alerts are coming soon: you will get an email before and after this company's results.">Alert me on results</button>
+          <p class="co-acts__status" role="status" aria-live="polite"></p>
+        </div>
+        <nav class="pf-subnav" aria-label="On this page">
+          <ul>
+            <li><a href="#pf-about">Overview</a></li>
+            <li><a href="#pf-years">Revenue and profit</a></li>
+            <li><a href="#pf-margins">Margins</a></li>
+            <li><a href="#pf-st">Statements</a></li>
+            <li><a href="#pf-mult">Multiples</a></li>
+            <li><a href="#pf-peers">Peers</a></li>
+            <li><a href="#pf-news">News</a></li>
+            <li><a href="#pf-memo">Investment memo</a></li>
+          </ul>
+        </nav>
+      </header>
+      <aside class="report__side dd__side" aria-labelledby="side-title" id="pf-side" data-part>
+        <h2 class="report__side-title" id="side-title">Key figures</h2>
+        <div class="pf-ok"><ul class="kpi">{kpis}</ul></div>
+        <div class="pf-sk" aria-hidden="true"><span class="sk sk--row"></span><span class="sk sk--row"></span><span class="sk sk--row"></span><span class="sk sk--row"></span></div>
+        <div class="pf-err"></div>
+        <p class="report__src" id="pf-side-src">Price: Finnhub. Figures: Financial Modeling Prep and Finnhub.</p>
+      </aside>
+      <div class="page__body co__body dd__main">
+        {sections}
+        {memo}
+        <p class="co-legal">For information only. Not investment advice.</p>
+      </div>
+    </div>
+  </div>
+</main>"""
+    return shell(
+        title="Company profile: Andra Markets",
+        desc="Search any US-listed company by ticker: the live price, up to ten years of results, margins, multiples, peers and news.",
+        body=body, home="../", base="../", path="profile/", scripts=("profile.js",))
+
+
 SEARCH_PAGES = [
     ("Dashboards", "#dashboards", "Home"),
     ("The Lab", "lab/", "Page"),
     ("Companies", "companies/", "Page"),
+    ("Company profile: search any US ticker", "profile/", "Page"),
     ("Economic calendar", "calendar/", "Page"),
     ("World markets", "world/", "Page"),
     ("FX", "fx/", "Page"),
@@ -3930,6 +4102,8 @@ def main():
         (OUT / "fx" / a["date"]).mkdir(exist_ok=True)
         (OUT / "fx" / a["date"] / "index.html").write_text(
             fx_page(a, fx_items[i - 1] if i > 0 else None, fx_items[i + 1] if i + 1 < len(fx_items) else None))
+    (OUT / "profile").mkdir(exist_ok=True)
+    (OUT / "profile" / "index.html").write_text(profile_page())
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
     REPORTS.mkdir(exist_ok=True)

@@ -1,0 +1,19 @@
+# The profile API: the Cloudflare Worker behind /profile/ (see README.md,
+# "Company profile"). Deployed by .github/workflows/profile-api.yml.
+# The keys are Worker secrets (FINNHUB_API_KEY, FMP_API_KEY), never set here.
+name = "andra-profile-api"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+[vars]
+# The site's origin(s), comma-separated: only their pages may call the API.
+ALLOWED_ORIGINS = "https://pabloballesteros1412.github.io"
+
+# Optional: keep the last good answer for each request and serve it when a
+# vendor fails or the free quota runs out. Create the namespace with
+#   npx wrangler kv namespace create STALE
+# and paste its id here.
+# [[kv_namespaces]]
+# binding = "STALE"
+# id = "<namespace id>"
