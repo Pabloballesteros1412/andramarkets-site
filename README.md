@@ -307,10 +307,10 @@ shows the variables for `npx wrangler dev`.
    tests, deploys it and passes the two vendor keys to it as Worker secrets.
    Its summary shows the Worker's address
    (`https://andra-profile-api.<your-subdomain>.workers.dev`).
-5. **Settings → Secrets and variables → Actions → Variables → New repository
-   variable**, name `PROFILE_API`, value that address (no trailing slash).
-6. **Actions → Deploy site to GitHub Pages → Run workflow.** The profile
-   page now calls the Worker.
+5. The site calls `PROFILE_API` in `tools/build_site.py`
+   (`https://andra-profile-api.pabloballesteros141.workers.dev`). If the
+   Worker moves, change it there, or set a repository variable `PROFILE_API`
+   (Settings → Secrets and variables → Actions → Variables), which wins.
 
 The Worker answers only pages from `ALLOWED_ORIGINS` in
 `worker/wrangler.toml` (the site's GitHub Pages origin; add the custom

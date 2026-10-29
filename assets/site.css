@@ -4868,6 +4868,12 @@ html.js .acc__item:not(.is-open) .acc__panel p {
   display: block;
 }
 
+.pf-field[hidden],
+.pf-list[hidden],
+.pf-pop[hidden] {
+  display: none;
+}
+
 .pf-field {
   display: flex;
   align-items: center;

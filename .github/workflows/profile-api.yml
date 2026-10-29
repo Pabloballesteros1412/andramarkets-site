@@ -68,7 +68,7 @@ jobs:
           {
             echo "### Profile API deployed"
             echo ""
-            echo "Address: \`${URL:-see the Deploy step's log}\`"
+            echo "Address: \`${URL:-see the log of the Deploy step}\`"
             echo ""
             if [ -z "$CURRENT" ]; then
               echo "Next: add a repository **variable** named \`PROFILE_API\` with this address (Settings > Secrets and variables > Actions > Variables), then run *Deploy site to GitHub Pages*."

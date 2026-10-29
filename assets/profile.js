@@ -284,8 +284,10 @@
 
   function notFound() {
     clearInterval(quoteTimer);
-    $("pf-q").value = T;
-    searchView("No US-listed company trades as " + T + ". Check the ticker, or search by the company’s name.");
+    $("pf-q").value = T.toLowerCase();
+    searchView("No US-listed company trades as " + T + ". Checking for a company by that name…");
+    // "?t=nvidia": search by name too, and offer what matches.
+    $("pf-q").dispatchEvent(new Event("input"));
   }
 
   // Fundamentals: the head, key figures and every chart and table but peers and news.

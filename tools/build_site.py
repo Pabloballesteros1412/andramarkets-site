@@ -85,11 +85,11 @@ TIKTOK_VIDEOS = [
 SITE_URL = ""
 
 # The profile API (worker/, a Cloudflare Worker) that /profile/ calls for live
-# prices, fundamentals and news, with no trailing slash, e.g.
-# "https://andra-profile-api.<account>.workers.dev". Set at deploy time from
-# the repository variable PROFILE_API; empty, the page says it is not
-# connected yet. The vendors' keys live in the Worker, never here.
-PROFILE_API = os.environ.get("PROFILE_API", "").strip().rstrip("/")
+# prices, fundamentals and news, with no trailing slash. The address is public
+# (every visitor's browser calls it); the vendors' keys live in the Worker,
+# never here. The repository variable PROFILE_API overrides it at deploy time.
+PROFILE_API = (os.environ.get("PROFILE_API", "").strip()
+               or "https://andra-profile-api.pabloballesteros141.workers.dev").rstrip("/")
 
 
 # Chart helpers ---------------------------------------------------------------
