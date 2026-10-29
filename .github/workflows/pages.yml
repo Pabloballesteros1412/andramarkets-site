@@ -184,6 +184,9 @@ jobs:
           path: .cache/strip
           key: strip-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Build pages
+        env:
+          # The profile API's address (worker/, deployed by profile-api.yml).
+          PROFILE_API: ${{ vars.PROFILE_API }}
         run: python3 tools/build_site.py
       # Publish only the public site, never repo docs, briefs, data or tooling.
       - name: Stage site
@@ -196,6 +199,7 @@ jobs:
           cp -r world _site/
           cp -r fx _site/
           cp -r lab _site/
+          cp -r profile _site/
           rm -rf _site/assets/icons
       # The site is free: no PDF or data file may ever be published.
       - name: Check no downloads are published

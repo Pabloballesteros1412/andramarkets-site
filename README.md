@@ -17,6 +17,7 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser.
 - `tools/lab_data.py`: fetches the daily closes behind the Lab's risk and correlation tool at deploy time (below).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
+- `assets/profile.js`, `worker/`: the Company profile (`profile/`) and the Cloudflare Worker it reads from (below).
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
 - `data/notes/<date>.json`: one record per close note: its text and the ten
   closing levels for the tape. No PDF or facts file is ever stored here.
@@ -268,6 +269,55 @@ close; otherwise the tape shows that note's closes as before. The "Latest
 close note" link always points to the newest published note. An instrument
 that fails keeps its last figure and time (Actions cache, never committed or
 published). Deploys queue rather than cancel each other.
+
+## Company profile
+
+`/profile/` searches any US-listed company by ticker or name and opens its
+profile: the live price, up to ten years of results, margins, statements,
+multiples, peers, news and analyst recommendations, plus the locked
+Investment memo. The page is static; `assets/profile.js` fills it in the
+browser from the **profile API**, a Cloudflare Worker in `worker/` that holds
+the vendors' keys and caches every answer (fundamentals, peers, analysts and
+search 24 hours, news 15 minutes, the price 60 seconds).
+
+| Data | Source (free plans) |
+|---|---|
+| Price, day change, peers, news, analyst recommendations, last-twelve-month multiples | Finnhub |
+| Profile, income statement, balance sheet, cash flow, yearly multiples | Financial Modeling Prep |
+
+The free plans cover US listings only, Finnhub's news sentiment is a paid
+feature (the page shows analyst recommendations instead), and FMP allows
+about 250 calls a day (about 5 per new ticker; repeat visits come from the
+cache). A section the plan leaves out says so on the page.
+
+**The keys never enter the repo or the page.** They live as Worker secrets.
+Locally they sit in `.env` (ignored by git). `worker/.dev.vars.example`
+shows the variables for `npx wrangler dev`.
+
+### One-time setup (GitHub and Cloudflare web UI)
+
+1. Create a free Cloudflare account at dash.cloudflare.com.
+2. In Cloudflare, **My Profile → API Tokens → Create Token**, template
+   **Edit Cloudflare Workers**, then copy the token. Copy your **Account ID**
+   from the Workers & Pages overview page.
+3. In GitHub, **Settings → Secrets and variables → Actions → New repository
+   secret**, add four secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`,
+   `FINNHUB_API_KEY`, `FMP_API_KEY`.
+4. **Actions → Deploy profile API → Run workflow.** It runs the Worker's
+   tests, deploys it and passes the two vendor keys to it as Worker secrets.
+   Its summary shows the Worker's address
+   (`https://andra-profile-api.<your-subdomain>.workers.dev`).
+5. **Settings → Secrets and variables → Actions → Variables → New repository
+   variable**, name `PROFILE_API`, value that address (no trailing slash).
+6. **Actions → Deploy site to GitHub Pages → Run workflow.** The profile
+   page now calls the Worker.
+
+The Worker answers only pages from `ALLOWED_ORIGINS` in
+`worker/wrangler.toml` (the site's GitHub Pages origin; add the custom
+domain there if the site gets one). Optional: bind a KV namespace `STALE`
+(see `wrangler.toml`) so a vendor outage or a spent quota serves the last
+good answer, marked with its date. To change a key, update the repository
+secret and run **Deploy profile API** again. Tests: `cd worker && npm test`.
 
 ## FRED API key
 

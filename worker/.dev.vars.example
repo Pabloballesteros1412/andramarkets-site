@@ -1,0 +1,5 @@
+# Copy to .dev.vars (ignored by git) for `npx wrangler dev`. Never commit keys.
+FINNHUB_API_KEY=
+FMP_API_KEY=
+ALLOWED_ORIGINS=http://localhost:8000
+ALLOW_NO_ORIGIN=1
