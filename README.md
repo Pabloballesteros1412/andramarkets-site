@@ -13,6 +13,8 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `assets/world.js`: the World markets comparison radar.
 - `tools/fx_data.py`: fetches the daily FX analyses and the FX pairs table at deploy time (below).
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
+- `tools/fedrates_data.py`, `assets/fedrates.js`: the Fed & Rates section (`fed-rates/`): fetches its figures at deploy time and every 15 minutes in US hours (below), and draws its charts.
+- `data/path_to_wall_street.json`, `assets/careers.js`: Path to Wall Street (`careers/`), the careers guide, and its recruiting timeline. Edit the guide's text in the data file and update its `reviewed` date.
 - `tools/learn_content.py`: the text and sources of the six Learn explainers (`learn/`).
 - `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one Markdown file per report. `tools/import_report.py` converts a report's PDF and adds its line; see `data/reports/README.md`. The PDF itself is never committed.
 - `data/interview_prep.json`: Markets Interview Prep (`interview-prep/`): the weekly block (`week`, rewritten each week) and the question bank.
@@ -28,7 +30,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `PRODUCT.md`: product truth and brand commitments.
 - `AGENT_FIXES.md`: known problems in the agent repo, to fix next.
 
-The HTML pages (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `calendar/`) are generated at
+The HTML pages (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `careers/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `calendar/`) are generated at
 deploy time and are not stored in the repo. Pushes to `main` deploy to GitHub
 Pages via `.github/workflows/pages.yml`, which builds the pages and publishes
 only `index.html`, `methodology/`, `reports/`, `dashboards/`, `calendar/` and `assets/`. To preview
@@ -148,8 +150,6 @@ Actions cache, never committed or published.
 
 | Dashboard | Source | As of |
 |---|---|---|
-| Yield curve | FRED Treasury yields (DGS1MO to DGS30), latest against 1M to 1Y before; the agent archive's copy while FRED is down | The curve's own session |
-| Fed path | CME 30-day fed funds futures via Yahoo Finance (100 minus price), effective rate from FRED | Latest settled session |
 | Sector heatmap, FX majors | Yahoo Finance: sector ETFs, spot FX; changes over 1D to 1Y | Latest close |
 | Volatility term structure | Cboe VIX9D, VIX, VIX3M, VIX6M via Yahoo Finance, against 5 sessions before | Latest close |
 | Global indices | Yahoo Finance, each at its own latest local close | Newest of those closes |
@@ -180,6 +180,36 @@ Reading the archive releases needs **Contents: Read-only** on the agent repo
 in `AGENT_ARTIFACTS_TOKEN` (step 1 below, in addition to Actions). When a
 source fails, the tile keeps its last figures and their date; a tile that
 has no figures yet shows its source and "Data pending", never a stand-in chart. Neither stops the deploy.
+
+The Treasury curve and the fed funds futures path are in Fed & Rates
+(below); the old Yield curve and Fed path addresses redirect there.
+
+## Fed & Rates data
+
+`tools/fedrates_data.py` writes `.cache/fedrates/fedrates.json`, one block
+per panel of `fed-rates/`, each with its own source, as-of date and fetch
+time. Like every cache, it is kept between runs in the Actions cache and
+never committed or published: the page carries its figures inline.
+
+| Block | Source | Refreshed |
+|---|---|---|
+| Treasury curve, 1M to 30Y (now, the day before, 1W, 1M, 1Y) | US Treasury daily par yield curve CSV; FRED DGS1MO to DGS30 as backup | Every full deploy, including 23:37 UTC on weekdays, after the Treasury posts the day's curve |
+| Intraday yields (3M, 5Y, 10Y, 30Y) | Cboe yield indices `^IRX`, `^FVX`, `^TNX`, `^TYX` via Yahoo Finance, delayed; shown only while newer than the official curve | Every 15 minutes while the NYSE is open |
+| 2s10s, 3m10y since 1976 and 1982 | FRED `T10Y2Y`, `T10Y3M`; the latest day from the Treasury curve | Full deploys |
+| Target range, effective rate | FRED `DFEDTARU`, `DFEDTARL`, `EFFR` | Full deploys |
+| FOMC calendar | federalreserve.gov (`fomc_meetings` in `tools/calendar_data.py`); projections at the March, June, September and December meetings | Full deploys |
+| Meeting probabilities and expected path | CBOT 30-day fed funds futures (`ZQ`) via Yahoo Finance, delayed about 10 minutes; the path as priced a month ago from settlements | Every 15 minutes while the NYSE is open |
+| Fed funds, CPI and core PCE (year on year), unemployment since 1960 | FRED `FEDFUNDS`, `CPIAUCSL`, `PCEPILFE`, `UNRATE` | Full deploys |
+| 10Y real yield, 5Y and 10Y breakevens, 5y5y | FRED `DFII10`, `T5YIE`, `T10YIE`, `T5YIFR`; the latest 10Y real yield from the Treasury real yield curve | Full deploys |
+
+The market strip refresh (`strip_only`) runs `tools/fedrates_data.py --fast`:
+only the futures, the probabilities and the intraday yields. Meeting
+probabilities follow the method CME Group publishes for FedWatch (each
+contract settles on its month's average effective rate; the days before a
+decision are taken out; a month with no meeting anchors the next). Daily
+series older than two years are kept one point a week. A block whose source
+fails keeps its last copy and date; one never fetched shows "Data pending".
+SOFR futures are not used: there is no free source.
 
 ## Lab data
 

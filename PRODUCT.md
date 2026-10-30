@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
+Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `careers/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
 by `tools/build_site.py` at deploy time and deployed to GitHub Pages from `main` by
 `.github/workflows/pages.yml`. No framework, no build step beyond the generator.
 
@@ -27,7 +27,8 @@ Andra Markets is a markets research platform. Its modules: interactive
 dashboards across rates, equities, macro and cross-asset; a Lab of interactive
 quant tools (momentum regime backtest explorer, options pricer, more to come);
 an economic calendar; a daily US market close note; Learn (explainers for people
-starting out); a Research Library; and Markets Interview Prep. Videos stay on
+starting out); a Research Library; Fed & Rates; Markets Interview Prep; and
+Path to Wall Street, a careers guide. Videos stay on
 TikTok and LinkedIn: the site links to them and embeds nothing (owner, 30 Oct
 2026: the Watch section was removed so the site sets no third-party cookies). Success: visitors explore
 a dashboard or tool, come back for the calendar and note, and subscribe by email.
@@ -47,12 +48,33 @@ record. The daily note is one module among others, not the centrepiece.
 
 ## Capabilities and Constraints
 
-- Modules: dashboards (11, each on real data: yield curve, Fed path, sector
+- Modules: dashboards (9, each on real data: sector
   heatmap, volatility term structure, global indices, FX majors, commodities,
   credit spreads, inflation and labour, watchlist breadth, cross-asset
   correlation; an earnings season tracker returns once it has a real source;
   no illustrative dashboard tiles; a tile waiting for data says "Data pending"), Lab tools, economic calendar, daily close note,
-  Learn, Research Library, Interview Prep.
+  Learn, Research Library, Fed & Rates, Interview Prep, Path to Wall Street.
+- Fed & Rates (`fed-rates/`, owner-approved preview, 30 Oct 2026): its own
+  section in the menu, not a dashboard; the Yield curve and Fed path dashboards
+  were folded into it and their addresses redirect there. The target range and
+  effective rate, the FOMC calendar with a countdown, next-meeting
+  probabilities and the expected path (an Andra Markets calculation from CBOT
+  fed funds futures, CME's FedWatch method), the Treasury curve 1M to 30Y
+  against 1 week, 1 month and 1 year ago, 2s10s and 3m10y with inversion
+  periods, the fed funds rate against CPI, core PCE and unemployment, and the
+  10Y real yield with breakevens. Sources: the US Treasury and FRED (curve and
+  history), the Federal Reserve, Yahoo Finance (futures and Cboe yield indices,
+  delayed). Futures and four intraday yields refresh every 15 minutes while the
+  NYSE is open; the rest daily. Owner accepted: no SOFR futures (no free
+  source) and only four intraday points between official curves.
+- Path to Wall Street (`careers/`, owner-approved preview, 30 Oct 2026): a
+  guide for students entering IB, S&T, asset management, equity research and
+  hedge funds, especially from non-target universities and outside the US:
+  the roles, an interactive recruiting timeline by region and academic year,
+  a one-page CV, networking with email templates, technicals (linked to
+  Interview Prep), visas, certifications and resources. Its text lives in
+  `data/path_to_wall_street.json`; it shows its "Last reviewed" date and is
+  reviewed each quarter. The owner approved publishing after Claude's review.
 - Calendar (real data, owner-approved 22 Oct 2026): five weeks of market-moving
   releases and events for the US, euro area, UK, Japan and China, central bank
   decisions, minutes and key speeches, Treasury note and bond auctions, NYSE
@@ -148,10 +170,13 @@ Recorded for direction only. **No paid feature is built yet.**
 ### Free tier (open to everyone, on this site)
 
 The daily close note, readable on the web and shareable by link; dashboards;
-the economic calendar; Learn; Lab tools; the Research Library; Interview Prep.
+the economic calendar; Learn; Lab tools; the Research Library; Fed & Rates;
+Interview Prep; Path to Wall Street.
 
 The site never offers downloads: no note PDF, no verified facts file, no data
-behind the dashboards. This repo is public, so PDFs and full fact packs are
+behind the dashboards. One exception (owner, 30 Oct 2026): Fed & Rates
+charts can be saved as a PNG image, made in the browser, carrying the mark,
+the title, the source and the date; never the figures behind them. This repo is public, so PDFs and full fact packs are
 never committed here; they stay in the agent repo and its artifacts.
 
 ### Paid subscription (future, not built)
