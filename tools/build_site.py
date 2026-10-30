@@ -51,8 +51,10 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT
 ICONS = ROOT / "assets" / "icons"
 
-# Andra Markets social channels. Footer links and the Watch section are built
-# from these, so a channel appears everywhere once its URL is set.
+# Andra Markets social channels: the footer links to each one with a URL.
+# Plain links only: no player or feed is embedded (owner, 30 Oct 2026: the
+# Watch section and its TikTok embeds were removed so no third-party cookies
+# are set).
 LINKEDIN_URL = "https://www.linkedin.com/company/andramarkets/"
 TIKTOK_URL = "https://www.tiktok.com/@andramarkets"
 YOUTUBE_URL = ""  # No channel yet. Set the URL to bring back the footer link and icon.
@@ -61,26 +63,6 @@ SOCIALS = [
     ("LinkedIn", LINKEDIN_URL, "linkedin-logo"),
     ("TikTok", TIKTOK_URL, "tiktok-logo"),
     ("YouTube", YOUTUBE_URL, "youtube-logo"),
-]
-
-# Watch embeds (placeholders until real videos exist): (platform, shape).
-# "wide" is a 16:9 YouTube frame, "tall" a 9:16 TikTok frame. To add YouTube
-# back, set YOUTUBE_URL and put ("YouTube", "wide") first; the grid adapts.
-VIDEOS = [
-    ("TikTok", "tall"),
-    ("TikTok", "tall"),
-    ("TikTok", "tall"),
-    ("TikTok", "tall"),
-]
-
-# The Watch page (watch/): TikTok videos as (video id, title, date), any order;
-# the page shows them newest first through TikTok's official embed player. The
-# id is the number at the end of the video's link,
-# https://www.tiktok.com/@andramarkets/video/<id>. While the list is empty the
-# page shows TikTok's official creator embed, which lists the account's own
-# videos newest first by itself.
-TIKTOK_VIDEOS = [
-    # ("7430000000000000000", "Why the yield curve inverted", "2026-10-21"),
 ]
 
 # Absolute site address, no trailing slash, e.g. "https://andramarkets.com".
@@ -417,7 +399,7 @@ def tile_asof(key, rec):
 
 # Icons -----------------------------------------------------------------------
 
-ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "play", "sun", "moon",
+ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "sun", "moon",
               "magnifying-glass", "check", "link", "lock-simple"] + [
     icon_name for _, url, icon_name in SOCIALS if url
 ]
@@ -1101,26 +1083,9 @@ def page(notes, cal):
         for i, a in enumerate(ARTICLES[1:])
     )
     feature = ARTICLES[0]
-    channels = {label: (url, icon_name) for label, url, icon_name in SOCIALS if url}
-    videos = [(platform, shape) for platform, shape in VIDEOS if platform in channels]
-    tt = sorted(TIKTOK_VIDEOS, key=lambda v: v[2], reverse=True)  # newest first, titles under the frames
-    video_items = "".join(
-        f'<li class="video video--{shape} reveal" style="--i:{i}"><a href="watch/">'
-        f'<span class="video__frame"><span class="video__play">{icon("play")}</span>'
-        f'<span class="video__platform">{icon(channels[platform][1])}{platform}</span></span>'
-        + (f'<span class="video__title">{esc(tt[i][1])}</span>'
-           f'<span class="video__meta">{day_med(dt.date.fromisoformat(tt[i][2]))}</span></a></li>'
-           if platform == "TikTok" and i < len(tt) else
-           '<span class="video__title"><span class="ph ph--ink">[Video title]</span></span>'
-           '<span class="video__meta"><span class="ph">[duration]</span></span></a></li>')
-        for i, (platform, shape) in enumerate(videos)
-    )
-    watch_layout = "watch-grid--mixed" if any(shape == "wide" for _, shape in videos) else "watch-grid--tall"
-    watch_platforms = " and ".join(dict.fromkeys(platform for platform, _ in videos))
-
     return shell(
         title="Andra Markets: markets research platform",
-        desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, explainers and videos.",
+        desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and explainers.",
         body=f"""<main id="main">
   <section class="hero" id="top" aria-labelledby="hero-title">
     <span class="hero__sentinel" aria-hidden="true"></span>
@@ -1248,19 +1213,6 @@ def page(notes, cal):
     </div>
   </section>
 
-  <section class="section watch" id="watch" aria-labelledby="watch-title">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title reveal" id="watch-title">Watch</h2>
-          <p class="lede reveal">Market recaps and short explainers on {watch_platforms}.</p>
-        </div>
-        <a class="link reveal" href="watch/">All videos {icon("arrow-right")}</a>
-      </div>
-      <ul class="watch-grid {watch_layout}">{video_items}</ul>
-    </div>
-  </section>
-
   <section class="section about" id="about" aria-labelledby="about-title">
     <div class="wrap grid">
       <h2 class="visually-hidden" id="about-title">About Andra Markets</h2>
@@ -1314,7 +1266,6 @@ def site_header(home, base):
       <a href="{home}#note">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
       <a href="{base}learn/">Learn</a>
-      <a href="{base}watch/">Watch</a>
       <a class="nav__subscribe" href="{home}#subscribe">Subscribe</a>
     </nav>
     <button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
@@ -1357,7 +1308,6 @@ def site_footer(home, base):
       <a href="{home}#note">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
       <a href="{base}learn/">Learn</a>
-      <a href="{base}watch/">Watch</a>
       <a href="{home}#about">About</a>
       <a href="{base}methodology/">Methodology</a>
       <a href="{base}sources/">Data sources</a>
@@ -1425,46 +1375,13 @@ def shell(title, desc, body, home, base, path="", scripts=()):
 """
 
 
-def tiktok_handle():
-    return TIKTOK_URL.rstrip("/").rsplit("@", 1)[-1]
-
-
-def watch_page():
-    handle = tiktok_handle()
-    if TIKTOK_VIDEOS:
-        vids = sorted(TIKTOK_VIDEOS, key=lambda v: v[2], reverse=True)
-        items = "".join(
-            f'<li class="wv"><div class="wv__frame"><iframe src="https://www.tiktok.com/player/v1/{vid}?rel=0&amp;description=0" '
-            f'title="{esc(title)}, Andra Markets on TikTok" loading="lazy" allow="fullscreen; encrypted-media; picture-in-picture" '
-            f'allowfullscreen></iframe></div><p class="wv__title">{esc(title)}</p>'
-            f'<p class="wv__meta"><time datetime="{day}">{day_med(dt.date.fromisoformat(day))}</time></p></li>'
-            for vid, title, day in vids)
-        feed = f'<ul class="wv-grid">{items}</ul>'
-        scripts = ()
-    else:
-        # TikTok's creator embed: its own script swaps this for the account's
-        # videos, newest first. watch.js loads that script only when the feed
-        # nears the viewport; without JS the link stays.
-        feed = (f'<div class="wfeed"><blockquote class="tiktok-embed wfeed__embed" cite="{TIKTOK_URL}" data-unique-id="{handle}" '
-                f'data-embed-type="creator"><section><a href="{TIKTOK_URL}">@{handle} on TikTok</a></section></blockquote>'
-                f'<p class="wfeed__status" role="status" aria-live="polite">The videos load from TikTok as you reach them.</p></div>')
-        scripts = ("watch.js",)
-    body = f"""<main id="main" class="page watchp">
-  <div class="wrap">
-    <header class="page__head">
-      <h1 class="page__title">Watch</h1>
-      <p class="lede">Market recaps and short explainers from Andra Markets on TikTok, newest first.</p>
-      <p class="note__meta">From TikTok, @{handle}. Nothing loads from TikTok until you scroll to the videos.</p>
-    </header>
-    {feed}
-    <p class="watchp__more"><a class="link" href="{TIKTOK_URL}">Follow @{handle} on TikTok {icon("arrow-up-right")}</a></p>
-    <p class="watchp__legal">Videos are played by TikTok's embedded player, under TikTok's terms and privacy policy. For information only. Not investment advice.</p>
-  </div>
-</main>"""
-    return shell(
-        title="Watch: Andra Markets on TikTok",
-        desc="Market recaps and short explainers from Andra Markets on TikTok, newest first.",
-        body=body, home="../", base="../", path="watch/", scripts=scripts)
+def watch_redirect():
+    """/watch/ was removed (owner, 30 Oct 2026): send old links to the home page."""
+    body = (f'<main id="main" class="page"><div class="wrap"><header class="page__head"><h1 class="page__title">Andra Markets</h1>'
+            f'<p class="lede">Videos are no longer on this site. Go to the <a class="link" href="../">home page</a>.</p></header></div></main>'
+            f'<script>location.replace("../");</script>')
+    return shell(title="Andra Markets", desc="Videos are no longer on this site.",
+                 body=body, home="../", base="../", path="watch/")
 
 
 def learn_index():
@@ -4468,7 +4385,6 @@ SEARCH_PAGES = [
     ("FX", "fx/", "Page"),
     ("Daily close note", "#note", "Home"),
     ("Learn", "learn/", "Page"),
-    ("Watch", "watch/", "Page"),
     ("Subscribe", "#subscribe", "Home"),
     ("About", "#about", "Home"),
     ("Research Library", "reports/", "Page"),
@@ -4516,7 +4432,7 @@ def main():
     (OUT / "assets" / "search-index.js").write_text(search_index(notes, companies, load_library()), encoding="utf-8")
     (OUT / "index.html").write_text(page(notes, cal))
     (OUT / "watch").mkdir(exist_ok=True)
-    (OUT / "watch" / "index.html").write_text(watch_page())
+    (OUT / "watch" / "index.html").write_text(watch_redirect())
     (OUT / "learn").mkdir(exist_ok=True)
     (OUT / "learn" / "index.html").write_text(learn_index())
     for i, a in enumerate(ARTICLES):

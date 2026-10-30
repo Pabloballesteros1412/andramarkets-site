@@ -27,13 +27,15 @@ Andra Markets is a markets research platform. Its modules: interactive
 dashboards across rates, equities, macro and cross-asset; a Lab of interactive
 quant tools (momentum regime backtest explorer, options pricer, more to come);
 an economic calendar; a daily US market close note; Learn (explainers for people
-starting out); and Watch (TikTok videos; YouTube to follow once Andra has a channel). Success: visitors explore
+starting out); a Research Library; and Markets Interview Prep. Videos stay on
+TikTok and LinkedIn: the site links to them and embeds nothing (owner, 30 Oct
+2026: the Watch section was removed so the site sets no third-party cookies). Success: visitors explore
 a dashboard or tool, come back for the calendar and note, and subscribe by email.
 
 ## Positioning
 
 One platform that serves professionals (dashboards, tools, calendar) and
-newcomers (Learn, Watch) from the same automated pipeline, dated and on the
+newcomers (Learn, Interview Prep) from the same automated pipeline, dated and on the
 record. The daily note is one module among others, not the centrepiece.
 
 ## Operating Context
@@ -50,7 +52,7 @@ record. The daily note is one module among others, not the centrepiece.
   credit spreads, inflation and labour, watchlist breadth, cross-asset
   correlation; an earnings season tracker returns once it has a real source;
   no illustrative dashboard tiles; a tile waiting for data says "Data pending"), Lab tools, economic calendar, daily close note,
-  Learn, Watch.
+  Learn, Research Library, Interview Prep.
 - Calendar (real data, owner-approved 22 Oct 2026): five weeks of market-moving
   releases and events for the US, euro area, UK, Japan and China, central bank
   decisions, minutes and key speeches, Treasury note and bond auctions, NYSE
@@ -110,7 +112,11 @@ record. The daily note is one module among others, not the centrepiece.
   redraw, recolor, crop or replace it without owner approval. The owner
   approved showing it on light grounds via a CSS invert + grayscale + multiply
   treatment that leaves the file untouched.
-- Published only as Andra Markets: no personal names anywhere on the site.
+- Published only as Andra Markets: no personal names anywhere on the site,
+  with one exception the law requires: the legal notice and the privacy policy
+  identify the operator (name, NIF, address, email) under Article 10 of the
+  LSSI and Article 13 of the GDPR (owner, 30 Oct 2026: "llévalo todo según la
+  ley"). Until the owner supplies them they are bracketed placeholders.
 - Owner-approved derivatives of the mark: the favicon and touch icon are a
   head-and-neck crop (the owner asked for "a favicon (head and neck crop of the
   horse)" and approved it as shown); the social share image uses the full horse.
@@ -138,7 +144,7 @@ Recorded for direction only. **No paid feature is built yet.**
 ### Free tier (open to everyone, on this site)
 
 The daily close note, readable on the web and shareable by link; dashboards;
-the economic calendar; Learn; Lab tools; Watch.
+the economic calendar; Learn; Lab tools; the Research Library; Interview Prep.
 
 The site never offers downloads: no note PDF, no verified facts file, no data
 behind the dashboards. This repo is public, so PDFs and full fact packs are

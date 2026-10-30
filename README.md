@@ -1,7 +1,7 @@
 # Andra Markets
 
 The Andra Markets website: a markets research platform with dashboards, quant
-tools, an economic calendar, a daily close note, explainers and videos.
+tools, an economic calendar, a daily close note, a research library, interview prep and explainers.
 
 - `assets/`: stylesheet, script, self-hosted font, brand mark.
 - `tools/build_site.py`: generates every page from one shell. Edit markup here. It also writes `assets/search-index.js` (the header search index, not committed).
@@ -407,17 +407,18 @@ an excerpt of any page that failed to parse.
 ## Placeholders still to fill
 
 Everything in square brackets on the site is a placeholder, never invented
-data: video titles and durations, and the copyright year.
+data: the copyright year, and in the legal notice and privacy policy
+(`tools/legal_content.py`) the operator's legal name, NIF, postal address and
+contact email, which Spanish law (LSSI art. 10) requires before the site is
+public.
 The Methodology page (`methodology()` in `tools/build_site.py`) describes the
 note pipeline, sources and limits: update it when a source or check changes. The tape and the daily note module fill themselves
 once the first close note is published.
 
-Social channels live in `SOCIALS` and the Watch frames in `VIDEOS`, both at the
-top of `tools/build_site.py`. The Watch page (`watch/`) shows TikTok's official
-creator embed (the account's videos, newest first) until `TIKTOK_VIDEOS` lists
-videos by id, title and date; then each plays in TikTok's official embed player. Andra has no YouTube channel yet: set
-`YOUTUBE_URL` and add `("YouTube", "wide")` to the front of `VIDEOS` to bring
-back the footer link and the 16:9 frame; the Watch grid adapts by itself. Lab and Learn charts
+Social channels live in `SOCIALS` at the top of `tools/build_site.py`: the
+footer links to each channel with a URL. Nothing from them is embedded (the
+Watch section was removed on 30 Oct 2026 so the site sets no third-party
+cookies); `watch/` only sends old links to the home page. Lab and Learn charts
 are illustrative shapes until real data is wired in, and say so. The signup form is a
 placeholder until the free newsletter launches on a newsletter platform
 (Substack, Beehiiv or Ghost); it will then link there. See PRODUCT.md,

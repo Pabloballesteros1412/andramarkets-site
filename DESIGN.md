@@ -60,9 +60,6 @@ colors:
   down-plate: "#ff4b52"
   up-tint-plate: "rgba(31, 210, 122, 0.3)"
   down-tint-plate: "rgba(255, 75, 82, 0.3)"
-  video-frame: "#0e1215"
-  video-play: "#eef1f1"
-  video-platform: "#c3c9cc"
   hero-vignette-dark: "rgba(10, 12, 13, 0.75)"
 typography:
   display:
@@ -273,13 +270,6 @@ components:
     typography: "{typography.meta}"
     padding: "2px 8px"
     rounded: "{rounded.none}"
-  video-frame:
-    backgroundColor: "{colors.video-frame}"
-    rounded: "{rounded.none}"
-  video-play:
-    backgroundColor: "{colors.video-play}"
-    textColor: "{colors.video-frame}"
-    size: "56px"
 ---
 
 # Design System: Andra Markets
@@ -367,7 +357,6 @@ The chart pair is too light for small text in the light theme (`#00a050` is 3.15
 In light, the inverted file turns the black ground white and multiply makes it vanish into the paper, leaving the engraving as ink. In dark, the untouched file screens onto near-black, so its black ground vanishes and the white engraving glows dimly. The PNG itself is never edited.
 
 ### Fixed (theme-invariant) values
-- **Video frame** `--video-ground` (`#0e1215`), **play button** `--video-ink` (`#eef1f1`, icon in `--video-ground`) and **platform label** `--video-ink-2` (`#c3c9cc`): defined once on `:root`; the video placeholder is a dark frame in both themes.
 - **Plate chart colours** `--plate-up` `#1fd27a`, `--plate-down` `#ff4b52`, `--plate-up-tint` / `--plate-down-tint` at 0.3 alpha: defined once on `:root` because the Lab plate is dark in both themes; `.lab` maps `--up`, `--down` and the tints to them.
 - **Dark hero vignette** (`rgba(10, 12, 13, 0.75)`): outer stop of the dark theme's radial vignette.
 
@@ -406,7 +395,7 @@ Self-hosted variable font: `assets/fonts/schibsted-grotesk-latin.woff2`, `font-w
 - **Brand** (650, 1.0625rem, -0.02em): the "Andra Markets" wordmark next to the mark.
 - **UI** (550, 0.9375rem): buttons, text links, nav links, theme and menu buttons. Small button 0.875rem. Mobile nav sheet links 500, 1.375rem, -0.02em.
 - **Small** (0.875rem): chips (550), field labels (550), help text, filter status, note meta, tape head, tape change, calendar day headings (600), tool parameters.
-- **Meta** (0.8125rem): chart keys, tape names, source lines, calendar column heads (500), tags, About terms, read times, video meta, legal line. 0.75rem only for dashboard tile source and key at 640px and below.
+- **Meta** (0.8125rem): chart keys, tape names, source lines, calendar column heads (500), tags, About terms, read times, legal line. 0.75rem only for dashboard tile source and key at 640px and below.
 - **Tape figure** (500, 1.1875rem, tabular figures): tape levels.
 
 No uppercase, no letter-spaced labels, no italics are used.
@@ -420,7 +409,7 @@ No uppercase, no letter-spaced labels, no italics are used.
 
 **Container.** `.wrap`: full width, max `1440px`, centred, side padding `--gutter` = `clamp(16px, 4vw, 56px)`. Full-bleed sections (hero, tape, Lab plate, signup) paint edge to edge and put a `.wrap` inside.
 
-**Grid.** `.grid`: 12 columns `repeat(12, minmax(0, 1fr))`, column gap `clamp(16px, 2vw, 32px)`. Row gaps per section: note 48px, Learn 40px, About 40px, signup 40px, footer 32px. The Lab uses its own 12 columns with gap `clamp(12px, 1.6vw, 20px)` (wide tool spans 7, tool spans 5, "next" spans all). Watch uses `7fr 2.5fr 2.5fr` with the same plate gap. Dashboards use a 3-column lattice.
+**Grid.** `.grid`: 12 columns `repeat(12, minmax(0, 1fr))`, column gap `clamp(16px, 2vw, 32px)`. Row gaps per section: note 48px, Learn 40px, About 40px, signup 40px, footer 32px. The Lab uses its own 12 columns with gap `clamp(12px, 1.6vw, 20px)` (wide tool spans 7, tool spans 5, "next" spans all). Dashboards use a 3-column lattice.
 
 Two-part section splits: content in columns 1 to 6 (or 1 to 8 for the About statement), companion in columns 8 to 12 (9 to 12 for the About list). Footer: brand 1 to 4, nav 6 to 8 (two sub-columns), social 9 to 12, legal full width.
 
@@ -431,11 +420,11 @@ Two-part section splits: content in columns 1 to 6 (or 1 to 8 for the About stat
 **Breakpoints (max-width) and what each collapses:**
 - **1100px:** dashboard grid 3 to 2 columns; the calendar drops its Type column.
 - **1260px:** the search button turns into its 44px icon (it was 1200px; nine nav links leave no room for its label).
-- **1160px:** the nav gap tightens from 24px to 16px (down to 1021px), so eight links fit; nav links never wrap. **1080px:** 12px, for nine, and the header's own gaps 16px. The brand never shrinks, so its wordmark never runs into the nav.
+- **1360px / 1140px:** the nav steps down from 0.875rem (16px gap) to 0.8125rem (12px) and then 0.75rem (8px) so all ten links fit beside the search, theme and Subscribe buttons down to 1021px; nav links never wrap. The brand never shrinks, so its wordmark never runs into the nav.
 - **1020px:** primary nav becomes the mobile sheet; the menu button appears; Subscribe appears as the last item in the sheet; header gap tightens 24px to 8px.
-- **960px:** note, Learn, About, signup columns and the footer brand go full width; footer nav and social split 6/6; Lab tools go full width; in the mixed Watch layout the grid becomes 2 columns with the YouTube frame spanning both at 16:9 (the TikTok-only row keeps 4).
+- **960px:** note, Learn, About, signup columns and the footer brand go full width; footer nav and social split 6/6; Lab tools go full width.
 - **860px:** hero horse moves to `x 52%`, `y 36%` (above the headline).
-- **640px:** section padding 72px; body 1rem; section heads stack; tape columns become `40vw` each; dashboard tiles compact (still 2 columns, 14px padding, description hidden, title 1rem, source and key 0.75rem); calendar becomes stacked rows and its filter labels sit above their chips (see Components); note archive stacks date over title; Watch becomes a horizontal snap scroller (wide 84vw, tall 44vw); signup input and button stack; hero buttons stretch; footer links grow to 44px.
+- **640px:** section padding 72px; body 1rem; section heads stack; tape columns become `40vw` each; dashboard tiles compact (still 2 columns, 14px padding, description hidden, title 1rem, source and key 0.75rem); calendar becomes stacked rows and its filter labels sit above their chips (see Components); note archive stacks date over title; signup input and button stack; hero buttons stretch; footer links grow to 44px.
 - **520px:** header Subscribe button hidden (the sheet and hero carry it); menu button shows its icon only; horse size `180vw`, `y 27%`.
 
 Tap targets are at least 44px (chips, links, theme and menu buttons, tape note link, footer links on mobile); buttons are 48px (40px small, 52px in the signup row).
@@ -453,11 +442,11 @@ The only gradients are the hero vignettes: in light, `linear-gradient(to top, gr
 
 ## Shapes
 
-Square corners everywhere: buttons, chips, tags, inputs (`border-radius: 0` explicitly resets UA rounding), tiles, cards, video frames, the play button. The only curves are data marks (2.5px chart dots) and the icons.
+Square corners everywhere: buttons, chips, tags, inputs (`border-radius: 0` explicitly resets UA rounding), tiles, cards. The only curves are data marks (2.5px chart dots) and the icons.
 
 Borders are 1px hairlines in `--rule` or `--rule-strong`. The dashboard lattice draws a single hairline grid by giving the container top and left borders and each tile right and bottom borders. Lists are ruled rows (bottom border per item, a strong rule on top), not boxes.
 
-Icons are Phosphor-style 256-unit SVG paths in an inline sprite (`warning-circle`, `arrow-right`, `arrow-up-right`, `list`, `x`, `play`, `sun`, `moon`, plus the logo of each social channel that has a URL: `linkedin-logo`, `tiktok-logo`, and `youtube-logo` once YouTube is live), drawn at `1em` in `currentColor`.
+Icons are Phosphor-style 256-unit SVG paths in an inline sprite (`warning-circle`, `arrow-right`, `arrow-up-right`, `list`, `x`, `sun`, `moon`, plus the logo of each social channel that has a URL: `linkedin-logo`, `tiktok-logo`, and `youtube-logo` once YouTube is live), drawn at `1em` in `currentColor`.
 
 ## Components
 
@@ -479,7 +468,7 @@ Ink slabs with square corners; quiet, confident, no colour.
 ### Header and nav
 - **Structure:** fixed, 64px, z-index 20. Left to right: brand (mark plus wordmark, pushes the rest right), nav, search button, theme toggle, small Subscribe button, menu button (1020px and below).
 - **Transparent to solid:** over the hero the header is transparent with a transparent bottom border. An IntersectionObserver watches an 8px sentinel at the top of the hero; once it leaves the viewport the header gains `is-solid` (ground fill, `--rule` bottom border, 240ms transition). Pages without a hero sentinel (inner pages) are solid from the first paint. The header is also solid while the menu is open.
-- **Nav links:** eleven (Dashboards, Companies, Lab, Calendar, World, FX, Research, Daily note, Interview prep, Learn, Watch), ink-2 at rest, ink on hover, no underline. Sized to fit beside the search, theme and Subscribe buttons (owner's request, 30 Oct 2026: smaller links rather than fewer): 0.875rem with a 16px gap from 1360px, 0.8125rem with 12px (header gap 14px) from 1141px to 1359px, 0.75rem with 8px (header gap 10px) from 1021px to 1140px. Measured in Chromium at every width.
+- **Nav links:** ten (Dashboards, Companies, Lab, Calendar, World, FX, Research, Daily note, Interview prep, Learn), ink-2 at rest, ink on hover, no underline. Sized to fit beside the search, theme and Subscribe buttons (owner's request, 30 Oct 2026: smaller links rather than fewer): 0.875rem with a 16px gap from 1360px, 0.8125rem with 12px (header gap 14px) from 1141px to 1359px, 0.75rem with 8px (header gap 10px) from 1021px to 1140px. Measured in Chromium at every width.
 - **Mobile sheet (1020px and below):** the nav becomes a fixed panel under the header, ground fill, `--rule` bottom border, links at 1.375rem/500/-0.02em in ink, 12px vertical padding, separated by `--rule` hairlines. Opens with opacity and `translateY(-8px)` to rest over 200ms ease-out. The menu button reads "Menu" with a list icon, then "Close" with an x icon; `aria-expanded` tracks state; the first link takes focus on open; Escape closes and returns focus; any link click closes.
 - **Subscribe placement:** a small primary button in the header above 520px. At 1020px and below it is also the last sheet item (weight 600). At 520px and below the header button is hidden and the sheet carries it.
 
@@ -623,16 +612,8 @@ An inner page, one per note.
 ### Learn pages (`learn/`, `learn/<slug>/`)
 Six evergreen explainers from `tools/learn_content.py`, 600 to 900 words each, neutral, sourced to official or academic references cited by title and publisher (no personal names), no current figures. **Index:** inner page head, then the Learn list rows (title, description, read time at 230 words a minute) at 44rem. **Explainer:** inner page; head with crumbs ("Learn / Explainer"), page title, the description as lede, read time in the note meta style; body sections (h2 1.375rem/540, ink-2 paragraphs); "See it live" with a text link to the matching dashboard (earnings season links to the calendar, which carries the earnings rows); "Sources" as a `.ruled` ordered list of links, then "For information only. Not investment advice."; a pager (previous, next, all explainers).
 
-### Video placeholder frame
-- **Frame:** square-cornered, `--video-ground` fill in both themes, 1px `--rule` border, 16:9 (YouTube) or 9:16 (TikTok). The horse sits inside as a centred, contained background at `screen` blend and 0.22 opacity.
-- **Play button:** 56px square, `--video-ink` with a `--video-ground` play icon; scales to 1.06 on hover.
-- **Platform label:** bottom left, 0.8125rem `--video-ink-2`, with the platform icon.
-- **Below the frame:** title (540, an ink placeholder) and duration (0.8125rem).
-- **Layout:** built from `VIDEOS` in `tools/build_site.py`; only channels with a URL render. TikTok only (current): `.watch-grid--tall`, four equal 9:16 frames in a row on desktop. With a YouTube frame: `.watch-grid--mixed`, desktop `7fr 2.5fr 2.5fr` with the wide frame stretching to the TikTok height; at 960px and below two columns with the wide frame spanning both at 16:9. At 640px and below either layout becomes a snap scroller.
-- **Links:** each homepage frame opens the Watch page (`watch/`); the section head links "All videos" there. Once `TIKTOK_VIDEOS` lists videos, the frames carry their titles and dates, newest first.
-
-### Watch page (`watch/`)
-An inner page. Head: page title "Watch", lede, meta "From TikTok, @andramarkets. Nothing loads from TikTok until you scroll to the videos." Body: with `TIKTOK_VIDEOS` set in `tools/build_site.py`, a grid of 9:16 frames (`repeat(auto-fill, minmax(260px, 1fr))`, `--video-ground`, `--rule` border, square) each holding TikTok's official embed player (`tiktok.com/player/v1/<id>`, `loading="lazy"`), title (540) and date (0.8125rem ink-2) below, newest first. While the list is empty, TikTok's official creator embed (`data-embed-type="creator"`), which lists the account's videos newest first; `assets/watch.js` loads TikTok's script only when it nears the viewport, and says so in ink-2 if it fails. Then a "Follow @andramarkets on TikTok" link and a 0.8125rem ink-3 line that TikTok's player and policy apply.
+### Watch (removed, 30 Oct 2026)
+The homepage Watch section, the Watch page and their TikTok embeds were removed at the owner's request so the site loads nothing from TikTok and sets no third-party cookies. `watch/` now sends old links to the home page. Social channels appear only as plain footer links.
 
 ### About
 A statement paragraph (statement style, columns 1 to 8) beside a definition list (columns 9 to 12, bottom-aligned). Each `dt`/`dd` pair sits in a row with a `--rule` top border and 14px padding; terms are 0.8125rem ink-2. The section heading is visually hidden. The section has a `--rule` top border.
@@ -683,7 +664,6 @@ The rolling figures, chip glide, theme reveal, search palette, share swap and qu
 - **Hero:** `.hero__art` absolutely placed at `left 63%`, `top 50%`, size `min(167svh, 200vw)` square, `translate(-49%, -50.5%)`, with `--horse-filter` and `--horse-blend`; the image has `--horse-opacity`. It fills the right two thirds on desktop; at 860px and below it moves to `52% / 36%`; at 520px and below it is `180vw` at `y 27%`. The hero is `min-height: calc(100svh - 56px)`, copy bottom-left, with the vignette over it.
 - **Closing plate:** `.signup__art` at `50% / 46%`, `min(150svh, 190vw)`, same filter and blend, container opacity 0.32, no entrance animation.
 - **Brand mark:** the transparent marks (see Brand assets), `assets/andra-mark-light.png` in the light theme and `assets/andra-mark-dark.png` in the dark theme, swapped by `data-theme` in CSS like the theme icons. Height `1lh` (fallback `1.55em`): the wordmark's line box, 26px at the brand's 1.0625rem, at every width; width auto, vertically centred with the wordmark by the brand's flex row, 10px gap. No box, background, border, filter or blend. The same marks are used in the footer.
-- **Video frames:** a contained background at `screen` and 0.22 opacity on the dark frame.
 - **Favicon and touch icon:** the owner-approved head-and-neck crop; see Brand assets.
 
 ### Placeholder tokens

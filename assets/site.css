@@ -17,10 +17,6 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --horse-size: min(167svh, 200vw);
-  /* Video frames read as a dark player in both themes. */
-  --video-ground: #0e1215;
-  --video-ink: #eef1f1;
-  --video-ink-2: #c3c9cc;
   /* The Lab plate is dark in both themes, so its chart colours are fixed. */
   --plate-up: #1fd27a;
   --plate-down: #ff4b52;
@@ -1579,194 +1575,6 @@ ul {
   }
 }
 
-/* Watch */
-
-.watch-grid {
-  display: grid;
-  gap: clamp(12px, 1.6vw, 20px);
-  align-items: start;
-}
-
-/* One 16:9 YouTube frame beside two 9:16 TikTok frames. */
-.watch-grid--mixed {
-  grid-template-columns: minmax(0, 7fr) minmax(0, 2.5fr) minmax(0, 2.5fr);
-}
-
-/* TikTok only: a row of 9:16 frames. */
-.watch-grid--tall {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.video a {
-  display: block;
-  text-decoration: none;
-}
-
-.video__frame {
-  position: relative;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 9;
-  background: var(--video-ground);
-  border: 1px solid var(--rule);
-  overflow: hidden;
-}
-
-.video__frame::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("andra-horse.png") center / contain no-repeat;
-  mix-blend-mode: screen;
-  opacity: 0.22;
-}
-
-.video--tall .video__frame {
-  aspect-ratio: 9 / 16;
-}
-
-.video--wide .video__frame {
-  aspect-ratio: auto;
-  height: 100%;
-}
-
-.video--wide {
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-}
-
-.video--wide a {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.video--wide .video__frame {
-  flex: 1;
-  min-height: 0;
-}
-
-.video__play {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  position: relative;
-  background: var(--video-ink);
-  color: var(--video-ground);
-  font-size: 1.5rem;
-  transition: transform 200ms var(--ease-out);
-}
-
-.video__play .icon {
-  transform: translateX(2px);
-}
-
-.video__platform {
-  position: absolute;
-  left: 14px;
-  bottom: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8125rem;
-  color: var(--video-ink-2);
-}
-
-.video__title {
-  display: block;
-  margin-top: 12px;
-  font-weight: 540;
-}
-
-.video__meta {
-  display: block;
-  font-size: 0.8125rem;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .video a:hover .video__play {
-    transform: scale(1.06);
-  }
-}
-
-/* Watch page (watch/): TikTok's official embeds, newest first. */
-
-.wfeed {
-  max-width: 780px;
-  min-height: 480px;
-  padding-top: clamp(24px, 4vw, 40px);
-}
-
-.wfeed.is-failed {
-  min-height: 0;
-}
-
-.wfeed__embed {
-  margin: 0;
-  max-width: 780px;
-  min-width: 288px;
-}
-
-.wfeed__embed a {
-  color: var(--ink);
-  font-weight: 550;
-  text-underline-offset: 0.22em;
-  text-decoration-color: var(--rule-strong);
-}
-
-.wfeed__status {
-  margin-top: 12px;
-  font-size: 0.875rem;
-  color: var(--ink-2);
-}
-
-.wfeed__status:empty {
-  display: none;
-}
-
-.wv-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: clamp(16px, 2vw, 32px);
-  padding-top: clamp(24px, 4vw, 40px);
-}
-
-.wv__frame {
-  aspect-ratio: 9 / 16;
-  background: var(--video-ground);
-  border: 1px solid var(--rule);
-}
-
-.wv__frame iframe {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-.wv__title {
-  margin-top: 12px;
-  font-weight: 540;
-}
-
-.wv__meta {
-  font-size: 0.8125rem;
-  color: var(--ink-2);
-}
-
-.watchp__more {
-  margin-top: 32px;
-}
-
-.watchp__legal {
-  margin-top: 8px;
-  max-width: 65ch;
-  font-size: 0.8125rem;
-  color: var(--ink-3);
-}
-
 /* Learn pages (learn/, learn/<slug>/) */
 
 .learnp__list {
@@ -2914,15 +2722,6 @@ ul {
   .tool--wide {
     grid-column: 1 / -1;
   }
-  .watch-grid--mixed {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .video--wide {
-    grid-column: 1 / -1;
-  }
-  .video--wide .video__frame {
-    aspect-ratio: 16 / 9;
-  }
 }
 
 @media (max-width: 640px) {
@@ -3097,25 +2896,6 @@ ul {
   .note-list .icon {
     grid-column: 2;
     grid-row: 1 / span 2;
-  }
-  .watch-grid {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--gutter);
-    margin-inline: calc(-1 * var(--gutter));
-    padding-inline: var(--gutter);
-    scrollbar-width: none;
-  }
-  .video {
-    flex: none;
-    scroll-snap-align: start;
-  }
-  .video--wide {
-    width: 84vw;
-  }
-  .video--tall {
-    width: 44vw;
   }
   .field__row {
     flex-direction: column;
@@ -5648,6 +5428,26 @@ html:not(.js) .ip-filters {
 
 .ip-follow b {
   font-weight: 600;
+  color: var(--ink);
+}
+
+.legal__id {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 6px 12px;
+  margin-top: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.9375rem;
+}
+
+.legal__id dt {
+  color: var(--ink-3);
+}
+
+.legal__id dd {
+  margin: 0;
   color: var(--ink);
 }
 

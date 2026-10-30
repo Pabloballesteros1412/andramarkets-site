@@ -12,8 +12,14 @@ PRIVACY_UPDATED = "2026-10-30"
 
 LEGAL = [
     ("publisher", "Who publishes this site",
-     "<p>This website is published under the name Andra Markets by [operator's legal name], "
-     "[tax identification number], [postal address], Spain. Contact: [contact email].</p>"
+     "<p>As required by Article 10 of Spanish Law 34/2002 on information society services and electronic "
+     "commerce (LSSI), the owner of this website is:</p>"
+     "<dl class=\"legal__id\"><dt>Name</dt><dd>[operator's full legal name], trading as Andra Markets</dd>"
+     "<dt>Tax ID (NIF)</dt><dd>[NIF]</dd>"
+     "<dt>Address</dt><dd>[postal address], Spain</dd>"
+     "<dt>Email</dt><dd>[contact email]</dd></dl>"
+     "<p>Andra Markets is not entered in any commercial register and holds no administrative authorisation, "
+     "as its activity does not require one.</p>"
      "<p>Andra Markets publishes market research: daily close notes, weekly market reviews, research "
      "reports, dashboards, an economic calendar, interactive tools and educational material.</p>"),
 
@@ -90,10 +96,10 @@ LEGAL = [
      "investment recommendations: who produced it, its date, its sources, the difference between facts and "
      "opinions, and any conflicts of interest.</p>"),
 
-    ("links", "Links and embedded content",
-     "<p>The site links to and embeds content from third parties, such as data publishers and TikTok. "
-     "Andra Markets is not responsible for their content or practices, which are governed by their own "
-     "terms.</p>"),
+    ("links", "Links to other websites",
+     "<p>The site links to third-party websites, such as data publishers and the Andra Markets pages on "
+     "LinkedIn and TikTok. It embeds no third-party players or feeds. Andra Markets is not responsible for "
+     "the content or practices of other websites, which are governed by their own terms.</p>"),
 
     ("liability", "Limitation of liability",
      "<p>To the fullest extent permitted by law, Andra Markets is not liable for any loss or damage arising "
@@ -109,8 +115,9 @@ LEGAL = [
 
 PRIVACY = [
     ("controller", "Who is responsible",
-     "<p>[Operator's legal name], [postal address], Spain, publishing as Andra Markets, is responsible for "
-     "any personal data processed through this site. Contact: [contact email].</p>"),
+     "<p>The data controller, under Article 13 of the General Data Protection Regulation (EU) 2016/679 and "
+     "Spanish Organic Law 3/2018, is [operator's full legal name], trading as Andra Markets, NIF [NIF], "
+     "[postal address], Spain. Contact: [contact email].</p>"),
 
     ("collect", "What we collect",
      "<p>Very little. The site has no accounts, no analytics, no advertising and no tracking pixels, and "
@@ -122,8 +129,9 @@ PRIVACY = [
     ("storage", "Cookies and storage on your device",
      "<p>When you switch between the light and dark theme, your choice is kept in your browser's local "
      "storage under the name <b>andra-theme</b>, so the site opens in the same theme next time. It "
-     "stays on your device, is never sent to us, and is used only because you asked for it, so no consent "
-     "banner is needed. You can clear it in your browser settings at any time.</p>"),
+     "stays on your device, is never sent to us, and is used only because you asked for it: storage that is "
+     "strictly necessary for a service you request is exempt from consent under Article 22.2 of the LSSI, so "
+     "the site shows no cookie banner. You can clear it in your browser settings at any time.</p>"),
 
     ("hosting", "Hosting and service providers",
      "<ul class=\"ruled\">"
@@ -134,11 +142,11 @@ PRIVACY = [
      "behind the company pages. When you look up a company, the ticker is passed to Finnhub and Financial "
      "Modeling Prep to fetch its figures; no personal data is sent to them. Cloudflare processes your IP "
      "address to deliver the response and protect the service.</li>"
-     "<li><b>TikTok</b> provides the video player on the Watch page. When that page loads, TikTok may set "
-     "cookies and collect data under its own privacy and cookie policies.</li>"
      "</ul>"
      "<p>The site's fonts, scripts and images are served from the site itself, not from third-party "
-     "networks.</p>"),
+     "networks, and no third-party player, feed or widget is embedded. Links to LinkedIn and TikTok are "
+     "plain links: nothing loads from those services unless you follow one, and then their own policies "
+     "apply.</p>"),
 
     ("basis", "Legal basis, retention and transfers",
      "<p>Server data is processed for the legitimate interest of delivering a secure website, and kept by "
