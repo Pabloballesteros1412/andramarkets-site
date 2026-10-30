@@ -229,9 +229,11 @@ dates and the trackers' terms forbid reuse, so it is kept by hand:
 - **rolling:** the firm reviews applications as they arrive.
 - **unknown:** nothing reliable yet; the row keeps its URL.
 
-A row shows its dates, window or rolling status only with `verified: true`:
-someone opened `source` on the `checked` day and saw them. Until then the
-site reads "Not announced". Re-check the open rows each month and move
+Every date is read from the firm's own site (`source`) on the `checked`
+day. `verified: true` means someone has since opened `source` by hand and
+seen the date; until then the row carries a "Not yet re-checked" tag and the
+page head counts how many dated rows have been re-checked (owner, 30 Oct
+2026: show the calendar now, re-check as the firms' sites become reachable). Re-check the open rows each month and move
 expected windows to confirmed dates as firms post them. The page counts
 down to closing dates in the browser, so it stays right between deploys.
 

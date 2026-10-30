@@ -4832,10 +4832,9 @@ def technical_page(t, topics):
 
 
 # Recruiting calendar (break-into-wall-street/recruiting-calendar/) ----------------
-# data/recruiting_calendar.json, kept by hand: one row per programme. A row
-# shows its dates, window or rolling status only once verified (someone opened
-# its source on the checked day); until then it reads as not announced.
-# Never an invented date.
+# data/recruiting_calendar.json, kept by hand: one row per programme, each
+# date taken from the firm's own site. A row not yet re-checked by hand on
+# that site (verified false) says so on the page. Never an invented date.
 
 RC_DATA = ROOT / "data" / "recruiting_calendar.json"
 RC_KINDS = [("summer", "Summer internship"), ("insight", "Early insight"), ("fulltime", "Full-time"), ("offcycle", "Off-cycle")]
@@ -4851,14 +4850,7 @@ def load_recruiting():
         rows = json.loads(RC_DATA.read_text(encoding="utf-8"))["rows"]
     except (OSError, ValueError, KeyError):
         return []
-    out = []
-    for r in rows:
-        r = dict(r)
-        if not r.get("verified"):
-            # Not yet checked on the firm's own page: no dates and no claim.
-            r.update(status="unknown", opens=None, closes=None, opens_window=None, closes_window=None)
-        out.append(r)
-    return out
+    return [dict(r) for r in rows]
 
 
 def rc_month(window):
@@ -4895,6 +4887,8 @@ def rc_firm(r, basis=False):
     tags = f'<span class="tag">{RC_STATUS[r["status"]]}</span>'
     if r["status"] == "expected" and r.get("confidence") == "low":
         tags += '<span class="tag">Low confidence</span>'
+    if r["status"] != "unknown" and not r.get("verified"):
+        tags += '<span class="tag">Not yet re-checked</span>'
     locs = ", ".join(r.get("locations") or [])
     why = (f'<span class="rc-basis">{esc(r["basis"])}</span>' if basis and r["status"] == "expected" and r.get("basis") else "")
     return (f'<th scope="row"><span class="cl__ev">{esc(r["firm"])}</span>'
@@ -4979,15 +4973,18 @@ def recruiting_page(rows):
         return "".join(f'<button type="button" class="chip" data-{name}="{v}" aria-pressed="{"true" if i == 0 else "false"}">{lb}</button>'
                        for i, (v, lb) in enumerate([("all", "All")] + opts))
     counts = {s: sum(r["status"] == s for r in rows) for s in RC_STATUS}
+    dated = [r for r in rows if r["status"] != "unknown"]
+    rechecked = sum(bool(r.get("verified")) for r in dated)
     checked = max((r.get("checked") or "" for r in rows), default="")
-    checked_txt = f", last checked {day_med(dt.date.fromisoformat(checked))}" if checked else ""
+    checked_txt = (f"Dates from each firm's own site, {day_med(dt.date.fromisoformat(checked))}; "
+                   f"{rechecked} of {len(dated)} re-checked by hand" if checked else "Dates from each firm's own site")
     body = f"""<main id="main" class="page cl rc">
   <div class="wrap">
     <header class="page__head cl__head">
       <p class="dd__crumbs"><a href="../">Break into Wall Street</a> <span aria-hidden="true">/</span> Recruiting calendar</p>
       <h1 class="page__title">Recruiting calendar</h1>
       <p class="lede">When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications for internships and analyst programmes.</p>
-      <p class="note__meta"><span>{len({r["firm"] for r in rows})} firms, {len(rows)} programmes</span><span>{counts["confirmed"]} confirmed, {counts["expected"]} expected, {counts["rolling"]} rolling</span><span>Checked by hand against each firm's careers site{checked_txt}</span></p>
+      <p class="note__meta"><span>{len({r["firm"] for r in rows})} firms, {len(rows)} programmes</span><span>{counts["confirmed"]} confirmed, {counts["expected"]} expected, {counts["rolling"]} rolling</span><span>{checked_txt}</span></p>
     </header>
     <div class="cl__controls rc-ctl" hidden>
       <div class="cl__groups">
@@ -5004,7 +5001,7 @@ def recruiting_page(rows):
     </div>
     {bydate}{byfirm}
     <div class="page__body">
-      <section aria-labelledby="rc-how"><h2 id="rc-how">How the dates are read</h2><p>A confirmed date is one the firm states on its own careers site or in the posting itself, checked by hand on the day shown. Where a firm has not published this cycle's dates, the expected window comes from when the same programme opened last cycle, and the row says what that rests on; it becomes a confirmed date once the firm posts it. Rolling means the firm reviews applications as they arrive and states no deadline. Many programmes fill before their deadline, so apply in the first weeks a programme opens. Each row links to where you apply.</p><p>For information only: always confirm the dates on the firm's site.</p></section>
+      <section aria-labelledby="rc-how"><h2 id="rc-how">How the dates are read</h2><p>Every date comes from the firm's own careers site or the posting itself, read on the day shown. A row tagged "Not yet re-checked" has not yet been opened again by hand to confirm it, so check it on the firm's site before you rely on it. A confirmed date is one the firm states. Where a firm has not published this cycle's dates, the expected window comes from when the same programme opened last cycle, and the row says what that rests on; it becomes a confirmed date once the firm posts it. Rolling means the firm reviews applications as they arrive and states no deadline. Many programmes fill before their deadline, so apply in the first weeks a programme opens. Each row links to where you apply.</p><p>For information only: always confirm the dates on the firm's site.</p></section>
     </div>
   </div>
 </main>"""
