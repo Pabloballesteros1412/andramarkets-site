@@ -25,7 +25,7 @@ free, and those downloads are reserved for paid subscribers later.
 
 Dashboard tiles draw real figures from .cache/dashboards/tiles.json, written
 at deploy time by tools/dashboard_data.py, with their source and date; a tile
-without a record shows its source and "Data pending". Lab and Learn charts are schematic
+without a record shows its source and "Data pending". Lab charts are schematic
 shapes, not market data, and labelled "Illustrative". The calendar reads
 .cache/calendar/calendar.json, written by tools/calendar_data.py. Follow DESIGN.md.
 """
@@ -44,7 +44,6 @@ from zoneinfo import ZoneInfo
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nyse  # noqa: E402
 from calendar_data import MOVES as CAL_MOVES, SOURCES as CAL_SOURCES  # noqa: E402
-from learn_content import ARTICLES  # noqa: E402
 from legal_content import LEGAL, LEGAL_UPDATED, PRIVACY, PRIVACY_UPDATED  # noqa: E402
 from sim_content import EPISODES as SIM_EPISODES  # noqa: E402
 from world_data import AXES as WORLD_AXES, MARKETS as WORLD_MARKETS  # noqa: E402
@@ -155,18 +154,6 @@ def c_bond(w=640, h=260):
     line = [p0 * (1 - mod * (y - 0.04)) for y in ys]
     pa, pb = fit([curve, line], w, h, 12, lo=55, hi=145)
     return svg(w, h, grid_lines(w, h, 4) + f'<path class="dash" d="{d(pb)}"/><path class="line" d="{d(pa)}"/>', "Bond price against yield, with the duration line")
-
-
-def c_explainer(w=560, h=240):
-    # Normal against inverted curve, an explainer diagram.
-    tenors = [0.25, 1, 2, 5, 10, 30]
-
-    def curve(vals):
-        return [(16 + (w - 32) * math.sqrt(t) / math.sqrt(30), h - 16 - (h - 32) * v) for t, v in zip(tenors, vals)]
-
-    normal = curve([0.2, 0.35, 0.45, 0.6, 0.7, 0.8])
-    inverted = curve([0.75, 0.7, 0.6, 0.48, 0.42, 0.45])
-    return svg(w, h, grid_lines(w, h, 4) + f'<path class="line" d="{d(normal)}"/><path class="dash" d="{d(inverted)}"/>', "Diagram of a normal and an inverted yield curve", stretch=False)
 
 
 # Dashboard tiles with real data ---------------------------------------------
@@ -715,11 +702,6 @@ def dashboard_page(key, cat, name, desc, source, rec):
     )
 
 
-def learn_minutes(a):
-    words = sum(len(p.split()) for _, ps in a["sections"] for p in ps)
-    return max(1, math.ceil(words / 230))
-
-
 def ph(text):
     return f'<span class="ph">{text}</span>'
 
@@ -998,15 +980,9 @@ def page(notes, cal):
           <a class="btn" href="#note">Read the note {icon("arrow-right")}</a>
         </article>"""
         all_notes = "#note"
-    learn = "".join(
-        f'<li class="reveal" style="--i:{i}"><a href="learn/{a["slug"]}/"><span class="learn-list__title">{esc(a["title"])}</span>'
-        f'<span class="learn-list__desc">{esc(a["desc"])}</span><span class="learn-list__time">{learn_minutes(a)} min read</span></a></li>'
-        for i, a in enumerate(ARTICLES[1:])
-    )
-    feature = ARTICLES[0]
     return shell(
         title="Andra Markets: markets research platform",
-        desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and explainers.",
+        desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
         body=f"""<main id="main">
   <section class="hero" id="top" aria-labelledby="hero-title">
     <span class="hero__sentinel" aria-hidden="true"></span>
@@ -1113,28 +1089,6 @@ def page(notes, cal):
     </div>
   </section>
 
-  <section class="section learn" id="learn" aria-labelledby="learn-title">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title reveal" id="learn-title">Learn</h2>
-          <p class="lede reveal">Market explainers for people starting out. No jargon left unexplained.</p>
-        </div>
-        <a class="link reveal" href="learn/">All explainers {icon("arrow-right")}</a>
-      </div>
-      <div class="grid learn__grid">
-        <a class="learn-feature reveal" href="learn/{feature["slug"]}/">
-          <div class="draw">{c_explainer()}</div>
-          <p class="key"><span><i class="k-solid"></i>Normal curve</span><span><i class="k-dash"></i>Inverted curve</span><span class="key__note">Diagram, not market data</span></p>
-          <h3>{esc(feature["title"])}</h3>
-          <p>{esc(feature["desc"])}</p>
-          <span class="learn-list__time">{learn_minutes(feature)} min read</span>
-        </a>
-        <ol class="learn-list">{learn}</ol>
-      </div>
-    </div>
-  </section>
-
   <section class="section about" id="about" aria-labelledby="about-title">
     <div class="wrap grid">
       <h2 class="visually-hidden" id="about-title">About Andra Markets</h2>
@@ -1189,8 +1143,7 @@ def site_header(home, base):
       <a href="{base}research/">Research</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
-      <a href="{base}careers/">Careers</a>
-      <a href="{base}learn/">Learn</a>
+      <a href="{base}break-into-wall-street/">Break into Wall Street</a>
       <a class="nav__subscribe" href="{home}#subscribe">Subscribe</a>
     </nav>
     <button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
@@ -1235,8 +1188,7 @@ def site_footer(home, base):
       <a href="{base}reports/">All notes</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
-      <a href="{base}careers/">Path to Wall Street</a>
-      <a href="{base}learn/">Learn</a>
+      <a href="{base}break-into-wall-street/">Break into Wall Street</a>
       <a href="{home}#about">About</a>
       <a href="{base}methodology/">Methodology</a>
       <a href="{base}sources/">Data sources</a>
@@ -1311,59 +1263,6 @@ def watch_redirect():
             f'<script>location.replace("../");</script>')
     return shell(title="Andra Markets", desc="Videos are no longer on this site.",
                  body=body, home="../", base="../", path="watch/")
-
-
-def learn_index():
-    rows = "".join(
-        f'<li><a href="{a["slug"]}/"><span class="learn-list__title">{esc(a["title"])}</span>'
-        f'<span class="learn-list__desc">{esc(a["desc"])}</span><span class="learn-list__time">{learn_minutes(a)} min read</span></a></li>'
-        for a in ARTICLES)
-    body = f"""<main id="main" class="page learnp">
-  <div class="wrap">
-    <header class="page__head">
-      <h1 class="page__title">Learn</h1>
-      <p class="lede">Market explainers for people starting out. Each is sourced to official or academic references and links to the dashboard that shows it live.</p>
-    </header>
-    <ol class="learn-list learnp__list">{rows}</ol>
-  </div>
-</main>"""
-    return shell(title="Learn: Andra Markets", desc="Market explainers for people starting out: the yield curve, the VIX, earnings season, CPI and PCE, credit spreads and how the Fed sets rates.",
-                 body=body, home="../", base="../", path="learn/")
-
-
-def learn_page(i):
-    a = ARTICLES[i]
-    secs = "".join(
-        f'<section aria-labelledby="l-{k}"><h2 id="l-{k}">{esc(h)}</h2>' + "".join(f"<p>{esc(p)}</p>" for p in ps) + "</section>"
-        for k, (h, ps) in enumerate(a["sections"]))
-    dash_url, dash_label = a["dash"]
-    live = (f'<section aria-labelledby="l-live"><h2 id="l-live">See it live</h2>'
-            f'<p><a class="link" href="../../{dash_url}">Open {esc(dash_label)} {icon("arrow-right")}</a></p></section>')
-    srcs = "".join(f'<li><a href="{esc(u)}">{esc(lb)}</a></li>' for lb, u in a["sources"])
-    sources = (f'<section aria-labelledby="l-src"><h2 id="l-src">Sources</h2><ol class="ruled learnp__src">{srcs}</ol>'
-               f"<p>An Andra Markets explainer, for education. For information only. Not investment advice.</p></section>")
-    pager = ""
-    if i > 0:
-        pager += f'<a class="link" href="../{ARTICLES[i - 1]["slug"]}/">Previous: {esc(ARTICLES[i - 1]["title"])} {icon("arrow-right")}</a>'
-    if i + 1 < len(ARTICLES):
-        pager += f'<a class="link" href="../{ARTICLES[i + 1]["slug"]}/">Next: {esc(ARTICLES[i + 1]["title"])} {icon("arrow-right")}</a>'
-    pager += f'<a class="link" href="../">All explainers {icon("arrow-right")}</a>'
-    body = f"""<main id="main" class="page learnp">
-  <div class="wrap">
-    <article>
-      <header class="page__head">
-        <p class="dd__crumbs"><a href="../">Learn</a> <span aria-hidden="true">/</span> Explainer</p>
-        <h1 class="page__title">{esc(a["title"])}</h1>
-        <p class="lede">{esc(a["desc"])}</p>
-        <p class="note__meta"><span>{learn_minutes(a)} min read</span></p>
-      </header>
-      <div class="page__body">{secs}{live}{sources}</div>
-    </article>
-    <nav class="report__pager" aria-label="More explainers">{pager}</nav>
-  </div>
-</main>"""
-    return shell(title=f"{esc(a['title'])}: Andra Markets explainer", desc=esc(a["desc"]),
-                 body=body, home="../../", base="../../", path=f"learn/{a['slug']}/")
 
 
 # Lab tools: (slug, data-tool, title, description, how it works, assumptions).
@@ -2066,8 +1965,8 @@ def methodology():
            ]))}
       {sec("charts", "Charts and colour",
            "<p>Every chart states its source and date. Green marks a rise and red a fall, on charts and on every "
-           "figure that shows a move, always with its + or &minus; sign so colour is never the only cue. Lab and "
-           "Learn diagrams marked Illustrative are not market data.</p>")}
+           "figure that shows a move, always with its + or &minus; sign so colour is never the only cue. Lab "
+           "diagrams marked Illustrative are not market data.</p>")}
       {sec("corrections", "Corrections",
            "<p>A published note found to be wrong is taken down and the site rebuilds without it; it stays down, "
            "whatever later runs for that date bring, until it has been corrected and restored. Dashboards and the calendar correct themselves at the "
@@ -4605,7 +4504,7 @@ def fedrates_page(d):
     </div>
     {side}
     <div class="page__body dd__text">
-      <section aria-labelledby="fr-how"><h2 id="fr-how">How to read it</h2><p>The FOMC sets a target range for the overnight rate eight times a year. Fed funds futures settle on the average effective rate in their month, so the change from one month to the next shows what the market expects each meeting to do. A curve whose short end sits above its long end is inverted: both spreads above turned negative before most US recessions since the 1970s, with long and variable lags. The real yield is what a Treasury pays after inflation; the breakeven is the inflation rate at which inflation-protected and ordinary Treasuries pay the same.</p><p>Read more in <a class="link" href="../learn/fed-rates/">How the Fed sets rates</a> and <a class="link" href="../learn/yield-curve/">How to read the yield curve</a>.</p></section>
+      <section aria-labelledby="fr-how"><h2 id="fr-how">How to read it</h2><p>The FOMC sets a target range for the overnight rate eight times a year. Fed funds futures settle on the average effective rate in their month, so the change from one month to the next shows what the market expects each meeting to do. A curve whose short end sits above its long end is inverted: both spreads above turned negative before most US recessions since the 1970s, with long and variable lags. The real yield is what a Treasury pays after inflation; the breakeven is the inflation rate at which inflation-protected and ordinary Treasuries pay the same.</p></section>
       <section aria-labelledby="fr-src"><h2 id="fr-src">Sources and method</h2><p>Treasury par yields and real yields from the US Treasury, with FRED as backup; FRED posts the curve a day later, so the Treasury's figures come first. Spreads, the fed funds rate, inflation, unemployment and breakevens from FRED. The target range from the Federal Reserve via FRED and the FOMC calendar from the Federal Reserve. Meeting probabilities are an Andra Markets calculation from CBOT 30-day fed funds futures, following the method CME Group publishes: each contract settles on its month's average effective rate, so the rate after a meeting is the month's implied rate with the days before the decision taken out. Futures carry a risk premium, so they are a guide to expectations, not a forecast. The futures and the intraday yield points refresh every 15 minutes while the NYSE is open; the rest once a day. Series older than two years are shown one point a week.</p><p>For information only. Not investment advice.</p></section>
     </div>
   </div>
@@ -4620,13 +4519,31 @@ def fedrates_page(d):
 def moved_redirect(path, to, title, text):
     """An old address that moved: say where, and go there."""
     up = "../" * path.count("/")
-    body = (f'<main id="main" class="page"><div class="wrap"><header class="page__head"><h1 class="page__title">{title}</h1>'
+    body = (f'<main id="main" class="page"><div class="wrap"><header class="page__head"><h1 class="page__title">{title[0].upper() + title[1:]}</h1>'
             f'<p class="lede">{text} <a class="link" href="{up}{to}">{title}</a>.</p></header></div></main>'
             f'<script>location.replace("{up}{to}");</script>')
-    return shell(title=f"{title}: Andra Markets", desc=f"{text} {title}.", body=body, home=up, base=up, path=path)
+    name = title[0].upper() + title[1:]
+    return shell(title=f"{name}: Andra Markets" if name != "Andra Markets" else name, desc=f"{text} {title}.",
+                 body=body, home=up, base=up, path=path)
 
 
-# Path to Wall Street (careers/) ---------------------------------------------------
+# Old addresses: path -> (where it went, its title, what the page says).
+# Learn was removed (owner, 30 Oct 2026): each explainer sends readers to the
+# section that shows its subject live. The careers guide was renamed.
+_LEARNT = "Learn was removed. This subject is now covered in"
+MOVED = {
+    "learn/": ("", "Andra Markets", "Learn was removed. Go to the home page of"),
+    "learn/yield-curve/": ("fed-rates/", "Fed &amp; Rates", _LEARNT),
+    "learn/fed-rates/": ("fed-rates/", "Fed &amp; Rates", _LEARNT),
+    "learn/vix/": ("dashboards/volatility-term-structure/", "Volatility term structure", _LEARNT),
+    "learn/earnings-season/": ("calendar/", "the economic calendar", _LEARNT),
+    "learn/cpi-vs-pce/": ("dashboards/inflation-and-labour/", "Inflation and labour", _LEARNT),
+    "learn/credit-spreads/": ("dashboards/credit-spreads/", "Credit spreads", _LEARNT),
+    "careers/": ("break-into-wall-street/", "Break into Wall Street", "This guide is now"),
+}
+
+
+# Break into Wall Street (break-into-wall-street/) ---------------------------------------------------
 # One data file, data/path_to_wall_street.json, edited by hand.
 
 CAREERS_DATA = ROOT / "data" / "path_to_wall_street.json"
@@ -4701,7 +4618,7 @@ def careers_page():
     body = f"""<main id="main" class="page pw">
   <div class="wrap">
     <header class="page__head">
-      <h1 class="page__title">Path to Wall Street</h1>
+      <h1 class="page__title">Break into Wall Street</h1>
       <p class="lede">{esc(c["lede"])}</p>
       <p class="note__meta"><span>Investment banking, sales and trading, asset management, equity research, hedge funds</span><span>Last reviewed <time datetime="{c["reviewed"]}">{day_med(reviewed)}</time></span></p>
     </header>
@@ -4773,11 +4690,11 @@ def careers_page():
     </div>
   </div>
 </main>"""
-    return shell(title="Path to Wall Street: Andra Markets",
+    return shell(title="Break into Wall Street: Andra Markets",
                  desc="A guide for students breaking into investment banking, sales and trading, asset management, equity research "
                       "and hedge funds, from non-target universities and from outside the US: roles, recruiting timelines, CV, "
                       "networking, visas and certifications.",
-                 body=body, home="../", base="../", path="careers/", scripts=("careers.js",))
+                 body=body, home="../", base="../", path="break-into-wall-street/", scripts=("careers.js",))
 
 
 def slug_s(s):
@@ -4802,7 +4719,7 @@ SEARCH_TERMS = {
 SEARCH_PAGE_TERMS = {
     "fed-rates/": "Fed FOMC policy rate fed funds futures meeting probabilities yield curve Treasury 2s10s 3m10y "
                   "inversion spreads TIPS real yield breakeven inflation CPI PCE unemployment",
-    "careers/": "careers jobs internships spring week summer analyst off-cycle graduate programme recruiting CV resume "
+    "break-into-wall-street/": "careers jobs internships spring week summer analyst off-cycle graduate programme recruiting CV resume "
                 "networking cold email visa OPT H-1B CFA investment banking sales trading asset management hedge funds",
 }
 
@@ -4979,7 +4896,7 @@ def fin_ticker(t):
 SEARCH_PAGES = [
     ("Dashboards", "#dashboards", "Home"),
     ("Fed & Rates", "fed-rates/", "Page"),
-    ("Path to Wall Street", "careers/", "Page"),
+    ("Break into Wall Street", "break-into-wall-street/", "Page"),
     ("The Lab", "lab/", "Page"),
     ("Simulators", "simulators/", "Page"),
     ("Trading Simulator", "simulators/trading-simulator/", "Simulators"),
@@ -4988,7 +4905,6 @@ SEARCH_PAGES = [
     ("World markets", "world/", "Page"),
     ("FX", "fx/", "Page"),
     ("Daily close note", "#note", "Home"),
-    ("Learn", "learn/", "Page"),
     ("Subscribe", "#subscribe", "Home"),
     ("About", "#about", "Home"),
     ("Research Library", "research/", "Page"),
@@ -5018,9 +4934,6 @@ def search_index(notes, companies=None, library=()):
     for r in library:
         items.append({"g": "Reports", "t": r["title"], "m": f"{LIB_TYPE_NAME[r['type']]}, {day_med(r['day'])}",
                       "u": f"research/{r['slug']}/", "k": r["summary"] + " " + " ".join(r["tags"])})
-    for a in ARTICLES:
-        items.append({"g": "Pages", "t": a["title"], "m": "Learn", "u": f"learn/{a['slug']}/",
-                      "k": a["desc"] + " " + " ".join(h for h, _ in a["sections"])})
     for slug, _, title, desc, _, _ in LAB_TOOLS:
         items.append({"g": "Pages", "t": title, "m": "Lab", "u": f"lab/{slug}/", "k": desc + " calculator"})
     for title, url, meta in SEARCH_PAGES:
@@ -5040,18 +4953,16 @@ def main():
     (OUT / "watch" / "index.html").write_text(watch_redirect())
     (OUT / "fed-rates").mkdir(exist_ok=True)
     (OUT / "fed-rates" / "index.html").write_text(fedrates_page(load_fedrates()))
-    (OUT / "careers").mkdir(exist_ok=True)
-    (OUT / "careers" / "index.html").write_text(careers_page())
+    (OUT / "break-into-wall-street").mkdir(exist_ok=True)
+    (OUT / "break-into-wall-street" / "index.html").write_text(careers_page())
     # Yield curve and Fed path are part of Fed & Rates (owner, 30 Oct 2026).
     for old in ("yield-curve", "fed-path"):
         (OUT / "dashboards" / old).mkdir(parents=True, exist_ok=True)
         (OUT / "dashboards" / old / "index.html").write_text(moved_redirect(
             f"dashboards/{old}/", "fed-rates/", "Fed &amp; Rates", "This dashboard is now part of"))
-    (OUT / "learn").mkdir(exist_ok=True)
-    (OUT / "learn" / "index.html").write_text(learn_index())
-    for i, a in enumerate(ARTICLES):
-        (OUT / "learn" / a["slug"]).mkdir(exist_ok=True)
-        (OUT / "learn" / a["slug"] / "index.html").write_text(learn_page(i))
+    for path, (to, title, text) in MOVED.items():
+        (OUT / path).mkdir(parents=True, exist_ok=True)
+        (OUT / path / "index.html").write_text(moved_redirect(path, to, title, text))
     (OUT / "lab").mkdir(exist_ok=True)
     (OUT / "lab" / "index.html").write_text(lab_index())
     risk = risk_data()

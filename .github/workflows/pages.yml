@@ -243,7 +243,7 @@ jobs:
           cp -r fx _site/
           cp -r lab simulators _site/
           cp -r research interview-prep sources legal privacy _site/
-          cp -r fed-rates careers _site/
+          cp -r fed-rates careers break-into-wall-street _site/
           cp -r profile _site/
           rm -rf _site/assets/icons
       # The site is free: no PDF or data file may ever be published.

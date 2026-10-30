@@ -261,10 +261,6 @@ components:
     rounded: "{rounded.none}"
   lab-tool-hover:
     backgroundColor: "{colors.plate-hover}"
-  learn-feature:
-    backgroundColor: "{colors.ground-2}"
-    padding: "{spacing.card-padding}"
-    rounded: "{rounded.none}"
   tag:
     textColor: "{colors.ink-2}"
     typography: "{typography.meta}"
@@ -310,7 +306,7 @@ A monochrome ink-and-ground palette in two themes, with one darker "plate" surfa
 | Token | Light | Dark | Role |
 |---|---|---|---|
 | `--ground` | `#f4f6f6` | `#0a0c0d` | Page background, solid header, mobile nav sheet, input fill, hero bottom fade. |
-| `--ground-2` | `#e9eded` | `#14181b` | Raised tone: dashboard tile hover, Learn feature panel. |
+| `--ground-2` | `#e9eded` | `#14181b` | Raised tone: dashboard tile hover, the Break into Wall Street timeline's interview bars. |
 | `--ink-2` | `#424a50` | `#a8b0b4` | Secondary text: ledes, hero sub, nav links at rest, descriptions, key labels, meta. |
 | `--ink-3` | `#5a6268` | `#899196` | Tertiary text: placeholders (`.ph`), source lines, legal line, comparison (dashed) chart line, input placeholder. |
 | `--rule` | `rgba(14, 18, 21, 0.15)` | `rgba(233, 236, 235, 0.13)` | Hairlines: section and list dividers, tile lattice, chip and tag borders, solid-header bottom border. |
@@ -381,12 +377,11 @@ Self-hosted variable font: `assets/fonts/schibsted-grotesk-latin.woff2`, `font-w
 - **Section title** (540, `clamp(2rem, 4.2vw, 3.5rem)`, 1.02, -0.035em): every homepage section h2. `text-wrap: balance`.
 - **Statement** (480, `clamp(1.5rem, 3vw, 2.5rem)`, 1.18, -0.026em): the About statement. `text-wrap: pretty`.
 - **h3 levels:**
-  - Learn feature (540, `clamp(1.5rem, 2.4vw, 2rem)`, 1.1, -0.028em).
   - Note title (520, `clamp(1.375rem, 2.2vw, 1.875rem)`, 1.15, -0.022em).
   - Lab tool (540, `clamp(1.375rem, 2vw, 1.75rem)`, 1.1, -0.025em); "Next in the Lab" at 1.25rem.
   - Inner page section h2 (540, 1.375rem, -0.02em).
   - Dashboard tile (540, `clamp(1.1875rem, 1.5vw, 1.375rem)`, 1.15, -0.02em; 1rem at 640px and below).
-  - Learn list title (540, 1.1875rem, -0.015em).
+  - Link list title, the Lab and Simulators indexes (540, 1.1875rem, -0.015em).
   - Calendar event (540, 1.0625rem; 1rem on mobile).
   - Note list title (500, 1.0625rem).
 - **Hero sub** (400, `clamp(1.0625rem, 1.4vw, 1.25rem)`, 1.45): ink-2, max 36ch.
@@ -409,7 +404,7 @@ No uppercase, no letter-spaced labels, no italics are used.
 
 **Container.** `.wrap`: full width, max `1440px`, centred, side padding `--gutter` = `clamp(16px, 4vw, 56px)`. Full-bleed sections (hero, tape, Lab plate, signup) paint edge to edge and put a `.wrap` inside.
 
-**Grid.** `.grid`: 12 columns `repeat(12, minmax(0, 1fr))`, column gap `clamp(16px, 2vw, 32px)`. Row gaps per section: note 48px, Learn 40px, About 40px, signup 40px, footer 32px. The Lab uses its own 12 columns with gap `clamp(12px, 1.6vw, 20px)` (wide tool spans 7, tool spans 5, "next" spans all). Dashboards use a 3-column lattice.
+**Grid.** `.grid`: 12 columns `repeat(12, minmax(0, 1fr))`, column gap `clamp(16px, 2vw, 32px)`. Row gaps per section: note 48px, About 40px, signup 40px, footer 32px. The Lab uses its own 12 columns with gap `clamp(12px, 1.6vw, 20px)` (wide tool spans 7, tool spans 5, "next" spans all). Dashboards use a 3-column lattice.
 
 Two-part section splits: content in columns 1 to 6 (or 1 to 8 for the About statement), companion in columns 8 to 12 (9 to 12 for the About list). Footer: brand 1 to 4, nav 6 to 8 (two sub-columns), social 9 to 12, legal full width.
 
@@ -419,10 +414,10 @@ Two-part section splits: content in columns 1 to 6 (or 1 to 8 for the About stat
 
 **Breakpoints (max-width) and what each collapses:**
 - **1100px:** dashboard grid 3 to 2 columns; the calendar drops its Type column.
-- **1799px:** the search button turns into its 44px icon (it was 1260px; thirteen nav links leave no room for its label).
-- **1539px:** the nav steps down from 0.875rem (16px gap) to 0.8125rem (10px gap, header gap 10px) so all thirteen links fit beside the search icon, theme and Subscribe buttons down to 1301px; nav links never wrap. Measured in Chromium at every width from 1301px to 1920px.
-- **1300px:** primary nav becomes the mobile sheet (it was 1020px: with thirteen links the row no longer fits below 1301px); the menu button appears; Subscribe appears as the last item in the sheet; header gap tightens 24px to 8px.
-- **960px:** note, Learn, About, signup columns and the footer brand go full width; footer nav and social split 6/6; Lab tools go full width.
+- **1799px:** the search button turns into its 44px icon (it was 1260px; twelve nav links leave no room for its label).
+- **1539px:** the nav steps down from 0.875rem (16px gap) to 0.8125rem (10px gap, header gap 10px) so all twelve links fit beside the search icon, theme and Subscribe buttons down to 1301px; nav links never wrap. Measured in Chromium at every width from 1301px to 1920px.
+- **1300px:** primary nav becomes the mobile sheet (it was 1020px: with twelve links the row no longer fits below 1301px); the menu button appears; Subscribe appears as the last item in the sheet; header gap tightens 24px to 8px.
+- **960px:** note, About, signup columns and the footer brand go full width; footer nav and social split 6/6; Lab tools go full width.
 - **860px:** hero horse moves to `x 52%`, `y 36%` (above the headline).
 - **640px:** section padding 72px; body 1rem; section heads stack; tape columns become `40vw` each; dashboard tiles compact (still 2 columns, 14px padding, description hidden, title 1rem, source and key 0.75rem); calendar becomes stacked rows and its filter labels sit above their chips (see Components); note archive stacks date over title; signup input and button stack; hero buttons stretch; footer links grow to 44px.
 - **520px:** header Subscribe button hidden (the sheet and hero carry it); menu button shows its icon only; horse size `180vw`, `y 27%`.
@@ -468,7 +463,7 @@ Ink slabs with square corners; quiet, confident, no colour.
 ### Header and nav
 - **Structure:** fixed, 64px, z-index 20. Left to right: brand (mark plus wordmark, pushes the rest right), nav, search button, theme toggle, small Subscribe button, menu button (1300px and below).
 - **Transparent to solid:** over the hero the header is transparent with a transparent bottom border. An IntersectionObserver watches an 8px sentinel at the top of the hero; once it leaves the viewport the header gains `is-solid` (ground fill, `--rule` bottom border, 240ms transition). Pages without a hero sentinel (inner pages) are solid from the first paint. The header is also solid while the menu is open.
-- **Nav links:** thirteen (Dashboards, Fed & Rates, Companies, Lab, Simulators, Calendar, World, FX, Research, Daily note, Interview prep, Careers, Learn; Fed & Rates, Careers and Simulators added 30 Oct 2026 and measured to fit on one line at every width above 1300px), ink-2 at rest, ink on hover, no underline. Sized to fit beside the search icon, theme and Subscribe buttons: 0.875rem with a 16px gap from 1540px, 0.8125rem with 10px (header gap 10px) from 1301px to 1539px; at 1300px and below they move to the menu sheet. Measured in Chromium at every width.
+- **Nav links:** twelve (Dashboards, Fed & Rates, Companies, Lab, Simulators, Calendar, World, FX, Research, Daily note, Interview prep, Break into Wall Street; Fed & Rates, Simulators and Break into Wall Street added and Learn removed 30 Oct 2026; measured to fit on one line at every width above 1300px), ink-2 at rest, ink on hover, no underline. Sized to fit beside the search icon, theme and Subscribe buttons: 0.875rem with a 16px gap from 1540px, 0.8125rem with 10px (header gap 10px) from 1301px to 1539px; at 1300px and below they move to the menu sheet. Measured in Chromium at every width.
 - **Mobile sheet (1300px and below):** the nav becomes a fixed panel under the header, ground fill, `--rule` bottom border, links at 1.375rem/500/-0.02em in ink, 12px vertical padding, separated by `--rule` hairlines. Opens with opacity and `translateY(-8px)` to rest over 200ms ease-out. The menu button reads "Menu" with a list icon, then "Close" with an x icon; `aria-expanded` tracks state; the first link takes focus on open; Escape closes and returns focus; any link click closes.
 - **Subscribe placement:** a small primary button in the header above 520px. At 1300px and below it is also the last sheet item (weight 600). At 520px and below the header button is hidden and the sheet carries it.
 
@@ -529,8 +524,8 @@ A section of its own in the menu, built on the dashboard page grid (head, main c
 - **Latest:** the `.kpi` panel: target range, effective rate, next FOMC with its most likely outcome, 2Y and 10Y yields, 2s10s and 3m10y (levels in ink, signed), 10Y real yield, 10Y breakeven, core PCE. Day changes in red or green with their sign.
 - **Pending:** a block not fetched yet keeps its panel and source with "Data pending" in its chart box; its Save image button is left out.
 
-### Path to Wall Street (`careers/`, owner-approved preview, 30 Oct 2026)
-An inner page from `data/path_to_wall_street.json`; "Careers" in the menu, "Path to Wall Street" as the title and in the footer. `assets/careers.js` runs the timeline and templates.
+### Break into Wall Street (`break-into-wall-street/`, owner-approved preview, 30 Oct 2026)
+An inner page from `data/path_to_wall_street.json`; "Break into Wall Street" in the menu, the footer and as the title (renamed from Careers and Path to Wall Street, owner, 30 Oct 2026; `careers/` redirects). `assets/careers.js` runs the timeline and templates.
 - **Head:** title, lede, meta row (the five roles, "Last reviewed [date]"). Then "On this page": a numbered two-column list of links (one column on phones), closed by a `--rule` hairline.
 - **Sections** in the 44rem body, as on Interview Prep: the roles in the multi-open accordion (short name above in the Interview Prep subject style; inside: what, "A typical day" as a ruled numbered list, "Suits you if", "Where it leads", labels 0.8125rem/600 ink); the CV rules as a ruled list; networking steps; the technicals as ruled link rows (name, description, arrow that nudges 3px on hover); certifications as ruled rows with a When / Worth it definition grid; resources in groups.
 - **Recruiting timeline** (full width): Region chips (United States, United Kingdom, Europe) and Year chips (All years, then that region's years), both with the glide. A grid of months, September to August, under a `--rule-strong` rule; one row per year (label 9.5rem, 0.875rem/550), bars placed by month and stacked in lanes when they overlap. Four monochrome bar styles, keyed below: Prepare (dashed `--rule-strong` border), Applications (`--rule-strong` border on ground), Tests and interviews (`--ground-2` fill), On the job (ink fill, ground text). The current month is ink 600 in the header with a dashed `--rule-strong` line behind the bars. Picking a year dims the other rows to 0.32; a bar is a button that selects its year and highlights its step. Under the grid a ruled list of steps (when, kind, title 1.0625rem/540, detail in ink-2); the highlighted step on `--ground-2`. The grid scrolls sideways on phones (min 760px). Without JavaScript the timeline is a ruled list per region.
@@ -644,14 +639,8 @@ An inner page, one per note.
 - **Pager:** text links below the body, 32px above, 24px apart: "Previous note, [date]", "Next note, [date]", "All notes", "Get the note by email" (to the signup plate).
 - **No downloads.** The site is the free tier: no PDF, facts file or data download is linked or published anywhere (see PRODUCT.md, Business Model). The deploy fails if a PDF, JSON, CSV or XLSX file reaches the published site.
 
-### Learn feature and list
-- **Feature (columns 1 to 6):** a `--ground-2` panel, padding `clamp(20px, 2.4vw, 32px)`, explainer diagram on top with its key ending in the stamp "Diagram, not market data", then the title (feature-title style, 28px above), description (ink-2, max 46ch) and read time.
-- **List (columns 8 to 12):** `--rule-strong` top rule, ruled rows with title (1.1875rem/540), description (0.9375rem ink-2) and read time (0.8125rem ink-3).
-- **Hover:** titles underline (1px, offset 0.18em).
-- **Links:** the feature and rows open the explainers; the section head links "All explainers" to `learn/`.
-
-### Learn pages (`learn/`, `learn/<slug>/`)
-Six evergreen explainers from `tools/learn_content.py`, 600 to 900 words each, neutral, sourced to official or academic references cited by title and publisher (no personal names), no current figures. **Index:** inner page head, then the Learn list rows (title, description, read time at 230 words a minute) at 44rem. **Explainer:** inner page; head with crumbs ("Learn / Explainer"), page title, the description as lede, read time in the note meta style; body sections (h2 1.375rem/540, ink-2 paragraphs); "See it live" with a text link to the matching dashboard (earnings season links to the calendar, which carries the earnings rows); "Sources" as a `.ruled` ordered list of links, then "For information only. Not investment advice."; a pager (previous, next, all explainers).
+### Learn (removed, 30 Oct 2026)
+The homepage Learn section, the Learn index and its six explainers were removed at the owner's request. Each `learn/<slug>/` sends readers to the section that shows its subject (Fed & Rates, the volatility, inflation and credit dashboards, the calendar); `learn/` goes to the home page.
 
 ### Watch (removed, 30 Oct 2026)
 The homepage Watch section, the Watch page and their TikTok embeds were removed at the owner's request so the site loads nothing from TikTok and sets no third-party cookies. `watch/` now sends old links to the home page. Social channels appear only as plain footer links.
@@ -733,7 +722,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Do** set every colour through the theme custom properties so both themes and the Lab plate work without per-component overrides.
 - **Do** use the one `--font` stack ending in `sans-serif`, with variable weights between 400 and 650 as recorded in Typography.
 - **Do** apply tabular figures only to elements that hold numbers.
-- **Do** give every chart a key and a source and date line. Lab and Learn charts carry an "Illustrative" stamp until real data exists; dashboard tiles never do.
+- **Do** give every chart a key and a source and date line. Lab charts carry an "Illustrative" stamp until real data exists; dashboard tiles never do.
 - **Do** write unknown values as bracketed placeholders in `.ph` (or `.ph--ink` for a headline).
 - **Do** separate with 1px hairlines (`--rule`, `--rule-strong`) and tonal steps rather than boxes.
 - **Do** gate every hover effect behind `@media (hover: hover) and (pointer: fine)`.

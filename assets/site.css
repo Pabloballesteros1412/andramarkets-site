@@ -1493,39 +1493,7 @@ ul {
   }
 }
 
-/* Learn */
-
-.learn__grid {
-  row-gap: 40px;
-}
-
-.learn-feature {
-  grid-column: 1 / span 6;
-  align-self: start;
-  display: block;
-  padding: clamp(20px, 2.4vw, 32px);
-  background: var(--ground-2);
-  text-decoration: none;
-}
-
-.learn-feature h3 {
-  margin-top: 28px;
-  font-size: clamp(1.5rem, 2.4vw, 2rem);
-  font-weight: 540;
-  letter-spacing: -0.028em;
-  line-height: 1.1;
-}
-
-.learn-feature > p:not(.key) {
-  margin-top: 10px;
-  color: var(--ink-2);
-  max-width: 46ch;
-}
-
-.learn-feature .learn-list__time {
-  display: block;
-  margin-top: 16px;
-}
+/* Ruled list of links: the Lab and Simulators indexes. */
 
 .learn-list {
   grid-column: 8 / -1;
@@ -1557,26 +1525,11 @@ ul {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .learn-list a:hover .learn-list__title,
-  .learn-feature:hover h3 {
+  .learn-list a:hover .learn-list__title {
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.18em;
   }
-}
-
-/* Learn pages (learn/, learn/<slug>/) */
-
-.learnp__list {
-  max-width: 44rem;
-}
-
-.page__body .learnp__src li {
-  color: var(--ink-2);
-}
-
-.learnp__src a {
-  overflow-wrap: anywhere;
 }
 
 /* Lab tool pages (lab/<slug>/): inputs, chart and result, all in the browser. */
@@ -2693,7 +2646,6 @@ ul {
 @media (max-width: 960px) {
   .note__latest,
   .note__archive,
-  .learn-feature,
   .learn-list,
   .about__statement,
   .about dl,
@@ -5933,7 +5885,7 @@ html:not(.js) .ip-filters {
 .fr-tab .mv--down { color: var(--down-text); }
 .fr__side .kpi__level .ph { color: var(--ink-3); }
 
-/* Path to Wall Street (careers/): an inner page with a full-width timeline,
+/* Break into Wall Street (break-into-wall-street/): an inner page with a full-width timeline,
    sample CV and visa grid between 44rem text sections. */
 .pw-toc {
   max-width: 44rem;

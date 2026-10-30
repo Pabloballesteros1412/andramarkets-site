@@ -189,7 +189,7 @@
       {"name": "Valuation", "what": "DCF, comparable companies and precedent transactions, and when each fails.", "link": "interview-prep/"},
       {"name": "Markets", "what": "Where rates, equities, FX and commodities are, and why they moved this week.", "link": "interview-prep/"},
       {"name": "Rates and the Fed", "what": "The yield curve, inversions and what futures price for the next meetings.", "link": "dashboards/fed-rates/"},
-      {"name": "A stock pitch", "what": "One idea, a clear thesis, the risks and what would change your mind.", "link": "learn/"}
+      {"name": "A stock pitch", "what": "One idea, a clear thesis, the risks and what would change your mind.", "link": "interview-prep/"}
     ]
   },
   "visas": {
@@ -234,7 +234,6 @@
     {"group": "On Andra Markets", "items": [
       {"name": "Markets Interview Prep", "what": "This week's markets in interview language and a question bank with model answers.", "href": "interview-prep/"},
       {"name": "Daily close note", "what": "Read one a day to follow markets.", "href": "reports/"},
-      {"name": "Learn", "what": "Explainers on the yield curve, the VIX, CPI and more.", "href": "learn/"},
       {"name": "Fed & Rates", "what": "The policy rate, the curve and what markets price next.", "href": "dashboards/fed-rates/"}
     ]},
     {"group": "Books", "items": [

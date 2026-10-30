@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `careers/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
+Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
 by `tools/build_site.py` at deploy time and deployed to GitHub Pages from `main` by
 `.github/workflows/pages.yml`. No framework, no build step beyond the generator.
 
@@ -26,9 +26,8 @@ Two audiences in equal measure:
 Andra Markets is a markets research platform. Its modules: interactive
 dashboards across rates, equities, macro and cross-asset; a Lab of interactive
 quant tools (momentum regime backtest explorer, options pricer, more to come);
-an economic calendar; a daily US market close note; Learn (explainers for people
-starting out); a Research Library; Fed & Rates; Markets Interview Prep; and
-Path to Wall Street, a careers guide. Videos stay on
+an economic calendar; a daily US market close note; a Research Library; Fed & Rates; Markets Interview Prep; and
+Break into Wall Street, a careers guide. Videos stay on
 TikTok and LinkedIn: the site links to them and embeds nothing (owner, 30 Oct
 2026: the Watch section was removed so the site sets no third-party cookies). Success: visitors explore
 a dashboard or tool, come back for the calendar and note, and subscribe by email.
@@ -36,7 +35,7 @@ a dashboard or tool, come back for the calendar and note, and subscribe by email
 ## Positioning
 
 One platform that serves professionals (dashboards, tools, calendar) and
-newcomers (Learn, Interview Prep) from the same automated pipeline, dated and on the
+newcomers (Interview Prep, Break into Wall Street) from the same automated pipeline, dated and on the
 record. The daily note is one module among others, not the centrepiece.
 
 ## Operating Context
@@ -53,7 +52,8 @@ record. The daily note is one module among others, not the centrepiece.
   credit spreads, inflation and labour, watchlist breadth, cross-asset
   correlation; an earnings season tracker returns once it has a real source;
   no illustrative dashboard tiles; a tile waiting for data says "Data pending"), Lab tools, economic calendar, daily close note,
-  Learn, Research Library, Fed & Rates, Interview Prep, Path to Wall Street.
+  Research Library, Fed & Rates, Interview Prep, Break into Wall Street. Learn
+  was removed (owner, 30 Oct 2026); its addresses redirect.
 - Fed & Rates (`fed-rates/`, owner-approved preview, 30 Oct 2026): its own
   section in the menu, not a dashboard; the Yield curve and Fed path dashboards
   were folded into it and their addresses redirect there. The target range and
@@ -67,7 +67,8 @@ record. The daily note is one module among others, not the centrepiece.
   delayed). Futures and four intraday yields refresh every 15 minutes while the
   NYSE is open; the rest daily. Owner accepted: no SOFR futures (no free
   source) and only four intraday points between official curves.
-- Path to Wall Street (`careers/`, owner-approved preview, 30 Oct 2026): a
+- Break into Wall Street (`break-into-wall-street/`, owner-approved preview,
+  30 Oct 2026; renamed from Path to Wall Street, `careers/` redirects): a
   guide for students entering IB, S&T, asset management, equity research and
   hedge funds, especially from non-target universities and outside the US:
   the roles, an interactive recruiting timeline by region and academic year,
@@ -170,8 +171,8 @@ Recorded for direction only. **No paid feature is built yet.**
 ### Free tier (open to everyone, on this site)
 
 The daily close note, readable on the web and shareable by link; dashboards;
-the economic calendar; Learn; Lab tools; the Research Library; Fed & Rates;
-Interview Prep; Path to Wall Street.
+the economic calendar; Lab tools; the Research Library; Fed & Rates;
+Interview Prep; Break into Wall Street.
 
 The site never offers downloads: no note PDF, no verified facts file, no data
 behind the dashboards. One exception (owner, 30 Oct 2026): Fed & Rates

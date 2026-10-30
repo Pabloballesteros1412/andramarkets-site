@@ -1,4 +1,4 @@
-// Path to Wall Street (careers/): the recruiting timeline (region, then year;
+// Break into Wall Street (break-into-wall-street/): the recruiting timeline (region, then year;
 // bars by month, September to August) and the cold email templates. Without
 // JavaScript the timeline is a list and every template shows.
 (function () {

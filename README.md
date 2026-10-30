@@ -14,8 +14,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/fx_data.py`: fetches the daily FX analyses and the FX pairs table at deploy time (below).
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
 - `tools/fedrates_data.py`, `assets/fedrates.js`: the Fed & Rates section (`fed-rates/`): fetches its figures at deploy time and every 15 minutes in US hours (below), and draws its charts.
-- `data/path_to_wall_street.json`, `assets/careers.js`: Path to Wall Street (`careers/`), the careers guide, and its recruiting timeline. Edit the guide's text in the data file and update its `reviewed` date.
-- `tools/learn_content.py`: the text and sources of the six Learn explainers (`learn/`).
+- `data/path_to_wall_street.json`, `assets/careers.js`: Break into Wall Street (`break-into-wall-street/`), the careers guide, and its recruiting timeline. Edit the guide's text in the data file and update its `reviewed` date.
 - `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one Markdown file per report. `tools/import_report.py` converts a report's PDF and adds its line; see `data/reports/README.md`. The PDF itself is never committed.
 - `data/interview_prep.json`: Markets Interview Prep (`interview-prep/`): the weekly block (`week`, rewritten each week) and the question bank.
 - `tools/legal_content.py`: the legal notice (`legal/`) and the privacy and cookies policy (`privacy/`).
@@ -31,7 +30,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `PRODUCT.md`: product truth and brand commitments.
 - `AGENT_FIXES.md`: known problems in the agent repo, to fix next.
 
-The HTML pages (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `careers/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `calendar/`) are generated at
+The HTML pages (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `calendar/`) are generated at
 deploy time and are not stored in the repo. Pushes to `main` deploy to GitHub
 Pages via `.github/workflows/pages.yml`, which builds the pages and publishes
 only `index.html`, `methodology/`, `reports/`, `dashboards/`, `calendar/` and `assets/`. To preview
@@ -449,7 +448,8 @@ once the first close note is published.
 Social channels live in `SOCIALS` at the top of `tools/build_site.py`: the
 footer links to each channel with a URL. Nothing from them is embedded (the
 Watch section was removed on 30 Oct 2026 so the site sets no third-party
-cookies); `watch/` only sends old links to the home page. Lab and Learn charts
+cookies); `watch/` only sends old links to the home page; `learn/` (removed the same day) sends
+each explainer to the section that covers it. Lab charts
 are illustrative shapes until real data is wired in, and say so. The signup form is a
 placeholder until the free newsletter launches on a newsletter platform
 (Substack, Beehiiv or Ghost); it will then link there. See PRODUCT.md,
