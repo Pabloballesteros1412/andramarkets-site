@@ -1,0 +1,29 @@
+{
+  "slug": "brainteasers-and-mental-maths",
+  "name": "Brainteasers and mental maths",
+  "short": "Probability, estimation and fast arithmetic, as trading desks test them.",
+  "lede": "Trading, quant and some banking interviews test how you think under time pressure: quick arithmetic, probability, and puzzles where the method counts more than the answer.",
+  "drill": true,
+  "essentials": [
+    {"title": "Think out loud", "text": "The interviewer marks the method. State your assumptions, say what you are trying, and check the answer for sense before you give it."},
+    {"title": "Expected value", "text": "Most probability questions are an expected value in disguise: list the outcomes, weight each by its probability and add them up. Decide at each step by comparing the value of stopping with the value of going on."},
+    {"title": "Estimation", "text": "Market sizing questions want a clear structure, not the right number: start from a population, segment it, apply a rate, and round so the arithmetic stays easy. Sanity check the result against something you know."},
+    {"title": "Speed comes from habits", "text": "Break products into parts (48 × 25 is 48 × 100 ÷ 4), know the common fractions as decimals (1/8 is 0.125) and percentages both ways (18% of 50 is 50% of 18). Practise daily for a few minutes rather than once for an hour."}
+  ],
+  "questions": [
+    {"level": "core", "q": "A bat and a ball cost $1.10 together. The bat costs $1.00 more than the ball. What does the ball cost?", "a": ["5 cents. If the ball costs x, the bat costs x + 1.00, so 2x + 1.00 = 1.10 and x = 0.05. The quick answer, 10 cents, makes the bat only 90 cents more."], "follow": "Why do people say 10 cents, and how do you avoid that on a desk?"},
+    {"level": "core", "q": "What is the angle between the hands of a clock at 3:15?", "a": ["7.5 degrees. The minute hand is at 90 degrees. The hour hand moves 30 degrees an hour, so a quarter past three puts it at 90 + 7.5 = 97.5 degrees."], "follow": "How many times a day do the hands overlap?"},
+    {"level": "core", "q": "What is the sum of the whole numbers from 1 to 100?", "a": ["5,050. Pair them: 1 + 100, 2 + 99 and so on make 50 pairs of 101."], "follow": "And the sum of the odd numbers from 1 to 99?"},
+    {"level": "core", "q": "You draw two cards from a shuffled deck. What is the probability they are the same suit?", "a": ["12/51, which is 4/17 or about 23.5%. Whatever the first card is, 12 of the remaining 51 cards share its suit."], "follow": "And the probability that both are aces?"},
+    {"level": "advanced", "q": "You roll a die and may roll once more, keeping the second roll. What is your strategy and its expected value?", "a": ["A single roll is worth 3.5, so keep a 4, 5 or 6 and roll again on 1, 2 or 3.", "Expected value: (4 + 5 + 6) / 6 + (3/6) × 3.5 = 2.5 + 1.75 = 4.25."], "follow": "What if you may roll up to three times?"},
+    {"level": "advanced", "q": "You have a 3-litre jug and a 5-litre jug. How do you measure exactly 4 litres?", "a": ["Fill the 5-litre jug and pour it into the 3-litre jug, leaving 2 litres. Empty the 3-litre jug and pour the 2 litres into it. Fill the 5-litre jug again and top up the 3-litre jug, which takes 1 litre. The 5-litre jug now holds 4 litres."], "follow": "Can you do it with a 4-litre and a 6-litre jug?"},
+    {"level": "advanced", "q": "With two identical eggs and a 100-floor building, how do you find the highest floor an egg survives in the fewest drops in the worst case?", "a": ["14 drops. Drop the first egg from floor 14, then 27, 39 and so on, each step one floor shorter, so that the drops left for the second egg always add up to the same total. 14 is the smallest n with n(n + 1)/2 of at least 100."], "follow": "What if you had three eggs?"},
+    {"level": "core", "q": "Estimate how many petrol stations there are in the US.", "a": ["A structure, not a number: about 330 million people, roughly one car for every 1.2 people, so around 280 million vehicles. Each fills up about once a week, so about 40 million fill-ups a day. A station serves a few hundred cars a day, say 300 to 400, which gives about 100,000 to 130,000 stations. Say how you would check it."], "follow": "Which assumption is your answer most sensitive to?"}
+  ],
+  "mistakes": [
+    "Answering fast and wrong. Take two seconds, then say the method first.",
+    "Going silent: the interviewer cannot mark a method they cannot hear.",
+    "Giving a market size without a structure, or with arithmetic too precise to do in your head.",
+    "Forgetting to sanity check: a probability above 1 or a petrol station for every ten people should stop you."
+  ]
+}

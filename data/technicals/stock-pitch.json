@@ -1,0 +1,51 @@
+{
+  "slug": "stock-pitch",
+  "name": "A stock pitch",
+  "short": "How to structure, value and defend a long or short idea in two minutes.",
+  "lede": "Equity research, asset management and hedge fund interviews almost always ask for a stock pitch, and banking interviews often do. The interviewer is testing whether you can form a view the market does not hold, put a value on it and defend it under questions.",
+  "essentials": [
+    {"title": "The structure", "text": "Recommendation first: buy or sell, the price target and the upside or downside. Then the thesis in two or three points, the valuation that supports the target, the catalysts that should move the shares and when, and the risks, including what would change your mind. Two minutes, then let the interviewer ask."},
+    {"title": "A thesis is a disagreement", "text": "Each thesis point should say what the market believes, why it is wrong and how you know. A good company is not a thesis; a good company the market undervalues for a specific reason is. If you cannot say why the shares are mispriced, you do not yet have a pitch."},
+    {"title": "Choosing the stock", "text": "Pick a company you can understand and defend for twenty minutes: a business you can explain in one sentence, with filings and results you have read. Avoid the most talked-about large companies, where you have no edge and the interviewer has heard every view. A mid-sized company, ideally relevant to the firm's coverage or strategy, works well."},
+    {"title": "Valuation and target", "text": "Put a number on it. The simplest route is a forward multiple applied to your own earnings estimate, cross-checked against peers, its own history and a DCF. Explain why your estimate or your multiple differs from the market's, because that difference is your upside."},
+    {"title": "Long versus short", "text": "A short has different risks: losses are in theory unlimited, the borrow costs money, the shares can be squeezed and the market tends to rise over time. So a short needs a sharper catalyst and a clearer timeline: an accounting problem, a structural decline or an earnings estimate that is too high. Be ready for either; some interviewers ask for one of each."}
+  ],
+  "example": {
+    "title": "A pitch outline for Example Co.",
+    "intro": "Example Co. is a fictional mid-sized maker of industrial pumps, used only to show the structure. All figures are invented and kept round.",
+    "columns": ["Section", "What you say"],
+    "rows": [
+      ["Recommendation", "Buy Example Co. at $48, with a 12-month target of $60: +25% upside."],
+      ["Thesis 1", "The market treats it as a cyclical equipment maker, but service and spare parts are now half of revenue and recur every year, so earnings are steadier than the multiple implies."],
+      ["Thesis 2", "Margins should rise as a factory consolidation completes, which consensus estimates do not yet include."],
+      ["Thesis 3", "Net debt is low, so cash flow can fund buybacks or small acquisitions."],
+      ["Valuation", "It trades at 12.0x next year's earnings per share of $4.00. At 15.0x, closer to service-heavy peers, the target is $60."],
+      ["Catalysts", "Full-year results with the first service disclosure, and the factory consolidation finishing within the year."],
+      ["Risks", "A sharp industrial downturn, delays in the consolidation, or a large acquisition at a high price."],
+      ["What would change my mind", "Service revenue growth falling to the rate of equipment sales, or margins not improving after the consolidation."]
+    ],
+    "note": "Check the arithmetic before the interview: $48 ÷ $4.00 = 12.0x, $4.00 × 15.0 = $60, and $60 ÷ $48 = 1.25, so the upside is 25%."
+  },
+  "questions": [
+    {"level": "core", "q": "Pitch me a stock.", "a": ["Lead with the call: I would buy the company at its current price with a 12-month target, giving a stated upside. Then the thesis in two or three points, each saying what the market believes and why I think it is wrong.", "Then the valuation behind the target, the catalysts that should close the gap and their timing, and the main risks, with what would make me change my mind. Stop at about two minutes and let the interviewer pick a thread."], "follow": "Why has the market not seen this already?"},
+    {"level": "core", "q": "How did you choose this stock?", "a": ["Give the real process: where the idea came from, such as a screen, a results release or an industry you follow, and why you went deeper. Then show the work: the filings, results calls and competitor reports you read. A good answer shows a repeatable way of finding ideas, not luck."], "follow": "What other ideas did you reject, and why?"},
+    {"level": "core", "q": "How did you get to your price target?", "a": ["Say the method and the inputs: for example, my estimate of next year's earnings per share times a multiple, with a reason for each. Explain why my earnings estimate differs from consensus, or why the multiple should change, and how the target looks against a DCF or the stock's own trading history. Then give a downside case, so the risk to reward is clear."], "follow": "What multiple do peers trade on, and why should this company trade differently?"},
+    {"level": "core", "q": "What is the market missing?", "a": ["This is the core of the pitch. Answer in one sentence: the market thinks X, I think Y, because of evidence Z. Point to something specific and checkable, such as a change in business mix, a cost programme, a mispriced segment or a consensus estimate that ignores a known event. If the answer is only that the company is good, the pitch is weak."], "follow": "What evidence would prove you wrong in the next six months?"},
+    {"level": "core", "q": "What are the catalysts?", "a": ["Events with a date or a window that should make the market change its view: results, an investor day, a product launch, the end of a restructuring, a regulatory decision or a change in capital return. Without a catalyst, an undervalued stock can stay undervalued for years. Say which catalyst matters most and roughly when."], "follow": "What if the catalyst comes and the shares do not move?"},
+    {"level": "core", "q": "What are the main risks, and what would change your mind?", "a": ["Name the two or three risks that would actually break the thesis, not generic ones such as a recession unless the company is unusually exposed. For each, say how you would spot it early and what the downside would be. Then name the specific evidence that would make you sell: it shows discipline, which is what investors look for."], "follow": "What is your downside price if you are wrong?"},
+    {"level": "core", "q": "What is the bear case?", "a": ["Give the strongest version of the other side, the one a smart investor who disagrees would make, and then explain why you think it is wrong or already in the price. Interviewers trust a candidate who can argue against their own idea far more than one who has no answer."], "follow": "Which part of the bear case worries you most?"},
+    {"level": "core", "q": "Who are the main competitors, and how does the company compare?", "a": ["Name two or three and compare them on what matters for the thesis: growth, margins, market share, balance sheet and valuation. Explain the company's competitive advantage, if it has one, and how durable it is. Knowing the peers is also how you defend the multiple you use."], "follow": "Why not buy the competitor instead?"},
+    {"level": "advanced", "q": "Pitch me a short.", "a": ["Same structure, with a sharper edge: why the shares should fall, by how much and by when. Good short theses rest on earnings estimates that are too high, a business in structural decline, aggressive accounting, or a valuation that assumes too much.", "Address the short-specific risks: the cost and availability of the borrow, the risk of a squeeze if many investors are short, and the fact that the loss on a short is in theory unlimited. That is why the catalyst and the stop matter more than on a long."], "follow": "How would you size a short compared with a long?"},
+    {"level": "advanced", "q": "What is the difference between pitching a long and a short?", "a": ["A long can be patient: the market tends to rise over time, the most you can lose is what you invested, and dividends work in your favour. A short works against all three: unlimited theoretical loss, the borrow cost and any dividends paid to the lender, and a market that drifts up. So a short needs a clearer catalyst, a tighter timeline and smaller sizing, and you must know who owns the stock and how crowded the short is."], "follow": "What does it mean if a stock is hard to borrow?"},
+    {"level": "advanced", "q": "The stock falls 20% tomorrow. What do you do?", "a": ["First find out why. If the fall comes from news that breaks the thesis, sell, whatever the loss. If it is market-wide or unrelated to the thesis, and the case still holds, the shares are now cheaper and the risk to reward is better, so you might add, within risk limits. The answer the interviewer wants is that the decision depends on the thesis, not on the price you paid."], "follow": "What if you cannot find the reason?"},
+    {"level": "advanced", "q": "How would your pitch differ for an equity research, a long-only and a hedge fund interview?", "a": ["Equity research cares about the depth of the model, the earnings estimates against consensus and the industry knowledge. A long-only fund cares about the business quality and the value over several years. A hedge fund cares about the catalyst, the timing, the risk to reward and how you would size and hedge the position, and may want a short. The core thesis can stay the same; the emphasis changes."], "follow": "How would you hedge the market risk in your long?"}
+  ],
+  "mistakes": [
+    "Describing a good company instead of a mispriced stock.",
+    "Pitching one of the most widely held large companies with no view the market does not already hold.",
+    "Having no price target, or a target you cannot rebuild from your own numbers.",
+    "Not knowing the current share price, market value and recent results on the day.",
+    "Listing generic risks and never saying what would make you sell.",
+    "Pitching a short with no catalyst, timeline or plan for a squeeze."
+  ]
+}

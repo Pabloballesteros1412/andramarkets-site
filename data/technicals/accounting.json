@@ -1,0 +1,54 @@
+{
+  "slug": "accounting",
+  "name": "Accounting",
+  "short": "How the three statements link, and what a change in one item does to each.",
+  "lede": "The three financial statements, how they connect, and the walk-throughs every banking and research interview asks for.",
+  "essentials": [
+    {"title": "Three statements, three questions", "text": "The income statement shows profit over a period: revenue less expenses down to net income. The balance sheet shows what the company owns and owes at one date: assets equal liabilities plus equity. The cash flow statement shows how cash moved over the period, in operating, investing and financing activities."},
+    {"title": "Net income is the bridge", "text": "Net income ends the income statement, starts the cash flow statement and adds to retained earnings on the balance sheet. The cash flow statement then explains the change in the cash line of the balance sheet."},
+    {"title": "Non-cash items are added back", "text": "Depreciation, amortisation, stock-based compensation and impairments reduce net income but use no cash in the period, so the cash flow statement adds them back. Their tax saving is real cash."},
+    {"title": "Working capital moves cash", "text": "An increase in an operating asset such as inventory or receivables uses cash; an increase in an operating liability such as payables or deferred revenue provides cash. That is why a growing company can be profitable and short of cash."},
+    {"title": "Capital spending and financing", "text": "Buying equipment is an investing outflow that adds to property, plant and equipment, then reaches the income statement over time as depreciation. Borrowing, repaying debt, issuing shares, buybacks and dividends are financing flows; only interest reaches the income statement."},
+    {"title": "Goodwill", "text": "In an acquisition, goodwill is the price paid above the fair value of the identifiable net assets. Under US GAAP it is not amortised: it is tested for impairment at least once a year and written down when impaired."}
+  ],
+  "example": {
+    "title": "Depreciation rises by $10, at a 25% tax rate",
+    "intro": "The walk-through interviewers ask most. Start with the income statement, then cash, then check the balance sheet balances.",
+    "columns": ["Statement", "Line", "Change"],
+    "rows": [
+      ["Income statement", "Depreciation", "+$10.0"],
+      ["Income statement", "Pre-tax income", "−$10.0"],
+      ["Income statement", "Tax (25%)", "−$2.5"],
+      ["Income statement", "Net income", "−$7.5"],
+      ["Cash flow statement", "Net income", "−$7.5"],
+      ["Cash flow statement", "Add back depreciation", "+$10.0"],
+      ["Cash flow statement", "Change in cash", "+$2.5"],
+      ["Balance sheet", "Cash", "+$2.5"],
+      ["Balance sheet", "Property, plant and equipment", "−$10.0"],
+      ["Balance sheet", "Total assets", "−$7.5"],
+      ["Balance sheet", "Retained earnings (equity)", "−$7.5"]
+    ],
+    "note": "Assets fall by $7.5 and equity falls by $7.5: the balance sheet balances. Cash rises because the tax bill is $2.5 lower."
+  },
+  "questions": [
+    {"level": "core", "q": "Walk me through the three financial statements.", "a": ["The income statement shows revenue less expenses over a period, down to net income. The balance sheet shows assets, liabilities and equity at a point in time, and assets always equal liabilities plus equity. The cash flow statement starts from net income, adjusts for non-cash items and working capital to get cash from operations, then adds investing and financing flows to explain the change in cash."], "follow": "Which one would you look at first, and why?"},
+    {"level": "core", "q": "How do the three statements link?", "a": ["Net income from the income statement is the first line of the cash flow statement and flows into retained earnings on the balance sheet.", "The cash flow statement adds back non-cash charges, reflects changes in balance sheet items (working capital, capital spending, debt, equity) and ends with the change in cash, which matches the cash line on the balance sheet."], "follow": "Where does depreciation appear in each statement?"},
+    {"level": "core", "q": "Depreciation goes up by $10. Walk me through the three statements, with a 25% tax rate.", "a": ["Income statement: pre-tax income falls by $10, tax falls by $2.5, so net income falls by $7.5.", "Cash flow statement: net income is down $7.5, but depreciation is added back, +$10, so cash from operations rises by $2.5.", "Balance sheet: cash is up $2.5 and PP&E is down $10, so assets fall by $7.5; retained earnings fall by $7.5, so liabilities plus equity also fall by $7.5. It balances."], "follow": "Why does cash go up when profit goes down?"},
+    {"level": "core", "q": "A company buys $100 of inventory with cash. What changes?", "a": ["Income statement: nothing, until the inventory is sold.", "Cash flow statement: the increase in inventory is a use of working capital, so cash from operations falls by $100.", "Balance sheet: cash down $100, inventory up $100. Total assets do not change."], "follow": "And when that inventory is sold for $150?"},
+    {"level": "core", "q": "That inventory is sold for $150, at a 25% tax rate. Walk me through it.", "a": ["Income statement: revenue +$150, cost of goods sold +$100, pre-tax income +$50, tax +$12.5, net income +$37.5.", "Cash flow statement: net income +$37.5 and the fall in inventory releases $100, so cash from operations rises by $137.5.", "Balance sheet: cash +$137.5, inventory −$100, so assets rise by $37.5; retained earnings rise by $37.5."], "follow": "What if the sale were on credit?"},
+    {"level": "core", "q": "If you could look at only one statement to judge a company's health, which would it be?", "a": ["The cash flow statement: it shows whether the business actually generates cash, which profit alone does not. It starts from net income, so you still see profitability, and it shows what the company spends to stay in business and how it is financed. For a bank or an insurer the balance sheet matters more."], "follow": "Why can profit and cash diverge for years?"},
+    {"level": "core", "q": "Can a profitable company go bankrupt?", "a": ["Yes. Profit is not cash. A fast-growing company can tie up cash in receivables and inventory, or a company can have debt falling due that it cannot refinance. It runs out of cash while still reporting net income."], "follow": "Which lines would warn you first?"},
+    {"level": "core", "q": "What is working capital, and why does an increase use cash?", "a": ["Operating working capital is current operating assets (receivables, inventory) less current operating liabilities (payables, accrued expenses, deferred revenue). When it grows, the company has put more cash into the gap between paying suppliers and collecting from customers, so cash flow falls."], "follow": "Name a business with negative working capital."},
+    {"level": "advanced", "q": "What is goodwill, and what happens to it after the deal?", "a": ["Goodwill is the purchase price less the fair value of the target's identifiable net assets, after writing those assets up to fair value and recognising intangibles such as customer lists. Under US GAAP it is not amortised; it is tested for impairment at least once a year and written down if the business is worth less than its carrying value."], "follow": "How does an impairment flow through the statements?"},
+    {"level": "advanced", "q": "An asset carried at $100 is written down to $80. Walk me through it at 25% tax, assuming the charge is tax deductible.", "a": ["Income statement: a $20 impairment, pre-tax income −$20, tax −$5, net income −$15.", "Cash flow statement: net income −$15, add back the non-cash $20, so cash rises by $5.", "Balance sheet: cash +$5, the asset −$20, so assets fall by $15; retained earnings fall by $15."], "follow": "What changes if the impairment is not tax deductible, as is often the case for goodwill?"},
+    {"level": "advanced", "q": "A software company bills a customer $120 upfront for a 12-month subscription. What happens in the first month?", "a": ["At billing and collection: cash +$120 and deferred revenue, a liability, +$120. Nothing on the income statement.", "In the first month the company earns one twelfth: revenue +$10 and deferred revenue −$10. Cash flow from operations shows the full $120 in the period it was collected, through the increase in deferred revenue."], "follow": "Why do investors in subscription businesses watch deferred revenue?"},
+    {"level": "advanced", "q": "Stock-based compensation is $10. Walk me through the statements at 25% tax, assuming the expense is deductible.", "a": ["Income statement: expense +$10, pre-tax income −$10, net income −$7.5.", "Cash flow statement: net income −$7.5, add back the non-cash $10, cash +$2.5.", "Balance sheet: cash +$2.5. Equity: retained earnings −$7.5 and additional paid-in capital +$10, so equity +$2.5. It balances."], "follow": "Why do some analysts treat stock-based compensation as a cash cost in a valuation?"}
+  ],
+  "mistakes": [
+    "Forgetting tax: almost every income statement change moves tax too, and that tax is cash.",
+    "Adding depreciation back on the cash flow statement but forgetting to reduce PP&E on the balance sheet.",
+    "Getting the sign of working capital wrong: more inventory or receivables uses cash.",
+    "Saying goodwill is amortised under US GAAP. It is tested for impairment instead.",
+    "Reciting the answer without checking that the balance sheet balances. Always finish with the check."
+  ]
+}

@@ -14,8 +14,9 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/fx_data.py`: fetches the daily FX analyses and the FX pairs table at deploy time (below).
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
 - `tools/fedrates_data.py`, `assets/fedrates.js`: the Fed & Rates section (`fed-rates/`): fetches its figures at deploy time and every 15 minutes in US hours (below), and draws its charts.
-- `data/path_to_wall_street.json`, `assets/careers.js`: Path to Wall Street (`careers/`), the careers guide, and its recruiting timeline. Edit the guide's text in the data file and update its `reviewed` date.
-- `tools/learn_content.py`: the text and sources of the six Learn explainers (`learn/`).
+- `data/path_to_wall_street.json`, `assets/careers.js`: Break into Wall Street (`break-into-wall-street/`), the careers guide.
+- `data/recruiting_calendar.json`, `assets/recruiting.js`: its recruiting calendar (`break-into-wall-street/recruiting-calendar/`), kept by hand (below).
+- `data/technicals/<topic>.json`, `assets/technicals.js`: its nine technical preparation pages (`break-into-wall-street/technicals/<topic>/`): what to know, a worked example, practice cards, common mistakes. Edit the guide's text in the data file and update its `reviewed` date.
 - `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one Markdown file per report. `tools/import_report.py` converts a report's PDF and adds its line; see `data/reports/README.md`. The PDF itself is never committed.
 - `data/interview_prep.json`: Markets Interview Prep (`interview-prep/`): the weekly block (`week`, rewritten each week) and the question bank.
 - `tools/legal_content.py`: the legal notice (`legal/`) and the privacy and cookies policy (`privacy/`).
@@ -31,7 +32,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `PRODUCT.md`: product truth and brand commitments.
 - `AGENT_FIXES.md`: known problems in the agent repo, to fix next.
 
-The HTML pages (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `careers/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `calendar/`) are generated at
+The HTML pages (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `calendar/`) are generated at
 deploy time and are not stored in the repo. Pushes to `main` deploy to GitHub
 Pages via `.github/workflows/pages.yml`, which builds the pages and publishes
 only `index.html`, `methodology/`, `reports/`, `dashboards/`, `calendar/` and `assets/`. To preview
@@ -211,6 +212,28 @@ decision are taken out; a month with no meeting anchors the next). Daily
 series older than two years are kept one point a week. A block whose source
 fails keeps its last copy and date; one never fetched shows "Data pending".
 SOFR futures are not used: there is no free source.
+
+## Recruiting calendar
+
+`data/recruiting_calendar.json` holds one row per US programme: firm, firm
+type, programme, kind, cycle, divisions, locations, status, dates or
+windows, the URL where students apply, the source of the dates, the day
+they were checked and `verified`. There is no free feed of firms' recruiting
+dates and the trackers' terms forbid reuse, so it is kept by hand:
+
+- **confirmed:** `opens` and `closes` as the firm states them on its careers
+  site or in the posting.
+- **expected:** `opens_window` and `closes_window` ("Jan 2027 to Mar 2027")
+  from the previous cycle, with `basis` saying what that rests on and
+  `confidence`.
+- **rolling:** the firm reviews applications as they arrive.
+- **unknown:** nothing reliable yet; the row keeps its URL.
+
+A row shows its dates, window or rolling status only with `verified: true`:
+someone opened `source` on the `checked` day and saw them. Until then the
+site reads "Not announced". Re-check the open rows each month and move
+expected windows to confirmed dates as firms post them. The page counts
+down to closing dates in the browser, so it stays right between deploys.
 
 ## Lab data
 
@@ -449,7 +472,8 @@ once the first close note is published.
 Social channels live in `SOCIALS` at the top of `tools/build_site.py`: the
 footer links to each channel with a URL. Nothing from them is embedded (the
 Watch section was removed on 30 Oct 2026 so the site sets no third-party
-cookies); `watch/` only sends old links to the home page. Lab and Learn charts
+cookies); `watch/` only sends old links to the home page; `learn/` (removed the same day) sends
+each explainer to the section that covers it. Lab charts
 are illustrative shapes until real data is wired in, and say so. The signup form is a
 placeholder until the free newsletter launches on a newsletter platform
 (Substack, Beehiiv or Ghost); it will then link there. See PRODUCT.md,

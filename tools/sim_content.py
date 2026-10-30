@@ -4,16 +4,16 @@ Each episode covers a run of months, from its first month to its last, and the
 episodes cover every month since 1928 without gaps. A game names the episode
 its two years overlap most. Figures are S&P 500 price moves, rounded and given
 as "about"; text in the Andra Markets voice: what happened, plainly, no
-hindsight lessons. Links point at Learn explainers and dashboards on the site
-(relative to the site root).
+hindsight lessons. Links point at Fed & Rates, dashboards and the calendar on
+the site (relative to the site root).
 """
 
-FED = ("Learn: How the Fed sets rates", "learn/fed-rates/")
-CPI = ("Learn: CPI vs PCE", "learn/cpi-vs-pce/")
-CURVE = ("Learn: How to read the yield curve", "learn/yield-curve/")
-VIX = ("Learn: What moves the VIX", "learn/vix/")
-CREDIT = ("Learn: What credit spreads signal", "learn/credit-spreads/")
-EARN = ("Learn: How earnings season works", "learn/earnings-season/")
+FED = ("Fed & Rates: the policy rate", "fed-rates/")
+CPI = ("Fed & Rates: the Fed against inflation", "fed-rates/#fr-macro")
+CURVE = ("Fed & Rates: the yield curve", "fed-rates/#fr-curve")
+VIX = ("Dashboard: Volatility term structure", "dashboards/volatility-term-structure/")
+CREDIT = ("Dashboard: Credit spreads", "dashboards/credit-spreads/")
+EARN = ("Calendar: earnings", "calendar/")
 D_COMMOD = ("Dashboard: Commodities", "dashboards/commodities/")
 D_SECTORS = ("Dashboard: Sector heatmap", "dashboards/sector-heatmap/")
 D_GLOBAL = ("Dashboard: Global indices", "dashboards/global-indices/")

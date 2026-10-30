@@ -25,7 +25,7 @@ free, and those downloads are reserved for paid subscribers later.
 
 Dashboard tiles draw real figures from .cache/dashboards/tiles.json, written
 at deploy time by tools/dashboard_data.py, with their source and date; a tile
-without a record shows its source and "Data pending". Lab and Learn charts are schematic
+without a record shows its source and "Data pending". Lab charts are schematic
 shapes, not market data, and labelled "Illustrative". The calendar reads
 .cache/calendar/calendar.json, written by tools/calendar_data.py. Follow DESIGN.md.
 """
@@ -44,7 +44,6 @@ from zoneinfo import ZoneInfo
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nyse  # noqa: E402
 from calendar_data import MOVES as CAL_MOVES, SOURCES as CAL_SOURCES  # noqa: E402
-from learn_content import ARTICLES  # noqa: E402
 from legal_content import LEGAL, LEGAL_UPDATED, PRIVACY, PRIVACY_UPDATED  # noqa: E402
 from world_data import AXES as WORLD_AXES, MARKETS as WORLD_MARKETS  # noqa: E402
 
@@ -154,18 +153,6 @@ def c_bond(w=640, h=260):
     line = [p0 * (1 - mod * (y - 0.04)) for y in ys]
     pa, pb = fit([curve, line], w, h, 12, lo=55, hi=145)
     return svg(w, h, grid_lines(w, h, 4) + f'<path class="dash" d="{d(pb)}"/><path class="line" d="{d(pa)}"/>', "Bond price against yield, with the duration line")
-
-
-def c_explainer(w=560, h=240):
-    # Normal against inverted curve, an explainer diagram.
-    tenors = [0.25, 1, 2, 5, 10, 30]
-
-    def curve(vals):
-        return [(16 + (w - 32) * math.sqrt(t) / math.sqrt(30), h - 16 - (h - 32) * v) for t, v in zip(tenors, vals)]
-
-    normal = curve([0.2, 0.35, 0.45, 0.6, 0.7, 0.8])
-    inverted = curve([0.75, 0.7, 0.6, 0.48, 0.42, 0.45])
-    return svg(w, h, grid_lines(w, h, 4) + f'<path class="line" d="{d(normal)}"/><path class="dash" d="{d(inverted)}"/>', "Diagram of a normal and an inverted yield curve", stretch=False)
 
 
 # Dashboard tiles with real data ---------------------------------------------
@@ -714,11 +701,6 @@ def dashboard_page(key, cat, name, desc, source, rec):
     )
 
 
-def learn_minutes(a):
-    words = sum(len(p.split()) for _, ps in a["sections"] for p in ps)
-    return max(1, math.ceil(words / 230))
-
-
 def ph(text):
     return f'<span class="ph">{text}</span>'
 
@@ -997,15 +979,9 @@ def page(notes, cal):
           <a class="btn" href="#note">Read the note {icon("arrow-right")}</a>
         </article>"""
         all_notes = "#note"
-    learn = "".join(
-        f'<li class="reveal" style="--i:{i}"><a href="learn/{a["slug"]}/"><span class="learn-list__title">{esc(a["title"])}</span>'
-        f'<span class="learn-list__desc">{esc(a["desc"])}</span><span class="learn-list__time">{learn_minutes(a)} min read</span></a></li>'
-        for i, a in enumerate(ARTICLES[1:])
-    )
-    feature = ARTICLES[0]
     return shell(
         title="Andra Markets: markets research platform",
-        desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and explainers.",
+        desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
         body=f"""<main id="main">
   <section class="hero" id="top" aria-labelledby="hero-title">
     <span class="hero__sentinel" aria-hidden="true"></span>
@@ -1112,28 +1088,6 @@ def page(notes, cal):
     </div>
   </section>
 
-  <section class="section learn" id="learn" aria-labelledby="learn-title">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title reveal" id="learn-title">Learn</h2>
-          <p class="lede reveal">Market explainers for people starting out. No jargon left unexplained.</p>
-        </div>
-        <a class="link reveal" href="learn/">All explainers {icon("arrow-right")}</a>
-      </div>
-      <div class="grid learn__grid">
-        <a class="learn-feature reveal" href="learn/{feature["slug"]}/">
-          <div class="draw">{c_explainer()}</div>
-          <p class="key"><span><i class="k-solid"></i>Normal curve</span><span><i class="k-dash"></i>Inverted curve</span><span class="key__note">Diagram, not market data</span></p>
-          <h3>{esc(feature["title"])}</h3>
-          <p>{esc(feature["desc"])}</p>
-          <span class="learn-list__time">{learn_minutes(feature)} min read</span>
-        </a>
-        <ol class="learn-list">{learn}</ol>
-      </div>
-    </div>
-  </section>
-
   <section class="section about" id="about" aria-labelledby="about-title">
     <div class="wrap grid">
       <h2 class="visually-hidden" id="about-title">About Andra Markets</h2>
@@ -1188,8 +1142,7 @@ def site_header(home, base):
       <a href="{base}research/">Research</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
-      <a href="{base}careers/">Careers</a>
-      <a href="{base}learn/">Learn</a>
+      <a href="{base}break-into-wall-street/">Break into Wall Street</a>
       <a class="nav__subscribe" href="{home}#subscribe">Subscribe</a>
     </nav>
     <button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
@@ -1234,8 +1187,7 @@ def site_footer(home, base):
       <a href="{base}reports/">All notes</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
-      <a href="{base}careers/">Path to Wall Street</a>
-      <a href="{base}learn/">Learn</a>
+      <a href="{base}break-into-wall-street/">Break into Wall Street</a>
       <a href="{home}#about">About</a>
       <a href="{base}methodology/">Methodology</a>
       <a href="{base}sources/">Data sources</a>
@@ -1310,59 +1262,6 @@ def watch_redirect():
             f'<script>location.replace("../");</script>')
     return shell(title="Andra Markets", desc="Videos are no longer on this site.",
                  body=body, home="../", base="../", path="watch/")
-
-
-def learn_index():
-    rows = "".join(
-        f'<li><a href="{a["slug"]}/"><span class="learn-list__title">{esc(a["title"])}</span>'
-        f'<span class="learn-list__desc">{esc(a["desc"])}</span><span class="learn-list__time">{learn_minutes(a)} min read</span></a></li>'
-        for a in ARTICLES)
-    body = f"""<main id="main" class="page learnp">
-  <div class="wrap">
-    <header class="page__head">
-      <h1 class="page__title">Learn</h1>
-      <p class="lede">Market explainers for people starting out. Each is sourced to official or academic references and links to the dashboard that shows it live.</p>
-    </header>
-    <ol class="learn-list learnp__list">{rows}</ol>
-  </div>
-</main>"""
-    return shell(title="Learn: Andra Markets", desc="Market explainers for people starting out: the yield curve, the VIX, earnings season, CPI and PCE, credit spreads and how the Fed sets rates.",
-                 body=body, home="../", base="../", path="learn/")
-
-
-def learn_page(i):
-    a = ARTICLES[i]
-    secs = "".join(
-        f'<section aria-labelledby="l-{k}"><h2 id="l-{k}">{esc(h)}</h2>' + "".join(f"<p>{esc(p)}</p>" for p in ps) + "</section>"
-        for k, (h, ps) in enumerate(a["sections"]))
-    dash_url, dash_label = a["dash"]
-    live = (f'<section aria-labelledby="l-live"><h2 id="l-live">See it live</h2>'
-            f'<p><a class="link" href="../../{dash_url}">Open {esc(dash_label)} {icon("arrow-right")}</a></p></section>')
-    srcs = "".join(f'<li><a href="{esc(u)}">{esc(lb)}</a></li>' for lb, u in a["sources"])
-    sources = (f'<section aria-labelledby="l-src"><h2 id="l-src">Sources</h2><ol class="ruled learnp__src">{srcs}</ol>'
-               f"<p>An Andra Markets explainer, for education. For information only. Not investment advice.</p></section>")
-    pager = ""
-    if i > 0:
-        pager += f'<a class="link" href="../{ARTICLES[i - 1]["slug"]}/">Previous: {esc(ARTICLES[i - 1]["title"])} {icon("arrow-right")}</a>'
-    if i + 1 < len(ARTICLES):
-        pager += f'<a class="link" href="../{ARTICLES[i + 1]["slug"]}/">Next: {esc(ARTICLES[i + 1]["title"])} {icon("arrow-right")}</a>'
-    pager += f'<a class="link" href="../">All explainers {icon("arrow-right")}</a>'
-    body = f"""<main id="main" class="page learnp">
-  <div class="wrap">
-    <article>
-      <header class="page__head">
-        <p class="dd__crumbs"><a href="../">Learn</a> <span aria-hidden="true">/</span> Explainer</p>
-        <h1 class="page__title">{esc(a["title"])}</h1>
-        <p class="lede">{esc(a["desc"])}</p>
-        <p class="note__meta"><span>{learn_minutes(a)} min read</span></p>
-      </header>
-      <div class="page__body">{secs}{live}{sources}</div>
-    </article>
-    <nav class="report__pager" aria-label="More explainers">{pager}</nav>
-  </div>
-</main>"""
-    return shell(title=f"{esc(a['title'])}: Andra Markets explainer", desc=esc(a["desc"]),
-                 body=body, home="../../", base="../../", path=f"learn/{a['slug']}/")
 
 
 # Lab tools: (slug, data-tool, title, description, how it works, assumptions).
@@ -2247,8 +2146,8 @@ def methodology():
            ]))}
       {sec("charts", "Charts and colour",
            "<p>Every chart states its source and date. Green marks a rise and red a fall, on charts and on every "
-           "figure that shows a move, always with its + or &minus; sign so colour is never the only cue. Lab and "
-           "Learn diagrams marked Illustrative are not market data.</p>")}
+           "figure that shows a move, always with its + or &minus; sign so colour is never the only cue. Lab "
+           "diagrams marked Illustrative are not market data.</p>")}
       {sec("corrections", "Corrections",
            "<p>A published note found to be wrong is taken down and the site rebuilds without it; it stays down, "
            "whatever later runs for that date bring, until it has been corrected and restored. Dashboards and the calendar correct themselves at the "
@@ -4787,7 +4686,7 @@ def fedrates_page(d):
     </div>
     {side}
     <div class="page__body dd__text">
-      <section aria-labelledby="fr-how"><h2 id="fr-how">How to read it</h2><p>The FOMC sets a target range for the overnight rate eight times a year. Fed funds futures settle on the average effective rate in their month, so the change from one month to the next shows what the market expects each meeting to do. A curve whose short end sits above its long end is inverted: both spreads above turned negative before most US recessions since the 1970s, with long and variable lags. The real yield is what a Treasury pays after inflation; the breakeven is the inflation rate at which inflation-protected and ordinary Treasuries pay the same.</p><p>Read more in <a class="link" href="../learn/fed-rates/">How the Fed sets rates</a> and <a class="link" href="../learn/yield-curve/">How to read the yield curve</a>.</p></section>
+      <section aria-labelledby="fr-how"><h2 id="fr-how">How to read it</h2><p>The FOMC sets a target range for the overnight rate eight times a year. Fed funds futures settle on the average effective rate in their month, so the change from one month to the next shows what the market expects each meeting to do. A curve whose short end sits above its long end is inverted: both spreads above turned negative before most US recessions since the 1970s, with long and variable lags. The real yield is what a Treasury pays after inflation; the breakeven is the inflation rate at which inflation-protected and ordinary Treasuries pay the same.</p></section>
       <section aria-labelledby="fr-src"><h2 id="fr-src">Sources and method</h2><p>Treasury par yields and real yields from the US Treasury, with FRED as backup; FRED posts the curve a day later, so the Treasury's figures come first. Spreads, the fed funds rate, inflation, unemployment and breakevens from FRED. The target range from the Federal Reserve via FRED and the FOMC calendar from the Federal Reserve. Meeting probabilities are an Andra Markets calculation from CBOT 30-day fed funds futures, following the method CME Group publishes: each contract settles on its month's average effective rate, so the rate after a meeting is the month's implied rate with the days before the decision taken out. Futures carry a risk premium, so they are a guide to expectations, not a forecast. The futures and the intraday yield points refresh every 15 minutes while the NYSE is open; the rest once a day. Series older than two years are shown one point a week.</p><p>For information only. Not investment advice.</p></section>
     </div>
   </div>
@@ -4802,13 +4701,319 @@ def fedrates_page(d):
 def moved_redirect(path, to, title, text):
     """An old address that moved: say where, and go there."""
     up = "../" * path.count("/")
-    body = (f'<main id="main" class="page"><div class="wrap"><header class="page__head"><h1 class="page__title">{title}</h1>'
+    body = (f'<main id="main" class="page"><div class="wrap"><header class="page__head"><h1 class="page__title">{title[0].upper() + title[1:]}</h1>'
             f'<p class="lede">{text} <a class="link" href="{up}{to}">{title}</a>.</p></header></div></main>'
             f'<script>location.replace("{up}{to}");</script>')
-    return shell(title=f"{title}: Andra Markets", desc=f"{text} {title}.", body=body, home=up, base=up, path=path)
+    name = title[0].upper() + title[1:]
+    return shell(title=f"{name}: Andra Markets" if name != "Andra Markets" else name, desc=f"{text} {title}.",
+                 body=body, home=up, base=up, path=path)
 
 
-# Path to Wall Street (careers/) ---------------------------------------------------
+# Old addresses: path -> (where it went, its title, what the page says).
+# Learn was removed (owner, 30 Oct 2026): each explainer sends readers to the
+# section that shows its subject live. The careers guide was renamed.
+_LEARNT = "Learn was removed. This subject is now covered in"
+MOVED = {
+    "learn/": ("", "Andra Markets", "Learn was removed. Go to the home page of"),
+    "learn/yield-curve/": ("fed-rates/", "Fed &amp; Rates", _LEARNT),
+    "learn/fed-rates/": ("fed-rates/", "Fed &amp; Rates", _LEARNT),
+    "learn/vix/": ("dashboards/volatility-term-structure/", "Volatility term structure", _LEARNT),
+    "learn/earnings-season/": ("calendar/", "the economic calendar", _LEARNT),
+    "learn/cpi-vs-pce/": ("dashboards/inflation-and-labour/", "Inflation and labour", _LEARNT),
+    "learn/credit-spreads/": ("dashboards/credit-spreads/", "Credit spreads", _LEARNT),
+    "careers/": ("break-into-wall-street/", "Break into Wall Street", "This guide is now"),
+}
+
+
+# Technical preparation (break-into-wall-street/technicals/<topic>/) ---------------
+# One data file per topic in data/technicals/, in TECH_ORDER. Practice progress
+# and the drill's best scores stay in the viewer's browser (assets/technicals.js).
+
+TECH_DIR = ROOT / "data" / "technicals"
+TECH_ORDER = ["accounting", "valuation", "lbo", "mergers-and-acquisitions", "markets", "rates-and-the-fed",
+              "stock-pitch", "brainteasers-and-mental-maths", "behavioural-and-fit"]
+
+
+def load_technicals():
+    out = []
+    for slug in TECH_ORDER:
+        f = TECH_DIR / f"{slug}.json"
+        if f.exists():
+            out.append(json.loads(f.read_text(encoding="utf-8")))
+    return out
+
+
+def tq_paras(a):
+    return "".join(f"<p>{esc(x)}</p>" for x in a)
+
+
+MD_DRILL = """<section id="tq-drill" class="tq-drill" aria-labelledby="tq-drill-h">
+      <h2 id="tq-drill-h">Mental maths drill</h2>
+      <p class="tq-sub">As many as you can before the clock runs out. Type the answer and press Enter; a wrong answer moves on. Percentages and fractions to two decimals.</p>
+      <div class="dd__ctl tq-drill__ctl tq-js">
+        <div class="dd__cgroup"><span class="cl__glabel" id="md-t-l">Time</span><div class="filters" role="group" aria-labelledby="md-t-l"><button type="button" class="chip" data-mdtime="60" aria-pressed="true">60 seconds</button><button type="button" class="chip" data-mdtime="120" aria-pressed="false">2 minutes</button></div></div>
+        <div class="dd__cgroup"><span class="cl__glabel" id="md-k-l">Questions</span><div class="filters" role="group" aria-labelledby="md-k-l"><button type="button" class="chip" data-mdkind="all" aria-pressed="true">Mixed</button><button type="button" class="chip" data-mdkind="mul" aria-pressed="false">Multiplication</button><button type="button" class="chip" data-mdkind="pct" aria-pressed="false">Percentages</button><button type="button" class="chip" data-mdkind="frac" aria-pressed="false">Fractions</button></div></div>
+      </div>
+      <div class="tq-md tq-js" id="tq-md">
+        <div class="tq-md__bar"><span class="tq-md__time" id="md-time" role="timer">1:00</span><span class="tq-md__score">Score <b id="md-score">0</b></span><span class="tq-md__best">Best <b id="md-best">0</b></span></div>
+        <p class="tq-md__q" id="md-q" aria-live="polite">Press Start</p>
+        <form class="tq-md__form" id="md-form" autocomplete="off"><label class="visually-hidden" for="md-in">Your answer</label><input id="md-in" inputmode="decimal" disabled><button type="submit" class="btn" id="md-go">Start</button></form>
+        <p class="tq-md__log" id="md-log" aria-live="polite"></p>
+      </div>
+      <p class="tq-nojs">The drill needs JavaScript.</p>
+    </section>"""
+
+
+def technical_page(t, topics):
+    slug = t["slug"]
+    i = [x["slug"] for x in topics].index(slug)
+    up = "../../"
+    nav = "".join(f'<li><a href="../{x["slug"]}/"{" aria-current=page" if x["slug"] == slug else ""}>{esc(x["name"])}</a></li>' for x in topics)
+    know = "".join(f'<li><b>{esc(e["title"])}</b><p>{esc(e["text"])}</p></li>' for e in t["essentials"])
+    ex = ""
+    if t.get("example"):
+        e = t["example"]
+        head = "".join(f'<th scope="col">{esc(c)}</th>' for c in e["columns"])
+        rows, last = "", None
+        grouped = len({r[0] for r in e["rows"]}) < len(e["rows"])  # a first column that groups rows
+        for r in e["rows"]:
+            first = grouped and r[0] != last
+            last = r[0]
+            cells = "".join(f'<td{" class=tq-ex__n" if k == len(r) - 1 else ""}>{esc(v)}</td>' for k, v in enumerate(r[1:], 1))
+            rows += f'<tr{" class=tq-ex__first" if first else ""}><th scope="row">{esc(r[0]) if first or not grouped else ""}</th>{cells}</tr>'
+        ex = (f'<section id="tq-example" aria-labelledby="tq-ex-h"><h2 id="tq-ex-h">Worked example</h2>'
+              f'<p class="tq-ex__title">{esc(e["title"])}</p><p>{esc(e["intro"])}</p>'
+              f'<div class="tq-ex__wrap"><table class="tq-ex"><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div>'
+              f'<p class="tq-ex__note">{esc(e["note"])}</p></section>')
+    q = t["questions"]
+    core = sum(x["level"] == "core" for x in q)
+    payload = json.dumps(q, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+    noscript = "".join(f'<li><p class="tq-nq">{esc(x["q"])}</p>{tq_paras(x["a"])}'
+                       + (f'<p class="ip-follow"><b>Likely follow-up:</b> {esc(x["follow"])}</p>' if x.get("follow") else "") + "</li>"
+                       for x in q)
+    nxt = topics[(i + 1) % len(topics)]
+    mistakes = "".join(f"<li>{esc(m)}</li>" for m in t["mistakes"])
+    body = f"""<main id="main" class="page tq" data-topic="{slug}">
+  <div class="wrap">
+    <header class="page__head">
+      <p class="dd__crumbs"><a href="{up}">Break into Wall Street</a> <span aria-hidden="true">/</span> Technical preparation</p>
+      <h1 class="page__title">{esc(t["name"])}</h1>
+      <p class="lede">{esc(t["lede"])}</p>
+      <p class="note__meta"><span>{len(q)} questions, {core} core and {len(q) - core} advanced</span><span>Your progress stays in this browser</span></p>
+    </header>
+    <nav class="tq-topics" aria-label="Technical preparation topics"><ol>{nav}</ol></nav>
+    <div class="page__body">
+      <section id="tq-know" aria-labelledby="tq-know-h"><h2 id="tq-know-h">What you must know</h2><ol class="tq-know">{know}</ol></section>
+      {ex}
+    </div>
+    {MD_DRILL if t.get("drill") else ""}
+    <section id="tq-practice" class="tq-practice" aria-labelledby="tq-pr-h">
+      <h2 id="tq-pr-h">Practice</h2>
+      <p class="tq-sub">Answer out loud first, then check. Mark each card; the ones to review come back first next time.</p>
+      <div class="tq-js">
+        <div class="dd__ctl">
+          <div class="dd__cgroup"><span class="cl__glabel" id="tq-lv-l">Level</span><div class="filters" role="group" aria-labelledby="tq-lv-l"><button type="button" class="chip" data-lv="all" aria-pressed="true">All</button><button type="button" class="chip" data-lv="core" aria-pressed="false">Core</button><button type="button" class="chip" data-lv="advanced" aria-pressed="false">Advanced</button></div></div>
+          <div class="dd__cgroup"><span class="cl__glabel" id="tq-or-l">Order</span><div class="filters" role="group" aria-labelledby="tq-or-l"><button type="button" class="chip" data-or="review" aria-pressed="true">To review first</button><button type="button" class="chip" data-or="shuffle" aria-pressed="false">Shuffle</button></div></div>
+        </div>
+        <div class="tq-prog"><p class="tq-prog__txt" id="tq-prog" aria-live="polite"></p><span class="tq-prog__bar"><i id="tq-prog-bar"></i></span><button type="button" class="tq-reset" id="tq-reset">Reset progress</button></div>
+        <article class="tq-card" id="tq-card" aria-live="polite"></article>
+      </div>
+      <ol class="tq-nojs tq-list">{noscript}</ol>
+      <script type="application/json" id="tq-data">{payload}</script>
+    </section>
+    <div class="page__body">
+      <section id="tq-mistakes" aria-labelledby="tq-mi-h"><h2 id="tq-mi-h">Common mistakes</h2><ul class="ruled">{mistakes}</ul></section>
+      <nav class="report__pager tq-pager" aria-label="More topics"><a class="link" href="../{nxt["slug"]}/">Next: {esc(nxt["name"])} {icon("arrow-right")}</a><a class="link" href="{up}#pw-tech">All topics {icon("arrow-right")}</a><a class="link" href="{up}../interview-prep/">This week's markets in Interview Prep {icon("arrow-right")}</a></nav>
+    </div>
+  </div>
+</main>"""
+    return shell(title=f"{esc(t['name'])}: interview preparation, Andra Markets", desc=esc(t["lede"]), body=body,
+                 home="../../../", base="../../../", path=f"break-into-wall-street/technicals/{slug}/", scripts=("technicals.js",))
+
+
+# Recruiting calendar (break-into-wall-street/recruiting-calendar/) ----------------
+# data/recruiting_calendar.json, kept by hand: one row per programme. A row
+# shows its dates, window or rolling status only once verified (someone opened
+# its source on the checked day); until then it reads as not announced.
+# Never an invented date.
+
+RC_DATA = ROOT / "data" / "recruiting_calendar.json"
+RC_KINDS = [("summer", "Summer internship"), ("insight", "Early insight"), ("fulltime", "Full-time"), ("offcycle", "Off-cycle")]
+RC_GROUPS = [("bank", "Banks"), ("boutique", "Boutiques"), ("am", "Asset managers"), ("hf", "Hedge funds"), ("quant", "Trading and quant")]
+RC_GROUP_OF = {"bulge": "bank", "bank": "bank", "boutique": "boutique", "am": "am", "hf": "hf", "quant": "quant"}
+RC_DIVS = ["IB", "S&T", "AM", "Quant"]
+RC_STATUS = {"confirmed": "Confirmed date", "expected": "Expected window", "rolling": "Rolling", "unknown": "Not announced"}
+MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+def load_recruiting():
+    try:
+        rows = json.loads(RC_DATA.read_text(encoding="utf-8"))["rows"]
+    except (OSError, ValueError, KeyError):
+        return []
+    out = []
+    for r in rows:
+        r = dict(r)
+        if not r.get("verified"):
+            # Not yet checked on the firm's own page: no dates and no claim.
+            r.update(status="unknown", opens=None, closes=None, opens_window=None, closes_window=None)
+        out.append(r)
+    return out
+
+
+def rc_month(window):
+    """'Jan 2027 to Mar 2027' -> date(2027, 1, 1)."""
+    m, y = window.split(" to ")[0].split()[:2]
+    return dt.date(int(y), MON3.index(m[:3]) + 1, 1)
+
+
+def rc_events(rows):
+    """(date or None, what, row): dated opens and closes, expected windows by
+    their first month, and rolling programmes (None: open now)."""
+    out = []
+    for r in rows:
+        for what in ("opens", "closes"):
+            if r.get(what):
+                out.append((dt.date.fromisoformat(r[what]), what, r))
+            elif r["status"] == "expected" and r.get(f"{what}_window"):
+                try:
+                    out.append((rc_month(r[f"{what}_window"]), f"{what}_ex", r))
+                except (ValueError, IndexError):
+                    pass
+        if r["status"] == "rolling" and not r.get("closes"):
+            out.append((None, "rolling", r))
+    return out
+
+
+def rc_attrs(r):
+    divs = " ".join(d for d in r.get("divisions", []) if d in RC_DIVS) or "Other"
+    return (f'data-kind="{r["kind"]}" data-group="{RC_GROUP_OF.get(r["group"], r["group"])}" data-div="{esc(divs)}" '
+            f'data-status="{r["status"]}"')
+
+
+def rc_firm(r, basis=False):
+    tags = f'<span class="tag">{RC_STATUS[r["status"]]}</span>'
+    if r["status"] == "expected" and r.get("confidence") == "low":
+        tags += '<span class="tag">Low confidence</span>'
+    locs = ", ".join(r.get("locations") or [])
+    why = (f'<span class="rc-basis">{esc(r["basis"])}</span>' if basis and r["status"] == "expected" and r.get("basis") else "")
+    return (f'<th scope="row"><span class="cl__ev">{esc(r["firm"])}</span>'
+            f'<span class="rc-sub">{esc(r["programme"])}{". " + esc(locs) if locs else ""}</span>'
+            f'<span class="rc-tags">{tags}</span>{why}</th>')
+
+
+def rc_apply(r, base=""):
+    return f'<a class="rc-apply" href="{esc(r["url"])}" rel="noopener">Apply {icon("arrow-up-right")}<span class="visually-hidden"> at {esc(r["firm"])}</span></a>'
+
+
+def rc_when(d, what, r, today):
+    if what in ("opens", "closes"):
+        out = f'<span class="rc-when">{d:%a} {d.day} {MON3[d.month - 1]}</span>'
+        if what == "closes":
+            out += f'<span class="rc-soon" data-close="{d.isoformat()}"></span>'
+        return out
+    if what == "rolling":
+        return '<span class="rc-when rc-when--ex">Open, rolling</span>'
+    w = r["opens_window" if what == "opens_ex" else "closes_window"]
+    return f'<span class="rc-when rc-when--ex">Expected {esc(w)}</span>'
+
+
+def rc_upcoming(rows, today, n=6):
+    """The next dated opens and closes, then the nearest expected windows."""
+    ev = [x for x in rc_events(rows) if x[0] and x[0] >= today.replace(day=1)]
+    dated = sorted([x for x in ev if x[1] in ("opens", "closes") and x[0] >= today], key=lambda x: (x[0], x[2]["firm"]))
+    loose = sorted([x for x in ev if x[1] in ("opens_ex", "closes_ex")], key=lambda x: (x[0], x[2]["firm"]))
+    return (dated + loose)[:n]
+
+
+def recruiting_page(rows):
+    today = dt.datetime.now(NY).date()
+    ev = rc_events(rows)
+    months = {}
+    for d, what, r in ev:
+        if d is None:
+            months.setdefault("now", []).append((d, what, r))
+        elif d >= today.replace(day=1):
+            months.setdefault((d.year, d.month), []).append((d, what, r))
+    keys = (["now"] if "now" in months else []) + sorted(k for k in months if k != "now")
+    mkey = lambda k: k if k == "now" else f"{k[0]}-{k[1]:02d}"  # noqa: E731
+    tabs = "".join(f'<button type="button" class="chip" data-month="{mkey(k)}" aria-pressed="{"true" if i == 0 else "false"}">'
+                   f'{"Open now" if k == "now" else f"{MON3[k[1] - 1]} {k[0]}"}</button>' for i, k in enumerate(keys))
+    bodies = ""
+    for k in keys:
+        items = months[k]
+        exact = sorted([x for x in items if x[1] in ("opens", "closes")], key=lambda x: (x[0], x[2]["firm"]))
+        loose = sorted([x for x in items if x[1] not in ("opens", "closes")], key=lambda x: x[2]["firm"])
+        trs = ""
+        for d, what, r in exact + loose:
+            act = {"opens": "Opens", "closes": "Closes", "opens_ex": "Opens", "closes_ex": "Closes", "rolling": "Rolling"}[what]
+            divs = "".join(f'<span class="tag">{esc(x)}</span>' for x in r.get("divisions", []))
+            trs += (f'<tr class="cl__row rc-row" {rc_attrs(r)}><td class="rc-date">{rc_when(d, what, r, today)}</td>{rc_firm(r)}'
+                    f'<td class="rc-act"><span class="rc-what">{act}</span></td><td class="rc-divs"><span class="rc-tags">{divs}</span></td>'
+                    f'<td class="rc-cycle">{esc(r.get("cycle", ""))}</td><td class="rc-go">{rc_apply(r)}</td></tr>')
+        head = "Open now, rolling review" if k == "now" else f"{dt.date(k[0], k[1], 1):%B %Y}"
+        bodies += f'<tbody class="cl__day-group" data-month="{mkey(k)}"><tr class="cl__day"><th scope="rowgroup" colspan="6">{head}</th></tr>{trs}</tbody>'
+    bydate = (f'<div class="cl-wrap rc-bydate"><table class="cl__table rc-table" aria-label="Recruiting calendar by date"><thead><tr>'
+              f'<th scope="col">Date</th><th scope="col">Firm and programme</th><th scope="col">Window</th><th scope="col">Division</th>'
+              f'<th scope="col">Cycle</th><th scope="col"><span class="visually-hidden">Apply</span></th></tr></thead>{bodies}</table>'
+              f'<p class="cl__empty" hidden>Nothing matches these filters this month.</p></div>') if keys else \
+        '<p class="cl__none">No dated windows yet.</p>'
+    order = {g: i for i, (g, _) in enumerate(RC_GROUPS)}
+
+    def when(r, what):
+        if r.get(what):
+            d = dt.date.fromisoformat(r[what])
+            closed = what == "closes" and d < today
+            return f"{d.day} {MON3[d.month - 1]} {d.year}" + (" (closed)" if closed else "")
+        w = r.get(f"{what}_window")
+        return f"Expected {esc(w)}" if w else ("Rolling" if r["status"] == "rolling" else "Not announced")
+    firm_rows = "".join(
+        f'<tr class="rc-row" {rc_attrs(r)}>{rc_firm(r, basis=True)}<td data-label="Cycle">{esc(r.get("cycle", ""))}</td>'
+        f'<td data-label="Opens">{when(r, "opens")}</td><td data-label="Closes">{when(r, "closes")}</td><td>{rc_apply(r)}</td></tr>'
+        for r in sorted(rows, key=lambda r: (order.get(RC_GROUP_OF.get(r["group"], r["group"]), 9), r["firm"], r["programme"])))
+    byfirm = (f'<div class="rc-byfirm"><table class="rc-firmtab" aria-label="Recruiting calendar by firm"><thead><tr>'
+              f'<th scope="col">Firm and programme</th><th scope="col">Cycle</th><th scope="col">Opens</th><th scope="col">Closes</th>'
+              f'<th scope="col"><span class="visually-hidden">Apply</span></th></tr></thead><tbody>{firm_rows}</tbody></table></div>')
+
+    def chips(name, opts):
+        return "".join(f'<button type="button" class="chip" data-{name}="{v}" aria-pressed="{"true" if i == 0 else "false"}">{lb}</button>'
+                       for i, (v, lb) in enumerate([("all", "All")] + opts))
+    counts = {s: sum(r["status"] == s for r in rows) for s in RC_STATUS}
+    checked = max((r.get("checked") or "" for r in rows), default="")
+    checked_txt = f", last checked {day_med(dt.date.fromisoformat(checked))}" if checked else ""
+    body = f"""<main id="main" class="page cl rc">
+  <div class="wrap">
+    <header class="page__head cl__head">
+      <p class="dd__crumbs"><a href="../">Break into Wall Street</a> <span aria-hidden="true">/</span> Recruiting calendar</p>
+      <h1 class="page__title">Recruiting calendar</h1>
+      <p class="lede">When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications for internships and analyst programmes.</p>
+      <p class="note__meta"><span>{len({r["firm"] for r in rows})} firms, {len(rows)} programmes</span><span>{counts["confirmed"]} confirmed, {counts["expected"]} expected, {counts["rolling"]} rolling</span><span>Checked by hand against each firm's careers site{checked_txt}</span></p>
+    </header>
+    <div class="cl__controls rc-ctl" hidden>
+      <div class="cl__groups">
+        <div class="cl__group"><span class="cl__glabel" id="rc-v-l">View</span><div class="filters" role="group" aria-labelledby="rc-v-l"><button type="button" class="chip" data-view="date" aria-pressed="true">By date</button><button type="button" class="chip" data-view="firm" aria-pressed="false">By firm</button></div></div>
+      </div>
+      <div class="filters cl__weeks rc-months" role="group" aria-label="Month">{tabs}</div>
+      <div class="cl__groups">
+        <div class="cl__group"><span class="cl__glabel" id="rc-k-l">Programme</span><div class="filters" role="group" aria-labelledby="rc-k-l">{chips("kind", RC_KINDS)}</div></div>
+        <div class="cl__group"><span class="cl__glabel" id="rc-g-l">Firms</span><div class="filters" role="group" aria-labelledby="rc-g-l">{chips("group", RC_GROUPS)}</div></div>
+        <div class="cl__group"><span class="cl__glabel" id="rc-d-l">Division</span><div class="filters" role="group" aria-labelledby="rc-d-l">{chips("div", [(x, x) for x in RC_DIVS])}</div></div>
+        <div class="cl__group"><span class="cl__glabel" id="rc-s-l">Dates</span><div class="filters" role="group" aria-labelledby="rc-s-l">{chips("status", [("confirmed", "Confirmed only")])}</div></div>
+      </div>
+      <p class="filters__status cl__status rc-status" role="status" aria-live="polite"></p>
+    </div>
+    {bydate}{byfirm}
+    <div class="page__body">
+      <section aria-labelledby="rc-how"><h2 id="rc-how">How the dates are read</h2><p>A confirmed date is one the firm states on its own careers site or in the posting itself, checked by hand on the day shown. Where a firm has not published this cycle's dates, the expected window comes from when the same programme opened last cycle, and the row says what that rests on; it becomes a confirmed date once the firm posts it. Rolling means the firm reviews applications as they arrive and states no deadline. Many programmes fill before their deadline, so apply in the first weeks a programme opens. Each row links to where you apply.</p><p>For information only: always confirm the dates on the firm's site.</p></section>
+    </div>
+  </div>
+</main>"""
+    return shell(title="Recruiting calendar: Break into Wall Street, Andra Markets",
+                 desc="When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications for internships and analyst programmes, checked against each firm's careers site.",
+                 body=body, home="../../", base="../../", path="break-into-wall-street/recruiting-calendar/", scripts=("recruiting.js",))
+
+
+# Break into Wall Street (break-into-wall-street/) ---------------------------------------------------
 # One data file, data/path_to_wall_street.json, edited by hand.
 
 CAREERS_DATA = ROOT / "data" / "path_to_wall_street.json"
@@ -4817,7 +5022,7 @@ CAREERS_DATA = ROOT / "data" / "path_to_wall_street.json"
 def careers_page():
     c = json.loads(CAREERS_DATA.read_text(encoding="utf-8"))
     base = "../"
-    toc = [("pw-roles", "The roles"), ("pw-time", "Recruiting timeline"), ("pw-cv", "A one-page CV"),
+    toc = [("pw-roles", "The roles"), ("pw-time", "Recruiting calendar"), ("pw-cv", "A one-page CV"),
            ("pw-net", "Networking and cold emails"), ("pw-tech", "Technical preparation"),
            ("pw-visa", "Visas for international students"), ("pw-cert", "Certifications"), ("pw-res", "Resources")]
     toc_html = "".join(f'<li><a class="link" href="#{i}">{t}</a></li>' for i, t in toc)
@@ -4830,14 +5035,15 @@ def careers_page():
                   f'<p>{esc(r["what"])}</p><p class="pw-lab">A typical day</p><ol class="ruled pw-day">{day}</ol>'
                   f'<p class="pw-lab">Suits you if</p><p>{esc(r["fit"])}</p>'
                   f'<p class="pw-lab">Where it leads</p><p>{esc(r["exits"])}</p></div></div></div>')
-    t = c["timeline"]
-    reg_chips = "".join(f'<button type="button" class="chip" data-region="{r["id"]}" aria-pressed="{"true" if i == 0 else "false"}">{esc(r["name"])}</button>'
-                        for i, r in enumerate(t["regions"]))
-    kinds_key = "".join(f'<span><i class="pw-sw pw-sw--{k["id"]}"></i>{esc(k["name"])}</span>' for k in t["kinds"])
-    # Without JavaScript the timeline is a list per region.
-    noscript = "".join(f'<h3>{esc(r["name"])}</h3><ul class="ruled">' + "".join(
-        f'<li><b>{esc(next(y["name"] for y in r["years"] if y["id"] == it["year"]))}: {esc(it["title"])}.</b> {esc(it["detail"])}</li>'
-        for it in r["items"]) + "</ul>" for r in t["regions"])
+    today = dt.datetime.now(NY).date()
+    rc_rows = load_recruiting()
+    nxt = "".join(
+        f'<tr class="rc-row"><td class="rc-date">{rc_when(d, what, r, today)}</td>{rc_firm(r)}'
+        f'<td class="rc-act"><span class="rc-what">{"Opens" if what.startswith("opens") else "Closes"}</span></td>'
+        f'<td class="rc-go">{rc_apply(r)}</td></tr>'
+        for d, what, r in rc_upcoming(rc_rows, today))
+    upcoming = (f'<table class="rc-next" aria-label="Next application dates"><tbody>{nxt}</tbody></table>'
+                if nxt else '<p class="rc-none">No dated windows yet.</p>')
     cv, s = c["cv"], c["cv"]["sample"]
     cv_rows = ""
     for sec in s["sections"]:
@@ -4858,8 +5064,8 @@ def careers_page():
                    f'<p class="pw-tpl__subj"><span>Subject</span> {esc(x["subject"])}</p><pre>{esc(x["body"])}</pre></div>'
                    for x in n["templates"])
     tech = c["technicals"]
-    tech_rows = "".join(f'<li><a href="{base}{x["link"]}"><span class="pw-row__t">{esc(x["name"])}</span>'
-                        f'<span class="pw-row__d">{esc(x["what"])}</span>{icon("arrow-right")}</a></li>' for x in tech["topics"])
+    tech_rows = "".join(f'<li><a href="technicals/{x["slug"]}/"><span class="pw-row__t">{esc(x["name"])}</span>'
+                        f'<span class="pw-row__d">{esc(x["short"])}</span>{icon("arrow-right")}</a></li>' for x in load_technicals())
     v = c["visas"]
     visa = "".join(f'<div class="pw-visa__col"><h3>{esc(reg["name"])}</h3><ul>' + "".join(
         f'<li><a class="pw-ext" href="{x["src"]}" rel="noopener">{esc(x["name"])}</a><p>{esc(x["what"])}</p></li>' for x in reg["routes"])
@@ -4879,11 +5085,10 @@ def careers_page():
             items += f"<li>{name}<p>{esc(x['what'])}</p></li>"
         res += f'<div class="pw-res__g"><h3>{esc(g["group"])}</h3><ul>{items}</ul></div>'
     reviewed = dt.date.fromisoformat(c["reviewed"])
-    payload = json.dumps(t, separators=(",", ":")).replace("</", "<\\/")
     body = f"""<main id="main" class="page pw">
   <div class="wrap">
     <header class="page__head">
-      <h1 class="page__title">Path to Wall Street</h1>
+      <h1 class="page__title">Break into Wall Street</h1>
       <p class="lede">{esc(c["lede"])}</p>
       <p class="note__meta"><span>Investment banking, sales and trading, asset management, equity research, hedge funds</span><span>Last reviewed <time datetime="{c["reviewed"]}">{day_med(reviewed)}</time></span></p>
     </header>
@@ -4896,19 +5101,10 @@ def careers_page():
       </section>
     </div>
     <section id="pw-time" class="pw-time" aria-labelledby="pw-time-h">
-      <h2 id="pw-time-h">Recruiting timeline</h2>
-      <p class="pw-time__lede">{esc(t["note"])} Pick a region, then a year, to see what to do month by month.</p>
-      <div class="pw-js">
-        <div class="dd__ctl">
-          <div class="dd__cgroup"><span class="cl__glabel" id="pw-reg-l">Region</span><div class="filters" role="group" aria-labelledby="pw-reg-l">{reg_chips}</div></div>
-          <div class="dd__cgroup"><span class="cl__glabel" id="pw-yr-l">Year</span><div class="filters" id="pw-years" role="group" aria-labelledby="pw-yr-l"></div></div>
-        </div>
-        <div class="pw-tl" id="pw-tl"></div>
-        <p class="key pw-key">{kinds_key}</p>
-        <div class="pw-tl__detail" id="pw-detail" aria-live="polite"></div>
-      </div>
-      <div class="pw-nojs">{noscript}</div>
-      <script type="application/json" id="pw-data">{payload}</script>
+      <h2 id="pw-time-h">Recruiting calendar</h2>
+      <p class="pw-time__lede">When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications. The next dates:</p>
+      {upcoming}
+      <p class="rc-more"><a class="link" href="recruiting-calendar/">Full recruiting calendar, by date and by firm {icon("arrow-right")}</a></p>
     </section>
     <div class="page__body pw__body">
       <section id="pw-cv" aria-labelledby="pw-cv-h">
@@ -4955,11 +5151,11 @@ def careers_page():
     </div>
   </div>
 </main>"""
-    return shell(title="Path to Wall Street: Andra Markets",
+    return shell(title="Break into Wall Street: Andra Markets",
                  desc="A guide for students breaking into investment banking, sales and trading, asset management, equity research "
                       "and hedge funds, from non-target universities and from outside the US: roles, recruiting timelines, CV, "
                       "networking, visas and certifications.",
-                 body=body, home="../", base="../", path="careers/", scripts=("careers.js",))
+                 body=body, home="../", base="../", path="break-into-wall-street/", scripts=("careers.js", "recruiting.js"))
 
 
 def slug_s(s):
@@ -4984,7 +5180,9 @@ SEARCH_TERMS = {
 SEARCH_PAGE_TERMS = {
     "fed-rates/": "Fed FOMC policy rate fed funds futures meeting probabilities yield curve Treasury 2s10s 3m10y "
                   "inversion spreads TIPS real yield breakeven inflation CPI PCE unemployment",
-    "careers/": "careers jobs internships spring week summer analyst off-cycle graduate programme recruiting CV resume "
+    "break-into-wall-street/recruiting-calendar/": "application deadlines internship summer analyst opens closes banks "
+                                                   "hedge funds asset managers recruiting dates",
+    "break-into-wall-street/": "careers jobs internships spring week summer analyst off-cycle graduate programme recruiting CV resume "
                 "networking cold email visa OPT H-1B CFA investment banking sales trading asset management hedge funds",
 }
 
@@ -5161,7 +5359,8 @@ def fin_ticker(t):
 SEARCH_PAGES = [
     ("Dashboards", "#dashboards", "Home"),
     ("Fed & Rates", "fed-rates/", "Page"),
-    ("Path to Wall Street", "careers/", "Page"),
+    ("Break into Wall Street", "break-into-wall-street/", "Page"),
+    ("Recruiting calendar", "break-into-wall-street/recruiting-calendar/", "Break into Wall Street"),
     ("The Lab", "lab/", "Page"),
     ("Simulators", "simulators/", "Page"),
     ("Trading Simulator", "simulators/trading-simulator/", "Simulators"),
@@ -5173,7 +5372,6 @@ SEARCH_PAGES = [
     ("World markets", "world/", "Page"),
     ("FX", "fx/", "Page"),
     ("Daily close note", "#note", "Home"),
-    ("Learn", "learn/", "Page"),
     ("Subscribe", "#subscribe", "Home"),
     ("About", "#about", "Home"),
     ("Research Library", "research/", "Page"),
@@ -5203,11 +5401,12 @@ def search_index(notes, companies=None, library=()):
     for r in library:
         items.append({"g": "Reports", "t": r["title"], "m": f"{LIB_TYPE_NAME[r['type']]}, {day_med(r['day'])}",
                       "u": f"research/{r['slug']}/", "k": r["summary"] + " " + " ".join(r["tags"])})
-    for a in ARTICLES:
-        items.append({"g": "Pages", "t": a["title"], "m": "Learn", "u": f"learn/{a['slug']}/",
-                      "k": a["desc"] + " " + " ".join(h for h, _ in a["sections"])})
     for slug, _, title, desc, _, _ in LAB_TOOLS:
         items.append({"g": "Pages", "t": title, "m": "Lab", "u": f"lab/{slug}/", "k": desc + " calculator"})
+    for t in load_technicals():
+        items.append({"g": "Pages", "t": html.unescape(t["name"]), "m": "Technical preparation",
+                      "u": f"break-into-wall-street/technicals/{t['slug']}/",
+                      "k": t["short"] + " interview questions " + " ".join(e["title"] for e in t["essentials"])})
     for title, url, meta in SEARCH_PAGES:
         items.append({"g": "Pages", "t": title, "m": meta, "u": url, "k": SEARCH_PAGE_TERMS.get(url, "")})
     payload = json.dumps(items, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
@@ -5225,18 +5424,23 @@ def main():
     (OUT / "watch" / "index.html").write_text(watch_redirect())
     (OUT / "fed-rates").mkdir(exist_ok=True)
     (OUT / "fed-rates" / "index.html").write_text(fedrates_page(load_fedrates()))
-    (OUT / "careers").mkdir(exist_ok=True)
-    (OUT / "careers" / "index.html").write_text(careers_page())
+    (OUT / "break-into-wall-street").mkdir(exist_ok=True)
+    (OUT / "break-into-wall-street" / "index.html").write_text(careers_page())
+    (OUT / "break-into-wall-street" / "recruiting-calendar").mkdir(exist_ok=True)
+    (OUT / "break-into-wall-street" / "recruiting-calendar" / "index.html").write_text(recruiting_page(load_recruiting()))
+    topics = load_technicals()
+    for t in topics:
+        folder = OUT / "break-into-wall-street" / "technicals" / t["slug"]
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / "index.html").write_text(technical_page(t, topics))
     # Yield curve and Fed path are part of Fed & Rates (owner, 30 Oct 2026).
     for old in ("yield-curve", "fed-path"):
         (OUT / "dashboards" / old).mkdir(parents=True, exist_ok=True)
         (OUT / "dashboards" / old / "index.html").write_text(moved_redirect(
             f"dashboards/{old}/", "fed-rates/", "Fed &amp; Rates", "This dashboard is now part of"))
-    (OUT / "learn").mkdir(exist_ok=True)
-    (OUT / "learn" / "index.html").write_text(learn_index())
-    for i, a in enumerate(ARTICLES):
-        (OUT / "learn" / a["slug"]).mkdir(exist_ok=True)
-        (OUT / "learn" / a["slug"] / "index.html").write_text(learn_page(i))
+    for path, (to, title, text) in MOVED.items():
+        (OUT / path).mkdir(parents=True, exist_ok=True)
+        (OUT / path / "index.html").write_text(moved_redirect(path, to, title, text))
     (OUT / "lab").mkdir(exist_ok=True)
     (OUT / "lab" / "index.html").write_text(lab_index())
     risk = risk_data()
