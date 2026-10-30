@@ -4593,11 +4593,12 @@ def technical_page(t, topics):
         e = t["example"]
         head = "".join(f'<th scope="col">{esc(c)}</th>' for c in e["columns"])
         rows, last = "", None
+        grouped = len({r[0] for r in e["rows"]}) < len(e["rows"])  # a first column that groups rows
         for r in e["rows"]:
-            first = r[0] != last
+            first = grouped and r[0] != last
             last = r[0]
             cells = "".join(f'<td{" class=tq-ex__n" if k == len(r) - 1 else ""}>{esc(v)}</td>' for k, v in enumerate(r[1:], 1))
-            rows += f'<tr{" class=tq-ex__first" if first else ""}><th scope="row">{esc(r[0]) if first else ""}</th>{cells}</tr>'
+            rows += f'<tr{" class=tq-ex__first" if first else ""}><th scope="row">{esc(r[0]) if first or not grouped else ""}</th>{cells}</tr>'
         ex = (f'<section id="tq-example" aria-labelledby="tq-ex-h"><h2 id="tq-ex-h">Worked example</h2>'
               f'<p class="tq-ex__title">{esc(e["title"])}</p><p>{esc(e["intro"])}</p>'
               f'<div class="tq-ex__wrap"><table class="tq-ex"><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table></div>'
