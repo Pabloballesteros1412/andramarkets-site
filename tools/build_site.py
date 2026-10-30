@@ -84,7 +84,7 @@ TIKTOK_VIDEOS = [
 # site has its own domain, so no account name is baked into the pages.
 SITE_URL = ""
 
-# The profile API (worker/, a Cloudflare Worker) that /profile/ calls for live
+# The profile API (worker/, a Cloudflare Worker) that the company pages call for live
 # prices, fundamentals and news, with no trailing slash. The address is public
 # (every visitor's browser calls it); the vendors' keys live in the Worker,
 # never here. The repository variable PROFILE_API overrides it at deploy time.
@@ -1302,7 +1302,6 @@ def site_header(home, base):
     <nav class="nav" id="site-nav" aria-label="Primary">
       <a href="{home}#dashboards">Dashboards</a>
       <a href="{base}companies/">Companies</a>
-      <a href="{base}profile/">Profile</a>
       <a href="{base}lab/">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{base}world/">World</a>
@@ -1344,7 +1343,6 @@ def site_footer(home, base):
     <nav class="foot__nav" aria-label="Footer">
       <a href="{home}#dashboards">Dashboards</a>
       <a href="{base}companies/">Companies</a>
-      <a href="{base}profile/">Company profile</a>
       <a href="{base}lab/">Lab</a>
       <a href="{base}calendar/">Calendar</a>
       <a href="{base}world/">World markets</a>
@@ -3530,13 +3528,19 @@ def company_page(t, data, cal):
                      f'<p class="co-src">Yahoo Finance daily closes. Beta from daily returns against the {bench_name}.</p>')
 
     spx_note = "" if bench else f" The {bench_name} series is pending."
-    body = f"""<main id="main" class="page dd co" data-co>
+    # US companies: the live price, news and analysts from the profile API.
+    live = market == "us" and bool(PROFILE_API)
+    live_attrs = (f' data-mode="company" data-api="{esc(PROFILE_API)}" data-t="{fin_ticker(t)}" data-name="{esc(name)}"'
+                  f' data-exchange="{esc(rec.get("exchange") or "")}"') if live else ""
+    ids = (lambda k: f' id="pf-{k}"') if live else (lambda k: "")
+    s_live = pf_news_analysts(esc(name)) if live else ""
+    body = f"""<main id="main" class="page dd co" data-co{live_attrs}>
   <div class="wrap dd__grid">
     <header class="page__head dd__head{" co-head--logo" if logo_html else ""}">
       <p class="dd__crumbs"><a href="../">Companies</a> <span aria-hidden="true">/</span> {SHORT_SECTOR.get(sector, sector)}</p>
       <h1 class="page__title">{esc(name)}</h1>
       {logo_html}
-      <p class="co-quote"><span class="co-px">{price_txt(m["price"], cur)}</span><span class="co-chg">{chg} on the day</span><span class="note__meta">{t}, {esc(rec.get("exchange") or "")}. Close {day_med(d)}.</span></p>
+      <p class="co-quote"><span class="co-px"{ids("px")}>{price_txt(m["price"], cur)}</span><span class="co-chg"{ids("chg")}>{chg} on the day</span><span class="note__meta"{ids("qmeta")}>{t}, {esc(rec.get("exchange") or "")}. Close {day_med(d)}.</span></p>
       <p class="lede">{lede}</p>
       <div class="co-acts">
         <button class="btn" type="button" data-soon="The portfolio monitor is coming soon: you will be able to follow {esc(name)} and your other holdings here.">Add to portfolio monitor</button>
@@ -3581,6 +3585,7 @@ def company_page(t, data, cal):
         <p class="co-src">Yahoo Finance, daily closes to {day_med(d)}.</p>
       </section>
       {s_risk}
+      {s_live}
       <section aria-labelledby="co-memo-t">
         <h2 id="co-memo-t">Investment memo</h2>
         <div class="co-gate">
@@ -3607,7 +3612,7 @@ def company_page(t, data, cal):
     return shell(
         title=f"{esc(name)} ({t}): Andra Markets",
         desc=esc(f"{name}: valuation, peers, revenue to profit and the share price against the market. {html.unescape(lede)}"),
-        body=body, home=base, base=base, path=f"companies/{co_slug(t)}/", scripts=("company.js",),
+        body=body, home=base, base=base, path=f"companies/{co_slug(t)}/", scripts=("company.js", "profile.js") if live else ("company.js",),
     )
 
 
@@ -3635,19 +3640,30 @@ def companies_index(data):
         pe_txt = f'{m["pe"]:.1f}x' if m["pe"] else "n/a"
         usd = m["mcap_usd"] or rec.get("cap")
         rows.append(
-            f'<tr data-sector="{slug_s(rec["sector"])}" data-market="{rec["market"]}"><td class="co-tab__rank">{i}</td>'
+            f'<tr data-sector="{slug_s(rec["sector"])}" data-market="{rec["market"]}" data-t="{fin_ticker(t) if rec["market"] == "us" else t}" '
+            f'data-q="{esc(" ".join(sorted({t.lower(), fin_ticker(t).lower()})) + " " + html.unescape(co_name(rec)).lower())}"><td class="co-tab__rank">{i}</td>'
             f'<td class="co-tab__name"><a href="{co_slug(t)}/">{esc(co_name(rec))}</a><span>{t}</span></td>'
             f'<td class="co-tab__sec" data-label="Sector">{SHORT_SECTOR.get(rec["sector"], rec["sector"])}</td>'
             f'<td class="num" data-label="Close">{price_txt(m["price"], rec.get("currency") or "USD")}</td>'
             f'<td class="num" data-label="Day">{mv(signed(m["chg_pct"], 2, "%"))}</td>'
             f'<td class="num" data-label="Value">{money(usd)}</td>'
             f'<td class="num" data-label="P/E">{pe_txt}</td></tr>')
-    body = f"""<main id="main" class="page co-index">
+    body = f"""<main id="main" class="page co-index" data-mode="index" data-api="{esc(PROFILE_API)}">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Companies</h1>
-      <p class="lede">The 200 largest companies in the S&amp;P 500, in the STOXX Europe 600 and across the six Asian markets, the companies the earnings calendar follows, ranked by market value in dollars. Each has a page with its valuation, its peers, where its revenue goes and how the shares have done against the market.</p>
+      <p class="lede">The 200 largest companies in the S&amp;P 500, in the STOXX Europe 600 and across the six Asian markets, the companies the earnings calendar follows, ranked by market value in dollars. Each has a page with its valuation, its peers, where its revenue goes and how the shares have done against the market. Search finds any other US-listed company too.</p>
     </header>
+    <form class="pf-field co-index__search" role="search" id="pf-form" hidden>
+      {icon("magnifying-glass")}
+      <input type="search" id="pf-q" name="q" aria-label="Search companies by ticker or name" placeholder="Search by ticker or name, any US-listed company" role="combobox" aria-expanded="false" aria-controls="pf-res" aria-autocomplete="list" autocomplete="off" spellcheck="false">
+      <kbd>Enter</kbd>
+    </form>
+    <p class="pf-status" id="pf-status" role="status" aria-live="polite"></p>
+    <div class="pf-more" id="pf-more" hidden>
+      <h2 class="pf-more__h" id="pf-more-h">Other US-listed companies</h2>
+      <ul class="pf-list" id="pf-res" role="listbox" aria-labelledby="pf-more-h"></ul>
+    </div>
     <div class="filters" role="group" aria-label="Filter companies by market">{mchips}</div>
     <div class="filters" role="group" aria-label="Filter companies by sector">{chips}</div>
     <p class="filters__status co-index__status" role="status" aria-live="polite">Showing all {n} companies</p>
@@ -3662,7 +3678,7 @@ def companies_index(data):
 </main>"""
     return shell(title="Companies: Andra Markets",
                  desc="The 200 largest companies in the US, Europe and Asia, each with valuation, peers and results.",
-                 body=body, home="../", base="../", path="companies/")
+                 body=body, home="../", base="../", path="companies/", scripts=("profile.js",))
 
 
 # World markets ------------------------------------------------------------------
@@ -3868,23 +3884,43 @@ SEARCH_TERMS = {
     "correlation": "stocks bonds dollar",
 }
 
-# Company profile (/profile/) -------------------------------------------------
+# Live company data (the profile API) -------------------------------------------
 
-def profile_page():
-    """The Company profile: search any US-listed ticker, then its profile.
+def pf_sk(*shapes):
+    """A loading skeleton: blocks with the shape of what comes."""
+    return '<div class="pf-sk" aria-hidden="true">' + "".join(f'<span class="sk sk--{x}"></span>' for x in shapes) + "</div>"
+
+
+def pf_sec(key, title, inner, skel):
+    """A section assets/profile.js fills: content, skeleton and error slot."""
+    return (f'<section id="pf-{key}" aria-labelledby="pf-{key}-t" data-part>'
+            f'<h2 id="pf-{key}-t">{title}</h2><div class="pf-ok">{inner}</div>{skel}'
+            f'<div class="pf-err"></div></section>')
+
+
+def pf_news_analysts(name_html):
+    """News and analyst recommendations, live from Finnhub."""
+    return (pf_sec("news", "News",
+                   f'<p>The latest headlines on {name_html} from the past week. Each opens on its publisher&rsquo;s site.</p>'
+                   '<ul class="pf-news" id="pf-news-list"></ul>'
+                   '<p class="co-src">Finnhub company news, refreshed every 15 minutes. Andra Markets does not write or check these headlines.</p>',
+                   pf_sk("line", "line-long", "line", "line-long"))
+            + pf_sec("analysts", "What analysts say",
+                     '<p id="pf-an-lede"></p><div class="pf-bar" id="pf-an-bar" role="img"></div><p class="pf-legend" id="pf-an-key"></p>'
+                     '<p class="co-src">Finnhub recommendation trends, monthly. Not a recommendation from Andra Markets.</p>',
+                     pf_sk("bar", "line-short")))
+
+
+def live_page(companies):
+    """/companies/live/?t=TICK: the profile of a US company outside the 600.
 
     One static page. assets/profile.js reads ?t= and fills it from the profile
     API (PROFILE_API, the Cloudflare Worker in worker/), section by section:
     each starts as a skeleton of its final shape and ends as content, or as an
-    error that says what failed and offers to try again. Without the API or
-    without JS the search view says so."""
-    def sk(*shapes):
-        return '<div class="pf-sk" aria-hidden="true">' + "".join(f'<span class="sk sk--{x}"></span>' for x in shapes) + "</div>"
-
-    def sec(key, title, inner, skel, part=True):
-        return (f'<section id="pf-{key}" aria-labelledby="pf-{key}-t"{" data-part" if part else ""}>'
-                f'<h2 id="pf-{key}-t">{title}</h2><div class="pf-ok">{inner}</div>{skel}'
-                f'<div class="pf-err"></div></section>')
+    error that says what failed and offers to try again. A ticker among the 600
+    goes to its own page (data-known); one that does not trade goes to the
+    search on the Companies index."""
+    sk, sec = pf_sk, pf_sec
 
     mag = icon("magnifying-glass")
     sections = "".join([
@@ -3929,16 +3965,7 @@ def profile_page():
             '<th scope="col">EV / EBITDA</th></tr></thead><tbody id="pf-peer-rows"></tbody></table></div>'
             '<p class="co-src">Peers and figures from Finnhub; the day&rsquo;s change from live prices. Each name opens its own profile.</p>',
             sk("row", "row", "row", "row")),
-        sec("news", "News",
-            '<p>The latest headlines on <span class="pf-name"></span> from the past week. Each opens on its publisher&rsquo;s site.</p>'
-            '<ul class="pf-news" id="pf-news-list"></ul>'
-            '<p class="co-src">Finnhub company news, refreshed every 15 minutes. Andra Markets does not write or check these headlines.</p>',
-            sk("line", "line-long", "line", "line-long")),
-        sec("analysts", "What analysts say",
-            '<p id="pf-an-lede"></p><div class="pf-bar" id="pf-an-bar" role="img"></div><p class="pf-legend" id="pf-an-key"></p>'
-            '<p class="co-src">Finnhub recommendation trends, monthly. Not a recommendation from Andra Markets.</p>',
-            sk("bar", "line-short")),
-    ])
+    ]) + pf_news_analysts('<span class="pf-name"></span>')
     memo = ('<section id="pf-memo" aria-labelledby="pf-memo-t"><h2 id="pf-memo-t">Investment memo</h2><div class="co-gate">'
             '<p>For subscribers: a full memo on <span class="pf-name">each company</span>, written for professionals.</p>'
             '<ul class="pf-outline"><li><span>The thesis and what would change it</span></li>'
@@ -3951,33 +3978,16 @@ def profile_page():
                    f'<span class="kpi__chg" id="pf-k-{k}-n">&nbsp;</span></li>'
                    for k, n in (("mcap", "Market value"), ("pe", "P/E, last 12 months"), ("ev", "EV / EBITDA"), ("ps", "Price to sales"),
                                 ("fcf", "Free cash flow yield"), ("nd", "Net debt"), ("dy", "Dividend yield"), ("range", "52-week range")))
-    body = f"""<main id="main" class="page dd co pf" data-view="search" data-api="{esc(PROFILE_API)}">
-  <div class="pf-view pf-view--search">
-    <div class="wrap">
-      <header class="page__head">
-        <h1 class="page__title">Company profile</h1>
-        <p class="lede">Any US-listed company by ticker or name: the live price, up to ten years of results, margins, multiples, peers and the latest news.</p>
-      </header>
-      <form class="pf-field" role="search" id="pf-form" hidden>
-        {mag}
-        <input type="search" id="pf-q" name="t" aria-label="Ticker or company name" placeholder="Ticker or company name" role="combobox" aria-expanded="false" aria-controls="pf-res" aria-autocomplete="list" autocomplete="off" autocapitalize="characters" spellcheck="false">
-        <kbd>Enter</kbd>
-      </form>
-      <ul class="pf-list" id="pf-res" role="listbox" aria-label="Companies" hidden></ul>
-      <p class="pf-status" id="pf-status" role="status" aria-live="polite"><noscript>The company profile needs JavaScript to fetch live prices and figures.</noscript></p>
-      <div class="pf-pop" id="pf-pop" hidden>
-        <h2>Try one</h2>
-        <ul>{"".join(f'<li><a class="chip" href="?t={t}">{t}</a></li>' for t in ("AAPL", "MSFT", "NVDA", "AMZN", "JPM", "KO"))}</ul>
-      </div>
-      <p class="pf-src">US-listed shares. Prices, peers and news from Finnhub; profile, financial statements, margins and multiples from Financial Modeling Prep, refreshed daily. For information only. Not investment advice.</p>
-    </div>
-  </div>
-
-  <div class="pf-view pf-view--profile">
-    <div class="wrap dd__grid">
+    known = {}
+    for t in (companies or {}).get("order", []):
+        if companies["co"][t]["market"] == "us":
+            known[fin_ticker(t)] = co_slug(t)
+    known_attr = esc(json.dumps(known, separators=(",", ":")))
+    body = f"""<main id="main" class="page dd co pf" data-mode="live" data-api="{esc(PROFILE_API)}" data-known="{known_attr}">
+  <div class="wrap dd__grid">
       <header class="page__head dd__head">
         <div class="pf-headrow">
-          <p class="dd__crumbs"><a href="./">Company profile</a> <span aria-hidden="true">/</span> <span id="pf-crumb">&nbsp;</span></p>
+          <p class="dd__crumbs"><a href="../">Companies</a> <span aria-hidden="true">/</span> <span id="pf-crumb">&nbsp;</span></p>
           <form class="pf-field pf-field--sm" role="search" id="pf-form2">
             {mag}
             <input type="search" id="pf-q2" name="t" aria-label="Another ticker" placeholder="Another ticker" autocomplete="off" autocapitalize="characters" spellcheck="false">
@@ -4020,20 +4030,34 @@ def profile_page():
         {memo}
         <p class="co-legal">For information only. Not investment advice.</p>
       </div>
-    </div>
   </div>
 </main>"""
     return shell(
-        title="Company profile: Andra Markets",
-        desc="Search any US-listed company by ticker: the live price, up to ten years of results, margins, multiples, peers and news.",
-        body=body, home="../", base="../", path="profile/", scripts=("profile.js",))
+        title="Companies: Andra Markets",
+        desc="Any US-listed company: the live price, up to ten years of results, margins, multiples, peers and news.",
+        body=body, home="../../", base="../../", path="companies/live/", scripts=("profile.js",))
+
+
+def profile_redirect():
+    """/profile/ moved into Companies: send old links on."""
+    js = ("var t=new URLSearchParams(location.search).get('t');"
+          "location.replace('../companies/'+(t?'live/?t='+encodeURIComponent(t):''));")
+    body = (f'<main id="main" class="page"><div class="wrap"><header class="page__head"><h1 class="page__title">Companies</h1>'
+            f'<p class="lede">The company profile is now part of <a class="link" href="../companies/">Companies</a>.</p></header></div></main>'
+            f'<script>{js}</script>')
+    return shell(title="Companies: Andra Markets", desc="The company profile is now part of Companies.",
+                 body=body, home="../", base="../", path="profile/")
+
+
+def fin_ticker(t):
+    """Finnhub's form of a US ticker of the 600: BRK-B is BRK.B."""
+    return t.replace("-", ".")
 
 
 SEARCH_PAGES = [
     ("Dashboards", "#dashboards", "Home"),
     ("The Lab", "lab/", "Page"),
     ("Companies", "companies/", "Page"),
-    ("Company profile: search any US ticker", "profile/", "Page"),
     ("Economic calendar", "calendar/", "Page"),
     ("World markets", "world/", "Page"),
     ("FX", "fx/", "Page"),
@@ -4103,7 +4127,9 @@ def main():
         (OUT / "fx" / a["date"] / "index.html").write_text(
             fx_page(a, fx_items[i - 1] if i > 0 else None, fx_items[i + 1] if i + 1 < len(fx_items) else None))
     (OUT / "profile").mkdir(exist_ok=True)
-    (OUT / "profile" / "index.html").write_text(profile_page())
+    (OUT / "profile" / "index.html").write_text(profile_redirect())
+    (OUT / "companies" / "live").mkdir(parents=True, exist_ok=True)
+    (OUT / "companies" / "live" / "index.html").write_text(live_page(companies))
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
     REPORTS.mkdir(exist_ok=True)
@@ -4131,6 +4157,8 @@ def main():
         (OUT / "companies").mkdir(exist_ok=True)
         (OUT / "companies" / "index.html").write_text(companies_index(companies))
         for t in companies["order"]:
+            if co_slug(t) == "live":
+                continue  # /companies/live/ is the page for every other US company
             folder = OUT / "companies" / co_slug(t)
             folder.mkdir(parents=True, exist_ok=True)
             (folder / "index.html").write_text(company_page(t, companies, cal))

@@ -1,13 +1,14 @@
-/* Andra Markets company profile (/profile/): the ticker search and the
-   profile it opens, filled from the profile API (worker/, a Cloudflare Worker
+/* Andra Markets companies, live: the search on /companies/, the profile of
+   any US company outside the 600 (/companies/live/?t=) and the live price,
+   news and analysts on the US pages of the 600, filled from the profile API (worker/, a Cloudflare Worker
    that holds the vendors' keys; its address is in data-api on <main>). Each
    part of the page loads on its own: a skeleton of its shape, then the
    content, or an error that says what failed with a way to try again. Vendor
    text (names, headlines) is only ever set as text, never as HTML.
-   Tokens and rules: DESIGN.md, Company profile. */
+   Tokens and rules: DESIGN.md, Company pages. */
 (function () {
   "use strict";
-  var main = document.querySelector("main.pf");
+  var main = document.querySelector("main[data-mode]");
   if (!main) return;
   var API = main.getAttribute("data-api") || "";
   var NS = "http://www.w3.org/2000/svg";
@@ -151,96 +152,125 @@
     if (src && !src.querySelector(".pf-stale")) src.appendChild(h("span", { "class": "pf-stale" }, " Saved copy from " + day(d.asOf.slice(0, 10)) + ": the data source did not answer just now."));
   }
 
-  /* ---- Search ---- */
+  /* ---- Modes ----
+     index:   /companies/, the search over the 600 and any other US ticker
+     live:    /companies/live/?t=TICK, the profile of a company outside the 600
+     company: /companies/<ticker>/, a US company of the 600: the live price,
+              news and analysts on top of its static page */
+  var MODE = main.getAttribute("data-mode");
   var params = new URLSearchParams(location.search);
-  var T = (params.get("t") || "").trim().toUpperCase();
-  var status = $("pf-status");
-  var form = $("pf-form"), q = $("pf-q"), res = $("pf-res"), pop = $("pf-pop");
+  var LIVE = MODE === "index" ? "live/" : MODE === "live" ? "./" : "../live/";
+  function go(t) { location.href = LIVE + "?t=" + encodeURIComponent(t.toUpperCase()); }
 
-  function go(t) { location.search = "?t=" + encodeURIComponent(t.toUpperCase()); }
-
-  function searchView(msg) {
-    main.setAttribute("data-view", "search");
-    document.title = "Company profile: Andra Markets";
-    if (!API) {
-      status.textContent = "The company profile is not connected to its data yet. It opens here as soon as it is.";
-      return;
-    }
+  /* ---- Search (the Companies index) ---- */
+  function indexSearch() {
+    var form = $("pf-form"), q = $("pf-q"), res = $("pf-res"), more = $("pf-more"), status = $("pf-status");
+    var filter = window.andraCoFilter || function () { return []; };
+    var known = {};
+    [].forEach.call(document.querySelectorAll(".co-tab tbody tr[data-t]"), function (r) { known[r.getAttribute("data-t")] = 1; });
     form.hidden = false;
-    pop.hidden = false;
-    if (msg) status.textContent = msg;
-    var items = [], active = -1, timer, seq = 0;
+    var items = [], active = -1, timer, seq = 0, nf = "";
     function render(list) {
       items = list;
-      active = list.length ? 0 : -1;
+      active = -1;
       res.textContent = "";
       list.forEach(function (r, i) {
-        var a = h("a", { href: "?t=" + encodeURIComponent(r.t), tabindex: "-1" }, [h("b", {}, r.t), h("span", {}, r.name)]);
-        res.appendChild(h("li", { role: "option", id: "pf-opt-" + i, "aria-selected": i === 0 ? "true" : "false" }, a));
+        var a = h("a", { href: LIVE + "?t=" + encodeURIComponent(r.t), tabindex: "-1" }, [h("b", {}, r.t), h("span", {}, r.name)]);
+        res.appendChild(h("li", { role: "option", id: "pf-opt-" + i, "aria-selected": "false" }, a));
       });
-      res.hidden = !list.length;
+      more.hidden = !list.length;
       q.setAttribute("aria-expanded", list.length ? "true" : "false");
-      if (list.length) q.setAttribute("aria-activedescendant", "pf-opt-0"); else q.removeAttribute("aria-activedescendant");
+      q.removeAttribute("aria-activedescendant");
     }
     function move(i) {
       if (!items.length) return;
       active = (i + items.length) % items.length;
       [].forEach.call(res.children, function (li, k) { li.setAttribute("aria-selected", k === active ? "true" : "false"); });
       q.setAttribute("aria-activedescendant", "pf-opt-" + active);
+      res.children[active].scrollIntoView({ block: "nearest" });
     }
     q.addEventListener("input", function () {
       clearTimeout(timer);
       var v = q.value.trim();
+      var local = filter(v.toLowerCase());
       if (!v) { render([]); status.textContent = ""; return; }
+      if (!API) return;
       timer = setTimeout(function () {
         var my = ++seq;
         get("/search?q=" + encodeURIComponent(v)).then(function (d) {
           if (my !== seq) return;
-          render(d.results || []);
-          status.textContent = d.results && d.results.length ? d.results.length + (d.results.length === 1 ? " company" : " companies") + " found." : "No US-listed company matches “" + v + "”. Check the ticker, or try the company’s name.";
+          var others = (d.results || []).filter(function (r) { return !known[r.t]; });
+          render(others);
+          status.textContent = local.length || others.length
+            ? (nf ? "No US-listed company trades as " + nf + ". These match the name." : "")
+            : (nf ? "No US-listed company trades as " + nf + ", and none matches that name." : "No US-listed company matches \u201c" + v + "\u201d. Check the ticker, or try the company\u2019s name.");
+          nf = "";
         }, function (e) {
           if (my !== seq) return;
           render([]);
-          status.textContent = e.code === "busy" ? "Search is busy. Press Enter to open " + v.toUpperCase() + " directly, or try again in a minute." : "Search did not answer. Press Enter to open a ticker directly.";
+          if (!local.length) status.textContent = e.code === "busy" ? "Search is busy. Press Enter to open " + v.toUpperCase() + " directly, or try again in a minute." : "Search did not answer. Press Enter to open a ticker directly.";
         });
       }, 220);
     });
     q.addEventListener("keydown", function (e) {
       if (e.key === "ArrowDown") { e.preventDefault(); move(active + 1); }
       else if (e.key === "ArrowUp") { e.preventDefault(); move(active - 1); }
-      else if (e.key === "Escape") { render([]); }
+      else if (e.key === "Escape") { q.value = ""; q.dispatchEvent(new Event("input")); }
     });
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       if (active >= 0 && items[active]) return go(items[active].t);
-      var v = q.value.trim().toUpperCase();
-      if (TICKER.test(v)) go(v);
-      else if (v) status.textContent = "Pick a company from the list, or type its ticker, such as AAPL.";
+      var v = q.value.trim();
+      var row = filter(v.toLowerCase())[0];
+      // An exact ticker among the 600 opens its page; else the first match, then the first other company.
+      var exact = document.querySelector('.co-tab tbody tr[data-t="' + v.toUpperCase().replace(/[^A-Z0-9.-]/g, "") + '"] a');
+      if (exact) return (location.href = exact.getAttribute("href"));
+      if (row) return (location.href = row.querySelector("a").getAttribute("href"));
+      if (items[0]) return go(items[0].t);
+      if (TICKER.test(v.toUpperCase())) go(v);
     });
-    q.focus();
+    var pre = params.get("q");
+    if (pre) {
+      var t = (params.get("nf") || "").toUpperCase();
+      if (TICKER.test(t)) nf = t;
+      q.value = pre;
+      q.dispatchEvent(new Event("input"));
+      q.focus();
+    }
   }
+  if (MODE === "index") return indexSearch();
 
   var form2 = $("pf-form2");
   if (form2) form2.addEventListener("submit", function (e) {
     e.preventDefault();
-    var v = $("pf-q2").value.trim().toUpperCase();
-    if (TICKER.test(v)) go(v);
-    else if (v) location.href = "./";
+    var v = $("pf-q2").value.trim();
+    if (TICKER.test(v.toUpperCase())) go(v);
+    else if (v) location.href = "../?q=" + encodeURIComponent(v);
   });
 
-  if (!API || !TICKER.test(T)) return searchView(T ? "“" + T + "” is not a ticker. Try one such as AAPL." : "");
-
   /* ---- The profile ---- */
-  main.setAttribute("data-view", "profile");
-  var F = null, PEERS = null, QUOTE = null, NAME = T;
-  [].forEach.call(document.querySelectorAll("[data-part]"), function (p) { state(p, "loading"); });
-  $("pf-title").textContent = T;
-  document.title = T + ": Company profile: Andra Markets";
+  var T, F = null, PEERS = null, QUOTE = null, NAME;
+  if (MODE === "company") {
+    T = main.getAttribute("data-t");
+    NAME = main.getAttribute("data-name");
+  } else {
+    T = (params.get("t") || "").trim().toUpperCase();
+    if (!TICKER.test(T)) { location.replace("../" + (T ? "?q=" + encodeURIComponent(T.toLowerCase()) : "")); return; }
+    // One of the 600 has its own page.
+    var KNOWN = {};
+    try { KNOWN = JSON.parse(main.getAttribute("data-known") || "{}"); } catch (e) { /* none */ }
+    if (KNOWN[T]) { location.replace("../" + KNOWN[T] + "/"); return; }
+    if (!API) { $("pf-lede").textContent = "The live company profiles are not connected to their data yet."; return; }
+    NAME = T;
+    [].forEach.call(document.querySelectorAll("[data-part]"), function (p) { state(p, "loading"); });
+    $("pf-title").textContent = T;
+    document.title = T + ": Companies: Andra Markets";
+  }
 
   function setName(n) {
     NAME = n;
     $("pf-title").textContent = n;
-    document.title = n + " (" + T + "): Company profile: Andra Markets";
+    document.title = n + " (" + T + "): Andra Markets";
     [].forEach.call(document.querySelectorAll(".pf-name"), function (s) { s.textContent = n; });
   }
 
@@ -251,7 +281,8 @@
       QUOTE = d;
       showQuote();
     }, function (e) {
-      if (e.code === "not_found" && first) return notFound();
+      if (e.code === "not_found" && first && MODE === "live") return notFound();
+      if (MODE === "company") return; // the static close stays
       if (QUOTE) return; // keep the last price on screen; the next refresh tries again
       fail(quotePart, "The price", e, function () { state(quotePart, "loading"); loadQuote(); });
     });
@@ -270,8 +301,10 @@
     }
     var meta = $("pf-qmeta"), fresh = Date.now() / 1000 - d.time < 15 * 60;
     meta.textContent = "";
-    meta.appendChild(fresh ? h("span", { "class": "pf-live" }, "Live, " + etTime(d.time) + " ET") : document.createTextNode("Last price " + etDay(d.time) + ", " + etTime(d.time) + " ET"));
-    meta.appendChild(document.createTextNode(". " + T + (F && F.profile.exchange ? ", " + F.profile.exchange : "") + ". Finnhub."));
+    var exch = F && F.profile.exchange ? F.profile.exchange : main.getAttribute("data-exchange");
+    var when = (fresh ? "Live, " : "Last price " + etDay(d.time) + ", ") + etTime(d.time) + " ET. " + T + (exch ? ", " + exch : "") + ". Finnhub.";
+    // One text run: the meta line is a flex row with gaps between its children.
+    meta.appendChild(fresh ? h("span", { "class": "pf-live" }, when) : document.createTextNode(when));
     state(quotePart, "ok");
     peerDay();
     keyFigures();
@@ -282,12 +315,10 @@
   }
   document.addEventListener("visibilitychange", function () { if (!document.hidden && QUOTE) loadQuote(); });
 
+  // "?t=nvidia": no such ticker, so search the name on the Companies index.
   function notFound() {
     clearInterval(quoteTimer);
-    $("pf-q").value = T.toLowerCase();
-    searchView("No US-listed company trades as " + T + ". Checking for a company by that name…");
-    // "?t=nvidia": search by name too, and offer what matches.
-    $("pf-q").dispatchEvent(new Event("input"));
+    location.replace("../?q=" + encodeURIComponent(T.toLowerCase()) + "&nf=" + encodeURIComponent(T));
   }
 
   // Fundamentals: the head, key figures and every chart and table but peers and news.
@@ -714,10 +745,11 @@
 
   // The price first, then the rest at once; peers and news never wait on fundamentals.
   loadQuote(true).then(pollQuote);
-  loadFund();
-  loadPeers();
   loadNews();
   loadAnalysts();
+  if (MODE === "company") return;
+  loadFund();
+  loadPeers();
   var rt;
   window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(draw, 150); });
 })();

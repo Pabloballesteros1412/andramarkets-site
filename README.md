@@ -17,7 +17,7 @@ tools, an economic calendar, a daily close note, explainers and videos.
 - `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser.
 - `tools/lab_data.py`: fetches the daily closes behind the Lab's risk and correlation tool at deploy time (below).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
-- `assets/profile.js`, `worker/`: the Company profile (`profile/`) and the Cloudflare Worker it reads from (below).
+- `assets/profile.js`, `worker/`: the live company data on the Companies pages (search, live price, news, analysts, other US companies) and the Cloudflare Worker it reads from (below).
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
 - `data/notes/<date>.json`: one record per close note: its text and the ten
   closing levels for the tape. No PDF or facts file is ever stored here.
@@ -270,15 +270,22 @@ close note" link always points to the newest published note. An instrument
 that fails keeps its last figure and time (Actions cache, never committed or
 published). Deploys queue rather than cancel each other.
 
-## Company profile
+## Live company data
 
-`/profile/` searches any US-listed company by ticker or name and opens its
-profile: the live price, up to ten years of results, margins, statements,
-multiples, peers, news and analyst recommendations, plus the locked
-Investment memo. The page is static; `assets/profile.js` fills it in the
-browser from the **profile API**, a Cloudflare Worker in `worker/` that holds
-the vendors' keys and caches every answer (fundamentals, peers, analysts and
-search 24 hours, news 15 minutes, the price 60 seconds).
+The Companies section reads live data in the browser from the **profile
+API**, a Cloudflare Worker in `worker/` that holds the vendors' keys and
+caches every answer (fundamentals, peers, analysts and search 24 hours, news
+15 minutes, the price 60 seconds). `assets/profile.js` uses it in three
+places:
+
+- `/companies/`: the search field filters the 600 and lists any other
+  US-listed company that matches.
+- `/companies/<ticker>/` for US companies: the live price, news and analyst
+  recommendations on top of the static page.
+- `/companies/live/?t=TICK`: the full profile of a US company outside the 600
+  (results, margins, statements, multiples, peers, news, analysts).
+
+`/profile/` (the section's first home) forwards old links there.
 
 | Data | Source (free plans) |
 |---|---|

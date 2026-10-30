@@ -4855,22 +4855,14 @@ html.js .acc__item:not(.is-open) .acc__panel p {
   }
 }
 
-/* Company profile (/profile/): owner-approved mock, 29 Oct 2026. The search
+/* Live company data (owner-approved mock, 29 Oct 2026; merged into Companies,
+   30 Oct 2026): the search on /companies/, the profile of other US companies
+   (/companies/live/) and the news and analysts on US company pages. The search
    field is the palette's field set on the page; the profile reuses the company
    page grid. Sections load one by one: a skeleton in ground-2 with the shape
    of what comes, then the content, or an error in ink with a way out. */
-.pf .pf-view {
-  display: none;
-}
-
-.pf[data-view="search"] .pf-view--search,
-.pf[data-view="profile"] .pf-view--profile {
-  display: block;
-}
-
 .pf-field[hidden],
-.pf-list[hidden],
-.pf-pop[hidden] {
+.pf-list[hidden] {
   display: none;
 }
 
@@ -4973,38 +4965,6 @@ html.js .acc__item:not(.is-open) .acc__panel p {
   margin-top: 12px;
   font-size: 0.875rem;
   color: var(--ink-2);
-}
-
-.pf-pop {
-  margin-top: 40px;
-}
-
-.pf-pop h2 {
-  margin: 0 0 8px;
-  font-size: 0.8125rem;
-  font-weight: 550;
-  letter-spacing: 0;
-  color: var(--ink-3);
-}
-
-.pf-pop ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.pf-pop .chip {
-  text-decoration: none;
-}
-
-.pf-src {
-  max-width: 640px;
-  margin-top: 40px;
-  font-size: 0.8125rem;
-  color: var(--ink-3);
 }
 
 .pf-headrow {
@@ -5240,6 +5200,8 @@ html.js .acc__item:not(.is-open) .acc__panel p {
 }
 
 .pf-news .icon {
+  display: inline-block;
+  vertical-align: -0.125em;
   font-size: 0.9rem;
   color: var(--ink-3);
 }
@@ -5318,13 +5280,13 @@ html.js .acc__item:not(.is-open) .acc__panel p {
   display: none;
 }
 
-.pf [data-part][data-st="loading"] > .pf-ok,
-.pf [data-part][data-st="error"] > .pf-ok {
+[data-part][data-st="loading"] > .pf-ok,
+[data-part][data-st="error"] > .pf-ok {
   display: none;
 }
 
-.pf [data-part][data-st="loading"] > .pf-sk,
-.pf [data-part][data-st="error"] > .pf-err {
+[data-part][data-st="loading"] > .pf-sk,
+[data-part][data-st="error"] > .pf-err {
   display: block;
 }
 
@@ -5432,4 +5394,36 @@ html.js .acc__item:not(.is-open) .acc__panel p {
 
 .pf-headrow {
   margin-bottom: 8px;
+}
+
+/* Companies index: the search above the filters, other US companies below it. */
+.co-index__search {
+  margin-top: 32px;
+}
+
+.co-index .pf-status:empty {
+  display: none;
+}
+
+.pf-more {
+  max-width: 640px;
+  margin-top: 16px;
+}
+
+.pf-more[hidden] {
+  display: none;
+}
+
+.pf-more__h {
+  margin: 0 0 8px;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  letter-spacing: 0;
+  color: var(--ink-3);
+}
+
+.pf-more .pf-list {
+  max-height: 320px;
+  overflow-y: auto;
+  border-top: 1px solid var(--rule-strong);
 }
