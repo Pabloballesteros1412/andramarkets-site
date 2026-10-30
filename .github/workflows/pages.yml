@@ -109,6 +109,24 @@ jobs:
         with:
           path: .cache/lab
           key: lab-${{ github.run_id }}-${{ github.run_attempt }}
+      # The Trading Simulator's S&P 500 history (tools/sim_data.py): fetched at
+      # most once a day; a failed fetch keeps the last good copy.
+      - name: Restore simulator history
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/sim
+          key: sim-${{ github.run_id }}
+          restore-keys: sim-
+      - name: Fetch simulator history
+        if: ${{ !inputs.strip_only }}
+        continue-on-error: true
+        run: python3 tools/sim_data.py
+      - name: Save simulator history
+        if: ${{ !inputs.strip_only }}
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/sim
+          key: sim-${{ github.run_id }}-${{ github.run_attempt }}
       # The World markets page (tools/world_data.py): Yahoo, OECD, World Bank,
       # IMF; each figure keeps its last good value and date when a source fails.
       - name: Restore world figures
@@ -200,7 +218,7 @@ jobs:
           cp -r learn _site/
           cp -r world _site/
           cp -r fx _site/
-          cp -r lab _site/
+          cp -r lab simulators _site/
           cp -r research interview-prep sources legal privacy _site/
           cp -r profile _site/
           rm -rf _site/assets/icons

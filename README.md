@@ -19,6 +19,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/legal_content.py`: the legal notice (`legal/`) and the privacy and cookies policy (`privacy/`).
 - `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser.
 - `tools/lab_data.py`: fetches the daily closes behind the Lab's risk and correlation tool at deploy time (below).
+- `assets/sim.js`, `tools/sim_data.py`, `tools/sim_content.py`: the Trading Simulator (`simulators/`), its S&P 500 history fetched at deploy time and the historical episodes it reveals (below).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `assets/profile.js`, `worker/`: the live company data on the Companies pages (search, live price, news, analysts, other US companies) and the Cloudflare Worker it reads from (below).
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
@@ -428,3 +429,17 @@ Business Model.
 
 - Schibsted Grotesk: SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
 - Icons: Phosphor Icons (MIT), inlined as an SVG sprite.
+
+## Simulators data
+
+`tools/sim_data.py` runs at deploy, before the build, and writes
+`.cache/sim/sp500.json` (kept between runs by the workflow cache, refreshed at
+most once a day): every trading day since the end of 1927 with its total
+return. Daily closes come from Yahoo Finance `^GSPC`; to the end of 1987 each
+month's dividend from Robert Shiller's data (via the `datasets/s-and-p-500`
+repository on GitHub) is added day by day as a yield; from 1988 the return is
+the S&P 500 Total Return index, `^SP500TR`. `build_site.py` packs it into
+`assets/sim-sp500.js` (a script, since the deploy refuses JSON files, about
+150 KB). Until the history exists the simulator page shows "Data pending".
+Cash earns a flat 2% a year. The episodes revealed at the end of a game are in
+`tools/sim_content.py`; they cover every month since 1928 without gaps.
