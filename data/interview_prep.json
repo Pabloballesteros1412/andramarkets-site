@@ -1,0 +1,283 @@
+{
+  "week": {
+    "of": "2026-10-26",
+    "updated": "2026-10-30",
+    "intro": "Six things that moved markets this week, each with the figures from the Andra Markets close notes and a way to say it in thirty seconds.",
+    "topics": [
+      {
+        "title": "The 10-year Treasury yield reached 5%",
+        "what": "The 10-year closed at 5.00% on 26 October, up 4bp on a parallel shift across the curve, and at 5.05% on 29 October, up 6bp. Breakevens barely moved: the 10-year breakeven was 2.34% on the 26th and 2.35% on the 29th, while the 10-year TIPS yield rose to 2.67%.",
+        "why": "A nominal yield is a real yield plus expected inflation. When breakevens stay flat and real yields rise, the market is not pricing an inflation scare: it is asking for more real return, for reasons such as growth, bond supply or term premium. Higher real yields raise the discount rate on every long-duration asset.",
+        "say": "The 10-year went through 5% this week, but breakevens hardly moved, so it was real yields doing the work rather than inflation expectations. That reads as growth or supply, not an inflation scare, but it raises the discount rate for long-duration equities, which is why the level matters for tech.",
+        "sources": ["2026-10-26", "2026-10-29"]
+      },
+      {
+        "title": "The curve flattened, then bear-steepened",
+        "what": "2s10s narrowed to 29bp on 28 October as the 2-year rose and the 10-year slipped. On 29 October it widened 9bp to 38bp: the 2-year fell 3bp to 4.67% while the 10-year rose 6bp to 5.05% and the 30-year 7bp to 5.37%.",
+        "why": "When long yields rise faster than short ones (a bear steepener) with the front end anchored, the market is not pricing a new path for the policy rate. It is pricing term premium: the extra yield investors want for holding duration, often linked to fiscal deficits and bond supply.",
+        "say": "On Thursday the curve bear-steepened: 2s10s widened 9bp to 38bp with the 2-year lower and the long end higher. Short rates track the Fed, so a move led by the long end points to term premium and supply rather than a change in policy expectations.",
+        "sources": ["2026-10-28", "2026-10-29"]
+      },
+      {
+        "title": "Record highs on narrow breadth, then a rotation",
+        "what": "The S&P 500 closed at a record 7,743.98 on 28 October, with only 14 advancers to 12 decliners across the Andra Markets watchlist. On 29 October the Nasdaq 100 fell 1.38% as Alphabet fell 12.64%, while the Russell 2000 rose 1.01% and advancers led decliners 16 to 10.",
+        "why": "Index levels can hide concentration: a few megacaps can carry a cap-weighted index while most stocks do little. When leadership breaks, money often rotates into small caps, value and defensives rather than leaving equities altogether.",
+        "say": "The S&P made a record on Wednesday, but breadth was thin. On Thursday Alphabet's 12.6% drop pulled the Nasdaq 100 down 1.4%, yet the Russell 2000 rose 1% and more stocks rose than fell. I'd call that a rotation out of crowded megacap tech, not a risk-off move.",
+        "sources": ["2026-10-28", "2026-10-29"]
+      },
+      {
+        "title": "Volatility compressed while credit leaked",
+        "what": "The VIX fell 5.45% on 26 October and closed at 16.91 on 28 October; the MOVE index, Treasury volatility, fell 3.39% to 94.55 the same day. On 28 October investment grade (LQD) fell 0.22% and EM bonds (EMB) 0.14%, while equities set a record.",
+        "why": "Equity and credit investors price the same companies. When stocks rise while credit softens, one of them is likely wrong. Credit holders only lose money in the downside, so desks often treat credit weakness as the earlier warning.",
+        "say": "Implied volatility fell all week, and the VIX was under 17 at Wednesday's record. But investment-grade credit sold off that same day. I'd watch whether high yield follows: if it does, the equity rally loses its support.",
+        "sources": ["2026-10-26", "2026-10-28"]
+      },
+      {
+        "title": "The dollar and the yen",
+        "what": "The dollar index closed at a session high of 102.365 on 27 October, up 0.40%, as EUR/USD fell 0.76% to 1.113 and USD/JPY rose to 157.977. On 29 October the dollar index fell 0.25% to 101.93 even though Treasury yields rose.",
+        "why": "Rate differentials normally drive the dollar: higher US yields attract capital. A dollar that falls while yields rise suggests the market reads the yield move as term premium or fiscal risk rather than a hawkish Fed. The yen near 158 per dollar keeps the question of intervention by Japan's authorities alive.",
+        "say": "Usually higher US yields mean a stronger dollar. On Thursday yields rose and the dollar fell, which fits the term-premium story from the bond market. USD/JPY is still close to 158, which keeps intervention risk on the table.",
+        "sources": ["2026-10-27", "2026-10-29"]
+      },
+      {
+        "title": "Brent above $100, and a split with WTI",
+        "what": "Brent fell 5.52% to 110.28 on 26 October and 5.46% to 109.49 on 27 October; WTI closed at 99.92 on the 27th. On 28 October WTI rose 2.01% to 101.91 while Brent fell 2.92% to 110.56. Natural gas rose 15.08%, 17.41% and 11.75% on three sessions in a row.",
+        "why": "Brent is the seaborne international benchmark and WTI the US inland one, so their spread reflects transport, storage and regional supply. Oil above $100 feeds headline inflation and squeezes consumers, which matters for central banks.",
+        "say": "Brent is still above $100, though it fell sharply early in the week and even moved opposite to WTI on Wednesday. Brent is the global seaborne price and WTI the US one, so a split points to regional supply and logistics. The level still matters for headline inflation.",
+        "sources": ["2026-10-26", "2026-10-27", "2026-10-28"]
+      }
+    ]
+  },
+  "categories": [
+    {"id": "macro", "name": "Macro and central banks"},
+    {"id": "equities", "name": "Equities"},
+    {"id": "rates", "name": "Fixed income and rates"},
+    {"id": "fx", "name": "FX"},
+    {"id": "commodities", "name": "Commodities"},
+    {"id": "pitch", "name": "Pitch me a stock"}
+  ],
+  "questions": [
+    {
+      "cat": "macro",
+      "q": "Walk me through the markets.",
+      "a": "Start with the theme, not a list of numbers: one sentence on what is driving markets now. Then go across asset classes in the same order every time: equities (the S&P 500 level and what led it), rates (the 10-year and the shape of the curve), FX (the dollar), commodities (oil and gold), and finish with what you are watching next, such as a data release or central bank meeting.\n\nKeep it to about a minute, use levels you have checked that morning, and connect them: for example, higher yields weighing on growth stocks, or a weaker dollar supporting commodities.",
+      "follow": "What do you think happens next, and what would change your mind?"
+    },
+    {
+      "cat": "macro",
+      "q": "Why do central banks raise rates to fight inflation?",
+      "a": "Higher policy rates raise borrowing costs across the economy. Mortgages and corporate loans get more expensive, saving becomes more attractive than spending, asset prices tend to fall, and the currency tends to strengthen, which makes imports cheaper. Together that slows demand, and slower demand eases pressure on prices and wages.\n\nThe effect comes with long and variable lags, often a year or more, which is why central banks also manage expectations through guidance: if people believe inflation will come down, they set prices and wages accordingly.",
+      "follow": "Why might a central bank keep rates high even after inflation starts falling?"
+    },
+    {
+      "cat": "macro",
+      "q": "What are quantitative easing and quantitative tightening?",
+      "a": "Quantitative easing (QE) is a central bank buying bonds, usually government bonds, with newly created reserves. It pushes bond prices up and long-term yields down, lowers borrowing costs further along the curve and encourages investors into riskier assets. It is used when the policy rate is already near zero.\n\nQuantitative tightening (QT) is the reverse: the central bank lets bonds mature without reinvesting, or sells them, shrinking its balance sheet. That adds to the supply private investors must absorb and tends to lift long-term yields and term premium.",
+      "follow": "How does QT interact with large government deficits?"
+    },
+    {
+      "cat": "macro",
+      "q": "What happens across markets if the Fed cuts rates by surprise?",
+      "a": "The first move is in the front end: two-year yields fall most, so the curve steepens. The dollar usually weakens as US rates fall relative to the rest of the world. Equities often rise on cheaper money, with rate-sensitive sectors such as small caps, real estate and utilities doing best, and gold tends to benefit from lower real yields.\n\nThe caveat is the reason for the cut. If the market reads it as panic about a sudden slowdown, equities can fall and long yields can drop as investors buy safety. The signal matters as much as the move.",
+      "follow": "Why might long-term yields rise after a rate cut?"
+    },
+    {
+      "cat": "macro",
+      "q": "What is the difference between headline and core inflation?",
+      "a": "Headline inflation measures the change in the price of the whole basket. Core inflation excludes food and energy, whose prices swing with weather, harvests and geopolitics. Central banks watch core because it is a better guide to the underlying trend that their policy can influence.\n\nThe Fed's preferred measure is core PCE inflation rather than CPI: PCE has a broader scope and weights that adjust as consumers substitute between goods. Markets often react most to services inflation, which is driven by wages and tends to be sticky.",
+      "follow": "Why can headline inflation still matter for policy?"
+    },
+    {
+      "cat": "macro",
+      "q": "How would a strong jobs report move stocks, bonds and the dollar?",
+      "a": "A strong report means a stronger economy and possibly more inflation, so the market prices fewer or later rate cuts. Treasury yields rise, led by the two-year, and the dollar strengthens.\n\nEquities are ambiguous. Good news on growth supports earnings, but higher yields reduce what future earnings are worth. When inflation is the main worry, good economic news can be bad news for stocks; when recession is the worry, it is good news. Saying which regime we are in is the strongest part of the answer.",
+      "follow": "Which other data release would you watch alongside payrolls?"
+    },
+    {
+      "cat": "equities",
+      "q": "What drives a stock price?",
+      "a": "A share's price is earnings multiplied by the multiple the market will pay for them. Earnings depend on revenue growth and margins. The multiple depends on interest rates (the discount rate), expected growth, the risk investors see in the business and general sentiment.\n\nOver a few days, flows and news dominate. Over several years, earnings growth and the cash returned to shareholders explain most of the return. A good answer separates the two time horizons.",
+      "follow": "Which of those has driven the market this year?"
+    },
+    {
+      "cat": "equities",
+      "q": "How do higher interest rates affect equity valuations?",
+      "a": "A stock is worth the present value of its future cash flows. Higher rates raise the discount rate, which lowers that present value, and the effect is largest for companies whose cash flows are far in the future: long-duration growth stocks such as unprofitable technology. Value stocks with near-term cash flows are hit less, and banks can benefit from wider lending margins.\n\nHigher rates also compete with equities directly: when a Treasury pays 5% risk-free, investors demand more from stocks. Compare the earnings yield, the inverse of the P/E, with the real bond yield.",
+      "follow": "Why did equities rise in some periods when rates were also rising?"
+    },
+    {
+      "cat": "equities",
+      "q": "What is the VIX and what does it tell you?",
+      "a": "The VIX is the 30-day implied volatility of the S&P 500, calculated by Cboe from the prices of index options. It measures how much movement the options market expects, annualised, and how much investors pay for protection.\n\nIt rises when stocks fall, because demand for puts jumps, which is why it is called the fear gauge. It is mean-reverting: low readings signal calm and complacency, spikes are usually short. Compare it with realised volatility and look at the term structure: when short-dated volatility is above long-dated (backwardation), stress is acute.",
+      "follow": "What does it mean when the VIX rises while stocks also rise?"
+    },
+    {
+      "cat": "equities",
+      "q": "Why might a stock fall after beating earnings estimates?",
+      "a": "Because the price reflects expectations, not the published consensus. Several things can do it: the beat was smaller than the unofficial \"whisper\" number, guidance for the next quarter was weak, the quality of the beat was poor (from tax, buybacks or one-offs rather than revenue), margins fell, or the stock had already run up and investors sold on the news.\n\nThe forward guidance and the management commentary on the call usually matter more than the quarter just reported.",
+      "follow": "Which line of the results would you look at first?"
+    },
+    {
+      "cat": "equities",
+      "q": "What is market breadth and why does concentration matter?",
+      "a": "Breadth measures how many stocks take part in a move: advancers against decliners, the share of stocks above their 200-day average, or an equal-weight index against the cap-weighted one. A rally on broad breadth is generally considered healthier than one carried by a few large companies.\n\nConcentration matters because a cap-weighted index then depends on a handful of names: a disappointment at one of them moves the whole index, and an index fund owner is less diversified than they think.",
+      "follow": "How would you play a view that breadth will improve?"
+    },
+    {
+      "cat": "equities",
+      "q": "Cyclical or defensive: how do sectors behave across the cycle?",
+      "a": "Cyclicals, such as industrials, materials, energy, financials and consumer discretionary, depend on economic growth and tend to lead in a recovery. Defensives, such as utilities, consumer staples and health care, sell things people buy whatever the economy does, and hold up better in a slowdown.\n\nRates add a second axis: utilities and real estate behave like bonds and suffer when yields rise, while banks often gain. Sector rotation is reading which part of the cycle the market is pricing.",
+      "follow": "Where in the cycle do you think we are now?"
+    },
+    {
+      "cat": "rates",
+      "q": "Why do bond prices and yields move in opposite directions?",
+      "a": "A bond pays fixed coupons. If market yields rise to 6%, nobody will pay full price for an existing bond paying 5%, so its price falls until its yield to maturity matches the new market level. Its future cash flows are also discounted at a higher rate, which lowers their present value.\n\nThe yield is simply the discount rate that makes the present value of the cash flows equal to the price, so the two are two descriptions of the same thing.",
+      "follow": "Which bond falls more when yields rise, a 2-year or a 30-year?"
+    },
+    {
+      "cat": "rates",
+      "q": "What is duration?",
+      "a": "Duration measures a bond's sensitivity to interest rates. Modified duration is the approximate percentage change in price for a one percentage point change in yield: a bond with a duration of 7 loses about 7% if its yield rises by one point.\n\nDuration is higher for longer maturities and lower coupons. The relationship is curved rather than straight, which is convexity: for an ordinary bond, prices rise more when yields fall than they drop when yields rise by the same amount.",
+      "follow": "Why does a callable bond or a mortgage bond have negative convexity?"
+    },
+    {
+      "cat": "rates",
+      "q": "What is the yield curve, and what does an inversion tell you?",
+      "a": "The yield curve plots government bond yields against maturity. Normally it slopes upward, because investors want extra yield for lending for longer. It inverts when short yields are above long ones, which happens when the market expects the central bank to cut rates in the future, usually because it expects a slowdown.\n\nInversions of 2s10s or 3m10y have preceded most US recessions, but the lag is long and variable, and the recession usually comes as the curve steepens again (the un-inversion), not at the moment of inversion.",
+      "follow": "Is this time different? Why might the signal fail?"
+    },
+    {
+      "cat": "rates",
+      "q": "Explain bear steepening and bull flattening.",
+      "a": "Bull and bear describe prices: bull means yields falling, bear means yields rising. Steepening and flattening describe the gap between long and short yields.\n\nA bear steepener is yields rising, led by the long end, often from inflation fears, term premium or heavy bond supply. A bull steepener is yields falling, led by the front end, typical when the market prices rate cuts. A bear flattener is the front end rising most, as the market prices hikes. A bull flattener is the long end falling most, often a flight to safety or a lower growth outlook.",
+      "follow": "Which of the four describes the curve this week?"
+    },
+    {
+      "cat": "rates",
+      "q": "What is a credit spread, and what makes it widen?",
+      "a": "A credit spread is the extra yield a corporate bond pays over a government bond of the same maturity. It compensates investors for default risk, for lower liquidity and for the volatility of the bond.\n\nSpreads widen when the economic outlook worsens, defaults are expected to rise, liquidity dries up or risk appetite falls. High yield spreads react much more than investment grade. Because credit investors only lose money on the downside, widening spreads are often watched as an early warning for equities.",
+      "follow": "What would it mean if credit spreads widened while stocks went up?"
+    },
+    {
+      "cat": "rates",
+      "q": "What are real yields and breakeven inflation?",
+      "a": "A real yield is the return after inflation, observed directly on inflation-linked bonds (TIPS in the US). The breakeven inflation rate is the nominal Treasury yield minus the TIPS yield of the same maturity: the inflation rate at which both pay the same, a market estimate of expected inflation plus a risk premium.\n\nThe split tells you why yields moved. A rise driven by breakevens is an inflation story; one driven by real yields is about growth, policy or supply, and it weighs more on gold and long-duration equities.",
+      "follow": "Why can breakevens be distorted in a crisis?"
+    },
+    {
+      "cat": "rates",
+      "q": "If the Fed cuts rates, does the 10-year yield necessarily fall?",
+      "a": "No. The Fed sets the overnight rate, which anchors the front end. The 10-year reflects the expected path of short rates over ten years plus a term premium. If a cut is already priced, the 10-year may not move at all. If markets think the Fed is cutting while inflation is still high, inflation expectations and the term premium can rise, and with heavy bond supply the 10-year can go up after a cut.\n\nThat is why the curve tends to steepen through an easing cycle.",
+      "follow": "What would you look at to tell which component is moving?"
+    },
+    {
+      "cat": "fx",
+      "q": "What drives exchange rates?",
+      "a": "In the short run, interest rate differentials and capital flows: money moves to where it earns more, so a currency tends to rise when its central bank is expected to be more hawkish than others. Risk appetite matters too, since some currencies are havens (the dollar, yen and Swiss franc) and others rise with risk (the Australian dollar and many emerging market currencies).\n\nOver the longer run: relative growth, inflation and purchasing power, the current account, terms of trade (commodity exporters move with commodity prices) and political and fiscal credibility.",
+      "follow": "Which of those best explains the dollar's moves this year?"
+    },
+    {
+      "cat": "fx",
+      "q": "If US rates rise relative to Europe, what happens to EUR/USD?",
+      "a": "EUR/USD is quoted as dollars per euro. Higher US rates relative to euro area rates make dollar assets more attractive, capital flows to the dollar and EUR/USD tends to fall: the euro weakens against the dollar.\n\nThe nuance is why US rates rose. If it reflects stronger US growth, the effect is clean. If it reflects fiscal worries or a rising term premium, the dollar can weaken even as yields rise, because investors demand a discount for holding US assets.",
+      "follow": "Which yield spread would you track for that pair?"
+    },
+    {
+      "cat": "fx",
+      "q": "How are FX forwards priced?",
+      "a": "By covered interest parity: the forward rate is the spot rate adjusted for the interest rate differential between the two currencies over the period. The currency with the higher interest rate trades at a forward discount, so that nobody can lock in a risk-free profit by borrowing in one currency, converting and lending in the other while hedging with a forward.\n\nForward = spot × (1 + domestic rate × t) / (1 + foreign rate × t), with the rates in the quote's terms. The forward is not a forecast of the future spot rate.",
+      "follow": "What is cross-currency basis, and why does it exist?"
+    },
+    {
+      "cat": "fx",
+      "q": "What is the carry trade, and when does it unwind?",
+      "a": "Borrowing in a low-yielding currency and investing in a high-yielding one, earning the interest difference. It works while exchange rates are stable or move in its favour, and is often funded in yen or Swiss francs.\n\nIt unwinds when volatility spikes or the rate gap narrows: investors rush to repay the funding currency, which then rises sharply, and the high yielders fall. Carry returns are like selling insurance: small steady gains, with occasional large losses.",
+      "follow": "Why does the yen often strengthen in a sell-off?"
+    },
+    {
+      "cat": "fx",
+      "q": "Why is the dollar considered a safe haven?",
+      "a": "The dollar is the world's reserve and funding currency: much global trade, commodities and debt are priced in dollars. In a crisis, companies and banks abroad need dollars to repay those debts, and investors move into the deep, liquid market of US Treasuries, so the dollar rises.\n\nThe \"dollar smile\" describes it: the dollar tends to rise both when the world is in stress and when the US economy clearly outperforms, and to weaken in between, when global growth is broad and risk appetite strong.",
+      "follow": "What could undermine the dollar's safe-haven status?"
+    },
+    {
+      "cat": "fx",
+      "q": "How does a weaker currency affect a country's stock market?",
+      "a": "It helps exporters and companies that earn abroad, because their foreign revenue is worth more in local currency; a weaker yen, for example, tends to support Japanese exporters and the Nikkei. It hurts importers and companies with foreign currency debt, and it raises imported inflation.\n\nFor a foreign investor the currency is part of the return: a local gain can be wiped out when converted back. That is why many funds hedge currency exposure.",
+      "follow": "Would you hedge the currency on a Japanese equity position? Why?"
+    },
+    {
+      "cat": "commodities",
+      "q": "What drives the price of oil?",
+      "a": "Supply and demand at the margin. On supply: OPEC+ production decisions, US shale output, geopolitics and disruptions in producing regions, and inventories. On demand: global growth, especially China and the US, seasonal driving and refining patterns, and the energy transition.\n\nFinancial factors add to it: the dollar (oil is priced in dollars), positioning by speculators and the futures curve. Inventory data, such as the weekly US EIA report, are the most direct read on whether the market is tight.",
+      "follow": "How would an oil price shock affect inflation and central banks?"
+    },
+    {
+      "cat": "commodities",
+      "q": "What are contango and backwardation?",
+      "a": "They describe the futures curve. In contango, longer-dated futures are more expensive than the spot price, which reflects the cost of storing and financing the commodity and usually signals ample supply. In backwardation, futures are cheaper than spot: the market pays a premium for immediate delivery, which signals tight supply.\n\nIt matters for investors: rolling a long futures position in contango costs money every month (negative roll yield), while backwardation earns a positive roll yield.",
+      "follow": "Why did oil futures go below zero in April 2020?"
+    },
+    {
+      "cat": "commodities",
+      "q": "Why does gold often rise when real yields fall?",
+      "a": "Gold pays no interest, so the opportunity cost of holding it is the real yield you give up on safe bonds. When real yields fall, that cost falls and gold becomes relatively more attractive; when they rise, gold usually struggles.\n\nIt is a strong relationship, not a law: central bank buying, geopolitical demand for a reserve asset outside the dollar system and the dollar itself can push gold up even when real yields are high.",
+      "follow": "What else has been driving gold demand recently?"
+    },
+    {
+      "cat": "commodities",
+      "q": "What is the difference between Brent and WTI?",
+      "a": "Both are light, sweet crude benchmarks. WTI (West Texas Intermediate) is delivered inland at Cushing, Oklahoma, and reflects US supply. Brent comes from the North Sea and is seaborne, so it sets the price for most of the world's traded oil.\n\nBrent usually trades above WTI because it is easier to ship globally. The spread widens with US pipeline or storage constraints, export capacity and shipping costs, and it moves with geopolitical risk outside the US.",
+      "follow": "Which benchmark matters more for US gasoline prices?"
+    },
+    {
+      "cat": "commodities",
+      "q": "What does the copper price tell you?",
+      "a": "Copper is used in construction, power grids, electronics and vehicles, so demand tracks industrial activity. That is why traders call it Dr Copper: its price is read as a gauge of global growth, especially in China, which consumes about half the world's copper.\n\nThe energy transition adds structural demand from electric vehicles and grids, while new mine supply takes years to develop. So copper is now partly a growth indicator and partly a supply story. Compare it with gold: a rising copper to gold ratio is often read as a pro-growth signal.",
+      "follow": "How would you trade a view on Chinese stimulus?"
+    },
+    {
+      "cat": "commodities",
+      "q": "How does a stronger dollar affect commodity prices?",
+      "a": "Most commodities are priced in dollars. A stronger dollar makes them more expensive for buyers paying in other currencies, which reduces demand. It also raises what producers outside the US earn in their own currency for each dollar of sales, which encourages supply. Both tend to push dollar prices down.\n\nThe relationship is not fixed: a supply shock can lift both oil and the dollar at the same time, and some commodity currencies, such as the Australian dollar, move with the commodity rather than against it.",
+      "follow": "Why do emerging markets suffer when the dollar is strong?"
+    },
+    {
+      "cat": "pitch",
+      "q": "Pitch me a stock.",
+      "a": "Use a structure the interviewer can follow in two minutes:\n\n1. The recommendation in one sentence: company, long or short, and the horizon.\n2. What the market is missing: your view against consensus. Without a difference from consensus, there is no pitch.\n3. Two or three drivers with evidence: a figure each, such as revenue growth, margins or market share, sourced and dated.\n4. Valuation: the multiple today against its history and peers, and the upside to your target.\n5. Catalysts: what will prove you right, and when (results, a product launch, a regulatory decision).\n6. Risks: the bear case and what would make you change your mind.\n\nPick a company you know well, not the most fashionable one. Be ready to defend each figure.",
+      "follow": "What is the bear case, and why are you willing to take that risk?"
+    },
+    {
+      "cat": "pitch",
+      "q": "How do you choose which stock to pitch?",
+      "a": "Pick a company you can explain in depth and that suits the desk you are interviewing for: a global markets desk will like a story with a clear macro link, an asset manager a long-term business quality and valuation case.\n\nAvoid the most crowded names unless you have a genuinely different angle, and avoid tiny illiquid stocks the interviewer cannot check. Know the business model, the last two quarters, the main competitors, the management, the valuation and the main shareholders, so you are ready for follow-up questions.",
+      "follow": "Why this company rather than its closest competitor?"
+    },
+    {
+      "cat": "pitch",
+      "q": "Which valuation multiple would you use, and why?",
+      "a": "It depends on the business. P/E is the most common for mature, profitable companies. EV/EBITDA compares businesses with different debt levels and is common in industrials and telecoms. EV/Sales is used for companies not yet profitable. Price to book suits banks and insurers, where assets and capital drive returns. Free cash flow yield shows how much cash the business returns.\n\nAlways compare a multiple with the company's own history and its peers, and explain why it should trade at a premium or a discount: growth, margins, returns on capital and risk.",
+      "follow": "When would a discounted cash flow model be better than multiples?"
+    },
+    {
+      "cat": "pitch",
+      "q": "What is your catalyst?",
+      "a": "A catalyst is an identifiable event that should make the market recognise what you see, within your horizon: quarterly results that show margin recovery, a product launch, a spin-off, the end of a regulatory case, a change in management or an index inclusion.\n\nWithout a catalyst, a cheap stock can stay cheap for years: that is a value trap. Give a date or a window and say what you expect to see.",
+      "follow": "What if the catalyst comes and the stock does not move?"
+    },
+    {
+      "cat": "pitch",
+      "q": "What would make you wrong?",
+      "a": "This is the question that separates good pitches. Name the two or three specific risks to your thesis, how likely each is and how much it would cost. Then give the signal you would monitor and the level or event at which you would close the position.\n\nAn interviewer wants to hear that you have thought about the bear case and that you have a discipline for being wrong, not that the trade has no risk.",
+      "follow": "Where would you set your stop, and why there?"
+    },
+    {
+      "cat": "pitch",
+      "q": "Pitch me a short.",
+      "a": "The same structure as a long, with two differences. First, the thesis must explain why the price will fall, not just why the company is weak: deteriorating fundamentals, an unsustainable valuation, accounting concerns or competition that the market underestimates. Second, discuss the specific risks of being short: unlimited losses in theory, the cost of borrowing the shares, crowded shorts that can squeeze, and takeovers.\n\nA catalyst matters even more for a short, because the market tends to rise over time.",
+      "follow": "How would you size a short compared with a long?"
+    }
+  ]
+}

@@ -17,10 +17,6 @@
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --horse-size: min(167svh, 200vw);
-  /* Video frames read as a dark player in both themes. */
-  --video-ground: #0e1215;
-  --video-ink: #eef1f1;
-  --video-ink-2: #c3c9cc;
   /* The Lab plate is dark in both themes, so its chart colours are fixed. */
   --plate-up: #1fd27a;
   --plate-down: #ff4b52;
@@ -372,8 +368,8 @@ ul {
 
 .nav {
   display: flex;
-  gap: 24px;
-  font-size: 0.9375rem;
+  gap: 16px;
+  font-size: 0.875rem;
 }
 
 .nav__subscribe {
@@ -387,22 +383,26 @@ ul {
   transition: color 160ms ease;
 }
 
-/* Eight links fit beside the search, theme and Subscribe buttons from 1021px
-   with a tighter gap below 1160px. */
-@media (min-width: 1021px) and (max-width: 1160px) {
+/* Eleven links (with Research and Interview prep) fit beside the search,
+   theme and Subscribe buttons from 1021px: the owner asked for smaller links
+   rather than fewer. Sizes measured in Chromium at each width. */
+@media (min-width: 1021px) and (max-width: 1359px) {
   .nav {
-    gap: 16px;
+    gap: 12px;
+    font-size: 0.8125rem;
+  }
+  .site-header .wrap {
+    gap: 14px;
   }
 }
 
-/* Nine links (with World and FX) need 12px just above the sheet breakpoint,
-   and the header's own gaps 16px. */
-@media (min-width: 1021px) and (max-width: 1080px) {
+@media (min-width: 1021px) and (max-width: 1140px) {
   .nav {
-    gap: 12px;
+    gap: 8px;
+    font-size: 0.75rem;
   }
   .site-header .wrap {
-    gap: 16px;
+    gap: 10px;
   }
 }
 
@@ -1575,194 +1575,6 @@ ul {
   }
 }
 
-/* Watch */
-
-.watch-grid {
-  display: grid;
-  gap: clamp(12px, 1.6vw, 20px);
-  align-items: start;
-}
-
-/* One 16:9 YouTube frame beside two 9:16 TikTok frames. */
-.watch-grid--mixed {
-  grid-template-columns: minmax(0, 7fr) minmax(0, 2.5fr) minmax(0, 2.5fr);
-}
-
-/* TikTok only: a row of 9:16 frames. */
-.watch-grid--tall {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.video a {
-  display: block;
-  text-decoration: none;
-}
-
-.video__frame {
-  position: relative;
-  display: grid;
-  place-items: center;
-  aspect-ratio: 16 / 9;
-  background: var(--video-ground);
-  border: 1px solid var(--rule);
-  overflow: hidden;
-}
-
-.video__frame::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: url("andra-horse.png") center / contain no-repeat;
-  mix-blend-mode: screen;
-  opacity: 0.22;
-}
-
-.video--tall .video__frame {
-  aspect-ratio: 9 / 16;
-}
-
-.video--wide .video__frame {
-  aspect-ratio: auto;
-  height: 100%;
-}
-
-.video--wide {
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-}
-
-.video--wide a {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.video--wide .video__frame {
-  flex: 1;
-  min-height: 0;
-}
-
-.video__play {
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  position: relative;
-  background: var(--video-ink);
-  color: var(--video-ground);
-  font-size: 1.5rem;
-  transition: transform 200ms var(--ease-out);
-}
-
-.video__play .icon {
-  transform: translateX(2px);
-}
-
-.video__platform {
-  position: absolute;
-  left: 14px;
-  bottom: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8125rem;
-  color: var(--video-ink-2);
-}
-
-.video__title {
-  display: block;
-  margin-top: 12px;
-  font-weight: 540;
-}
-
-.video__meta {
-  display: block;
-  font-size: 0.8125rem;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .video a:hover .video__play {
-    transform: scale(1.06);
-  }
-}
-
-/* Watch page (watch/): TikTok's official embeds, newest first. */
-
-.wfeed {
-  max-width: 780px;
-  min-height: 480px;
-  padding-top: clamp(24px, 4vw, 40px);
-}
-
-.wfeed.is-failed {
-  min-height: 0;
-}
-
-.wfeed__embed {
-  margin: 0;
-  max-width: 780px;
-  min-width: 288px;
-}
-
-.wfeed__embed a {
-  color: var(--ink);
-  font-weight: 550;
-  text-underline-offset: 0.22em;
-  text-decoration-color: var(--rule-strong);
-}
-
-.wfeed__status {
-  margin-top: 12px;
-  font-size: 0.875rem;
-  color: var(--ink-2);
-}
-
-.wfeed__status:empty {
-  display: none;
-}
-
-.wv-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: clamp(16px, 2vw, 32px);
-  padding-top: clamp(24px, 4vw, 40px);
-}
-
-.wv__frame {
-  aspect-ratio: 9 / 16;
-  background: var(--video-ground);
-  border: 1px solid var(--rule);
-}
-
-.wv__frame iframe {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-.wv__title {
-  margin-top: 12px;
-  font-weight: 540;
-}
-
-.wv__meta {
-  font-size: 0.8125rem;
-  color: var(--ink-2);
-}
-
-.watchp__more {
-  margin-top: 32px;
-}
-
-.watchp__legal {
-  margin-top: 8px;
-  max-width: 65ch;
-  font-size: 0.8125rem;
-  color: var(--ink-3);
-}
-
 /* Learn pages (learn/, learn/<slug>/) */
 
 .learnp__list {
@@ -2910,15 +2722,6 @@ ul {
   .tool--wide {
     grid-column: 1 / -1;
   }
-  .watch-grid--mixed {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .video--wide {
-    grid-column: 1 / -1;
-  }
-  .video--wide .video__frame {
-    aspect-ratio: 16 / 9;
-  }
 }
 
 @media (max-width: 640px) {
@@ -3093,25 +2896,6 @@ ul {
   .note-list .icon {
     grid-column: 2;
     grid-row: 1 / span 2;
-  }
-  .watch-grid {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: var(--gutter);
-    margin-inline: calc(-1 * var(--gutter));
-    padding-inline: var(--gutter);
-    scrollbar-width: none;
-  }
-  .video {
-    flex: none;
-    scroll-snap-align: start;
-  }
-  .video--wide {
-    width: 84vw;
-  }
-  .video--tall {
-    width: 44vw;
   }
   .field__row {
     flex-direction: column;
@@ -5426,4 +5210,587 @@ html.js .acc__item:not(.is-open) .acc__panel p {
   max-height: 320px;
   overflow-y: auto;
   border-top: 1px solid var(--rule-strong);
+}
+
+/* Footer: the legal line links to the legal notice. */
+.foot__legal a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .foot__legal a:hover {
+    color: var(--ink);
+  }
+}
+
+/* Research Library (DESIGN.md: Research Library, owner-approved mock,
+   30 Oct 2026): the latest weekly review leads, earlier issues in a hairline
+   lattice, research in a ruled list. Without JS the search cannot work, so
+   the tools stay hidden and everything shows. */
+html:not(.js) .lib-tools,
+html:not(.js) .ip-filters {
+  display: none;
+}
+
+.lib-count {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin-top: 20px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.lib-count a {
+  color: var(--ink);
+}
+
+.lib-lead {
+  margin-top: clamp(48px, 7vw, 88px);
+  align-items: end;
+}
+
+.lib-lead__main {
+  grid-column: 1 / span 7;
+}
+
+.lib-lead__kicker {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.lib-lead__title {
+  font-size: clamp(2.25rem, 4.6vw, 4rem);
+  font-weight: 540;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.lib-lead__title a {
+  text-decoration: none;
+}
+
+.lib-lead .lede {
+  margin-top: 20px;
+  max-width: 38rem;
+}
+
+.lib-lead .note__meta {
+  margin-top: 20px;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.lib-lead__acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.lib-lead__toc {
+  grid-column: 9 / -1;
+}
+
+.lib-lead__toc h3 {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.lib-lead__toc li {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.lib-lead__toc li span {
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+.lib-lead--empty {
+  display: block;
+  max-width: 44rem;
+}
+
+.lib__none {
+  padding: 20px 0;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.lib-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: clamp(40px, 6vw, 64px);
+}
+
+.lib-tools .pf-field {
+  flex: 1 1 320px;
+  max-width: 420px;
+  margin: 0;
+}
+
+.lib-tools .pf-field input {
+  height: 48px;
+}
+
+.lib-tools .filters {
+  min-width: 0;
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+.lib__status:empty {
+  display: none;
+}
+
+.lib-sec {
+  margin-top: clamp(56px, 8vw, 104px);
+}
+
+.lib-sec__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.lib-sec__head h2 {
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 540;
+  letter-spacing: -0.03em;
+}
+
+.lib-sec__head p {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.lib-issues {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-left: 1px solid var(--rule);
+}
+
+.lib-issue {
+  border-right: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.lib-issue a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  padding: clamp(18px, 2vw, 28px);
+  text-decoration: none;
+  transition: background-color 200ms ease;
+}
+
+.lib-issue .icon {
+  position: absolute;
+  top: clamp(18px, 2vw, 28px);
+  right: clamp(18px, 2vw, 28px);
+  font-size: 1.125rem;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.lib-issue__n {
+  font-size: 2.5rem;
+  font-weight: 540;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.lib-issue__d {
+  margin-bottom: 14px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.lib-issue__t {
+  font-size: 1.125rem;
+  font-weight: 540;
+  letter-spacing: -0.015em;
+}
+
+.lib-issue__s {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.lib-issue__f {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 14px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.lib-res a {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr) 20px;
+  gap: 24px;
+  align-items: baseline;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+}
+
+.lib-res__topic {
+  font-size: 0.875rem;
+  font-weight: 550;
+  color: var(--ink-2);
+}
+
+.lib-res__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 48rem;
+}
+
+.lib-res__t {
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  font-weight: 540;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+}
+
+.lib-res__s {
+  color: var(--ink-2);
+}
+
+.lib-res__m {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.lib-res .icon {
+  transition: transform 200ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lib-issue a:hover {
+    background: var(--ground-2);
+  }
+  .lib-issue a:hover .icon {
+    opacity: 1;
+  }
+  .lib-res a:hover .lib-res__t,
+  .lib-lead__title a:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+  .lib-res a:hover .icon {
+    transform: translateX(4px);
+  }
+}
+
+[data-lib-item][hidden],
+.ip .acc__item[hidden] {
+  display: none;
+}
+
+.lib__empty {
+  margin-top: 24px;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.lib__empty[hidden] {
+  display: none;
+}
+
+.lib__empty .link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 960px) {
+  .lib-lead__main,
+  .lib-lead__toc {
+    grid-column: 1 / -1;
+  }
+  .lib-lead__toc {
+    margin-top: 40px;
+  }
+  .lib-issues {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .lib-issues {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lib-tools .filters {
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+  }
+  .lib-res a {
+    grid-template-columns: minmax(0, 1fr) 20px;
+    gap: 8px 12px;
+  }
+  .lib-res__topic {
+    grid-column: 1;
+  }
+  .lib-res__body {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .lib-res .icon {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+}
+
+/* The PDF download, locked until the paid tier opens: it says so when pressed. */
+.lib-pdf[aria-disabled="true"] {
+  color: var(--ink-2);
+  cursor: not-allowed;
+}
+
+.lib-pdf[aria-disabled="true"]:active {
+  transform: none;
+}
+
+.lib-pdf__tag {
+  padding-left: 10px;
+  border-left: 1px solid var(--rule);
+  font-size: 0.8125rem;
+  font-weight: 450;
+  color: var(--ink-3);
+}
+
+.page__body p.lib-src {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+/* Markets Interview Prep (DESIGN.md: Interview Prep) */
+.ip .page__body .note__meta {
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.ip-week {
+  margin-top: 20px;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.ip-topic {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 12px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ip-topic:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ip-topic__n {
+  padding-top: 3px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+
+.ip-topic h3 {
+  font-size: 1.125rem;
+  font-weight: 540;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.ip-topic__parts dt {
+  margin-top: 14px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.ip-topic__parts dd {
+  margin: 4px 0 0;
+  max-width: 65ch;
+  color: var(--ink-2);
+}
+
+.page__body p.ip-topic__src {
+  margin-top: 14px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.ip-filters {
+  margin-top: 20px;
+}
+
+/* Six subjects wrap inside the text column; on a phone they scroll. */
+@media (min-width: 641px) {
+  .ip-filters .filters {
+    flex-wrap: wrap;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+  }
+}
+
+.ip-filters .filters__status {
+  margin: 12px 0 0;
+}
+
+.ip-q__cat {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.75rem;
+  font-weight: 550;
+  letter-spacing: 0;
+  color: var(--ink-3);
+}
+
+.ip .acc__panel p {
+  padding-bottom: 12px;
+}
+
+.ip .acc__panel .ruled {
+  margin: 0 0 12px;
+}
+
+.ip .acc__panel p.ip-follow {
+  padding-bottom: 20px;
+}
+
+.ip-follow b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Data sources */
+.src-list {
+  margin-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.src-list li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.src-list li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.src-list h3 {
+  font-size: 1.0625rem;
+  font-weight: 540;
+  letter-spacing: -0.01em;
+}
+
+.src-meta {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 4px 12px;
+  margin-top: 8px;
+  font-size: 0.875rem;
+}
+
+.src-meta dt {
+  color: var(--ink-3);
+}
+
+.src-meta dd {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+/* Legal notice and privacy: contents, then the sections. */
+.legal__toc {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.page__body .legal__toc h2 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.legal__toc ol {
+  margin-top: 12px;
+  padding-left: 1.5em;
+  list-style: decimal;
+  columns: 2;
+  column-gap: 32px;
+  font-size: 0.9375rem;
+}
+
+.legal__toc li {
+  padding: 4px 0;
+  break-inside: avoid;
+  color: var(--ink-3);
+}
+
+.legal__toc a {
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .legal__toc a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+
+@media (max-width: 640px) {
+  .legal__toc ol {
+    columns: 1;
+  }
+}
+
+.page__body p.legal__updated {
+  padding-top: 28px;
+  font-size: 0.875rem;
+  color: var(--ink-3);
 }

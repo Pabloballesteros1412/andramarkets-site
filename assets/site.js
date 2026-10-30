@@ -411,20 +411,22 @@
   // Features that are not live yet say so where they are pressed.
   document.querySelectorAll("[data-soon]").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      var box = btn.closest(".co-acts, .co-gate");
-      var out = box && box.querySelector(".co-acts__status, .co-gate__status");
+      var box = btn.closest(".co-acts, .co-gate, .report__share, .lib-lead__acts");
+      var out = box && box.querySelector(".co-acts__status, .co-gate__status, .report__share-status");
       if (out) out.textContent = btn.getAttribute("data-soon");
     });
   });
 
-  // Methodology questions: one open at a time. Without JS every answer shows.
-  var acc = document.querySelector(".acc");
-  if (acc) {
+  // Questions: one open at a time (methodology), or any number (.acc--multi,
+  // the Interview Prep question bank). Without JS every answer shows.
+  document.querySelectorAll(".acc").forEach(function (acc) {
+    var multi = acc.classList.contains("acc--multi");
     var accBtns = acc.querySelectorAll(".acc__btn");
     accBtns.forEach(function (btn) {
       btn.addEventListener("click", function () {
         var open = btn.getAttribute("aria-expanded") !== "true";
         accBtns.forEach(function (b) {
+          if (multi && b !== btn) return;
           b.setAttribute("aria-expanded", "false");
           b.closest(".acc__item").classList.remove("is-open");
         });
@@ -434,6 +436,101 @@
         }
       });
     });
+  });
+
+  // Interview Prep: filter the question bank by subject.
+  var ipChips = document.querySelectorAll(".chip[data-ipcat]");
+  if (ipChips.length) {
+    var ipItems = document.querySelectorAll(".acc--multi .acc__item");
+    var ipStatus = document.querySelector(".ip__status");
+    ipChips.forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        var cat = chip.getAttribute("data-ipcat");
+        var shown = 0;
+        ipChips.forEach(function (c) {
+          c.setAttribute("aria-pressed", String(c === chip));
+        });
+        ipItems.forEach(function (item) {
+          var on = cat === "all" || item.getAttribute("data-cat") === cat;
+          item.hidden = !on;
+          if (on) shown++;
+        });
+        ipStatus.textContent = cat === "all"
+          ? "Showing all " + ipItems.length + " questions"
+          : "Showing " + shown + " of " + ipItems.length + " questions: " + chip.firstChild.textContent.trim();
+      });
+    });
+  }
+
+  // Research Library: filter the weekly reviews and research by topic and by
+  // the search field, both at once. The choice is kept in the address, so a
+  // filtered view can be shared. The latest review always stays on top.
+  var libInput = document.getElementById("lib-q");
+  if (libInput) {
+    var libItems = document.querySelectorAll("[data-lib-item]");
+    var libChips = document.querySelectorAll(".chip[data-lib-tag]");
+    var libStatus = document.querySelector(".lib__status");
+    var libEmpty = document.querySelector(".lib__empty");
+    var libTag = "all";
+    var libPress = function (value) {
+      var hit = Array.prototype.some.call(libChips, function (c) {
+        return c.getAttribute("data-lib-tag") === value;
+      });
+      libTag = hit ? value : "all";
+      libChips.forEach(function (c) {
+        c.setAttribute("aria-pressed", String(c.getAttribute("data-lib-tag") === libTag));
+      });
+    };
+    var libApply = function () {
+      var query = libInput.value.trim();
+      var words = query.toLowerCase().split(/\s+/).filter(Boolean);
+      var shown = 0;
+      libItems.forEach(function (item) {
+        var q = item.getAttribute("data-q");
+        var on = (libTag === "all" || (" " + item.getAttribute("data-tags") + " ").indexOf(" " + libTag + " ") !== -1) &&
+          words.every(function (w) {
+            return q.indexOf(w) !== -1;
+          });
+        item.hidden = !on;
+        if (on) shown++;
+      });
+      var names = [];
+      var params = new URLSearchParams();
+      if (libTag !== "all") {
+        params.set("tag", libTag);
+        names.push(document.querySelector('.chip[data-lib-tag="' + libTag + '"]').firstChild.textContent.trim());
+      }
+      if (query) {
+        params.set("q", query);
+        names.push("\u201c" + query + "\u201d");
+      }
+      libStatus.textContent = names.length
+        ? "Showing " + shown + " of " + libItems.length + " earlier reviews and research: " + names.join(", ")
+        : "";
+      libEmpty.hidden = !names.length || shown > 0;
+      var qs = params.toString();
+      history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
+    };
+    libChips.forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        libPress(chip.getAttribute("data-lib-tag"));
+        libApply();
+      });
+    });
+    libInput.addEventListener("input", libApply);
+    libInput.form.addEventListener("submit", function (e) {
+      e.preventDefault();
+    });
+    document.querySelector("[data-lib-reset]").addEventListener("click", function () {
+      libPress("all");
+      libInput.value = "";
+      libApply();
+      libInput.focus();
+    });
+    var libStart = new URLSearchParams(location.search);
+    if (libStart.get("tag")) libPress(libStart.get("tag"));
+    libInput.value = libStart.get("q") || "";
+    libApply();
   }
 
   // Search: dashboards, close notes and pages, from assets/search-index.js
@@ -466,7 +563,7 @@
     var lastFocus = null;
     var loading = false;
 
-    var GROUPS = ["Companies", "Dashboards", "Close notes", "Pages"];
+    var GROUPS = ["Companies", "Dashboards", "Close notes", "Reports", "Pages"];
     var score = function (item, query) {
       if (!query) return item.g === "Close notes" || item.g === "Companies" ? 1 : 2;
       var t = item.t.toLowerCase();

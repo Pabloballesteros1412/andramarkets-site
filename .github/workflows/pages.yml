@@ -6,6 +6,8 @@ on:
     paths:
       - "assets/**"
       - "data/notes/**"
+      - "data/reports/**"
+      - "data/interview_prep.json"
       - "tools/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
@@ -199,6 +201,7 @@ jobs:
           cp -r world _site/
           cp -r fx _site/
           cp -r lab _site/
+          cp -r research interview-prep sources legal privacy _site/
           cp -r profile _site/
           rm -rf _site/assets/icons
       # The site is free: no PDF or data file may ever be published.

@@ -14,6 +14,11 @@ __pycache__/
 /lab/
 /world/
 /fx/
+/research/
+/interview-prep/
+/sources/
+/legal/
+/privacy/
 # This repo is public: PDFs stay in the agent repo, never here.
 *.pdf
 # Dashboard figures fetched at deploy time (tools/dashboard_data.py).

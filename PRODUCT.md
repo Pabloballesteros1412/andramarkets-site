@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Static site (`index.html`, `methodology/`, `reports/`, `dashboards/`, `assets/`), generated
+Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
 by `tools/build_site.py` at deploy time and deployed to GitHub Pages from `main` by
 `.github/workflows/pages.yml`. No framework, no build step beyond the generator.
 
@@ -27,13 +27,15 @@ Andra Markets is a markets research platform. Its modules: interactive
 dashboards across rates, equities, macro and cross-asset; a Lab of interactive
 quant tools (momentum regime backtest explorer, options pricer, more to come);
 an economic calendar; a daily US market close note; Learn (explainers for people
-starting out); and Watch (TikTok videos; YouTube to follow once Andra has a channel). Success: visitors explore
+starting out); a Research Library; and Markets Interview Prep. Videos stay on
+TikTok and LinkedIn: the site links to them and embeds nothing (owner, 30 Oct
+2026: the Watch section was removed so the site sets no third-party cookies). Success: visitors explore
 a dashboard or tool, come back for the calendar and note, and subscribe by email.
 
 ## Positioning
 
 One platform that serves professionals (dashboards, tools, calendar) and
-newcomers (Learn, Watch) from the same automated pipeline, dated and on the
+newcomers (Learn, Interview Prep) from the same automated pipeline, dated and on the
 record. The daily note is one module among others, not the centrepiece.
 
 ## Operating Context
@@ -50,7 +52,7 @@ record. The daily note is one module among others, not the centrepiece.
   credit spreads, inflation and labour, watchlist breadth, cross-asset
   correlation; an earnings season tracker returns once it has a real source;
   no illustrative dashboard tiles; a tile waiting for data says "Data pending"), Lab tools, economic calendar, daily close note,
-  Learn, Watch.
+  Learn, Research Library, Interview Prep.
 - Calendar (real data, owner-approved 22 Oct 2026): five weeks of market-moving
   releases and events for the US, euro area, UK, Japan and China, central bank
   decisions, minutes and key speeches, Treasury note and bond auctions, NYSE
@@ -82,6 +84,23 @@ record. The daily note is one module among others, not the centrepiece.
   latest on top with an archive by date, shown only when its figure check
   passed and its session's close note is published; and a table of the dollar
   index, majors and key EM pairs with their moves, linked to the FX dashboard.
+- Research Library (`research/`, owner-approved 30 Oct 2026): the reports
+  that are not the daily note, weekly market reviews and research, never the
+  close notes (which keep their archive at `reports/`). Searchable and
+  filtered by topic; each readable online with a share link; the PDF download
+  shows as locked, "Subscribers only". Reports live in `data/reports/`
+  (index.json plus one Markdown file each, converted from the PDF by
+  `tools/import_report.py`); the PDF is never committed.
+- Markets Interview Prep (`interview-prep/`, 30 Oct 2026): for students
+  preparing for IB, S&T and asset management interviews. A weekly "What you
+  need to know this week" block (five to seven topics, figures only from the
+  week's close notes) and a question bank with model answers in six subjects,
+  all from one file, `data/interview_prep.json`, updated weekly.
+- Data sources, legal notice and privacy and cookies (`sources/`, `legal/`,
+  `privacy/`), linked from the footer. The legal notice covers US, UK and EU
+  readers. The operator's legal name, tax number, address and contact email
+  are bracketed placeholders until the owner supplies them (Spanish law asks a
+  site's publisher to identify itself).
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
   time, newsletter platform (Substack, Beehiiv or Ghost), a YouTube channel.
@@ -94,7 +113,14 @@ record. The daily note is one module among others, not the centrepiece.
   redraw, recolor, crop or replace it without owner approval. The owner
   approved showing it on light grounds via a CSS invert + grayscale + multiply
   treatment that leaves the file untouched.
-- Published only as Andra Markets: no personal names anywhere on the site.
+- Published only as Andra Markets: no personal names anywhere on the site,
+  the legal notice included (owner, 30 Oct 2026). While the site has no
+  economic activity (no income, sales, ads, sponsorship or affiliate links)
+  the legal notice and privacy policy name only Andra Markets and a brand
+  contact email. Before any monetisation (newsletter sponsorship, paid tier)
+  the owner will form a company (SL), and the legal notice will then carry
+  its name, CIF and registered address as LSSI article 10 requires. Never
+  publish the owner's own name, DNI or home address.
 - Owner-approved derivatives of the mark: the favicon and touch icon are a
   head-and-neck crop (the owner asked for "a favicon (head and neck crop of the
   horse)" and approved it as shown); the social share image uses the full horse.
@@ -122,7 +148,7 @@ Recorded for direction only. **No paid feature is built yet.**
 ### Free tier (open to everyone, on this site)
 
 The daily close note, readable on the web and shareable by link; dashboards;
-the economic calendar; Learn; Lab tools; Watch.
+the economic calendar; Learn; Lab tools; the Research Library; Interview Prep.
 
 The site never offers downloads: no note PDF, no verified facts file, no data
 behind the dashboards. This repo is public, so PDFs and full fact packs are
