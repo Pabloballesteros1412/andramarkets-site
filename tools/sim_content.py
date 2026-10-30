@@ -196,3 +196,110 @@ EPISODES = [
      "before it recovered to new records.",
      [D_SECTORS, EARN]),
 ]
+
+# The Nikkei 225, for the Trading Simulator and the Panic Test on Japan.
+EPISODES_JP = [
+    ("1965-01", "1972-12", "the high-growth years",
+     "Japan's economy grew close to 10% a year, led by exports of steel, ships, cars and electronics. A securities "
+     "slump in 1965 forced a central bank rescue of Yamaichi Securities, then shares rose with the boom, fast in "
+     "1972.",
+     [D_GLOBAL]),
+    ("1973-01", "1974-12", "the oil shock",
+     "Japan imported almost all its oil. When the 1973 embargo quadrupled the price of crude, consumer prices rose "
+     "more than 20% in a year and the economy shrank in 1974 for the first time since the war. The Nikkei fell "
+     "sharply from its early 1973 high.",
+     [CPI, D_COMMOD]),
+    ("1975-01", "1985-08", "the export boom",
+     "Japanese industry adapted to dear oil faster than most and won market share around the world. Inflation came "
+     "down and the Nikkei rose steadily through the decade, as Japan became the world's second-largest economy.",
+     [D_GLOBAL]),
+    ("1985-09", "1989-12", "the bubble economy",
+     "The Plaza Accord of September 1985 drove the yen up sharply. To cushion exporters the Bank of Japan cut its "
+     "rate to 2.5% in 1987, and cheap credit poured into shares and land. The Nikkei tripled and peaked near 38,916 "
+     "on 29 December 1989.",
+     [FED, CREDIT]),
+    ("1990-01", "1992-12", "the bubble bursts",
+     "The Bank of Japan raised rates to cool land prices, and the market broke at once. By August 1992 the Nikkei "
+     "had lost more than half its value, and banks were left with loans secured on land worth far less than they "
+     "had lent.",
+     [FED, CREDIT]),
+    ("1993-01", "1996-12", "the lost decade begins",
+     "Growth stalled under the weight of bad loans. The yen hit a record near 80 to the dollar in April 1995, the "
+     "year the Kobe earthquake struck. The Nikkei went sideways, far below its peak.",
+     [CREDIT]),
+    ("1997-01", "1999-12", "the banking crisis",
+     "In November 1997 Yamaichi Securities and Hokkaido Takushoku Bank failed, and in 1998 the government took over "
+     "Long-Term Credit Bank of Japan. In February 1999 the Bank of Japan cut its rate to zero, the first major "
+     "central bank to do so.",
+     [CREDIT, FED]),
+    ("2000-01", "2003-04", "the 2003 low",
+     "The global technology bust and a return of deflation pushed the Nikkei down again. In April 2003 it touched "
+     "about 7,600, roughly 80% below its 1989 peak.",
+     [D_SECTORS]),
+    ("2003-05", "2007-06", "the Koizumi recovery",
+     "The rescue of Resona Bank in May 2003 marked the turn. Bank clean-ups, reforms under Junichiro Koizumi and "
+     "demand from China lifted profits, and the Nikkei more than doubled by 2007.",
+     [D_GLOBAL]),
+    ("2007-07", "2009-03", "the global financial crisis",
+     "Japan's banks had little exposure to US mortgages, but exports collapsed as world trade froze. The Nikkei "
+     "fell to about 7,050 in March 2009, its lowest since 1982.",
+     [CREDIT, VIX]),
+    ("2009-04", "2012-10", "the tsunami and the strong yen",
+     "The yen climbed as investors sought safety. In March 2011 the Tohoku earthquake and tsunami killed nearly "
+     "20,000 people and caused the Fukushima nuclear disaster; the Nikkei fell about 18% in two days. The yen "
+     "reached a record near 76 to the dollar that year.",
+     [D_GLOBAL]),
+    ("2012-11", "2019-12", "Abenomics",
+     "Shinzo Abe won the December 2012 election promising to end deflation. The Bank of Japan under Haruhiko "
+     "Kuroda launched massive bond buying in April 2013, the yen weakened and the Nikkei more than doubled. Rates "
+     "went negative in 2016.",
+     [FED, D_GLOBAL]),
+    ("2020-01", "2022-12", "Covid and the weak yen",
+     "The Nikkei fell about 30% as Covid-19 spread in early 2020, then recovered with the world's markets. In 2022 "
+     "the Bank of Japan kept rates near zero while others raised theirs, and the yen fell to its weakest in decades.",
+     [FED, D_GLOBAL]),
+    ("2023-01", "2099-12", "back to the 1989 high",
+     "Weak yen, record profits and pressure on companies to reward shareholders drew investors back. In February "
+     "2024 the Nikkei passed its 1989 record for the first time in 34 years. The Bank of Japan ended negative rates "
+     "in March 2024; on 5 August 2024 the index fell about 12% in a day, its worst since 1987.",
+     [FED, D_GLOBAL]),
+]
+
+# The Euro Stoxx 50, whose history on Yahoo starts in 2007.
+EPISODES_EU = [
+    ("2007-01", "2009-03", "the global financial crisis",
+     "European banks had bought heavily into US mortgage debt. From its 2007 high the Euro Stoxx 50 lost about 60% "
+     "by March 2009, as banks were rescued across the continent and the euro area fell into deep recession.",
+     [CREDIT, VIX]),
+    ("2009-04", "2010-12", "Greece and the first bailouts",
+     "Markets rebounded in 2009 until Greece revealed a far larger deficit than reported. The euro area and the IMF "
+     "lent to Greece in May 2010 and to Ireland in November, and the question became which country would be next.",
+     [CREDIT, D_GLOBAL]),
+    ("2011-01", "2012-12", "the euro crisis",
+     "Portugal needed a rescue in 2011 and the bond yields of Spain and Italy soared; the index fell about a third "
+     "that year. In July 2012 Mario Draghi said the ECB would do whatever it takes to preserve the euro, and the "
+     "panic began to ease.",
+     [CREDIT, FED]),
+    ("2013-01", "2015-12", "the ECB goes negative",
+     "With inflation close to zero, the ECB cut its deposit rate below zero in June 2014 and began buying government "
+     "bonds in January 2015. Greece came close to leaving the euro that summer.",
+     [FED, CURVE]),
+    ("2016-01", "2019-12", "Brexit and slow growth",
+     "The United Kingdom voted to leave the European Union in June 2016. Growth picked up in 2017, then trade "
+     "tensions and a slowdown in German industry weighed on European shares in 2018.",
+     [D_GLOBAL]),
+    ("2020-01", "2021-12", "Covid",
+     "Europe was the first region after China to lock down. The index fell close to 40% in a month to March 2020, "
+     "before the ECB's emergency bond buying and the EU's joint recovery fund supported a rebound.",
+     [FED, VIX]),
+    ("2022-01", "2023-12", "war and the energy shock",
+     "Russia invaded Ukraine in February 2022 and gas prices soared. Euro area inflation passed 10% and the ECB "
+     "raised its deposit rate from below zero to 4% by September 2023.",
+     [CPI, FED, D_COMMOD]),
+    ("2024-01", "2099-12", "rate cuts and tariffs",
+     "The ECB began cutting rates in June 2024 as inflation fell back. In April 2025 broad US tariffs shook markets, "
+     "and plans for higher defence spending in Europe lifted the shares of its industrial companies.",
+     [FED, D_GLOBAL]),
+]
+
+MARKET_EPISODES = {"sp500": EPISODES, "nasdaq": EPISODES, "stoxx50": EPISODES_EU, "nikkei": EPISODES_JP}

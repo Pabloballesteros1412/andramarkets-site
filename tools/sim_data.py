@@ -1,22 +1,30 @@
 #!/usr/bin/env python3
-"""Fetch the S&P 500 history behind the Trading Simulator, at deploy time.
+"""Fetch the history behind the Simulators, at deploy time.
 
-Run by .github/workflows/pages.yml before tools/build_site.py. Writes
-.cache/sim/sp500.json: one row per trading day since the end of 1927 with the
-day's total return (price change plus dividends), which build_site.py packs
-into assets/sim-sp500.js for the simulator page.
+Run by .github/workflows/pages.yml before tools/build_site.py. Writes one file
+per data set to .cache/sim/, which build_site.py packs into assets/simdata-*.js:
 
-    - Daily closes: Yahoo Finance ^GSPC (the S&P 500, and the S&P 90 before
-      March 1957), from 30 December 1927.
-    - Dividends to the end of 1987: Robert Shiller's monthly S&P dividend
-      (twelve-month total, in index points), as kept by the datasets/s-and-p-500
-      repository on GitHub. Each month's dividend is spread evenly over that
-      month's trading days as a yield on the day before's close.
-    - Total return from 1988: Yahoo Finance ^SP500TR, the S&P 500 Total Return
-      index (dividends reinvested), which replaces the estimate above.
+    sp500.json    every trading day since the end of 1927 with its total return
+                  (price change plus dividends): Yahoo Finance ^GSPC (the S&P 90
+                  before March 1957) with Robert Shiller's monthly dividends,
+                  spread evenly over each month's trading days as a yield on the
+                  day before's close, to the end of 1987; the S&P 500 Total
+                  Return index ^SP500TR from 1988.
+    nasdaq.json, stoxx50.json, nikkei.json
+                  daily price returns of the Nasdaq Composite (^IXIC, from
+                  1971), the Euro Stoxx 50 (^STOXX50E, from 2007 on Yahoo) and
+                  the Nikkei 225 (^N225, from 1965). Prices only: no free daily
+                  dividend history exists for them.
+    fed.json      monthly figures for Guess the Fed, from FRED: CPI (CPIAUCSL),
+                  unemployment (UNRATE), the Fed's target (DFEDTAR to 2008, then
+                  the range DFEDTARL and DFEDTARU) and the 2-year Treasury yield
+                  (GS2). Needs FRED_API_KEY.
+    bonds.json    the monthly 10-year Treasury yield for the Portfolio Builder:
+                  Shiller's long rate, replaced by FRED GS10 from 1953.
 
-The history is fetched at most once a day; a failed fetch keeps the last good
-copy (restored by the workflow's cache). Nothing here is published.
+Each set is fetched at most once a day and on its own: a failed fetch keeps
+its last good copy (restored by the workflow's cache). Nothing here is
+published.
 
     python3 tools/sim_data.py
 """
@@ -34,7 +42,7 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CACHE = ROOT / ".cache" / "sim" / "sp500.json"
+CACHE = ROOT / ".cache" / "sim"
 UA = "Mozilla/5.0"  # Yahoo answers 429 to a full browser string from a script
 SHILLER = "https://raw.githubusercontent.com/datasets/s-and-p-500/main/data/data.csv"
 TR_FROM = "1988-01-04"  # first session of ^SP500TR on Yahoo
@@ -79,7 +87,7 @@ def shiller_dividends():
     return {r["Date"][:7]: float(r["Dividend"]) for r in rows if float(r["Dividend"] or 0) > 0}
 
 
-def build():
+def build_sp500():
     price = yahoo("^GSPC", dt.date(1927, 12, 1))
     tr = yahoo("^SP500TR", dt.date(1987, 12, 1))
     divs = shiller_dividends()
@@ -101,27 +109,90 @@ def build():
                 raise ValueError(f"no Shiller dividend for {d[:7]}")
             r = price[d] / price[prev] - 1 + div / 12 / per_month[d[:7]] / price[prev]
         rows.append([d, round(r, 6)])
-    return {"fetched": dt.date.today().isoformat(), "first": days[0], "rows": rows,
-            "source": "Yahoo Finance ^GSPC and ^SP500TR; Robert Shiller's S&P dividends before 1988"}
+    return {"first": days[0], "rows": rows}
+
+
+def price_returns(symbol, start, min_days):
+    def build():
+        price = yahoo(symbol, start)
+        days = sorted(price)
+        if len(days) < min_days:
+            raise ValueError(f"{symbol} history too short: {len(days)} sessions")
+        rows = [[d, round(price[d] / price[p] - 1, 6)] for p, d in zip(days, days[1:])]
+        return {"first": days[0], "rows": rows}
+    return build
+
+
+def month_end(points):
+    """{'YYYY-MM': last value in the month} from [(date, value)]."""
+    out = {}
+    for d, v in points:
+        out[d.isoformat()[:7] if hasattr(d, "isoformat") else str(d)[:7]] = v
+    return out
+
+
+def build_fed():
+    from dashboard_data import fred
+    s = fred(["CPIAUCSL", "UNRATE", "GS2", "DFEDTAR", "DFEDTARL", "DFEDTARU"], dt.date(1975, 1, 1))
+    cpi, unrate, gs2 = (month_end(s[k]) for k in ("CPIAUCSL", "UNRATE", "GS2"))
+    single, lo, hi = (month_end(s[k]) for k in ("DFEDTAR", "DFEDTARL", "DFEDTARU"))
+    rows = []
+    for m in sorted(set(single) | set(lo)):
+        y, mo = int(m[:4]), int(m[5:])
+        prev = f"{y - 1}-{mo:02d}"
+        if m not in cpi or prev not in cpi or m not in unrate:
+            continue
+        t_lo, t_hi = (lo[m], hi[m]) if m in lo else (single[m], single[m])
+        rows.append([m, round((cpi[m] / cpi[prev] - 1) * 100, 2), unrate[m], t_lo, t_hi, gs2.get(m)])
+    if len(rows) < 300:
+        raise ValueError(f"FRED history too short: {len(rows)} months")
+    return {"rows": rows}
+
+
+def build_bonds():
+    rows = csv.DictReader(io.StringIO(get(SHILLER).decode("utf-8")))
+    yields = {r["Date"][:7]: float(r["Long Interest Rate"]) for r in rows if float(r["Long Interest Rate"] or 0) > 0}
+    try:
+        from dashboard_data import fred
+        yields.update(month_end(fred(["GS10"], dt.date(1953, 1, 1))["GS10"]))
+    except Exception as e:  # Shiller alone still covers all but the latest months
+        log(f"FRED GS10 not fetched, Shiller's long rate only: {e}", "warning")
+    return {"rows": [[m, yields[m]] for m in sorted(yields) if m >= "1927-12"]}
+
+
+SETS = {
+    "sp500": build_sp500,
+    "nasdaq": price_returns("^IXIC", dt.date(1971, 1, 1), 10000),
+    "stoxx50": price_returns("^STOXX50E", dt.date(1986, 1, 1), 2500),
+    "nikkei": price_returns("^N225", dt.date(1965, 1, 1), 10000),
+    "fed": build_fed,
+    "bonds": build_bonds,
+}
 
 
 def main():
-    try:
-        old = json.loads(CACHE.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        old = None
-    if old and old.get("fetched") == dt.date.today().isoformat():
-        log("Simulator history already fetched today")
-        return 0
-    try:
-        data = build()
-    except Exception as e:  # keep the last good copy
-        log(f"Simulator history not fetched: {e}", "warning")
-        return 0 if old else 1
-    CACHE.parent.mkdir(parents=True, exist_ok=True)
-    CACHE.write_text(json.dumps(data, separators=(",", ":")), encoding="utf-8")
-    log(f"Simulator history: {len(data['rows'])} sessions, {data['rows'][0][0]} to {data['rows'][-1][0]}")
-    return 0
+    CACHE.mkdir(parents=True, exist_ok=True)
+    today = dt.date.today().isoformat()
+    missing = 0
+    for name, build in SETS.items():
+        path = CACHE / f"{name}.json"
+        try:
+            old = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            old = None
+        if old and old.get("fetched") == today:
+            continue
+        try:
+            data = build()
+        except Exception as e:  # keep the last good copy
+            log(f"Simulator data {name} not fetched: {e}", "warning")
+            missing += old is None
+            continue
+        data["fetched"] = today
+        path.write_text(json.dumps(data, separators=(",", ":")), encoding="utf-8")
+        log(f"Simulator data {name}: {len(data['rows'])} rows, {data['rows'][0][0]} to {data['rows'][-1][0]}")
+        time.sleep(0.5)
+    return 1 if missing == len(SETS) else 0
 
 
 if __name__ == "__main__":
