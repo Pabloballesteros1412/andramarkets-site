@@ -9,6 +9,8 @@ on:
       - "data/reports/**"
       - "data/interview_prep.json"
       - "data/path_to_wall_street.json"
+      - "data/recruiting_calendar.json"
+      - "data/technicals/**"
       - "tools/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:

@@ -48,82 +48,6 @@
       "exits": "Few graduate programmes: most join after two or three years in banking, research or quant roles. Quant funds hire graduates directly."
     }
   ],
-  "timeline": {
-    "note": "Typical windows. Each firm sets its own dates and many hire on a rolling basis, so applying early matters.",
-    "kinds": [
-      {"id": "prep", "name": "Prepare"},
-      {"id": "apply", "name": "Applications"},
-      {"id": "interview", "name": "Tests and interviews"},
-      {"id": "work", "name": "On the job"}
-    ],
-    "regions": [
-      {
-        "id": "us",
-        "name": "United States",
-        "years": [
-          {"id": "y1", "name": "Freshman"},
-          {"id": "y2", "name": "Sophomore"},
-          {"id": "y3", "name": "Junior"},
-          {"id": "y4", "name": "Senior"},
-          {"id": "ms", "name": "Master's"}
-        ],
-        "items": [
-          {"year": "y1", "from": 0, "to": 3, "kind": "prep", "title": "Clubs and first contacts", "detail": "Join the investment and finance clubs, start a markets journal and build a short list of alumni in the roles you want."},
-          {"year": "y1", "from": 4, "to": 6, "kind": "apply", "title": "Early insight programmes", "detail": "Banks run short programmes for first and second year students, many aimed at under-represented groups. They are a way in for non-target students."},
-          {"year": "y2", "from": 0, "to": 3, "kind": "apply", "title": "Sophomore programmes", "detail": "Applications for spring and summer sophomore programmes. Strong performers can be fast-tracked to the junior summer."},
-          {"year": "y2", "from": 4, "to": 7, "kind": "interview", "title": "IB summer analyst recruiting", "detail": "Large banks recruit for the summer after junior year as early as the spring of sophomore year: online tests, HireVue, then superdays."},
-          {"year": "y2", "from": 9, "to": 11, "kind": "work", "title": "Sophomore internship", "detail": "Any finance role helps: boutique, wealth management, corporate finance at a company."},
-          {"year": "y3", "from": 0, "to": 3, "kind": "apply", "title": "S&T, AM and research summer roles", "detail": "Some markets, asset management and research teams recruit later than banking, into the autumn of junior year. Check each firm: many now recruit on the banking calendar."},
-          {"year": "y3", "from": 9, "to": 11, "kind": "work", "title": "Summer analyst internship", "detail": "Ten weeks. Most full-time offers come from here as return offers at the end of the summer."},
-          {"year": "y4", "from": 0, "to": 2, "kind": "apply", "title": "Full-time recruiting", "detail": "For those without a return offer: remaining analyst seats, boutiques and middle-market banks."},
-          {"year": "y4", "from": 4, "to": 8, "kind": "interview", "title": "Off-cycle full-time openings", "detail": "Smaller firms hire closer to the start date. Keep networking until you sign."},
-          {"year": "ms", "from": 0, "to": 3, "kind": "apply", "title": "Recruit from day one", "detail": "One-year master's programmes leave little time: applications for full-time and summer roles open as the course starts."},
-          {"year": "ms", "from": 9, "to": 11, "kind": "work", "title": "Start, or OPT internship", "detail": "International students usually work on OPT after the course (see Visas)."}
-        ]
-      },
-      {
-        "id": "uk",
-        "name": "United Kingdom",
-        "years": [
-          {"id": "y1", "name": "First year"},
-          {"id": "y2", "name": "Penultimate year"},
-          {"id": "y3", "name": "Final year"},
-          {"id": "ms", "name": "Master's"}
-        ],
-        "items": [
-          {"year": "y1", "from": 0, "to": 4, "kind": "apply", "title": "Spring week applications", "detail": "One-week insight programmes for first-year students (second-year on four-year Scottish degrees). Many close between November and January and fill on a rolling basis."},
-          {"year": "y1", "from": 3, "to": 5, "kind": "interview", "title": "Tests and interviews", "detail": "Online numerical tests, video interviews and sometimes a short assessment day."},
-          {"year": "y1", "from": 6, "to": 7, "kind": "work", "title": "Spring weeks", "detail": "Held around Easter. Some banks offer a fast-track interview for the next summer internship to the best participants."},
-          {"year": "y2", "from": 0, "to": 3, "kind": "apply", "title": "Summer internship applications", "detail": "The main entry route. Applications open from late summer and many roles are filled before the deadline, so apply in the first weeks."},
-          {"year": "y2", "from": 1, "to": 5, "kind": "interview", "title": "Assessment centres", "detail": "Technical and competency interviews, group exercises and case studies."},
-          {"year": "y2", "from": 9, "to": 11, "kind": "work", "title": "Summer internship", "detail": "Usually ten weeks from June or July. Graduate offers are made at the end."},
-          {"year": "y3", "from": 0, "to": 2, "kind": "apply", "title": "Graduate programmes", "detail": "For those without an offer from their internship. Fewer places remain, so widen the list of firms and roles."},
-          {"year": "y3", "from": 0, "to": 11, "kind": "prep", "title": "Off-cycle internships", "detail": "Three to six months, year round. A good bridge after graduating or between degrees."},
-          {"year": "ms", "from": 0, "to": 2, "kind": "apply", "title": "Apply in the first weeks", "detail": "One-year master's students apply for summer internships and graduate roles almost as soon as they arrive."},
-          {"year": "ms", "from": 9, "to": 11, "kind": "work", "title": "Summer internship or start", "detail": "International graduates usually work on the Graduate Route at first (see Visas)."}
-        ]
-      },
-      {
-        "id": "eu",
-        "name": "Europe",
-        "years": [
-          {"id": "y1", "name": "Bachelor's, early years"},
-          {"id": "y2", "name": "Bachelor's, final year"},
-          {"id": "gap", "name": "Gap year"},
-          {"id": "ms", "name": "Master's"}
-        ],
-        "items": [
-          {"year": "y1", "from": 0, "to": 4, "kind": "apply", "title": "Insight days and spring programmes", "detail": "London-based banks run them for continental students too. Local banks and Big Four firms run their own."},
-          {"year": "y1", "from": 9, "to": 11, "kind": "work", "title": "First summer experience", "detail": "Local boutiques, corporate finance teams or audit: anything that puts finance on the CV."},
-          {"year": "y2", "from": 0, "to": 3, "kind": "apply", "title": "Summer internships (London desks)", "detail": "Same calendar as the UK: apply in the first weeks the roles open."},
-          {"year": "y2", "from": 0, "to": 11, "kind": "prep", "title": "Off-cycle internship search", "detail": "Six-month internships in Paris, Frankfurt, Milan, Madrid or Amsterdam, applied for three to six months before the start date."},
-          {"year": "gap", "from": 0, "to": 11, "kind": "work", "title": "Two six-month internships", "detail": "Common in French and Italian business schools, and increasingly elsewhere, as a gap year between the bachelor's and master's or within a master's."},
-          {"year": "ms", "from": 0, "to": 3, "kind": "apply", "title": "Graduate programmes and summer roles", "detail": "Master's in Finance students apply in the autumn of the first year."},
-          {"year": "ms", "from": 9, "to": 11, "kind": "work", "title": "Final internship or start", "detail": "Many continental programmes end with a compulsory internship that often converts to an offer."}
-        ]
-      }
-    ]
-  },
   "cv": {
     "rules": [
       "One page. Recruiters spend seconds on a first read.",
@@ -183,14 +107,7 @@
     ]
   },
   "technicals": {
-    "intro": "Interviews test accounting, valuation and how well you follow markets. Learn the logic, not scripts: interviewers ask follow-ups.",
-    "topics": [
-      {"name": "Accounting", "what": "How the three statements link, and what a change in one item does to each.", "link": "interview-prep/"},
-      {"name": "Valuation", "what": "DCF, comparable companies and precedent transactions, and when each fails.", "link": "interview-prep/"},
-      {"name": "Markets", "what": "Where rates, equities, FX and commodities are, and why they moved this week.", "link": "interview-prep/"},
-      {"name": "Rates and the Fed", "what": "The yield curve, inversions and what futures price for the next meetings.", "link": "dashboards/fed-rates/"},
-      {"name": "A stock pitch", "what": "One idea, a clear thesis, the risks and what would change your mind.", "link": "interview-prep/"}
-    ]
+    "intro": "Interviews test accounting, valuation and how well you follow markets. Learn the logic, not scripts: interviewers ask follow-ups."
   },
   "visas": {
     "note": "Rules change often. Always check the official source before you apply.",

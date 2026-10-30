@@ -1,0 +1,2503 @@
+{
+ "_about": "Recruiting calendar for Break into Wall Street (break-into-wall-street/recruiting-calendar/). One row per programme. status: confirmed (dates stated by the firm), expected (month window inferred from the last cycle, basis says how), rolling, unknown. A confirmed row shows its dates as confirmed only once verified is true: someone opened its source and saw the date, on the checked day. Never invent a date. See README, Recruiting calendar.",
+ "rows": [
+  {
+   "firm": "Goldman Sachs",
+   "group": "bulge",
+   "programme": "2027 Summer Analyst Program (Americas)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "IB",
+    "S&T",
+    "AM",
+    "Risk",
+    "Other"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates in their third or penultimate year",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm page says applications for select businesses are open and deadlines are set per posting; no opening or closing date found. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.goldmansachs.com/careers/students/programs-and-internships/americas/2027-summer-analyst-program",
+   "source": "https://www.goldmansachs.com/careers/students/programs-and-internships/americas/2027-summer-analyst-program",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Goldman Sachs",
+   "group": "bulge",
+   "programme": "2028 Summer Analyst Program (Americas)",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB",
+    "S&T",
+    "AM",
+    "Risk",
+    "Other"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates in their third or penultimate year",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "No 2028 posting or published window found on the firm's site, and no reputable outlet dates the prior cycle's opening.",
+   "url": "https://www.goldmansachs.com/careers/students/programs-and-internships",
+   "source": "https://www.goldmansachs.com/careers/students/programs-and-internships",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Goldman Sachs",
+   "group": "bulge",
+   "programme": "Possibilities Series (first-year students)",
+   "kind": "insight",
+   "cycle": "Spring 2027 edition",
+   "divisions": [
+    "Other"
+   ],
+   "locations": [
+    "US"
+   ],
+   "eligibility": "First-year undergraduates at US colleges",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm page shows the Spring 2026 edition closed and gives no date for the next cycle. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.goldmansachs.com/careers/students/programs-and-internships/americas/possibilities-series",
+   "source": "https://www.goldmansachs.com/careers/students/programs-and-internships/americas/possibilities-series",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Goldman Sachs",
+   "group": "bulge",
+   "programme": "Emerging Leaders Series (second-year students)",
+   "kind": "insight",
+   "cycle": "Fall 2026 to Spring 2027",
+   "divisions": [
+    "Other"
+   ],
+   "locations": [
+    "US"
+   ],
+   "eligibility": "Second-year undergraduate and master's students",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm page says applications for the Fall 2026 to Spring 2027 series are closed; no dates given. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.goldmansachs.com/careers/students/programs-and-internships/americas/emerging-leaders-series",
+   "source": "https://www.goldmansachs.com/careers/students/programs-and-internships/americas/emerging-leaders-series",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Goldman Sachs",
+   "group": "bulge",
+   "programme": "2027 New Analyst Program (Americas)",
+   "kind": "fulltime",
+   "cycle": "Full time 2027",
+   "divisions": [
+    "IB",
+    "S&T",
+    "AM",
+    "Risk",
+    "Other"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Students graduating between Dec 2026 and Jul 2027",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm page describes the programme and eligibility but gives no application dates. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.goldmansachs.com/careers/students/programs-and-internships/americas/new-analyst-program",
+   "source": "https://www.goldmansachs.com/careers/students/programs-and-internships/americas/new-analyst-program",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "J.P. Morgan",
+   "group": "bulge",
+   "programme": "2027 Global Investment Banking Summer Analyst Program",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "2027 postings exist on the firm's applicant system but no opening or closing date was visible. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.jpmorganchase.com/careers/explore-opportunities/programs/investment-banking-summer-analyst",
+   "source": "https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001/job/210736238",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "J.P. Morgan",
+   "group": "bulge",
+   "programme": "2027 Markets Summer Analyst Program",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Programme page gives no dates and no dated 2027 posting was found.",
+   "url": "https://www.jpmorganchase.com/careers/explore-opportunities/programs/markets-summer-analyst",
+   "source": "https://www.jpmorganchase.com/careers/explore-opportunities/programs/markets-summer-analyst",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "J.P. Morgan",
+   "group": "bulge",
+   "programme": "2028 Summer Analyst Programs",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB",
+    "S&T",
+    "AM",
+    "Risk",
+    "Other"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates graduating in 2029",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "No 2028 posting or published window found on the firm's site.",
+   "url": "https://www.jpmorganchase.com/careers/explore-opportunities/programs",
+   "source": "https://www.jpmorganchase.com/careers/explore-opportunities/programs",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "J.P. Morgan",
+   "group": "bulge",
+   "programme": "JPMorganChase Fellowship Program (sophomores; with Advancing Black Pathways and Advancing Hispanics & Latinos)",
+   "kind": "insight",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Other"
+   ],
+   "locations": [
+    "Select US offices"
+   ],
+   "eligibility": "Sophomores; all backgrounds welcome",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm page describes a five-week paid summer fellowship for sophomores but publishes no application window. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.jpmorganchase.com/careers/explore-opportunities/programs/jpmcfellowship",
+   "source": "https://www.jpmorganchase.com/careers/explore-opportunities/programs/jpmcfellowship",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "J.P. Morgan",
+   "group": "bulge",
+   "programme": "Winning Women Undergraduate Program",
+   "kind": "insight",
+   "cycle": "2026 to 2027 academic year",
+   "divisions": [
+    "Other"
+   ],
+   "locations": [
+    "US"
+   ],
+   "eligibility": "Undergraduate women",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm page describes the programme but gives no dates.",
+   "url": "https://www.jpmorganchase.com/careers/explore-opportunities/programs/winning-women-ba",
+   "source": "https://www.jpmorganchase.com/careers/explore-opportunities/programs/winning-women-ba",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Morgan Stanley",
+   "group": "bulge",
+   "programme": "2027 Institutional Equity Summer Analyst Program (New York)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-03-01",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's campus applicant system says applications close Sunday 1 March (2026); now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://morganstanley.tal.net/vx/lang-en-GB/mobile-0/brand-2/candidate/so/pm/1/pl/1/opp/20780-2027-Institutional-Equity-Summer-Analyst-Program-New-York/en-GB",
+   "source": "https://morganstanley.tal.net/vx/lang-en-GB/mobile-0/brand-2/candidate/so/pm/1/pl/1/opp/20780-2027-Institutional-Equity-Summer-Analyst-Program-New-York/en-GB",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Morgan Stanley",
+   "group": "bulge",
+   "programme": "2027 Firm Strategy & Execution Summer Analyst Program (New York)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Other"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-02-27",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's campus applicant system says applications must be submitted by 27 Feb 2026; now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://morganstanley.tal.net/vx/brand-0/spa-1/candidate/so/pm/1/pl/1/opp/20883-2027-Firm-Strategy-Execution-Summer-Analyst-Program-New-York/en-GB",
+   "source": "https://morganstanley.tal.net/vx/brand-0/spa-1/candidate/so/pm/1/pl/1/opp/20883-2027-Firm-Strategy-Execution-Summer-Analyst-Program-New-York/en-GB",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Morgan Stanley",
+   "group": "bulge",
+   "programme": "2027 Firm Risk Management Summer Analyst Program (New York)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Risk"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-05-15",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's campus applicant system says applications are due by 15 May 2026; now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://morganstanley.tal.net/vx/mobile-0/brand-0/candidate/so/pm/1/pl/1/opp/20886-2027-Firm-Risk-Management-Summer-Analyst-Program-Risk-Management-New-York/en-GB",
+   "source": "https://morganstanley.tal.net/vx/mobile-0/brand-0/candidate/so/pm/1/pl/1/opp/20886-2027-Firm-Risk-Management-Summer-Analyst-Program-Risk-Management-New-York/en-GB",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Morgan Stanley",
+   "group": "bulge",
+   "programme": "2028 Institutional Equity Summer Analyst Program (New York)",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": "Feb 2027 to Mar 2027",
+   "confidence": "medium",
+   "basis": "Inferred from the 2027 posting on the firm's campus site, which closed 1 March 2026; no 2028 posting found yet.",
+   "url": "https://www.morganstanley.com/people-opportunities/students-graduates",
+   "source": "https://morganstanley.tal.net/vx/lang-en-GB/mobile-0/brand-2/candidate/so/pm/1/pl/1/opp/20780-2027-Institutional-Equity-Summer-Analyst-Program-New-York/en-GB",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Morgan Stanley",
+   "group": "bulge",
+   "programme": "2028 Investment Banking Summer Analyst Program",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "No dated IB summer analyst posting found for the 2027 or 2028 cycle.",
+   "url": "https://www.morganstanley.com/people-opportunities/students-graduates",
+   "source": "https://www.morganstanley.com/people-opportunities/students-graduates",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Morgan Stanley",
+   "group": "bulge",
+   "programme": "Early Insights Program (freshmen and sophomores)",
+   "kind": "insight",
+   "cycle": "2027",
+   "divisions": [
+    "Other"
+   ],
+   "locations": [
+    "US"
+   ],
+   "eligibility": "Freshmen and sophomores",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm's Early Insights page currently shows no open opportunities and no dates. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://morganstanley.com/people-opportunities/students-graduates/programs/early-insights",
+   "source": "https://morganstanley.com/people-opportunities/students-graduates/programs/early-insights",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Bank of America",
+   "group": "bulge",
+   "programme": "Quantitative Data Analytics Summer Analyst Program 2027",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Quant"
+   ],
+   "locations": [
+    "New York",
+    "Charlotte",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates graduating Nov 2027 to Aug 2028",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-11-07",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's careers site says apply by 7 Nov 2026; the firm reviews applications on a rolling basis before the deadline. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.bankofamerica.com/en-us/students/job-detail/14420/quantitative-data-analytics-summer-analyst-program-2027-multiple-locations",
+   "source": "https://careers.bankofamerica.com/en-us/students/job-detail/14420/quantitative-data-analytics-summer-analyst-program-2027-multiple-locations",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Bank of America",
+   "group": "bulge",
+   "programme": "Global Risk Summer Analyst Program 2027",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Risk"
+   ],
+   "locations": [
+    "Charlotte",
+    "New York"
+   ],
+   "eligibility": "Undergraduates graduating Nov 2027 to Aug 2028",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-10-01",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's careers site says apply by 1 Oct 2026; now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.bankofamerica.com/en-us/students/job-detail/14437/global-risk-summer-2027-analyst-program-multiple-locations",
+   "source": "https://careers.bankofamerica.com/en-us/students/job-detail/14437/global-risk-summer-2027-analyst-program-multiple-locations",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Bank of America",
+   "group": "bulge",
+   "programme": "Enterprise Credit Summer Analyst Program 2027",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Other"
+   ],
+   "locations": [
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2027 to Jul 2028",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-09-30",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's careers site says apply by 30 Sep 2026; now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.bankofamerica.com/en-us/students/job-detail/14392/enterprise-credit-summer-analyst-program-2027-multiple-locations",
+   "source": "https://careers.bankofamerica.com/en-us/students/job-detail/14392/enterprise-credit-summer-analyst-program-2027-multiple-locations",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Bank of America",
+   "group": "bulge",
+   "programme": "Global Markets Chief Operating Office Summer Analyst Program 2027",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "S&T",
+    "Other"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Undergraduates pursuing a bachelor's degree",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-09-01",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's careers site says apply by 1 Sep 2026; now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.bankofamerica.com/en-us/students/job-detail/14352/global-markets-chief-operating-office-summer-analyst-program-2027-new-york-new-york-united-states",
+   "source": "https://careers.bankofamerica.com/en-us/students/job-detail/14352/global-markets-chief-operating-office-summer-analyst-program-2027-new-york-new-york-united-states",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Bank of America",
+   "group": "bulge",
+   "programme": "Global Investment Banking and Global Markets Sales & Trading Summer Analyst (US)",
+   "kind": "summer",
+   "cycle": "Summer 2027 and Summer 2028",
+   "divisions": [
+    "IB",
+    "S&T"
+   ],
+   "locations": [
+    "New York",
+    "Charlotte",
+    "Multiple US offices"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "No dated US IB or Sales & Trading summer analyst posting was found for either cycle.",
+   "url": "https://careers.bankofamerica.com/en-us/students",
+   "source": "https://careers.bankofamerica.com/en-us/students",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citi",
+   "group": "bulge",
+   "programme": "Markets Sales and Trading Summer Analyst, New York 2027",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2027 to Jun 2028",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2025-12-31",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's careers site gives an anticipated close date of 31 Dec 2025; now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://jobs.citi.com/job/new-york/markets-sales-and-trading-summer-analyst-new-york-city-us-2027/287/89809477504",
+   "source": "https://jobs.citi.com/job/new-york/markets-sales-and-trading-summer-analyst-new-york-city-us-2027/287/89809477504",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citi",
+   "group": "bulge",
+   "programme": "Markets Quantitative Analysis Summer Analyst, New York 2027",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Quant",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2027 to Jun 2028",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2025-12-29",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's careers site gives an anticipated close date of 29 Dec 2025; now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://jobs.citi.com/job/new-york/markets-quantitative-analysis-summer-analyst-new-york-city-us-2027/287/89809477472",
+   "source": "https://jobs.citi.com/job/new-york/markets-quantitative-analysis-summer-analyst-new-york-city-us-2027/287/89809477472",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citi",
+   "group": "bulge",
+   "programme": "Banking (Investment Banking) Summer Analyst, North America 2027",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "San Francisco",
+    "Los Angeles"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2027 to Jun 2028",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-02-03",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm postings give anticipated close dates of 3 Feb 2026 (FIG, New York) and 2 Feb 2026 (Technology, San Francisco); now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://jobs.citi.com/job/new-york/banking-financial-institutions-group-summer-analyst-new-york-city-us-2027/287/91123877904",
+   "source": "https://jobs.citi.com/job/new-york/banking-financial-institutions-group-summer-analyst-new-york-city-us-2027/287/91123877904",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citi",
+   "group": "bulge",
+   "programme": "Banking and Markets Summer Analyst, North America 2028",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB",
+    "S&T",
+    "Quant"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2028 to Jun 2029",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": "Dec 2026 to Feb 2027",
+   "confidence": "medium",
+   "basis": "Inferred from the firm's 2027 postings, which closed 29 Dec 2025 (Markets) to 3 Feb 2026 (Banking); no 2028 posting found yet.",
+   "url": "https://jobs.citi.com",
+   "source": "https://jobs.citi.com/job/new-york/markets-sales-and-trading-summer-analyst-new-york-city-us-2027/287/89809477504",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citi",
+   "group": "bulge",
+   "programme": "Pre-Internship Program (sophomores)",
+   "kind": "insight",
+   "cycle": "2026 to 2027",
+   "divisions": [
+    "IB",
+    "S&T",
+    "Other"
+   ],
+   "locations": [
+    "Virtual"
+   ],
+   "eligibility": "US sophomores",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm page describes a three-week virtual programme with start dates in December and March but gives no application dates. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://jobs.citi.com/early-career-programs-pre-internships",
+   "source": "https://jobs.citi.com/early-career-programs-pre-internships",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citi",
+   "group": "bulge",
+   "programme": "Banking and Markets Full Time Analyst, New York 2027",
+   "kind": "fulltime",
+   "cycle": "Full time 2027",
+   "divisions": [
+    "IB",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Final-year students graduating by mid 2027",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-08-31",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm postings give close dates of 22 Jul 2026 (IB FIG), 17 Aug 2026 (Markets S&T) and 31 Aug 2026 (Capital Markets); now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://jobs.citi.com/job/new-york/banking-capital-markets-full-time-analyst-new-york-usa-2027/287/97845636336",
+   "source": "https://jobs.citi.com/job/new-york/banking-capital-markets-full-time-analyst-new-york-usa-2027/287/97845636336",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Wells Fargo",
+   "group": "bulge",
+   "programme": "2028 Investment Banking Summer Internship (Houston)",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "Houston"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2028 or May/Jun 2029",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-12-14",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's careers site gives a posting end date of 14 Dec 2026 and warns it may close early. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.wellsfargojobs.com/en/jobs/r-584479/2028-investment-banking-summer-internship-early-careers-houston/",
+   "source": "https://www.wellsfargojobs.com/en/jobs/r-584479/2028-investment-banking-summer-internship-early-careers-houston/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Wells Fargo",
+   "group": "bulge",
+   "programme": "CIB Summer 2028 Internships (IB, Markets and other CIB groups)",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB",
+    "S&T",
+    "Other"
+   ],
+   "locations": [
+    "Charlotte",
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2028 to mid 2029",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": "Dec 2026 to Jan 2027",
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm's application timeline page says CIB Summer 2028 internship applications open January 2027, while the Houston IB posting was already live in Oct 2026; window covers both.",
+   "url": "https://www.wellsfargojobs.com/en/early-careers/application-process/",
+   "source": "https://www.wellsfargojobs.com/en/early-careers/application-process/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Wells Fargo",
+   "group": "bulge",
+   "programme": "2027 Corporate & Investment Banking Chief Operating Office Summer Analyst",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Other"
+   ],
+   "locations": [
+    "Charlotte"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-11-29",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's careers site gives a posting end date of 29 Nov 2026. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.wellsfargojobs.com/en/jobs/r-548718/2027-summer-internship-early-careers-corporate-investment-banking-chief-operating-office-coo/",
+   "source": "https://www.wellsfargojobs.com/en/jobs/r-548718/2027-summer-internship-early-careers-corporate-investment-banking-chief-operating-office-coo/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Barclays",
+   "group": "bulge",
+   "programme": "Analyst Summer Internship Program 2027 (Banking and Markets, New York)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "IB",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "No dated US undergraduate Banking or Markets summer posting found; the firm notes vacancies may close early.",
+   "url": "https://search.jobs.barclays/internships-investment-banking",
+   "source": "https://search.jobs.barclays/internships-investment-banking",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Barclays",
+   "group": "bulge",
+   "programme": "Analyst Summer Internship Program 2028 and Insight opportunities (US)",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Penultimate-year undergraduates; insight events for first and second years",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm FAQ points first and second years to insight opportunities but no 2028 or insight dates were found.",
+   "url": "https://search.jobs.barclays/internships",
+   "source": "https://search.jobs.barclays/internships",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Barclays",
+   "group": "bulge",
+   "programme": "Banking Analyst (Coverage M&A) Graduate Program 2027",
+   "kind": "fulltime",
+   "cycle": "Full time 2027",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Final-year undergraduates",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Posting found on the firm's careers site with no visible closing date.",
+   "url": "https://search.jobs.barclays/job/new-york/banking-analyst-coverage-m-and-a-graduate-program-2027-new-york-city/13015/100032499616",
+   "source": "https://search.jobs.barclays/job/new-york/banking-analyst-coverage-m-and-a-graduate-program-2027-new-york-city/13015/100032499616",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Deutsche Bank",
+   "group": "bulge",
+   "programme": "2027 Internship Programme: IBCM Coverage and Capital Markets (US)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Chicago",
+    "San Francisco"
+   ],
+   "eligibility": "Penultimate-year students graduating 2028",
+   "status": "confirmed",
+   "opens": "2026-07-25",
+   "closes": "2026-08-19",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Application deadlines table on the firm's careers site lists 25 Jul to 19 Aug 2026; now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.db.com/students-graduates/your-application/",
+   "source": "https://careers.db.com/students-graduates/your-application/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Deutsche Bank",
+   "group": "bulge",
+   "programme": "2027 Internship Programme: Fixed Income & Currencies (New York)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Penultimate-year students graduating 2028",
+   "status": "confirmed",
+   "opens": "2026-07-21",
+   "closes": "2026-09-15",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Application deadlines table on the firm's careers site lists 21 Jul to 15 Sep 2026; now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.db.com/students-graduates/your-application/",
+   "source": "https://careers.db.com/students-graduates/your-application/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Deutsche Bank",
+   "group": "bulge",
+   "programme": "2027 Internship Programme: Technology, Data & Innovation, Audit, HR, Quant, Private Bank/Wealth (US)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Quant",
+    "AM",
+    "Other"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Penultimate-year students graduating 2028",
+   "status": "confirmed",
+   "opens": "2026-08-17",
+   "closes": "2027-02-01",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Application deadlines table on the firm's careers site lists 17 Aug 2026 to 1 Feb 2027. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.db.com/students-graduates/your-application/",
+   "source": "https://careers.db.com/students-graduates/your-application/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Deutsche Bank",
+   "group": "bulge",
+   "programme": "2027 Summer Internship Early Recruitment: FIC, IBCM Coverage and Capital Markets",
+   "kind": "summer",
+   "cycle": "Summer 2027 (as labelled by the firm)",
+   "divisions": [
+    "IB",
+    "S&T"
+   ],
+   "locations": [
+    "New York",
+    "Chicago",
+    "San Francisco"
+   ],
+   "eligibility": "Penultimate-year or first-year master's students graduating 2028 (as stated)",
+   "status": "confirmed",
+   "opens": "2026-12-15",
+   "closes": "2027-01-16",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Application deadlines table on the firm's careers site lists this round for 15 Dec 2026 to 16 Jan 2027; the label and eligibility sit oddly with the summer 2027 windows that closed in Aug to Sep 2026, so confirm the cohort on the live page. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.db.com/students-graduates/your-application/",
+   "source": "https://careers.db.com/students-graduates/your-application/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Deutsche Bank",
+   "group": "bulge",
+   "programme": "Develop with Deutsche Bank (sophomore insight, Investment Bank)",
+   "kind": "insight",
+   "cycle": "2026 to 2027",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Sophomores, class of 2029",
+   "status": "confirmed",
+   "opens": "2026-10-05",
+   "closes": "2026-11-04",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Application deadlines table on the firm's careers site lists 5 Oct to 4 Nov 2026. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.db.com/students-graduates/insight-programmes/us/",
+   "source": "https://careers.db.com/students-graduates/your-application/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "UBS",
+   "group": "bulge",
+   "programme": "2027 Summer Internship Program (US)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "IB",
+    "S&T",
+    "Quant",
+    "AM",
+    "Other"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates starting their second-to-last year; GPA 3.2 or higher",
+   "status": "rolling",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm page says US roles open at various times, are advertised for an initial four weeks, may stay open until filled and are reviewed on a rolling basis. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.ubs.com/global/en/careers/early-careers/summer-internship-program.html",
+   "source": "https://www.ubs.com/global/en/careers/early-careers/summer-internship-program.html",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "UBS",
+   "group": "bulge",
+   "programme": "2028 Summer Internship Program (US)",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB",
+    "S&T",
+    "Quant",
+    "AM",
+    "Other"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates starting their second-to-last year",
+   "status": "rolling",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm says US internship roles open at various times during the year and are reviewed on a rolling basis; no 2028 posting found yet.",
+   "url": "https://www.ubs.com/global/en/careers/early-careers/summer-internship-program.html",
+   "source": "https://www.ubs.com/global/en/careers/early-careers/summer-internship-program.html",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "RBC Capital Markets",
+   "group": "bulge",
+   "programme": "2027 Capital Markets Municipal Finance Summer Analyst",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2027 or Spring 2028",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-08-15",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's careers site gives an application deadline of 15 Aug 2026 (applications accepted until 11:59 pm the day before); now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://jobs.rbc.com/ca/en/job/RBCAA0088R0000157582EXTERNALENCA/2027-Capital-Markets-Municipal-Finance-Summer-Analyst",
+   "source": "https://jobs.rbc.com/ca/en/job/RBCAA0088R0000157582EXTERNALENCA/2027-Capital-Markets-Municipal-Finance-Summer-Analyst",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "RBC Capital Markets",
+   "group": "bulge",
+   "programme": "2027 Capital Markets COO Operations Summer Analyst",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Other"
+   ],
+   "locations": [
+    "Jersey City"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-10-15",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's careers site gives an application deadline of 15 Oct 2026; now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://jobs.rbc.com/ca/en/job/RBCAA0088R0000187346EXTERNALENCA/2027-Capital-Markets-COO-Operations-Summer-Analyst",
+   "source": "https://jobs.rbc.com/ca/en/job/RBCAA0088R0000187346EXTERNALENCA/2027-Capital-Markets-COO-Operations-Summer-Analyst",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "RBC Capital Markets",
+   "group": "bulge",
+   "programme": "Global Investment Banking and Global Markets Summer Analyst (US)",
+   "kind": "summer",
+   "cycle": "Summer 2027 and Summer 2028",
+   "divisions": [
+    "IB",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "No dated US IB or Markets undergraduate summer posting found.",
+   "url": "https://www.rbccm.com/en/careers/",
+   "source": "https://www.rbccm.com/en/careers/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "RBC Capital Markets",
+   "group": "bulge",
+   "programme": "Women's Advisory Program",
+   "kind": "insight",
+   "cycle": "2026 to 2027",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Undergraduate women with a 2027 summer internship",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm page found, but the only dated deadline belongs to an earlier cycle.",
+   "url": "https://www.rbccm.com/en/careers/womens-advisory-program",
+   "source": "https://www.rbccm.com/en/careers/womens-advisory-program",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Jefferies",
+   "group": "bulge",
+   "programme": "Summer Analyst Program (Investment Banking and other divisions)",
+   "kind": "summer",
+   "cycle": "Summer 2027 and Summer 2028",
+   "divisions": [
+    "IB",
+    "S&T",
+    "ER"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates in a four-year bachelor's programme",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm's students page describes a 10-week programme but no dated posting was found.",
+   "url": "https://www.jefferies.com/careers/students-and-graduates/",
+   "source": "https://www.jefferies.com/careers/students-and-graduates/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Evercore",
+   "group": "boutique",
+   "programme": "Summer Analyst (Advisory), US",
+   "kind": "summer",
+   "cycle": "Summer 2027 and Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Houston",
+    "Chicago",
+    "San Francisco",
+    "Menlo Park"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm's US students page lists groups and offices but no application window; the firm says late applications are not accepted.",
+   "url": "https://www.evercore.com/careers/students-graduates/students-graduates-u-s/",
+   "source": "https://www.evercore.com/careers/students-graduates/students-graduates-u-s/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Lazard",
+   "group": "boutique",
+   "programme": "Financial Advisory Summer Analyst, North America",
+   "kind": "summer",
+   "cycle": "Summer 2027 and Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Only UK dates were published (2027 intern roles 8 Sep to 4 Oct 2026); no US window found.",
+   "url": "https://www.lazard.com/careers/students/",
+   "source": "https://www.lazard.com/careers/students/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Centerview Partners",
+   "group": "boutique",
+   "programme": "Summer Analyst Program",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "San Francisco",
+    "Los Angeles",
+    "Palo Alto"
+   ],
+   "eligibility": "College juniors",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm careers page says it recruits on campus and informally, with an online application form, but publishes no dates.",
+   "url": "https://www.centerviewpartners.com/careers.aspx/home.aspx",
+   "source": "https://www.centerviewpartners.com/careers.aspx/home.aspx",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "PJT Partners",
+   "group": "boutique",
+   "programme": "Summer Analyst Program (US)",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Penultimate-year students",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": "Mar 2027 to May 2027",
+   "closes_window": "by Jun 2027",
+   "confidence": "medium",
+   "basis": "Firm's students page says US Summer Analyst applications generally open in the spring of the year before the programme and close before the summer.",
+   "url": "https://www.pjtpartners.com/careers/students",
+   "source": "https://www.pjtpartners.com/careers/students",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Moelis & Company",
+   "group": "boutique",
+   "programme": "US Summer Analyst Intern Program",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates (applications open in December of sophomore year)",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": "Dec 2026",
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm's careers page says US Summer Analyst applications typically open in December of the candidate's sophomore year; no closing date given.",
+   "url": "https://www.moelis.com/careers/explore-opportunities/",
+   "source": "https://www.moelis.com/careers/explore-opportunities/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Moelis & Company",
+   "group": "boutique",
+   "programme": "Leadership Development Program (sophomores)",
+   "kind": "insight",
+   "cycle": "2026 to 2027",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "US"
+   ],
+   "eligibility": "Sophomores",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm's careers page describes the programme and its route to Summer Analyst interviews but gives no dates.",
+   "url": "https://www.moelis.com/careers/explore-opportunities/",
+   "source": "https://www.moelis.com/careers/explore-opportunities/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Perella Weinberg Partners",
+   "group": "boutique",
+   "programme": "Advisory Summer Analyst (US)",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Houston",
+    "Chicago",
+    "Los Angeles",
+    "San Francisco"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": "Dec 2026 to Feb 2027",
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm's recruitment page says US Summer Analysts are recruited in winter; the month window is our reading of 'winter', not a published date.",
+   "url": "https://pwpartners.com/careers/intern-graduate-recruitment/",
+   "source": "https://pwpartners.com/careers/intern-graduate-recruitment/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Perella Weinberg Partners",
+   "group": "boutique",
+   "programme": "Advisory Full-Time Analyst (US)",
+   "kind": "fulltime",
+   "cycle": "Full time 2027",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Houston",
+    "Chicago",
+    "Los Angeles",
+    "San Francisco"
+   ],
+   "eligibility": "Final-year undergraduates",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": "Aug 2026",
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm's recruitment page says US Advisory full-time hires are recruited in August.",
+   "url": "https://pwpartners.com/careers/intern-graduate-recruitment/",
+   "source": "https://pwpartners.com/careers/intern-graduate-recruitment/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Guggenheim Securities",
+   "group": "boutique",
+   "programme": "Investment Banking Summer Analyst",
+   "kind": "summer",
+   "cycle": "Summer 2027 and Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm's careers page links to open student positions but no dated posting was found.",
+   "url": "https://www.guggenheimpartners.com/firm/careers/internship-career-opportunities",
+   "source": "https://www.guggenheimpartners.com/firm/careers/internship-career-opportunities",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Guggenheim Securities",
+   "group": "boutique",
+   "programme": "Sophomore FOCUS Program",
+   "kind": "insight",
+   "cycle": "2026 to 2027",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "US"
+   ],
+   "eligibility": "Sophomores",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm page says FOCUS participants can interview for the following summer but gives no dates.",
+   "url": "https://guggenheimpartners.com/firm/diversity-and-inclusion/investment-banking-sophomore-focus",
+   "source": "https://guggenheimpartners.com/firm/diversity-and-inclusion/investment-banking-sophomore-focus",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Houlihan Lokey",
+   "group": "boutique",
+   "programme": "2028 Summer Financial Analyst: Financial Restructuring (Class of 2029)",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "Los Angeles"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2028 to Jun 2029",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "2028 posting is live on the firm's applicant system with no visible closing date. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://hl.wd1.myworkdayjobs.com/en-US/Campus/job/XMLNAME-2028-Summer-Financial-Analyst---Financial-Restructuring--Class-of-2029----Los-Angeles_R3680",
+   "source": "https://hl.wd1.myworkdayjobs.com/en-US/Campus/job/XMLNAME-2028-Summer-Financial-Analyst---Financial-Restructuring--Class-of-2029----Los-Angeles_R3680",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Houlihan Lokey",
+   "group": "boutique",
+   "programme": "Summer Financial Analyst: Corporate Finance (US)",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "Multiple US offices"
+   ],
+   "eligibility": "College juniors",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "No dated US Corporate Finance summer posting found.",
+   "url": "https://hl.com/careers/early-careers/internships-united-states/",
+   "source": "https://hl.com/careers/early-careers/internships-united-states/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Rothschild & Co",
+   "group": "boutique",
+   "programme": "US 2028 Global Advisory Summer Analyst",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Santa Monica"
+   ],
+   "eligibility": "Penultimate-year undergraduates",
+   "status": "rolling",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm's posting says applications are reviewed on a rolling basis; no closing date shown. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.rothschildandco.com/en/careers/students-and-graduates/us-2028-global-advisory-summer-analyst/",
+   "source": "https://www.rothschildandco.com/en/careers/students-and-graduates/us-2028-global-advisory-summer-analyst/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Rothschild & Co",
+   "group": "boutique",
+   "programme": "US Global Advisory 2027 Sophomore Leadership Program",
+   "kind": "insight",
+   "cycle": "2026 to 2027",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "New York",
+    "Santa Monica"
+   ],
+   "eligibility": "Sophomores graduating no later than May 2029",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-11-15",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm's posting says applications close 15 Nov 2026 at 11:55 pm ET; participants can interview for 2028 Summer Analyst roles. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.rothschildandco.com/en/careers/students-and-graduates/opportunities/us-global-advisory--2027-sophomore-leadership-program2/",
+   "source": "https://www.rothschildandco.com/en/careers/students-and-graduates/opportunities/us-global-advisory--2027-sophomore-leadership-program2/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "William Blair",
+   "group": "boutique",
+   "programme": "Investment Banking Summer Analyst Program",
+   "kind": "summer",
+   "cycle": "Summer 2027 and Summer 2028",
+   "divisions": [
+    "IB"
+   ],
+   "locations": [
+    "Chicago",
+    "New York",
+    "Atlanta",
+    "Boston",
+    "Charlotte",
+    "Los Angeles",
+    "San Francisco"
+   ],
+   "eligibility": "Students entering their final undergraduate year",
+   "status": "rolling",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm's early career page says applications are reviewed on a rolling basis during the open period, with on-campus schools setting their own deadlines; page may be dated.",
+   "url": "https://www.williamblair.com/investment-banking-careers/early-career/",
+   "source": "https://www.williamblair.com/investment-banking-careers/early-career/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "BlackRock",
+   "group": "am",
+   "programme": "2027 Summer Internship Program (AMERS)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "AM",
+    "Other"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Students graduating Sep 2027 to Jul 2028",
+   "status": "confirmed",
+   "opens": "2026-10-20",
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Posting on the firm's careers site is dated 20 Oct 2026 with no closing date; the Americas FAQ says reviews and rolling interviews begin in February. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.blackrock.com/job/new-york/2027-summer-internship-program-amers/45831/90628276544",
+   "source": "https://careers.blackrock.com/job/new-york/2027-summer-internship-program-amers/45831/90628276544",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Vanguard",
+   "group": "am",
+   "programme": "College to Corporate Internship 2027",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "AM",
+    "Other"
+   ],
+   "locations": [
+    "Malvern",
+    "Charlotte",
+    "Dallas",
+    "Scottsdale"
+   ],
+   "eligibility": "Undergraduates",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm postings for summer 2027 are dated Aug to Sep 2026 but show no closing date.",
+   "url": "https://www.vanguardjobs.com/job/23781524/college-to-corporate-internship-finance-malvern-pa/",
+   "source": "https://www.vanguardjobs.com/job/23781524/college-to-corporate-internship-finance-malvern-pa/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Fidelity Investments",
+   "group": "am",
+   "programme": "Summer 2027 Undergraduate Internships (incl. Asset Management research associates)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "AM",
+    "ER",
+    "Other"
+   ],
+   "locations": [
+    "Boston",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates; some tracks for sophomores or juniors",
+   "status": "confirmed",
+   "opens": null,
+   "closes": null,
+   "opens_window": "mid Sep 2026",
+   "closes_window": "mid Oct 2026",
+   "confidence": "medium",
+   "basis": "Firm's internships page says the window ran mid September to mid October and summer 2027 applications are now closed; no exact days given. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://jobs.fidelity.com/en/students/internships/",
+   "source": "https://jobs.fidelity.com/en/students/internships/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Fidelity Investments",
+   "group": "am",
+   "programme": "Summer 2028 Undergraduate Internships",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "AM",
+    "ER",
+    "Other"
+   ],
+   "locations": [
+    "Boston",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": "Sep 2027",
+   "closes_window": "Oct 2027",
+   "confidence": "medium",
+   "basis": "Inferred from the firm's summer 2027 window (mid September to mid October 2026) stated on its internships page.",
+   "url": "https://jobs.fidelity.com/en/students/internships/",
+   "source": "https://jobs.fidelity.com/en/students/internships/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "PIMCO",
+   "group": "am",
+   "programme": "Summer Analyst Program",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "AM"
+   ],
+   "locations": [
+    "Newport Beach",
+    "New York"
+   ],
+   "eligibility": "Undergraduate and master's students in their second-to-last year",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Current firm page gives no dates; the only timing found is on a 2024 page (mid to late summer opening, rolling).",
+   "url": "https://www.pimco.com/us/en/about-us/careers/students/internships",
+   "source": "https://www.pimco.com/us/en/about-us/careers/students/internships",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "PIMCO",
+   "group": "am",
+   "programme": "PIMCO Prep (second-year students)",
+   "kind": "insight",
+   "cycle": "Spring 2027",
+   "divisions": [
+    "AM"
+   ],
+   "locations": [
+    "Virtual"
+   ],
+   "eligibility": "University students in their second year",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm page lists sessions in April 2027 with registration coming soon; no application dates yet. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.pimco.com/us/en/about-us/careers/students/pimco-prep",
+   "source": "https://www.pimco.com/us/en/about-us/careers/students/pimco-prep",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Wellington Management",
+   "group": "am",
+   "programme": "2027 Undergraduate Summer Internship (US)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "AM",
+    "Other"
+   ],
+   "locations": [
+    "Boston",
+    "Chicago",
+    "San Francisco"
+   ],
+   "eligibility": "Current sophomores and juniors",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-10-02",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm's campus page and the Technology internship posting both give a closing date of 2 Oct 2026; now closed. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.wellington.com/en/about-us/campus-programs",
+   "source": "https://www.wellington.com/en/about-us/campus-programs",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Wellington Management",
+   "group": "am",
+   "programme": "2028 Undergraduate Summer Internship (US)",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "AM",
+    "Other"
+   ],
+   "locations": [
+    "Boston",
+    "Chicago",
+    "San Francisco"
+   ],
+   "eligibility": "Current sophomores and juniors",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": "Sep 2027 to Oct 2027",
+   "confidence": "medium",
+   "basis": "Inferred from the firm's 2027 cycle, which closed 2 Oct 2026 per its campus page.",
+   "url": "https://www.wellington.com/en/about-us/campus-programs",
+   "source": "https://www.wellington.com/en/about-us/campus-programs",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Capital Group",
+   "group": "am",
+   "programme": "Capital Associates Program (CAP) Summer Associate, US",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "AM"
+   ],
+   "locations": [
+    "Los Angeles",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates in their junior (penultimate) year",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": "Sep 2026 to Jan 2027",
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm pages conflict: an older CAP page says US applications open in mid January, a students page says most roles recruit in the fall; window covers both.",
+   "url": "https://www.capitalgroup.com/about-us/cap.html",
+   "source": "https://www.capitalgroup.com/about-us/cap.html",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "T. Rowe Price",
+   "group": "am",
+   "programme": "2027 Global Trading Internship Program",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "S&T",
+    "AM"
+   ],
+   "locations": [
+    "Baltimore"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2027 to mid 2029",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Posting found on the firm's applicant system with no visible dates; the firm says most internships are posted in the fall.",
+   "url": "https://troweprice.wd5.myworkdayjobs.com/en-US/TRowePrice/job/XMLNAME-2027-Global-Trading-Internship-Program_82718",
+   "source": "https://troweprice.wd5.myworkdayjobs.com/en-US/TRowePrice/job/XMLNAME-2027-Global-Trading-Internship-Program_82718",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citadel",
+   "group": "hf",
+   "programme": "Citadel Associate Program: Equities Summer Internship 2028",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "AM"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2028 to May 2029",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm posting says it is currently accepting applications for the 2028 internship; no closing date shown. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.citadel.com/careers/details/equities-citadel-associate-program-summer-internship-2028/",
+   "source": "https://www.citadel.com/careers/details/equities-citadel-associate-program-summer-internship-2028/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citadel",
+   "group": "hf",
+   "programme": "Citadel Associate Program: Equities Full-Time Program 2027",
+   "kind": "fulltime",
+   "cycle": "Full time 2027",
+   "divisions": [
+    "AM"
+   ],
+   "locations": [
+    "New York",
+    "Multiple US offices"
+   ],
+   "eligibility": "Undergraduates graduating Dec 2026 to Jul 2027",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm page says it is accepting applications for the 2027 full-time programme; no closing date shown. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.citadel.com/careers/details/equities-citadel-associate-program-full-time-program-2027-us/",
+   "source": "https://www.citadel.com/careers/details/equities-citadel-associate-program-full-time-program-2027-us/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citadel",
+   "group": "hf",
+   "programme": "Investment & Trading Intern (US)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "AM",
+    "S&T"
+   ],
+   "locations": [
+    "Greenwich",
+    "New York",
+    "Miami"
+   ],
+   "eligibility": "Undergraduates in quantitative fields",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm posting found with no closing date.",
+   "url": "https://citadel.com/careers/details/trader-intern-us",
+   "source": "https://citadel.com/careers/details/trader-intern-us",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citadel",
+   "group": "hf",
+   "programme": "Discover Citadel (US)",
+   "kind": "insight",
+   "cycle": "Spring 2027",
+   "divisions": [
+    "AM",
+    "Other"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "First and second-year undergraduates graduating Dec 2028 to Jun 2030",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2027-03-05",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm page gives an application deadline of 5 Mar 2027 for an early April 2027 event; prior edition deadline was 6 Mar 2026. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.citadel.com/careers/programs-and-events/discover-citadel/",
+   "source": "https://www.citadel.com/careers/programs-and-events/discover-citadel/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Point72",
+   "group": "hf",
+   "programme": "2027 Point72 Academy Investment Analyst Summer Internship (US)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "AM",
+    "ER"
+   ],
+   "locations": [
+    "New York",
+    "San Francisco",
+    "Chicago",
+    "West Palm Beach"
+   ],
+   "eligibility": "Students graduating Dec 2027 to Jul 2028",
+   "status": "rolling",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm posting says there is no fixed deadline and candidates are reviewed until the class is full; the Academy page instead says the window closed early summer 2026, so check status. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.point72.com/CSJobDetail?jobName=2027-point72-academy-investment-analyst-summer-internship-program-us&jobCode=CPA-0014081&location=New+York+%7C+San+Francisco+%7C+Chicago+%7C+West+Palm+Beach+/+Miami&locale=English&retURL=/CSCareerSearch",
+   "source": "https://careers.point72.com/CSJobDetail?jobName=2027-point72-academy-investment-analyst-summer-internship-program-us&jobCode=CPA-0014081&location=New+York+%7C+San+Francisco+%7C+Chicago+%7C+West+Palm+Beach+/+Miami&locale=English&retURL=/CSCareerSearch",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Point72",
+   "group": "hf",
+   "programme": "2027 Summer Internships (corporate functions)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Other"
+   ],
+   "locations": [
+    "New York",
+    "Stamford"
+   ],
+   "eligibility": "Penultimate-year students",
+   "status": "confirmed",
+   "opens": "2026-10-22",
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm blog post dated 22 Oct 2026 announces applications are live; no closing date. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://point72.com/blog/2027-point72-summer-internship-applications-open/",
+   "source": "https://point72.com/blog/2027-point72-summer-internship-applications-open/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Millennium",
+   "group": "hf",
+   "programme": "2027 Internship Program",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "AM",
+    "Quant",
+    "Risk",
+    "Other"
+   ],
+   "locations": [
+    "New York",
+    "Miami"
+   ],
+   "eligibility": "Students graduating Dec 2027 to mid 2028",
+   "status": "rolling",
+   "opens": "2026-08-03",
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm FAQ says applications opened 3 August and roles are filled on a rolling basis. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.mlp.com/careers/students/",
+   "source": "https://www.mlp.com/careers/students/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Bridgewater Associates",
+   "group": "hf",
+   "programme": "2028 Investment Associate Intern",
+   "kind": "summer",
+   "cycle": "Summer 2028",
+   "divisions": [
+    "AM",
+    "Quant"
+   ],
+   "locations": [
+    "Westport",
+    "New York"
+   ],
+   "eligibility": "Undergraduates graduating 2029",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm's 2028 posting on its applicant board says applications are not yet open; no dates given. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://job-boards.greenhouse.io/bridgewatercampusrecruiting/jobs/8779957002",
+   "source": "https://job-boards.greenhouse.io/bridgewatercampusrecruiting/jobs/8779957002",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Bridgewater Associates",
+   "group": "hf",
+   "programme": "Immersion events for 2028 internship candidates",
+   "kind": "insight",
+   "cycle": "2027",
+   "divisions": [
+    "AM"
+   ],
+   "locations": [
+    "Westport",
+    "New York"
+   ],
+   "eligibility": "Undergraduates graduating 2029",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": "Jan 2027 to Mar 2027",
+   "confidence": "medium",
+   "basis": "Inferred from the previous cycle's immersion events on the firm's board, with deadlines of 9 Jan, 25 Feb and 25 Mar 2026.",
+   "url": "https://www.bridgewater.com/working-at-bridgewater/students",
+   "source": "https://job-boards.greenhouse.io/bridgewatercampusrecruiting/jobs/8404668002",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "D. E. Shaw",
+   "group": "hf",
+   "programme": "Fundamental Research Analyst Intern (New York)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "ER",
+    "AM"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Undergraduate or graduate students, any field",
+   "status": "rolling",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": "end of 2026 (recommended)",
+   "confidence": "medium",
+   "basis": "Firm says it reviews intern applications on a rolling basis, usually finishes selection early in Q1 and recommends applying by the end of the previous calendar year. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.deshaw.com/careers/fundamental-research-analyst-intern-new-york-summer-2027-5709",
+   "source": "https://www.deshaw.com/careers/internships",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "D. E. Shaw",
+   "group": "quant",
+   "programme": "Proprietary Trading and Quantitative Analyst Interns (New York)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Quant",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Undergraduate or graduate students, any field",
+   "status": "rolling",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": "end of 2026 (recommended)",
+   "confidence": "medium",
+   "basis": "Firm says it reviews intern applications on a rolling basis and recommends applying by the end of the previous calendar year. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.deshaw.com/careers/proprietary-trading-intern-new-york-summer-2027-5731",
+   "source": "https://www.deshaw.com/careers/internships",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citadel Securities",
+   "group": "quant",
+   "programme": "Quantitative Trader Intern (US)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Quant",
+    "S&T"
+   ],
+   "locations": [
+    "New York",
+    "Chicago",
+    "Miami"
+   ],
+   "eligibility": "Undergraduates in quantitative fields",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm posting found with no closing date.",
+   "url": "https://www.citadelsecurities.com/careers/details/quantitative-trader-intern-us/",
+   "source": "https://www.citadelsecurities.com/careers/details/quantitative-trader-intern-us/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Citadel Securities",
+   "group": "quant",
+   "programme": "Discover Citadel Securities (US)",
+   "kind": "insight",
+   "cycle": "Spring 2027",
+   "divisions": [
+    "Quant",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "First and second-year undergraduates graduating Dec 2028 to Jun 2030",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2027-03-05",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm page gives an application deadline of 5 Mar 2027 for an early April 2027 event in New York. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.citadelsecurities.com/careers/programs-and-events/discover-citadel-securities/apply/",
+   "source": "https://www.citadelsecurities.com/careers/programs-and-events/discover-citadel-securities/apply/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Two Sigma",
+   "group": "quant",
+   "programme": "Quantitative Researcher Intern [2027 Summer]",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Quant"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Technical degree students with about one year remaining",
+   "status": "expected",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": "Feb 2027",
+   "confidence": "medium",
+   "basis": "2027 posting is live with no closing date; inferred from the 2026 posting on the firm's site, which closed 27 Feb (2026).",
+   "url": "https://careers.twosigma.com/careers/JobDetail/New-York-New-York-United-States-Quantitative-Researcher-Intern-2027-Summer/13945",
+   "source": "https://careers.twosigma.com/careers/JobDetail/New-York-New-York-United-States-Quantitative-Researcher-Internship-2026-Summer/13257",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Jane Street",
+   "group": "quant",
+   "programme": "Summer 2027 Internships (Trading, Quant Research, Software Engineering)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Quant",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Undergraduates",
+   "status": "rolling",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm says summer 2027 applications are open and its postings say applications are reviewed on a rolling basis; no closing date. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.janestreet.com/join-jane-street/internships/",
+   "source": "https://www.janestreet.com/join-jane-street/internships/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Jane Street",
+   "group": "quant",
+   "programme": "Strategy and Product Internship (New York)",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Other"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Students available to start full time in Sep 2028",
+   "status": "rolling",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": "15 Nov 2026 (encouraged)",
+   "confidence": "medium",
+   "basis": "Firm posting says applications are reviewed on a rolling basis and encourages applying by 15 November while staying open through the fall. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.janestreet.com/join-jane-street/position/8621552002/",
+   "source": "https://www.janestreet.com/join-jane-street/position/8621552002/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Jane Street",
+   "group": "quant",
+   "programme": "INSIGHT (New York)",
+   "kind": "insight",
+   "cycle": "Jan 2027",
+   "divisions": [
+    "Quant",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Self-identifying women, transgender and gender-expansive students",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm application form gives programme dates of 4 to 9 Jan 2027 but no application deadline. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://www.janestreet.com/join-jane-street/programs-and-events/insight/",
+   "source": "https://www.janestreet.com/join-jane-street/programs-and-events/insight/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Hudson River Trading",
+   "group": "quant",
+   "programme": "Algorithm Development (Quant Research & Trading) Internship",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Quant",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Undergraduates, graduating seniors, master's or PhD students",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm posting found with no visible closing date; the firm asks candidates to apply to one role only.",
+   "url": "https://www.hudsonrivertrading.com/hrt-job/algorithm-development-quant-research-trading-internship-summer-2027/",
+   "source": "https://www.hudsonrivertrading.com/hrt-job/algorithm-development-quant-research-trading-internship-summer-2027/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Hudson River Trading",
+   "group": "quant",
+   "programme": "Algorithm Developer (Quant Research & Trading), 2027 grads",
+   "kind": "fulltime",
+   "cycle": "Full time 2027",
+   "divisions": [
+    "Quant",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Students eligible for full-time roles in 2027",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm posting found with no visible closing date.",
+   "url": "https://www.hudsonrivertrading.com/hrt-job/algorithm-developer-quant-research-trading-2027-grads/",
+   "source": "https://www.hudsonrivertrading.com/hrt-job/algorithm-developer-quant-research-trading-2027-grads/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Susquehanna (SIG)",
+   "group": "quant",
+   "programme": "Quantitative Trader Internship: Summer 2027",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Quant",
+    "S&T"
+   ],
+   "locations": [
+    "Bala Cynwyd",
+    "New York"
+   ],
+   "eligibility": "Students graduating with a bachelor's or higher and starting full time by Aug 2028",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm postings found with no visible closing date.",
+   "url": "https://careers.sig.com/quant-internships/jobs/10717?lang=en-us",
+   "source": "https://careers.sig.com/quant-internships/jobs/10717?lang=en-us",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Susquehanna (SIG)",
+   "group": "quant",
+   "programme": "Discovery Program: Quantitative Trading and Quantitative Strategy Development (New York)",
+   "kind": "insight",
+   "cycle": "2026 to 2027",
+   "divisions": [
+    "Quant",
+    "S&T"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Students graduating winter 2028 or spring 2029",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-11-16",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm posting says applications close 16 Nov 2026; invitation-only route to summer 2028 internships. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.sig.com/jobs/11148?lang=en-us",
+   "source": "https://careers.sig.com/jobs/11148?lang=en-us",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Susquehanna (SIG)",
+   "group": "quant",
+   "programme": "Discovery Program: Equity + Macro Research (New York)",
+   "kind": "insight",
+   "cycle": "2026 to 2027",
+   "divisions": [
+    "ER"
+   ],
+   "locations": [
+    "New York"
+   ],
+   "eligibility": "Students graduating winter 2028 or spring 2029",
+   "status": "confirmed",
+   "opens": null,
+   "closes": "2026-11-16",
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "medium",
+   "basis": "Firm posting says applications close 16 Nov 2026. Read from the firm's page via search index; the page itself could not be fetched from this environment.",
+   "url": "https://careers.sig.com/jobs/11150?lang=en-us",
+   "source": "https://careers.sig.com/jobs/11150?lang=en-us",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Optiver (US)",
+   "group": "quant",
+   "programme": "Quantitative Intern (Quant Trading or Quant Research), Summer 2027",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "Quant",
+    "S&T"
+   ],
+   "locations": [
+    "Chicago",
+    "Austin"
+   ],
+   "eligibility": "Sophomores or above graduating Dec 2027 to Jun 2029",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm posting found with no visible closing date.",
+   "url": "https://www.optiver.com/join-us/jobs/institutional-sales-and-trading/austin/quantitative-intern-summer-2027/",
+   "source": "https://www.optiver.com/join-us/jobs/institutional-sales-and-trading/austin/quantitative-intern-summer-2027/",
+   "checked": "2026-10-30",
+   "verified": false
+  },
+  {
+   "firm": "Optiver (US)",
+   "group": "quant",
+   "programme": "Trading Automation and Operations Intern, Summer 2027",
+   "kind": "summer",
+   "cycle": "Summer 2027",
+   "divisions": [
+    "S&T",
+    "Other"
+   ],
+   "locations": [
+    "Chicago"
+   ],
+   "eligibility": "STEM students graduating winter 2027 or spring 2028",
+   "status": "unknown",
+   "opens": null,
+   "closes": null,
+   "opens_window": null,
+   "closes_window": null,
+   "confidence": "low",
+   "basis": "Firm posting found with no visible closing date.",
+   "url": "https://www.optiver.com/join-us/jobs/trading/chicago/trading-automation-and-operations-intern-summer-2027/",
+   "source": "https://www.optiver.com/join-us/jobs/trading/chicago/trading-automation-and-operations-intern-summer-2027/",
+   "checked": "2026-10-30",
+   "verified": false
+  }
+ ]
+}

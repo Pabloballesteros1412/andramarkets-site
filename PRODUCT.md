@@ -71,11 +71,27 @@ record. The daily note is one module among others, not the centrepiece.
   30 Oct 2026; renamed from Path to Wall Street, `careers/` redirects): a
   guide for students entering IB, S&T, asset management, equity research and
   hedge funds, especially from non-target universities and outside the US:
-  the roles, an interactive recruiting timeline by region and academic year,
-  a one-page CV, networking with email templates, technicals (linked to
-  Interview Prep), visas, certifications and resources. Its text lives in
-  `data/path_to_wall_street.json`; it shows its "Last reviewed" date and is
-  reviewed each quarter. The owner approved publishing after Claude's review.
+  the roles, a recruiting calendar, a one-page CV, networking with email
+  templates, technical preparation, visas, certifications and resources. Its
+  text lives in `data/path_to_wall_street.json`; it shows its "Last reviewed"
+  date and is reviewed each quarter. The owner approved publishing after
+  Claude's review.
+  - Recruiting calendar (`break-into-wall-street/recruiting-calendar/`,
+    owner-approved preview, 30 Oct 2026; replaced the timeline by academic
+    year): US only (owner's choice), about 40 banks, boutiques, asset managers,
+    hedge funds and trading firms, by date and by firm, from
+    `data/recruiting_calendar.json`. No free source lists firms' dates and the
+    aggregators' terms forbid reuse, so the file is kept by hand from each
+    firm's own careers site. A date shows only once someone has opened its
+    source and seen it (`verified`); an expected window comes from the last
+    cycle and says what it rests on; never an invented date.
+  - Technical preparation (`break-into-wall-street/technicals/<topic>/`,
+    owner-approved preview, 30 Oct 2026): nine training pages (accounting,
+    valuation, LBO, M&A, markets, rates and the Fed, a stock pitch,
+    brainteasers and mental maths, behavioural and fit), each with what to
+    know, a worked example, practice cards whose progress stays in the
+    browser, and common mistakes; Brainteasers adds a timed mental maths drill.
+    Content in `data/technicals/`, reviewed before publishing.
 - Calendar (real data, owner-approved 22 Oct 2026): five weeks of market-moving
   releases and events for the US, euro area, UK, Japan and China, central bank
   decisions, minutes and key speeches, Treasury note and bond auctions, NYSE
