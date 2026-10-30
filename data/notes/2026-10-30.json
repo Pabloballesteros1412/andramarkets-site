@@ -1,0 +1,494 @@
+{
+  "date": "2026-10-30",
+  "published": true,
+  "edition": "46",
+  "figure_check": "passed",
+  "text_source": "agent",
+  "note": {
+    "headline": "Rate cut fails to rally stocks as yields fall and vol spikes together",
+    "standfirst": "The S&P fell 1.82% and the Nasdaq 100 fell 3.46% on a day when Treasury yields dropped across the curve and the VIX jumped 12.91%. That combination, equities down with yields down and vol up, is the setup to watch into next session.",
+    "takeaways": [
+      "Megacap tech led the decline, with AMD down 10.88%, Oracle down 6.37%, and Nvidia down 4.22%.",
+      "Yields fell in a parallel shift of roughly 6 to 7bp across 2s, 5s, and 10s, yet equities sold off anyway.",
+      "Breadth was poor: 16 decliners against 9 advancers, with defensive sectors, health care, staples, utilities, the only ones green.",
+      "Gold fell 3.63% and silver fell 5.86% even as the risk barometer read -0.68, a rare case of havens selling off alongside risk assets."
+    ],
+    "desk_view": "This session contradicts the standard playbook. Yields fell 6 to 7bp across the belly and long end, which normally supports equity multiples, especially in rate-sensitive growth names. Instead the Nasdaq 100 gave back 3.46% and the chip complex was dumped outright. AMD's 10.88% decline and Avgo's 5.48% decline were not sector noise, they were the largest single-session moves in the leaders and laggards list. The MOVE index rose 7.12% alongside the VIX's 12.91% jump, so this was not an equity-only vol event. Rates vol and equity vol repriced together while rates themselves fell. That is a de-risking move, not a rotation.\n\nThe level that decides whether this persists is the VIX term structure. Spot VIX at 19.42 sits below VIX3M at 20.78, still in contango, but VIX9D at 19.25 has closed the gap versus spot. If 9-day vol pushes through spot and flips the front end to backwardation, that confirms the market is pricing event risk rather than a one-day flush. Gold's 3.63% decline and silver's 5.86% decline alongside falling yields also break the usual safe-haven correlation. Watch whether gold recovers with yields over the next session or continues to sell off with risk assets, because that tells you whether this was a liquidation across crowded longs or a genuine flight from duration-sensitive havens.",
+    "watching": [
+      "Whether VIX9D closes above spot VIX, confirming front-end backwardation.",
+      "Whether megacap tech, especially AMD, Oracle, Avgo, and Nvidia, stabilizes or extends Friday's declines.",
+      "Whether gold and silver re-correlate with falling yields or continue trading like risk assets.",
+      "Confirmation from Thursday's Asia session, after the Nikkei fell 2.12% and KOSPI fell 3.49% on Friday local time."
+    ],
+    "equities": "The S&P 500 closed at 7580.07, down 1.82%, with the Nasdaq 100 underperforming at -3.46% and the Dow holding up relatively better at -1.09%. The Russell 2000 fell 1.66% and the S&P MidCap 400 fell 1.22%, so the selling was not confined to megacap growth, though growth led in magnitude.\n\nSector rotation was unambiguous. Technology fell 4.89%, the weakest sector by a wide margin, while Energy rose 1.91% and Health care rose 0.45% on the back of XOM's 2.16% gain, CVX's 1.75% gain, and LLY's 3.19% gain. Consumer staples rose 1.41% and utilities rose 0.67%, the classic defensive bid. Breadth confirms the damage was broad even if sector-concentrated: 16 decliners against 9 advancers, a ratio of 0.56, with dispersion at 3.09. The laggard list was dominated by semiconductors and compute names, AMD, Oracle, Avgo, and Nvidia, all down more than 4%, while Goldman Sachs fell 3.58% on no apparent sector-specific catalyst beyond the broader financials weakness of -0.76%.",
+    "rates": "The curve shifted down in parallel, 2-year yields fell to 4.61%, 5-year to 4.78%, 10-year to 4.98%, and 30-year to 5.32%, with moves of -6, -7, -7, and -5bp respectively. 2s10s narrowed 1bp to 37bp while 5s30s steepened 2bp to 54bp. The 3m10y spread moved -7bp to 80bp.\n\nThis was a bid for duration, not a curve trade. TLT rose 0.43% and IEF rose 0.56% on the day, consistent with a flight into Treasuries even as nominal yields across the curve declined further on the overnight data. Breakevens were little changed to slightly lower, 5-year breakeven at 2.46% (-1bp) and 10-year breakeven at 2.34% (-1bp), so the rally in nominal bonds was a real-yield story more than an inflation-expectations story. The MOVE index rose 7.12% to 100.198, confirming the rates market priced higher uncertainty even as yields fell, consistent with a risk-off bid for duration rather than a dovish repricing of policy.",
+    "credit": "Credit held up better than equities but did not rally. Investment grade (LQD) rose 0.05%, essentially flat, while high yield (HYG) fell 0.19% and the JNK proxy fell 0.23%. EM sovereign debt (EMB) fell 0.22% and leveraged loans (BKLN) fell 0.15%. Spread product underperformed duration on a day when Treasuries rallied, the kind of divergence that shows up when the move is driven by risk aversion rather than a pure rates call.",
+    "fx": "The dollar index fell 0.07% to 101.964, a muted move given the scale of the equity and vol repricing. EUR/USD rose 0.09% to 1.117 and GBP/USD rose 0.46% to 1.339, both grinding higher against the dollar. USD/JPY fell 0.20% to 157.519, a modest yen bid consistent with the broader risk-off tone. The EM bloc was mixed and in places sharp: USD/BRL rose 1.76% and USD/MXN rose 0.76%, both pointing to EM currency weakness, while USD/CNY fell 0.19% and USD/INR fell 0.28%. USD/TRY rose 0.20% to a fresh high on the session.",
+    "commodities": "Energy diverged internally: WTI rose 0.93% to 102.95 while Brent fell 2.22% to 112.33, an unusual split between the two benchmarks. Natural gas fell 2.34%. Precious metals sold off hard despite the risk-off tone in equities, gold fell 3.63% to 3884.90, silver fell 5.86%, platinum fell 4.03%, and palladium fell 2.31%, all closing at or near session lows. Copper fell 1.09% and aluminium fell 4.99%, consistent with demand concerns rather than a pure dollar story given the DXY was only fractionally lower. Ags were mixed, soybeans rose 1.17% while corn fell 0.83% and wheat fell 0.08%.",
+    "volatility": "The vol surface moved sharply higher across the board. VIX rose 12.91% to 19.42, VIX9D rose 21.30% to 19.25, and VIX3M rose 7.28% to 20.78, a front-end-led spike that has nearly flattened the term structure. VVIX rose 8.59% to 106.43, showing the move was accompanied by demand for vol-of-vol, while SKEW fell 0.84% to 149.76, so tail-risk pricing did not move in lockstep with at-the-money vol. The cost of near-dated protection rose materially faster than the cost of hedging further out, consistent with a market pricing a discrete near-term event rather than a structural repricing of risk.",
+    "digital": "Digital assets sold off in line with risk but by less than equities. Bitcoin fell 1.36% to 76,720.01 and Ether fell 0.56% to 2,237.01, both modest relative to the Nasdaq's 3.46% decline. Solana fell 0.11% while XRP rose 1.17%, the only mover in the group to close higher. The muted beta to the equity drawdown suggests crypto was not the marginal source of selling pressure today.",
+    "international": "European markets closed before the worst of the US selling, with the EURO STOXX 50 down 1.21% and the DAX down 0.85%, while the FTSE 100 managed a 0.07% gain and the SMI rose 0.37% on defensive positioning similar to the US pattern. Asia closed earlier still and showed the sharper damage: the Nikkei fell 2.12%, KOSPI fell 3.49%, and TAIEX fell 2.49%, while the Hang Seng rose 1.46% and the ASX 200 rose 0.18%. The regional divergence, Northeast Asia selling hard while Hong Kong and Australia held up, hands New York a mixed read heading into the next session rather than a clean risk-off handoff.",
+    "correlation": "The defining break today was gold and yields moving the same direction instead of opposite. Gold typically rallies when real yields fall, yet gold fell 3.63% on a day when the 10-year yield fell 7bp and TIPS yields fell further. That is not how the hedge is supposed to behave, and it suggests forced selling or margin-driven liquidation of long gold positions rather than a change in the inflation or growth outlook.\n\nA second correlation to watch is equities versus rates. Falling yields have been a tailwind for the Nasdaq for most of the year, and today it was not: 2s10s fell further and the Nasdaq fell 3.46% in the same session. If that decoupling persists into the next print, it implies the market is pricing a growth scare rather than a disinflation trade, a materially different regime for positioning. The risk barometer's own components tell the story: gold contributed +2.73 to the score, the single largest positive contributor, while SPX, VIX, RUT, and MOVE all contributed negatively. A gold contribution that large, delivered by a falling price, is itself evidence the usual relationships are under strain."
+  },
+  "closes": {
+    "spx": {
+      "last": 7580.07,
+      "chg": -1.818,
+      "stale": false
+    },
+    "ndx": {
+      "last": 28384.846,
+      "chg": -3.461,
+      "stale": false
+    },
+    "rut": {
+      "last": 2811.844,
+      "chg": -1.657,
+      "stale": false
+    },
+    "sx5e": {
+      "last": 6131.31,
+      "chg": -1.221,
+      "stale": false
+    },
+    "nky": {
+      "last": 63290.11,
+      "chg": -2.118,
+      "stale": false
+    },
+    "vix": {
+      "last": 19.42,
+      "chg": 12.907,
+      "stale": false
+    },
+    "ust10y": {
+      "last": 4.98,
+      "chg": -7.0,
+      "stale": true
+    },
+    "eurusd": {
+      "last": 1.117,
+      "chg": 0.089,
+      "stale": false
+    },
+    "wti": {
+      "last": 102.95,
+      "chg": 0.931,
+      "stale": false
+    },
+    "gold": {
+      "last": 3884.9,
+      "chg": -3.634,
+      "stale": false
+    }
+  },
+  "charts": {
+    "v": 2,
+    "bars": {
+      "sectors": {
+        "rows": [
+          [
+            "Technology",
+            179.51,
+            -4.89
+          ],
+          [
+            "Financials",
+            56.51,
+            -0.755
+          ],
+          [
+            "Health care",
+            184.87,
+            0.451
+          ],
+          [
+            "Cons. discretionary",
+            115.38,
+            -0.706
+          ],
+          [
+            "Cons. staples",
+            89.42,
+            1.406
+          ],
+          [
+            "Energy",
+            70.02,
+            1.907
+          ],
+          [
+            "Industrials",
+            167.4,
+            -1.605
+          ],
+          [
+            "Materials",
+            52.74,
+            0.4
+          ],
+          [
+            "Real estate",
+            43.17,
+            0.255
+          ],
+          [
+            "Utilities",
+            43.43,
+            0.672
+          ],
+          [
+            "Communications",
+            99.9,
+            -1.294
+          ]
+        ],
+        "left_out": 0
+      },
+      "credit": {
+        "rows": [
+          [
+            "US IG (LQD)",
+            104.27,
+            0.048
+          ],
+          [
+            "US HY (HYG)",
+            77.43,
+            -0.193
+          ],
+          [
+            "EM USD (EMB)",
+            92.05,
+            -0.217
+          ],
+          [
+            "Loans (BKLN)",
+            20.43,
+            -0.147
+          ],
+          [
+            "7-10Y UST (IEF)",
+            91.76,
+            0.559
+          ],
+          [
+            "Long UST (TLT)",
+            81.84,
+            0.429
+          ]
+        ],
+        "left_out": 0
+      },
+      "volatility": {
+        "rows": [
+          [
+            "VIX",
+            19.42,
+            12.907
+          ],
+          [
+            "VIX 9-day",
+            19.25,
+            21.298
+          ],
+          [
+            "VIX 3-month",
+            20.78,
+            7.279
+          ],
+          [
+            "VVIX",
+            106.43,
+            8.591
+          ],
+          [
+            "MOVE",
+            100.198,
+            7.117
+          ]
+        ],
+        "left_out": 0
+      },
+      "commodities": {
+        "rows": [
+          [
+            "WTI crude",
+            102.95,
+            0.931
+          ],
+          [
+            "Brent",
+            112.33,
+            -2.22
+          ],
+          [
+            "Natural gas",
+            2.883,
+            -2.337
+          ],
+          [
+            "Gold",
+            3884.9,
+            -3.634
+          ],
+          [
+            "Silver",
+            49.135,
+            -5.855
+          ],
+          [
+            "Copper",
+            6.51,
+            -1.086
+          ]
+        ],
+        "left_out": 0
+      },
+      "fx": {
+        "rows": [
+          [
+            "Dollar index",
+            101.964,
+            -0.074
+          ],
+          [
+            "EUR/USD",
+            1.117,
+            0.089
+          ],
+          [
+            "USD/JPY",
+            157.519,
+            -0.199
+          ],
+          [
+            "GBP/USD",
+            1.339,
+            0.461
+          ],
+          [
+            "USD/CNY",
+            6.653,
+            -0.191
+          ],
+          [
+            "USD/MXN",
+            18.774,
+            0.763
+          ]
+        ],
+        "left_out": 0
+      },
+      "international": {
+        "rows": [
+          [
+            "Euro Stoxx 50",
+            6131.31,
+            -1.221
+          ],
+          [
+            "DAX 40",
+            25818.211,
+            -0.851
+          ],
+          [
+            "FTSE 100",
+            10729.78,
+            0.072
+          ],
+          [
+            "Nikkei 225",
+            63290.11,
+            -2.118
+          ],
+          [
+            "Hang Seng",
+            23294.42,
+            1.462
+          ],
+          [
+            "KOSPI",
+            5730.74,
+            -3.485
+          ],
+          [
+            "Bovespa",
+            167921.797,
+            -0.747
+          ],
+          [
+            "S&P/TSX",
+            35620.031,
+            -1.735
+          ]
+        ],
+        "left_out": 0
+      },
+      "digital": {
+        "rows": [
+          [
+            "Bitcoin",
+            76720.008,
+            -1.357
+          ],
+          [
+            "Ether",
+            2237.01,
+            -0.555
+          ],
+          [
+            "Solana",
+            95.39,
+            -0.109
+          ],
+          [
+            "XRP",
+            1.249,
+            1.169
+          ]
+        ],
+        "left_out": 0
+      }
+    },
+    "movers": {
+      "leaders": [
+        [
+          "LLY",
+          3.1913874535138387
+        ],
+        [
+          "XOM",
+          2.160514408271741
+        ],
+        [
+          "PFE",
+          1.9031708858236351
+        ],
+        [
+          "WMT",
+          1.8639192876127586
+        ],
+        [
+          "CVX",
+          1.7540816732165565
+        ]
+      ],
+      "laggards": [
+        [
+          "AMD",
+          -10.878852614026059
+        ],
+        [
+          "ORCL",
+          -6.370019737149968
+        ],
+        [
+          "AVGO",
+          -5.484061863111411
+        ],
+        [
+          "NVDA",
+          -4.221662509528712
+        ],
+        [
+          "GS",
+          -3.5764708885463126
+        ]
+      ]
+    },
+    "curve": [
+      {
+        "key": "ust1m",
+        "tenor": "1 month",
+        "last": 4.06,
+        "chg": -1.0,
+        "stale": true
+      },
+      {
+        "key": "ust3m",
+        "tenor": "3 month",
+        "last": 4.18,
+        "chg": 0.0,
+        "stale": true
+      },
+      {
+        "key": "ust6m",
+        "tenor": "6 month",
+        "last": 4.28,
+        "chg": -4.0,
+        "stale": true
+      },
+      {
+        "key": "ust1y",
+        "tenor": "1 year",
+        "last": 4.42,
+        "chg": -5.0,
+        "stale": true
+      },
+      {
+        "key": "ust2y",
+        "tenor": "2 year",
+        "last": 4.61,
+        "chg": -6.0,
+        "stale": true
+      },
+      {
+        "key": "ust3y",
+        "tenor": "3 year",
+        "last": 4.73,
+        "chg": -7.0,
+        "stale": true
+      },
+      {
+        "key": "ust5y",
+        "tenor": "5 year",
+        "last": 4.78,
+        "chg": -7.0,
+        "stale": true
+      },
+      {
+        "key": "ust7y",
+        "tenor": "7 year",
+        "last": 4.87,
+        "chg": -8.0,
+        "stale": true
+      },
+      {
+        "key": "ust10y",
+        "tenor": "10 year",
+        "last": 4.98,
+        "chg": -7.0,
+        "stale": true
+      },
+      {
+        "key": "ust20y",
+        "tenor": "20 year",
+        "last": 5.35,
+        "chg": -6.0,
+        "stale": true
+      },
+      {
+        "key": "ust30y",
+        "tenor": "30 year",
+        "last": 5.32,
+        "chg": -5.0,
+        "stale": true
+      }
+    ],
+    "risk": {
+      "score": -0.68,
+      "label": "Defensive"
+    },
+    "breadth": {
+      "advancers": 9,
+      "decliners": 16
+    }
+  },
+  "source": {
+    "repo": "Pabloballesteros1412/andramarkets",
+    "run_id": 41136803348,
+    "artifact_id": 13015864545,
+    "created_at": "2026-10-30T22:18:26Z"
+  }
+}
