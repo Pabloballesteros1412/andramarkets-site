@@ -14,7 +14,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/fx_data.py`: fetches the daily FX analyses and the FX pairs table at deploy time (below).
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
 - `tools/learn_content.py`: the text and sources of the six Learn explainers (`learn/`).
-- `data/reports/`: the weekly reviews and research in the Research Library (`reports/`): `index.json` plus one Markdown file per report. `tools/import_report.py` converts a report's PDF and adds its line; see `data/reports/README.md`. The PDF itself is never committed.
+- `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one Markdown file per report. `tools/import_report.py` converts a report's PDF and adds its line; see `data/reports/README.md`. The PDF itself is never committed.
 - `data/interview_prep.json`: Markets Interview Prep (`interview-prep/`): the weekly block (`week`, rewritten each week) and the question bank.
 - `tools/legal_content.py`: the legal notice (`legal/`) and the privacy and cookies policy (`privacy/`).
 - `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser.
@@ -28,7 +28,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `PRODUCT.md`: product truth and brand commitments.
 - `AGENT_FIXES.md`: known problems in the agent repo, to fix next.
 
-The HTML pages (`index.html`, `methodology/`, `reports/`, `interview-prep/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `calendar/`) are generated at
+The HTML pages (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `calendar/`) are generated at
 deploy time and are not stored in the repo. Pushes to `main` deploy to GitHub
 Pages via `.github/workflows/pages.yml`, which builds the pages and publishes
 only `index.html`, `methodology/`, `reports/`, `dashboards/`, `calendar/` and `assets/`. To preview

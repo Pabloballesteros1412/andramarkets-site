@@ -6,9 +6,10 @@ per visitor. Writes:
 
     index.html                 the homepage
     methodology/index.html     methodology (placeholder page)
-    reports/index.html         the Research Library: every close note, weekly review and research report
+    reports/index.html         every published close note
     reports/<date>/index.html  one page per close note, rendered from its text
-    reports/<slug>/index.html  one page per weekly review or research report (data/reports)
+    research/                  the Research Library: weekly reviews and research (data/reports)
+    research/<slug>/           one page per weekly review or research report
     interview-prep/            Markets Interview Prep (data/interview_prep.json)
     sources/, legal/, privacy/ data sources, legal notice, privacy and cookies
     dashboards/<slug>/         one page per dashboard (assets/dashboard.js draws the chart)
@@ -1186,7 +1187,7 @@ def page(notes, cal):
       <div class="note__archive reveal" style="--i:2">
         <p class="note__label">Every US trading day, after the close.</p>
         <ol class="note-list">{archive}</ol>
-        <a class="link" href="{all_notes}">Research Library {icon("arrow-right")}</a>
+        <a class="link" href="{all_notes}">All notes {icon("arrow-right")}</a>
       </div>
     </div>
   </section>
@@ -1262,7 +1263,7 @@ def site_header(home, base):
       <a href="{base}calendar/">Calendar</a>
       <a href="{base}world/">World</a>
       <a href="{base}fx/">FX</a>
-      <a href="{base}reports/">Research</a>
+      <a href="{base}research/">Research</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
       <a href="{base}learn/">Learn</a>
@@ -1304,7 +1305,8 @@ def site_footer(home, base):
       <a href="{base}calendar/">Calendar</a>
       <a href="{base}world/">World markets</a>
       <a href="{base}fx/">FX</a>
-      <a href="{base}reports/">Research Library</a>
+      <a href="{base}research/">Research Library</a>
+      <a href="{base}reports/">All notes</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
       <a href="{base}learn/">Learn</a>
@@ -1891,7 +1893,7 @@ def methodology():
            "watchlist of US large caps. A language model then drafts the note's text from that fact pack only. "
            "When the model fails, the pipeline publishes a quantitative edition with the figures and no commentary.</p>")}
       {sec("reports", "How reports are produced",
-           "<p>Andra Markets publishes three kinds of report, all in the <a href=\"../reports/\">Research Library</a>:</p>"
+           "<p>Andra Markets publishes three kinds of report, on this site: the close notes in the <a href=\"../reports/\">archive</a>, the others in the <a href=\"../research/\">Research Library</a>:</p>"
            + ruled([
                "<b>Daily close note</b>: every US trading day, after the close, as described above.",
                "<b>Weekly market review</b>: once a week, after the last session of the trading week, on what moved "
@@ -1992,16 +1994,51 @@ def methodology():
     )
 
 
-# Research Library (/reports/) ----------------------------------------------
+def archive(notes):
+    months = {}
+    for r in notes:
+        months.setdefault((r["day"].year, r["day"].month), []).append(r)
+    groups = "".join(
+        f'<section class="archive__month" aria-labelledby="m-{y}-{m:02d}">'
+        f'<h2 id="m-{y}-{m:02d}">{dt.date(y, m, 1):%B %Y}</h2><ol class="note-list">'
+        + "".join(
+            f'<li><a href="{r["date"]}/"><time datetime="{r["date"]}">{r["day"].day} {r["day"]:%b}</time>'
+            f'<span class="note-list__title">{esc(r["note"]["headline"])}</span>{icon("arrow-right")}</a></li>'
+            for r in rows
+        )
+        + "</ol></section>"
+        for (y, m), rows in months.items()
+    )
+    count = f"{len(notes)} note{'' if len(notes) == 1 else 's'}." if notes else "The first note is on its way."
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Daily close notes</h1>
+      <p class="lede">Every US trading day, after the close. {count} Weekly reviews and research are in the <a href="../research/">Research Library</a>.</p>
+    </header>
+    <div class="archive">{groups}</div>
+  </div>
+</main>"""
+    return shell(
+        title="Daily close notes: Andra Markets",
+        desc="The Andra Markets close note archive: one research note every US trading day, after the close.",
+        body=body,
+        home="../",
+        base="../",
+        path="reports/",
+    )
+
+
+# Research Library (/research/) ----------------------------------------------
 #
-# Every report Andra Markets publishes: the close notes (data/notes) and the
-# weekly reviews and research in data/reports (index.json plus one Markdown
-# file each; see data/reports/README.md). site.js filters the list by type,
-# date and tag, and by the search field, and keeps the choice in the URL.
+# The reports that are not the daily note: weekly market reviews and research,
+# from data/reports (index.json plus one Markdown file each; see
+# data/reports/README.md). The latest weekly review leads the page with its
+# contents; earlier reviews sit in a lattice of issues and research in a ruled
+# list. site.js filters both by topic and by the search field.
 
 LIB = ROOT / "data" / "reports"
-LIB_TYPES = [("daily", "Daily close"), ("weekly", "Weekly review"), ("research", "Research")]
-LIB_TYPE_NAME = {"daily": "Daily close note", "weekly": "Weekly market review", "research": "Research"}
+LIB_TYPE_NAME = {"weekly": "Weekly market review", "research": "Research"}
 LIB_TAGS = [("equities", "Equities"), ("rates", "Rates"), ("fx", "FX"), ("commodities", "Commodities"),
             ("macro", "Macro"), ("credit", "Credit")]
 LIB_TAG_NAME = dict(LIB_TAGS)
@@ -2026,18 +2063,6 @@ def load_library():
     return sorted(out, key=lambda r: (r["date"], r["slug"]), reverse=True)
 
 
-def lib_rows(notes, library):
-    """One row per report, close notes included, newest first; on the same day
-    a weekly review or research report comes before the close note."""
-    rows = [{"type": "daily", "date": rec["date"], "day": rec["day"], "title": rec["note"]["headline"],
-             "summary": " ".join(rec["note"].get("standfirst", "").split()),
-             "tags": [t for t in ("equities", "rates", "fx", "commodities", "credit") if rec["note"].get(t)],
-             "url": f"{rec['date']}/"} for rec in notes]
-    rows += [{"type": r["type"], "date": r["date"], "day": r["day"], "title": r["title"], "summary": r["summary"],
-              "tags": r["tags"], "url": f"{r['slug']}/"} for r in library]
-    return sorted(rows, key=lambda r: (r["date"], r["type"] != "daily"), reverse=True)
-
-
 def lib_chips(attr, options, counts=None):
     """Chips for one filter group, the first pressed; with counts, a value with
     nothing in it has no chip (a Research chip appears with the first report)."""
@@ -2049,67 +2074,118 @@ def lib_chips(attr, options, counts=None):
         for i, (v, label) in enumerate(options))
 
 
-def library_page(notes, library):
-    rows = lib_rows(notes, library)
-    months = {}
-    for r in rows:
-        months.setdefault((r["day"].year, r["day"].month), []).append(r)
+def lib_minutes(r):
+    return max(1, math.ceil(len(r["text"].split()) / 230))
 
-    def row(r):
-        tags = " · ".join(LIB_TAG_NAME[t] for t in r["tags"])
-        q = " ".join([r["title"], r["summary"], LIB_TYPE_NAME[r["type"]], tags, day_long(r["day"])]).lower()
-        return (f'<li data-type="{r["type"]}" data-date="{r["date"]}" data-tags="{" ".join(r["tags"])}" data-q="{esc(q)}">'
-                f'<a href="{r["url"]}"><time datetime="{r["date"]}">{r["day"].day} {r["day"]:%b}</time>'
-                f'<span class="lib__body"><span class="lib__type">{LIB_TYPE_NAME[r["type"]]}</span>'
-                f'<span class="note-list__title">{esc(r["title"])}</span>'
-                + (f'<span class="lib__sum">{esc(r["summary"])}</span>' if r["summary"] else "")
-                + (f'<span class="lib__tags">{tags}</span>' if tags else "")
-                + f'</span>{icon("arrow-right")}</a></li>')
 
-    groups = "".join(
-        f'<section class="archive__month" aria-labelledby="m-{y}-{m:02d}">'
-        f'<h2 id="m-{y}-{m:02d}">{dt.date(y, m, 1):%B %Y}</h2><ol class="note-list lib-list">'
-        + "".join(row(r) for r in items) + "</ol></section>"
-        for (y, m), items in months.items())
-    n = len(rows)
-    type_n = {k: sum(r["type"] == k for r in rows) for k, _ in LIB_TYPES}
-    type_n["all"] = n
-    tag_n = {k: sum(k in r["tags"] for r in rows) for k, _ in LIB_TAGS}
-    years = sorted({r["day"].year for r in rows}, reverse=True)
-    dates = [("all", "All time"), ("30d", "Last 30 days"), ("3m", "Last 3 months")] + [(str(y), str(y)) for y in years]
-    count = f"{n} report{'' if n == 1 else 's'}." if rows else "The first report is on its way."
+def lib_week(day):
+    """ "Week 44 · 26–30 Oct 2026": the ISO week of a weekly review and its Monday to Friday."""
+    mon = day - dt.timedelta(days=day.weekday())
+    fri = mon + dt.timedelta(days=4)
+    if mon.month == fri.month:
+        span = f"{mon.day}–{fri.day} {fri:%b %Y}"
+    else:
+        span = f"{mon.day} {mon:%b} – {fri.day} {fri:%b %Y}"
+    return day.isocalendar()[1], span
+
+
+def lib_attrs(r):
+    q = " ".join([r["title"], r["summary"], LIB_TYPE_NAME[r["type"]]] + [LIB_TAG_NAME[t] for t in r["tags"]]).lower()
+    return f'data-lib-item data-tags="{" ".join(r["tags"])}" data-q="{esc(q)}"'
+
+
+def library_page(library):
+    weekly = [r for r in library if r["type"] == "weekly"]
+    research = [r for r in library if r["type"] == "research"]
+    lead = weekly[0] if weekly else None
+    tags = lambda r: " · ".join(LIB_TAG_NAME[t] for t in r["tags"])
+
+    if lead:
+        wk, span = lib_week(lead["day"])
+        toc = [h for h, content in md_sections(lead["text"]) if h and content]
+        toc_html = (f'<div class="lib-lead__toc"><h3>In this issue</h3><ol>'
+                    + "".join(f"<li><span>{i + 1:02d}</span>{esc(h)}</li>" for i, h in enumerate(toc))
+                    + "</ol></div>") if toc else ""
+        lead_html = f"""<section class="grid lib-lead" aria-labelledby="lib-lead-t">
+      <div class="lib-lead__main">
+        <p class="lib-lead__kicker"><span>Latest weekly market review</span><span>Week {wk} · {span}</span></p>
+        <h2 class="lib-lead__title" id="lib-lead-t"><a href="{lead["slug"]}/">{esc(lead["title"])}</a></h2>
+        <p class="lede">{esc(lead["summary"])}</p>
+        <p class="note__meta"><time datetime="{lead["date"]}">{day_long(lead["day"])}</time><span>{lib_minutes(lead)} min read</span>{f"<span>{tags(lead)}</span>" if lead["tags"] else ""}</p>
+        <div class="lib-lead__acts">
+          <a class="btn" href="{lead["slug"]}/">Read the review {icon("arrow-right")}</a>
+          <button class="btn btn--ghost lib-pdf" type="button" aria-disabled="true" data-soon="{PDF_SOON}">{icon("lock-simple")}Download PDF<span class="lib-pdf__tag">Subscribers only</span></button>
+          <p class="report__share-status" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+      {toc_html}
+    </section>"""
+    else:
+        lead_html = ('<section class="lib-lead lib-lead--empty"><p class="lib-lead__kicker"><span>Latest weekly market review</span></p>'
+                     '<p class="lib__none">The first weekly market review is on its way.</p></section>')
+
+    def issue(r):
+        wk, span = lib_week(r["day"])
+        return (f'<li class="lib-issue" {lib_attrs(r)}><a href="{r["slug"]}/">'
+                f'<span class="lib-issue__n">Week {wk}</span><span class="lib-issue__d">{span}</span>'
+                f'<span class="lib-issue__t">{esc(r["title"])}</span><span class="lib-issue__s">{esc(r["summary"])}</span>'
+                f'<span class="lib-issue__f"><span>{tags(r)}</span><span>{lib_minutes(r)} min</span></span>'
+                f'{icon("arrow-up-right")}</a></li>')
+
+    def study(r):
+        topic = LIB_TAG_NAME[r["tags"][0]] if r["tags"] else "Research"
+        return (f'<li {lib_attrs(r)}><a href="{r["slug"]}/"><span class="lib-res__topic">{topic}</span>'
+                f'<span class="lib-res__body"><span class="lib-res__t">{esc(r["title"])}</span>'
+                f'<span class="lib-res__s">{esc(r["summary"])}</span>'
+                f'<span class="lib-res__m"><time datetime="{r["date"]}">{day_med(r["day"])}</time> · {lib_minutes(r)} min read</span></span>'
+                f'{icon("arrow-right")}</a></li>')
+
+    earlier = weekly[1:]
+    if earlier:
+        weekly_html = f'<ol class="lib-issues">{"".join(issue(r) for r in earlier)}</ol>'
+    else:
+        weekly_html = '<p class="lib__none">Earlier reviews are listed here as each new one is published.</p>'
+    research_html = (f'<ol class="lib-res">{"".join(study(r) for r in research)}</ol>' if research
+                     else '<p class="lib__none">The first research report is on its way.</p>')
+    tag_n = {k: sum(k in r["tags"] for r in library) for k, _ in LIB_TAGS}
+    nw, nr = len(weekly), len(research)
+    tools = ""
+    if library:
+        tools = f"""<div class="lib-tools">
+      <form class="pf-field lib__search" role="search" action="">
+        {icon("magnifying-glass")}
+        <input type="search" id="lib-q" name="q" aria-label="Search reviews and research" placeholder="Search reviews and research" autocomplete="off" spellcheck="false">
+      </form>
+      <div class="filters" role="group" aria-label="Filter by topic">{lib_chips("lib-tag", [("all", "All topics")] + LIB_TAGS, dict(tag_n, all=len(library)))}</div>
+    </div>
+    <p class="filters__status lib__status" role="status" aria-live="polite"></p>"""
     body = f"""<main id="main" class="page lib">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Research Library</h1>
-      <p class="lede">Every report Andra Markets publishes: the daily close notes, the weekly market reviews and research. {count}</p>
+      <p class="lede">Weekly market reviews and research from Andra Markets: longer than the daily note, written to be kept.</p>
     </header>
-    <div class="lib__controls">
-      <form class="pf-field lib__search" role="search" action="">
-        {icon("magnifying-glass")}
-        <input type="search" id="lib-q" name="q" aria-label="Search reports" placeholder="Search titles, summaries and tags" autocomplete="off" spellcheck="false">
-      </form>
-      <div class="cl__groups lib__groups">
-        <div class="cl__group"><span class="cl__glabel" id="lib-g-type">Type</span>
-          <div class="filters" role="group" aria-labelledby="lib-g-type">{lib_chips("lib-type", [("all", "All")] + LIB_TYPES, type_n)}</div></div>
-        <div class="cl__group"><span class="cl__glabel" id="lib-g-date">Date</span>
-          <div class="filters" role="group" aria-labelledby="lib-g-date">{lib_chips("lib-date", dates)}</div></div>
-        <div class="cl__group"><span class="cl__glabel" id="lib-g-tag">Tag</span>
-          <div class="filters" role="group" aria-labelledby="lib-g-tag">{lib_chips("lib-tag", [("all", "All")] + LIB_TAGS, tag_n)}</div></div>
-      </div>
-    </div>
-    <p class="filters__status lib__status" role="status" aria-live="polite"></p>
-    <div class="archive lib__list">{groups}</div>
-    <p class="lib__empty" hidden>No report matches these filters. <button type="button" class="link" data-lib-reset>Clear the filters {icon("arrow-right")}</button></p>
+    <p class="lib-count">{f'<span>{nw} weekly review{"" if nw == 1 else "s"}</span><span>{nr} research report{"" if nr == 1 else "s"}</span>' if library else ""}<span>Looking for the daily note? <a href="../reports/">All close notes</a></span></p>
+    {lead_html}
+    {tools}
+    <section class="lib-sec" aria-labelledby="lib-weekly">
+      <div class="lib-sec__head"><h2 id="lib-weekly">Weekly market reviews</h2><p>Every Friday after the close: what moved across asset classes, and the week ahead.</p></div>
+      {weekly_html}
+    </section>
+    <section class="lib-sec" aria-labelledby="lib-research">
+      <div class="lib-sec__head"><h2 id="lib-research">Research</h2><p>Deeper work on a theme, an asset class or a company, published when it is ready.</p></div>
+      {research_html}
+    </section>
+    <p class="lib__empty" hidden>No review or research matches. <button type="button" class="link" data-lib-reset>Clear the search {icon("arrow-right")}</button></p>
   </div>
 </main>"""
     return shell(
         title="Research Library: Andra Markets",
-        desc="Every Andra Markets report in one place: daily close notes, weekly market reviews and research, searchable by type, date and asset class.",
+        desc="Weekly market reviews and research from Andra Markets: longer than the daily note, written to be kept.",
         body=body,
         home="../",
         base="../",
-        path="reports/",
+        path="research/",
     )
 
 
@@ -2198,7 +2274,7 @@ def lib_report(r, newer, older):
         body=body,
         home="../../",
         base="../../",
-        path=f"reports/{r['slug']}/",
+        path=f"research/{r['slug']}/",
     )
 
 
@@ -2621,7 +2697,8 @@ def report(rec, newer, older, cal):
     session = calendar_link(cal, d)
     if session:
         pager += f'<a class="link" href="../../{session}">The calendar for this session {icon("arrow-right")}</a>'
-    pager += f'<a class="link" href="../">Research Library {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../">All notes {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../../research/">Research Library {icon("arrow-right")}</a>'
     pager += f'<a class="link" href="../../#subscribe">Get the note by email {icon("arrow-right")}</a>'
     standfirst = " ".join(n.get("standfirst", "").split())
     body = f"""<main id="main" class="page report">
@@ -4387,7 +4464,8 @@ SEARCH_PAGES = [
     ("Learn", "learn/", "Page"),
     ("Subscribe", "#subscribe", "Home"),
     ("About", "#about", "Home"),
-    ("Research Library", "reports/", "Page"),
+    ("Research Library", "research/", "Page"),
+    ("All close notes", "reports/", "Archive"),
     ("Markets Interview Prep", "interview-prep/", "Page"),
     ("Methodology", "methodology/", "Page"),
     ("Data sources", "sources/", "Page"),
@@ -4412,7 +4490,7 @@ def search_index(notes, companies=None, library=()):
                       "u": f"reports/{rec['date']}/", "k": f"{day_long(d)} {day_med(d)} {d.day} {d:%b}"})
     for r in library:
         items.append({"g": "Reports", "t": r["title"], "m": f"{LIB_TYPE_NAME[r['type']]}, {day_med(r['day'])}",
-                      "u": f"reports/{r['slug']}/", "k": r["summary"] + " " + " ".join(r["tags"])})
+                      "u": f"research/{r['slug']}/", "k": r["summary"] + " " + " ".join(r["tags"])})
     for a in ARTICLES:
         items.append({"g": "Pages", "t": a["title"], "m": "Learn", "u": f"learn/{a['slug']}/",
                       "k": a["desc"] + " " + " ".join(h for h, _ in a["sections"])})
@@ -4461,11 +4539,14 @@ def main():
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
     REPORTS.mkdir(exist_ok=True)
+    (REPORTS / "index.html").write_text(archive(notes))
     library = load_library()
-    (REPORTS / "index.html").write_text(library_page(notes, library))
+    research_dir = OUT / "research"
+    research_dir.mkdir(exist_ok=True)
+    (research_dir / "index.html").write_text(library_page(library))
     for i, r in enumerate(library):
-        (REPORTS / r["slug"]).mkdir(exist_ok=True)
-        (REPORTS / r["slug"] / "index.html").write_text(
+        (research_dir / r["slug"]).mkdir(exist_ok=True)
+        (research_dir / r["slug"] / "index.html").write_text(
             lib_report(r, library[i - 1] if i > 0 else None, library[i + 1] if i + 1 < len(library) else None))
     for slug, make in (("interview-prep", lambda: interview_page(notes)), ("sources", sources_page),
                        ("legal", legal_page), ("privacy", privacy_page)):

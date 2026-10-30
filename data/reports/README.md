@@ -1,8 +1,8 @@
 # Research Library sources
 
 Weekly market reviews and research reports for the Research Library
-(`/reports/`). Daily close notes are not listed here: they come from
-`data/notes/` and join the library on their own.
+(`/research/`). Daily close notes are not part of it: they come from
+`data/notes/` and keep their own archive at `/reports/`.
 
 This folder is read by `tools/build_site.py` at deploy time and is never
 published as it is: the deploy refuses JSON and PDF files, and the repo is
@@ -30,7 +30,7 @@ public, so a report's PDF never goes in here (`*.pdf` is ignored by git).
 - `tags`: any of `equities`, `rates`, `fx`, `commodities`, `macro`, `credit`.
 - `summary`: about two lines on the page (up to 220 characters).
 - `slug`: lower case letters, digits and hyphens; it becomes
-  `/reports/<slug>/`. It must not be a bare date (those are close notes).
+  `/research/<slug>/`.
 - `"published": false` takes a report down without deleting it.
 
 ## The Markdown the site reads

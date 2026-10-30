@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Static site (`index.html`, `methodology/`, `reports/`, `interview-prep/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
+Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
 by `tools/build_site.py` at deploy time and deployed to GitHub Pages from `main` by
 `.github/workflows/pages.yml`. No framework, no build step beyond the generator.
 
@@ -84,12 +84,13 @@ record. The daily note is one module among others, not the centrepiece.
   latest on top with an archive by date, shown only when its figure check
   passed and its session's close note is published; and a table of the dollar
   index, majors and key EM pairs with their moves, linked to the FX dashboard.
-- Research Library (`reports/`, 30 Oct 2026): every report in one list (daily
-  close notes, weekly market reviews, research), filtered by type, date and tag
-  and searchable, each readable online with a share link. Weekly reviews and
-  research live in `data/reports/` (index.json plus one Markdown file each,
-  converted from the PDF by `tools/import_report.py`); the PDF is never
-  committed. The PDF download shows as locked, "Subscribers only".
+- Research Library (`research/`, owner-approved 30 Oct 2026): the reports
+  that are not the daily note, weekly market reviews and research, never the
+  close notes (which keep their archive at `reports/`). Searchable and
+  filtered by topic; each readable online with a share link; the PDF download
+  shows as locked, "Subscribers only". Reports live in `data/reports/`
+  (index.json plus one Markdown file each, converted from the PDF by
+  `tools/import_report.py`); the PDF is never committed.
 - Markets Interview Prep (`interview-prep/`, 30 Oct 2026): for students
   preparing for IB, S&T and asset management interviews. A weekly "What you
   need to know this week" block (five to seven topics, figures only from the
