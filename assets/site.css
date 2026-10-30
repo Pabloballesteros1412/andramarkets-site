@@ -6017,28 +6017,33 @@ html:not(.js) .pw-js { display: none; }
 .pw-res__g li { padding: 10px 0; border-bottom: 1px solid var(--rule); }
 .pw-res__g b { font-weight: 550; }
 
-/* Simulators (owner-approved, 30 Oct 2026): the section index, the Trading
-   Simulator page and its homepage block. The horse sits still behind the chart. */
+/* Simulators (owner-approved, 30 Oct 2026; leaner layout approved the same
+   day): the section index, the four simulator pages and the homepage block.
+   The horse sits still behind the game chart. */
 .sim-page {
   padding-top: calc(var(--nav-h) + 32px);
   padding-bottom: var(--section);
 }
 
-.sim-top {
+.sim-page [hidden] {
+  display: none !important;
+}
+
+.sim-head {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px 32px;
+  gap: 8px 32px;
   align-items: end;
   justify-content: space-between;
-  padding-bottom: 16px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--rule-strong);
 }
 
 .sim-title {
-  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
   font-weight: 560;
-  line-height: 1.02;
-  letter-spacing: -0.035em;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
   text-wrap: balance;
 }
 
@@ -6046,123 +6051,50 @@ html:not(.js) .pw-js { display: none; }
   outline: none;
 }
 
-.sim-mode {
+.sim-tag {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.sim-top {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.sim-gap > span {
+  display: block;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 540;
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+
+.sim-gap small,
+.sim-month small {
+  display: block;
   margin-top: 6px;
   font-size: 0.875rem;
   color: var(--ink-2);
 }
 
-.sim-ctrl {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.sim-ctrl .filters {
-  margin: 0;
-}
-
 .sim-month {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 16px;
-  align-items: center;
-  padding: 16px 0;
   font-size: 0.9375rem;
   font-weight: 550;
+  text-align: right;
 }
 
 .sim-month small {
-  font-size: 0.8125rem;
   font-weight: 400;
   color: var(--ink-3);
 }
 
-.sim-prog {
-  position: relative;
-  height: 1px;
-  background: var(--rule);
-}
-
-.sim-prog i {
-  position: absolute;
-  top: -1px;
-  left: 0;
-  width: 0;
-  height: 3px;
-  background: var(--ink);
-}
-
-.sim-panels {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1.1fr;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-}
-
-.sim-panel {
-  padding: 16px 20px 16px 0;
-}
-
-.sim-panel + .sim-panel {
-  padding-left: 20px;
-  border-left: 1px solid var(--rule);
-}
-
-.sim-panel h2 {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  font-size: 0.875rem;
-  font-weight: 550;
-  color: var(--ink-2);
-}
-
-.sim-panel h2 i {
-  width: 16px;
-  border-top: 1.6px solid var(--chart-line);
-}
-
-.sim-panel h2 i.sim-dash {
-  border-top: 1.6px dashed var(--ink-3);
-}
-
-.sim-val {
-  margin-top: 4px;
-  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
-  font-weight: 540;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-}
-
-.sim-chg {
-  font-size: 0.9375rem;
-}
-
-.sim-facts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 16px;
-  font-size: 0.875rem;
-  color: var(--ink-2);
-}
-
-.sim-facts b {
-  display: block;
-  font-size: 1.1875rem;
-  font-weight: 500;
-}
-
-.sim-facts b:not([class]) {
-  color: var(--ink);
-}
-
 .sim-stage {
   position: relative;
-  height: clamp(300px, 46vh, 460px);
-  margin-top: 24px;
-  overflow: hidden;
+  height: clamp(300px, 50vh, 500px);
+  margin-top: 16px;
   isolation: isolate;
   background: var(--ground);
 }
@@ -6171,7 +6103,11 @@ html:not(.js) .pw-js { display: none; }
   position: absolute;
   inset: 0;
   z-index: -1;
+  overflow: hidden;
   pointer-events: none;
+  /* The blend sits on the layer, which blends with the chart's ground; on
+     the image it would only blend inside this layer and show its box. */
+  mix-blend-mode: var(--horse-blend);
 }
 
 .sim-horse img {
@@ -6183,7 +6119,6 @@ html:not(.js) .pw-js { display: none; }
   height: 175%;
   transform: translate(-50%, -48%);
   filter: var(--horse-filter);
-  mix-blend-mode: var(--horse-blend);
   opacity: 0.13;
 }
 
@@ -6204,9 +6139,14 @@ html:not(.js) .pw-js { display: none; }
   vector-effect: non-scaling-stroke;
 }
 
-.sim-svg .sim-you {
+.sim-svg .sim-in {
   stroke: var(--chart-line);
-  stroke-width: 1.8;
+  stroke-width: 2.6;
+}
+
+.sim-svg .sim-out {
+  stroke: var(--chart-line);
+  stroke-width: 1.2;
 }
 
 .sim-svg .sim-idx {
@@ -6236,39 +6176,152 @@ html:not(.js) .pw-js { display: none; }
   transform: translateY(-120%);
   font-size: 0.75rem;
   color: var(--ink-3);
+  pointer-events: none;
+}
+
+.sim-bandlab {
+  position: absolute;
+  top: 6px;
+  margin-left: 6px;
+  font-size: 0.75rem;
+  color: var(--ink-2);
+  pointer-events: none;
 }
 
 .sim-dot {
   position: absolute;
-  width: 8px;
-  height: 8px;
-  margin: -4px 0 0 -4px;
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
   border-radius: 50%;
   background: var(--chart-line);
 }
 
-.sim-key {
-  margin-top: 14px;
+.sim-dot--out {
+  background: var(--ground);
+  box-shadow: inset 0 0 0 2px var(--chart-line);
 }
 
-.sim-key .sim-sw {
-  width: 12px;
-  height: 12px;
-  border: 0;
-  background: var(--chart-fill);
+.sim-label {
+  position: absolute;
+  margin-left: 12px;
+  transform: translateY(-50%);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  color: var(--ink-3);
+  pointer-events: none;
 }
 
-.sim-act {
+.sim-label--left {
+  margin-left: -12px;
+  transform: translate(-100%, -50%);
+}
+
+.sim-label--you {
+  color: var(--ink-2);
+}
+
+.sim-label--you b {
+  margin-right: 4px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.sim-intro {
+  position: absolute;
+  inset: 0;
   display: grid;
-  grid-template-columns: 1fr minmax(0, 22rem);
-  gap: 24px;
-  align-items: center;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+}
+
+.sim-intro > div {
+  max-width: 34rem;
+  padding: clamp(20px, 3vw, 32px);
+  background: color-mix(in srgb, var(--ground) 92%, transparent);
+}
+
+.sim-intro h2 {
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 540;
+  line-height: 1.1;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+
+.sim-intro p {
+  margin-top: 12px;
+  color: var(--ink-2);
+}
+
+.sim-intro .filters {
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.sim-intro .filters + .filters {
+  margin-top: 8px;
+}
+
+.sim-intro .chip {
+  height: 40px;
+  padding: 0 12px;
+}
+
+.sim-start {
+  min-width: 12rem;
   margin-top: 20px;
+}
+
+.sim-intro .sim-intro__note {
+  margin-top: 12px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.sim-ribbon {
+  position: relative;
+  height: 10px;
+  margin-top: 10px;
+}
+
+.sim-ribbon i {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--ink);
+}
+
+.sim-ribbon i.sim-r-out {
+  top: 4px;
+  height: 2px;
+  background: var(--ink-3);
+}
+
+.sim-key {
+  margin-top: 10px;
+}
+
+.key .sim-k-in,
+.key .sim-k-out {
+  width: 16px;
+  border-top: 2.6px solid var(--chart-line);
+}
+
+.key .sim-k-out {
+  border-top-width: 1.2px;
+}
+
+.sim-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  margin-top: 24px;
 }
 
 .btn.sim-go {
   justify-content: space-between;
-  width: 100%;
   min-height: 72px;
   padding: 0 28px;
   font-size: 1.125rem;
@@ -6283,227 +6336,108 @@ html:not(.js) .pw-js { display: none; }
   opacity: 0.7;
 }
 
-.sim-state {
-  font-size: 0.9375rem;
-  color: var(--ink-2);
+.btn.sim-sq {
+  min-width: 72px;
+  min-height: 72px;
+  padding: 0;
 }
 
-.sim-state b {
-  display: block;
+.sim-sq .icon {
+  font-size: 1.125rem;
+}
+
+.sim-more {
+  margin-top: 40px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.sim-more summary {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0;
   font-size: 1.0625rem;
-  font-weight: 550;
-  color: var(--ink);
-}
-
-.sim-state b::before {
-  content: "";
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 8px;
-  vertical-align: 1px;
-  background: var(--ink);
-}
-
-.sim-state.is-cash b::before {
-  background: transparent;
-  box-shadow: inset 0 0 0 1px var(--ink);
-}
-
-.sim-alt {
-  margin-top: 12px;
-  font-size: 0.875rem;
-}
-
-.sim-howto {
-  max-width: 65ch;
-  margin-top: 56px;
-}
-
-.sim-howto h2 {
-  font-size: 1.375rem;
   font-weight: 540;
-  letter-spacing: -0.02em;
+  list-style: none;
+  cursor: pointer;
 }
 
-.sim-howto p {
-  margin-top: 12px;
+.sim-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.sim-more summary::after {
+  content: "+";
+  font-weight: 400;
+}
+
+.sim-more[open] summary::after {
+  content: "\2212";
+}
+
+.sim-more > div {
+  max-width: 65ch;
+  padding-bottom: 20px;
+}
+
+.sim-more p {
   color: var(--ink-2);
 }
 
-/* Final screen */
-.sim-verdict {
+.sim-more p + p {
+  margin-top: 12px;
+}
+
+.sim-panel {
+  padding: clamp(20px, 2.4vw, 32px);
+  background: var(--ground-2);
+}
+
+.sim-pending {
+  margin-top: 24px;
+}
+
+/* End screens */
+.sim-v {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   gap: clamp(24px, 4vw, 64px);
   align-items: end;
-  padding: 32px 0;
-  border-bottom: 1px solid var(--rule-strong);
+  padding: 28px 0 32px;
 }
 
 .sim-word {
-  font-size: clamp(4.5rem, 12vw, 9rem);
+  font-size: clamp(4rem, 11vw, 8.5rem);
   font-weight: 560;
-  line-height: 0.9;
+  line-height: 0.92;
   letter-spacing: -0.05em;
 }
 
-.sim-word-sub {
-  max-width: 30ch;
-  margin-top: 16px;
+.sim-word--long {
+  font-size: clamp(3rem, 7vw, 5.5rem);
+}
+
+.sim-r p + p {
+  margin-top: 12px;
+}
+
+.sim-sub {
+  max-width: 36ch;
+  margin-top: 14px;
   font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
   color: var(--ink-2);
 }
 
-.sim-hist {
-  height: 180px;
-}
-
-.sim-hist svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.sim-hist .sim-bar {
-  fill: var(--ink-3);
-  opacity: 0.45;
-}
-
-.sim-hist .sim-bar--you {
-  fill: var(--ink);
-  opacity: 1;
-}
-
-.sim-hist .sim-p90 {
-  stroke: var(--rule-strong);
-  stroke-dasharray: 3 4;
-  vector-effect: non-scaling-stroke;
-}
-
-.sim-hist .sim-base {
-  stroke: var(--rule-strong);
-  vector-effect: non-scaling-stroke;
-}
-
-.sim-hist text {
-  font-size: 11px;
-  fill: var(--ink-2);
-}
-
-.sim-hist text.sim-you-lab {
-  font-weight: 600;
-  fill: var(--ink);
-}
-
-.sim-key .sim-sw--bar {
-  background: var(--ink-3);
-  opacity: 0.45;
-}
-
-.sim-key .sim-sw--ref {
-  width: 16px;
-  border-top: 1px dashed var(--rule-strong);
-}
-
-.sim-grid2 {
-  display: grid;
-  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-  gap: clamp(24px, 4vw, 64px);
-  margin-top: 40px;
-}
-
-.sim-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  border-top: 1px solid var(--rule-strong);
-}
-
-.sim-stats > div {
-  padding: 14px 16px 14px 0;
-  border-bottom: 1px solid var(--rule);
-}
-
-.sim-stats > div:not(:nth-child(3n + 1)) {
-  padding-left: 16px;
-  border-left: 1px solid var(--rule);
-}
-
-.sim-stats > div > span {
-  display: block;
-  font-size: 0.8125rem;
-  color: var(--ink-2);
-}
-
-.sim-stats b {
-  font-size: 1.375rem;
-  font-weight: 540;
-  letter-spacing: -0.02em;
-}
-
-.sim-stats em {
-  display: block;
-  font-size: 0.875rem;
-  font-style: normal;
-}
-
-.sim-h2 {
-  margin: 40px 0 12px;
-  font-size: 1.375rem;
-  font-weight: 540;
-  letter-spacing: -0.02em;
-}
-
-.sim-missed {
-  border-top: 1px solid var(--rule-strong);
-  font-size: 0.9375rem;
-}
-
-.sim-missed li {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  gap: 16px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--rule);
-}
-
-.sim-missed li span:last-child {
-  min-width: 6rem;
-  font-size: 0.8125rem;
-  text-align: right;
-  color: var(--ink-3);
-}
-
-.sim-missed-none {
-  font-size: 0.9375rem;
-  color: var(--ink-2);
-}
-
-.sim-reveal {
-  padding: var(--card-padding, clamp(20px, 2.4vw, 32px));
-  background: var(--ground-2);
-}
-
-.sim-reveal h2 {
-  font-size: clamp(1.5rem, 2.4vw, 2rem);
-  font-weight: 540;
-  line-height: 1.1;
-  letter-spacing: -0.028em;
-  text-wrap: balance;
-}
-
-.sim-reveal p {
-  max-width: 52ch;
-  margin-top: 14px;
-  color: var(--ink-2);
-}
-
-.sim-links {
-  display: grid;
-  justify-items: start;
+.sim-act {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  margin-top: 18px;
+  margin-top: 24px;
+}
+
+.sim-v .sim-stage {
+  height: 240px;
+  margin: 0;
 }
 
 .sim-share {
@@ -6511,6 +6445,7 @@ html:not(.js) .pw-js { display: none; }
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: clamp(24px, 4vw, 48px);
   align-items: start;
+  margin-bottom: 32px;
 }
 
 .sim-card {
@@ -6525,6 +6460,7 @@ html:not(.js) .pw-js { display: none; }
   padding: 14px 16px;
   border: 1px solid var(--rule-strong);
   font-size: 0.9375rem;
+  overflow-wrap: anywhere;
 }
 
 .sim-btns {
@@ -6534,23 +6470,54 @@ html:not(.js) .pw-js { display: none; }
   margin-top: 12px;
 }
 
-.sim-share-status {
+.sim-status {
   min-height: 1.55em;
   margin-top: 8px;
   font-size: 0.875rem;
   color: var(--ink-2);
 }
 
-.sim-final-chart {
-  height: 220px;
-  margin-top: 24px;
+.sim-r {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(24px, 4vw, 64px);
+  padding: 32px 0;
+  border-top: 1px solid var(--rule-strong);
 }
 
-.sim-again {
+.sim-r h2 {
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 540;
+  line-height: 1.1;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+
+.sim-r p {
+  max-width: 60ch;
+  color: var(--ink-2);
+}
+
+.sim-links {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.sim-line {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 24px;
+  gap: 6px 28px;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.sim-line b {
+  font-weight: 550;
+  color: var(--ink);
 }
 
 .sim-games {
@@ -6577,6 +6544,255 @@ html:not(.js) .pw-js { display: none; }
 .sim-rec {
   margin-top: 12px;
   font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.sim-src {
+  margin-top: 16px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+/* Guess the Fed */
+.fed-intro {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.fed-intro h2,
+.fed-ans h2 {
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 540;
+  line-height: 1.1;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+
+.fed-intro p {
+  max-width: 34rem;
+  margin: 12px auto 0;
+  color: var(--ink-2);
+}
+
+.fed-intro .filters {
+  justify-content: center;
+  margin-top: 18px;
+}
+
+.fed-intro .btn {
+  min-width: 12rem;
+  margin-top: 16px;
+}
+
+.fed-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 24px;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.fed-grid > div {
+  padding: 16px 16px 18px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.fed-grid > div + div {
+  padding-left: 16px;
+  border-left: 1px solid var(--rule);
+}
+
+.fed-grid span {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.fed-grid b {
+  display: block;
+  margin-top: 2px;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 540;
+  letter-spacing: -0.03em;
+}
+
+.fed-grid em {
+  display: block;
+  font-size: 0.8125rem;
+  font-style: normal;
+  color: var(--ink-3);
+}
+
+.fed-grid svg {
+  display: block;
+  width: 100%;
+  height: 40px;
+  margin-top: 8px;
+}
+
+.fed-grid path {
+  fill: none;
+  stroke: var(--chart-line);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.fed-q {
+  margin-top: 36px;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 540;
+  letter-spacing: -0.028em;
+}
+
+.fed-btns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.fed-btns .btn {
+  min-height: 72px;
+  font-size: 1.125rem;
+}
+
+.fed-btns .btn[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--ground);
+}
+
+.fed-ans {
+  margin-top: 24px;
+}
+
+.fed-ans .sim-tag {
+  margin-bottom: 8px;
+}
+
+.fed-ans p {
+  max-width: 62ch;
+  margin-top: 12px;
+  color: var(--ink-2);
+}
+
+.fed-ans .btn {
+  margin-top: 20px;
+}
+
+/* Portfolio Builder */
+.pb {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  gap: clamp(24px, 4vw, 64px);
+  margin-top: 24px;
+}
+
+.pb-row {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.pb-row:first-child {
+  border-top: 1px solid var(--rule-strong);
+}
+
+.pb-row label,
+.pb-row--cash {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 0.9375rem;
+  font-weight: 550;
+}
+
+.pb-row b {
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.pb-row input {
+  width: 100%;
+  margin-top: 10px;
+  accent-color: var(--ink);
+}
+
+.pb-lab {
+  margin-top: 18px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.pb .filters {
+  margin-top: 8px;
+}
+
+.pb-form .btn {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.pb-form .pb-new {
+  margin-top: 8px;
+}
+
+.pb-chart {
+  position: relative;
+  height: clamp(280px, 40vh, 400px);
+}
+
+.pb-chart .sim-you {
+  stroke: var(--chart-line);
+  stroke-width: 2;
+}
+
+.pb-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ink-3);
+}
+
+.pb-figs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 20px;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.pb-figs > div {
+  padding: 12px 16px 12px 0;
+}
+
+.pb-figs > div + div {
+  padding-left: 16px;
+  border-left: 1px solid var(--rule);
+}
+
+.pb-figs > div > span:first-child {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.pb-figs b {
+  font-size: 1.25rem;
+  font-weight: 540;
+}
+
+.pb-reveal {
+  margin-top: 20px;
+}
+
+.pb-reveal h2 {
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  font-weight: 540;
+  line-height: 1.15;
+  letter-spacing: -0.024em;
+}
+
+.pb-reveal p {
+  margin-top: 10px;
   color: var(--ink-2);
 }
 
@@ -6623,54 +6839,63 @@ html:not(.js) .pw-js { display: none; }
 
 @media (max-width: 960px) {
   .sim-home__grid,
-  .sim-verdict,
-  .sim-grid2 {
+  .sim-v,
+  .sim-r,
+  .pb {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 860px) {
-  .sim-panels {
+  .sim-share {
+    grid-template-columns: 1fr;
+  }
+
+  .fed-grid {
     grid-template-columns: 1fr 1fr;
   }
 
-  .sim-panel:nth-child(3) {
+  .fed-grid > div:nth-child(3) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .sim-label {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .sim-stage {
+    height: 320px;
+  }
+
+  .btn.sim-sq {
+    min-width: 56px;
+  }
+
+  .btn.sim-go {
+    padding: 0 18px;
+  }
+
+  .sim-go kbd {
+    display: none;
+  }
+
+  .fed-btns .btn {
+    min-height: 60px;
+  }
+
+  .pb-figs {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .pb-figs > div:nth-child(3) {
     grid-column: 1 / -1;
     padding-left: 0;
     border-top: 1px solid var(--rule);
     border-left: 0;
   }
-
-  .sim-act,
-  .sim-share {
-    grid-template-columns: 1fr;
-  }
-
-  .sim-stats {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .sim-stats > div:not(:nth-child(3n + 1)) {
-    padding-left: 0;
-    border-left: 0;
-  }
-
-  .sim-stats > div:nth-child(even) {
-    padding-left: 16px;
-    border-left: 1px solid var(--rule);
-  }
-
-  .sim-stage {
-    height: 280px;
-  }
-}
-
-.sim-alt .link {
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  cursor: pointer;
 }
 
 /* Technical preparation (break-into-wall-street/technicals/<topic>/): topic tabs,

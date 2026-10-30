@@ -22,7 +22,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/legal_content.py`: the legal notice (`legal/`) and the privacy and cookies policy (`privacy/`).
 - `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser.
 - `tools/lab_data.py`: fetches the daily closes behind the Lab's risk and correlation tool at deploy time (below).
-- `assets/sim.js`, `tools/sim_data.py`, `tools/sim_content.py`: the Trading Simulator (`simulators/`), its S&P 500 history fetched at deploy time and the historical episodes it reveals (below).
+- `assets/sim.js`, `assets/fed-game.js`, `assets/portfolio-game.js`, `tools/sim_data.py`, `tools/sim_content.py`: the four Simulators (`simulators/`), their history fetched at deploy time and the historical episodes they reveal (below).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `assets/profile.js`, `worker/`: the live company data on the Companies pages (search, live price, news, analysts, other US companies) and the Cloudflare Worker it reads from (below).
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
@@ -486,14 +486,25 @@ Business Model.
 
 ## Simulators data
 
-`tools/sim_data.py` runs at deploy, before the build, and writes
-`.cache/sim/sp500.json` (kept between runs by the workflow cache, refreshed at
-most once a day): every trading day since the end of 1927 with its total
-return. Daily closes come from Yahoo Finance `^GSPC`; to the end of 1987 each
-month's dividend from Robert Shiller's data (via the `datasets/s-and-p-500`
-repository on GitHub) is added day by day as a yield; from 1988 the return is
-the S&P 500 Total Return index, `^SP500TR`. `build_site.py` packs it into
-`assets/sim-sp500.js` (a script, since the deploy refuses JSON files, about
-150 KB). Until the history exists the simulator page shows "Data pending".
-Cash earns a flat 2% a year. The episodes revealed at the end of a game are in
-`tools/sim_content.py`; they cover every month since 1928 without gaps.
+`tools/sim_data.py` runs at deploy, before the build, and writes one file per
+data set to `.cache/sim/` (kept between runs by the workflow cache; each set
+is fetched at most once a day and keeps its last good copy when a fetch
+fails):
+
+- `sp500.json`: every trading day since the end of 1927 with its total return.
+  Daily closes from Yahoo Finance `^GSPC`; to the end of 1987 each month's
+  dividend from Robert Shiller's data (via the `datasets/s-and-p-500`
+  repository on GitHub) is added day by day as a yield; from 1988 the return
+  is the S&P 500 Total Return index, `^SP500TR`.
+- `nasdaq.json`, `stoxx50.json`, `nikkei.json`: daily price returns from Yahoo
+  (`^IXIC` from 1971, `^STOXX50E` from 2007, `^N225` from 1965). Prices only.
+- `fed.json`: monthly CPI, unemployment, the Fed's target and the 2-year
+  yield from FRED (needs `FRED_API_KEY`), for Guess the Fed.
+- `bonds.json`: the monthly 10-year Treasury yield (Shiller, then FRED GS10
+  from 1953), turned into bond returns for the Portfolio Builder.
+
+`build_site.py` packs them into `assets/simdata-<set>.js` (scripts, since the
+deploy refuses JSON files); a page whose data is missing shows "Data
+pending". Cash earns a flat 2% a year in every simulator. The episodes revealed
+at the end of a game are in `tools/sim_content.py`, one list per region (US,
+Japan, Europe), each covering every month of its history without gaps.

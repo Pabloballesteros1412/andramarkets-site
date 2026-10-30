@@ -115,8 +115,9 @@ jobs:
         with:
           path: .cache/lab
           key: lab-${{ github.run_id }}-${{ github.run_attempt }}
-      # The Trading Simulator's S&P 500 history (tools/sim_data.py): fetched at
-      # most once a day; a failed fetch keeps the last good copy.
+      # The Simulators' history (tools/sim_data.py): four markets from Yahoo,
+      # FRED for Guess the Fed and the bonds; each set fetched at most once a
+      # day, a failed one keeps its last good copy.
       - name: Restore simulator history
         uses: actions/cache/restore@v4
         with:
@@ -126,6 +127,8 @@ jobs:
       - name: Fetch simulator history
         if: ${{ !inputs.strip_only }}
         continue-on-error: true
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python3 tools/sim_data.py
       - name: Save simulator history
         if: ${{ !inputs.strip_only }}
