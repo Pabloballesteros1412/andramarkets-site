@@ -407,8 +407,8 @@ an excerpt of any page that failed to parse.
 ## Placeholders still to fill
 
 Everything in square brackets on the site is a placeholder, never invented
-data: the copyright year, and the brand contact email in the legal notice and
-privacy policy (`tools/legal_content.py`). No personal data goes there: before
+data: the copyright year. The legal notice and privacy policy give the brand
+contact, andramarkets@gmail.com (`tools/legal_content.py`), and no personal data: before
 the site earns anything, the company (SL) that will run it replaces this with
 its name, CIF and registered address (LSSI art. 10).
 The Methodology page (`methodology()` in `tools/build_site.py`) describes the

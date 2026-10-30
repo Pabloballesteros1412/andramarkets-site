@@ -12,7 +12,7 @@ PRIVACY_UPDATED = "2026-10-30"
 
 LEGAL = [
     ("publisher", "Who publishes this site",
-     "<p>This website is published by Andra Markets, based in Spain. Contact: [contact email].</p>"
+     "<p>This website is published by Andra Markets, based in Spain. Contact: <a href=\"mailto:andramarkets@gmail.com\">andramarkets@gmail.com</a>.</p>"
      "<p>Andra Markets is a non-commercial publication: it has no income, sells nothing and carries no "
      "advertising, sponsorship or affiliate links. When it starts any economic activity, such as a paid "
      "subscription, this notice will identify the company that runs it, as Article 10 of Spanish Law "
@@ -114,7 +114,7 @@ PRIVACY = [
     ("controller", "Who is responsible",
      "<p>Andra Markets, based in Spain, is responsible for any personal data processed through this site, "
      "under the General Data Protection Regulation (EU) 2016/679 and Spanish Organic Law 3/2018. Contact: "
-     "[contact email]. The site collects almost no personal data (see below); when that changes, this "
+     "<a href=\"mailto:andramarkets@gmail.com\">andramarkets@gmail.com</a>. The site collects almost no personal data (see below); when that changes, this "
      "policy will give the full identity of the controller first.</p>"),
 
     ("collect", "What we collect",
@@ -156,7 +156,7 @@ PRIVACY = [
     ("rights", "Your rights",
      "<p>If you are in the European Union or the United Kingdom, you have the right to access, correct, "
      "delete, restrict or object to the processing of your personal data, and to data portability. Write "
-     "to [contact email]. You can also complain to a data protection authority: in Spain the Agencia "
+     "to <a href=\"mailto:andramarkets@gmail.com\">andramarkets@gmail.com</a>. You can also complain to a data protection authority: in Spain the Agencia "
      "Espa&ntilde;ola de Protecci&oacute;n de Datos (aepd.es), in the UK the Information Commissioner's "
      "Office (ico.org.uk), or the authority where you live.</p>"
      "<p>If you are in the United States: Andra Markets does not sell or share personal information and "
