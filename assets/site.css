@@ -372,8 +372,8 @@ ul {
 
 .nav {
   display: flex;
-  gap: 24px;
-  font-size: 0.9375rem;
+  gap: 16px;
+  font-size: 0.875rem;
 }
 
 .nav__subscribe {
@@ -387,22 +387,26 @@ ul {
   transition: color 160ms ease;
 }
 
-/* Eight links fit beside the search, theme and Subscribe buttons from 1021px
-   with a tighter gap below 1160px. */
-@media (min-width: 1021px) and (max-width: 1160px) {
+/* Eleven links (with Research and Interview prep) fit beside the search,
+   theme and Subscribe buttons from 1021px: the owner asked for smaller links
+   rather than fewer. Sizes measured in Chromium at each width. */
+@media (min-width: 1021px) and (max-width: 1359px) {
   .nav {
-    gap: 16px;
+    gap: 12px;
+    font-size: 0.8125rem;
+  }
+  .site-header .wrap {
+    gap: 14px;
   }
 }
 
-/* Nine links (with World and FX) need 12px just above the sheet breakpoint,
-   and the header's own gaps 16px. */
-@media (min-width: 1021px) and (max-width: 1080px) {
+@media (min-width: 1021px) and (max-width: 1140px) {
   .nav {
-    gap: 12px;
+    gap: 8px;
+    font-size: 0.75rem;
   }
   .site-header .wrap {
-    gap: 16px;
+    gap: 10px;
   }
 }
 
@@ -5426,4 +5430,314 @@ html.js .acc__item:not(.is-open) .acc__panel p {
   max-height: 320px;
   overflow-y: auto;
   border-top: 1px solid var(--rule-strong);
+}
+
+/* Footer: the legal line links to the legal notice. */
+.foot__legal a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .foot__legal a:hover {
+    color: var(--ink);
+  }
+}
+
+/* Research Library (DESIGN.md: Research Library). Without JS the controls
+   cannot work, so they stay hidden and every report shows. */
+html:not(.js) .lib__controls,
+html:not(.js) .ip-filters {
+  display: none;
+}
+
+.lib__search {
+  margin-top: 32px;
+}
+
+.lib__groups {
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.lib__groups .cl__glabel {
+  width: 2.5rem;
+}
+
+.lib__status:empty {
+  display: none;
+}
+
+.lib-list li[hidden],
+.lib__list .archive__month[hidden],
+.ip .acc__item[hidden] {
+  display: none;
+}
+
+.lib__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.lib__type,
+.lib__tags {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.lib__type {
+  font-weight: 550;
+}
+
+.lib__sum {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--ink-2);
+}
+
+.lib__empty {
+  margin-top: 24px;
+  max-width: 44rem;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.lib__empty[hidden] {
+  display: none;
+}
+
+.lib__empty .link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .lib-list .lib__body {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}
+
+/* The PDF download, locked until the paid tier opens: it says so when pressed. */
+.lib-pdf[aria-disabled="true"] {
+  color: var(--ink-2);
+  cursor: not-allowed;
+}
+
+.lib-pdf[aria-disabled="true"]:active {
+  transform: none;
+}
+
+.lib-pdf__tag {
+  padding-left: 10px;
+  border-left: 1px solid var(--rule);
+  font-size: 0.8125rem;
+  font-weight: 450;
+  color: var(--ink-3);
+}
+
+.page__body p.lib-src {
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+/* Markets Interview Prep (DESIGN.md: Interview Prep) */
+.ip .page__body .note__meta {
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.ip-week {
+  margin-top: 20px;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.ip-topic {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 12px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.ip-topic:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.ip-topic__n {
+  padding-top: 3px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+
+.ip-topic h3 {
+  font-size: 1.125rem;
+  font-weight: 540;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.ip-topic__parts dt {
+  margin-top: 14px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.ip-topic__parts dd {
+  margin: 4px 0 0;
+  max-width: 65ch;
+  color: var(--ink-2);
+}
+
+.page__body p.ip-topic__src {
+  margin-top: 14px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.ip-filters {
+  margin-top: 20px;
+}
+
+/* Six subjects wrap inside the text column; on a phone they scroll. */
+@media (min-width: 641px) {
+  .ip-filters .filters {
+    flex-wrap: wrap;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+  }
+}
+
+.ip-filters .filters__status {
+  margin: 12px 0 0;
+}
+
+.ip-q__cat {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.75rem;
+  font-weight: 550;
+  letter-spacing: 0;
+  color: var(--ink-3);
+}
+
+.ip .acc__panel p {
+  padding-bottom: 12px;
+}
+
+.ip .acc__panel .ruled {
+  margin: 0 0 12px;
+}
+
+.ip .acc__panel p.ip-follow {
+  padding-bottom: 20px;
+}
+
+.ip-follow b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* Data sources */
+.src-list {
+  margin-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+
+.src-list li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.src-list li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.src-list h3 {
+  font-size: 1.0625rem;
+  font-weight: 540;
+  letter-spacing: -0.01em;
+}
+
+.src-meta {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  gap: 4px 12px;
+  margin-top: 8px;
+  font-size: 0.875rem;
+}
+
+.src-meta dt {
+  color: var(--ink-3);
+}
+
+.src-meta dd {
+  margin: 0;
+  color: var(--ink-2);
+}
+
+/* Legal notice and privacy: contents, then the sections. */
+.legal__toc {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.page__body .legal__toc h2 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.legal__toc ol {
+  margin-top: 12px;
+  padding-left: 1.5em;
+  list-style: decimal;
+  columns: 2;
+  column-gap: 32px;
+  font-size: 0.9375rem;
+}
+
+.legal__toc li {
+  padding: 4px 0;
+  break-inside: avoid;
+  color: var(--ink-3);
+}
+
+.legal__toc a {
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .legal__toc a:hover {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+}
+
+@media (max-width: 640px) {
+  .legal__toc ol {
+    columns: 1;
+  }
+}
+
+.page__body p.legal__updated {
+  padding-top: 28px;
+  font-size: 0.875rem;
+  color: var(--ink-3);
 }

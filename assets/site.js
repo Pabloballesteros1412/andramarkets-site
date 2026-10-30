@@ -411,20 +411,22 @@
   // Features that are not live yet say so where they are pressed.
   document.querySelectorAll("[data-soon]").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      var box = btn.closest(".co-acts, .co-gate");
-      var out = box && box.querySelector(".co-acts__status, .co-gate__status");
+      var box = btn.closest(".co-acts, .co-gate, .report__share");
+      var out = box && box.querySelector(".co-acts__status, .co-gate__status, .report__share-status");
       if (out) out.textContent = btn.getAttribute("data-soon");
     });
   });
 
-  // Methodology questions: one open at a time. Without JS every answer shows.
-  var acc = document.querySelector(".acc");
-  if (acc) {
+  // Questions: one open at a time (methodology), or any number (.acc--multi,
+  // the Interview Prep question bank). Without JS every answer shows.
+  document.querySelectorAll(".acc").forEach(function (acc) {
+    var multi = acc.classList.contains("acc--multi");
     var accBtns = acc.querySelectorAll(".acc__btn");
     accBtns.forEach(function (btn) {
       btn.addEventListener("click", function () {
         var open = btn.getAttribute("aria-expanded") !== "true";
         accBtns.forEach(function (b) {
+          if (multi && b !== btn) return;
           b.setAttribute("aria-expanded", "false");
           b.closest(".acc__item").classList.remove("is-open");
         });
@@ -434,6 +436,129 @@
         }
       });
     });
+  });
+
+  // Interview Prep: filter the question bank by subject.
+  var ipChips = document.querySelectorAll(".chip[data-ipcat]");
+  if (ipChips.length) {
+    var ipItems = document.querySelectorAll(".acc--multi .acc__item");
+    var ipStatus = document.querySelector(".ip__status");
+    ipChips.forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        var cat = chip.getAttribute("data-ipcat");
+        var shown = 0;
+        ipChips.forEach(function (c) {
+          c.setAttribute("aria-pressed", String(c === chip));
+        });
+        ipItems.forEach(function (item) {
+          var on = cat === "all" || item.getAttribute("data-cat") === cat;
+          item.hidden = !on;
+          if (on) shown++;
+        });
+        ipStatus.textContent = cat === "all"
+          ? "Showing all " + ipItems.length + " questions"
+          : "Showing " + shown + " of " + ipItems.length + " questions: " + chip.firstChild.textContent.trim();
+      });
+    });
+  }
+
+  // Research Library: type, date and tag chips and the search field, all at
+  // once. The choice is kept in the address, so a filtered view can be shared.
+  var lib = document.querySelector(".lib__controls");
+  if (lib) {
+    var libRows = document.querySelectorAll(".lib-list li");
+    var libMonths = document.querySelectorAll(".lib__list .archive__month");
+    var libStatus = document.querySelector(".lib__status");
+    var libEmpty = document.querySelector(".lib__empty");
+    var libInput = document.getElementById("lib-q");
+    var LIB_KINDS = ["type", "date", "tag"];
+    var libPick = { type: "all", date: "all", tag: "all" };
+    var iso = function (d) {
+      return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+    };
+    var libSince = function (v) {
+      var d = new Date();
+      if (v === "30d") d.setDate(d.getDate() - 30);
+      else if (v === "3m") d.setMonth(d.getMonth() - 3);
+      else return "";
+      return iso(d);
+    };
+    var libPress = function (kind, value) {
+      var group = lib.querySelectorAll(".chip[data-lib-" + kind + "]");
+      var hit = Array.prototype.some.call(group, function (c) {
+        return c.getAttribute("data-lib-" + kind) === value;
+      });
+      if (!hit) value = "all";
+      libPick[kind] = value;
+      group.forEach(function (c) {
+        c.setAttribute("aria-pressed", String(c.getAttribute("data-lib-" + kind) === value));
+      });
+    };
+    var libApply = function () {
+      var since = libSince(libPick.date);
+      var query = libInput.value.trim();
+      var words = query.toLowerCase().split(/\s+/).filter(Boolean);
+      var shown = 0;
+      libRows.forEach(function (row) {
+        var date = row.getAttribute("data-date");
+        var q = row.getAttribute("data-q");
+        var on = (libPick.type === "all" || row.getAttribute("data-type") === libPick.type) &&
+          (libPick.tag === "all" || (" " + row.getAttribute("data-tags") + " ").indexOf(" " + libPick.tag + " ") !== -1) &&
+          (libPick.date === "all" || (since ? date >= since : date.slice(0, 4) === libPick.date)) &&
+          words.every(function (w) {
+            return q.indexOf(w) !== -1;
+          });
+        row.hidden = !on;
+        if (on) shown++;
+      });
+      libMonths.forEach(function (m) {
+        m.hidden = !m.querySelector("li:not([hidden])");
+      });
+      var names = [];
+      var params = new URLSearchParams();
+      LIB_KINDS.forEach(function (kind) {
+        if (libPick[kind] === "all") return;
+        params.set(kind, libPick[kind]);
+        var on = lib.querySelector(".chip[data-lib-" + kind + '][aria-pressed="true"]');
+        names.push(on.firstChild.textContent.trim());
+      });
+      if (query) {
+        params.set("q", query);
+        names.push("\u201c" + query + "\u201d");
+      }
+      libStatus.textContent = names.length
+        ? "Showing " + shown + " of " + libRows.length + " reports: " + names.join(", ")
+        : "Showing all " + libRows.length + " reports";
+      libEmpty.hidden = shown > 0 || !libRows.length;
+      var qs = params.toString();
+      history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
+    };
+    lib.querySelectorAll(".chip").forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        LIB_KINDS.forEach(function (kind) {
+          if (chip.hasAttribute("data-lib-" + kind)) libPress(kind, chip.getAttribute("data-lib-" + kind));
+        });
+        libApply();
+      });
+    });
+    libInput.addEventListener("input", libApply);
+    lib.querySelector("form").addEventListener("submit", function (e) {
+      e.preventDefault();
+    });
+    document.querySelector("[data-lib-reset]").addEventListener("click", function () {
+      LIB_KINDS.forEach(function (kind) {
+        libPress(kind, "all");
+      });
+      libInput.value = "";
+      libApply();
+      libInput.focus();
+    });
+    var start = new URLSearchParams(location.search);
+    LIB_KINDS.forEach(function (kind) {
+      if (start.get(kind)) libPress(kind, start.get(kind));
+    });
+    libInput.value = start.get("q") || "";
+    libApply();
   }
 
   // Search: dashboards, close notes and pages, from assets/search-index.js
@@ -466,7 +591,7 @@
     var lastFocus = null;
     var loading = false;
 
-    var GROUPS = ["Companies", "Dashboards", "Close notes", "Pages"];
+    var GROUPS = ["Companies", "Dashboards", "Close notes", "Reports", "Pages"];
     var score = function (item, query) {
       if (!query) return item.g === "Close notes" || item.g === "Companies" ? 1 : 2;
       var t = item.t.toLowerCase();

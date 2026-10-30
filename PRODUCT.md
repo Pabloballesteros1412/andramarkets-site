@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Static site (`index.html`, `methodology/`, `reports/`, `dashboards/`, `assets/`), generated
+Static site (`index.html`, `methodology/`, `reports/`, `interview-prep/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
 by `tools/build_site.py` at deploy time and deployed to GitHub Pages from `main` by
 `.github/workflows/pages.yml`. No framework, no build step beyond the generator.
 
@@ -82,6 +82,22 @@ record. The daily note is one module among others, not the centrepiece.
   latest on top with an archive by date, shown only when its figure check
   passed and its session's close note is published; and a table of the dollar
   index, majors and key EM pairs with their moves, linked to the FX dashboard.
+- Research Library (`reports/`, 30 Oct 2026): every report in one list (daily
+  close notes, weekly market reviews, research), filtered by type, date and tag
+  and searchable, each readable online with a share link. Weekly reviews and
+  research live in `data/reports/` (index.json plus one Markdown file each,
+  converted from the PDF by `tools/import_report.py`); the PDF is never
+  committed. The PDF download shows as locked, "Subscribers only".
+- Markets Interview Prep (`interview-prep/`, 30 Oct 2026): for students
+  preparing for IB, S&T and asset management interviews. A weekly "What you
+  need to know this week" block (five to seven topics, figures only from the
+  week's close notes) and a question bank with model answers in six subjects,
+  all from one file, `data/interview_prep.json`, updated weekly.
+- Data sources, legal notice and privacy and cookies (`sources/`, `legal/`,
+  `privacy/`), linked from the footer. The legal notice covers US, UK and EU
+  readers. The operator's legal name, tax number, address and contact email
+  are bracketed placeholders until the owner supplies them (Spanish law asks a
+  site's publisher to identify itself).
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
   time, newsletter platform (Substack, Beehiiv or Ghost), a YouTube channel.

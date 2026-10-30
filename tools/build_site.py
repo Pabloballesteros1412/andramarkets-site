@@ -6,8 +6,11 @@ per visitor. Writes:
 
     index.html                 the homepage
     methodology/index.html     methodology (placeholder page)
-    reports/index.html         every published close note
-    reports/<date>/index.html  one page per note, rendered from its text
+    reports/index.html         the Research Library: every close note, weekly review and research report
+    reports/<date>/index.html  one page per close note, rendered from its text
+    reports/<slug>/index.html  one page per weekly review or research report (data/reports)
+    interview-prep/            Markets Interview Prep (data/interview_prep.json)
+    sources/, legal/, privacy/ data sources, legal notice, privacy and cookies
     dashboards/<slug>/         one page per dashboard (assets/dashboard.js draws the chart)
     calendar/                  the calendar, five weeks (assets/calendar.js: tabs and filters)
     calendar/week/<monday>/    one page per week since the calendar started
@@ -41,6 +44,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nyse  # noqa: E402
 from calendar_data import MOVES as CAL_MOVES, SOURCES as CAL_SOURCES  # noqa: E402
 from learn_content import ARTICLES  # noqa: E402
+from legal_content import LEGAL, LEGAL_UPDATED, PRIVACY, PRIVACY_UPDATED  # noqa: E402
 from world_data import AXES as WORLD_AXES, MARKETS as WORLD_MARKETS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -414,7 +418,7 @@ def tile_asof(key, rec):
 # Icons -----------------------------------------------------------------------
 
 ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "play", "sun", "moon",
-              "magnifying-glass", "check", "link"] + [
+              "magnifying-glass", "check", "link", "lock-simple"] + [
     icon_name for _, url, icon_name in SOCIALS if url
 ]
 
@@ -1217,7 +1221,7 @@ def page(notes, cal):
       <div class="note__archive reveal" style="--i:2">
         <p class="note__label">Every US trading day, after the close.</p>
         <ol class="note-list">{archive}</ol>
-        <a class="link" href="{all_notes}">All notes {icon("arrow-right")}</a>
+        <a class="link" href="{all_notes}">Research Library {icon("arrow-right")}</a>
       </div>
     </div>
   </section>
@@ -1306,7 +1310,9 @@ def site_header(home, base):
       <a href="{base}calendar/">Calendar</a>
       <a href="{base}world/">World</a>
       <a href="{base}fx/">FX</a>
+      <a href="{base}reports/">Research</a>
       <a href="{home}#note">Daily note</a>
+      <a href="{base}interview-prep/">Interview prep</a>
       <a href="{base}learn/">Learn</a>
       <a href="{base}watch/">Watch</a>
       <a class="nav__subscribe" href="{home}#subscribe">Subscribe</a>
@@ -1347,19 +1353,23 @@ def site_footer(home, base):
       <a href="{base}calendar/">Calendar</a>
       <a href="{base}world/">World markets</a>
       <a href="{base}fx/">FX</a>
+      <a href="{base}reports/">Research Library</a>
       <a href="{home}#note">Daily note</a>
+      <a href="{base}interview-prep/">Interview prep</a>
       <a href="{base}learn/">Learn</a>
       <a href="{base}watch/">Watch</a>
       <a href="{home}#about">About</a>
-      <a href="{base}reports/">All notes</a>
       <a href="{base}methodology/">Methodology</a>
+      <a href="{base}sources/">Data sources</a>
+      <a href="{base}legal/">Legal notice</a>
+      <a href="{base}privacy/">Privacy and cookies</a>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
 {social_links}
     </ul>
     <div class="foot__legal">
       <span>&copy; {ph("[year]")} Andra Markets</span>
-      <span>For information only. Not investment advice.</span>
+      <span><a href="{base}legal/">For information only. Not investment advice.</a></span>
     </div>
   </div>
 </footer>"""
@@ -1963,6 +1973,21 @@ def methodology():
            "daily change of each instrument, the Treasury curve, a risk score and breadth across the Andra Markets "
            "watchlist of US large caps. A language model then drafts the note's text from that fact pack only. "
            "When the model fails, the pipeline publishes a quantitative edition with the figures and no commentary.</p>")}
+      {sec("reports", "How reports are produced",
+           "<p>Andra Markets publishes three kinds of report, all in the <a href=\"../reports/\">Research Library</a>:</p>"
+           + ruled([
+               "<b>Daily close note</b>: every US trading day, after the close, as described above.",
+               "<b>Weekly market review</b>: once a week, after the last session of the trading week, on what moved "
+               "across asset classes and what the week ahead holds.",
+               "<b>Research</b>: deeper work on a theme, an asset class or a company, published when it is ready, "
+               "with no fixed schedule.",
+           ])
+           + "<p>Each report goes through the same steps. An automated pipeline collects the figures from the "
+             "sources below into a verified data set, dated and sourced. The text is drafted from that data set "
+             "only, with the help of a language model, and every figure in it is checked against the data set "
+             "before publication. A report whose figures do not all match is held, reviewed and corrected before "
+             "it is published, and its sources section says so. Opinions are marked as such and are Andra "
+             "Markets' reading on the day of publication.</p>")}
       {sec("data", "Data sources",
            ruled([
                "<b>Prices and closes</b>: Yahoo Finance, for US and international equity indices, sector ETFs, "
@@ -1972,7 +1997,8 @@ def methodology():
                "<b>Risk score and breadth</b>: calculated by Andra Markets from the fact pack.",
            ])
            + "<p>Each instrument is taken at its own official close, so an Asian or European index is that market's "
-             "close, not a New York price.</p>")}
+             "close, not a New York price. Every source the site uses, with what it feeds and how often it is "
+             "read, is on the <a href=\"../sources/\">data sources</a> page.</p>")}
       {sec("timing", "Timing",
            "<p>The pipeline runs after the US close. This site looks for a new note every half hour from 20:00 to "
            "02:59 UTC, every day, and publishes each note as soon as it passes the checks below. FRED usually posts "
@@ -2049,39 +2075,421 @@ def methodology():
     )
 
 
-def archive(notes):
+# Research Library (/reports/) ----------------------------------------------
+#
+# Every report Andra Markets publishes: the close notes (data/notes) and the
+# weekly reviews and research in data/reports (index.json plus one Markdown
+# file each; see data/reports/README.md). site.js filters the list by type,
+# date and tag, and by the search field, and keeps the choice in the URL.
+
+LIB = ROOT / "data" / "reports"
+LIB_TYPES = [("daily", "Daily close"), ("weekly", "Weekly review"), ("research", "Research")]
+LIB_TYPE_NAME = {"daily": "Daily close note", "weekly": "Weekly market review", "research": "Research"}
+LIB_TAGS = [("equities", "Equities"), ("rates", "Rates"), ("fx", "FX"), ("commodities", "Commodities"),
+            ("macro", "Macro"), ("credit", "Credit")]
+LIB_TAG_NAME = dict(LIB_TAGS)
+PDF_SOON = "PDF downloads open to subscribers with the paid tier. The full text is free to read here."
+
+
+def load_library():
+    """Published weekly reviews and research reports, newest first."""
+    f = LIB / "index.json"
+    if not f.exists():
+        return []
+    out = []
+    for r in json.loads(f.read_text(encoding="utf-8")).get("reports", []):
+        if r.get("published") is False:
+            continue
+        md = LIB / f"{r['slug']}.md"
+        if not md.exists():
+            print(f"skipped report {r['slug']}: data/reports/{r['slug']}.md is missing")
+            continue
+        out.append(dict(r, day=dt.date.fromisoformat(r["date"]), text=md.read_text(encoding="utf-8"),
+                        tags=[t for t in r.get("tags", []) if t in LIB_TAG_NAME]))
+    return sorted(out, key=lambda r: (r["date"], r["slug"]), reverse=True)
+
+
+def lib_rows(notes, library):
+    """One row per report, close notes included, newest first; on the same day
+    a weekly review or research report comes before the close note."""
+    rows = [{"type": "daily", "date": rec["date"], "day": rec["day"], "title": rec["note"]["headline"],
+             "summary": " ".join(rec["note"].get("standfirst", "").split()),
+             "tags": [t for t in ("equities", "rates", "fx", "commodities", "credit") if rec["note"].get(t)],
+             "url": f"{rec['date']}/"} for rec in notes]
+    rows += [{"type": r["type"], "date": r["date"], "day": r["day"], "title": r["title"], "summary": r["summary"],
+              "tags": r["tags"], "url": f"{r['slug']}/"} for r in library]
+    return sorted(rows, key=lambda r: (r["date"], r["type"] != "daily"), reverse=True)
+
+
+def lib_chips(attr, options, counts=None):
+    """Chips for one filter group, the first pressed; with counts, a value with
+    nothing in it has no chip (a Research chip appears with the first report)."""
+    if counts is not None:
+        options = [(v, label) for v, label in options if v == "all" or counts.get(v)]
+    return "".join(
+        f'<button type="button" class="chip" data-{attr}="{v}" aria-pressed="{"true" if i == 0 else "false"}">'
+        f'{label}{f" <span class=chip__n>{counts[v]}</span>" if counts is not None and v in counts else ""}</button>'
+        for i, (v, label) in enumerate(options))
+
+
+def library_page(notes, library):
+    rows = lib_rows(notes, library)
     months = {}
-    for r in notes:
+    for r in rows:
         months.setdefault((r["day"].year, r["day"].month), []).append(r)
+
+    def row(r):
+        tags = " · ".join(LIB_TAG_NAME[t] for t in r["tags"])
+        q = " ".join([r["title"], r["summary"], LIB_TYPE_NAME[r["type"]], tags, day_long(r["day"])]).lower()
+        return (f'<li data-type="{r["type"]}" data-date="{r["date"]}" data-tags="{" ".join(r["tags"])}" data-q="{esc(q)}">'
+                f'<a href="{r["url"]}"><time datetime="{r["date"]}">{r["day"].day} {r["day"]:%b}</time>'
+                f'<span class="lib__body"><span class="lib__type">{LIB_TYPE_NAME[r["type"]]}</span>'
+                f'<span class="note-list__title">{esc(r["title"])}</span>'
+                + (f'<span class="lib__sum">{esc(r["summary"])}</span>' if r["summary"] else "")
+                + (f'<span class="lib__tags">{tags}</span>' if tags else "")
+                + f'</span>{icon("arrow-right")}</a></li>')
+
     groups = "".join(
         f'<section class="archive__month" aria-labelledby="m-{y}-{m:02d}">'
-        f'<h2 id="m-{y}-{m:02d}">{dt.date(y, m, 1):%B %Y}</h2><ol class="note-list">'
-        + "".join(
-            f'<li><a href="{r["date"]}/"><time datetime="{r["date"]}">{r["day"].day} {r["day"]:%b}</time>'
-            f'<span class="note-list__title">{esc(r["note"]["headline"])}</span>{icon("arrow-right")}</a></li>'
-            for r in rows
-        )
-        + "</ol></section>"
-        for (y, m), rows in months.items()
-    )
-    count = f"{len(notes)} note{'' if len(notes) == 1 else 's'}." if notes else "The first note is on its way."
-    body = f"""<main id="main" class="page">
+        f'<h2 id="m-{y}-{m:02d}">{dt.date(y, m, 1):%B %Y}</h2><ol class="note-list lib-list">'
+        + "".join(row(r) for r in items) + "</ol></section>"
+        for (y, m), items in months.items())
+    n = len(rows)
+    type_n = {k: sum(r["type"] == k for r in rows) for k, _ in LIB_TYPES}
+    type_n["all"] = n
+    tag_n = {k: sum(k in r["tags"] for r in rows) for k, _ in LIB_TAGS}
+    years = sorted({r["day"].year for r in rows}, reverse=True)
+    dates = [("all", "All time"), ("30d", "Last 30 days"), ("3m", "Last 3 months")] + [(str(y), str(y)) for y in years]
+    count = f"{n} report{'' if n == 1 else 's'}." if rows else "The first report is on its way."
+    body = f"""<main id="main" class="page lib">
   <div class="wrap">
     <header class="page__head">
-      <h1 class="page__title">Daily close notes</h1>
-      <p class="lede">Every US trading day, after the close. {count}</p>
+      <h1 class="page__title">Research Library</h1>
+      <p class="lede">Every report Andra Markets publishes: the daily close notes, the weekly market reviews and research. {count}</p>
     </header>
-    <div class="archive">{groups}</div>
+    <div class="lib__controls">
+      <form class="pf-field lib__search" role="search" action="">
+        {icon("magnifying-glass")}
+        <input type="search" id="lib-q" name="q" aria-label="Search reports" placeholder="Search titles, summaries and tags" autocomplete="off" spellcheck="false">
+      </form>
+      <div class="cl__groups lib__groups">
+        <div class="cl__group"><span class="cl__glabel" id="lib-g-type">Type</span>
+          <div class="filters" role="group" aria-labelledby="lib-g-type">{lib_chips("lib-type", [("all", "All")] + LIB_TYPES, type_n)}</div></div>
+        <div class="cl__group"><span class="cl__glabel" id="lib-g-date">Date</span>
+          <div class="filters" role="group" aria-labelledby="lib-g-date">{lib_chips("lib-date", dates)}</div></div>
+        <div class="cl__group"><span class="cl__glabel" id="lib-g-tag">Tag</span>
+          <div class="filters" role="group" aria-labelledby="lib-g-tag">{lib_chips("lib-tag", [("all", "All")] + LIB_TAGS, tag_n)}</div></div>
+      </div>
+    </div>
+    <p class="filters__status lib__status" role="status" aria-live="polite"></p>
+    <div class="archive lib__list">{groups}</div>
+    <p class="lib__empty" hidden>No report matches these filters. <button type="button" class="link" data-lib-reset>Clear the filters {icon("arrow-right")}</button></p>
   </div>
 </main>"""
     return shell(
-        title="Daily close notes: Andra Markets",
-        desc="The Andra Markets close note archive: one research note every US trading day, after the close.",
+        title="Research Library: Andra Markets",
+        desc="Every Andra Markets report in one place: daily close notes, weekly market reviews and research, searchable by type, date and asset class.",
         body=body,
         home="../",
         base="../",
         path="reports/",
     )
+
+
+def md_inline(text):
+    return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", esc(text))
+
+
+def md_sections(text):
+    """The small Markdown of data/reports (see its README): (heading or None, html) per section."""
+    sections = []
+    for block in re.split(r"\n\s*\n", text.strip()):
+        lines = [ln.strip() for ln in block.splitlines() if ln.strip()]
+        if not lines:
+            continue
+        if lines[0].startswith("## "):
+            sections.append([lines[0][3:].strip(), ""])
+            lines = lines[1:]
+            if not lines:
+                continue
+        if not sections:
+            sections.append([None, ""])
+        if all(ln.startswith("- ") for ln in lines):
+            sections[-1][1] += '<ul class="ruled">' + "".join(f"<li>{md_inline(ln[2:])}</li>" for ln in lines) + "</ul>"
+        elif lines[0].startswith("Source:"):
+            sections[-1][1] += f'<p class="lib-src">{md_inline(" ".join(lines))}</p>'
+        else:
+            sections[-1][1] += f"<p>{md_inline(' '.join(lines))}</p>"
+    return sections
+
+
+def share_row(what):
+    """The report share row: Share (system sheet or copy link) and the PDF
+    download, shown locked until the paid tier opens."""
+    return f"""<div class="report__share" hidden>
+          <button class="btn" type="button" data-share><span class="swap"><span class="swap__a">{icon("link")}Share this {what}</span><span class="swap__b" aria-hidden="true">{icon("check")}Link copied</span></span></button>
+          <button class="btn btn--ghost lib-pdf" type="button" aria-disabled="true" data-soon="{PDF_SOON}">{icon("lock-simple")}Download PDF<span class="lib-pdf__tag">Subscribers only</span></button>
+          <p class="report__share-status" role="status" aria-live="polite"></p>
+        </div>"""
+
+
+def lib_report(r, newer, older):
+    words = len(r["text"].split())
+    meta = (f'<time datetime="{r["date"]}">{day_long(r["day"])}</time><span>{LIB_TYPE_NAME[r["type"]]}</span>'
+            f"<span>{max(1, math.ceil(words / 230))} min read</span>")
+    sections = ""
+    for i, (heading, content) in enumerate(md_sections(r["text"])):
+        if not content:
+            continue  # a heading with nothing under it, such as the PDF's own title
+        if heading:
+            sections += f'\n      <section aria-labelledby="s-{i}"><h2 id="s-{i}">{esc(heading)}</h2>{content}</section>'
+        else:
+            sections += f"\n      <section>{content}</section>"
+    tags = " · ".join(LIB_TAG_NAME[t] for t in r["tags"])
+    about = (f'<section aria-labelledby="s-about"><h2 id="s-about">About this report</h2>'
+             f"<p>{LIB_TYPE_NAME[r['type']]} by Andra Markets, published {day_long(r['day'])}"
+             f"{f'. Covers {tags}' if tags else ''}. Figures from the sources each section names; how reports are "
+             f'produced is in the <a href="../../methodology/#m-reports">methodology</a>.</p>'
+             f'<p>For information only. Not investment advice. See the <a href="../../legal/">legal notice</a>.</p></section>')
+    pager = ""
+    if older:
+        pager += f'<a class="link" href="../{older["slug"]}/">Previous report, {day_med(older["day"])} {icon("arrow-right")}</a>'
+    if newer:
+        pager += f'<a class="link" href="../{newer["slug"]}/">Next report, {day_med(newer["day"])} {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../">Research Library {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../../#subscribe">Get reports by email {icon("arrow-right")}</a>'
+    body = f"""<main id="main" class="page report lib-report">
+  <div class="wrap">
+    <article>
+      <header class="page__head">
+        <p class="dd__crumbs"><a href="../">Research Library</a> <span aria-hidden="true">/</span> {LIB_TYPE_NAME[r["type"]]}</p>
+        <h1 class="page__title report__title">{esc(r["title"])}</h1>
+        <p class="lede">{esc(r["summary"])}</p>
+        <p class="note__meta">{meta}</p>
+        {share_row("report")}
+      </header>
+      <div class="page__body">{sections}
+      {about}
+      </div>
+    </article>
+    <nav class="report__pager" aria-label="More reports">{pager}</nav>
+  </div>
+</main>"""
+    return shell(
+        title=f"{esc(r['title'])}: Andra Markets {LIB_TYPE_NAME[r['type']].lower()}, {day_med(r['day'])}",
+        desc=esc(r["summary"]),
+        body=body,
+        home="../../",
+        base="../../",
+        path=f"reports/{r['slug']}/",
+    )
+
+
+# Markets Interview Prep (/interview-prep/) -----------------------------------
+#
+# One data file, data/interview_prep.json: the weekly block ("week") is
+# rewritten every week; the question bank changes when a question is added.
+# Weekly figures come from the close notes the topic cites, never from memory.
+
+IPREP = ROOT / "data" / "interview_prep.json"
+IP_PARTS = [("what", "What happened"), ("why", "Why it matters"), ("say", "Say it in an interview")]
+
+
+def ip_blocks(text):
+    """Answer text: paragraphs split by a blank line; a block of "1. " lines is a numbered list."""
+    out = ""
+    for block in text.strip().split("\n\n"):
+        lines = [ln.strip() for ln in block.splitlines() if ln.strip()]
+        if lines and all(re.match(r"\d+\. ", ln) for ln in lines):
+            items = (esc(re.sub(r"^\d+\. ", "", ln)) for ln in lines)
+            out += '<ol class="ruled">' + "".join(f"<li>{t}</li>" for t in items) + "</ol>"
+        else:
+            out += f"<p>{esc(' '.join(lines))}</p>"
+    return out
+
+
+def interview_page(notes):
+    d = json.loads(IPREP.read_text(encoding="utf-8"))
+    week = d["week"]
+    published = {rec["date"] for rec in notes}
+    monday = dt.date.fromisoformat(week["of"])
+
+    def src(day):
+        dd = dt.date.fromisoformat(day)
+        label = f"{dd.day} {dd:%b}"
+        return f'<a href="../reports/{day}/">{label}</a>' if day in published else label
+
+    topics = "".join(
+        f'<li class="ip-topic"><span class="ip-topic__n" aria-hidden="true">{i + 1:02d}</span><div>'
+        f'<h3>{esc(t["title"])}</h3><dl class="ip-topic__parts">'
+        + "".join(f"<dt>{label}</dt><dd>{esc(t[key])}</dd>" for key, label in IP_PARTS)
+        + f'</dl><p class="ip-topic__src">From the close notes of {", ".join(src(x) for x in t["sources"])}.</p></div></li>'
+        for i, t in enumerate(week["topics"]))
+    cats = d["categories"]
+    counts = {c["id"]: sum(q["cat"] == c["id"] for q in d["questions"]) for c in cats}
+    chips = lib_chips("ipcat", [("all", "All")] + [(c["id"], c["name"]) for c in cats],
+                      dict(counts, all=len(d["questions"])))
+    cat_name = {c["id"]: c["name"] for c in cats}
+    items = ""
+    order = {c["id"]: i for i, c in enumerate(cats)}
+    for i, q in enumerate(sorted(d["questions"], key=lambda q: order[q["cat"]])):
+        follow = f'<p class="ip-follow"><b>Likely follow-up:</b> {esc(q["follow"])}</p>' if q.get("follow") else ""
+        items += (f'<div class="acc__item" data-cat="{q["cat"]}">'
+                  f'<h3><button type="button" class="acc__btn" id="ip-b{i}" aria-expanded="false" aria-controls="ip-p{i}">'
+                  f'<span><span class="ip-q__cat">{cat_name[q["cat"]]}</span>{esc(q["q"])}</span>'
+                  f'<span class="acc__plus" aria-hidden="true"></span></button></h3>'
+                  f'<div class="acc__panel" id="ip-p{i}" role="region" aria-labelledby="ip-b{i}"><div>'
+                  f'{ip_blocks(q["a"])}{follow}</div></div></div>')
+    updated = dt.date.fromisoformat(week["updated"])
+    body = f"""<main id="main" class="page ip">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Markets Interview Prep</h1>
+      <p class="lede">For students preparing for investment banking, sales and trading and asset management interviews: what moved markets this week, and the questions interviewers ask, with model answers.</p>
+    </header>
+    <div class="page__body">
+      <section aria-labelledby="ip-week">
+        <h2 id="ip-week">What you need to know this week</h2>
+        <p class="note__meta"><span>Week of {day_long(monday)}</span><span>Updated <time datetime="{week["updated"]}">{day_med(updated)}</time></span></p>
+        <p>{esc(week["intro"])}</p>
+        <ol class="ip-week">{topics}</ol>
+      </section>
+      <section aria-labelledby="ip-bank">
+        <h2 id="ip-bank">Question bank</h2>
+        <p>Typical markets questions from IB, S&amp;T and asset management interviews, grouped by subject. Open a question for a model answer and the follow-up to expect.</p>
+        <div class="ip-filters">
+          <div class="filters" role="group" aria-label="Filter questions by subject">{chips}</div>
+          <p class="filters__status ip__status" role="status" aria-live="polite">Showing all {len(d["questions"])} questions</p>
+        </div>
+        <div class="acc acc--multi">{items}</div>
+      </section>
+      <section aria-labelledby="ip-use">
+        <h2 id="ip-use">How to use it</h2>
+        <p>Model answers are a starting point: say them in your own words, and check the latest levels on the morning of your interview. Figures in the weekly block are from the Andra Markets <a href="../reports/">close notes</a>, each linked to its session.</p>
+        <p>Educational material. Not investment advice, and no question here is a recommendation to buy or sell anything.</p>
+      </section>
+    </div>
+  </div>
+</main>"""
+    return shell(
+        title="Markets Interview Prep: Andra Markets",
+        desc="What moved markets this week and the markets questions IB, S&T and asset management interviewers ask, with model answers.",
+        body=body,
+        home="../",
+        base="../",
+        path="interview-prep/",
+    )
+
+
+# Data sources (/sources/), legal notice (/legal/), privacy (/privacy/) ---------
+
+# (provider, url, what it supplies, where it is used, how often it is read)
+DATA_SOURCES = [
+    ("Yahoo Finance", "https://finance.yahoo.com/",
+     "Closing prices of equity indices, sector ETFs, volatility indices, currencies, commodity futures, credit ETFs, "
+     "digital assets and the watchlist stocks; fed funds futures; earnings dates, diluted EPS and market caps.",
+     "Close notes, dashboards, World, FX, calendar earnings, company pages",
+     "After each US close for the notes; at every deploy for the dashboards"),
+    ("FRED, Federal Reserve Bank of St. Louis", "https://fred.stlouisfed.org/",
+     "The US Treasury's daily par yield curve, breakevens and real yields, the effective federal funds rate, "
+     "ICE BofA credit spreads, inflation and payrolls.",
+     "Close notes, dashboards, calendar actuals",
+     "Daily; FRED posts the Treasury curve late in the evening and credit spreads with a short delay"),
+    ("US Treasury and TreasuryDirect", "https://www.treasurydirect.gov/",
+     "Note and bond auction schedules and results; the par yield curve (served by FRED).",
+     "Calendar, close notes", "At every deploy"),
+    ("Cboe", "https://www.cboe.com/",
+     "VIX and the volatility term structure; the options expiration calendar.",
+     "Dashboards, close notes, calendar", "At every deploy"),
+    ("Official statistics and central banks", "../calendar/#cl-src",
+     "Release dates and times from the BLS, BEA, Census Bureau, Department of Labor, Federal Reserve, ISM, S&amp;P "
+     "Global, The Conference Board, the University of Michigan, the ECB, Eurostat, the Bank of England, the ONS, "
+     "the Bank of Japan, China's National Bureau of Statistics and the People's Bank of China; actual figures from "
+     "Eurostat, the ECB, the ONS and the Bank of England.",
+     "Calendar", "At every deploy; each source's last read is on the calendar page"),
+    ("State Street and iShares", "https://www.ssga.com/",
+     "Index membership from the SPY holdings (S&amp;P 500) and the iShares STOXX Europe 600 ETF holdings.",
+     "Calendar earnings, company pages", "At every deploy"),
+    ("OECD, World Bank and IMF", "https://data.oecd.org/",
+     "Ten-year government bond yields, inflation, unemployment and real GDP growth by country; OECD three-month "
+     "interbank rates.",
+     "World markets, FX", "At every deploy; each figure shows its own date"),
+    ("Financial Modeling Prep", "https://site.financialmodelingprep.com/",
+     "Company profiles, financial statements and ratios, up to ten years.",
+     "Company pages", "When a page is opened, cached for 24 hours"),
+    ("Finnhub", "https://finnhub.io/",
+     "Quotes, company news, peers, analyst recommendation trends and company metrics.",
+     "Company pages", "When a page is opened: the price cached for 60 seconds, news for 15 minutes"),
+    ("Andra Markets", "../methodology/",
+     "The risk score, watchlist breadth and dispersion, calculated from the figures above.",
+     "Close notes, dashboards", "With each close note"),
+]
+
+
+def sources_page():
+    rows = "".join(
+        f'<li><h3><a href="{url}">{name}</a></h3><p>{what}</p>'
+        f'<dl class="src-meta"><dt>Used in</dt><dd>{used}</dd><dt>Updated</dt><dd>{when}</dd></dl></li>'
+        for name, url, what, used, when in DATA_SOURCES)
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Data sources</h1>
+      <p class="lede">Where every figure on Andra Markets comes from, where it is used and how often it is read. Every chart and table also names its source and date.</p>
+    </header>
+    <div class="page__body">
+      <section aria-labelledby="src-list"><h2 id="src-list">Sources</h2><ul class="src-list">{rows}</ul></section>
+      <section aria-labelledby="src-rules"><h2 id="src-rules">Rules we follow</h2>
+        <ul class="ruled">
+          <li>Every figure is dated and sourced, or it is a placeholder. Nothing is estimated to fill a gap.</li>
+          <li>Each instrument is taken at its own official close.</li>
+          <li>When a source fails, its last good figures stay up with their own date until the next good read.</li>
+          <li>No consensus forecasts: there is no reliable free source.</li>
+        </ul>
+        <p>How the figures become reports is in the <a href="../methodology/">methodology</a>. Data may be delayed or wrong: see the <a href="../legal/#data">legal notice</a>.</p>
+      </section>
+    </div>
+  </div>
+</main>"""
+    return shell(title="Data sources: Andra Markets",
+                 desc="Every data source behind Andra Markets: what it supplies, where it is used and how often it is read.",
+                 body=body, home="../", base="../", path="sources/")
+
+
+def legal_doc(slug, title, lede, sections, updated, desc):
+    toc = "".join(f'<li><a href="#{sid}">{heading}</a></li>' for sid, heading, _ in sections)
+    secs = "".join(f'<section aria-labelledby="{sid}"><h2 id="{sid}">{heading}</h2>{fill(text)}</section>'
+                   for sid, heading, text in sections)
+    up = dt.date.fromisoformat(updated)
+    body = f"""<main id="main" class="page legal">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">{title}</h1>
+      <p class="lede">{lede}</p>
+    </header>
+    <div class="page__body">
+      <nav class="legal__toc" aria-labelledby="legal-toc-h"><h2 id="legal-toc-h">On this page</h2><ol>{toc}</ol></nav>
+      {secs}
+      <p class="legal__updated">Last updated <time datetime="{updated}">{day_long(up)}</time>.</p>
+    </div>
+  </div>
+</main>"""
+    return shell(title=f"{title}: Andra Markets", desc=desc, body=body, home="../", base="../", path=f"{slug}/")
+
+
+def legal_page():
+    return legal_doc("legal", "Legal notice",
+                     "Andra Markets publishes research for information and education. It is not investment advice. "
+                     "This notice applies to every visitor, including in the United States, the United Kingdom and the European Union.",
+                     LEGAL, LEGAL_UPDATED,
+                     "The Andra Markets legal notice: not investment advice, past performance, data accuracy, intellectual property, and users in the US, UK and EU.")
+
+
+def privacy_page():
+    return legal_doc("privacy", "Privacy and cookies",
+                     "Andra Markets collects almost nothing: no accounts, no analytics, no advertising and no cookies of its own.",
+                     PRIVACY, PRIVACY_UPDATED,
+                     "How Andra Markets handles personal data and cookies: what is stored, which providers serve the site, and your rights.")
 
 
 # Report side panel: the session in numbers -----------------------------------
@@ -2296,7 +2704,7 @@ def report(rec, newer, older, cal):
     session = calendar_link(cal, d)
     if session:
         pager += f'<a class="link" href="../../{session}">The calendar for this session {icon("arrow-right")}</a>'
-    pager += f'<a class="link" href="../">All notes {icon("arrow-right")}</a>'
+    pager += f'<a class="link" href="../">Research Library {icon("arrow-right")}</a>'
     pager += f'<a class="link" href="../../#subscribe">Get the note by email {icon("arrow-right")}</a>'
     standfirst = " ".join(n.get("standfirst", "").split())
     body = f"""<main id="main" class="page report">
@@ -2306,10 +2714,7 @@ def report(rec, newer, older, cal):
         <h1 class="page__title report__title">{esc(n["headline"])}</h1>
         {f'<p class="lede">{esc(standfirst)}</p>' if standfirst else ""}
         <p class="note__meta">{meta}</p>
-        <div class="report__share" hidden>
-          <button class="btn" type="button" data-share><span class="swap"><span class="swap__a">{icon("link")}Share this note</span><span class="swap__b" aria-hidden="true">{icon("check")}Link copied</span></span></button>
-          <p class="report__share-status" role="status" aria-live="polite"></p>
-        </div>
+        {share_row("note")}
       </header>
       {side_panel(rec)}
       <div class="page__body">{sections}
@@ -4066,12 +4471,16 @@ SEARCH_PAGES = [
     ("Watch", "watch/", "Page"),
     ("Subscribe", "#subscribe", "Home"),
     ("About", "#about", "Home"),
-    ("All close notes", "reports/", "Archive"),
+    ("Research Library", "reports/", "Page"),
+    ("Markets Interview Prep", "interview-prep/", "Page"),
     ("Methodology", "methodology/", "Page"),
+    ("Data sources", "sources/", "Page"),
+    ("Legal notice", "legal/", "Page"),
+    ("Privacy and cookies", "privacy/", "Page"),
 ]
 
 
-def search_index(notes, companies=None):
+def search_index(notes, companies=None, library=()):
     items = []
     for t in (companies or {}).get("order", []):
         rec = companies["co"][t]
@@ -4085,6 +4494,9 @@ def search_index(notes, companies=None):
         d = rec["day"]
         items.append({"g": "Close notes", "t": rec["note"]["headline"], "m": day_med(d),
                       "u": f"reports/{rec['date']}/", "k": f"{day_long(d)} {day_med(d)} {d.day} {d:%b}"})
+    for r in library:
+        items.append({"g": "Reports", "t": r["title"], "m": f"{LIB_TYPE_NAME[r['type']]}, {day_med(r['day'])}",
+                      "u": f"reports/{r['slug']}/", "k": r["summary"] + " " + " ".join(r["tags"])})
     for a in ARTICLES:
         items.append({"g": "Pages", "t": a["title"], "m": "Learn", "u": f"learn/{a['slug']}/",
                       "k": a["desc"] + " " + " ".join(h for h, _ in a["sections"])})
@@ -4101,7 +4513,7 @@ def main():
     cal = load_calendar()
     now = dt.datetime.now(dt.timezone.utc)
     companies = load_companies()
-    (OUT / "assets" / "search-index.js").write_text(search_index(notes, companies), encoding="utf-8")
+    (OUT / "assets" / "search-index.js").write_text(search_index(notes, companies, load_library()), encoding="utf-8")
     (OUT / "index.html").write_text(page(notes, cal))
     (OUT / "watch").mkdir(exist_ok=True)
     (OUT / "watch" / "index.html").write_text(watch_page())
@@ -4133,7 +4545,16 @@ def main():
     (OUT / "methodology").mkdir(exist_ok=True)
     (OUT / "methodology" / "index.html").write_text(methodology())
     REPORTS.mkdir(exist_ok=True)
-    (REPORTS / "index.html").write_text(archive(notes))
+    library = load_library()
+    (REPORTS / "index.html").write_text(library_page(notes, library))
+    for i, r in enumerate(library):
+        (REPORTS / r["slug"]).mkdir(exist_ok=True)
+        (REPORTS / r["slug"] / "index.html").write_text(
+            lib_report(r, library[i - 1] if i > 0 else None, library[i + 1] if i + 1 < len(library) else None))
+    for slug, make in (("interview-prep", lambda: interview_page(notes)), ("sources", sources_page),
+                       ("legal", legal_page), ("privacy", privacy_page)):
+        (OUT / slug).mkdir(exist_ok=True)
+        (OUT / slug / "index.html").write_text(make())
     for i, rec in enumerate(notes):
         newer = notes[i - 1] if i > 0 else None
         older = notes[i + 1] if i + 1 < len(notes) else None
