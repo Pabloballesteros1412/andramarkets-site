@@ -1,0 +1,57 @@
+{
+  "slug": "lbo",
+  "name": "LBO",
+  "short": "How a leveraged buyout makes money, and the paper LBO you should do in your head.",
+  "lede": "Private equity and leveraged finance interviews test whether you understand where buyout returns come from: earnings growth, the exit multiple and paying down debt. Expect a paper LBO with round numbers and no calculator.",
+  "essentials": [
+    {"title": "What a leveraged buyout is", "text": "A financial sponsor, usually a private equity fund, buys a company using a small amount of its own equity and a large amount of borrowed money. The debt sits on the target's balance sheet and is repaid from the target's own cash flow. After a few years, often three to seven, the sponsor sells the company or lists it and keeps what is left after repaying the debt."},
+    {"title": "Why leverage raises returns", "text": "Debt costs less than the return the business earns, and it shrinks the equity cheque. Every dollar of value created then accrues to a smaller equity base, so the return on equity is higher. The same leverage magnifies losses: if the business stumbles, the equity can be wiped out."},
+    {"title": "Three drivers of return", "text": "EBITDA growth, from revenue growth and margin improvement. Multiple expansion, selling at a higher EV/EBITDA than you paid. Deleveraging, using cash flow to repay debt so more of the exit value belongs to equity. Sponsors underwrite the first and third and treat the second as a bonus."},
+    {"title": "IRR and MOIC", "text": "The multiple of invested capital (MOIC) is cash returned divided by cash invested. The internal rate of return (IRR) is the annual rate that makes the present value of those flows zero, so it accounts for time. Rules of thumb: 2x in three years is about 26%, 2x in five years about 15%, 2.5x in five years about 20%, and 3x in five years about 25%."},
+    {"title": "A good candidate", "text": "Stable and predictable cash flow to service debt, low capital spending needs, a defensible market position, room to improve operations or cut costs, assets that can secure loans, a capable management team, a sensible entry price and a credible route to exit: a sale to a strategic buyer, a sale to another sponsor or a listing."},
+    {"title": "The debt stack", "text": "From senior to junior: a revolving credit facility for liquidity, usually undrawn at close; senior secured term loans, floating rate, either amortising (Term Loan A, held by banks) or with little amortisation (Term Loan B, held by institutional investors); senior or subordinated high-yield bonds, usually fixed rate with call protection; and mezzanine or payment-in-kind debt, where interest can accrue rather than be paid in cash. Private credit funds also lend single-tranche loans that replace several layers."}
+  ],
+  "example": {
+    "title": "A paper LBO in five years",
+    "intro": "Buy a company with $100 of EBITDA at 10.0x, funded with 6.0x debt. EBITDA grows to $150 by year five, cash flow repays $300 of debt, and you sell at the same multiple. Fees, taxes on exit and any cash left on the balance sheet are ignored. Figures in $ millions.",
+    "columns": ["Stage", "Item", "Value"],
+    "rows": [
+      ["Entry", "EBITDA", "$100"],
+      ["Entry", "Purchase multiple", "10.0x"],
+      ["Entry", "Enterprise value paid", "$1,000"],
+      ["Entry", "Debt (6.0x EBITDA)", "$600"],
+      ["Entry", "Sponsor equity", "$400"],
+      ["Holding period", "Debt repaid from cash flow", "−$300"],
+      ["Exit, year 5", "EBITDA", "$150"],
+      ["Exit, year 5", "Exit multiple", "10.0x"],
+      ["Exit, year 5", "Enterprise value", "$1,500"],
+      ["Exit, year 5", "Less remaining debt", "−$300"],
+      ["Exit, year 5", "Equity value", "$1,200"],
+      ["Returns", "MOIC (1,200 ÷ 400)", "3.0x"],
+      ["Returns", "IRR over five years", "about 25%"]
+    ],
+    "note": "The equity gain is $800. EBITDA growth adds $500 ($50 × 10.0x), debt paydown adds $300, multiple expansion adds nothing. 3.0x over five years is an IRR of 24.6%, which you would round to about 25% out loud."
+  },
+  "questions": [
+    {"level": "core", "q": "Walk me through an LBO model.", "a": ["Start with the transaction: purchase price, usually a multiple of EBITDA, and sources and uses, which shows how much debt and sponsor equity fund the price and fees.", "Then project the company's operations and free cash flow over the holding period, schedule the debt with interest and repayments, and finally assume an exit, usually at an EV/EBITDA multiple. Exit enterprise value less net debt is the sponsor's equity, and comparing it with the equity put in gives the IRR and MOIC."], "follow": "What goes into the uses of funds besides the purchase price?"},
+    {"level": "core", "q": "Why does a private equity firm use leverage?", "a": ["Because it raises the return on equity. Debt is cheaper than equity, interest is usually tax deductible, and borrowing means the sponsor writes a smaller cheque, so the same increase in company value is a larger percentage gain on the equity. Debt also imposes discipline on management. The cost is risk: higher leverage means less room for error before the equity is lost."], "follow": "Why not fund the deal with 95% debt?"},
+    {"level": "core", "q": "What are the main drivers of returns in an LBO?", "a": ["EBITDA growth, through revenue growth or margin gains. Multiple expansion, exiting at a higher multiple than entry. And deleveraging, repaying debt with the company's cash flow so more of the exit value belongs to equity. A lower entry price helps all three, which is why sponsors say you make money when you buy."], "follow": "Which driver would you rely on least, and why?"},
+    {"level": "core", "q": "What is the difference between IRR and MOIC?", "a": ["MOIC is cash out divided by cash in: it says how many times you got your money back, but not how long it took. IRR is the annualised return, so it rewards getting cash back sooner. 2x in two years and 2x in six years have the same MOIC but very different IRRs, about 41% and 12%. Funds look at both: IRR for performance, MOIC because you cannot spend a percentage."], "follow": "How can a dividend recapitalisation raise IRR but not MOIC?"},
+    {"level": "core", "q": "Do the paper LBO: $100 of EBITDA, bought at 10x with 60% debt, EBITDA grows to $150 in five years, $300 of debt repaid, exit at 10x.", "a": ["Purchase price $1,000, debt $600, equity $400.", "At exit, enterprise value is $150 × 10 = $1,500. Debt is $600 − $300 = $300, so equity is $1,200. MOIC is 1,200 ÷ 400 = 3.0x, which over five years is an IRR of about 25%.", "Attribution: $500 of the $800 gain is EBITDA growth at a constant multiple and $300 is deleveraging."], "follow": "What is the IRR if you exit at 11x instead?"},
+    {"level": "advanced", "q": "In the same deal, you exit at 11x instead of 10x. What changes?", "a": ["Exit enterprise value is $150 × 11 = $1,650. Less $300 of debt, equity is $1,350, so MOIC is 1,350 ÷ 400 = 3.375x, an IRR of about 27.5%.", "The extra $150 is multiple expansion: one turn of multiple times $150 of exit EBITDA. The full $950 gain splits into $500 from EBITDA growth, $150 from multiple expansion and $300 from deleveraging."], "follow": "Why would a sponsor not underwrite that extra turn?"},
+    {"level": "advanced", "q": "Can an LBO make money if EBITDA does not grow and the multiple does not change?", "a": ["Yes, through deleveraging alone. Buy at 10x $100 of EBITDA with $600 of debt and $400 of equity, repay $300 of debt over five years and sell at 10x: enterprise value is still $1,000, but debt is $300, so equity is $700. That is 1.75x, an IRR of about 12%. Modest, but positive, and it shows why cash generation matters so much."], "follow": "What would a fall in EBITDA to $80 do to the equity?"},
+    {"level": "core", "q": "What makes a company a good LBO candidate?", "a": ["Above all, stable and predictable cash flow, because it has to service the debt. Then low capital spending and working capital needs, a strong market position, room for operational improvement, a solid management team, assets that can secure loans and a clear exit. A cyclical business with heavy capital spending and an uncertain market is a poor candidate, however cheap it looks."], "follow": "Would a fast-growing software company be a good candidate?"},
+    {"level": "core", "q": "What types of debt are used in an LBO?", "a": ["Senior secured debt first: a revolver for liquidity and term loans, usually floating rate, secured on the company's assets. Term Loan A amortises meaningfully and is held by banks; Term Loan B amortises little and is held by institutional investors.", "Below that, high-yield bonds, fixed rate, often unsecured, with call protection, and at the bottom mezzanine or payment-in-kind debt, which is the most expensive and may come with warrants. Private credit funds increasingly provide a single unitranche loan instead of several layers."], "follow": "Why does junior debt cost more?"},
+    {"level": "advanced", "q": "How does more leverage affect IRR, and why not use the maximum?", "a": ["More leverage usually raises IRR, because the equity cheque is smaller for the same exit value. But interest costs rise, so less cash is left for growth or repayment, and covenants tighten. A modest fall in EBITDA can then breach covenants or leave the company unable to refinance, and the equity is lost. Lenders also cap leverage, by multiples of EBITDA and by interest coverage."], "follow": "What is interest coverage, and what level would worry you?"},
+    {"level": "advanced", "q": "What are covenants?", "a": ["Promises in the loan documents that protect lenders. Maintenance covenants are tested regularly, often quarterly, for example a maximum ratio of debt to EBITDA. Incurrence covenants are only tested when the company takes an action, such as raising more debt or paying a dividend. Covenant-lite loans have few or no maintenance covenants, which gives the sponsor more room when results disappoint."], "follow": "What happens when a company breaches a covenant?"},
+    {"level": "advanced", "q": "What is a dividend recapitalisation?", "a": ["The company raises new debt during the holding period and pays the proceeds to the sponsor as a dividend. The sponsor gets cash back early, which raises IRR because returns come sooner, while MOIC changes little because total cash returned is similar. The company is left more indebted, so it depends on strong, steady cash flow."], "follow": "Why might lenders agree to it?"},
+    {"level": "advanced", "q": "Why does an LBO analysis often appear on a football field?", "a": ["It shows what a financial buyer could pay while still earning its target return, say 20% to 25%. You solve backwards from that IRR for the entry price. It is often treated as a floor for the valuation, since a strategic buyer with synergies should be able to pay more."], "follow": "Why can a strategic buyer usually outbid a sponsor?"}
+  ],
+  "mistakes": [
+    "Forgetting to subtract the remaining debt at exit: the sponsor owns the equity, not the enterprise value.",
+    "Computing MOIC on enterprise value rather than on the equity cheque.",
+    "Treating multiple expansion as a plan. Sponsors usually assume they exit at or below the entry multiple.",
+    "Mixing up the IRR rules of thumb: 2x in five years is about 15%, not 20%.",
+    "Choosing a cyclical, capital-hungry business as an LBO candidate because it looks cheap."
+  ]
+}
