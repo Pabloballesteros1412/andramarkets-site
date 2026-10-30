@@ -363,12 +363,38 @@
     });
   }
 
-  // Companies index: filter the table by market and by sector, both at once.
+  // Companies index: filter the table by market and by sector, both at once,
+  // and by the search field (assets/profile.js calls andraCoFilter as you type).
   var coChips = document.querySelectorAll(".chip[data-cofilter], .chip[data-comarket]");
   if (coChips.length) {
     var coRows = document.querySelectorAll(".co-tab tbody tr");
     var coStatus = document.querySelector(".co-index__status");
     var coPick = { sector: "all", market: "all" };
+    var coQuery = "";
+    var coApply = function () {
+      var shown = [];
+      coRows.forEach(function (row) {
+        var on = (coPick.sector === "all" || row.getAttribute("data-sector") === coPick.sector) &&
+          (coPick.market === "all" || row.getAttribute("data-market") === coPick.market) &&
+          (!coQuery || (row.getAttribute("data-q") || "").indexOf(coQuery) !== -1);
+        row.hidden = !on;
+        if (on) shown.push(row);
+      });
+      var names = [];
+      ["comarket", "cofilter"].forEach(function (a) {
+        var on = document.querySelector('.chip[data-' + a + '][aria-pressed="true"]');
+        if (on && on.getAttribute("data-" + a) !== "all") names.push(on.firstChild.textContent.trim());
+      });
+      if (coQuery) names.push("\u201c" + coQuery + "\u201d");
+      coStatus.textContent = names.length
+        ? "Showing " + shown.length + " of " + coRows.length + " companies: " + names.join(", ")
+        : "Showing all " + coRows.length + " companies";
+      return shown;
+    };
+    window.andraCoFilter = function (q) {
+      coQuery = q;
+      return coApply();
+    };
     coChips.forEach(function (chip) {
       chip.addEventListener("click", function () {
         var kind = chip.hasAttribute("data-comarket") ? "market" : "sector";
@@ -377,21 +403,7 @@
         document.querySelectorAll(".chip[" + attr + "]").forEach(function (c) {
           c.setAttribute("aria-pressed", String(c === chip));
         });
-        var shown = 0;
-        coRows.forEach(function (row) {
-          var on = (coPick.sector === "all" || row.getAttribute("data-sector") === coPick.sector) &&
-            (coPick.market === "all" || row.getAttribute("data-market") === coPick.market);
-          row.hidden = !on;
-          if (on) shown++;
-        });
-        var names = [];
-        ["comarket", "cofilter"].forEach(function (a) {
-          var on = document.querySelector('.chip[data-' + a + '][aria-pressed="true"]');
-          if (on && on.getAttribute("data-" + a) !== "all") names.push(on.firstChild.textContent.trim());
-        });
-        coStatus.textContent = names.length
-          ? "Showing " + shown + " of " + coRows.length + " companies: " + names.join(", ")
-          : "Showing all " + coRows.length + " companies";
+        coApply();
       });
     });
   }
