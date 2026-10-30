@@ -5431,26 +5431,6 @@ html:not(.js) .ip-filters {
   color: var(--ink);
 }
 
-.legal__id {
-  display: grid;
-  grid-template-columns: 7rem minmax(0, 1fr);
-  gap: 6px 12px;
-  margin-top: 12px;
-  padding: 12px 0;
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-  font-size: 0.9375rem;
-}
-
-.legal__id dt {
-  color: var(--ink-3);
-}
-
-.legal__id dd {
-  margin: 0;
-  color: var(--ink);
-}
-
 /* Data sources */
 .src-list {
   margin-top: 12px;

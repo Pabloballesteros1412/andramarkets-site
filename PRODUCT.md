@@ -113,10 +113,13 @@ record. The daily note is one module among others, not the centrepiece.
   approved showing it on light grounds via a CSS invert + grayscale + multiply
   treatment that leaves the file untouched.
 - Published only as Andra Markets: no personal names anywhere on the site,
-  with one exception the law requires: the legal notice and the privacy policy
-  identify the operator (name, NIF, address, email) under Article 10 of the
-  LSSI and Article 13 of the GDPR (owner, 30 Oct 2026: "llévalo todo según la
-  ley"). Until the owner supplies them they are bracketed placeholders.
+  the legal notice included (owner, 30 Oct 2026). While the site has no
+  economic activity (no income, sales, ads, sponsorship or affiliate links)
+  the legal notice and privacy policy name only Andra Markets and a brand
+  contact email. Before any monetisation (newsletter sponsorship, paid tier)
+  the owner will form a company (SL), and the legal notice will then carry
+  its name, CIF and registered address as LSSI article 10 requires. Never
+  publish the owner's own name, DNI or home address.
 - Owner-approved derivatives of the mark: the favicon and touch icon are a
   head-and-neck crop (the owner asked for "a favicon (head and neck crop of the
   horse)" and approved it as shown); the social share image uses the full horse.

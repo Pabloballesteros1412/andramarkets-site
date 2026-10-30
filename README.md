@@ -407,10 +407,10 @@ an excerpt of any page that failed to parse.
 ## Placeholders still to fill
 
 Everything in square brackets on the site is a placeholder, never invented
-data: the copyright year, and in the legal notice and privacy policy
-(`tools/legal_content.py`) the operator's legal name, NIF, postal address and
-contact email, which Spanish law (LSSI art. 10) requires before the site is
-public.
+data: the copyright year, and the brand contact email in the legal notice and
+privacy policy (`tools/legal_content.py`). No personal data goes there: before
+the site earns anything, the company (SL) that will run it replaces this with
+its name, CIF and registered address (LSSI art. 10).
 The Methodology page (`methodology()` in `tools/build_site.py`) describes the
 note pipeline, sources and limits: update it when a source or check changes. The tape and the daily note module fill themselves
 once the first close note is published.

@@ -12,14 +12,11 @@ PRIVACY_UPDATED = "2026-10-30"
 
 LEGAL = [
     ("publisher", "Who publishes this site",
-     "<p>As required by Article 10 of Spanish Law 34/2002 on information society services and electronic "
-     "commerce (LSSI), the owner of this website is:</p>"
-     "<dl class=\"legal__id\"><dt>Name</dt><dd>[operator's full legal name], trading as Andra Markets</dd>"
-     "<dt>Tax ID (NIF)</dt><dd>[NIF]</dd>"
-     "<dt>Address</dt><dd>[postal address], Spain</dd>"
-     "<dt>Email</dt><dd>[contact email]</dd></dl>"
-     "<p>Andra Markets is not entered in any commercial register and holds no administrative authorisation, "
-     "as its activity does not require one.</p>"
+     "<p>This website is published by Andra Markets, based in Spain. Contact: [contact email].</p>"
+     "<p>Andra Markets is a non-commercial publication: it has no income, sells nothing and carries no "
+     "advertising, sponsorship or affiliate links. When it starts any economic activity, such as a paid "
+     "subscription, this notice will identify the company that runs it, as Article 10 of Spanish Law "
+     "34/2002 on information society services and electronic commerce (LSSI) requires.</p>"
      "<p>Andra Markets publishes market research: daily close notes, weekly market reviews, research "
      "reports, dashboards, an economic calendar, interactive tools and educational material.</p>"),
 
@@ -115,9 +112,10 @@ LEGAL = [
 
 PRIVACY = [
     ("controller", "Who is responsible",
-     "<p>The data controller, under Article 13 of the General Data Protection Regulation (EU) 2016/679 and "
-     "Spanish Organic Law 3/2018, is [operator's full legal name], trading as Andra Markets, NIF [NIF], "
-     "[postal address], Spain. Contact: [contact email].</p>"),
+     "<p>Andra Markets, based in Spain, is responsible for any personal data processed through this site, "
+     "under the General Data Protection Regulation (EU) 2016/679 and Spanish Organic Law 3/2018. Contact: "
+     "[contact email]. The site collects almost no personal data (see below); when that changes, this "
+     "policy will give the full identity of the controller first.</p>"),
 
     ("collect", "What we collect",
      "<p>Very little. The site has no accounts, no analytics, no advertising and no tracking pixels, and "
