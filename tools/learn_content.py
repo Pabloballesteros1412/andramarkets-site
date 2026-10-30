@@ -14,7 +14,7 @@ ARTICLES = [
         "slug": "yield-curve",
         "title": "How to read the yield curve",
         "desc": "What the curve is, why it usually slopes up, and what it means when it turns upside down.",
-        "dash": ("dashboards/yield-curve/", "the yield curve dashboard"),
+        "dash": ("fed-rates/#fr-curve", "the Treasury curve in Fed & Rates"),
         "sections": [
             ("What the curve is", [
                 "The US government borrows for many lengths of time, from a few weeks to thirty years. Each of "
@@ -377,7 +377,7 @@ ARTICLES = [
         "slug": "fed-rates",
         "title": "How the Fed sets rates",
         "desc": "Who decides, what the target range is, and how the Fed makes the market follow it.",
-        "dash": ("dashboards/fed-path/", "the Fed path dashboard"),
+        "dash": ("fed-rates/", "Fed & Rates"),
         "sections": [
             ("The mandate", [
                 "Congress has given the Federal Reserve two goals for monetary policy: maximum employment and stable "

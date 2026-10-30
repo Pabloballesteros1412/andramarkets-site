@@ -42,7 +42,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nyse  # noqa: E402
-from import_notes import charts, number, unprinted  # noqa: E402
+from import_notes import number, unprinted  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 NOTES = ROOT / "data" / "notes"
@@ -116,13 +116,6 @@ class Archive:
             facts = self.facts(run)
             if facts.get("date") == day.isoformat():
                 yield day, facts
-
-
-def prev_session(day):
-    d = day - dt.timedelta(days=1)
-    while nyse.is_trading_day(d) is False:
-        d -= dt.timedelta(days=1)
-    return d
 
 
 def block_rows(facts, spec):
@@ -283,17 +276,6 @@ def tile_breadth(archive):
         "kind": "breadth", "sessions": rows, "ranges": offered(first, last)}
 
 
-def curve_at(day, facts):
-    """(as-of date, {tenor key: yield}) from one session's facts, or None."""
-    cv = charts(facts)["curve"]
-    pts = {c["key"]: c["last"] for c in cv if c["last"] is not None}
-    if len(pts) < 8 or len({c["stale"] for c in cv}) > 1:
-        return None
-    # FRED posts the curve after the agent runs: the facts then carry the
-    # session before's curve, flagged as not yet published.
-    return (prev_session(day) if cv[0]["stale"] else day), pts
-
-
 def compare(curves, keys, labels, x):
     """Latest curve against the curve on or before each range's start."""
     days = sorted(curves)
@@ -308,47 +290,6 @@ def compare(curves, keys, labels, x):
         raise LookupError("no curve a month before the latest")
     return now, {"kind": "curve", "labels": labels, "x": x, "date": iso(now),
                  "values": [curves[now][k] for k in keys], "compare": cmp}
-
-
-TENORS = [("ust1m", "DGS1MO", "1M", 1 / 12), ("ust3m", "DGS3MO", "3M", 0.25), ("ust6m", "DGS6MO", "6M", 0.5),
-          ("ust1y", "DGS1", "1Y", 1), ("ust2y", "DGS2", "2Y", 2), ("ust3y", "DGS3", "3Y", 3),
-          ("ust5y", "DGS5", "5Y", 5), ("ust7y", "DGS7", "7Y", 7), ("ust10y", "DGS10", "10Y", 10),
-          ("ust20y", "DGS20", "20Y", 20), ("ust30y", "DGS30", "30Y", 30)]
-
-
-def tile_curve(archive):
-    """FRED's Treasury yields; while FRED is down, the curves in the agent's archive."""
-    try:
-        s = fred([f for _, f, _, _ in TENORS], months_back(dt.date.today(), 25))
-        by = {}
-        for key, f, _, _ in TENORS:
-            for d, v in s[f]:
-                by.setdefault(d, {})[key] = v
-        curves = {d: c for d, c in by.items() if len(c) == len(TENORS)}
-        source = "FRED, US Treasury"
-    except (OSError, ValueError):
-        if archive is None:
-            raise
-        curves = {}
-        for day, facts in archive.sessions(len(archive.runs)):
-            c = curve_at(day, facts)
-            if c and all(k in c[1] for k, *_ in TENORS):
-                curves.setdefault(c[0], c[1])
-        source = "FRED, US Treasury, via the Andra Markets archive"
-    keys = [k for k, *_ in TENORS]
-    now, detail = compare(curves, keys, [lb for *_, lb, _ in TENORS], [math.sqrt(t) for *_, t in TENORS])
-    detail["unit"], detail["dec"] = "%", 2
-    lbs = [lb for *_, lb, _ in TENORS]
-    detail["hist"] = curve_history(curves, keys, lbs, ["3M", "2Y", "10Y", "30Y"], 3)
-    # Spreads over time, in basis points: the page's second view.
-    days = sorted(curves)
-    detail["spreads"] = {"dates": detail["hist"]["dates"], "unit": "bp", "series": [
-        {"name": name, "values": [round((curves[d][keys[lbs.index(a)]] - curves[d][keys[lbs.index(b)]]) * 100, 1) for d in days],
-         "on": on} for name, a, b, on in (("10Y less 2Y", "10Y", "2Y", True), ("10Y less 3M", "10Y", "3M", True),
-                                          ("30Y less 5Y", "30Y", "5Y", False), ("2Y less 3M", "2Y", "3M", False))]}
-    month = detail["compare"]["1M"]
-    return now, source, {"then": month["date"], "tenors": keys, "now": detail["values"],
-                         "before": month["values"]}, detail
 
 
 def curve_history(curves, keys, labels, on, dec):
@@ -680,47 +621,10 @@ def tile_correlation(_):
         "kind": "matrix", "names": names, "windows": windows, "hist": hist}
 
 
-MONTH_CODES = "FGHJKMNQUVXZ"
-
-
-def tile_fed(_):
-    """30-day fed funds futures: 100 minus the price is the month's expected average rate."""
-    today = dt.date.today()
-    months, hist = [], []
-    for i in range(12):
-        y, m = divmod(today.month - 1 + i, 12)
-        y += today.year
-        sym = f"ZQ{MONTH_CODES[m]}{y % 100:02d}.CBT"
-        try:
-            h = dict(yahoo(sym, "2y"))
-        except Exception:  # noqa: BLE001  a contract Yahoo does not list ends the path
-            break
-        months.append(f"{y}-{m + 1:02d}")
-        hist.append(h)
-    if len(months) < 6:
-        raise LookupError("too few fed funds futures")
-    # A date counts when every contract on the path settled that day.
-    days = sorted(set.intersection(*(set(h) for h in hist)))
-    curves = {d: {mo: round(100 - h[d], 3) for mo, h in zip(months, hist)} for d in days}
-    now, detail = compare(curves, months, [f"{dt.date.fromisoformat(mo + '-01'):%b %y}" for mo in months],
-                          list(range(len(months))))
-    detail["unit"], detail["dec"] = "%", 3
-    detail["hist"] = curve_history(curves, months, detail["labels"], [detail["labels"][0], detail["labels"][-1]], 3)
-    try:
-        effr = fred(["EFFR"], today - dt.timedelta(days=20))["EFFR"][-1]
-        detail["ref"] = {"name": "Effective rate", "value": effr[1], "date": iso(effr[0])}
-        source = "CME futures, Yahoo Finance; FRED"
-    except (OSError, ValueError):
-        effr, source = None, "CME futures, Yahoo Finance"
-    tile = {"months": [[mo, v] for mo, v in zip(months, detail["values"])]}
-    if effr:
-        tile.update(effr=effr[1], effr_date=iso(effr[0]))
-    return now, source, tile, detail
+MONTH_CODES = "FGHJKMNQUVXZ"  # futures month letters, January to December (tools/fedrates_data.py)
 
 
 TILES = {
-    "yield_curve": (None, tile_curve),
-    "fed_path": (None, tile_fed),
     "sector_heatmap": (None, tile_sectors),
     "breadth": ("archive", tile_breadth),
     "vol_term": (None, tile_vol),

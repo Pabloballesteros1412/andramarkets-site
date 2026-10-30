@@ -1,7 +1,8 @@
 name: Refresh market strip
 
-# Refreshes the homepage tape (tools/strip_data.py) and redeploys the site
-# from the other sources' cached figures: every 15 minutes while the NYSE is
+# Refreshes the homepage tape (tools/strip_data.py) and the Fed & Rates
+# futures and intraday yields (tools/fedrates_data.py --fast), and redeploys
+# the site from the other sources' cached figures: every 15 minutes while the NYSE is
 # open (and the closing prints, up to 45 minutes after), and once after the
 # Euro Stoxx 50 and Nikkei 225 close. Cron runs in UTC, so the US schedule
 # covers both daylight-saving offsets and the "due" check decides, from the
