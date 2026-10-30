@@ -82,9 +82,10 @@ record. The daily note is one module among others, not the centrepiece.
     hedge funds and trading firms, by date and by firm, from
     `data/recruiting_calendar.json`. No free source lists firms' dates and the
     aggregators' terms forbid reuse, so the file is kept by hand from each
-    firm's own careers site. A date shows only once someone has opened its
-    source and seen it (`verified`); an expected window comes from the last
-    cycle and says what it rests on; never an invented date.
+    firm's own careers site. Each date comes from the firm's own site; a row
+    not yet re-checked by hand says so (owner, 30 Oct 2026: publish now,
+    re-check later); an expected window comes from the last cycle and says
+    what it rests on; never an invented date.
   - Technical preparation (`break-into-wall-street/technicals/<topic>/`,
     owner-approved preview, 30 Oct 2026): nine training pages (accounting,
     valuation, LBO, M&A, markets, rates and the Fed, a stock pitch,
