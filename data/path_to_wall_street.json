@@ -1,0 +1,252 @@
+{
+  "reviewed": "2026-10-30",
+  "lede": "A guide to breaking into markets roles from any university and any country: what each job is, when to apply, and how to get noticed.",
+  "roles": [
+    {
+      "id": "ib",
+      "name": "Investment banking",
+      "short": "IB",
+      "what": "Advises companies, governments and investors on mergers and acquisitions and on raising money through shares and bonds. Analysts build financial models, valuation work and the pitch books bankers take to clients.",
+      "day": ["Morning: check markets news and client updates, then turn comments on a pitch book.", "Afternoon: update the model, comparable companies and precedent deals; calls with the deal team.", "Evening: the long part of the day. Drafts go up the chain (associate, VP, MD) and come back with comments."],
+      "fit": "You like detail, deadlines and accounting, and can sustain long hours in the first years.",
+      "exits": "Private equity, corporate development, hedge funds, growth equity."
+    },
+    {
+      "id": "st",
+      "name": "Sales and trading",
+      "short": "S&T",
+      "what": "Makes markets for institutional clients in equities, rates, credit, FX and commodities. Sales owns the client relationship and the flow of ideas; traders price and manage the risk the bank takes on.",
+      "day": ["Before the open: overnight moves, the economic calendar, the morning meeting.", "Market hours: quoting prices, executing orders, managing the book, speaking with clients.", "After the close: risk reports, profit and loss, and preparing for tomorrow."],
+      "fit": "You think fast under pressure, enjoy markets every day and are comfortable with numbers in your head.",
+      "exits": "Hedge funds, asset managers, macro research, fintech."
+    },
+    {
+      "id": "am",
+      "name": "Asset management",
+      "short": "AM",
+      "what": "Invests money for pension funds, insurers, endowments and individuals across equities, fixed income and multi-asset portfolios. Juniors support portfolio managers with research, monitoring and client reporting.",
+      "day": ["Review positions and overnight news on the companies and markets held.", "Research: company meetings, models, sector work, investment committee notes.", "Client reporting and portfolio analytics."],
+      "fit": "You want a long-term view on markets and enjoy forming and defending an investment opinion.",
+      "exits": "A long career in the industry is common; also hedge funds and wealth management."
+    },
+    {
+      "id": "er",
+      "name": "Equity research",
+      "short": "ER",
+      "what": "Covers a sector of listed companies, builds earnings models and publishes recommendations. Sell-side research serves the bank's clients; buy-side research serves the analyst's own fund.",
+      "day": ["Before the open: write up overnight results or news for the morning call.", "During the day: update models, speak with company management and investors.", "Earnings season is intense: several results a day across the coverage list."],
+      "fit": "You enjoy writing, accounting and a deep view on one industry.",
+      "exits": "Buy-side research, asset management, hedge funds, investor relations."
+    },
+    {
+      "id": "hf",
+      "name": "Hedge funds",
+      "short": "HF",
+      "what": "Run concentrated strategies (long/short equity, global macro, credit, event driven, quantitative) for institutional investors. Teams are small and juniors are expected to generate ideas early.",
+      "day": ["Track positions and the news that moves them.", "Deep work on a few ideas: models, expert calls, data.", "Pitch ideas to the portfolio manager and defend them."],
+      "fit": "You already invest or research on your own, and want your ideas judged by their results.",
+      "exits": "Few graduate programmes: most join after two or three years in banking, research or quant roles. Quant funds hire graduates directly."
+    }
+  ],
+  "timeline": {
+    "note": "Typical windows. Each firm sets its own dates and many hire on a rolling basis, so applying early matters.",
+    "kinds": [
+      {"id": "prep", "name": "Prepare"},
+      {"id": "apply", "name": "Applications"},
+      {"id": "interview", "name": "Tests and interviews"},
+      {"id": "work", "name": "On the job"}
+    ],
+    "regions": [
+      {
+        "id": "us",
+        "name": "United States",
+        "years": [
+          {"id": "y1", "name": "Freshman"},
+          {"id": "y2", "name": "Sophomore"},
+          {"id": "y3", "name": "Junior"},
+          {"id": "y4", "name": "Senior"},
+          {"id": "ms", "name": "Master's"}
+        ],
+        "items": [
+          {"year": "y1", "from": 0, "to": 3, "kind": "prep", "title": "Clubs and first contacts", "detail": "Join the investment and finance clubs, start a markets journal and build a short list of alumni in the roles you want."},
+          {"year": "y1", "from": 4, "to": 6, "kind": "apply", "title": "Early insight programmes", "detail": "Banks run short programmes for first and second year students, many aimed at under-represented groups. They are a way in for non-target students."},
+          {"year": "y2", "from": 0, "to": 3, "kind": "apply", "title": "Sophomore programmes", "detail": "Applications for spring and summer sophomore programmes. Strong performers can be fast-tracked to the junior summer."},
+          {"year": "y2", "from": 4, "to": 7, "kind": "interview", "title": "IB summer analyst recruiting", "detail": "Large banks recruit for the summer after junior year as early as the spring of sophomore year: online tests, HireVue, then superdays."},
+          {"year": "y2", "from": 9, "to": 11, "kind": "work", "title": "Sophomore internship", "detail": "Any finance role helps: boutique, wealth management, corporate finance at a company."},
+          {"year": "y3", "from": 0, "to": 3, "kind": "apply", "title": "S&T, AM and research summer roles", "detail": "Some markets, asset management and research teams recruit later than banking, into the autumn of junior year. Check each firm: many now recruit on the banking calendar."},
+          {"year": "y3", "from": 9, "to": 11, "kind": "work", "title": "Summer analyst internship", "detail": "Ten weeks. Most full-time offers come from here as return offers at the end of the summer."},
+          {"year": "y4", "from": 0, "to": 2, "kind": "apply", "title": "Full-time recruiting", "detail": "For those without a return offer: remaining analyst seats, boutiques and middle-market banks."},
+          {"year": "y4", "from": 4, "to": 8, "kind": "interview", "title": "Off-cycle full-time openings", "detail": "Smaller firms hire closer to the start date. Keep networking until you sign."},
+          {"year": "ms", "from": 0, "to": 3, "kind": "apply", "title": "Recruit from day one", "detail": "One-year master's programmes leave little time: applications for full-time and summer roles open as the course starts."},
+          {"year": "ms", "from": 9, "to": 11, "kind": "work", "title": "Start, or OPT internship", "detail": "International students usually work on OPT after the course (see Visas)."}
+        ]
+      },
+      {
+        "id": "uk",
+        "name": "United Kingdom",
+        "years": [
+          {"id": "y1", "name": "First year"},
+          {"id": "y2", "name": "Penultimate year"},
+          {"id": "y3", "name": "Final year"},
+          {"id": "ms", "name": "Master's"}
+        ],
+        "items": [
+          {"year": "y1", "from": 0, "to": 4, "kind": "apply", "title": "Spring week applications", "detail": "One-week insight programmes for first-year students (second-year on four-year Scottish degrees). Many close between November and January and fill on a rolling basis."},
+          {"year": "y1", "from": 3, "to": 5, "kind": "interview", "title": "Tests and interviews", "detail": "Online numerical tests, video interviews and sometimes a short assessment day."},
+          {"year": "y1", "from": 6, "to": 7, "kind": "work", "title": "Spring weeks", "detail": "Held around Easter. Some banks offer a fast-track interview for the next summer internship to the best participants."},
+          {"year": "y2", "from": 0, "to": 3, "kind": "apply", "title": "Summer internship applications", "detail": "The main entry route. Applications open from late summer and many roles are filled before the deadline, so apply in the first weeks."},
+          {"year": "y2", "from": 1, "to": 5, "kind": "interview", "title": "Assessment centres", "detail": "Technical and competency interviews, group exercises and case studies."},
+          {"year": "y2", "from": 9, "to": 11, "kind": "work", "title": "Summer internship", "detail": "Usually ten weeks from June or July. Graduate offers are made at the end."},
+          {"year": "y3", "from": 0, "to": 2, "kind": "apply", "title": "Graduate programmes", "detail": "For those without an offer from their internship. Fewer places remain, so widen the list of firms and roles."},
+          {"year": "y3", "from": 0, "to": 11, "kind": "prep", "title": "Off-cycle internships", "detail": "Three to six months, year round. A good bridge after graduating or between degrees."},
+          {"year": "ms", "from": 0, "to": 2, "kind": "apply", "title": "Apply in the first weeks", "detail": "One-year master's students apply for summer internships and graduate roles almost as soon as they arrive."},
+          {"year": "ms", "from": 9, "to": 11, "kind": "work", "title": "Summer internship or start", "detail": "International graduates usually work on the Graduate Route at first (see Visas)."}
+        ]
+      },
+      {
+        "id": "eu",
+        "name": "Europe",
+        "years": [
+          {"id": "y1", "name": "Bachelor's, early years"},
+          {"id": "y2", "name": "Bachelor's, final year"},
+          {"id": "gap", "name": "Gap year"},
+          {"id": "ms", "name": "Master's"}
+        ],
+        "items": [
+          {"year": "y1", "from": 0, "to": 4, "kind": "apply", "title": "Insight days and spring programmes", "detail": "London-based banks run them for continental students too. Local banks and Big Four firms run their own."},
+          {"year": "y1", "from": 9, "to": 11, "kind": "work", "title": "First summer experience", "detail": "Local boutiques, corporate finance teams or audit: anything that puts finance on the CV."},
+          {"year": "y2", "from": 0, "to": 3, "kind": "apply", "title": "Summer internships (London desks)", "detail": "Same calendar as the UK: apply in the first weeks the roles open."},
+          {"year": "y2", "from": 0, "to": 11, "kind": "prep", "title": "Off-cycle internship search", "detail": "Six-month internships in Paris, Frankfurt, Milan, Madrid or Amsterdam, applied for three to six months before the start date."},
+          {"year": "gap", "from": 0, "to": 11, "kind": "work", "title": "Two six-month internships", "detail": "Common in French and Italian business schools, and increasingly elsewhere, as a gap year between the bachelor's and master's or within a master's."},
+          {"year": "ms", "from": 0, "to": 3, "kind": "apply", "title": "Graduate programmes and summer roles", "detail": "Master's in Finance students apply in the autumn of the first year."},
+          {"year": "ms", "from": 9, "to": 11, "kind": "work", "title": "Final internship or start", "detail": "Many continental programmes end with a compulsory internship that often converts to an offer."}
+        ]
+      }
+    ]
+  },
+  "cv": {
+    "rules": [
+      "One page. Recruiters spend seconds on a first read.",
+      "Order: education, experience, leadership and activities, skills and interests.",
+      "Each line starts with a strong verb and ends with a result, a number if you have one.",
+      "Plain layout: one sans-serif font, no photo, no colours, no graphics.",
+      "Write grades the way the country reads them (GPA in the US, classification in the UK) and add context for non-target or foreign schools.",
+      "Save as a PDF named with your name and the role."
+    ],
+    "sample": {
+      "name": "Candidate Name",
+      "contact": "City, Country · email@example.com · +00 000 000 000 · linkedin.com/in/candidate",
+      "sections": [
+        {"title": "Education", "rows": [
+          {"left": "University Name", "right": "City, Country", "sub": "BSc Economics, expected June 2028", "subright": "Grade: First Class standing (top 10% of cohort)", "bullets": ["Relevant modules: Corporate Finance, Econometrics, Financial Accounting", "Scholarship: Name of award, for academic merit"]}
+        ]},
+        {"title": "Experience", "rows": [
+          {"left": "Firm Name, Corporate Finance Intern", "right": "Month 2026 to Month 2026", "bullets": ["Built a three-statement model and DCF for a mid-market target in the industrial sector", "Screened 40 potential buyers and drafted the profiles used in the teaser", "Prepared comparable company analysis across eight listed peers"]},
+          {"left": "Company Name, Summer Analyst", "right": "Month 2025 to Month 2025", "bullets": ["Analysed monthly sales data and presented a pricing proposal to the finance director"]}
+        ]},
+        {"title": "Leadership and activities", "rows": [
+          {"left": "University Investment Society, Head of Research", "right": "Month 2025 to present", "bullets": ["Lead a team of six writing a weekly markets note read by 300 members", "Run the stock pitch competition with two sponsoring firms"]}
+        ]},
+        {"title": "Skills and interests", "rows": [
+          {"left": "Languages: Spanish (native), English (fluent), French (intermediate)", "bullets": ["Technical: Excel, PowerPoint, Python (pandas), Bloomberg Market Concepts", "Interests: long-distance running, chess, economic history"]}
+        ]}
+      ]
+    }
+  },
+  "networking": {
+    "steps": [
+      "Make a list of alumni and people from your country in the teams you want, with LinkedIn and your university's alumni network.",
+      "Write short, specific emails. Ask for fifteen minutes, not a job.",
+      "Prepare for each call: their background, two or three questions, your short story.",
+      "Send a thank-you note the same day, and an update when you act on their advice.",
+      "Keep a simple tracker: name, firm, date, notes, next step."
+    ],
+    "templates": [
+      {
+        "id": "alumni",
+        "name": "Alumni",
+        "subject": "[University] student interested in [team]",
+        "body": "Dear [Name],\n\nI am a [year] student studying [degree] at [University], and I saw that you also studied there before joining [Firm]. I am preparing for [role] applications and would value fifteen minutes to hear how you made the move and what your team looks for.\n\nWould a short call in the next two weeks work for you? I am happy to fit around your schedule.\n\nKind regards,\n[Your name]\n[LinkedIn]"
+      },
+      {
+        "id": "cold",
+        "name": "No connection",
+        "subject": "Question about [team] at [Firm]",
+        "body": "Dear [Name],\n\nI am a [year] student at [University] and I have been following [Firm]'s work in [area], in particular [specific deal, report or trade]. I am applying for [role] this cycle and would be grateful for fifteen minutes of your time to learn about your path and the team.\n\nIf a call is not possible, any advice by email would be just as helpful.\n\nKind regards,\n[Your name]"
+      },
+      {
+        "id": "thanks",
+        "name": "Thank you",
+        "subject": "Thank you, [Name]",
+        "body": "Dear [Name],\n\nThank you for your time today. Your advice on [specific point] was especially useful, and I will [action you will take].\n\nI will keep you posted on my applications.\n\nKind regards,\n[Your name]"
+      }
+    ]
+  },
+  "technicals": {
+    "intro": "Interviews test accounting, valuation and how well you follow markets. Learn the logic, not scripts: interviewers ask follow-ups.",
+    "topics": [
+      {"name": "Accounting", "what": "How the three statements link, and what a change in one item does to each.", "link": "interview-prep/"},
+      {"name": "Valuation", "what": "DCF, comparable companies and precedent transactions, and when each fails.", "link": "interview-prep/"},
+      {"name": "Markets", "what": "Where rates, equities, FX and commodities are, and why they moved this week.", "link": "interview-prep/"},
+      {"name": "Rates and the Fed", "what": "The yield curve, inversions and what futures price for the next meetings.", "link": "dashboards/fed-rates/"},
+      {"name": "A stock pitch", "what": "One idea, a clear thesis, the risks and what would change your mind.", "link": "learn/"}
+    ]
+  },
+  "visas": {
+    "note": "Rules change often. Always check the official source before you apply.",
+    "regions": [
+      {
+        "name": "United States",
+        "routes": [
+          {"name": "F-1 student visa: CPT and OPT", "what": "CPT allows internships during the degree when they are part of the curriculum. OPT allows 12 months of work after it.", "src": "https://studyinthestates.dhs.gov/"},
+          {"name": "STEM OPT extension", "what": "24 more months for graduates of STEM-designated degrees. Many quantitative finance and some finance master's programmes qualify: check the programme's classification before enrolling.", "src": "https://studyinthestates.dhs.gov/stem-opt-hub"},
+          {"name": "H-1B", "what": "The main long-term work visa, allocated by an annual lottery and sponsored by the employer. Rules and fees changed in 2025.", "src": "https://www.uscis.gov/working-in-the-united-states/h-1b-specialty-occupations"},
+          {"name": "Nationality routes", "what": "E-3 for Australians, H-1B1 for Chileans and Singaporeans, and TN for Canadians and Mexicans in listed professions.", "src": "https://travel.state.gov/content/travel/en/us-visas/employment.html"}
+        ]
+      },
+      {
+        "name": "United Kingdom",
+        "routes": [
+          {"name": "Graduate Route", "what": "Work without a sponsor after a UK degree: two years, cut to 18 months for applications from 1 January 2027.", "src": "https://www.gov.uk/graduate-visa"},
+          {"name": "Skilled Worker", "what": "Employer-sponsored. Most large banks and asset managers hold a sponsor licence; salary thresholds apply.", "src": "https://www.gov.uk/skilled-worker-visa"},
+          {"name": "EU citizens", "what": "Since 2021 EU citizens need a visa to work in the UK. Irish citizens are the exception.", "src": "https://www.gov.uk/browse/visas-immigration/work-visas"}
+        ]
+      },
+      {
+        "name": "European Union",
+        "routes": [
+          {"name": "Free movement", "what": "EU, EEA and Swiss citizens can work in any member state without a permit.", "src": "https://europa.eu/youreurope/citizens/work/"},
+          {"name": "Post-study job search", "what": "Most countries let non-EU graduates stay to look for work after a degree, for example Germany, France and the Netherlands.", "src": "https://immigration-portal.ec.europa.eu/"},
+          {"name": "EU Blue Card", "what": "For highly qualified non-EU workers with a job offer above a salary threshold set by each country.", "src": "https://immigration-portal.ec.europa.eu/eu-blue-card_en"}
+        ]
+      }
+    ]
+  },
+  "certifications": [
+    {"name": "CFA Program", "by": "CFA Institute", "when": "Best for asset management, research and hedge funds. Students can sit Level I before they graduate; check the eligibility rules.", "worth": "High for buy-side roles; a heavy time commitment.", "src": "https://www.cfainstitute.org/programs/cfa-program"},
+    {"name": "FMVA", "by": "Corporate Finance Institute", "when": "Online modelling and valuation training.", "worth": "Useful practice for technicals; not a substitute for experience.", "src": "https://corporatefinanceinstitute.com/"},
+    {"name": "Bloomberg Market Concepts", "by": "Bloomberg", "when": "A short self-paced course on the terminal and markets basics, often free through university libraries.", "worth": "Quick and shows interest in markets.", "src": "https://www.bloomberg.com/professional/product/bloomberg-market-concepts/"},
+    {"name": "SIE exam", "by": "FINRA", "when": "The entry exam for US securities roles; firms usually sponsor the later licences.", "worth": "Optional before an offer; some students take it to signal commitment.", "src": "https://www.finra.org/registration-exams-ce/qualification-exams/securities-industry-essentials-exam"},
+    {"name": "CISI qualifications", "by": "CISI", "when": "UK securities and investment certificates.", "worth": "More relevant in operations, wealth management and compliance.", "src": "https://www.cisi.org/"},
+    {"name": "CAIA and FRM", "by": "CAIA Association, GARP", "when": "Alternatives and risk management.", "worth": "Later in a career rather than before the first job.", "src": "https://www.garp.org/frm"}
+  ],
+  "resources": [
+    {"group": "On Andra Markets", "items": [
+      {"name": "Markets Interview Prep", "what": "This week's markets in interview language and a question bank with model answers.", "href": "interview-prep/"},
+      {"name": "Daily close note", "what": "Read one a day to follow markets.", "href": "reports/"},
+      {"name": "Learn", "what": "Explainers on the yield curve, the VIX, CPI and more.", "href": "learn/"},
+      {"name": "Fed & Rates", "what": "The policy rate, the curve and what markets price next.", "href": "dashboards/fed-rates/"}
+    ]},
+    {"group": "Books", "items": [
+      {"name": "Investment Banking: Valuation, LBOs, M&A and IPOs (Wiley)", "what": "Valuation, leveraged buyouts and the M&A process."},
+      {"name": "Valuation: Measuring and Managing the Value of Companies (McKinsey & Company, Wiley)", "what": "The reference on corporate valuation."},
+      {"name": "Options, Futures and Other Derivatives (Pearson)", "what": "The standard text for sales and trading and risk."},
+      {"name": "The Intelligent Investor (Harper Business)", "what": "The case for investing with a margin of safety."}
+    ]},
+    {"group": "Free online", "items": [
+      {"name": "Federal Reserve education", "what": "How monetary policy works, from the source.", "href": "https://www.federalreserve.gov/aboutthefed.htm"},
+      {"name": "NYU Stern valuation pages", "what": "Free valuation lectures and industry datasets.", "href": "https://pages.stern.nyu.edu/~adamodar/"},
+      {"name": "Financial Times and Bloomberg newsletters", "what": "Daily markets briefings; many universities give free access."}
+    ]}
+  ]
+}

@@ -190,11 +190,6 @@ def data_svg(w, h, body, label, stretch=True):
 
 d_path = d  # the path helper, renamed here: "d" is each tile's data below
 
-TENOR_NAME = {"ust1m": "1-month", "ust3m": "3-month", "ust6m": "6-month", "ust1y": "1-year",
-              "ust2y": "2-year", "ust3y": "3-year", "ust5y": "5-year", "ust7y": "7-year",
-              "ust10y": "10-year", "ust20y": "20-year", "ust30y": "30-year"}
-
-
 def tip(text):
     return f"<title>{esc(text)}</title>"
 
@@ -220,40 +215,6 @@ def span(vals, pad_frac=0.12, floor=0.05):
     lo, hi = min(vals), max(vals)
     pad = max((hi - lo) * pad_frac, floor)
     return lo - pad, hi + pad
-
-
-def r_yield_curve(rec):
-    d = rec["data"]
-    years = [TENOR_YEARS[k] for k in d["tenors"]]
-    lo, hi = span(d["now"] + d["before"])
-    X = lambda t: 12 + (W - 24) * math.sqrt(t) / math.sqrt(30)  # noqa: E731
-    Y = lambda v: H - 12 - (H - 24) * (v - lo) / (hi - lo)  # noqa: E731
-    a = [(X(t), Y(v)) for t, v in zip(years, d["now"])]
-    b = [(X(t), Y(v)) for t, v in zip(years, d["before"])]
-    now, then = short_day(rec["asof"]), short_day(d["then"])
-    names = [TENOR_NAME[k] for k in d["tenors"]]
-    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5">{tip(f"{n}: {pct(v)} ({then}: {pct(o)})")}</circle>'
-                   for (x, y), n, v, o in zip(a, names, d["now"], d["before"]))
-    label = (f"US Treasury yield curve on {now} against {then}: "
-             + ", ".join(f"{n} {pct(v)}" for n, v in zip(names, d["now"])))
-    return (data_svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d_path(b)}"/><path class="line" d="{d_path(a)}"/>' + dots, label, stretch=False),
-            [("line", now), ("dash", then)])
-
-
-def r_fed_path(rec):
-    d = rec["data"]
-    months, implied, effr = [m for m, _ in d["months"]], [v for _, v in d["months"]], d.get("effr")
-    lo, hi = span(implied + ([effr] if effr is not None else []))
-    pa, pb = fit([implied, [effr if effr is not None else implied[0]] * len(implied)], W, H, 14, lo, hi)
-    names = [month_name(m + "-01") for m in months]
-    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5">{tip(f"{n}: {pct(v)}")}</circle>'
-                   for (x, y), n, v in zip(pa, names, implied))
-    label = "Fed funds rate implied by futures, month by month: " + ", ".join(f"{n} {pct(v)}" for n, v in zip(names, implied))
-    ref, leg = "", [("line", "Implied path")]
-    if effr is not None:
-        label += f"; effective rate {pct(effr)} on {short_day(d['effr_date'])}"
-        ref, leg = f'<path class="dash" d="{d_path(pb)}"/>', leg + [("dash", "Effective rate")]
-    return (data_svg(W, H, grid_lines(W, H, 4) + ref + f'<path class="line" d="{d_path(pa)}"/>' + dots, label, stretch=False), leg)
 
 
 def r_sector_heatmap(rec):
@@ -385,7 +346,7 @@ def r_breadth(rec):
 
 
 REAL = {
-    "yield_curve": r_yield_curve, "fed_path": r_fed_path, "sector_heatmap": r_sector_heatmap,
+    "sector_heatmap": r_sector_heatmap,
     "vol_term": r_vol_term, "global_indices": r_global_indices, "fx_majors": r_fx_majors,
     "commodities": r_commodities, "credit_spreads": r_credit_spreads,
     "inflation_labour": r_inflation_labour, "breadth": r_breadth, "correlation": r_correlation,
@@ -449,8 +410,6 @@ CATEGORIES = [
 # from tools/dashboard_data.py. A tile still waiting for its first figures
 # shows its source and "Data pending", never a stand-in chart.
 DASHBOARDS = [
-    ("yield_curve", "rates", "Yield curve", "The Treasury curve today against a month ago.", "FRED, US Treasury"),
-    ("fed_path", "macro", "Fed path", "Where futures price the policy rate, month by month.", "CME futures, Yahoo Finance; FRED"),
     ("sector_heatmap", "equities", "Sector heatmap", "Every S&amp;P 500 sector, ranked by the day's move.", "Yahoo Finance, sector ETFs"),
     ("vol_term", "cross", "Volatility term structure", "Implied volatility across expiries, and how its shape is shifting.", "Cboe, Yahoo Finance"),
     ("global_indices", "equities", "Global indices", "Major equity benchmarks across the US, Europe and Asia.", "Yahoo Finance, local closes"),
@@ -464,22 +423,6 @@ DASHBOARDS = [
 
 # Dashboard pages: key -> (slug, default range, how to read it, source).
 DASH_PAGES = {
-    "yield_curve": ("yield-curve", "1M",
-        "Each dot is the yield on a US Treasury of that maturity; the solid line is the latest close, the dashed one the curve "
-        "at the start of the range. Maturities are spaced by the square root of their length, so the short end is not squeezed. "
-        "An upward slope is normal: lenders ask more to lend for longer. A curve that falls from left to right (inverted) has "
-        "often come before a slowdown. A move in the short end is mostly about Fed policy; a move in the long end about growth, "
-        "inflation and the supply of bonds.",
-        "Daily Treasury par yields, published by the US Treasury and served by FRED (series DGS1MO to DGS30). FRED posts each "
-        "day's curve late in the evening, so the latest curve is usually the previous session's. While FRED is unreachable the "
-        "curve comes from the Andra Markets archive of the same FRED figures."),
-    "fed_path": ("fed-path", "1M",
-        "Each point is one month's 30-day fed funds future: 100 minus its price is the average overnight rate the market expects "
-        "for that month. A path that slopes down prices rate cuts; one that rises prices hikes. The dashed line is the same path "
-        "as it was priced at the start of the range, so the gap shows how expectations have moved. Futures carry a small risk "
-        "premium, so they are a guide to expectations, not a forecast.",
-        "CBOT 30-day fed funds futures, daily settlement, from Yahoo Finance. The effective federal funds rate is from the "
-        "Federal Reserve Bank of New York, served by FRED (series EFFR), when FRED is reachable."),
     "sector_heatmap": ("sector-heatmap", "1D",
         "Each bar is one of the eleven S&amp;P 500 sectors, through the Select Sector SPDR ETF that tracks it, over the chosen "
         "range. Leaders and laggards show where money is rotating: defensive sectors (staples, utilities, health care) tend to "
@@ -543,24 +486,8 @@ def latest_rows(key, rec):
     if det["kind"] == "curve":
         cmp = det["compare"].get("1M") or next(iter(det["compare"].values()))
         rows = []
-        idx = {lb: i for i, lb in enumerate(det["labels"])}
-        pick = {"yield_curve": ["3M", "2Y", "10Y", "30Y"], "vol_term": det["labels"]}.get(key)
-        if key == "fed_path":
-            pick = [det["labels"][i] for i in (0, min(2, len(det["labels"]) - 1), min(5, len(det["labels"]) - 1), len(det["labels"]) - 1)]
-        for lb in pick:
-            i = idx[lb]
-            v, o = det["values"][i], cmp["values"][i]
-            if det.get("unit") == "%" or key == "yield_curve":
-                rows.append((("Implied, " if key == "fed_path" else "") + lb, pct(v, 2), mv(f"{signed((v - o) * 100, 0, 'bp')} since {short_day(cmp['date'])}")))
-            else:
-                rows.append((f"VIX {lb}", f"{v:.2f}", mv(f"{signed(v - o, 2)} since {short_day(cmp['date'])}")))
-        if key == "yield_curve":
-            v = (det["values"][idx["10Y"]] - det["values"][idx["2Y"]]) * 100
-            o = (cmp["values"][idx["10Y"]] - cmp["values"][idx["2Y"]]) * 100
-            # The spread is a level (ink); its change since then is a move.
-            rows.append(("10Y less 2Y", signed(v, 0, "bp"), mv(f"{signed(v - o, 0, 'bp')} since {short_day(cmp['date'])}")))
-        if det.get("ref"):
-            rows.append((det["ref"]["name"], pct(det["ref"]["value"], 2), short_day(det["ref"]["date"])))
+        for lb, v, o in zip(det["labels"], det["values"], cmp["values"]):
+            rows.append((f"VIX {lb}", f"{v:.2f}", mv(f"{signed(v - o, 2)} since {short_day(cmp['date'])}")))
         return rows
     if det["kind"] == "perf":
         r = det["ranges"]["1D"]
@@ -631,8 +558,6 @@ PERF_VIEWS = [("main", "Ranked"), ("rebased", "Rebased")]
 CURVE_VIEWS = [("main", "Curve"), ("change", "Change"), ("time", "Over time")]
 DASH_VIEWS = {
     "sector_heatmap": PERF_VIEWS, "global_indices": PERF_VIEWS, "fx_majors": PERF_VIEWS,
-    "yield_curve": CURVE_VIEWS + [("spreads", "Spreads")],
-    "fed_path": [("main", "Path"), ("change", "Change"), ("time", "Over time")],
     "vol_term": CURVE_VIEWS,
     "commodities": [("main", "Rebased"), ("ranked", "Ranked")],
     "credit_spreads": [("main", "Levels"), ("change", "Change")],
@@ -667,12 +592,6 @@ def dash_dates(det):
 
 # What each page adds beyond its tile: (how to read the extra views, extra sources).
 DASH_MORE = {
-    "yield_curve": ("Pick a date to compare the curve with any session in the last two years. Change shows how far each "
-                    "maturity has moved since then, in basis points. Over time follows chosen maturities day by day; "
-                    "Spreads follows the gaps between them (10Y less 2Y, 10Y less 3M, 30Y less 5Y, 2Y less 3M): a spread "
-                    "below zero is an inverted curve.", ""),
-    "fed_path": ("Pick a date to compare the path with how it was priced then. Change shows the move in each month's "
-                 "implied rate, in basis points; Over time follows chosen months' implied rates day by day.", ""),
     "sector_heatmap": ("Pick a date to measure every sector from that close, and switch sectors on or off; the S&amp;P 500 "
                        "itself (SPY) is there to compare. Rebased draws up to six sectors from 100 on the range's first "
                        "day, so the paths can be compared, not only the end points.", " SPDR S&amp;P 500 ETF (SPY) for comparison."),
@@ -1260,6 +1179,7 @@ def site_header(home, base):
     </a>
     <nav class="nav" id="site-nav" aria-label="Primary">
       <a href="{home}#dashboards">Dashboards</a>
+      <a href="{base}fed-rates/">Fed &amp; Rates</a>
       <a href="{base}companies/">Companies</a>
       <a href="{base}lab/">Lab</a>
       <a href="{base}simulators/">Simulators</a>
@@ -1269,6 +1189,7 @@ def site_header(home, base):
       <a href="{base}research/">Research</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
+      <a href="{base}careers/">Careers</a>
       <a href="{base}learn/">Learn</a>
       <a class="nav__subscribe" href="{home}#subscribe">Subscribe</a>
     </nav>
@@ -1303,6 +1224,7 @@ def site_footer(home, base):
     </div>
     <nav class="foot__nav" aria-label="Footer">
       <a href="{home}#dashboards">Dashboards</a>
+      <a href="{base}fed-rates/">Fed &amp; Rates</a>
       <a href="{base}companies/">Companies</a>
       <a href="{base}lab/">Lab</a>
       <a href="{base}simulators/">Simulators</a>
@@ -1313,6 +1235,7 @@ def site_footer(home, base):
       <a href="{base}reports/">All notes</a>
       <a href="{home}#note">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
+      <a href="{base}careers/">Path to Wall Street</a>
       <a href="{base}learn/">Learn</a>
       <a href="{home}#about">About</a>
       <a href="{base}methodology/">Methodology</a>
@@ -2552,26 +2475,30 @@ def interview_page(notes):
 DATA_SOURCES = [
     ("Yahoo Finance", "https://finance.yahoo.com/",
      "Closing prices of equity indices, sector ETFs, volatility indices, currencies, commodity futures, credit ETFs, "
-     "digital assets and the watchlist stocks; fed funds futures; earnings dates, diluted EPS and market caps.",
-     "Close notes, dashboards, World, FX, calendar earnings, company pages, Trading Simulator",
-     "After each US close for the notes; at every deploy for the dashboards"),
+     "digital assets and the watchlist stocks; CBOT fed funds futures and the Cboe Treasury yield indices; earnings "
+     "dates, diluted EPS and market caps.",
+     "Close notes, dashboards, Fed &amp; Rates, World, FX, calendar earnings, company pages, Trading Simulator",
+     "After each US close for the notes; at every deploy for the dashboards; every 15 minutes while the NYSE is "
+     "open for the fed funds futures and intraday yields"),
     ("FRED, Federal Reserve Bank of St. Louis", "https://fred.stlouisfed.org/",
-     "The US Treasury's daily par yield curve, breakevens and real yields, the effective federal funds rate, "
-     "ICE BofA credit spreads, inflation and payrolls.",
-     "Close notes, dashboards, calendar actuals",
+     "The US Treasury's daily par yield curve, breakevens and real yields, the 2s10s and 3m10y spreads, the Fed's "
+     "target range, the effective and monthly federal funds rates, ICE BofA credit spreads, inflation, unemployment "
+     "and payrolls.",
+     "Close notes, dashboards, Fed &amp; Rates, calendar actuals",
      "Daily; FRED posts the Treasury curve late in the evening and credit spreads with a short delay"),
-    ("US Treasury and TreasuryDirect", "https://www.treasurydirect.gov/",
-     "Note and bond auction schedules and results; the par yield curve (served by FRED).",
-     "Calendar, close notes", "At every deploy"),
+    ("US Treasury and TreasuryDirect", "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
+     "Note and bond auction schedules and results; the daily par yield curve and real yield curve.",
+     "Fed &amp; Rates, calendar, close notes", "At every deploy, and each weekday evening after the curve is posted"),
     ("Cboe", "https://www.cboe.com/",
-     "VIX and the volatility term structure; the options expiration calendar.",
-     "Dashboards, close notes, calendar", "At every deploy"),
+     "VIX and the volatility term structure; the options expiration calendar; the 13-week, 5-, 10- and 30-year "
+     "Treasury yield indices.",
+     "Dashboards, Fed &amp; Rates, close notes, calendar", "At every deploy; every 15 minutes while the NYSE is open for the yield indices"),
     ("Official statistics and central banks", "../calendar/#cl-src",
      "Release dates and times from the BLS, BEA, Census Bureau, Department of Labor, Federal Reserve, ISM, S&amp;P "
      "Global, The Conference Board, the University of Michigan, the ECB, Eurostat, the Bank of England, the ONS, "
      "the Bank of Japan, China's National Bureau of Statistics and the People's Bank of China; actual figures from "
      "Eurostat, the ECB, the ONS and the Bank of England.",
-     "Calendar", "At every deploy; each source's last read is on the calendar page"),
+     "Calendar, Fed &amp; Rates (FOMC dates)", "At every deploy; each source's last read is on the calendar page"),
     ("State Street and iShares", "https://www.ssga.com/",
      "Index membership from the SPY holdings (S&amp;P 500) and the iShares STOXX Europe 600 ETF holdings.",
      "Calendar earnings, company pages", "At every deploy"),
@@ -2590,7 +2517,7 @@ DATA_SOURCES = [
      "before 1988 (from 1988 it uses the S&amp;P 500 Total Return index from Yahoo Finance).",
      "Trading Simulator", "At most once a day, at deploy"),
     ("Andra Markets", "../methodology/",
-     "The risk score, watchlist breadth and dispersion, calculated from the figures above.",
+     "The risk score, watchlist breadth and dispersion, and the FOMC meeting probabilities, calculated from the figures above.",
      "Close notes, dashboards", "With each close note"),
 ]
 
@@ -4439,6 +4366,420 @@ def world_page(w):
                  body=body, home="../", base="../", path="world/", scripts=("world.js",))
 
 
+# Fed & Rates (fed-rates/) ---------------------------------------------------------
+# Figures from tools/fedrates_data.py (.cache/fedrates/fedrates.json), one block
+# per panel, each with its own source and date. A block not fetched yet keeps
+# its panel with "Data pending".
+
+FEDRATES_DATA = ROOT / ".cache" / "fedrates" / "fedrates.json"
+DOWNLOAD_ICON = ('<svg class="icon" aria-hidden="true" viewBox="0 0 256 256"><path fill="currentColor" d="M224,144v64a8,8,0,0,1-8,8H40a8,'
+                 '8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,'
+                 '124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"/></svg>')
+
+
+def load_fedrates():
+    try:
+        return json.loads(FEDRATES_DATA.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def et_stamp(iso_time):
+    """"30 Oct 2026, 2:45 pm ET" from an ISO time."""
+    t = dt.datetime.fromisoformat(iso_time).astimezone(NY)
+    return f"{day_med(t.date())}, {clock(t)} ET"
+
+
+def meeting_short(iso_day):
+    d = dt.date.fromisoformat(iso_day)
+    return f"{d:%b} {d:%y}"
+
+
+def meeting_days(m):
+    a, b = dt.date.fromisoformat(m["first"]), dt.date.fromisoformat(m["last"])
+    if a == b:
+        return day_med(b)
+    if a.month == b.month:
+        return f"{a.day} and {b.day} {b:%b %Y}"
+    return f"{a.day} {a:%b} and {b.day} {b:%b %Y}"
+
+
+def bp_name(bp):
+    return "Hold" if bp == 0 else f"Cut {abs(bp)} bp" if bp < 0 else f"Hike {bp} bp"
+
+
+def fr_decision(m, policy):
+    """The change in the target range at a past meeting, from the upper bound's history."""
+    hist = (policy or {}).get("upper_hist") or {}
+    days = sorted(hist)
+    before = [d for d in days if d <= m["first"]]
+    after = [d for d in days if d > m["last"]]
+    if not before or not after:
+        return None
+    return round((hist[after[0]] - hist[before[-1]]) * 100)
+
+
+def fr_panel(pid, title, intro, inner, source, save=True):
+    btn = (f'<button type="button" class="btn btn--sm btn--ghost fr__save" data-save="{pid}">{DOWNLOAD_ICON}'
+           f'<span>Save image</span></button>' if save else "")
+    return (f'<section class="fr__panel" id="{pid}" aria-labelledby="{pid}-h">'
+            f'<div class="fr__ph"><h2 id="{pid}-h">{title}</h2>{btn}</div>'
+            f'<p class="fr__intro">{intro}</p>{inner}<p class="fr__src">{source}</p></section>')
+
+
+def fr_figure(pid, label):
+    return (f'<figure class="dd__chart fr__fig"><div class="dd__plot fr__plot" id="{pid}-plot" role="img" tabindex="0" '
+            f'aria-label="{label}"></div><figcaption><p class="key fr__key" id="{pid}-key"></p>'
+            f'<p class="dd__read" id="{pid}-read" aria-live="polite"></p></figcaption></figure>')
+
+
+FR_PENDING = '<div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div>'
+
+
+def fr_payload(d):
+    """What assets/fedrates.js draws: the panels' series, dates already formatted."""
+    out = {}
+    c = d.get("curve")
+    if c:
+        out["curve"] = {"tenors": c["tenors"], "years": c["years"], "curves": {k: c["curves"][k] for k in ("now", "1W", "1M", "1Y") if k in c["curves"]},
+                        "dates": {k: day_med(dt.date.fromisoformat(v)) for k, v in c["dates"].items()}}
+        it = d.get("intraday")
+        if it and dt.datetime.fromisoformat(it["time"]).astimezone(NY).date() > dt.date.fromisoformat(c["asof"]) \
+                and dt.datetime.now(dt.timezone.utc) - dt.datetime.fromisoformat(it["time"]) < dt.timedelta(hours=20):
+            t = dt.datetime.fromisoformat(it["time"]).astimezone(NY)
+            out["curve"]["intra"] = {"label": f"Intraday, {clock(t)} ET", "points": it["points"]}
+    o = d.get("odds")
+    if o:
+        out["path"] = {"meetings": [meeting_short(p["meeting"]) for p in o["path"]], "now": [p["rate"] for p in o["path"]],
+                       "ago": (o.get("ago") or {}).get("path"),
+                       "ago_label": f'Priced {day_med(dt.date.fromisoformat(o["ago"]["date"]))}' if o.get("ago") else None,
+                       "ref": (d.get("policy") or {}).get("effr")}
+    for k in ("spreads", "macro", "real"):
+        if d.get(k):
+            out[k] = {"dates": d[k]["dates"], "series": d[k]["series"]}
+    return out
+
+
+def fr_latest(d):
+    """The Latest panel: (name, level, note) rows; levels in ink, moves in red or green."""
+    rows = []
+    p, c, o, re_, mac = (d.get(k) for k in ("policy", "curve", "odds", "real", "macro"))
+    if p:
+        lc = p.get("last_change")
+        rows.append(("Target range", f'{p["lower"]:.2f} to {p["upper"]:.2f}%',
+                     mv(f'{signed(lc["bp"], 0, "bp")} on {short_day(lc["date"])}') if lc else ""))
+        rows.append(("Effective rate", pct(p["effr"]), mv(f'{signed((p["effr"] - p["effr_prev"]) * 100, 0, "bp")} on {short_day(p["effr_date"])}')))
+    if o:
+        top = max(o["probs"], key=lambda x: x["p"])
+        rows.append(("Next FOMC", short_day(o["meeting"]), f'{bp_name(top["bp"])} {round(top["p"] * 100)}%'))
+    if c:
+        i = {lb: n for n, lb in enumerate(c["tenors"])}
+        now, prev = c["curves"]["now"], c["curves"]["1D"]
+        on = f'on {short_day(c["dates"]["now"])}'
+        for lb in ("2Y", "10Y"):
+            rows.append((f"{lb} yield", pct(now[i[lb]]), mv(f"{signed((now[i[lb]] - prev[i[lb]]) * 100, 0, 'bp')} {on}")))
+        for name, a, b in (("2s10s", "10Y", "2Y"), ("3m10y", "10Y", "3M")):
+            v, w = (now[i[a]] - now[i[b]]) * 100, (prev[i[a]] - prev[i[b]]) * 100
+            # The spread is a level (ink); its change on the day is a move.
+            rows.append((name, signed(v, 0, "bp"), mv(f"{signed(v - w, 0, 'bp')} {on}")))
+    if re_:
+        for name in ("10Y real", "10Y breakeven"):
+            x = re_["latest"][name]
+            rows.append((name, pct(x["value"]), mv(f'{signed((x["value"] - x["prev"]) * 100, 0, "bp")} on {short_day(x["date"])}')))
+    if mac:
+        x = mac["latest"]["Core PCE"]
+        rows.append(("Core PCE", pct(x["value"], 1), f'y/y, {month_name(x["month"])}'))
+    return rows
+
+
+def fedrates_page(d):
+    p, fomc, o, c = d.get("policy"), d.get("fomc"), d.get("odds"), d.get("curve")
+    now = dt.datetime.now(dt.timezone.utc)
+    meetings = (fomc or {}).get("meetings") or []
+    past = [m for m in meetings if dt.datetime.fromisoformat(m["decision"]) <= now]
+    upcoming = [m for m in meetings if dt.datetime.fromisoformat(m["decision"]) > now]
+    # Policy and the FOMC
+    if p:
+        lc = p.get("last_change")
+        rate = (f'<div class="fr__rate"><span class="fr__label">Target range</span>'
+                f'<span class="fr__big">{p["lower"]:.2f} to {p["upper"]:.2f}%</span>'
+                f'<span class="fr__sub">Effective rate {pct(p["effr"])}, {short_day(p["effr_date"])}.'
+                + (f' Last change {mv(signed(lc["bp"], 0, "bp"))} on {day_med(dt.date.fromisoformat(lc["date"]))}.' if lc else "")
+                + '</span></div>')
+    else:
+        rate = '<div class="fr__rate"><span class="fr__label">Target range</span><span class="fr__big fr__pending">Data pending</span></div>'
+    if upcoming:
+        nxt = upcoming[0]
+        t = dt.datetime.fromisoformat(nxt["decision"]).astimezone(NY)
+        units = "".join(f'<span><b data-cd="{u}">00</b><i>{n}</i></span>' for u, n in (("d", "days"), ("h", "hours"), ("m", "min"), ("s", "sec")))
+        nxt_html = (f'<div class="fr__next"><span class="fr__label">Next FOMC decision</span>'
+                    f'<span class="fr__big">{day_med(t.date())}, {clock(t)} ET</span>'
+                    f'<div class="fr__cd" id="fr-cd" data-target="{nxt["decision"]}" role="timer" aria-label="Time to the decision">{units}</div></div>')
+    else:
+        nxt_html = '<div class="fr__next"><span class="fr__label">Next FOMC decision</span><span class="fr__big fr__pending">Data pending</span></div>'
+    rows = ""
+    if past:
+        m = past[-1]
+        bp = fr_decision(m, p)
+        what = "Decided" if bp is None else "Held" if bp == 0 else f"Decided {mv(signed(bp, 0, 'bp'))}"
+        rows += f'<li class="is-past"><span>{meeting_days(m)}</span><span>{what}</span></li>'
+    for i, m in enumerate(upcoming[:6]):
+        note = ("Next" + (", with projections" if m["sep"] else "")) if i == 0 else ("With projections" if m["sep"] else "")
+        rows += f'<li{" class=is-next" if i == 0 else ""}><span>{meeting_days(m)}</span><span>{note}</span></li>'
+    meet = f'<ol class="fr__meet" aria-label="FOMC meetings">{rows}</ol>' if rows else ""
+    pol_src = "; ".join(x for x in ((p or {}).get("source"), (fomc or {}).get("source")) if x) or "Federal Reserve, FRED"
+    upd = f' Updated {et_stamp(p["fetched"])}.' if p else ""
+    policy = fr_panel("fr-policy", "Policy rate and the FOMC",
+                      "The Fed's target range, the rate banks actually lend at overnight, and the next decision.",
+                      f'<div class="fr__now">{rate}{nxt_html}</div>{meet}', f"{esc(pol_src)}.{upd}", save=False)
+    # What markets price
+    if o:
+        probs = "".join(f'<li><span class="fr-p__n">{bp_name(x["bp"])}</span><span class="fr-p__bar"><i style="width:{round(x["p"] * 100)}%"></i></span>'
+                        f'<span class="fr-p__v">{round(x["p"] * 100)}%</span></li>' for x in o["probs"])
+        odds_inner = (f'<div class="fr__probs"><p class="fr__label">Next meeting, {day_med(dt.date.fromisoformat(o["meeting"]))}. '
+                      f'Implied change {mv(signed(o["change_bp"], 0, "bp"))}</p><ul>{probs}</ul></div>'
+                      + fr_figure("fr-path", "Expected effective rate after each FOMC meeting, implied by fed funds futures"))
+        odds_src = f'{o["source"]}, priced {et_stamp(o["time"])} (Yahoo Finance, delayed about 10 minutes); the effective rate from FRED.'
+    else:
+        odds_inner, odds_src = FR_PENDING, "Andra Markets calculation from CBOT 30-day fed funds futures (Yahoo Finance)."
+    odds_p = fr_panel("fr-odds", "What markets price",
+                      "Probabilities for the next meeting and the expected rate after each meeting, from fed funds futures.",
+                      odds_inner, odds_src, save=bool(o))
+    # Curve
+    if c:
+        toggles = "".join(f'<button type="button" class="chip" data-cmp="{k}" aria-pressed="{"true" if k == "1M" else "false"}">{lb}</button>'
+                          for k, lb in (("1W", "1 week ago"), ("1M", "1 month ago"), ("1Y", "1 year ago")) if k in c["curves"])
+        curve_inner = (f'<div class="dd__ctl"><div class="dd__cgroup"><span class="cl__glabel" id="cmp-l">Compare with</span>'
+                       f'<div class="dd__toggles" role="group" aria-labelledby="cmp-l">{toggles}</div></div></div>'
+                       + fr_figure("fr-curve", "US Treasury par yield curve, 1 month to 30 years") + '<div class="fr__chg" id="fr-chg"></div>')
+        curve_src = f'{esc(c["source"])}. As of {day_med(dt.date.fromisoformat(c["asof"]))}.'
+        if d.get("intraday"):
+            curve_src += " Intraday points: Cboe yield indices (13-week bill for 3M) on Yahoo Finance, delayed about 15 minutes."
+    else:
+        curve_inner, curve_src = FR_PENDING, "US Treasury, daily par yield curve; FRED."
+    curve_p = fr_panel("fr-curve", "Treasury yield curve",
+                       "Yields from 1 month to 30 years. Compare today's curve with a week, a month and a year ago.",
+                       curve_inner, curve_src, save=bool(c))
+
+    def series_panel(key, pid, fig, title, intro, label, extra=""):
+        b = d.get(key)
+        inner = (extra + fr_figure(fig, label)) if b else FR_PENDING
+        asof = dt.date.fromisoformat(b["asof"]) if b else None
+        when = (f"Latest month {asof:%b %Y}." if key == "macro" else f"As of {day_med(asof)}.") if b else ""
+        return fr_panel(pid, title, intro, inner, f'{esc(b["source"]) if b else "FRED"}. {when}'.strip(), save=bool(b))
+    sp_ctl = ('<div class="dd__ctl"><div class="dd__cgroup"><span class="cl__glabel" id="sp-l">Spread</span>'
+              '<div class="filters" role="group" aria-labelledby="sp-l">'
+              '<button type="button" class="chip" data-sp="0" aria-pressed="true">2s10s</button>'
+              '<button type="button" class="chip" data-sp="1" aria-pressed="false">3m10y</button>'
+              '<button type="button" class="chip" data-sp="2" aria-pressed="false">Both</button></div></div></div>')
+    spreads = series_panel("spreads", "fr-spreads", "fr-sp", "Curve spreads",
+                           "10-year less 2-year (2s10s) and 10-year less 3-month (3m10y). Shaded periods: the curve was inverted.",
+                           "2s10s and 3m10y Treasury spreads in basis points", sp_ctl)
+    macro = series_panel("macro", "fr-macro", "fr-mac", "The Fed against inflation and jobs",
+                         "The fed funds rate beside CPI and core PCE inflation (year on year) and the unemployment rate.",
+                         "Fed funds rate, CPI and core PCE inflation, and unemployment, monthly")
+    real = series_panel("real", "fr-real", "fr-re", "Real rates and breakevens",
+                        "The 10-year TIPS yield (the real rate) and the inflation investors price over 5 and 10 years, and 5 years starting 5 years ahead.",
+                        "10-year real yield and inflation breakevens")
+    ranges = "".join(f'<button type="button" class="chip" data-range="{r}" aria-pressed="{"true" if r == "5Y" else "false"}">{r}</button>'
+                     for r in ("1M", "3M", "6M", "1Y", "2Y", "5Y", "10Y", "Max"))
+    latest = fr_latest(d)
+    kpis = "".join(f'<li class="kpi__item"><span class="kpi__name">{n}</span><span class="kpi__level">{lv}</span>'
+                   f'<span class="kpi__chg">{note}</span></li>' for n, lv, note in latest)
+    side = (f'<aside class="report__side dd__side fr__side" aria-labelledby="side-title">'
+            f'<h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{kpis}</ul>'
+            f'<p class="report__src">Each figure with its own date. Sources in each panel.</p></aside>') if latest else ""
+    updated = f'Updated {et_stamp(d["updated"])}' if d.get("updated") else "Data pending"
+    payload = json.dumps(fr_payload(d), separators=(",", ":")).replace("</", "<\\/")
+    body = f"""<main id="main" class="page dd fr">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <h1 class="page__title">Fed &amp; Rates</h1>
+      <p class="lede">The policy rate, the Treasury curve and what markets price for the next meetings.</p>
+      <p class="note__meta"><span>Federal Reserve, US Treasury, FRED, CBOT futures</span><span>{updated}</span><span>Refreshed every 15 minutes while the NYSE is open</span></p>
+    </header>
+    <div class="dd__main fr__main">
+      <div class="fr__range dd__ctl"><div class="dd__cgroup"><span class="cl__glabel" id="fr-range-l">Range, for the charts over time</span>
+        <div class="filters dd__ranges" role="group" aria-labelledby="fr-range-l">{ranges}</div></div></div>
+      {policy}{odds_p}{curve_p}{spreads}{macro}{real}
+    </div>
+    {side}
+    <div class="page__body dd__text">
+      <section aria-labelledby="fr-how"><h2 id="fr-how">How to read it</h2><p>The FOMC sets a target range for the overnight rate eight times a year. Fed funds futures settle on the average effective rate in their month, so the change from one month to the next shows what the market expects each meeting to do. A curve whose short end sits above its long end is inverted: both spreads above turned negative before most US recessions since the 1970s, with long and variable lags. The real yield is what a Treasury pays after inflation; the breakeven is the inflation rate at which inflation-protected and ordinary Treasuries pay the same.</p><p>Read more in <a class="link" href="../learn/fed-rates/">How the Fed sets rates</a> and <a class="link" href="../learn/yield-curve/">How to read the yield curve</a>.</p></section>
+      <section aria-labelledby="fr-src"><h2 id="fr-src">Sources and method</h2><p>Treasury par yields and real yields from the US Treasury, with FRED as backup; FRED posts the curve a day later, so the Treasury's figures come first. Spreads, the fed funds rate, inflation, unemployment and breakevens from FRED. The target range from the Federal Reserve via FRED and the FOMC calendar from the Federal Reserve. Meeting probabilities are an Andra Markets calculation from CBOT 30-day fed funds futures, following the method CME Group publishes: each contract settles on its month's average effective rate, so the rate after a meeting is the month's implied rate with the days before the decision taken out. Futures carry a risk premium, so they are a guide to expectations, not a forecast. The futures and the intraday yield points refresh every 15 minutes while the NYSE is open; the rest once a day. Series older than two years are shown one point a week.</p><p>For information only. Not investment advice.</p></section>
+    </div>
+  </div>
+</main>
+<script type="application/json" id="fr-data">{payload}</script>"""
+    return shell(title="Fed &amp; Rates: Andra Markets",
+                 desc="The Fed's policy rate and FOMC dates, meeting probabilities from fed funds futures, the Treasury curve, "
+                      "2s10s and 3m10y spreads, inflation, unemployment and real rates. By Andra Markets.",
+                 body=body, home="../", base="../", path="fed-rates/", scripts=("fedrates.js",))
+
+
+def moved_redirect(path, to, title, text):
+    """An old address that moved: say where, and go there."""
+    up = "../" * path.count("/")
+    body = (f'<main id="main" class="page"><div class="wrap"><header class="page__head"><h1 class="page__title">{title}</h1>'
+            f'<p class="lede">{text} <a class="link" href="{up}{to}">{title}</a>.</p></header></div></main>'
+            f'<script>location.replace("{up}{to}");</script>')
+    return shell(title=f"{title}: Andra Markets", desc=f"{text} {title}.", body=body, home=up, base=up, path=path)
+
+
+# Path to Wall Street (careers/) ---------------------------------------------------
+# One data file, data/path_to_wall_street.json, edited by hand.
+
+CAREERS_DATA = ROOT / "data" / "path_to_wall_street.json"
+
+
+def careers_page():
+    c = json.loads(CAREERS_DATA.read_text(encoding="utf-8"))
+    base = "../"
+    toc = [("pw-roles", "The roles"), ("pw-time", "Recruiting timeline"), ("pw-cv", "A one-page CV"),
+           ("pw-net", "Networking and cold emails"), ("pw-tech", "Technical preparation"),
+           ("pw-visa", "Visas for international students"), ("pw-cert", "Certifications"), ("pw-res", "Resources")]
+    toc_html = "".join(f'<li><a class="link" href="#{i}">{t}</a></li>' for i, t in toc)
+    roles = ""
+    for i, r in enumerate(c["roles"]):
+        day = "".join(f"<li>{esc(x)}</li>" for x in r["day"])
+        roles += (f'<div class="acc__item"><h3><button type="button" class="acc__btn" id="pw-b{i}" aria-expanded="false" aria-controls="pw-p{i}">'
+                  f'<span><span class="ip-q__cat">{esc(r["short"])}</span>{esc(r["name"])}</span><span class="acc__plus" aria-hidden="true"></span></button></h3>'
+                  f'<div class="acc__panel" id="pw-p{i}" role="region" aria-labelledby="pw-b{i}"><div>'
+                  f'<p>{esc(r["what"])}</p><p class="pw-lab">A typical day</p><ol class="ruled pw-day">{day}</ol>'
+                  f'<p class="pw-lab">Suits you if</p><p>{esc(r["fit"])}</p>'
+                  f'<p class="pw-lab">Where it leads</p><p>{esc(r["exits"])}</p></div></div></div>')
+    t = c["timeline"]
+    reg_chips = "".join(f'<button type="button" class="chip" data-region="{r["id"]}" aria-pressed="{"true" if i == 0 else "false"}">{esc(r["name"])}</button>'
+                        for i, r in enumerate(t["regions"]))
+    kinds_key = "".join(f'<span><i class="pw-sw pw-sw--{k["id"]}"></i>{esc(k["name"])}</span>' for k in t["kinds"])
+    # Without JavaScript the timeline is a list per region.
+    noscript = "".join(f'<h3>{esc(r["name"])}</h3><ul class="ruled">' + "".join(
+        f'<li><b>{esc(next(y["name"] for y in r["years"] if y["id"] == it["year"]))}: {esc(it["title"])}.</b> {esc(it["detail"])}</li>'
+        for it in r["items"]) + "</ul>" for r in t["regions"])
+    cv, s = c["cv"], c["cv"]["sample"]
+    cv_rows = ""
+    for sec in s["sections"]:
+        rows = ""
+        for r in sec["rows"]:
+            right = f'<span>{esc(r["right"])}</span>' if r.get("right") else ""
+            sub = (f'<div class="cv__row cv__sub"><span>{esc(r["sub"])}</span><span>{esc(r.get("subright", ""))}</span></div>'
+                   if r.get("sub") else "")
+            bl = "".join(f"<li>{esc(b)}</li>" for b in r.get("bullets", []))
+            rows += f'<div class="cv__row"><b>{esc(r["left"])}</b>{right}</div>{sub}<ul>{bl}</ul>'
+        cv_rows += f'<div class="cv__sec"><h4>{esc(sec["title"])}</h4>{rows}</div>'
+    cv_rules = "".join(f"<li>{esc(x)}</li>" for x in cv["rules"])
+    n = c["networking"]
+    steps = "".join(f"<li>{esc(x)}</li>" for x in n["steps"])
+    tpl_chips = "".join(f'<button type="button" class="chip" data-tpl="{x["id"]}" aria-pressed="{"true" if i == 0 else "false"}">{esc(x["name"])}</button>'
+                        for i, x in enumerate(n["templates"]))
+    tpls = "".join(f'<div class="pw-tpl" data-tpl-body="{x["id"]}">'
+                   f'<p class="pw-tpl__subj"><span>Subject</span> {esc(x["subject"])}</p><pre>{esc(x["body"])}</pre></div>'
+                   for x in n["templates"])
+    tech = c["technicals"]
+    tech_rows = "".join(f'<li><a href="{base}{x["link"]}"><span class="pw-row__t">{esc(x["name"])}</span>'
+                        f'<span class="pw-row__d">{esc(x["what"])}</span>{icon("arrow-right")}</a></li>' for x in tech["topics"])
+    v = c["visas"]
+    visa = "".join(f'<div class="pw-visa__col"><h3>{esc(reg["name"])}</h3><ul>' + "".join(
+        f'<li><a class="pw-ext" href="{x["src"]}" rel="noopener">{esc(x["name"])}</a><p>{esc(x["what"])}</p></li>' for x in reg["routes"])
+        + "</ul></div>" for reg in v["regions"])
+    certs = "".join(f'<li><a class="pw-ext" href="{x["src"]}" rel="noopener">{esc(x["name"])}</a><span class="pw-cert__by">{esc(x["by"])}</span>'
+                    f'<dl><dt>When</dt><dd>{esc(x["when"])}</dd><dt>Worth it</dt><dd>{esc(x["worth"])}</dd></dl></li>'
+                    for x in c["certifications"])
+    res = ""
+    for g in c["resources"]:
+        items = ""
+        for x in g["items"]:
+            href = x.get("href")
+            if href and not href.startswith("http"):
+                href = base + href
+            name = (f'<a class="pw-ext" href="{href}"{" rel=noopener" if href.startswith("http") else ""}>{esc(x["name"])}</a>'
+                    if href else f'<b>{esc(x["name"])}</b>')
+            items += f"<li>{name}<p>{esc(x['what'])}</p></li>"
+        res += f'<div class="pw-res__g"><h3>{esc(g["group"])}</h3><ul>{items}</ul></div>'
+    reviewed = dt.date.fromisoformat(c["reviewed"])
+    payload = json.dumps(t, separators=(",", ":")).replace("</", "<\\/")
+    body = f"""<main id="main" class="page pw">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Path to Wall Street</h1>
+      <p class="lede">{esc(c["lede"])}</p>
+      <p class="note__meta"><span>Investment banking, sales and trading, asset management, equity research, hedge funds</span><span>Last reviewed <time datetime="{c["reviewed"]}">{day_med(reviewed)}</time></span></p>
+    </header>
+    <nav class="pw-toc" aria-labelledby="pw-toc-h"><h2 id="pw-toc-h">On this page</h2><ol>{toc_html}</ol></nav>
+    <div class="page__body pw__body">
+      <section id="pw-roles" aria-labelledby="pw-roles-h">
+        <h2 id="pw-roles-h">The roles</h2>
+        <p>Five ways into markets: what the job is and what a day looks like for a first-year analyst.</p>
+        <div class="acc acc--multi">{roles}</div>
+      </section>
+    </div>
+    <section id="pw-time" class="pw-time" aria-labelledby="pw-time-h">
+      <h2 id="pw-time-h">Recruiting timeline</h2>
+      <p class="pw-time__lede">{esc(t["note"])} Pick a region, then a year, to see what to do month by month.</p>
+      <div class="pw-js">
+        <div class="dd__ctl">
+          <div class="dd__cgroup"><span class="cl__glabel" id="pw-reg-l">Region</span><div class="filters" role="group" aria-labelledby="pw-reg-l">{reg_chips}</div></div>
+          <div class="dd__cgroup"><span class="cl__glabel" id="pw-yr-l">Year</span><div class="filters" id="pw-years" role="group" aria-labelledby="pw-yr-l"></div></div>
+        </div>
+        <div class="pw-tl" id="pw-tl"></div>
+        <p class="key pw-key">{kinds_key}</p>
+        <div class="pw-tl__detail" id="pw-detail" aria-live="polite"></div>
+      </div>
+      <div class="pw-nojs">{noscript}</div>
+      <script type="application/json" id="pw-data">{payload}</script>
+    </section>
+    <div class="page__body pw__body">
+      <section id="pw-cv" aria-labelledby="pw-cv-h">
+        <h2 id="pw-cv-h">A one-page CV</h2>
+        <ol class="ruled">{cv_rules}</ol>
+      </section>
+    </div>
+    <figure class="pw-cv">
+      <div class="cv" role="img" aria-label="Sample one-page CV with education, experience, leadership and skills sections">
+        <p class="cv__name">{esc(s["name"])}</p><p class="cv__contact">{esc(s["contact"])}</p>{cv_rows}
+      </div>
+      <figcaption class="fr__src">Sample CV. Every name, firm and figure is an example.</figcaption>
+    </figure>
+    <div class="page__body pw__body">
+      <section id="pw-net" aria-labelledby="pw-net-h">
+        <h2 id="pw-net-h">Networking and cold emails</h2>
+        <ol class="ruled">{steps}</ol>
+        <div class="dd__ctl pw-tpl__ctl pw-js"><div class="dd__cgroup"><span class="cl__glabel" id="pw-tpl-l">Template</span>
+          <div class="filters" role="group" aria-labelledby="pw-tpl-l">{tpl_chips}</div></div></div>
+        <div class="pw-tpls">{tpls}<div class="pw-js"><button type="button" class="btn btn--sm btn--ghost pw-copy">Copy template</button><span class="pw-copy__st" role="status" aria-live="polite"></span></div></div>
+      </section>
+      <section id="pw-tech" aria-labelledby="pw-tech-h">
+        <h2 id="pw-tech-h">Technical preparation</h2>
+        <p>{esc(tech["intro"])} Practise with <a class="link" href="{base}interview-prep/">Markets Interview Prep</a>.</p>
+        <ul class="pw-rows">{tech_rows}</ul>
+      </section>
+    </div>
+    <section id="pw-visa" class="pw-visa" aria-labelledby="pw-visa-h">
+      <h2 id="pw-visa-h">Visas for international students</h2>
+      <p class="pw-time__lede">{esc(v["note"])}</p>
+      <div class="pw-visa__grid">{visa}</div>
+    </section>
+    <div class="page__body pw__body">
+      <section id="pw-cert" aria-labelledby="pw-cert-h">
+        <h2 id="pw-cert-h">Certifications</h2>
+        <p>Useful, never a replacement for experience: recruiters value a finished internship over any certificate.</p>
+        <ul class="pw-cert">{certs}</ul>
+      </section>
+      <section id="pw-res" aria-labelledby="pw-res-h">
+        <h2 id="pw-res-h">Resources</h2>
+        <div class="pw-res">{res}</div>
+      </section>
+      <section aria-labelledby="pw-about"><h2 id="pw-about">About this guide</h2><p>General guidance for students, reviewed on the date above. Recruiting dates, visa rules and certification requirements change: always check with the firm or the official source. Not career, legal or immigration advice.</p></section>
+    </div>
+  </div>
+</main>"""
+    return shell(title="Path to Wall Street: Andra Markets",
+                 desc="A guide for students breaking into investment banking, sales and trading, asset management, equity research "
+                      "and hedge funds, from non-target universities and from outside the US: roles, recruiting timelines, CV, "
+                      "networking, visas and certifications.",
+                 body=body, home="../", base="../", path="careers/", scripts=("careers.js",))
+
+
 def slug_s(s):
     return re.sub(r"[^a-z]+", "-", s.lower()).strip("-")
 
@@ -4446,8 +4787,6 @@ def slug_s(s):
 # Search index for the header palette (site.js loads it on first open). A .js
 # file, not .json: the deploy refuses JSON files on the published site.
 SEARCH_TERMS = {
-    "yield_curve": "Treasury yields 2Y 10Y 30Y inversion",
-    "fed_path": "FOMC policy rate cuts hikes",
     "sector_heatmap": "S&P 500 sectors ETFs",
     "vol_term": "VIX implied volatility",
     "global_indices": "Europe Asia Euro Stoxx DAX Nikkei",
@@ -4457,6 +4796,14 @@ SEARCH_TERMS = {
     "inflation_labour": "CPI payrolls jobs inflation",
     "breadth": "advancers decliners",
     "correlation": "stocks bonds dollar",
+}
+
+# Words a page is found by beyond its title.
+SEARCH_PAGE_TERMS = {
+    "fed-rates/": "Fed FOMC policy rate fed funds futures meeting probabilities yield curve Treasury 2s10s 3m10y "
+                  "inversion spreads TIPS real yield breakeven inflation CPI PCE unemployment",
+    "careers/": "careers jobs internships spring week summer analyst off-cycle graduate programme recruiting CV resume "
+                "networking cold email visa OPT H-1B CFA investment banking sales trading asset management hedge funds",
 }
 
 # Live company data (the profile API) -------------------------------------------
@@ -4631,6 +4978,8 @@ def fin_ticker(t):
 
 SEARCH_PAGES = [
     ("Dashboards", "#dashboards", "Home"),
+    ("Fed & Rates", "fed-rates/", "Page"),
+    ("Path to Wall Street", "careers/", "Page"),
     ("The Lab", "lab/", "Page"),
     ("Simulators", "simulators/", "Page"),
     ("Trading Simulator", "simulators/trading-simulator/", "Simulators"),
@@ -4675,7 +5024,7 @@ def search_index(notes, companies=None, library=()):
     for slug, _, title, desc, _, _ in LAB_TOOLS:
         items.append({"g": "Pages", "t": title, "m": "Lab", "u": f"lab/{slug}/", "k": desc + " calculator"})
     for title, url, meta in SEARCH_PAGES:
-        items.append({"g": "Pages", "t": title, "m": meta, "u": url, "k": ""})
+        items.append({"g": "Pages", "t": title, "m": meta, "u": url, "k": SEARCH_PAGE_TERMS.get(url, "")})
     payload = json.dumps(items, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     return "// Generated by tools/build_site.py. Do not edit.\nwindow.ANDRA_SEARCH=" + payload + ";\n"
 
@@ -4689,6 +5038,15 @@ def main():
     (OUT / "index.html").write_text(page(notes, cal))
     (OUT / "watch").mkdir(exist_ok=True)
     (OUT / "watch" / "index.html").write_text(watch_redirect())
+    (OUT / "fed-rates").mkdir(exist_ok=True)
+    (OUT / "fed-rates" / "index.html").write_text(fedrates_page(load_fedrates()))
+    (OUT / "careers").mkdir(exist_ok=True)
+    (OUT / "careers" / "index.html").write_text(careers_page())
+    # Yield curve and Fed path are part of Fed & Rates (owner, 30 Oct 2026).
+    for old in ("yield-curve", "fed-path"):
+        (OUT / "dashboards" / old).mkdir(parents=True, exist_ok=True)
+        (OUT / "dashboards" / old / "index.html").write_text(moved_redirect(
+            f"dashboards/{old}/", "fed-rates/", "Fed &amp; Rates", "This dashboard is now part of"))
     (OUT / "learn").mkdir(exist_ok=True)
     (OUT / "learn" / "index.html").write_text(learn_index())
     for i, a in enumerate(ARTICLES):

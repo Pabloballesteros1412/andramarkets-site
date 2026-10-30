@@ -8,15 +8,19 @@ on:
       - "data/notes/**"
       - "data/reports/**"
       - "data/interview_prep.json"
+      - "data/path_to_wall_street.json"
       - "tools/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
   # Refresh the dashboard tiles and the calendar on weekdays, before the US
   # open, even when no note is published; again after the US morning releases
   # (8:30 and 10:00 am ET) so their figures show the same day.
+  # Once more in the evening, after the US Treasury posts the day's curve,
+  # for Fed & Rates.
   schedule:
     - cron: "17 11 * * 1-5"
     - cron: "47 15 * * 1-5"
+    - cron: "37 23 * * 1-5"
   # Called by publish-notes.yml after it commits a note (a push made by a
   # workflow does not start other workflows on its own), and by
   # market-strip.yml with strip_only, which refreshes the tape and rebuilds
@@ -186,6 +190,25 @@ jobs:
         with:
           path: .cache/companies
           key: companies-${{ github.run_id }}-${{ github.run_attempt }}
+      # Fed & Rates (tools/fedrates_data.py): every block on a full deploy; on a
+      # market strip refresh only the futures and intraday yields (--fast).
+      # Each block keeps its last good copy and date when a source fails.
+      - name: Restore Fed & Rates
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/fedrates
+          key: fedrates-${{ github.run_id }}
+          restore-keys: fedrates-
+      - name: Fetch Fed & Rates
+        continue-on-error: true
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python3 tools/fedrates_data.py ${{ inputs.strip_only && '--fast' || '' }}
+      - name: Save Fed & Rates
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/fedrates
+          key: fedrates-${{ github.run_id }}-${{ github.run_attempt }}
       # The tape between deploys (tools/strip_data.py): every figure keeps
       # its last good value and time when a source fails.
       - name: Restore market strip
@@ -220,6 +243,7 @@ jobs:
           cp -r fx _site/
           cp -r lab simulators _site/
           cp -r research interview-prep sources legal privacy _site/
+          cp -r fed-rates careers _site/
           cp -r profile _site/
           rm -rf _site/assets/icons
       # The site is free: no PDF or data file may ever be published.
