@@ -383,23 +383,13 @@ ul {
   transition: color 160ms ease;
 }
 
-/* Eleven links (with Research and Interview prep) fit beside the search,
-   theme and Subscribe buttons from 1021px: the owner asked for smaller links
-   rather than fewer. Sizes measured in Chromium at each width. */
-@media (min-width: 1021px) and (max-width: 1359px) {
+/* Thirteen links fit on one line beside the search icon, theme and Subscribe
+   buttons from 1301px; below that they move to the menu sheet. Sizes measured
+   in Chromium at every width from 1301px to 1920px. */
+@media (min-width: 1301px) and (max-width: 1539px) {
   .nav {
-    gap: 12px;
+    gap: 10px;
     font-size: 0.8125rem;
-  }
-  .site-header .wrap {
-    gap: 14px;
-  }
-}
-
-@media (min-width: 1021px) and (max-width: 1140px) {
-  .nav {
-    gap: 8px;
-    font-size: 0.75rem;
   }
   .site-header .wrap {
     gap: 10px;
@@ -454,7 +444,7 @@ ul {
   font-size: 1.25rem;
 }
 
-@media (max-width: 1020px) {
+@media (max-width: 1300px) {
   .nav {
     position: fixed;
     inset: var(--nav-h) 0 auto;
@@ -499,7 +489,7 @@ ul {
   }
 }
 
-@media (max-width: 1020px) {
+@media (max-width: 1300px) {
   .nav .nav__subscribe {
     display: block;
     font-weight: 600;
@@ -3668,8 +3658,8 @@ ul {
   }
 }
 
-/* Icon only below 1260px: nine nav links leave no room for the label. */
-@media (max-width: 1260px) {
+/* Icon only below 1800px: thirteen nav links leave no room for the label. */
+@media (max-width: 1799px) {
   .search-btn {
     min-width: 44px;
     min-height: 44px;
@@ -6161,3 +6151,659 @@ html:not(.js) .pw-js { display: none; }
 .pw-res__g ul { list-style: none; margin-top: 6px; border-top: 1px solid var(--rule); }
 .pw-res__g li { padding: 10px 0; border-bottom: 1px solid var(--rule); }
 .pw-res__g b { font-weight: 550; }
+
+/* Simulators (owner-approved, 30 Oct 2026): the section index, the Trading
+   Simulator page and its homepage block. The horse sits still behind the chart. */
+.sim-page {
+  padding-top: calc(var(--nav-h) + 32px);
+  padding-bottom: var(--section);
+}
+
+.sim-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  align-items: end;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.sim-title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 560;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.sim-title:focus {
+  outline: none;
+}
+
+.sim-mode {
+  margin-top: 6px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.sim-ctrl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.sim-ctrl .filters {
+  margin: 0;
+}
+
+.sim-month {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 0;
+  font-size: 0.9375rem;
+  font-weight: 550;
+}
+
+.sim-month small {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.sim-prog {
+  position: relative;
+  height: 1px;
+  background: var(--rule);
+}
+
+.sim-prog i {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: var(--ink);
+}
+
+.sim-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.1fr;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.sim-panel {
+  padding: 16px 20px 16px 0;
+}
+
+.sim-panel + .sim-panel {
+  padding-left: 20px;
+  border-left: 1px solid var(--rule);
+}
+
+.sim-panel h2 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 550;
+  color: var(--ink-2);
+}
+
+.sim-panel h2 i {
+  width: 16px;
+  border-top: 1.6px solid var(--chart-line);
+}
+
+.sim-panel h2 i.sim-dash {
+  border-top: 1.6px dashed var(--ink-3);
+}
+
+.sim-val {
+  margin-top: 4px;
+  font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+  font-weight: 540;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.sim-chg {
+  font-size: 0.9375rem;
+}
+
+.sim-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.sim-facts b {
+  display: block;
+  font-size: 1.1875rem;
+  font-weight: 500;
+}
+
+.sim-facts b:not([class]) {
+  color: var(--ink);
+}
+
+.sim-stage {
+  position: relative;
+  height: clamp(300px, 46vh, 460px);
+  margin-top: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ground);
+}
+
+.sim-horse {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.sim-horse img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: auto;
+  max-width: none;
+  height: 175%;
+  transform: translate(-50%, -48%);
+  filter: var(--horse-filter);
+  mix-blend-mode: var(--horse-blend);
+  opacity: 0.13;
+}
+
+[data-theme="dark"] .sim-horse img {
+  opacity: 0.3;
+}
+
+.sim-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.sim-svg path {
+  fill: none;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.sim-svg .sim-you {
+  stroke: var(--chart-line);
+  stroke-width: 1.8;
+}
+
+.sim-svg .sim-idx {
+  stroke: var(--ink-3);
+  stroke-width: 1.3;
+  stroke-dasharray: 4 4;
+}
+
+.sim-svg .sim-grid {
+  stroke: var(--chart-grid);
+  vector-effect: non-scaling-stroke;
+}
+
+.sim-svg .sim-now {
+  stroke: var(--rule-strong);
+  stroke-dasharray: 3 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.sim-svg .sim-cash {
+  fill: var(--chart-fill);
+}
+
+.sim-ylabs span {
+  position: absolute;
+  left: 0;
+  transform: translateY(-120%);
+  font-size: 0.75rem;
+  color: var(--ink-3);
+}
+
+.sim-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 50%;
+  background: var(--chart-line);
+}
+
+.sim-key {
+  margin-top: 14px;
+}
+
+.sim-key .sim-sw {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  background: var(--chart-fill);
+}
+
+.sim-act {
+  display: grid;
+  grid-template-columns: 1fr minmax(0, 22rem);
+  gap: 24px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.btn.sim-go {
+  justify-content: space-between;
+  width: 100%;
+  min-height: 72px;
+  padding: 0 28px;
+  font-size: 1.125rem;
+}
+
+.sim-go kbd {
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.sim-state {
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.sim-state b {
+  display: block;
+  font-size: 1.0625rem;
+  font-weight: 550;
+  color: var(--ink);
+}
+
+.sim-state b::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  vertical-align: 1px;
+  background: var(--ink);
+}
+
+.sim-state.is-cash b::before {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.sim-alt {
+  margin-top: 12px;
+  font-size: 0.875rem;
+}
+
+.sim-howto {
+  max-width: 65ch;
+  margin-top: 56px;
+}
+
+.sim-howto h2 {
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.sim-howto p {
+  margin-top: 12px;
+  color: var(--ink-2);
+}
+
+/* Final screen */
+.sim-verdict {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: end;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.sim-word {
+  font-size: clamp(4.5rem, 12vw, 9rem);
+  font-weight: 560;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+}
+
+.sim-word-sub {
+  max-width: 30ch;
+  margin-top: 16px;
+  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+  color: var(--ink-2);
+}
+
+.sim-hist {
+  height: 180px;
+}
+
+.sim-hist svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.sim-hist .sim-bar {
+  fill: var(--ink-3);
+  opacity: 0.45;
+}
+
+.sim-hist .sim-bar--you {
+  fill: var(--ink);
+  opacity: 1;
+}
+
+.sim-hist .sim-p90 {
+  stroke: var(--rule-strong);
+  stroke-dasharray: 3 4;
+  vector-effect: non-scaling-stroke;
+}
+
+.sim-hist .sim-base {
+  stroke: var(--rule-strong);
+  vector-effect: non-scaling-stroke;
+}
+
+.sim-hist text {
+  font-size: 11px;
+  fill: var(--ink-2);
+}
+
+.sim-hist text.sim-you-lab {
+  font-weight: 600;
+  fill: var(--ink);
+}
+
+.sim-key .sim-sw--bar {
+  background: var(--ink-3);
+  opacity: 0.45;
+}
+
+.sim-key .sim-sw--ref {
+  width: 16px;
+  border-top: 1px dashed var(--rule-strong);
+}
+
+.sim-grid2 {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(24px, 4vw, 64px);
+  margin-top: 40px;
+}
+
+.sim-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--rule-strong);
+}
+
+.sim-stats > div {
+  padding: 14px 16px 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.sim-stats > div:not(:nth-child(3n + 1)) {
+  padding-left: 16px;
+  border-left: 1px solid var(--rule);
+}
+
+.sim-stats > div > span {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.sim-stats b {
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.sim-stats em {
+  display: block;
+  font-size: 0.875rem;
+  font-style: normal;
+}
+
+.sim-h2 {
+  margin: 40px 0 12px;
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.sim-missed {
+  border-top: 1px solid var(--rule-strong);
+  font-size: 0.9375rem;
+}
+
+.sim-missed li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.sim-missed li span:last-child {
+  min-width: 6rem;
+  font-size: 0.8125rem;
+  text-align: right;
+  color: var(--ink-3);
+}
+
+.sim-missed-none {
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.sim-reveal {
+  padding: var(--card-padding, clamp(20px, 2.4vw, 32px));
+  background: var(--ground-2);
+}
+
+.sim-reveal h2 {
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 540;
+  line-height: 1.1;
+  letter-spacing: -0.028em;
+  text-wrap: balance;
+}
+
+.sim-reveal p {
+  max-width: 52ch;
+  margin-top: 14px;
+  color: var(--ink-2);
+}
+
+.sim-links {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.sim-share {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 48px);
+  align-items: start;
+}
+
+.sim-card {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1200 / 630;
+  outline: 1px solid var(--rule);
+}
+
+.sim-text {
+  padding: 14px 16px;
+  border: 1px solid var(--rule-strong);
+  font-size: 0.9375rem;
+}
+
+.sim-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.sim-share-status {
+  min-height: 1.55em;
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.sim-final-chart {
+  height: 220px;
+  margin-top: 24px;
+}
+
+.sim-again {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.sim-games {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--rule-strong);
+  font-size: 0.9375rem;
+}
+
+.sim-games th {
+  padding: 10px 8px 10px 0;
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: left;
+  color: var(--ink-3);
+}
+
+.sim-games td {
+  padding: 10px 8px 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.sim-rec {
+  margin-top: 12px;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+/* Homepage block */
+.sim-home {
+  border-top: 1px solid var(--rule);
+}
+
+.sim-home__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: end;
+}
+
+.sim-home .lede {
+  margin-top: 16px;
+}
+
+.sim-home__btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.sim-home__meta {
+  max-width: 40ch;
+  margin-top: 20px;
+  font-size: 0.875rem;
+  color: var(--ink-3);
+}
+
+.sim-home__art {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.sim-home__art .sim-stage {
+  height: clamp(260px, 34vw, 420px);
+  margin: 0;
+}
+
+@media (max-width: 960px) {
+  .sim-home__grid,
+  .sim-verdict,
+  .sim-grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .sim-panels {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sim-panel:nth-child(3) {
+    grid-column: 1 / -1;
+    padding-left: 0;
+    border-top: 1px solid var(--rule);
+    border-left: 0;
+  }
+
+  .sim-act,
+  .sim-share {
+    grid-template-columns: 1fr;
+  }
+
+  .sim-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sim-stats > div:not(:nth-child(3n + 1)) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .sim-stats > div:nth-child(even) {
+    padding-left: 16px;
+    border-left: 1px solid var(--rule);
+  }
+
+  .sim-stage {
+    height: 280px;
+  }
+}
+
+.sim-alt .link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
