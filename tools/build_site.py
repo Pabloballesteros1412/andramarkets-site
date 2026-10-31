@@ -353,7 +353,7 @@ def tile_asof(key, rec):
 # Icons -----------------------------------------------------------------------
 
 ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "sun", "moon",
-              "magnifying-glass", "check", "link", "lock-simple", "pause", "play"] + [
+              "magnifying-glass", "check", "link", "pause", "play"] + [
     icon_name for _, url, icon_name in SOCIALS if url
 ]
 
@@ -2132,7 +2132,6 @@ LIB_TYPE_NAME = {"weekly": "Weekly market review", "research": "Research"}
 LIB_TAGS = [("equities", "Equities"), ("rates", "Rates"), ("fx", "FX"), ("commodities", "Commodities"),
             ("macro", "Macro"), ("credit", "Credit")]
 LIB_TAG_NAME = dict(LIB_TAGS)
-PDF_SOON = "PDF downloads open to subscribers with the paid tier. The full text is free to read here."
 
 
 def load_library():
@@ -2287,11 +2286,11 @@ def library_page(library):
 
 
 def share_row(what):
-    """The report share row: Share (system sheet or copy link) and the PDF
-    download, shown locked until the paid tier opens."""
+    """The report share row: Share (system sheet or copy link). The locked "Download PDF,
+    Subscribers only" button is paused with every subscribe entry point (owner, 31 Oct
+    2026); DESIGN.md keeps its spec for when the paid tier opens."""
     return f"""<div class="report__share" hidden>
           <button class="btn" type="button" data-share><span class="swap"><span class="swap__a">{icon("link")}Share this {what}</span><span class="swap__b" aria-hidden="true">{icon("check")}Link copied</span></span></button>
-          <button class="btn btn--ghost lib-pdf" type="button" aria-disabled="true" data-soon="{PDF_SOON}">{icon("lock-simple")}Download PDF<span class="lib-pdf__tag">Subscribers only</span></button>
           <p class="report__share-status" role="status" aria-live="polite"></p>
         </div>"""
 
