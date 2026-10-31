@@ -653,6 +653,8 @@ The homepage Watch section, the Watch page and their TikTok embeds were removed 
 A statement paragraph (statement style, columns 1 to 8) beside a definition list (columns 9 to 12, bottom-aligned). Each `dt`/`dd` pair sits in a row with a `--rule` top border and 14px padding; terms are 0.8125rem ink-2. The section heading is visually hidden. The section has a `--rule` top border.
 
 ### Signup form (closing plate)
+
+> **Paused.** The owner removed every subscribe entry point for now: the hero buttons (Explore dashboards, Subscribe), the header and sheet Subscribe, the signup plate, the "Get the note by email" pager links and the company "Subscribe for the memo" buttons. The specs below are kept for when the newsletter launches.
 - **Plate:** `min-height: 88svh`, content bottom-aligned, `--rule` top border, horse behind (see Horse placements). Title in columns 1 to 6, form in columns 8 to 12.
 - **Field:** label 0.875rem/550; input and Subscribe button in a row with an 8px gap (stacked at 640px and below); input 52px tall, padding 0 16px, `--rule-strong` border, ground fill, 1rem, ink-3 placeholder; focus is a 2px `--focus` outline at 0 offset. Help line 0.875rem ink-2.
 - **Error:** ink only. Input gets `aria-invalid="true"`, ink border plus an inset 1px ink ring (2px total). The status line turns 650 weight and shows the `warning-circle` icon at 1.25rem beside the message. Messages: "Enter your email address to subscribe." or "That email address looks incomplete. Check it and try again." Focus returns to the input, and typing clears the error.
