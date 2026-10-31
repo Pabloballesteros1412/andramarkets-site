@@ -15,11 +15,13 @@
 // drawing stands still and nothing morphs. Without WebGL or JavaScript the hero keeps the
 // still engraving (.horse).
 //
-// The headline and the index of sections fly out of the same point (owner-approved, 31 Oct
-// 2026): each character is drawn where the page sets it and sampled into particles; once
-// they settle, the real text (crisp, selectable, the links working) takes over. The page
-// marks html.hero-forming before the hero is parsed (HERO_BOOT in tools/build_site.py); this
-// script removes it whenever it cannot run, so the text is never left hidden.
+// The headline, the index of sections and the header (the mark, the name, the theme
+// button and the legal line; owner, 31 Oct 2026) fly out of the same point (owner-approved,
+// 31 Oct 2026): each character, the mark and the icon are drawn where the page sets them and
+// sampled into particles; once they settle, the real page (crisp, selectable, the links and
+// the button working) takes over. The page marks html.hero-forming in its head, before the
+// header is parsed (HERO_BOOT in tools/build_site.py); this script removes it whenever it
+// cannot run, so nothing is left hidden.
 (function () {
   "use strict";
   var hero = document.querySelector(".hero");
@@ -29,6 +31,7 @@
   var copy = hero && hero.querySelector(".hero__copy");
   var stamp = hero && hero.querySelector(".hero__stamp");
   var horseImg = art && art.querySelector(".horse");
+  var bar = document.querySelector(".site-header--home");
   var root = document.documentElement;
   function giveUp() { root.classList.remove("hero-forming"); }
   // the particles cannot draw the horse: show the text and fetch the still engraving
@@ -126,7 +129,7 @@
   var VS_TEXT = [
     "attribute vec4 aP; attribute vec2 aQ;",
     "uniform vec2 res; uniform vec2 cc; uniform vec3 ptr; uniform vec3 tcol; uniform vec3 dcol;",
-    "uniform float t, dpr, sm, am, prad, pitch, visP, visI;",
+    "uniform float t, dpr, sm, am, prad, pitch, visP, visI, visH;",
     "varying float va; varying vec3 vc;",
     "const float PI = 3.14159265;",
     HASH,
@@ -143,7 +146,7 @@
     "  vec2 pos = s + dd*e + vec2(-dd.y, dd.x)*k;",
     "  float dust = 0.035 + 0.55*pow(aS.y, 4.0);",
     "  float a = mix(dust, aP.z, smoothstep(0.6, 1.0, e));",
-    "  a *= mix(1.0, aP.w < 1.5 ? visP : visI, step(0.999, f));",
+    "  a *= mix(1.0, aP.w < 1.5 ? visP : aP.w < 2.5 ? visI : visH, step(0.999, f));",
     "  vec2 dp = pos - ptr.xy; float dist = length(dp);",
     "  float q = 1.0 - smoothstep(0.0, prad, dist);",
     "  vec2 dir = dp / max(dist, 0.001);",
@@ -171,7 +174,7 @@
   if (!prog) { fail(); return; }
   var progT = program(VS_TEXT);
   var U = uniforms(prog, ["res", "cc", "hb", "ptr", "hcol", "dcol", "dim", "t", "m", "dpr", "pitch", "sm", "am", "prad", "sheen", "kk"]);
-  var UT = progT ? uniforms(progT, ["res", "cc", "ptr", "tcol", "dcol", "t", "dpr", "sm", "am", "prad", "pitch", "visP", "visI", "kk"]) : null;
+  var UT = progT ? uniforms(progT, ["res", "cc", "ptr", "tcol", "dcol", "t", "dpr", "sm", "am", "prad", "pitch", "visP", "visI", "visH", "kk"]) : null;
   var MAX_ATTRIBS = Math.min(8, gl.getParameter(gl.MAX_VERTEX_ATTRIBS));
   // both programs share the attribute slots: each draw switches them to its own buffers
   function attribs(list) {
@@ -187,7 +190,7 @@
 
   var N = 0, PW = 0, PH = 0, px = null, sBuf = null, cBuf = null, chartAttr = null, chartReady = false, order = null;
   var TS = 1.25;            // the text is sampled at 1.25 particles per CSS pixel
-  var tBuf = null, TN = 0, textOn = false, T_P = 3, T_I = 4, crispP = false, crispI = false;
+  var tBuf = null, TN = 0, textOn = false, T_P = 3, T_I = 4, T_H = 3, crispP = false, crispI = false, crispH = false;
   var W = 0, H = 0, DPR = 1, box = null, cbox = null;
   var t0 = 0, running = false, visible = true, lastP = -1, frameNo = 0;
   var ptr = { x: -1e4, y: -1e4, sx: -1e4, sy: -1e4, s: 0, last: -1e9 };
@@ -251,51 +254,115 @@
     chartReady = false;
   }
 
-  /* ---------- the headline and the index, character by character ---------- */
-  // Draws el's characters where the page sets them and returns its inked pixels as
-  // [x, y, ink, group, delay, duration] records (six floats each), in stage pixels.
-  function sampleText(el, group, delay, dur, r) {
-    var s = stage.getBoundingClientRect(), cs = getComputedStyle(el), b = el.getBoundingClientRect();
-    var size = parseFloat(cs.fontSize), pad = 4;
+  /* ---------- the headline, the index and the header, character by character ---------- */
+  // Paints one thing where the page sets it (paint(x) draws in page pixels) and returns its
+  // inked pixels as [x, y, ink, group, delay, duration] records (six floats each), in stage
+  // pixels. ink scales the tone it settles at (the legal line is lighter than the headline);
+  // the delay is given u, 0 to 1 across ref (the thing itself unless another box is given).
+  function sample(b, paint, group, delay, dur, r, ink, ref) {
+    var s = stage.getBoundingClientRect(), pad = 4;
     var w = Math.ceil((b.width + pad * 2) * TS), h = Math.ceil((b.height + pad * 2) * TS);
     if (w < 2 || h < 2) return new Float32Array(0);
     var c = document.createElement("canvas"); c.width = w; c.height = h;
-    var x = c.getContext("2d", { willReadFrequently: true });
+    var x = c.getContext("2d", { willReadFrequently: true }), d;
     x.setTransform(TS, 0, 0, TS, (pad - b.left) * TS, (pad - b.top) * TS);
-    x.font = cs.fontWeight + " " + size + "px " + cs.fontFamily;
-    x.fillStyle = "#fff"; x.textBaseline = "alphabetic";
-    var m = x.measureText("Mg"), asc = m.fontBoundingBoxAscent || size * 0.8;
-    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), range = document.createRange(), node, i, rc;
-    while ((node = walker.nextNode())) {
-      for (i = 0; i < node.textContent.length; i++) {
-        if (!node.textContent[i].trim()) continue;
-        range.setStart(node, i); range.setEnd(node, i + 1);
-        rc = range.getClientRects()[0];
-        if (rc) x.fillText(node.textContent[i], rc.left, rc.top + asc);
-      }
-    }
-    var d = x.getImageData(0, 0, w, h).data, n = 0, k;
+    x.fillStyle = "#fff";
+    try { paint(x); d = x.getImageData(0, 0, w, h).data; } catch (e) { return new Float32Array(0); }
+    var n = 0, k;
     for (k = 3; k < d.length; k += 4) if (d[k] >= 16) n++;
-    var out = new Float32Array(n * 6), o = 0, x0 = b.left - pad - s.left, y0 = b.top - pad - s.top, bw = Math.max(1, b.width), xx, yy, px;
+    ref = ref || b;
+    var out = new Float32Array(n * 6), o = 0, x0 = b.left - pad - s.left, y0 = b.top - pad - s.top;
+    var u0 = ref.left - s.left, rw = Math.max(1, ref.width), xx, yy, px;
     for (yy = 0, k = 3; yy < h; yy++) for (xx = 0; xx < w; xx++, k += 4) {
       if (d[k] < 16) continue;
       px = x0 + (xx + 0.5) / TS;
-      out[o] = px; out[o + 1] = y0 + (yy + 0.5) / TS; out[o + 2] = Math.min(1, d[k] / 255 * 1.05);
-      out[o + 3] = group; out[o + 4] = delay((px - x0 - pad) / bw, r); out[o + 5] = dur;
+      out[o] = px; out[o + 1] = y0 + (yy + 0.5) / TS; out[o + 2] = Math.min(1, d[k] / 255 * 1.05) * ink;
+      out[o + 3] = group; out[o + 4] = delay((px - u0) / rw, r); out[o + 5] = dur;
       o += 6;
     }
     return out;
   }
 
+  // the characters of el, each in its own font, size and weight
+  function sampleText(el, group, delay, dur, r, ink, ref) {
+    return sample(el.getBoundingClientRect(), function (x) {
+      var cs = getComputedStyle(el), size = parseFloat(cs.fontSize);
+      x.font = cs.fontWeight + " " + size + "px " + cs.fontFamily;
+      x.textBaseline = "alphabetic";
+      var m = x.measureText("Mg"), asc = m.fontBoundingBoxAscent || size * 0.8;
+      var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), range = document.createRange(), node, i, rc;
+      while ((node = walker.nextNode())) {
+        for (i = 0; i < node.textContent.length; i++) {
+          if (!node.textContent[i].trim()) continue;
+          range.setStart(node, i); range.setEnd(node, i + 1);
+          rc = range.getClientRects()[0];
+          if (rc) x.fillText(node.textContent[i], rc.left, rc.top + asc);
+        }
+      }
+    }, group, delay, dur, r, ink, ref);
+  }
+
+  // the header's mark (its transparent PNG, by its alpha) and the theme button's icon (its
+  // sprite path), where the page shows them
+  function sampleImage(img, group, delay, dur, r, ink, ref) {
+    if (!img.complete || !img.naturalWidth) return new Float32Array(0);
+    var b = img.getBoundingClientRect();
+    return sample(b, function (x) { x.drawImage(img, b.left, b.top, b.width, b.height); }, group, delay, dur, r, ink, ref);
+  }
+  function sampleIcon(svg, group, delay, dur, r, ink, ref) {
+    var use = svg.querySelector("use"), id = use && (use.getAttribute("href") || use.getAttribute("xlink:href") || "");
+    var sym = id && document.getElementById(id.replace(/^#/, "")), path = sym && sym.querySelector("path");
+    if (!path || !window.Path2D) return new Float32Array(0);
+    var vb = (sym.getAttribute("viewBox") || "0 0 256 256").split(/[\s,]+/).map(Number), b = svg.getBoundingClientRect();
+    return sample(b, function (x) {
+      x.translate(b.left, b.top); x.scale(b.width / vb[2], b.height / vb[3]); x.translate(-vb[0], -vb[1]);
+      x.fill(new Path2D(path.getAttribute("d")));
+    }, group, delay, dur, r, ink, ref);
+  }
+  function shown(el) { var b = el.getBoundingClientRect(); return b.width > 0 && b.height > 0; }
+
+  // how far a colour token stands from the ground, against the ink's (for the legal line)
+  function tone(name) {
+    var v = getComputedStyle(root).getPropertyValue(name).trim(), m = /^#([0-9a-f]{6})$/i.exec(v);
+    if (!m) return -1;
+    var n = parseInt(m[1], 16);
+    return (((n >> 16) & 255) + ((n >> 8) & 255) + (n & 255)) / 765;
+  }
+  function weight(name) {
+    var g = tone("--ground"), c = tone(name), k = tone("--ink");
+    if (g < 0 || c < 0 || k < 0 || Math.abs(k - g) < 0.05) return 1;
+    return Math.max(0.2, Math.min(1, Math.abs(c - g) / Math.abs(k - g)));
+  }
+
   function buildText() {
     var r = rng(5150), parts = [], total = 0;
     // the headline first, left to right as it reads; then the index, item by item
-    parts.push(sampleText(headline, 1, function (u, rr) { return 0.15 + u * 0.9 + rr() * 0.3; }, 1.6, r));
+    parts.push(sampleText(headline, 1, function (u, rr) { return 0.15 + u * 0.9 + rr() * 0.3; }, 1.6, r, 1));
     T_P = 0.15 + 0.9 + 0.3 + 1.6;
     links.forEach(function (el, k) {
-      parts.push(sampleText(el, 2, function (u, rr) { return 0.95 + k * 0.09 + u * 0.3 + rr() * 0.2; }, 1.3, r));
+      parts.push(sampleText(el, 2, function (u, rr) { return 0.95 + k * 0.09 + u * 0.3 + rr() * 0.2; }, 1.3, r, 1));
     });
     T_I = 0.95 + Math.max(0, links.length - 1) * 0.09 + 0.3 + 0.2 + 1.3;
+    // the header with the headline, left to right across the bar: the mark, the name, the
+    // theme button, then the legal line in its lighter tone
+    if (bar) {
+      var row = bar.querySelector(".wrap") || bar, ref = row.getBoundingClientRect();
+      var hd = function (u, rr) { return 0.3 + Math.max(0, Math.min(1, u)) * 0.8 + rr() * 0.3; };
+      Array.prototype.forEach.call(bar.querySelectorAll(".brand__mark img"), function (el) {
+        if (shown(el)) parts.push(sampleImage(el, 3, hd, 1.6, r, 1, ref));
+      });
+      Array.prototype.forEach.call(bar.querySelectorAll(".brand__name"), function (el) {
+        parts.push(sampleText(el, 3, hd, 1.6, r, 1, ref));
+      });
+      Array.prototype.forEach.call(bar.querySelectorAll(".theme-btn .icon"), function (el) {
+        if (shown(el)) parts.push(sampleIcon(el, 3, hd, 1.6, r, 1, ref));
+      });
+      var legal = weight("--ink-3");
+      Array.prototype.forEach.call(bar.querySelectorAll(".site-header__legal a"), function (el) {
+        parts.push(sampleText(el, 3, hd, 1.6, r, legal, ref));
+      });
+    }
+    T_H = 0.3 + 0.8 + 0.3 + 1.6;
     parts.forEach(function (a) { total += a.length; });
     var A = new Float32Array(total), o = 0;
     parts.forEach(function (a) { A.set(a, o); o += a.length; });
@@ -315,6 +382,7 @@
   function finishText() {
     textOn = false;
     hero.classList.add("crisp-h1", "crisp-ix");
+    if (bar) bar.classList.add("crisp-hd");
     root.classList.add("hero-formed");
     root.classList.remove("hero-forming");
   }
@@ -467,10 +535,11 @@
   }
 
   function drawText(t, col, halo) {
-    var cp = t >= T_P, ci = t >= T_I;
+    var cp = t >= T_P, ci = t >= T_I, ch = t >= T_H;
     if (cp !== crispP) { crispP = cp; hero.classList.toggle("crisp-h1", cp); }
     if (ci !== crispI) { crispI = ci; hero.classList.toggle("crisp-ix", ci); }
-    if (t >= T_I + 0.6) { finishText(); return; }
+    if (ch !== crispH) { crispH = ch; if (bar) bar.classList.toggle("crisp-hd", ch); }
+    if (t >= Math.max(T_P, T_I, T_H) + 0.6) { finishText(); return; }
     if (!TN) return;
     gl.useProgram(progT);
     attribs([[progT, "aP", tBuf, 4, 24, 0], [progT, "aQ", tBuf, 2, 24, 16]]);
@@ -479,6 +548,7 @@
     gl.uniform3f(UT.ptr, ptr.sx, ptr.sy, ptr.s); gl.uniform1f(UT.prad, W > 860 ? 95 : 70);
     gl.uniform1f(UT.t, t); gl.uniform1f(UT.pitch, 1 / TS);
     gl.uniform1f(UT.visP, 1 - smooth(T_P, T_P + 0.45, t)); gl.uniform1f(UT.visI, 1 - smooth(T_I, T_I + 0.45, t));
+    gl.uniform1f(UT.visH, 1 - smooth(T_H, T_H + 0.45, t));
     gl.uniform3f(UT.tcol, col.text[0], col.text[1], col.text[2]); gl.uniform3f(UT.dcol, col.dust[0], col.dust[1], col.dust[2]);
     if (halo) {
       gl.uniform1f(UT.sm, 4.5); gl.uniform1f(UT.am, 0.05); gl.uniform1f(UT.kk, 2.0);
@@ -544,7 +614,8 @@
       new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) start(); else stop(); }).observe(hero);
     }
     document.addEventListener("visibilitychange", function () { if (document.hidden) stop(); else start(); });
-    new MutationObserver(function () { if (!running) still(); }).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+    // a new theme mid-forming: the header's mark and the legal line's tone follow it
+    new MutationObserver(function () { if (textOn) buildText(); if (!running) still(); }).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
     var rt;
     window.addEventListener("resize", function () {
       clearTimeout(rt);
