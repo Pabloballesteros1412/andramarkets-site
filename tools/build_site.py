@@ -891,7 +891,7 @@ THEME_BOOT = (
     "if(q==='light'||q==='dark'){t=q;localStorage.setItem('andra-theme',q)}"
     "else{var s=localStorage.getItem('andra-theme');if(s==='light'||s==='dark')t=s}}catch(e){}"
     "document.documentElement.setAttribute('data-theme',t);"
-    "var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0a0c0d':'#f4f6f6'})();"
+    "var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0a0c0d':'#ffffff'})();"
 )
 
 
@@ -991,8 +991,7 @@ def page(notes, cal):
     </div>
     <div class="wrap hero__copy">
       <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
-      <p class="hero__sub" style="--i:1">A markets research platform. Live dashboards, quant tools, an economic calendar and a daily close note.</p>
-      <div class="hero__actions" style="--i:2">
+      <div class="hero__actions" style="--i:1">
         <a class="btn" href="#dashboards">Explore dashboards {icon("arrow-right")}</a>
         <a class="btn btn--ghost" href="#subscribe">Subscribe</a>
       </div>
@@ -1223,7 +1222,7 @@ def shell(title, desc, body, home, base, path="", scripts=()):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
-<meta name="theme-color" content="#f4f6f6">
+<meta name="theme-color" content="#ffffff">
 <script>{THEME_BOOT}</script>
 <link rel="icon" href="{base}assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="{base}assets/favicon-48.png" sizes="48x48" type="image/png">

@@ -26,11 +26,11 @@
   --horse-y: 50%;
 }
 
-/* Light: cool off-white paper, ink type, the horse printed as an engraving. */
+/* Light: pure white paper, ink type, the horse printed as an engraving. */
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
-  --ground: #f4f6f6;
+  --ground: #ffffff;
   --ground-2: #e9eded;
   --ink: #0e1215;
   --ink-2: #424a50;
@@ -38,7 +38,7 @@
   --rule: rgba(14, 18, 21, 0.15);
   --rule-strong: rgba(14, 18, 21, 0.78);
   --btn-bg: #0e1215;
-  --btn-fg: #f4f6f6;
+  --btn-fg: #ffffff;
   --btn-hover: #2a3036;
   --plate: #0e1215;
   --plate-2: #191f23;
@@ -579,16 +579,9 @@ ul {
   text-wrap: balance;
 }
 
-.hero__sub {
-  margin-top: 24px;
-  max-width: 36ch;
-  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
-  line-height: 1.45;
-  color: var(--ink-2);
-}
 
 .hero__actions {
-  margin-top: 36px;
+  margin-top: 40px;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
