@@ -111,6 +111,17 @@
       ]
     },
     {
+      "slug": "2026-66-oil-gulf",
+      "date": "2026-10-27",
+      "type": "research",
+      "title": "Oil Above $115: The Gulf Under Fire",
+      "summary": "Claimed attacks on Saudi oil infrastructure pushed Brent above $115 with damage still unconfirmed. Hormuz and the bypass routes, the supply balance, gas, inflation, winners and losers, and the scenarios.",
+      "tags": [
+        "commodities",
+        "macro"
+      ]
+    },
+    {
       "slug": "2026-59-france",
       "date": "2026-10-19",
       "type": "research",
@@ -240,6 +251,17 @@
       ]
     },
     {
+      "slug": "2026-41-openai-revenue",
+      "date": "2026-10-08",
+      "type": "research",
+      "title": "OpenAI Revenue and the Market",
+      "summary": "A report that OpenAI’s annualised revenue is about $50 billion, not the $70 billion that circulated a week earlier, hit the stocks most tied to the company. What the reports say and what the gap means.",
+      "tags": [
+        "equities",
+        "credit"
+      ]
+    },
+    {
       "slug": "2026-39-asml",
       "date": "2026-10-08",
       "type": "research",
@@ -359,6 +381,17 @@
       "summary": "Europe’s most valuable company invented the modern obesity market, then lost it. How Novo fell from leader to challenger, what the Wegovy pill changes, and whether nine times earnings is value or a trap.",
       "tags": [
         "equities"
+      ]
+    },
+    {
+      "slug": "2026-24-oracle",
+      "date": "2026-10-04",
+      "type": "research",
+      "title": "Oracle",
+      "summary": "A software company turned debt-financed builder of AI data centres. The backlog is enormous and half of it is one customer, cash flow is negative and the rating is one notch above junk. Can the bet pay off?",
+      "tags": [
+        "equities",
+        "credit"
       ]
     },
     {
