@@ -17,11 +17,13 @@
     return e;
   }
   function ticks(lo, hi, n) {
+    if (!((hi - lo) / n > 0) || !isFinite(hi - lo)) return [];
     var step = Math.pow(10, Math.floor(Math.log10((hi - lo) / n)));
     var err = (hi - lo) / n / step;
     step *= err >= 5 ? 10 : err >= 2 ? 5 : err >= 1.4 ? 2 : 1;
+    // the tolerance scales with the step, and 50 ticks at most: a near-flat range never loops
     var out = [];
-    for (var v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(6));
+    for (var v = Math.ceil(lo / step) * step; v <= hi + step * 1e-6 && out.length < 50; v += step) out.push(+v.toFixed(6));
     return out;
   }
   function minus(s) {
