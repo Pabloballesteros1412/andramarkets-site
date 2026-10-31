@@ -424,51 +424,174 @@ body.has-scene {
   display: none;
 }
 
+/* The menu in four groups (owner-approved, 31 Oct 2026): Markets, Tools, Research, Careers.
+   Above 960px each group is a button that opens a panel the width of the page under the
+   header: the group's name and a line on the left, its links in ruled rows on the right,
+   each with a line of its own. At 960px and below the same markup is the menu sheet. */
 .nav {
   display: flex;
-  gap: 16px;
-  font-size: 0.875rem;
+  gap: clamp(20px, 2.6vw, 40px);
 }
 
 .nav__subscribe {
   display: none;
 }
 
-.nav a {
-  text-decoration: none;
-  white-space: nowrap;
+.nav__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--ink-2);
-  transition: color 160ms ease;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 550;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: underline 1px transparent;
+  text-underline-offset: 0.5em;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
 }
 
-/* Thirteen links fit on one line beside the search icon, theme and Subscribe
-   buttons from 1301px; below that they move to the menu sheet. Sizes measured
-   in Chromium at every width from 1301px to 1920px. */
-@media (min-width: 1301px) and (max-width: 1539px) {
-  .nav {
-    gap: 10px;
-    font-size: 0.8125rem;
-  }
-  .site-header .wrap {
-    gap: 10px;
-  }
+.nav__caret {
+  font-size: 0.75em;
+  transition: transform 200ms var(--ease-out);
 }
 
-/* Desktop: the links spread across the whole bar, from the brand to the
-   search and theme buttons. */
-@media (min-width: 1301px) {
+.nav__btn[aria-expanded="true"] {
+  color: var(--ink);
+  text-decoration-color: var(--ink);
+}
+
+.nav__btn[aria-expanded="true"] .nav__caret {
+  transform: rotate(180deg);
+}
+
+.nav__panel {
+  position: fixed;
+  inset: var(--nav-h) 0 auto;
+  padding: 32px 0 40px;
+  background: var(--ground);
+  border-bottom: 1px solid var(--rule);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out),
+    visibility 0s linear 200ms;
+}
+
+.nav__group.is-open .nav__panel {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out),
+    visibility 0s;
+}
+
+/* Without JavaScript the panels open on hover and keyboard focus. */
+html:not(.js) .nav__group:hover .nav__panel,
+html:not(.js) .nav__group:focus-within .nav__panel {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+}
+
+.nav__inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(16px, 2vw, 32px);
+}
+
+.nav__intro {
+  grid-column: 1 / 4;
+}
+
+.nav__title {
+  margin: 0 0 8px;
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.nav__desc {
+  margin: 0;
+  max-width: 30ch;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.nav__links {
+  grid-column: 4 / 13;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: clamp(16px, 2vw, 32px);
+  align-content: start;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.nav__links li {
+  border-bottom: 1px solid var(--rule);
+}
+
+.nav__links a {
+  display: grid;
+  gap: 4px;
+  padding: 16px 0 18px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.nav__name {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.1875rem;
+  font-weight: 540;
+  letter-spacing: -0.015em;
+}
+
+.nav__name .icon {
+  flex: none;
+  font-size: 1rem;
+  color: var(--ink-3);
+  transition: transform 200ms var(--ease-out), color 160ms ease;
+}
+
+.nav__sub {
+  max-width: 40ch;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+@media (min-width: 961px) {
   .brand {
     margin-right: clamp(16px, 3vw, 48px);
   }
   .nav {
     flex: 1;
-    justify-content: space-between;
-    margin-right: clamp(8px, 1.5vw, 24px);
   }
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .nav a:hover {
+  .nav__btn:hover {
+    color: var(--ink);
+  }
+  .nav__links a:hover .nav__name .icon {
+    transform: translateX(3px);
     color: var(--ink);
   }
 }
@@ -592,18 +715,19 @@ body.has-scene {
   font-size: 1.25rem;
 }
 
-@media (max-width: 1300px) {
+/* 960px and below: the menu sheet, the four groups one under the other, each name a
+   heading over its links (Markets in two columns), so the whole menu fits a phone. */
+@media (max-width: 960px) {
   .nav {
     position: fixed;
     inset: var(--nav-h) 0 auto;
+    max-height: calc(100svh - var(--nav-h));
+    overflow-y: auto;
     flex-direction: column;
     gap: 0;
-    padding: 8px var(--gutter) 24px;
+    padding: 4px var(--gutter) 28px;
     background: var(--ground);
     border-bottom: 1px solid var(--rule);
-    font-size: 1.375rem;
-    font-weight: 500;
-    letter-spacing: -0.02em;
     visibility: hidden;
     opacity: 0;
     transform: translateY(-8px);
@@ -611,14 +735,6 @@ body.has-scene {
       opacity 200ms var(--ease-out),
       transform 200ms var(--ease-out),
       visibility 0s linear 200ms;
-  }
-  .nav a {
-    padding: 12px 0;
-    color: var(--ink);
-    border-top: 1px solid var(--rule);
-  }
-  .nav a:first-child {
-    border-top: 0;
   }
   .site-header.is-open .nav {
     visibility: visible;
@@ -629,18 +745,65 @@ body.has-scene {
       transform 200ms var(--ease-out),
       visibility 0s;
   }
+  .nav__btn,
+  .nav__desc,
+  .nav__sub,
+  .nav__name .icon {
+    display: none;
+  }
+  .nav__panel,
+  .nav__group.is-open .nav__panel,
+  html:not(.js) .nav__group:hover .nav__panel,
+  html:not(.js) .nav__group:focus-within .nav__panel {
+    position: static;
+    padding: 0;
+    border: 0;
+    background: none;
+    visibility: inherit;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .nav__inner {
+    display: block;
+    padding: 0;
+  }
+  .nav__title {
+    margin: 0;
+    padding: 22px 0 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: normal;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .nav__group:first-child .nav__title {
+    padding-top: 12px;
+  }
+  .nav__links {
+    display: block;
+    border-top: 0;
+  }
+  .nav__links--two {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+  }
+  .nav__links a {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0;
+  }
+  .nav__name {
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
   .menu-btn {
     display: inline-flex;
   }
   .site-header .wrap {
     gap: 8px;
-  }
-}
-
-@media (max-width: 1300px) {
-  .nav .nav__subscribe {
-    display: block;
-    font-weight: 600;
   }
 }
 
@@ -943,6 +1106,181 @@ html.hero-forming .site-header--home:not(.crisp-hd) .brand__mark {
 }
 
 
+
+/* Today (owner-approved, 31 Oct 2026): the latest close note between the headline and the
+   index: its date, its headline (linked to the note) and five closes with their daily change,
+   coloured as rises and falls. Phones keep three closes and the short date. It does not form
+   from the particles: it fades in with the index. */
+.today {
+  width: min(100%, 600px);
+  display: grid;
+  gap: 12px;
+}
+
+.today__when {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+.today__note {
+  display: block;
+  max-width: 34ch;
+  color: var(--ink);
+  font-size: clamp(1.1875rem, 1.6vw, 1.5rem);
+  font-weight: 520;
+  line-height: 1.18;
+  letter-spacing: -0.022em;
+  text-decoration: underline 1px transparent;
+  text-underline-offset: 0.2em;
+  text-wrap: balance;
+  transition: text-decoration-color 160ms ease;
+}
+
+.today__nw {
+  white-space: nowrap;
+}
+
+.today__note .icon {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-left: 0.25em;
+  vertical-align: -0.06em;
+  transition: transform 200ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .today__note:hover {
+    text-decoration-color: var(--rule-strong);
+  }
+  .today__note:hover .icon {
+    transform: translateX(3px);
+  }
+}
+
+.today__tape {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.today__tape li {
+  display: grid;
+  padding: 10px 12px 10px 0;
+}
+
+.today__tape li + li {
+  padding-left: 12px;
+  border-left: 1px solid var(--rule);
+}
+
+.today__name {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.today__level {
+  font-size: 1.0625rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.today__chg {
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.home .hero__copy {
+  gap: 28px;
+}
+
+.today {
+  transition: opacity 450ms ease;
+}
+
+html.hero-forming .hero:not(.crisp-ix) .today {
+  opacity: 0;
+}
+
+@media (orientation: landscape) and (max-height: 720px) {
+  .home .hero__copy {
+    gap: 14px;
+  }
+  .today {
+    gap: 8px;
+  }
+  .today__note {
+    font-size: 1.0625rem;
+  }
+  .today__tape li {
+    padding-block: 6px;
+  }
+}
+
+/* Phones on their side have no room for it: the hero stays as it was. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .today {
+    display: none;
+  }
+}
+
+/* Small phones held upright (667px tall and less) keep the date and the headline. */
+@media (max-width: 860px) and (orientation: portrait) and (max-height: 700px) {
+  .hero .today {
+    margin-top: 8px;
+  }
+  .today .today__tape {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) and (orientation: portrait) {
+  .today {
+    order: 2;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    gap: 8px;
+    margin-top: 18px;
+    padding-inline: var(--gutter);
+  }
+  .hero__stage .hero__art {
+    order: 3;
+  }
+  .hero__index {
+    order: 4;
+  }
+  .today__when {
+    font-size: 0.8125rem;
+  }
+  .today__note {
+    max-width: none;
+    font-size: 1.0625rem;
+  }
+  .today__tape {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 2px;
+  }
+  .today__wide,
+  .today__tape .today__wide {
+    display: none;
+  }
+  .today__tape li {
+    padding-block: 8px;
+  }
+  .today__level {
+    font-size: 0.9375rem;
+  }
+  .today__chg {
+    font-size: 0.8125rem;
+  }
+}
 
 .hero__actions {
   margin-top: 40px;
@@ -3958,8 +4296,8 @@ html.hero-forming .site-header--home:not(.crisp-hd) .brand__mark {
   }
 }
 
-/* Icon only below 1800px: thirteen nav links leave no room for the label. */
-@media (max-width: 1799px) {
+/* Icon only at 1100px and below, where the four menu groups leave no room for the label. */
+@media (max-width: 1100px) {
   .search-btn {
     min-width: 44px;
     min-height: 44px;

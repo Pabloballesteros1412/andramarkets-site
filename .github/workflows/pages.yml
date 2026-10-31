@@ -231,6 +231,10 @@ jobs:
         with:
           path: .cache/strip
           key: strip-${{ github.run_id }}-${{ github.run_attempt }}
+      # Pillow draws each close note's share image (tools/og_note.py); without it the
+      # notes share assets/og-image.png.
+      - name: Install Pillow
+        run: pip install pillow==12.3.0
       - name: Build pages
         env:
           # The profile API's address (worker/, deployed by profile-api.yml).
