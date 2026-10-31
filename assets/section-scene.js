@@ -35,6 +35,11 @@
     "  float w = t * (0.003 + 0.004 * r);",
     "  vec3 p = vec3(a.x * cos(w) - a.y * sin(w), a.x * sin(w) + a.y * cos(w), a.z);",
     "  p += 0.03 * vec3(sin(t * 0.06 + r * 40.0), cos(t * 0.05 + r * 23.0), sin(t * 0.04 + r * 61.0));",
+    // the light theme (owner, 31 Oct 2026): each particle also travels, at its own pace, towards
+    // the back of the sphere and out again, and drifts to the side, so the depth reads in black
+    "  vec3 rd = normalize(p + vec3(0.0001));",
+    "  float ph = t * (0.16 + 0.22 * fract(r * 5.31)) + r * 50.0;",
+    "  p += ink * (rd * 0.13 * sin(ph) + normalize(vec3(-rd.y, rd.x, 0.35 * sin(r * 91.0))) * 0.09 * sin(ph * 0.73 + r * 13.0));",
     "  vec3 q = rotX(rotY(p, turn.x), turn.y) - cam;",
     // drawn in two passes: beyond the horse, then in front of it
     "  float behind = step(zSplit, q.z);",
@@ -49,15 +54,15 @@
     "  float near = 1.0 - smoothstep(0.15, 0.7, q.z);",
     "  float size = (1.1 + 1.6 * fract(r * 7.13)) * (0.9 / q.z) * (1.0 + near * 5.0);",
     // the light theme: every particle a small sharp dot, like the homepage's (owner, 31 Oct 2026)
-    "  size = mix(size, 1.0 + 1.2 * fract(r * 7.13), ink);",
+    "  size = mix(size, clamp(size * 0.55, 1.0, 6.0), ink);",
     "  gl_PointSize = clamp(size * dpr, 1.0, 26.0 * dpr);",
     "  vsoft = near * (1.0 - ink);",
     "  va = lit * (0.35 + 0.65 * fract(r * 3.71)) / (1.0 + near * 7.0 * (1.0 - ink)) * power;",
     "}"
   ].join("\n");
   // The light theme inverts the canvas in CSS; there the particles print in full black
-  // (owner, 31 Oct 2026): drawn in full white, so they invert to pure black, and all small
-  // and sharp (the vertex shader drops the near ones' size and blur).
+  // (owner, 31 Oct 2026): drawn in full white, so they invert to pure black, and sharp: far
+  // ones small, near ones larger (up to 6px), never blurred.
   var FS_P = [
     "precision mediump float; varying float va; varying float vsoft; uniform float ink;",
     "void main(){ vec2 d = gl_PointCoord - 0.5; float k = exp(-dot(d, d) * mix(18.0, 5.0, vsoft));",
