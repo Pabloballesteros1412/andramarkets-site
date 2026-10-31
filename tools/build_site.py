@@ -916,7 +916,6 @@ def page(notes, cal):
         title="Andra Markets: markets research platform",
         desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
         body=f"""<main id="main" class="home">
-  <script>{hero_boot()}</script>
   <section class="hero" id="top" aria-labelledby="hero-title">
     <div class="hero__stage">
       <span class="hero__sentinel" aria-hidden="true"></span>
@@ -941,8 +940,11 @@ def page(notes, cal):
         nav=False,
         footer=False,
         # the particle map is what the hero waits for: fetch it before anything else (the
-        # WebP copy; a browser that cannot decode WebP skips this and HERO_BOOT loads the PNG)
-        head=f'\n<link rel="preload" href="assets/horse-particles.webp?v={ver("horse-particles.webp")}" as="image" type="image/webp" fetchpriority="high">',
+        # WebP copy; a browser that cannot decode WebP skips this and HERO_BOOT loads the PNG).
+        # HERO_BOOT runs in the head, so the header, which forms from the particles too, is
+        # clear before it is parsed.
+        head=(f'\n<link rel="preload" href="assets/horse-particles.webp?v={ver("horse-particles.webp")}" as="image" type="image/webp" fetchpriority="high">'
+              f'\n<script>{hero_boot()}</script>'),
     )
 
 
@@ -1007,11 +1009,11 @@ def hero_index():
 
 
 def hero_boot():
-    """Runs before the hero is parsed. With WebGL it starts the particle map's download at
-    once (assets/hero-horse.js picks it up; the WebP copy, else the PNG), and, when motion
-    is allowed, marks the page so the still engraving, the headline and the index start
-    hidden: the particles form them. If the hero has not gone live within 3s (script
-    blocked, slow network), they show.
+    """Runs in the homepage head, before the header and the hero are parsed. With WebGL it
+    starts the particle map's download at once (assets/hero-horse.js picks it up; the WebP
+    copy, else the PNG), and, when motion is allowed, marks the page so the still engraving,
+    the headline, the index and the header start hidden: the particles form them. If the
+    hero has not gone live within 3s (script blocked, slow network), they show.
 
     The still engraving is only a fallback, so it is fetched only when it may show:
     __heroStill() gives it its src without WebGL (right after the img), at the 3s mark,

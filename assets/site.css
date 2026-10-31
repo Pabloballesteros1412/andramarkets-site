@@ -745,6 +745,28 @@ html.hero-formed .hero__copy > * {
   animation: none;
 }
 
+/* The homepage header forms from the same particles (owner, 31 Oct 2026): the mark, the
+   name, the theme button and the legal line are in place but clear until they settle. */
+html.hero-forming .site-header--home .brand__name,
+html.hero-forming .site-header--home .theme-btn,
+html.hero-forming .site-header--home .site-header__legal a {
+  transition: color 450ms ease;
+}
+
+html.hero-forming .site-header--home .brand__mark {
+  transition: opacity 450ms ease;
+}
+
+html.hero-forming .site-header--home:not(.crisp-hd) .brand__name,
+html.hero-forming .site-header--home:not(.crisp-hd) .theme-btn,
+html.hero-forming .site-header--home:not(.crisp-hd) .site-header__legal a {
+  color: transparent;
+}
+
+html.hero-forming .site-header--home:not(.crisp-hd) .brand__mark {
+  opacity: 0;
+}
+
 /* Short screens (laptops, phones on their side): everything still fits one screen. */
 @media (orientation: landscape) and (max-height: 720px) {
   .hero__copy {
