@@ -155,18 +155,37 @@
     var v = VIEWS[view];
     return v && v.series ? v.series() : null;
   }
+  // Which series the view shows when it first opens.
+  function defaultsFor(series) {
+    var cap = VIEWS[view].lines ? MAX_LINES : Infinity, n = 0;
+    var all = VIEWS[view].allOn;
+    var on = series.map(function (s) {
+      var x = (all || s.on !== false) && n < (VIEWS[view].firstOn || cap);
+      if (x) n++;
+      return x;
+    });
+    if (!n && series.length) on[0] = true;
+    return on;
+  }
   function onFor(series) {
-    if (!ON[view]) {
-      var cap = VIEWS[view].lines ? MAX_LINES : Infinity, n = 0;
-      var all = VIEWS[view].allOn;
-      ON[view] = series.map(function (s) {
-        var on = (all || s.on !== false) && n < (VIEWS[view].firstOn || cap);
-        if (on) n++;
-        return on;
-      });
-      if (!n && series.length) ON[view][0] = true;
-    }
+    if (!ON[view]) ON[view] = defaultsFor(series);
     return ON[view];
+  }
+  // The most series the view takes at once (the toggles enforce the same).
+  function mostOn() {
+    return Math.min(VIEWS[view].lines ? MAX_LINES : Infinity, VIEWS[view].maxOn || Infinity);
+  }
+  // Each series' key in the link: its name in lower case, words joined by
+  // hyphens ("S&P 500 (SPY)" is sp-500-spy), unique within the list.
+  function keysOf(series) {
+    var seen = {};
+    return series.map(function (s) {
+      var k = s.name.toLowerCase().replace(/[&'.]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "series";
+      var u = k, n = 1;
+      while (seen[u]) u = k + "-" + (++n);
+      seen[u] = true;
+      return u;
+    });
   }
   function renderToggles() {
     if (!toggles) return;
@@ -198,6 +217,7 @@
       say("");
       index = -1;
       draw();
+      save();
     });
   }
   function picked(series) {
@@ -744,15 +764,105 @@
     e.preventDefault();
     show(Math.max(0, Math.min(hover.count - 1, index + step)));
   });
+  function press(chips, on) {
+    chips.forEach(function (c) { c.setAttribute("aria-pressed", String(c === on)); });
+  }
+  function chipFor(chips, attr, value) {
+    var hit = null;
+    chips.forEach(function (c) { if (c.getAttribute(attr) === value) hit = c; });
+    return hit;
+  }
+  // A date the comparison field accepts: a real day within its bounds.
+  function dateOk(v) {
+    return /^\d{4}-\d{2}-\d{2}$/.test(v) && parse(v).toISOString().slice(0, 10) === v &&
+      !(dateIn.min && v < dateIn.min) && !(dateIn.max && v > dateIn.max);
+  }
+  // What the view offers: the 1D range belongs to the ranked bars (elsewhere
+  // it falls back to 1M), the comparison date to every view but Rolling.
+  function fitView() {
+    var oneDay = chipFor(rangeChips, "data-range", "1D");
+    if (oneDay) {
+      oneDay.hidden = view !== "main";
+      var m = chipFor(rangeChips, "data-range", "1M");
+      if (oneDay.hidden && cur === "1D" && m) {
+        cur = "1M";
+        if (dateIn) dateIn.value = "";
+        press(rangeChips, m);
+      }
+    }
+    var dateWrap = page.querySelector(".dd__date");
+    if (dateWrap) dateWrap.hidden = view === "rolling";
+  }
+
+  /* The view in the link ------------------------------------------------------ */
+
+  // The chosen view, range or comparison date and series live in the URL's
+  // fragment, which never reaches a server: #view=rebased&range=6M&on=technology,energy
+  // (from=2026-03-16 in place of range for a comparison date). Only what differs
+  // from the page's defaults is written, so the plain page keeps a clean URL,
+  // and replaceState leaves the back button to pages. Links are shared: keep
+  // these keys working.
+  var DEF = { view: view, range: cur };
+  function save() {
+    var parts = [];
+    if (view !== DEF.view) parts.push("view=" + encodeURIComponent(view));
+    if (cur === "date" && from) parts.push("from=" + encodeURIComponent(from));
+    else if (cur !== DEF.range) parts.push("range=" + encodeURIComponent(cur));
+    var series = list();
+    if (series && series.length > 1 && ON[view]) {
+      var def = defaultsFor(series), keys = keysOf(series), on = [], same = true;
+      ON[view].forEach(function (x, i) {
+        if (x) on.push(encodeURIComponent(keys[i]));
+        if (x !== def[i]) same = false;
+      });
+      if (!same) parts.push("on=" + on.join(","));
+    }
+    history.replaceState(null, "", location.pathname + location.search + (parts.length ? "#" + parts.join("&") : ""));
+  }
+  // Apply the fragment before the first draw. A view, range or series the page
+  // does not have, a date outside the field's bounds, more series than the view
+  // takes and unknown keys are ignored.
+  function restore() {
+    var q = new URLSearchParams(location.hash.slice(1));
+    var chip = chipFor(viewChips, "data-view", q.get("view"));
+    if (chip && VIEWS[chip.getAttribute("data-view")]) {
+      view = chip.getAttribute("data-view");
+      press(viewChips, chip);
+    }
+    chip = chipFor(rangeChips, "data-range", q.get("range"));
+    if (chip) {
+      cur = chip.getAttribute("data-range");
+      press(rangeChips, chip);
+    }
+    var f = q.get("from");
+    if (dateIn && f && dateOk(f)) {
+      from = f;
+      cur = "date";
+      dateIn.value = f;
+      press(rangeChips, null);
+    }
+    fitView();
+    var series = list(), want = q.get("on");
+    if (want && series && series.length > 1) {
+      var keys = keysOf(series), on = series.map(function () { return false; }), n = 0;
+      want.toLowerCase().split(",").forEach(function (k) {
+        var i = keys.indexOf(k);
+        if (i >= 0 && !on[i]) { on[i] = true; n++; }
+      });
+      if (n && n <= mostOn()) ON[view] = on;
+    }
+  }
+
   rangeChips.forEach(function (chip) {
     chip.addEventListener("click", function () {
       cur = chip.getAttribute("data-range");
       from = null;
       if (dateIn) dateIn.value = "";
-      rangeChips.forEach(function (c) { c.setAttribute("aria-pressed", String(c === chip)); });
+      press(rangeChips, chip);
       index = -1;
       say("");
       draw();
+      save();
     });
   });
   if (dateIn) {
@@ -765,34 +875,27 @@
       }
       from = v;
       cur = "date";
-      rangeChips.forEach(function (c) { c.setAttribute("aria-pressed", "false"); });
+      press(rangeChips, null);
       index = -1;
       say("");
       draw();
+      save();
     });
   }
   viewChips.forEach(function (chip) {
     chip.addEventListener("click", function () {
       view = chip.getAttribute("data-view");
-      viewChips.forEach(function (c) { c.setAttribute("aria-pressed", String(c === chip)); });
-      // The 1D range belongs to the ranked bars; elsewhere it falls back to 1M.
-      var oneDay = page.querySelector('.dd__ranges .chip[data-range="1D"]');
-      if (oneDay) {
-        oneDay.hidden = view !== "main";
-        if (oneDay.hidden && cur === "1D") {
-          var m = page.querySelector('.dd__ranges .chip[data-range="1M"]');
-          if (m) m.click();
-        }
-      }
-      var dateWrap = page.querySelector(".dd__date");
-      if (dateWrap) dateWrap.hidden = view === "rolling";
+      press(viewChips, chip);
+      fitView();
       index = -1;
       say("");
       renderToggles();
       movesFor();
       draw();
+      save();
     });
   });
+  restore();
   renderToggles();
   movesFor();
   if ("ResizeObserver" in window) new ResizeObserver(function () { draw(); }).observe(plot);
