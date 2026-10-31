@@ -353,7 +353,7 @@ def tile_asof(key, rec):
 # Icons -----------------------------------------------------------------------
 
 ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "sun", "moon",
-              "magnifying-glass", "check", "link", "pause", "play"] + [
+              "magnifying-glass", "check", "link", "pause", "play", "caret-down"] + [
     icon_name for _, url, icon_name in SOCIALS if url
 ]
 
@@ -927,7 +927,8 @@ def page(notes, cal):
       <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" aria-hidden="true"></canvas>
       <div class="wrap hero__copy">
         <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
-        <nav class="hero__index" aria-label="All sections" style="--i:1">
+        {today_block(notes[0] if notes else None)}
+        <nav class="hero__index" aria-label="All sections" style="--i:2">
           <ul>{hero_index()}</ul>
         </nav>
       </div>
@@ -1006,6 +1007,38 @@ HOME_INDEX = (
 )
 
 
+# The homepage's "today" (owner-approved, 31 Oct 2026): the latest close note's date, its
+# headline and five of its closes, between the headline and the index. Phones keep three.
+TODAY = (("S&amp;P 500", "spx", 2, True), ("Nasdaq 100", "ndx", 2, True), ("Euro Stoxx 50", "sx5e", 2, False),
+         ("VIX", "vix", 2, True), ("Gold", "gold", 1, False))
+
+
+def today_block(rec):
+    if not rec or not (rec.get("note") or {}).get("headline"):
+        return ""
+    d, closes = rec["day"], rec.get("closes") or {}
+    items = []
+    for label, key, dec, phone in TODAY:
+        row = closes.get(key) or {}
+        last, chg = row.get("last"), row.get("chg")
+        if not finite(last):
+            continue
+        change = "Prior close" if row.get("stale") or not finite(chg) else signed(chg, 2, "%")
+        cls = "" if phone else ' class="today__wide"'
+        items.append(f'<li{cls}><span class="today__name">{label}</span>'
+                     f'<span class="today__level">{last:,.{dec}f}</span>'
+                     f'<span class="today__chg {move_class(change)}">{change}</span></li>')
+    head = esc(rec["note"]["headline"])
+    first, _, last_word = head.rpartition(" ")
+    title = f'{first} <span class="today__nw">{last_word}{icon("arrow-right")}</span>' if first else f'{head}{icon("arrow-right")}'
+    tape = f'<ul class="today__tape" aria-label="Close and daily change, {day_med(d)}">{"".join(items)}</ul>' if items else ""
+    return f"""<section class="today" aria-label="The latest close note" style="--i:1">
+          <p class="today__when">Close note, <time datetime="{rec['date']}"><span class="today__wide">{d:%A} </span>{d.day} {d:%b}<span class="today__wide"> {d.year}</span></time></p>
+          <a class="today__note" href="reports/{rec['date']}/">{title}</a>
+          {tape}
+        </section>"""
+
+
 def hero_index():
     return "".join(f'<li><a href="{href}">{name}</a></li>' for name, href in HOME_INDEX)
 
@@ -1035,21 +1068,50 @@ def hero_boot():
             "if(!h||!h.classList.contains('is-live')){r.classList.remove('hero-forming');__heroStill()}},3000)}")
 
 
+# The header menu in four groups (owner-approved, 31 Oct 2026): each opens a panel the
+# width of the page, its links with a line each. On phones and tablets the same markup
+# is the menu sheet, the group names as headings over their links.
+NAV_GROUPS = (
+    ("markets", "Markets", "Prices, rates and what is coming, with each figure's source and date.", (
+        ("Dashboards", "dashboards/", "Nine views across rates, equities, macro and cross-asset."),
+        ("Fed &amp; Rates", "fed-rates/", "Policy rate, FOMC odds and countdown, the Treasury curve."),
+        ("Calendar", "calendar/", "Releases, central banks and earnings, five weeks ahead."),
+        ("World", "world/", "Twenty-five markets compared on the same scale."),
+        ("FX", "fx/", "The dollar, the G10 majors and emerging-market currencies."),
+        ("Companies", "companies/", "Earnings and figures for 600 companies."))),
+    ("tools", "Tools", "Run the numbers yourself, in the browser.", (
+        ("Lab", "lab/", "Ten quant tools: risk, options, bonds, the efficient frontier."),
+        ("Simulators", "simulators/", "Trading, the Panic Test, Guess the Fed, the Portfolio Builder."))),
+    ("research", "Research", "What happened and why, on the record.", (
+        ("Daily note", "reports/", "One note every US trading day, after the close."),
+        ("Research Library", "research/", "Weekly reviews and longer research, as PDFs."))),
+    ("careers", "Careers", "For students breaking into markets.", (
+        ("Interview prep", "interview-prep/", "This week's markets and the questions interviewers ask."),
+        ("Break into Wall Street", "break-into-wall-street/", "Roles, recruiting calendar, CV, networking, visas."))),
+)
+
+
+def nav_menu(base):
+    groups = []
+    for key, name, intro, links in NAV_GROUPS:
+        items = "".join(
+            f'<li><a href="{base}{href}"><span class="nav__name">{label}{icon("arrow-right")}</span>'
+            f'<span class="nav__sub">{sub}</span></a></li>' for label, href, sub in links)
+        groups.append(f"""<div class="nav__group">
+        <button class="nav__btn" type="button" aria-expanded="false" aria-controls="nav-{key}">{name}<svg class="icon nav__caret" aria-hidden="true"><use href="#i-caret-down"/></svg></button>
+        <div class="nav__panel" id="nav-{key}">
+          <div class="nav__inner">
+            <div class="nav__intro"><p class="nav__title">{name}</p><p class="nav__desc">{intro}</p></div>
+            <ul class="nav__links{' nav__links--two' if len(links) > 2 else ''}">{items}</ul>
+          </div>
+        </div>
+      </div>""")
+    sep = "\n      "
+    return f'<nav class="nav" id="site-nav" aria-label="Primary">{sep}{sep.join(groups)}\n    </nav>'
+
+
 def site_header(home, base, nav=True):
-    menu = f"""<nav class="nav" id="site-nav" aria-label="Primary">
-      <a href="{base}dashboards/">Dashboards</a>
-      <a href="{base}fed-rates/">Fed &amp; Rates</a>
-      <a href="{base}companies/">Companies</a>
-      <a href="{base}lab/">Lab</a>
-      <a href="{base}simulators/">Simulators</a>
-      <a href="{base}calendar/">Calendar</a>
-      <a href="{base}world/">World</a>
-      <a href="{base}fx/">FX</a>
-      <a href="{base}research/">Research</a>
-      <a href="{base}reports/">Daily note</a>
-      <a href="{base}interview-prep/">Interview prep</a>
-      <a href="{base}break-into-wall-street/">Break into Wall Street</a>
-    </nav>""" if nav else ""
+    menu = nav_menu(base) if nav else ""
     menu_btn = """<button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
       <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
     </button>""" if nav else ""
@@ -1138,6 +1200,7 @@ def ver(name):
 # of a domain, which the site has once it has its own).
 SITEMAP = {}
 LOGO = "assets/andra-horse.png"  # the brand mark (CLAUDE.md rule 3), for structured data
+OG_DEFAULT = "assets/og-image.png"  # the social share image of every page without its own
 
 
 def abs_url(path=""):
@@ -1160,11 +1223,14 @@ def ld_org():
 
 
 def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=True, head="", scene=None,
-          index=True, ld=None, published=None):
+          index=True, ld=None, published=None, og=None):
     """One page. index=False (redirects) keeps it out of search engines and the sitemap;
-    ld is the page's schema.org structured data; published (ISO) marks an article."""
+    ld is the page's schema.org structured data; published (ISO) marks an article.
+    og: (image path from the site root, alt text) for a page with a share image of its
+    own (each close note's); every other page shares assets/og-image.png."""
     url = abs_url(path)
-    og_image = f"{SITE_URL}/assets/og-image.png" if SITE_URL else f"{base}assets/og-image.png"
+    og_path, og_alt = og or (OG_DEFAULT, "The Andra Markets engraved horse beside the line Markets, on the record.")
+    og_image = abs_url(og_path) if SITE_URL else f"{base}{og_path}"
     canonical = f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n' if url else ""
     if index:
         m = re.fullmatch(r"(?:reports|fx)/(\d{4}-\d{2}-\d{2})/", path)
@@ -1204,7 +1270,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 <meta property="og:image" content="{og_image}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Andra Markets engraved horse beside the line Markets, on the record.">
+<meta property="og:image:alt" content="{og_alt}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="{base}assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{base}assets/site.css?v={ver("site.css")}">{head}
@@ -2802,6 +2868,7 @@ def report(rec, newer, older, cal):
     <nav class="report__pager" aria-label="More close notes">{pager}</nav>
   </div>
 </main>"""
+    og_path = f"reports/{rec['date']}/og.jpg" if rec.get("og") else None
     return shell(
         title=f"{esc(n['headline'])}: Andra Markets close note, {day_med(d)}",
         desc=esc(standfirst or f"The Andra Markets close note for {day_long(d)}."),
@@ -2811,7 +2878,8 @@ def report(rec, newer, older, cal):
         path=f"reports/{rec['date']}/",
         published=note_published(rec),
         ld=ld_article(n["headline"], standfirst or f"The Andra Markets close note for {day_long(d)}.",
-                      note_published(rec), f"reports/{rec['date']}/"),
+                      note_published(rec), f"reports/{rec['date']}/", og_path),
+        og=(og_path, f"The Andra Markets close note for {day_med(d)}: {esc(n['headline'])}") if rec.get("og") else None,
     )
 
 
@@ -2821,13 +2889,32 @@ def note_published(rec):
     return t if re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", t) else rec["date"]
 
 
-def ld_article(headline, desc, published, path):
+def ld_article(headline, desc, published, path, image=None):
     art = {"@context": "https://schema.org", "@type": "Article", "headline": headline,
            "description": desc, "datePublished": published, "dateModified": published,
            "inLanguage": "en", "author": ld_org(), "publisher": ld_org()}
     if SITE_URL:
-        art.update(mainEntityOfPage=abs_url(path), url=abs_url(path), image=abs_url("assets/og-image.png"))
+        art.update(mainEntityOfPage=abs_url(path), url=abs_url(path), image=abs_url(image or OG_DEFAULT))
     return art
+
+
+def note_share_image(rec):
+    """Writes the note's share image (tools/og_note.py, owner-approved 31 Oct 2026) to
+    reports/<date>/og.jpg. False without Pillow or on a failure: the page then shares
+    assets/og-image.png."""
+    try:
+        import og_note
+        og_note.render(rec, REPORTS / rec["date"] / "og.jpg")
+        return True
+    except Exception as e:  # noqa: BLE001  (a share image never stops the build)
+        global OG_WARNED
+        if not OG_WARNED:
+            print(f"note share images skipped ({type(e).__name__}: {e}); the pages share assets/og-image.png")
+            OG_WARNED = True
+        return False
+
+
+OG_WARNED = False
 
 
 # FX -----------------------------------------------------------------------------
@@ -5466,6 +5553,7 @@ def main():
         newer = notes[i - 1] if i > 0 else None
         older = notes[i + 1] if i + 1 < len(notes) else None
         (REPORTS / rec["date"]).mkdir(exist_ok=True)
+        rec["og"] = note_share_image(rec)
         (REPORTS / rec["date"] / "index.html").write_text(report(rec, newer, older, cal))
     (OUT / "calendar").mkdir(exist_ok=True)
     (OUT / "calendar" / "index.html").write_text(calendar_page(cal, now))

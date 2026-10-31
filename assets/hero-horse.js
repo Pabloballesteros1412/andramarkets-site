@@ -115,8 +115,12 @@
     "  pos += (dir * q * q * prad * 0.3 * (0.35 + 1.3*aR.x) + vec2(-dir.y, dir.x) * q * prad * 0.16 * (aR.y - 0.5)) * ptr.z;",
     "  a *= 1.0 + 0.6 * q * ptr.z;",
     "  gl_Position = vec4(pos.x / res.x * 2.0 - 1.0, 1.0 - pos.y / res.y * 2.0, 0.0, 1.0);",
-    "  gl_PointSize = max(1.0, sz * dpr * sm);",
-    "  va = a * am;",
+    // a point is never drawn under one device pixel, so in a small slot on a low-density
+    // screen (the homepage's today block leaves phones a smaller horse) the dots would
+    // overlap and brighten: dim them by the area they gain instead
+    "  float ps = sz * dpr * sm;",
+    "  gl_PointSize = max(1.0, ps);",
+    "  va = a * am * min(1.0, ps * ps);",
     "  vc = mix(dcol, hcol, smoothstep(0.6, 1.0, e) * (1.0 - smoothstep(0.0, 0.5, eg)));",
     "}"
   ].join("\n");
