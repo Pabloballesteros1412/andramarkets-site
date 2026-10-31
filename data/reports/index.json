@@ -133,6 +133,16 @@
       ]
     },
     {
+      "slug": "2026-55-lockheed-martin",
+      "date": "2026-10-13",
+      "type": "research",
+      "title": "Lockheed Martin: Backlog, Execution and the Arsenal Trade",
+      "summary": "A record $230bn backlog and a world that is rearming, against costly programme losses and a share price a quarter below its March high. Results, segments, the defence budget and the valuation.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
       "slug": "2026-51-earnings-quality",
       "date": "2026-10-12",
       "type": "research",
@@ -312,6 +322,16 @@
       ]
     },
     {
+      "slug": "2026-28-micron",
+      "date": "2026-10-05",
+      "type": "research",
+      "title": "Micron",
+      "summary": "An 87% gross margin, revenue up almost fivefold in a year and a $1.2 trillion valuation in the strongest memory upcycle on record. The fourth-quarter results and why seven times earnings may still be a cyclical bet.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
       "slug": "2026-27-alphabet",
       "date": "2026-10-05",
       "type": "research",
@@ -339,6 +359,17 @@
       "summary": "Europe’s most valuable company invented the modern obesity market, then lost it. How Novo fell from leader to challenger, what the Wegovy pill changes, and whether nine times earnings is value or a trap.",
       "tags": [
         "equities"
+      ]
+    },
+    {
+      "slug": "2026-23-nvidia",
+      "date": "2026-10-04",
+      "type": "research",
+      "title": "Nvidia",
+      "summary": "The world’s most valuable company is still doubling its revenue. The business, the latest quarter, the financing that now surrounds its customers, and what a $5.6 trillion valuation actually assumes.",
+      "tags": [
+        "equities",
+        "credit"
       ]
     }
   ]
