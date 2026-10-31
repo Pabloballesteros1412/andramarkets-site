@@ -415,6 +415,52 @@ ul {
   }
 }
 
+/* The homepage's legal line (it has no footer), at the top right of the header. */
+.site-header--home .brand {
+  margin-right: clamp(8px, 2vw, 32px);
+}
+
+.site-header__legal {
+  margin: 0 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 20px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.site-header__legal a {
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .site-header__legal a:hover {
+    color: var(--ink);
+  }
+}
+
+/* Phones: no room beside the brand, so it sits just under the header row, still top right. */
+@media (max-width: 600px) {
+  .site-header__legal {
+    position: absolute;
+    top: 100%;
+    right: var(--gutter);
+    max-width: calc(100% - 2 * var(--gutter));
+    margin: 0;
+    gap: 0 14px;
+    font-size: 0.75rem;
+    line-height: 20px;
+  }
+
+  .home .hero h1 {
+    padding-top: calc(var(--nav-h) + 56px);
+  }
+}
+
 .theme-btn,
 .menu-btn {
   display: inline-flex;
@@ -612,10 +658,18 @@ ul {
   background: linear-gradient(to top, var(--ground) 0%, transparent 40%);
 }
 
+/* Dark theme: the homepage is flat, matte black (owner, 31 Oct 2026): no vignette, no fade,
+   and no glow around the particles (assets/hero-horse.js). */
+:root[data-theme="dark"]:has(main.home) {
+  --ground: #000000;
+}
+
+:root[data-theme="dark"] .hero__stage {
+  background: #000000;
+}
+
 :root[data-theme="dark"] .hero__stage::after {
-  background:
-    radial-gradient(120% 90% at 63% 45%, transparent 40%, rgba(10, 12, 13, 0.75) 100%),
-    linear-gradient(to top, var(--ground) 0%, transparent 38%);
+  background: none;
 }
 
 .hero h1 {
@@ -685,34 +739,6 @@ html.hero-formed .hero__copy > * {
   animation: none;
 }
 
-/* The homepage has no footer: its legal line sits in the corner of the screen. */
-.hero__legal {
-  position: absolute;
-  right: var(--gutter);
-  bottom: clamp(32px, 6vh, 64px);
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0 20px;
-  /* clear of the index (at most half the page), wrapping to two lines when it must */
-  max-width: 34%;
-  font-size: 0.8125rem;
-  line-height: 46px;
-  color: var(--ink-3);
-}
-
-.hero__legal a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .hero__legal a:hover {
-    color: var(--ink);
-  }
-}
-
 /* Short screens (laptops, phones on their side): everything still fits one screen. */
 @media (orientation: landscape) and (max-height: 720px) {
   .hero__copy {
@@ -730,10 +756,6 @@ html.hero-formed .hero__copy > * {
     font-size: 0.9375rem;
   }
 
-  .hero__legal {
-    bottom: 20px;
-    line-height: max(30px, 6svh);
-  }
 }
 
 /* Phones and small tablets held upright: one column, headline, horse, index. The horse takes
@@ -790,21 +812,6 @@ html.hero-formed .hero__copy > * {
     order: 3;
   }
 
-  .hero__legal {
-    order: 4;
-    position: relative;
-    z-index: 1;
-    right: auto;
-    bottom: auto;
-    justify-content: flex-start;
-    gap: 0 16px;
-    max-width: none;
-    padding-inline: var(--gutter);
-    padding-top: 6px;
-    padding-bottom: clamp(14px, 3vh, 32px);
-    font-size: 0.75rem;
-    line-height: 24px;
-  }
 
   .hero__index ul {
     width: 100%;

@@ -915,7 +915,6 @@ def page(notes, cal):
         <nav class="hero__index" aria-label="All sections" style="--i:1">
           <ul>{hero_index()}</ul>
         </nav>
-        <p class="hero__legal"><a href="legal/">For information only. Not investment advice.</a><a href="privacy/">Privacy and cookies</a></p>
       </div>
     </div>
   </section>
@@ -1014,20 +1013,25 @@ def site_header(home, base, nav=True):
     menu_btn = """<button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
       <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
     </button>""" if nav else ""
-    return f"""<header class="site-header">
+    # The homepage (nav=False): no search, and the legal line at the top right, as it has no footer.
+    search = """<button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
+      <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
+    </button>""" if nav else ""
+    legal = "" if nav else (f'<p class="site-header__legal"><a href="{base}legal/">For information only. Not investment advice.</a>'
+                            f'<a href="{base}privacy/">Privacy and cookies</a></p>')
+    return f"""<header class="site-header{'' if nav else ' site-header--home'}">
   <div class="wrap">
     <a class="brand" href="{home or '#top'}" aria-label="Andra Markets, home">
       <span class="brand__mark"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></span>
       <span class="brand__name">Andra Markets</span>
     </a>
     {menu}
-    <button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
-      <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
-    </button>
+    {search}
     <button class="theme-btn" type="button" aria-label="Switch to dark theme">
       <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
       <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
     </button>
+    {legal}
     {menu_btn}
   </div>
 </header>"""
