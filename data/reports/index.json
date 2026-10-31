@@ -1,3 +1,166 @@
 {
-  "reports": []
+  "reports": [
+    {
+      "slug": "2026-77-big-oil",
+      "date": "2026-10-30",
+      "type": "research",
+      "title": "Big Oil’s Windfall Quarter: Exxon and Chevron at Record Highs",
+      "summary": "Exxon earned $15.4 billion and set $20 billion of 2027 buybacks; Chevron’s profit nearly tripled. Where the money came from, what they do with it and what it says about the oil market.",
+      "tags": [
+        "commodities",
+        "equities"
+      ]
+    },
+    {
+      "slug": "2026-76-inflation-central-banks",
+      "date": "2026-10-30",
+      "type": "research",
+      "title": "Inflation Is Back: The Fed, the ECB and the BoJ at a Crossroads",
+      "summary": "US PCE inflation at 3.6%, a split Fed, an ECB losing Lagarde early and a Bank of Japan at its 2% target. Where each central bank stands, what markets price and what to watch into December.",
+      "tags": [
+        "macro",
+        "rates",
+        "fx"
+      ]
+    },
+    {
+      "slug": "2026-75-tech-selloff",
+      "date": "2026-10-30",
+      "type": "research",
+      "title": "Tech’s Worst Day Since June: Intel, Chips and the AI Payoff Question",
+      "summary": "Intel fell 29% on a weak guide, the chip index lost 7.2% and the Nasdaq 2.9%. What moved, why it spread across the chain and what it says about where the AI cycle stands.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
+      "slug": "2026-74-us-china-truce",
+      "date": "2026-10-30",
+      "type": "research",
+      "title": "The Truce That Isn’t on Paper: US-China After 10 November",
+      "summary": "The US-China truce is extended in politics to 10 January, but its legal texts still expire on 9 and 10 November. What lapses, how tariffs and trade have shifted, and what is at stake for markets.",
+      "tags": [
+        "macro",
+        "equities",
+        "commodities"
+      ]
+    },
+    {
+      "slug": "2026-73-hyperscaler-capex",
+      "date": "2026-10-30",
+      "type": "research",
+      "title": "The $730 Billion Question: Big Tech’s AI Capex and What It Means for Investors",
+      "summary": "Cloud growth accelerated at Alphabet, Microsoft and Amazon, yet the market sold two of them as capex outran cash flow. The results, the funding, the accounting and the scenarios for 2027.",
+      "tags": [
+        "equities",
+        "credit"
+      ]
+    },
+    {
+      "slug": "2026-72-binance-breach",
+      "date": "2026-10-30",
+      "type": "research",
+      "title": "The Binance Breach",
+      "summary": "Billions left Binance hot wallets, issuers froze about $1.8 billion of stablecoins and Bitcoin fell below $79,000. What is confirmed, what is only claimed, and what it means for a market in a bear phase.",
+      "tags": [
+        "fx"
+      ]
+    },
+    {
+      "slug": "2026-71-midterms",
+      "date": "2026-10-30",
+      "type": "research",
+      "title": "Midterms 2026: What Markets Are Pricing",
+      "summary": "Prediction markets and models point to a change in control of at least one chamber on 3 November. What is priced, the Senate races that decide it, what history says and what each outcome means for policy.",
+      "tags": [
+        "macro",
+        "equities",
+        "rates"
+      ]
+    },
+    {
+      "slug": "2026-70-us-consumer",
+      "date": "2026-10-30",
+      "type": "research",
+      "title": "The US Consumer at the Limit",
+      "summary": "Sentiment near record lows, gasoline above $4 and real wages falling, yet retailers forecast a first trillion-dollar holiday season. What holds spending up, who carries it and where it could crack.",
+      "tags": [
+        "macro",
+        "equities"
+      ]
+    },
+    {
+      "slug": "2026-68-europe-gas",
+      "date": "2026-10-30",
+      "type": "research",
+      "title": "Europe’s Winter Gas Squeeze",
+      "summary": "TTF crossed €100/MWh for the first time since 2022 with storage at a record low for the season. Prices, storage, the contest with Asia for LNG, policy, exposed industries and the winter outlook.",
+      "tags": [
+        "commodities",
+        "macro"
+      ]
+    },
+    {
+      "slug": "2026-56-anthropic",
+      "date": "2026-10-13",
+      "type": "research",
+      "title": "Anthropic: Growth, Capital and the Road to a Public Listing",
+      "summary": "Annualised revenue has risen from about $1bn to more than $65bn in nineteen months and the company is preparing to list. What the latest data show and what an IPO valuation would assume.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
+      "slug": "2026-50-ai-financing-2027",
+      "date": "2026-10-11",
+      "type": "research",
+      "title": "Financing the AI Build-Out in 2027: The $1.2 Trillion Question",
+      "summary": "AI infrastructure spending passes $1 trillion next year, more than Big Tech’s own cash covers. Who funds the gap, through which markets, at what cost, and where the risk ends up.",
+      "tags": [
+        "credit",
+        "equities",
+        "rates"
+      ]
+    },
+    {
+      "slug": "2026-39-asml",
+      "date": "2026-10-08",
+      "type": "research",
+      "title": "ASML",
+      "summary": "Every advanced chip is printed on an ASML machine. Sales guidance is up about 16% and next year’s EUV capacity is almost sold out, but China and the pace of AI spending make the shares volatile.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
+      "slug": "2026-38-amd",
+      "date": "2026-10-08",
+      "type": "research",
+      "title": "AMD",
+      "summary": "Data centre revenue doubled, rack-scale AI systems are shipping and three of the largest AI developers have signed up. The shares have roughly tripled and trade above the average target.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
+      "slug": "2026-32-amazon",
+      "date": "2026-10-08",
+      "type": "research",
+      "title": "Amazon",
+      "summary": "AWS is growing at its fastest pace in four years and earns most of the profit, but AI data centre spending has turned free cash flow negative. Whether the bet pays back.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
+      "slug": "2026-27-alphabet",
+      "date": "2026-10-05",
+      "type": "research",
+      "title": "Alphabet",
+      "summary": "Search still grows, Google Cloud is up 82% and the antitrust cases ended without a break-up. The price is $200 billion of capex a year and the first negative cash flow quarter in two decades.",
+      "tags": [
+        "equities"
+      ]
+    }
+  ]
 }
