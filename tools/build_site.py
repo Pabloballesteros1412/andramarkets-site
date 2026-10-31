@@ -894,6 +894,17 @@ THEME_BOOT = (
     "var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0a0c0d':'#ffffff'})();"
 )
 
+# Faster moves between pages: where the browser supports speculation rules (Chrome, Edge),
+# a page's HTML is fetched while the pointer rests on its link (or, on phones, when the
+# browser judges a link likely), so the click opens it without waiting for the network.
+# Only the HTML is fetched: no script runs before the click, nothing is shown, and a PDF
+# or a link that opens elsewhere is never fetched ahead. Other browsers ignore it.
+SPECULATION = ('<script type="speculationrules">'
+               '{"prefetch":[{"where":{"and":[{"href_matches":"/*"},'
+               '{"not":{"selector_matches":"a[href$=\\".pdf\\"], a[download], a[target]"}}]},'
+               '"eagerness":"moderate"}]}'
+               '</script>')
+
 
 def page(notes, cal):
     """The homepage: one screen, the headline, the horse and the index of sections
@@ -1135,6 +1146,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="{base}assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{base}assets/site.css?v={ver("site.css")}">{head}
+{SPECULATION}
 </head>
 <body data-base="{base}">
 {sprite()}
