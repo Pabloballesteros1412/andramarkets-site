@@ -251,10 +251,11 @@ jobs:
           cp -r fed-rates careers break-into-wall-street _site/
           cp -r profile _site/
           rm -rf _site/assets/icons
-      # The site is free: no PDF or data file may ever be published.
+      # The site is free: no PDF or data file may ever be published, except
+      # the Research Library's reports, which are published as their PDFs.
       - name: Check no downloads are published
         run: |
-          found=$(find _site -type f \( -iname '*.pdf' -o -iname '*.json' -o -iname '*.xlsx' -o -iname '*.csv' \))
+          found=$(find _site -type f \( -iname '*.pdf' -o -iname '*.json' -o -iname '*.xlsx' -o -iname '*.csv' \) -not -path '_site/research/pdf/*.pdf')
           if [ -n "$found" ]; then echo "::error::Files that must not be published: $found"; exit 1; fi
       - uses: actions/upload-pages-artifact@v3
         with:
