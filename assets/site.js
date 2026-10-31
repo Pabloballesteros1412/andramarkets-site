@@ -140,7 +140,7 @@
     var dark = root.getAttribute("data-theme") === "dark";
     themeBtn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", dark ? "#0a0c0d" : "#f4f6f6");
+    if (meta) meta.setAttribute("content", dark ? "#0a0c0d" : "#ffffff");
   }
   if (themeBtn) {
     syncThemeBtn();

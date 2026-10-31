@@ -2,7 +2,7 @@
 name: Andra Markets
 description: A markets research platform on the record. Engraved horse, one grotesque, hairline rules, square corners, red and green only for rises and falls.
 colors:
-  ground: "#f4f6f6"
+  ground: "#ffffff"
   ground-2: "#e9eded"
   ink: "#0e1215"
   ink-2: "#424a50"
@@ -10,7 +10,7 @@ colors:
   rule: "rgba(14, 18, 21, 0.15)"
   rule-strong: "rgba(14, 18, 21, 0.78)"
   btn-bg: "#0e1215"
-  btn-fg: "#f4f6f6"
+  btn-fg: "#ffffff"
   btn-hover: "#2a3036"
   plate: "#0e1215"
   plate-2: "#191f23"
@@ -276,7 +276,7 @@ Source of truth: `assets/site.css`, `assets/site.js` and `tools/build_site.py`, 
 
 **Creative North Star: "The Engraving on the Record"**
 
-One engraved, rearing horse and a single grotesque carry the whole identity. In the light theme the page is cool off-white paper with ink type and the horse printed onto it as an engraving; in the dark theme the page is near-black and the horse is a dim, cinematic presence. Everything else is catalogue: full-bleed plates and ruled lists, one idea per screen, hairlines instead of boxes, square corners, no shadows.
+One engraved, rearing horse and a single grotesque carry the whole identity. In the light theme the page is pure white paper with ink type and the horse printed onto it as an engraving; in the dark theme the page is near-black and the horse is a dim, cinematic presence. Everything else is catalogue: full-bleed plates and ruled lists, one idea per screen, hairlines instead of boxes, square corners, no shadows.
 
 Colour is withheld on purpose. The UI is monochrome ink on ground in both themes; vivid red and green carry one meaning only, a rise or a fall: inside charts, and on every figure that shows a move (see The Rise and Fall Rule). Seriousness comes from restraint, tabular figures, dated and sourced numbers, and bracketed placeholders wherever a real number does not yet exist.
 
@@ -295,17 +295,17 @@ The system refuses the fintech template: no gradient hero, no metric tiles, no t
 
 A monochrome ink-and-ground palette in two themes, with one darker "plate" surface and a chart-only red/green pair.
 
-**Theme mechanics.** Light is the default: the HTML ships `data-theme="light"` and the CSS applies the light set to both `:root` and `:root[data-theme="light"]`. An inline boot script in `<head>` runs before paint and resolves the theme in this order: a `?theme=light` or `?theme=dark` URL parameter (which is also written to storage), then the `andra-theme` value in `localStorage`, then `light`. The operating system colour scheme is not consulted. It sets `data-theme` on `<html>` and sets `<meta name="theme-color">` to the theme's ground (`#f4f6f6` light, `#0a0c0d` dark). The header toggle flips `data-theme`, writes `andra-theme`, updates `theme-color` and the button's `aria-label` ("Switch to dark theme" / "Switch to light theme"), and wraps the swap in `document.startViewTransition` when available. Each theme sets `color-scheme` to match.
+**Theme mechanics.** Light is the default: the HTML ships `data-theme="light"` and the CSS applies the light set to both `:root` and `:root[data-theme="light"]`. An inline boot script in `<head>` runs before paint and resolves the theme in this order: a `?theme=light` or `?theme=dark` URL parameter (which is also written to storage), then the `andra-theme` value in `localStorage`, then `light`. The operating system colour scheme is not consulted. It sets `data-theme` on `<html>` and sets `<meta name="theme-color">` to the theme's ground (`#ffffff` light, `#0a0c0d` dark). The header toggle flips `data-theme`, writes `andra-theme`, updates `theme-color` and the button's `aria-label` ("Switch to dark theme" / "Switch to light theme"), and wraps the swap in `document.startViewTransition` when available. Each theme sets `color-scheme` to match.
 
 ### Primary
 - **Ink** (light `#0e1215`, dark `#e9eceb`): all headings and body copy, the primary button fill, pressed chips, focus rings, chart lines and dots. It is the only "accent" the UI has.
 - **Button hover** (light `#2a3036`, dark `#ffffff`): primary button background on hover only.
-- **Button text** (light `#f4f6f6`, dark `#0a0c0d`): label on the primary button; equals the theme ground.
+- **Button text** (light `#ffffff`, dark `#0a0c0d`): label on the primary button; equals the theme ground.
 
 ### Neutral
 | Token | Light | Dark | Role |
 |---|---|---|---|
-| `--ground` | `#f4f6f6` | `#0a0c0d` | Page background, solid header, mobile nav sheet, input fill, hero bottom fade. |
+| `--ground` | `#ffffff` | `#0a0c0d` | Page background, solid header, mobile nav sheet, input fill, hero bottom fade. |
 | `--ground-2` | `#e9eded` | `#14181b` | Raised tone: dashboard tile hover, the practice progress track. |
 | `--ink-2` | `#424a50` | `#a8b0b4` | Secondary text: ledes, hero sub, nav links at rest, descriptions, key labels, meta. |
 | `--ink-3` | `#5a6268` | `#899196` | Tertiary text: placeholders (`.ph`), source lines, legal line, comparison (dashed) chart line, input placeholder. |
@@ -384,7 +384,7 @@ Self-hosted variable font: `assets/fonts/schibsted-grotesk-latin.woff2`, `font-w
   - Link list title, the Lab and Simulators indexes (540, 1.1875rem, -0.015em).
   - Calendar event (540, 1.0625rem; 1rem on mobile).
   - Note list title (500, 1.0625rem).
-- **Hero sub** (400, `clamp(1.0625rem, 1.4vw, 1.25rem)`, 1.45): ink-2, max 36ch.
+- **Hero sub**: removed. The hero is the headline and the two actions only.
 - **Lede** (400, `clamp(1rem, 1.25vw, 1.125rem)`, 1.55): ink-2, max 52ch; max 44ch inside a section head.
 - **Body** (400, 1.0625rem, 1.55; 1rem at 640px and below): long text max 65ch (inner pages), 46 to 48ch in cards.
 - **Brand** (650, 1.0625rem, -0.02em): the "Andra Markets" wordmark next to the mark.
@@ -722,7 +722,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep light as the default theme, resolve it as `?theme=` param, then `andra-theme` in localStorage, then light, and keep `theme-color` in step (`#f4f6f6` / `#0a0c0d`).
+- **Do** keep light as the default theme, resolve it as `?theme=` param, then `andra-theme` in localStorage, then light, and keep `theme-color` in step (`#ffffff` / `#0a0c0d`).
 - **Do** set every colour through the theme custom properties so both themes and the Lab plate work without per-component overrides.
 - **Do** use the one `--font` stack ending in `sans-serif`, with variable weights between 400 and 650 as recorded in Typography.
 - **Do** apply tabular figures only to elements that hold numbers.
