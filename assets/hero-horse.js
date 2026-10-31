@@ -3,8 +3,10 @@
 // A cloud of dots turns around the hero and settles into the horse, outline first, as the
 // light theme prints it (the pencil look): one particle per inked pixel of
 // assets/horse-particles.png, made from andra-horse.png by tools/make_horse_particles.py.
-// The pointer parts the dots; a slow band of light passes over the drawing. Scrolling
-// through the hero turns the horse into an illustrative price chart drawn like an engraving.
+// The pointer parts the dots; a slow band of light passes over the drawing. Where the hero
+// has scroll room, scrolling through it turns the horse into an illustrative price chart
+// drawn like an engraving. The homepage is one screen (owner, 31 Oct 2026), so there it
+// stays the horse and the chart is never built.
 //
 // Light theme: soft black dots on white (the canvas is drawn light on dark and inverted in
 // CSS). Dark theme: white dots, and the horse settles in dark grey. Reduced motion: the
@@ -401,6 +403,8 @@
   }
 
   /* ---------- drawing ---------- */
+  function hasTrack() { return hero.getBoundingClientRect().height - H > 1; }
+
   function progress() {
     if (reduce) return 0;
     var r = hero.getBoundingClientRect(), span = r.height - H;
@@ -498,8 +502,8 @@
       });
     }
     if (reduce) still(); else start();
-    // the chart is only needed once the visitor scrolls; build it when the page is quiet
-    setTimeout(function () { if (!chartReady) buildChart(); }, (DONE + 1) * 1000);
+    // the chart is only needed if the hero can scroll; then build it when the page is quiet
+    setTimeout(function () { if (!chartReady && hasTrack()) buildChart(); }, (DONE + 1) * 1000);
 
     stage.addEventListener("pointermove", function (e) {
       var r = stage.getBoundingClientRect();

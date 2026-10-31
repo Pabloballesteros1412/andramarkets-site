@@ -533,8 +533,8 @@ ul {
 
 .hero__stage {
   position: relative;
-  /* 56px short of the viewport so the tape's top edge shows at the fold. */
-  min-height: calc(100svh - 56px);
+  /* The homepage is this one screen (owner, 31 Oct 2026): nothing follows it. */
+  min-height: 100svh;
   overflow: hidden;
   display: flex;
   align-items: stretch;
@@ -604,21 +604,6 @@ ul {
   pointer-events: none;
 }
 
-/* Scroll room for the horse to come apart into the chart: the stage holds still while
-   the hero scrolls 130svh, then the tape follows. */
-@media (prefers-reduced-motion: no-preference) {
-  .hero.is-live {
-    height: 230svh;
-  }
-
-  .hero.is-live .hero__stage {
-    position: sticky;
-    top: 0;
-    height: 100svh;
-    min-height: 0;
-  }
-}
-
 .hero__stage::after {
   content: "";
   position: absolute;
@@ -631,6 +616,15 @@ ul {
   background:
     radial-gradient(120% 90% at 63% 45%, transparent 40%, rgba(10, 12, 13, 0.75) 100%),
     linear-gradient(to top, var(--ground) 0%, transparent 38%);
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 560;
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  max-width: 12ch;
+  text-wrap: balance;
 }
 
 /* Headline at the top, the index of every section at the bottom, the horse to the right
@@ -691,9 +685,61 @@ html.hero-formed .hero__copy > * {
   animation: none;
 }
 
-/* Phones and small tablets: one column, headline, horse, index. The horse takes the room
-   the other two leave; the still engraving sits in that slot too. */
-@media (max-width: 860px) {
+/* The homepage has no footer: its legal line sits in the corner of the screen. */
+.hero__legal {
+  position: absolute;
+  right: var(--gutter);
+  bottom: clamp(32px, 6vh, 64px);
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 20px;
+  /* clear of the index (at most half the page), wrapping to two lines when it must */
+  max-width: 34%;
+  font-size: 0.8125rem;
+  line-height: 46px;
+  color: var(--ink-3);
+}
+
+.hero__legal a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero__legal a:hover {
+    color: var(--ink);
+  }
+}
+
+/* Short screens (laptops, phones on their side): everything still fits one screen. */
+@media (orientation: landscape) and (max-height: 720px) {
+  .hero__copy {
+    gap: 20px;
+    padding-top: calc(var(--nav-h) + 16px);
+    padding-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-size: min(clamp(3rem, 8vw, 6rem), 10.5svh);
+  }
+
+  .hero__index a {
+    min-height: max(30px, 6svh);
+    font-size: 0.9375rem;
+  }
+
+  .hero__legal {
+    bottom: 20px;
+    line-height: max(30px, 6svh);
+  }
+}
+
+/* Phones and small tablets held upright: one column, headline, horse, index. The horse takes
+   the room the other two leave; the still engraving sits in that slot too. On their side
+   they use the wide layout above, with the short-screen sizes. */
+@media (max-width: 860px) and (orientation: portrait) {
   .hero__stage {
     flex-direction: column;
   }
@@ -723,7 +769,7 @@ html.hero-formed .hero__copy > * {
     width: auto;
     height: auto;
     flex: 1 1 0;
-    min-height: 170px;
+    min-height: 110px;
     margin-block: 12px;
     transform: none;
     animation: none;
@@ -742,7 +788,22 @@ html.hero-formed .hero__copy > * {
 
   .hero__index {
     order: 3;
-    padding-bottom: clamp(28px, 5vh, 48px);
+  }
+
+  .hero__legal {
+    order: 4;
+    position: relative;
+    z-index: 1;
+    right: auto;
+    bottom: auto;
+    justify-content: flex-start;
+    gap: 0 16px;
+    max-width: none;
+    padding-inline: var(--gutter);
+    padding-top: 6px;
+    padding-bottom: clamp(14px, 3vh, 32px);
+    font-size: 0.75rem;
+    line-height: 24px;
   }
 
   .hero__index ul {
@@ -751,20 +812,12 @@ html.hero-formed .hero__copy > * {
   }
 
   .hero__index a {
-    min-height: 40px;
+    min-height: 44px;
     font-size: 0.875rem;
     letter-spacing: -0.005em;
   }
 }
 
-.hero h1 {
-  font-size: clamp(3rem, 8vw, 6rem);
-  font-weight: 560;
-  line-height: 0.98;
-  letter-spacing: -0.04em;
-  max-width: 12ch;
-  text-wrap: balance;
-}
 
 
 .hero__actions {
@@ -1019,6 +1072,10 @@ html.hero-formed .hero__copy > * {
 }
 
 /* Dashboards: browsable, filterable grid */
+
+.dash-index {
+  padding-top: clamp(32px, 5vw, 56px);
+}
 
 .filters {
   position: relative;
