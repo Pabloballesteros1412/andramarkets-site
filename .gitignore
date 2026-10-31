@@ -23,6 +23,9 @@ __pycache__/
 /fed-rates/
 /careers/
 /break-into-wall-street/
+/sitemap.xml
+/robots.txt
+/feed.xml
 # This repo is public: PDFs stay in the agent repo, never here. The one
 # exception is the Research Library, whose reports are published as PDFs.
 *.pdf

@@ -185,6 +185,12 @@
 
   // Chip groups: the ink fill glides to the pressed chip. Works for any
   // .filters group, including the range chips that dashboard.js presses.
+  // Chips pressed while the page sets up (a view or filter from the link's
+  // fragment) take their place at once, as if the page had been built so.
+  var settled = false;
+  document.addEventListener("DOMContentLoaded", function () {
+    settled = true;
+  });
   document.querySelectorAll(".filters").forEach(function (group) {
     var ind = document.createElement("span");
     ind.className = "filters__glide";
@@ -207,7 +213,19 @@
     }
     place(false);
     new MutationObserver(function () {
-      place(true);
+      if (settled) {
+        place(true);
+        return;
+      }
+      var chips = group.querySelectorAll(".chip");
+      chips.forEach(function (c) {
+        c.style.transition = "none";
+      });
+      place(false);
+      void group.offsetWidth;
+      chips.forEach(function (c) {
+        c.style.transition = "";
+      });
     }).observe(group, { attributes: true, subtree: true, attributeFilter: ["aria-pressed"] });
     window.addEventListener("resize", function () {
       place(false);
@@ -219,34 +237,48 @@
     }
   });
 
-  // Dashboard filters.
+  // Dashboard filters. The chosen category lives in the URL's fragment
+  // (dashboards/#rates), so a filtered page can be shared; All leaves none.
   var chips = document.querySelectorAll(".chip[data-filter]");
   var tiles = document.querySelectorAll(".dash-tile");
   var filterStatus = document.querySelector(".filters__status");
-  chips.forEach(function (chip) {
-    chip.addEventListener("click", function () {
-      var cat = chip.getAttribute("data-filter");
-      var shown = 0;
-      chips.forEach(function (c) {
-        c.setAttribute("aria-pressed", String(c === chip));
-      });
-      tiles.forEach(function (tile) {
-        var match = cat === "all" || tile.getAttribute("data-cat") === cat;
-        tile.hidden = !match;
-        tile.classList.remove("is-entering");
-        if (match) {
+  // enter: matching tiles fade in and rise; a filter from the link leaves
+  // them to reveal on scroll, as on any other visit.
+  var filterTo = function (chip, enter) {
+    var cat = chip.getAttribute("data-filter");
+    var shown = 0;
+    chips.forEach(function (c) {
+      c.setAttribute("aria-pressed", String(c === chip));
+    });
+    tiles.forEach(function (tile) {
+      var match = cat === "all" || tile.getAttribute("data-cat") === cat;
+      tile.hidden = !match;
+      tile.classList.remove("is-entering");
+      if (match) {
+        if (enter) {
           tile.style.setProperty("--e", shown);
-          shown++;
           tile.classList.add("is-in");
           void tile.offsetWidth;
           tile.classList.add("is-entering");
         }
-      });
-      filterStatus.textContent =
-        cat === "all"
-          ? "Showing all " + tiles.length + " dashboards"
-          : "Showing " + shown + " of " + tiles.length + " dashboards: " + chip.getAttribute("data-label");
+        shown++;
+      }
     });
+    filterStatus.textContent =
+      cat === "all"
+        ? "Showing all " + tiles.length + " dashboards"
+        : "Showing " + shown + " of " + tiles.length + " dashboards: " + chip.getAttribute("data-label");
+  };
+  chips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      var cat = chip.getAttribute("data-filter");
+      filterTo(chip, true);
+      history.replaceState(null, "", location.pathname + location.search + (cat === "all" ? "" : "#" + encodeURIComponent(cat)));
+    });
+  });
+  var startCat = location.hash.slice(1).toLowerCase();
+  chips.forEach(function (chip) {
+    if (startCat && startCat !== "all" && chip.getAttribute("data-filter") === startCat) filterTo(chip, false);
   });
 
   // The menu's groups (owner-approved, 31 Oct 2026): above 960px each button opens its
