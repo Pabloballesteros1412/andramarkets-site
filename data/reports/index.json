@@ -168,6 +168,16 @@
       ]
     },
     {
+      "slug": "2026-47-usdcny",
+      "date": "2026-10-09",
+      "type": "research",
+      "title": "USD/CNY: A Quantitative Review",
+      "summary": "The renminbi is at its strongest against the dollar since mid-2022, in a move tightly managed by the People’s Bank of China. How controlled the trend is and how the central bank is now slowing it.",
+      "tags": [
+        "fx"
+      ]
+    },
+    {
       "slug": "2026-46-usdcad",
       "date": "2026-10-09",
       "type": "research",
@@ -188,11 +198,32 @@
       ]
     },
     {
+      "slug": "2026-44-usdchf",
+      "date": "2026-10-09",
+      "type": "research",
+      "title": "USD/CHF: A Quantitative Review",
+      "summary": "The dollar has gained more than 5% against the Swiss franc this year, making the franc one of the weakest major currencies. How stretched the move is and what could reverse it.",
+      "tags": [
+        "fx"
+      ]
+    },
+    {
       "slug": "2026-43-gbpusd",
       "date": "2026-10-09",
       "type": "research",
       "title": "GBP/USD: A Quantitative Review",
       "summary": "Sterling has slipped to a three-month low while gilt yields hit their highest since 2007. How the pound trades, what drives it and what the numbers imply before the 28 October Budget.",
+      "tags": [
+        "fx",
+        "rates"
+      ]
+    },
+    {
+      "slug": "2026-42-usdjpy",
+      "date": "2026-10-09",
+      "type": "research",
+      "title": "USD/JPY: A Quantitative Review",
+      "summary": "Dollar-yen is back near 158, close to where Tokyo and Washington intervened in July. The trend, volatility, tail risk and drivers of the pair, and what the numbers say about the coming weeks.",
       "tags": [
         "fx",
         "rates"
@@ -226,6 +257,17 @@
       "summary": "The designer of custom AI chips for the largest AI developers says its AI revenue will double next year and again the year after. The shares are still a quarter below their high on fears of competition.",
       "tags": [
         "equities"
+      ]
+    },
+    {
+      "slug": "2026-33-jpmorgan",
+      "date": "2026-10-08",
+      "type": "research",
+      "title": "JPMorgan Chase: Earnings Preview",
+      "summary": "The largest US bank reports on 13 October after a record second quarter. Management has guided to strong trading and dealmaking again, but its own executives say the cycle feels almost too good.",
+      "tags": [
+        "equities",
+        "credit"
       ]
     },
     {
