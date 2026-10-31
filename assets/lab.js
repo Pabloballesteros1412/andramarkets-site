@@ -27,7 +27,10 @@
     return e;
   }
   function num(v, dec) {
-    return v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec }).replace("-", MINUS);
+    var s = v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    // a value that rounds to zero carries no sign ("0.000", never "−0.000")
+    if (/^-[0.,]+$/.test(s)) s = s.slice(1);
+    return s.replace("-", MINUS);
   }
   function signed(v, dec, unit) {
     var r = Number(v.toFixed(dec));
@@ -72,10 +75,14 @@
 
   // Round tick values inside [lo, hi]: steps of 1, 2, 2.5 or 5 times a power of ten.
   function nice(lo, hi, n) {
-    var raw = (hi - lo) / n, p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), step = p;
+    var raw = (hi - lo) / n;
+    if (!(raw > 0) || !isFinite(raw)) return [];
+    var p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), step = p;
     [1, 2, 2.5, 5, 10].some(function (m) { step = m * p; return m * p >= raw; });
-    var out = [];
-    for (var v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.abs(v) < 1e-9 ? 0 : v);
+    // tolerances scale with the step: a fixed one (1e-9) made a range of near-zero values
+    // (a deep out-of-the-money option) loop for seconds and freeze the page
+    var out = [], eps = step * 1e-6;
+    for (var v = Math.ceil(lo / step) * step; v <= hi + eps && out.length < 50; v += step) out.push(Math.abs(v) < eps ? 0 : v);
     return out;
   }
 
@@ -91,7 +98,8 @@
     if (o.ref != null) all.push(o.ref);
     var lo = Math.min.apply(null, all), hi = Math.max.apply(null, all);
     if (o.floor0) lo = Math.min(0, lo);
-    var pad = (hi - lo) * 0.08 || 1;
+    // a series that is flat to within rounding (all values about zero) draws as a flat line
+    var pad = hi - lo > 1e-9 * Math.max(1, Math.abs(hi), Math.abs(lo)) ? (hi - lo) * 0.08 : 1;
     lo -= o.floor0 && lo === 0 ? 0 : pad;
     hi += pad;
     var x0 = o.xs[0], x1 = o.xs[o.xs.length - 1];
@@ -382,7 +390,8 @@
     var ax = [], ay = [];
     o.series.forEach(function (s) { ax = ax.concat(s.xs); ay = ay.concat(s.ys); });
     var x0 = Math.min(0, Math.min.apply(null, ax)), x1 = Math.max.apply(null, ax) * 1.06;
-    var lo = Math.min.apply(null, ay), hi = Math.max.apply(null, ay), pad = (hi - lo) * 0.1 || 1;
+    var lo = Math.min.apply(null, ay), hi = Math.max.apply(null, ay);
+    var pad = hi - lo > 1e-9 * Math.max(1, Math.abs(hi), Math.abs(lo)) ? (hi - lo) * 0.1 : 1;
     lo -= pad; hi += pad;
     var X = function (x) { return L + (w - L - R) * (x - x0) / (x1 - x0); };
     var Y = function (y) { return T + (h - T - B) * (1 - (y - lo) / (hi - lo)); };
@@ -623,6 +632,7 @@
     var acct = val("v-acct"), risk = val("v-risk"), entry = val("v-entry"), stop = val("v-stop"), vol = val("v-vol"), days = val("v-days");
     var conf = parseInt(pressed("conf"), 10);
     if (invalid()) return;
+    days = Math.round(days); // whole trading days: the chart reads one point per day
     if (stop >= entry) {
       document.getElementById("v-stop").setAttribute("aria-invalid", "true");
       status.textContent = "The stop must be below the entry price (a long position).";

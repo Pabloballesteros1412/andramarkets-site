@@ -235,7 +235,15 @@ jobs:
         env:
           # The profile API's address (worker/, deployed by profile-api.yml).
           PROFILE_API: ${{ vars.PROFILE_API }}
+          # The site's own address once it has a domain, e.g. https://andramarkets.com:
+          # link previews (LinkedIn, X, WhatsApp) need it for their image.
+          SITE_URL: ${{ vars.SITE_URL }}
         run: python3 tools/build_site.py
+      # A build that lost content (a close note page without its body, a homepage
+      # index without every section) fails here: the live site keeps its last good
+      # deploy and GitHub emails the owner.
+      - name: Check pages
+        run: python3 tools/check_site.py
       # Publish only the public site, never repo docs, briefs, data or tooling.
       - name: Stage site
         run: |

@@ -3,7 +3,8 @@
 // Every dot starts at one point at the centre of the hero and flies out from it to its place
 // in the horse (owner, 31 Oct 2026), outline first, as the light theme prints it (the pencil
 // look): one particle per inked pixel of
-// assets/horse-particles.png, made from andra-horse.png by tools/make_horse_particles.py.
+// assets/horse-particles.png (loaded as its lossless WebP copy where the browser decodes it),
+// made from andra-horse.png by tools/make_horse_particles.py.
 // The pointer parts the dots; a slow band of light passes over the drawing. Where the hero
 // has scroll room, scrolling through it turns the horse into an illustrative price chart
 // drawn like an engraving. The homepage is one screen (owner, 31 Oct 2026), so there it
@@ -30,7 +31,10 @@
   var horseImg = art && art.querySelector(".horse");
   var root = document.documentElement;
   function giveUp() { root.classList.remove("hero-forming"); }
-  if (!stage || !canvas || !art || !copy || !horseImg || !window.WebGLRenderingContext) { giveUp(); return; }
+  // the particles cannot draw the horse: show the text and fetch the still engraving
+  // (the page fetches it only when it may show: __heroStill in HERO_BOOT)
+  function fail() { giveUp(); if (window.__heroStill) window.__heroStill(); }
+  if (!stage || !canvas || !art || !copy || !horseImg || !window.WebGLRenderingContext) { fail(); return; }
   var headline = copy.querySelector("h1");
   var links = Array.prototype.slice.call(copy.querySelectorAll(".hero__index a"));
   var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -153,7 +157,7 @@
 
   var gl = null;
   try { gl = canvas.getContext("webgl", { antialias: false, alpha: true, premultipliedAlpha: true }); } catch (e) { gl = null; }
-  if (!gl) { giveUp(); return; }
+  if (!gl) { fail(); return; }
   function shader(type, src) { var o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; }
   function program(vs) {
     var p = gl.createProgram();
@@ -164,7 +168,7 @@
   }
   function uniforms(p, names) { var u = {}; names.forEach(function (n) { u[n] = gl.getUniformLocation(p, n); }); return u; }
   var prog = program(VS);
-  if (!prog) { giveUp(); return; }
+  if (!prog) { fail(); return; }
   var progT = program(VS_TEXT);
   var U = uniforms(prog, ["res", "cc", "hb", "ptr", "hcol", "dcol", "dim", "t", "m", "dpr", "pitch", "sm", "am", "prad", "sheen", "kk"]);
   var UT = progT ? uniforms(progT, ["res", "cc", "ptr", "tcol", "dcol", "t", "dpr", "sm", "am", "prad", "pitch", "visP", "visI", "kk"]) : null;
@@ -510,7 +514,7 @@
 
   function begin(image) {
     build(image);
-    if (!N) { giveUp(); return; }
+    if (!N) { fail(); return; }
     // the headline and index form too, unless the page already gave up waiting (HERO_BOOT)
     var withText = !!(progT && headline && root.classList.contains("hero-forming") && !reduce);
     if (!withText) giveUp();
@@ -552,10 +556,12 @@
 
   var image = window.__heroMap;
   if (image && image.complete) {
-    if (image.naturalWidth) begin(image); else giveUp();
+    if (image.naturalWidth) begin(image); else fail();
   } else {
     if (!image) { image = new Image(); image.decoding = "async"; image.src = canvas.getAttribute("data-src"); }
     image.addEventListener("load", function () { begin(image); });
-    image.addEventListener("error", giveUp);
+    // HERO_BOOT retries the PNG when the WebP copy does not decode: give up only when
+    // nothing is left loading
+    image.addEventListener("error", function () { if (image.complete && !image.naturalWidth) fail(); });
   }
 })();

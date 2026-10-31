@@ -67,9 +67,12 @@ SOCIALS = [
 ]
 
 # Absolute site address, no trailing slash, e.g. "https://andramarkets.com".
-# Social cards need it for og:image and canonical links. Left empty until the
-# site has its own domain, so no account name is baked into the pages.
-SITE_URL = ""
+# Social cards need it for og:image and canonical links: without it LinkedIn,
+# X and WhatsApp show a shared link with no image. Left empty until the site
+# has its own domain, so no account name is baked into the pages. Set it with
+# the repository variable SITE_URL (Settings, Secrets and variables, Actions,
+# Variables); the deploy passes it here.
+SITE_URL = os.environ.get("SITE_URL", "").strip().rstrip("/")
 
 # The profile API (worker/, a Cloudflare Worker) that the company pages call for live
 # prices, fundamentals and news, with no trailing slash. The address is public
@@ -350,7 +353,7 @@ def tile_asof(key, rec):
 # Icons -----------------------------------------------------------------------
 
 ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "sun", "moon",
-              "magnifying-glass", "check", "link", "lock-simple", "pause", "play"] + [
+              "magnifying-glass", "check", "link", "pause", "play"] + [
     icon_name for _, url, icon_name in SOCIALS if url
 ]
 
@@ -894,6 +897,17 @@ THEME_BOOT = (
     "var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0a0c0d':'#ffffff'})();"
 )
 
+# Faster moves between pages: where the browser supports speculation rules (Chrome, Edge),
+# a page's HTML is fetched while the pointer rests on its link (or, on phones, when the
+# browser judges a link likely), so the click opens it without waiting for the network.
+# Only the HTML is fetched: no script runs before the click, nothing is shown, and a PDF
+# or a link that opens elsewhere is never fetched ahead. Other browsers ignore it.
+SPECULATION = ('<script type="speculationrules">'
+               '{"prefetch":[{"where":{"and":[{"href_matches":"/*"},'
+               '{"not":{"selector_matches":"a[href$=\\".pdf\\"], a[download], a[target]"}}]},'
+               '"eagerness":"moderate"}]}'
+               '</script>')
+
 
 def page(notes, cal):
     """The homepage: one screen, the headline, the horse and the index of sections
@@ -907,7 +921,9 @@ def page(notes, cal):
     <div class="hero__stage">
       <span class="hero__sentinel" aria-hidden="true"></span>
       <div class="hero__art" aria-hidden="true">
-        <img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="low" decoding="async">
+        <img class="horse" data-src="assets/andra-horse.png" alt="" width="1024" height="1024" decoding="async">
+        <script>if(!window.__heroMap)__heroStill()</script>
+        <noscript><img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" decoding="async"></noscript>
       </div>
       <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" aria-hidden="true"></canvas>
       <div class="wrap hero__copy">
@@ -924,8 +940,9 @@ def page(notes, cal):
         scripts=("hero-horse.js",),
         nav=False,
         footer=False,
-        # the particle map is what the hero waits for: fetch it before anything else
-        head=f'\n<link rel="preload" href="assets/horse-particles.png?v={ver("horse-particles.png")}" as="image" fetchpriority="high">',
+        # the particle map is what the hero waits for: fetch it before anything else (the
+        # WebP copy; a browser that cannot decode WebP skips this and HERO_BOOT loads the PNG)
+        head=f'\n<link rel="preload" href="assets/horse-particles.webp?v={ver("horse-particles.webp")}" as="image" type="image/webp" fetchpriority="high">',
     )
 
 
@@ -991,16 +1008,27 @@ def hero_index():
 
 def hero_boot():
     """Runs before the hero is parsed. With WebGL it starts the particle map's download at
-    once (assets/hero-horse.js picks it up), and, when motion is allowed, marks the page so
-    the still engraving, the headline and the index start hidden: the particles form them.
-    If the hero has not gone live within 3s (script blocked, slow network), they show."""
-    return ("if(window.WebGLRenderingContext){"
+    once (assets/hero-horse.js picks it up; the WebP copy, else the PNG), and, when motion
+    is allowed, marks the page so the still engraving, the headline and the index start
+    hidden: the particles form them. If the hero has not gone live within 3s (script
+    blocked, slow network), they show.
+
+    The still engraving is only a fallback, so it is fetched only when it may show:
+    __heroStill() gives it its src without WebGL (right after the img), at the 3s mark,
+    and when hero-horse.js cannot run. Where the particles draw the horse, its 433 KB
+    are never downloaded."""
+    png = f"assets/horse-particles.png?v={ver('horse-particles.png')}"
+    webp = f"assets/horse-particles.webp?v={ver('horse-particles.webp')}"
+    return ("window.__heroStill=function(){var i=document.querySelector('.hero__art .horse');"
+            "if(i&&!i.getAttribute('src'))i.src=i.getAttribute('data-src')};"
+            "if(window.WebGLRenderingContext){"
             "var m=new Image();m.fetchPriority='high';m.decoding='async';"
-            f"m.src='assets/horse-particles.png?v={ver('horse-particles.png')}';window.__heroMap=m;"
-            "if(!matchMedia('(prefers-reduced-motion: reduce)').matches){"
-            "var r=document.documentElement;r.classList.add('hero-forming');"
+            f"m.onerror=function(){{m.onerror=null;m.src='{png}'}};"
+            f"m.src='{webp}';window.__heroMap=m;"
+            "var r=document.documentElement;"
+            "if(!matchMedia('(prefers-reduced-motion: reduce)').matches)r.classList.add('hero-forming');"
             "setTimeout(function(){var h=document.querySelector('.hero');"
-            "if(!h||!h.classList.contains('is-live'))r.classList.remove('hero-forming')},3000)}}")
+            "if(!h||!h.classList.contains('is-live')){r.classList.remove('hero-forming');__heroStill()}},3000)}")
 
 
 def site_header(home, base, nav=True):
@@ -1121,6 +1149,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="{base}assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{base}assets/site.css?v={ver("site.css")}">{head}
+{SPECULATION}
 </head>
 <body data-base="{base}">
 {sprite()}
@@ -2103,7 +2132,6 @@ LIB_TYPE_NAME = {"weekly": "Weekly market review", "research": "Research"}
 LIB_TAGS = [("equities", "Equities"), ("rates", "Rates"), ("fx", "FX"), ("commodities", "Commodities"),
             ("macro", "Macro"), ("credit", "Credit")]
 LIB_TAG_NAME = dict(LIB_TAGS)
-PDF_SOON = "PDF downloads open to subscribers with the paid tier. The full text is free to read here."
 
 
 def load_library():
@@ -2258,11 +2286,11 @@ def library_page(library):
 
 
 def share_row(what):
-    """The report share row: Share (system sheet or copy link) and the PDF
-    download, shown locked until the paid tier opens."""
+    """The report share row: Share (system sheet or copy link). The locked "Download PDF,
+    Subscribers only" button is paused with every subscribe entry point (owner, 31 Oct
+    2026); DESIGN.md keeps its spec for when the paid tier opens."""
     return f"""<div class="report__share" hidden>
           <button class="btn" type="button" data-share><span class="swap"><span class="swap__a">{icon("link")}Share this {what}</span><span class="swap__b" aria-hidden="true">{icon("check")}Link copied</span></span></button>
-          <button class="btn btn--ghost lib-pdf" type="button" aria-disabled="true" data-soon="{PDF_SOON}">{icon("lock-simple")}Download PDF<span class="lib-pdf__tag">Subscribers only</span></button>
           <p class="report__share-status" role="status" aria-live="polite"></p>
         </div>"""
 

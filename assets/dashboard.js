@@ -33,7 +33,10 @@
     return e;
   }
   function num(v, dec) {
-    return v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec }).replace("-", MINUS);
+    var s = v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    // a value that rounds to zero carries no sign ("0.00", never "−0.00")
+    if (/^-[0.,]+$/.test(s)) s = s.slice(1);
+    return s.replace("-", MINUS);
   }
   // Rises in green, falls in red, read from the printed sign (DESIGN.md,
   // The Rise and Fall Rule); a figure that rounds to zero stays in ink.

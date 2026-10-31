@@ -28,7 +28,10 @@
     return e;
   }
   function num(v, dec) {
-    return v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec }).replace("-", MINUS);
+    var s = v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    // a value that rounds to zero carries no sign ("0.00", never "−0.00")
+    if (/^-[0.,]+$/.test(s)) s = s.slice(1);
+    return s.replace("-", MINUS);
   }
   function signed(v, dec, unit) {
     var r = Number(v.toFixed(dec));
@@ -56,10 +59,14 @@
   }
   // Round tick values: steps of 1, 2, 2.5 or 5 times a power of ten.
   function nice(lo, hi, n) {
-    var raw = (hi - lo) / n, p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), step = p;
+    var raw = (hi - lo) / n;
+    if (!(raw > 0) || !isFinite(raw)) return [];
+    var p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), step = p;
     [1, 2, 2.5, 5, 10].some(function (m) { step = m * p; return m * p >= raw; });
-    var out = [];
-    for (var v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(Math.abs(v) < 1e-9 ? 0 : v);
+    // tolerances scale with the step: a fixed one (1e-9) made a range of near-zero values
+    // (a deep out-of-the-money option) loop for seconds and freeze the page
+    var out = [], eps = step * 1e-6;
+    for (var v = Math.ceil(lo / step) * step; v <= hi + eps && out.length < 50; v += step) out.push(Math.abs(v) < eps ? 0 : v);
     return out;
   }
   function decOf(step) {
