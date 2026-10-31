@@ -404,6 +404,17 @@
         "equities",
         "credit"
       ]
+    },
+    {
+      "slug": "2026-22-paramount-warner-bros",
+      "date": "2026-10-01",
+      "type": "research",
+      "title": "Paramount and Warner Bros.: Transaction Analysis",
+      "summary": "The $110 billion takeover that reshapes Hollywood closes on 6 October. How the deal was won, how it is financed, what the regulatory settlement costs, and whether the combined company can carry its debt.",
+      "tags": [
+        "equities",
+        "credit"
+      ]
     }
   ]
 }
