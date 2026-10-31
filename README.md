@@ -17,7 +17,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `data/path_to_wall_street.json`, `assets/careers.js`: Break into Wall Street (`break-into-wall-street/`), the careers guide.
 - `data/recruiting_calendar.json`, `assets/recruiting.js`: its recruiting calendar (`break-into-wall-street/recruiting-calendar/`), kept by hand (below).
 - `data/technicals/<topic>.json`, `assets/technicals.js`: its nine technical preparation pages (`break-into-wall-street/technicals/<topic>/`): what to know, a worked example, practice cards, common mistakes. Edit the guide's text in the data file and update its `reviewed` date.
-- `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one Markdown file per report. `tools/import_report.py` converts a report's PDF and adds its line; see `data/reports/README.md`. The PDF itself is never committed.
+- `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one PDF per report in `pdf/`, published as it is at `research/pdf/`. `tools/import_report.py` copies a report's PDF and adds its line; see `data/reports/README.md`.
 - `data/interview_prep.json`: Markets Interview Prep (`interview-prep/`): the weekly block (`week`, rewritten each week) and the question bank.
 - `tools/legal_content.py`: the legal notice (`legal/`) and the privacy and cookies policy (`privacy/`).
 - `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser.

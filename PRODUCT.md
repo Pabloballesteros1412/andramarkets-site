@@ -127,10 +127,11 @@ record. The daily note is one module among others, not the centrepiece.
 - Research Library (`research/`, owner-approved 30 Oct 2026): the reports
   that are not the daily note, weekly market reviews and research, never the
   close notes (which keep their archive at `reports/`). Searchable and
-  filtered by topic; each readable online with a share link; the PDF download
-  shows as locked, "Subscribers only". Reports live in `data/reports/`
-  (index.json plus one Markdown file each, converted from the PDF by
-  `tools/import_report.py`); the PDF is never committed.
+  filtered by topic, newest first. Each report is published as its PDF, as it
+  is, free to open and download (owner, 31 Oct 2026): the list links straight
+  to the PDF, with its title, summary, date, page count and size; there is no
+  web version of the text. Reports live in `data/reports/` (index.json plus
+  one PDF each in `pdf/`, added by `tools/import_report.py`).
 - Markets Interview Prep (`interview-prep/`, 30 Oct 2026): for students
   preparing for IB, S&T and asset management interviews. A weekly "What you
   need to know this week" block (five to seven topics, figures only from the
@@ -192,10 +193,11 @@ the economic calendar; Lab tools; the Research Library; Fed & Rates;
 Interview Prep; Break into Wall Street.
 
 The site never offers downloads: no note PDF, no verified facts file, no data
-behind the dashboards. One exception (owner, 30 Oct 2026): Fed & Rates
+behind the dashboards. Two exceptions: the Research Library publishes its
+reports as PDFs (owner, 31 Oct 2026), and (owner, 30 Oct 2026) Fed & Rates
 charts can be saved as a PNG image, made in the browser, carrying the mark,
 the title, the source and the date; never the figures behind them. This repo is public, so PDFs and full fact packs are
-never committed here; they stay in the agent repo and its artifacts.
+never committed here, apart from the Research Library's report PDFs; they stay in the agent repo and its artifacts.
 
 ### Paid subscription (future, not built)
 
