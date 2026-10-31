@@ -9,7 +9,8 @@
       "tags": [
         "commodities",
         "equities"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-76-inflation-central-banks",
@@ -21,7 +22,8 @@
         "macro",
         "rates",
         "fx"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-75-tech-selloff",
@@ -31,7 +33,8 @@
       "summary": "Intel fell 29% on a weak guide, the chip index lost 7.2% and the Nasdaq 2.9%. What moved, why it spread across the chain and what it says about where the AI cycle stands.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-74-us-china-truce",
@@ -43,7 +46,8 @@
         "macro",
         "equities",
         "commodities"
-      ]
+      ],
+      "pages": 8
     },
     {
       "slug": "2026-73-hyperscaler-capex",
@@ -54,7 +58,8 @@
       "tags": [
         "equities",
         "credit"
-      ]
+      ],
+      "pages": 15
     },
     {
       "slug": "2026-72-binance-breach",
@@ -64,7 +69,8 @@
       "summary": "Billions left Binance hot wallets, issuers froze about $1.8 billion of stablecoins and Bitcoin fell below $79,000. What is confirmed, what is only claimed, and what it means for a market in a bear phase.",
       "tags": [
         "fx"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-71-midterms",
@@ -76,7 +82,8 @@
         "macro",
         "equities",
         "rates"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-70-us-consumer",
@@ -87,7 +94,8 @@
       "tags": [
         "macro",
         "equities"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-68-europe-gas",
@@ -98,7 +106,8 @@
       "tags": [
         "commodities",
         "macro"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-67-big-tech-q3",
@@ -108,7 +117,8 @@
       "summary": "Alphabet, Microsoft and Meta all grew revenue by about a fifth or more in the September quarter, but the market only paid where operating cash covered the spending. The three quarters compared.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-67-warsh-fed",
@@ -119,7 +129,8 @@
       "tags": [
         "rates",
         "macro"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-66-oil-gulf",
@@ -130,7 +141,8 @@
       "tags": [
         "commodities",
         "macro"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-63-uk-inflation-gilts",
@@ -142,7 +154,8 @@
         "macro",
         "rates",
         "fx"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-62-tesla-spacex-merger",
@@ -152,7 +165,8 @@
       "summary": "Elon Musk confirmed that Tesla and SpaceX boards have formed committees to study a combination. No terms exist yet. The two businesses, the valuation gap, the governance hurdles and the likely outcomes.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-61-us-deficit",
@@ -164,7 +178,8 @@
         "rates",
         "macro",
         "credit"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-60-russia-sanctions",
@@ -175,7 +190,8 @@
       "tags": [
         "commodities",
         "macro"
-      ]
+      ],
+      "pages": 9
     },
     {
       "slug": "2026-59-france",
@@ -187,7 +203,8 @@
         "macro",
         "rates",
         "credit"
-      ]
+      ],
+      "pages": 15
     },
     {
       "slug": "2026-56-anthropic",
@@ -197,7 +214,8 @@
       "summary": "Annualised revenue has risen from about $1bn to more than $65bn in nineteen months and the company is preparing to list. What the latest data show and what an IPO valuation would assume.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 15
     },
     {
       "slug": "2026-55-lockheed-martin",
@@ -207,7 +225,8 @@
       "summary": "A record $230bn backlog and a world that is rearming, against costly programme losses and a share price a quarter below its March high. Results, segments, the defence budget and the valuation.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 16
     },
     {
       "slug": "2026-53-private-credit",
@@ -218,7 +237,8 @@
       "tags": [
         "credit",
         "rates"
-      ]
+      ],
+      "pages": 9
     },
     {
       "slug": "2026-52-us-housing",
@@ -230,7 +250,8 @@
         "rates",
         "macro",
         "equities"
-      ]
+      ],
+      "pages": 10
     },
     {
       "slug": "2026-51-earnings-quality",
@@ -241,7 +262,8 @@
       "tags": [
         "equities",
         "credit"
-      ]
+      ],
+      "pages": 7
     },
     {
       "slug": "2026-50-ai-financing-2027",
@@ -253,7 +275,8 @@
         "credit",
         "equities",
         "rates"
-      ]
+      ],
+      "pages": 10
     },
     {
       "slug": "2026-48-eurusd",
@@ -265,7 +288,8 @@
         "fx",
         "rates",
         "macro"
-      ]
+      ],
+      "pages": 8
     },
     {
       "slug": "2026-47-usdcny",
@@ -275,7 +299,8 @@
       "summary": "The renminbi is at its strongest against the dollar since mid-2022, in a move tightly managed by the People’s Bank of China. How controlled the trend is and how the central bank is now slowing it.",
       "tags": [
         "fx"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-46-usdcad",
@@ -285,7 +310,8 @@
       "summary": "The dollar is at a one-year high against the Canadian dollar in one of the calmest moves on record. Why oil has stopped helping the loonie, and what the numbers say before the Bank of Canada meets.",
       "tags": [
         "fx"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-45-audusd",
@@ -295,7 +321,8 @@
       "summary": "The Australian dollar is still up for the year, helped by the most hawkish central bank in the G10, but it has lost almost 4% in a month. The trend break, record-low volatility and the role of risk appetite.",
       "tags": [
         "fx"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-44-usdchf",
@@ -305,7 +332,8 @@
       "summary": "The dollar has gained more than 5% against the Swiss franc this year, making the franc one of the weakest major currencies. How stretched the move is and what could reverse it.",
       "tags": [
         "fx"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-43-gbpusd",
@@ -316,7 +344,8 @@
       "tags": [
         "fx",
         "rates"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-42-usdjpy",
@@ -327,7 +356,8 @@
       "tags": [
         "fx",
         "rates"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-41-openai-revenue",
@@ -338,7 +368,8 @@
       "tags": [
         "equities",
         "credit"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-40-semiconductors-rates",
@@ -349,7 +380,8 @@
       "tags": [
         "equities",
         "rates"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-39-asml",
@@ -359,7 +391,8 @@
       "summary": "Every advanced chip is printed on an ASML machine. Sales guidance is up about 16% and next year’s EUV capacity is almost sold out, but China and the pace of AI spending make the shares volatile.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 4
     },
     {
       "slug": "2026-38-amd",
@@ -369,7 +402,8 @@
       "summary": "Data centre revenue doubled, rack-scale AI systems are shipping and three of the largest AI developers have signed up. The shares have roughly tripled and trade above the average target.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 4
     },
     {
       "slug": "2026-37-broadcom",
@@ -379,7 +413,8 @@
       "summary": "The designer of custom AI chips for the largest AI developers says its AI revenue will double next year and again the year after. The shares are still a quarter below their high on fears of competition.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 4
     },
     {
       "slug": "2026-36-tsmc",
@@ -389,7 +424,8 @@
       "summary": "The world’s chip factory is growing faster than at any time in the past decade, and September sales suggest third-quarter revenue will beat its own guidance. The results, the expansion, the valuation and the risks.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 4
     },
     {
       "slug": "2026-35-nvidia",
@@ -399,7 +435,8 @@
       "summary": "Revenue doubled again and the next quarter is guided above $100 billion, yet the shares have risen far less than the chip sector this year. The market is asking how long this can last, not whether demand is real.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 4
     },
     {
       "slug": "2026-34-wall-street-rates",
@@ -410,7 +447,8 @@
       "tags": [
         "rates",
         "equities"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-33-jpmorgan",
@@ -421,7 +459,8 @@
       "tags": [
         "equities",
         "credit"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-32-amazon",
@@ -431,7 +470,8 @@
       "summary": "AWS is growing at its fastest pace in four years and earns most of the profit, but AI data centre spending has turned free cash flow negative. Whether the bet pays back.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-31-constellation-brands",
@@ -441,7 +481,8 @@
       "summary": "Second-quarter results beat expectations, but the beat came from refilling distributor warehouses rather than from more people buying Modelo and Corona. What the numbers say about demand.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-30-fomc-minutes-september",
@@ -452,7 +493,8 @@
       "tags": [
         "rates",
         "macro"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-29-spacex",
@@ -462,7 +504,8 @@
       "summary": "The largest IPO in history created a $2 trillion company that is three businesses in one: satellite internet, rocket launches and a loss-making AI compute venture. What investors own and what the price assumes.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-28-micron",
@@ -472,7 +515,8 @@
       "summary": "An 87% gross margin, revenue up almost fivefold in a year and a $1.2 trillion valuation in the strongest memory upcycle on record. The fourth-quarter results and why seven times earnings may still be a cyclical bet.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-27-alphabet",
@@ -482,7 +526,8 @@
       "summary": "Search still grows, Google Cloud is up 82% and the antitrust cases ended without a break-up. The price is $200 billion of capex a year and the first negative cash flow quarter in two decades.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-26-coca-cola",
@@ -492,7 +537,8 @@
       "summary": "One of its best years in a decade, under a new chief executive and with volumes growing again. The business model, the shift from price to volume, the $20 billion tax dispute and the valuation.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 5
     },
     {
       "slug": "2026-25-novo-nordisk",
@@ -502,7 +548,8 @@
       "summary": "Europe’s most valuable company invented the modern obesity market, then lost it. How Novo fell from leader to challenger, what the Wegovy pill changes, and whether nine times earnings is value or a trap.",
       "tags": [
         "equities"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-24-oracle",
@@ -513,7 +560,8 @@
       "tags": [
         "equities",
         "credit"
-      ]
+      ],
+      "pages": 6
     },
     {
       "slug": "2026-23-nvidia",
@@ -524,7 +572,8 @@
       "tags": [
         "equities",
         "credit"
-      ]
+      ],
+      "pages": 7
     },
     {
       "slug": "2026-22-paramount-warner-bros",
@@ -535,7 +584,8 @@
       "tags": [
         "equities",
         "credit"
-      ]
+      ],
+      "pages": 7
     }
   ]
 }

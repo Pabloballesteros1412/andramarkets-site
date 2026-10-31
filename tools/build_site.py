@@ -9,7 +9,7 @@ per visitor. Writes:
     reports/index.html         every published close note
     reports/<date>/index.html  one page per close note, rendered from its text
     research/                  the Research Library: weekly reviews and research (data/reports)
-    research/<slug>/           one page per weekly review or research report
+    research/pdf/<slug>.pdf    each report's PDF, copied from data/reports/pdf
     interview-prep/            Markets Interview Prep (data/interview_prep.json)
     sources/, legal/, privacy/ data sources, legal notice, privacy and cookies
     dashboards/<slug>/         one page per dashboard (assets/dashboard.js draws the chart)
@@ -20,8 +20,9 @@ per visitor. Writes:
 
 Close notes come from data/notes/*.json, written by tools/import_notes.py.
 With none published, the home page keeps its placeholders. The tape shows the
-latest note's closing levels. No PDF or facts file is ever linked: the site is
-free, and those downloads are reserved for paid subscribers later.
+latest note's closing levels. No note PDF or facts file is ever linked: the
+site is free, and those downloads are reserved for paid subscribers later. The
+Research Library is the exception: its reports are published as their PDFs.
 
 Dashboard tiles draw real figures from .cache/dashboards/tiles.json, written
 at deploy time by tools/dashboard_data.py, with their source and date; a tile
@@ -2181,13 +2182,16 @@ def archive(notes):
 
 # Research Library (/research/) ----------------------------------------------
 #
-# The reports that are not the daily note: weekly market reviews and research,
-# from data/reports (index.json plus one Markdown file each; see
-# data/reports/README.md). The latest weekly review leads the page with its
-# contents; earlier reviews sit in a lattice of issues and research in a ruled
-# list. site.js filters both by topic and by the search field.
+# The reports that are not the daily note, published as their PDFs: weekly
+# market reviews and research, from data/reports (index.json plus one PDF each
+# in data/reports/pdf; see data/reports/README.md). Each entry links straight
+# to its PDF, which the browser opens as it is. The latest weekly review leads
+# the page; earlier reviews sit in a lattice of issues and research in a ruled
+# list. The weekly blocks stay hidden until the first review is published.
+# site.js filters both by topic and by the search field.
 
 LIB = ROOT / "data" / "reports"
+LIB_PDF = LIB / "pdf"
 LIB_TYPE_NAME = {"weekly": "Weekly market review", "research": "Research"}
 LIB_TAGS = [("equities", "Equities"), ("rates", "Rates"), ("fx", "FX"), ("commodities", "Commodities"),
             ("macro", "Macro"), ("credit", "Credit")]
@@ -2196,7 +2200,7 @@ PDF_SOON = "PDF downloads open to subscribers with the paid tier. The full text 
 
 
 def load_library():
-    """Published weekly reviews and research reports, newest first."""
+    """Published weekly reviews and research reports with their PDF, newest first."""
     f = LIB / "index.json"
     if not f.exists():
         return []
@@ -2204,11 +2208,11 @@ def load_library():
     for r in json.loads(f.read_text(encoding="utf-8")).get("reports", []):
         if r.get("published") is False:
             continue
-        md = LIB / f"{r['slug']}.md"
-        if not md.exists():
-            print(f"skipped report {r['slug']}: data/reports/{r['slug']}.md is missing")
+        pdf = LIB_PDF / f"{r['slug']}.pdf"
+        if not pdf.exists():
+            print(f"skipped report {r['slug']}: data/reports/pdf/{r['slug']}.pdf is missing")
             continue
-        out.append(dict(r, day=dt.date.fromisoformat(r["date"]), text=md.read_text(encoding="utf-8"),
+        out.append(dict(r, day=dt.date.fromisoformat(r["date"]), pdf=pdf, size=pdf.stat().st_size,
                         tags=[t for t in r.get("tags", []) if t in LIB_TAG_NAME]))
     return sorted(out, key=lambda r: (r["date"], r["slug"]), reverse=True)
 
@@ -2222,10 +2226,6 @@ def lib_chips(attr, options, counts=None):
         f'<button type="button" class="chip" data-{attr}="{v}" aria-pressed="{"true" if i == 0 else "false"}">'
         f'{label}{f" <span class=chip__n>{counts[v]}</span>" if counts is not None and v in counts else ""}</button>'
         for i, (v, label) in enumerate(options))
-
-
-def lib_minutes(r):
-    return max(1, math.ceil(len(r["text"].split()) / 230))
 
 
 def lib_week(day):
@@ -2244,67 +2244,80 @@ def lib_attrs(r):
     return f'data-lib-item data-tags="{" ".join(r["tags"])}" data-q="{esc(q)}"'
 
 
+def lib_href(r):
+    return f'pdf/{r["slug"]}.pdf'
+
+
+def lib_link(r):
+    """The attributes of a link that opens a report's PDF in a new tab."""
+    return f'href="{lib_href(r)}" target="_blank" rel="noopener" type="application/pdf"'
+
+
+def lib_file(r):
+    """ "PDF · 5 pages · 0.5 MB" """
+    pages = r.get("pages")
+    mb = r["size"] / 1e6
+    size = f"{mb:.1f} MB" if mb >= 0.1 else f"{max(1, round(r['size'] / 1e3))} KB"
+    return " · ".join(["PDF"] + ([f"{pages} page{'' if pages == 1 else 's'}"] if pages else []) + [size])
+
+
 def library_page(library):
     weekly = [r for r in library if r["type"] == "weekly"]
     research = [r for r in library if r["type"] == "research"]
     lead = weekly[0] if weekly else None
     tags = lambda r: " · ".join(LIB_TAG_NAME[t] for t in r["tags"])
 
+    lead_html = ""
     if lead:
         wk, span = lib_week(lead["day"])
-        toc = [h for h, content in md_sections(lead["text"]) if h and content]
-        toc_html = (f'<div class="lib-lead__toc"><h3>In this issue</h3><ol>'
-                    + "".join(f"<li><span>{i + 1:02d}</span>{esc(h)}</li>" for i, h in enumerate(toc))
-                    + "</ol></div>") if toc else ""
         lead_html = f"""<section class="grid lib-lead" aria-labelledby="lib-lead-t">
       <div class="lib-lead__main">
         <p class="lib-lead__kicker"><span>Latest weekly market review</span><span>Week {wk} · {span}</span></p>
-        <h2 class="lib-lead__title" id="lib-lead-t"><a href="{lead["slug"]}/">{esc(lead["title"])}</a></h2>
+        <h2 class="lib-lead__title" id="lib-lead-t"><a {lib_link(lead)}>{esc(lead["title"])}</a></h2>
         <p class="lede">{esc(lead["summary"])}</p>
-        <p class="note__meta"><time datetime="{lead["date"]}">{day_long(lead["day"])}</time><span>{lib_minutes(lead)} min read</span>{f"<span>{tags(lead)}</span>" if lead["tags"] else ""}</p>
+        <p class="note__meta"><time datetime="{lead["date"]}">{day_long(lead["day"])}</time><span>{lib_file(lead)}</span>{f"<span>{tags(lead)}</span>" if lead["tags"] else ""}</p>
         <div class="lib-lead__acts">
-          <a class="btn" href="{lead["slug"]}/">Read the review {icon("arrow-right")}</a>
-          <button class="btn btn--ghost lib-pdf" type="button" aria-disabled="true" data-soon="{PDF_SOON}">{icon("lock-simple")}Download PDF<span class="lib-pdf__tag">Subscribers only</span></button>
-          <p class="report__share-status" role="status" aria-live="polite"></p>
+          <a class="btn" {lib_link(lead)}>Open the PDF {icon("arrow-up-right")}</a>
         </div>
       </div>
-      {toc_html}
     </section>"""
-    else:
-        lead_html = ('<section class="lib-lead lib-lead--empty"><p class="lib-lead__kicker"><span>Latest weekly market review</span></p>'
-                     '<p class="lib__none">The first weekly market review is on its way.</p></section>')
 
     def issue(r):
         wk, span = lib_week(r["day"])
-        return (f'<li class="lib-issue" {lib_attrs(r)}><a href="{r["slug"]}/">'
+        return (f'<li class="lib-issue" {lib_attrs(r)}><a {lib_link(r)}>'
                 f'<span class="lib-issue__n">Week {wk}</span><span class="lib-issue__d">{span}</span>'
                 f'<span class="lib-issue__t">{esc(r["title"])}</span><span class="lib-issue__s">{esc(r["summary"])}</span>'
-                f'<span class="lib-issue__f"><span>{tags(r)}</span><span>{lib_minutes(r)} min</span></span>'
+                f'<span class="lib-issue__f"><span>{tags(r)}</span><span>{lib_file(r)}</span></span>'
                 f'{icon("arrow-up-right")}</a></li>')
 
     def study(r):
         topic = LIB_TAG_NAME[r["tags"][0]] if r["tags"] else "Research"
-        return (f'<li {lib_attrs(r)}><a href="{r["slug"]}/"><span class="lib-res__topic">{topic}</span>'
+        return (f'<li {lib_attrs(r)}><a {lib_link(r)}><span class="lib-res__topic">{topic}</span>'
                 f'<span class="lib-res__body"><span class="lib-res__t">{esc(r["title"])}</span>'
                 f'<span class="lib-res__s">{esc(r["summary"])}</span>'
-                f'<span class="lib-res__m"><time datetime="{r["date"]}">{day_med(r["day"])}</time> · {lib_minutes(r)} min read</span></span>'
-                f'{icon("arrow-right")}</a></li>')
+                f'<span class="lib-res__m"><time datetime="{r["date"]}">{day_med(r["day"])}</time> · {lib_file(r)}</span></span>'
+                f'{icon("arrow-up-right")}</a></li>')
 
     earlier = weekly[1:]
     if earlier:
         weekly_html = f'<ol class="lib-issues">{"".join(issue(r) for r in earlier)}</ol>'
     else:
         weekly_html = '<p class="lib__none">Earlier reviews are listed here as each new one is published.</p>'
+    weekly_sec = f"""<section class="lib-sec" aria-labelledby="lib-weekly">
+      <div class="lib-sec__head"><h2 id="lib-weekly">Weekly market reviews</h2><p>Every Friday after the close: what moved across asset classes, and the week ahead.</p></div>
+      {weekly_html}
+    </section>""" if weekly else ""
     research_html = (f'<ol class="lib-res">{"".join(study(r) for r in research)}</ol>' if research
                      else '<p class="lib__none">The first research report is on its way.</p>')
     tag_n = {k: sum(k in r["tags"] for r in library) for k, _ in LIB_TAGS}
     nw, nr = len(weekly), len(research)
+    counts = ([f'{nw} weekly review{"" if nw == 1 else "s"}'] if nw else []) + [f'{nr} research report{"" if nr == 1 else "s"}']
     tools = ""
     if library:
         tools = f"""<div class="lib-tools">
       <form class="pf-field lib__search" role="search" action="">
         {icon("magnifying-glass")}
-        <input type="search" id="lib-q" name="q" aria-label="Search reviews and research" placeholder="Search reviews and research" autocomplete="off" spellcheck="false">
+        <input type="search" id="lib-q" name="q" aria-label="Search reports" placeholder="Search reports" autocomplete="off" spellcheck="false">
       </form>
       <div class="filters" role="group" aria-label="Filter by topic">{lib_chips("lib-tag", [("all", "All topics")] + LIB_TAGS, dict(tag_n, all=len(library)))}</div>
     </div>
@@ -2313,57 +2326,28 @@ def library_page(library):
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Research Library</h1>
-      <p class="lede">Weekly market reviews and research from Andra Markets: longer than the daily note, written to be kept.</p>
+      <p class="lede">Weekly market reviews and research from Andra Markets: longer than the daily note, written to be kept. Each report opens as its PDF.</p>
     </header>
-    <p class="lib-count">{f'<span>{nw} weekly review{"" if nw == 1 else "s"}</span><span>{nr} research report{"" if nr == 1 else "s"}</span>' if library else ""}<span>Looking for the daily note? <a href="../reports/">All close notes</a></span></p>
+    <p class="lib-count">{"".join(f"<span>{c}</span>" for c in counts) if library else ""}<span>Looking for the daily note? <a href="../reports/">All close notes</a></span></p>
     {lead_html}
     {tools}
-    <section class="lib-sec" aria-labelledby="lib-weekly">
-      <div class="lib-sec__head"><h2 id="lib-weekly">Weekly market reviews</h2><p>Every Friday after the close: what moved across asset classes, and the week ahead.</p></div>
-      {weekly_html}
-    </section>
+    {weekly_sec}
     <section class="lib-sec" aria-labelledby="lib-research">
       <div class="lib-sec__head"><h2 id="lib-research">Research</h2><p>Deeper work on a theme, an asset class or a company, published when it is ready.</p></div>
       {research_html}
     </section>
-    <p class="lib__empty" hidden>No review or research matches. <button type="button" class="link" data-lib-reset>Clear the search {icon("arrow-right")}</button></p>
+    <p class="lib__empty" hidden>No report matches. <button type="button" class="link" data-lib-reset>Clear the search {icon("arrow-right")}</button></p>
   </div>
 </main>"""
     return shell(
         title="Research Library: Andra Markets",
-        desc="Weekly market reviews and research from Andra Markets: longer than the daily note, written to be kept.",
+        desc="Weekly market reviews and research from Andra Markets, as PDFs: longer than the daily note, written to be kept.",
         body=body,
         home="../",
         base="../",
         path="research/",
     )
 
-
-def md_inline(text):
-    return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", esc(text))
-
-
-def md_sections(text):
-    """The small Markdown of data/reports (see its README): (heading or None, html) per section."""
-    sections = []
-    for block in re.split(r"\n\s*\n", text.strip()):
-        lines = [ln.strip() for ln in block.splitlines() if ln.strip()]
-        if not lines:
-            continue
-        if lines[0].startswith("## "):
-            sections.append([lines[0][3:].strip(), ""])
-            lines = lines[1:]
-            if not lines:
-                continue
-        if not sections:
-            sections.append([None, ""])
-        if all(ln.startswith("- ") for ln in lines):
-            sections[-1][1] += '<ul class="ruled">' + "".join(f"<li>{md_inline(ln[2:])}</li>" for ln in lines) + "</ul>"
-        elif lines[0].startswith(("Source:", "Sources:")):
-            sections[-1][1] += f'<p class="lib-src">{md_inline(" ".join(lines))}</p>'
-        else:
-            sections[-1][1] += f"<p>{md_inline(' '.join(lines))}</p>"
-    return sections
 
 
 def share_row(what):
@@ -2374,57 +2358,6 @@ def share_row(what):
           <button class="btn btn--ghost lib-pdf" type="button" aria-disabled="true" data-soon="{PDF_SOON}">{icon("lock-simple")}Download PDF<span class="lib-pdf__tag">Subscribers only</span></button>
           <p class="report__share-status" role="status" aria-live="polite"></p>
         </div>"""
-
-
-def lib_report(r, newer, older):
-    words = len(r["text"].split())
-    meta = (f'<time datetime="{r["date"]}">{day_long(r["day"])}</time><span>{LIB_TYPE_NAME[r["type"]]}</span>'
-            f"<span>{max(1, math.ceil(words / 230))} min read</span>")
-    sections = ""
-    for i, (heading, content) in enumerate(md_sections(r["text"])):
-        if not content:
-            continue  # a heading with nothing under it, such as the PDF's own title
-        if heading:
-            sections += f'\n      <section aria-labelledby="s-{i}"><h2 id="s-{i}">{esc(heading)}</h2>{content}</section>'
-        else:
-            sections += f"\n      <section>{content}</section>"
-    tags = " · ".join(LIB_TAG_NAME[t] for t in r["tags"])
-    about = (f'<section aria-labelledby="s-about"><h2 id="s-about">About this report</h2>'
-             f"<p>{LIB_TYPE_NAME[r['type']]} by Andra Markets, published {day_long(r['day'])}"
-             f"{f'. Covers {tags}' if tags else ''}. Figures from the sources each section names; how reports are "
-             f'produced is in the <a href="../../methodology/#m-reports">methodology</a>.</p>'
-             f'<p>For information only. Not investment advice. See the <a href="../../legal/">legal notice</a>.</p></section>')
-    pager = ""
-    if older:
-        pager += f'<a class="link" href="../{older["slug"]}/">Previous report, {day_med(older["day"])} {icon("arrow-right")}</a>'
-    if newer:
-        pager += f'<a class="link" href="../{newer["slug"]}/">Next report, {day_med(newer["day"])} {icon("arrow-right")}</a>'
-    pager += f'<a class="link" href="../">Research Library {icon("arrow-right")}</a>'
-    body = f"""<main id="main" class="page report lib-report">
-  <div class="wrap">
-    <article>
-      <header class="page__head">
-        <p class="dd__crumbs"><a href="../">Research Library</a> <span aria-hidden="true">/</span> {LIB_TYPE_NAME[r["type"]]}</p>
-        <h1 class="page__title report__title">{esc(r["title"])}</h1>
-        <p class="lede">{esc(r["summary"])}</p>
-        <p class="note__meta">{meta}</p>
-        {share_row("report")}
-      </header>
-      <div class="page__body">{sections}
-      {about}
-      </div>
-    </article>
-    <nav class="report__pager" aria-label="More reports">{pager}</nav>
-  </div>
-</main>"""
-    return shell(
-        title=f"{esc(r['title'])}: Andra Markets {LIB_TYPE_NAME[r['type']].lower()}, {day_med(r['day'])}",
-        desc=esc(r["summary"]),
-        body=body,
-        home="../../",
-        base="../../",
-        path=f"research/{r['slug']}/",
-    )
 
 
 # Markets Interview Prep (/interview-prep/) -----------------------------------
@@ -5366,7 +5299,7 @@ def search_index(notes, companies=None, library=()):
                       "u": f"reports/{rec['date']}/", "k": f"{day_long(d)} {day_med(d)} {d.day} {d:%b}"})
     for r in library:
         items.append({"g": "Reports", "t": r["title"], "m": f"{LIB_TYPE_NAME[r['type']]}, {day_med(r['day'])}",
-                      "u": f"research/{r['slug']}/", "k": r["summary"] + " " + " ".join(r["tags"])})
+                      "u": f"research/pdf/{r['slug']}.pdf", "k": r["summary"] + " " + " ".join(r["tags"])})
     for slug, _, title, desc, _, _ in LAB_TOOLS:
         items.append({"g": "Pages", "t": title, "m": "Lab", "u": f"lab/{slug}/", "k": desc + " calculator"})
     for t in load_technicals():
@@ -5442,12 +5375,11 @@ def main():
     (REPORTS / "index.html").write_text(archive(notes))
     library = load_library()
     research_dir = OUT / "research"
-    research_dir.mkdir(exist_ok=True)
+    shutil.rmtree(research_dir, ignore_errors=True)
+    (research_dir / "pdf").mkdir(parents=True)
     (research_dir / "index.html").write_text(library_page(library))
-    for i, r in enumerate(library):
-        (research_dir / r["slug"]).mkdir(exist_ok=True)
-        (research_dir / r["slug"] / "index.html").write_text(
-            lib_report(r, library[i - 1] if i > 0 else None, library[i + 1] if i + 1 < len(library) else None))
+    for r in library:
+        shutil.copyfile(r["pdf"], research_dir / "pdf" / f"{r['slug']}.pdf")
     for slug, make in (("interview-prep", lambda: interview_page(notes)), ("sources", sources_page),
                        ("legal", legal_page), ("privacy", privacy_page)):
         (OUT / slug).mkdir(exist_ok=True)
