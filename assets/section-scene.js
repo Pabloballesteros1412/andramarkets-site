@@ -48,20 +48,18 @@
     // near ones big and soft (out of focus), far ones small and sharp
     "  float near = 1.0 - smoothstep(0.15, 0.7, q.z);",
     "  float size = (1.1 + 1.6 * fract(r * 7.13)) * (0.9 / q.z) * (1.0 + near * 5.0);",
-    // the light theme: every particle a small sharp dot, like the homepage's (owner, 31 Oct 2026)
-    "  size = mix(size, 1.0 + 1.2 * fract(r * 7.13), ink);",
     "  gl_PointSize = clamp(size * dpr, 1.0, 26.0 * dpr);",
-    "  vsoft = near * (1.0 - ink);",
-    "  va = lit * (0.35 + 0.65 * fract(r * 3.71)) / (1.0 + near * 7.0 * (1.0 - ink)) * power;",
+    "  vsoft = near;",
+    "  va = lit * (0.35 + 0.65 * fract(r * 3.71)) / (1.0 + near * 7.0) * power;",
     "}"
   ].join("\n");
   // The light theme inverts the canvas in CSS; there the particles print in full black
-  // (owner, 31 Oct 2026): drawn in full white, so they invert to pure black, and all small
-  // and sharp (the vertex shader drops the near ones' size and blur).
+  // (owner, 31 Oct 2026): the dark theme's scene as it is, sizes, blur and motion, reversed:
+  // drawn white and two and a half times as strong, so what glows on black prints in black.
   var FS_P = [
     "precision mediump float; varying float va; varying float vsoft; uniform float ink;",
     "void main(){ vec2 d = gl_PointCoord - 0.5; float k = exp(-dot(d, d) * mix(18.0, 5.0, vsoft));",
-    "  float v = mix(va, 1.0, ink);",
+    "  float v = mix(va, min(1.0, va * 2.5), ink);",
     "  gl_FragColor = vec4(mix(vec3(0.86, 0.9, 0.96), vec3(1.0), ink) * v * k, 0.0); }"
   ].join("\n");
 
