@@ -1252,6 +1252,28 @@ html.hero-forming .hero:not(.crisp-ix) .today {
   }
 }
 
+/* Laptop screens 721 to 899px tall: the headline, the today block and the index tighten with
+   the height, so the homepage stays one screen (it never scrolls). */
+@media (orientation: landscape) and (min-height: 721px) and (max-height: 899px) {
+  .home .hero__copy {
+    gap: 2.2svh;
+    padding-top: calc(var(--nav-h) + 3svh);
+    padding-bottom: 3svh;
+  }
+  .home .hero h1 {
+    font-size: min(clamp(3rem, 8vw, 6rem), 10.5svh);
+  }
+  .home .hero__index a {
+    min-height: max(32px, 5svh);
+  }
+  .today {
+    gap: 8px;
+  }
+  .today__tape li {
+    padding-block: 6px;
+  }
+}
+
 /* Phones on their side have no room for it: the hero stays as it was. */
 @media (orientation: landscape) and (max-height: 500px) {
   .today {
@@ -1260,9 +1282,13 @@ html.hero-forming .hero:not(.crisp-ix) .today {
 }
 
 /* Small phones held upright (667px tall and less) keep the date and the headline. */
-@media (max-width: 860px) and (orientation: portrait) and (max-height: 700px) {
+@media (max-width: 860px) and (orientation: portrait) and (max-height: 760px) {
   .hero .today {
-    margin-top: 8px;
+    margin-top: 6px;
+    gap: 6px;
+  }
+  .home .hero h1 {
+    padding-top: calc(var(--nav-h) + 14px);
   }
   .today .today__tape {
     display: none;

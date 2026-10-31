@@ -495,10 +495,14 @@
   }
 
   /* ---------- drawing ---------- */
-  function hasTrack() { return hero.getBoundingClientRect().height - H > 1; }
+  // The homepage keeps the horse (owner, 31 Oct 2026): it never turns into the chart, even
+  // where the hero is taller than the screen. The engine keeps the chart for a hero that
+  // should have one; set MORPH to bring it back.
+  var MORPH = false;
+  function hasTrack() { return MORPH && hero.getBoundingClientRect().height - H > 1; }
 
   function progress() {
-    if (reduce) return 0;
+    if (reduce || !MORPH) return 0;
     var r = hero.getBoundingClientRect(), span = r.height - H;
     return span > 0 ? clamp01(-r.top / span) : 0;
   }
