@@ -1,7 +1,8 @@
 // Andra Markets homepage hero: the horse drawn by particles (owner-approved, 31 Oct 2026).
 //
-// A cloud of dots turns around the hero and settles into the horse, outline first, as the
-// light theme prints it (the pencil look): one particle per inked pixel of
+// Every dot starts at one point at the centre of the hero and flies out from it to its place
+// in the horse (owner, 31 Oct 2026), outline first, as the light theme prints it (the pencil
+// look): one particle per inked pixel of
 // assets/horse-particles.png, made from andra-horse.png by tools/make_horse_particles.py.
 // The pointer parts the dots; a slow band of light passes over the drawing. Where the hero
 // has scroll room, scrolling through it turns the horse into an illustrative price chart
@@ -13,7 +14,7 @@
 // drawing stands still and nothing morphs. Without WebGL or JavaScript the hero keeps the
 // still engraving (.horse).
 //
-// The headline and the index of sections form from the same cloud (owner-approved, 31 Oct
+// The headline and the index of sections fly out of the same point (owner-approved, 31 Oct
 // 2026): each character is drawn where the page sets it and sampled into particles; once
 // they settle, the real text (crisp, selectable, the links working) takes over. The page
 // marks html.hero-forming before the hero is parsed (HERO_BOOT in tools/build_site.py); this
@@ -60,14 +61,20 @@
 
   // a sine-free hash (Dave Hoskins), stable on mobile GPUs: one random number in [0, 1) per input
   var HASH = "float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }";
+  // the point at the centre of the hero that every particle leaves from: a few pixels across,
+  // its particles turning in place until their turn to fly. They leave it at speed and slow
+  // into place (ease-out cubic), so nothing piles up around the point.
+  var SEED = "vec2 seed(vec2 c, vec2 r, float t){ float a = r.x*6.2832 + t*(1.5 + 2.0*r.y); return c + vec2(cos(a), sin(a)) * 3.0 * sqrt(r.y); }" +
+    "float fly(float x){ float y = 1.0 - x; return 1.0 - y*y*y; }";
   var VS = [
     "attribute vec4 aH; attribute vec3 aC;",
-    "uniform vec2 res; uniform vec4 hb; uniform vec3 ptr; uniform vec3 hcol; uniform vec3 dcol; uniform vec2 dim;",
-    "uniform float t, m, dpr, pitch, R, sm, am, prad, sheen;",
+    "uniform vec2 res; uniform vec2 cc; uniform vec4 hb; uniform vec3 ptr; uniform vec3 hcol; uniform vec3 dcol; uniform vec2 dim;",
+    "uniform float t, m, dpr, pitch, sm, am, prad, sheen;",
     "varying float va; varying vec3 vc;",
     "const float PI = 3.14159265;",
     "float eio(float x){ return x < 0.5 ? 4.0*x*x*x : 1.0 - pow(-2.0*x + 2.0, 3.0) * 0.5; }",
     HASH,
+    SEED,
     "void main(){",
     // each particle's random numbers, from its own pixel: nothing to build or upload
     "  vec2 cell = aH.xy * dim;",
@@ -77,12 +84,8 @@
     // outline first, then the shading from the head down
     "  float d = aH.w > 0.5 ? 0.5 + 1.2*aR.w : 1.6 + 1.1*aH.y + 0.6*aR.w;",
     "  float f = clamp((t - d) / 2.3, 0.0, 1.0);",
-    "  float an = aR.y*2.0*PI + t*(0.035 + 0.2*(1.0 - aR.x));",
-    "  float rr = (0.015 + 0.985*pow(aR.x, 0.62)) * R;",
-    "  vec2 l = vec2(cos(an)*rr, sin(an)*rr*0.5);",
-    "  vec2 s = hb.xy + vec2(l.x*0.9287 + l.y*0.3709, -l.x*0.3709 + l.y*0.9287)",
-    "    + vec2(sin(t*0.5 + aR.z*6.283), cos(t*0.6 + aR2.y*6.283)) * 10.0;",
-    "  float e = eio(f);",
+    "  vec2 s = seed(cc, vec2(aR.x, aR2.y), t);",
+    "  float e = fly(f);",
     "  vec2 dd = home - s;",
     "  float k = sin(PI*e) * (aR.z - 0.5) * 0.44;",
     "  vec2 pos = s + dd*e + vec2(-dd.y, dd.x)*k;",
@@ -119,22 +122,18 @@
   var VS_TEXT = [
     "attribute vec4 aP; attribute vec2 aQ;",
     "uniform vec2 res; uniform vec2 cc; uniform vec3 ptr; uniform vec3 tcol; uniform vec3 dcol;",
-    "uniform float t, dpr, R, sm, am, prad, pitch, visP, visI;",
+    "uniform float t, dpr, sm, am, prad, pitch, visP, visI;",
     "varying float va; varying vec3 vc;",
     "const float PI = 3.14159265;",
-    "float eio(float x){ return x < 0.5 ? 4.0*x*x*x : 1.0 - pow(-2.0*x + 2.0, 3.0) * 0.5; }",
     HASH,
+    SEED,
     "void main(){",
     "  vec2 cell = aP.xy * 1.25 + 7.0;",
     "  vec4 rq = vec4(hash(cell), hash(cell + 23.7), hash(cell + 57.1), hash(cell + 89.3));",
     "  vec2 aS = rq.zw;",
     "  float f = clamp((t - aQ.x) / aQ.y, 0.0, 1.0);",
-    "  float an = rq.x*2.0*PI + t*(0.035 + 0.2*(1.0 - aS.x));",
-    "  float rr = (0.015 + 0.985*pow(aS.x, 0.62)) * R;",
-    "  vec2 l = vec2(cos(an)*rr, sin(an)*rr*0.5);",
-    "  vec2 s = cc + vec2(l.x*0.9287 + l.y*0.3709, -l.x*0.3709 + l.y*0.9287)",
-    "    + vec2(sin(t*0.5 + aS.y*6.283), cos(t*0.6 + rq.y*6.283)) * 10.0;",
-    "  float e = eio(f);",
+    "  vec2 s = seed(cc, rq.xz, t);",
+    "  float e = fly(f);",
     "  vec2 dd = aP.xy - s;",
     "  float k = sin(PI*e) * (rq.y - 0.5) * 0.44;",
     "  vec2 pos = s + dd*e + vec2(-dd.y, dd.x)*k;",
@@ -167,8 +166,8 @@
   var prog = program(VS);
   if (!prog) { giveUp(); return; }
   var progT = program(VS_TEXT);
-  var U = uniforms(prog, ["res", "hb", "ptr", "hcol", "dcol", "dim", "t", "m", "dpr", "pitch", "R", "sm", "am", "prad", "sheen", "kk"]);
-  var UT = progT ? uniforms(progT, ["res", "cc", "ptr", "tcol", "dcol", "t", "dpr", "R", "sm", "am", "prad", "pitch", "visP", "visI", "kk"]) : null;
+  var U = uniforms(prog, ["res", "cc", "hb", "ptr", "hcol", "dcol", "dim", "t", "m", "dpr", "pitch", "sm", "am", "prad", "sheen", "kk"]);
+  var UT = progT ? uniforms(progT, ["res", "cc", "ptr", "tcol", "dcol", "t", "dpr", "sm", "am", "prad", "pitch", "visP", "visI", "kk"]) : null;
   var MAX_ATTRIBS = Math.min(8, gl.getParameter(gl.MAX_VERTEX_ATTRIBS));
   // both programs share the attribute slots: each draw switches them to its own buffers
   function attribs(list) {
@@ -445,7 +444,7 @@
     gl.uniform1f(U.prad, W > 860 ? 95 : 70);
     gl.uniform1f(U.t, reduce ? 1000 : t);
     gl.uniform1f(U.m, m);
-    gl.uniform1f(U.R, Math.max(W, H) * 0.62);
+    gl.uniform2f(U.cc, W / 2, H / 2);
     gl.uniform1f(U.sheen, reduce ? 0 : 1);
     gl.uniform3f(U.hcol, col.horse[0], col.horse[1], col.horse[2]);
     gl.uniform3f(U.dcol, col.dust[0], col.dust[1], col.dust[2]);
@@ -472,7 +471,7 @@
     gl.useProgram(progT);
     attribs([[progT, "aP", tBuf, 4, 24, 0], [progT, "aQ", tBuf, 2, 24, 16]]);
     gl.uniform2f(UT.res, W, H); gl.uniform1f(UT.dpr, DPR);
-    gl.uniform2f(UT.cc, box.cx, box.cy); gl.uniform1f(UT.R, Math.max(W, H) * 0.62);
+    gl.uniform2f(UT.cc, W / 2, H / 2);
     gl.uniform3f(UT.ptr, ptr.sx, ptr.sy, ptr.s); gl.uniform1f(UT.prad, W > 860 ? 95 : 70);
     gl.uniform1f(UT.t, t); gl.uniform1f(UT.pitch, 1 / TS);
     gl.uniform1f(UT.visP, 1 - smooth(T_P, T_P + 0.45, t)); gl.uniform1f(UT.visI, 1 - smooth(T_I, T_I + 0.45, t));
