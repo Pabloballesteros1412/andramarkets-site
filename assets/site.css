@@ -379,6 +379,32 @@ body.has-scene {
   border-bottom-color: var(--rule);
 }
 
+/* Section pages: the open menu (its panel above 960px, the sheet below) keeps the sphere in
+   view (owner, 31 Oct 2026). The header and the menu stay clear over the scene, and the page
+   itself fades out behind them while the menu is open, so the links read over the particles. */
+.has-scene .site-header.is-open {
+  background: transparent;
+}
+
+.has-scene .site-header.is-open::before {
+  opacity: 0;
+}
+
+.has-scene .nav__panel {
+  background: transparent;
+}
+
+.has-scene main,
+.has-scene .site-footer {
+  transition: opacity 200ms var(--ease-out);
+}
+
+.has-scene:has(.site-header.is-open) main,
+.has-scene:has(.site-header.is-open) .site-footer {
+  opacity: 0;
+  pointer-events: none;
+}
+
 .site-header .wrap {
   height: 100%;
   display: flex;
@@ -735,6 +761,9 @@ html:not(.js) .nav__group:focus-within .nav__panel {
       opacity 200ms var(--ease-out),
       transform 200ms var(--ease-out),
       visibility 0s linear 200ms;
+  }
+  .has-scene .nav {
+    background: transparent;
   }
   .site-header.is-open .nav {
     visibility: visible;
