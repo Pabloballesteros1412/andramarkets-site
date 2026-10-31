@@ -902,12 +902,12 @@ def page(notes, cal):
         title="Andra Markets: markets research platform",
         desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
         body=f"""<main id="main" class="home">
-  <script>{HERO_BOOT}</script>
+  <script>{hero_boot()}</script>
   <section class="hero" id="top" aria-labelledby="hero-title">
     <div class="hero__stage">
       <span class="hero__sentinel" aria-hidden="true"></span>
       <div class="hero__art" aria-hidden="true">
-        <img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="high">
+        <img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="low" decoding="async">
       </div>
       <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" aria-hidden="true"></canvas>
       <div class="wrap hero__copy">
@@ -924,6 +924,8 @@ def page(notes, cal):
         scripts=("hero-horse.js",),
         nav=False,
         footer=False,
+        # the particle map is what the hero waits for: fetch it before anything else
+        head=f'\n<link rel="preload" href="assets/horse-particles.png?v={ver("horse-particles.png")}" as="image" fetchpriority="high">',
     )
 
 
@@ -986,13 +988,18 @@ def hero_index():
     return "".join(f'<li><a href="{href}">{name}</a></li>' for name, href in SECTIONS)
 
 
-# Runs before the hero is parsed: when the particle hero can run, the headline and index
-# start clear so their particles can form them (assets/hero-horse.js). If the hero has not
-# gone live within 3s (script blocked, slow network), the text simply shows.
-HERO_BOOT = ("if(window.WebGLRenderingContext&&!matchMedia('(prefers-reduced-motion: reduce)').matches){"
-             "var r=document.documentElement;r.classList.add('hero-forming');"
-             "setTimeout(function(){var h=document.querySelector('.hero');"
-             "if(!h||!h.classList.contains('is-live'))r.classList.remove('hero-forming')},3000)}")
+def hero_boot():
+    """Runs before the hero is parsed. With WebGL it starts the particle map's download at
+    once (assets/hero-horse.js picks it up), and, when motion is allowed, marks the page so
+    the still engraving, the headline and the index start hidden: the particles form them.
+    If the hero has not gone live within 3s (script blocked, slow network), they show."""
+    return ("if(window.WebGLRenderingContext){"
+            "var m=new Image();m.fetchPriority='high';m.decoding='async';"
+            f"m.src='assets/horse-particles.png?v={ver('horse-particles.png')}';window.__heroMap=m;"
+            "if(!matchMedia('(prefers-reduced-motion: reduce)').matches){"
+            "var r=document.documentElement;r.classList.add('hero-forming');"
+            "setTimeout(function(){var h=document.querySelector('.hero');"
+            "if(!h||!h.classList.contains('is-live'))r.classList.remove('hero-forming')},3000)}}")
 
 
 def site_header(home, base, nav=True):
@@ -1086,7 +1093,7 @@ def ver(name):
     return hashlib.sha1((ROOT / "assets" / name).read_bytes()).hexdigest()[:10]
 
 
-def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=True):
+def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=True, head=""):
     url = f"{SITE_URL}/{path}" if SITE_URL else ""
     og_image = f"{SITE_URL}/assets/og-image.png" if SITE_URL else f"{base}assets/og-image.png"
     canonical = f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n' if url else ""
@@ -1112,7 +1119,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 <meta property="og:image:alt" content="The Andra Markets engraved horse beside the line Markets, on the record.">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="{base}assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{base}assets/site.css?v={ver("site.css")}">
+<link rel="stylesheet" href="{base}assets/site.css?v={ver("site.css")}">{head}
 </head>
 <body data-base="{base}">
 {sprite()}

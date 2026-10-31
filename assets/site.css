@@ -729,6 +729,12 @@ ul {
 
 /* While particles form them (assets/hero-horse.js), the headline and the index are in
    place but clear; each turns to ink once its particles have settled. */
+/* The still engraving is only a fallback: while the particles are about to form the horse it
+   stays hidden, so it never shows for a moment before the cloud starts. */
+html.hero-forming .hero__art {
+  visibility: hidden;
+}
+
 html.hero-forming .hero:not(.crisp-h1) h1,
 html.hero-forming .hero:not(.crisp-ix) .hero__index a {
   color: transparent;
