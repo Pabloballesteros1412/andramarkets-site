@@ -537,7 +537,7 @@ ul {
   min-height: calc(100svh - 56px);
   overflow: hidden;
   display: flex;
-  align-items: flex-end;
+  align-items: stretch;
 }
 
 .hero__sentinel {
@@ -633,11 +633,128 @@ ul {
     linear-gradient(to top, var(--ground) 0%, transparent 38%);
 }
 
+/* Headline at the top, the index of every section at the bottom, the horse to the right
+   (owner-approved, 31 Oct 2026). */
 .hero__copy {
   position: relative;
   z-index: 1;
-  padding-top: calc(var(--nav-h) + 48px);
-  padding-bottom: clamp(56px, 11vh, 120px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  padding-top: calc(var(--nav-h) + clamp(24px, 6vh, 72px));
+  padding-bottom: clamp(32px, 6vh, 64px);
+}
+
+.hero__index ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(16px, 2vw, 28px);
+  width: min(100%, max(50%, 420px));
+}
+
+.hero__index a {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  color: var(--ink);
+  font-size: 1.0625rem;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  text-decoration: underline 1px transparent;
+  text-underline-offset: 0.22em;
+  transition: color 450ms ease, text-decoration-color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero__index a:hover {
+    text-decoration-color: var(--rule-strong);
+  }
+}
+
+.hero h1 {
+  transition: color 450ms ease;
+}
+
+/* While particles form them (assets/hero-horse.js), the headline and the index are in
+   place but clear; each turns to ink once its particles have settled. */
+html.hero-forming .hero:not(.crisp-h1) h1,
+html.hero-forming .hero:not(.crisp-ix) .hero__index a {
+  color: transparent;
+}
+
+html.hero-forming .hero__copy > *,
+html.hero-formed .hero__copy > * {
+  animation: none;
+}
+
+/* Phones and small tablets: one column, headline, horse, index. The horse takes the room
+   the other two leave; the still engraving sits in that slot too. */
+@media (max-width: 860px) {
+  .hero__stage {
+    flex-direction: column;
+  }
+
+  .hero__copy {
+    display: contents;
+  }
+
+  .hero h1,
+  .hero__index {
+    position: relative;
+    z-index: 1;
+    padding-inline: var(--gutter);
+  }
+
+  .hero h1 {
+    order: 1;
+    padding-top: calc(var(--nav-h) + 20px);
+    font-size: clamp(2.6rem, 12.5vw, 4rem);
+  }
+
+  .hero__stage .hero__art {
+    order: 2;
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+    flex: 1 1 0;
+    min-height: 170px;
+    margin-block: 12px;
+    transform: none;
+    animation: none;
+    container-type: size;
+  }
+
+  .hero__art .horse {
+    position: absolute;
+    /* the horse is 516 of the engraving's 1024px, centred at (505, 516) */
+    width: 198.4cqh;
+    max-width: none;
+    height: 198.4cqh;
+    left: calc(50% - 97.8cqh);
+    top: calc(50% - 100cqh);
+  }
+
+  .hero__index {
+    order: 3;
+    padding-bottom: clamp(28px, 5vh, 48px);
+  }
+
+  .hero__index ul {
+    width: 100%;
+    column-gap: 16px;
+  }
+
+  .hero__index a {
+    min-height: 40px;
+    font-size: 0.875rem;
+    letter-spacing: -0.005em;
+  }
 }
 
 .hero h1 {
@@ -657,19 +774,6 @@ ul {
   gap: 12px;
 }
 
-@media (max-width: 860px) {
-  :root {
-    --horse-x: 52%;
-    --horse-y: 36%;
-  }
-}
-
-@media (max-width: 520px) {
-  :root {
-    --horse-size: 180vw;
-    --horse-y: 27%;
-  }
-}
 
 /* Tape */
 

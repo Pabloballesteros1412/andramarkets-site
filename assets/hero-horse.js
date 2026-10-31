@@ -10,6 +10,12 @@
 // CSS). Dark theme: white dots, and the horse settles in dark grey. Reduced motion: the
 // drawing stands still and nothing morphs. Without WebGL or JavaScript the hero keeps the
 // still engraving (.horse).
+//
+// The headline and the index of sections form from the same cloud (owner-approved, 31 Oct
+// 2026): each character is drawn where the page sets it and sampled into particles; once
+// they settle, the real text (crisp, selectable, the links working) takes over. The page
+// marks html.hero-forming before the hero is parsed (HERO_BOOT in tools/build_site.py); this
+// script removes it whenever it cannot run, so the text is never left hidden.
 (function () {
   "use strict";
   var hero = document.querySelector(".hero");
@@ -18,9 +24,12 @@
   var art = hero && hero.querySelector(".hero__art");
   var copy = hero && hero.querySelector(".hero__copy");
   var stamp = hero && hero.querySelector(".hero__stamp");
-  if (!stage || !canvas || !art || !copy || !window.WebGLRenderingContext) return;
-
+  var horseImg = art && art.querySelector(".horse");
   var root = document.documentElement;
+  function giveUp() { root.classList.remove("hero-forming"); }
+  if (!stage || !canvas || !art || !copy || !horseImg || !window.WebGLRenderingContext) { giveUp(); return; }
+  var headline = copy.querySelector("h1");
+  var links = Array.prototype.slice.call(copy.querySelectorAll(".hero__index a"));
   var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
   var reduce = mq.matches;
   var TAU = Math.PI * 2;
@@ -31,8 +40,8 @@
   // value is the complement of the ink on screen: soft black dust and horse (about #333 with
   // the canvas at 0.8 opacity). In the dark theme: ink dust and chart, a dark grey horse.
   var COLOURS = {
-    light: { dust: [0.92, 0.905, 0.89], horse: [0.9, 0.886, 0.873] },
-    dark: { dust: [0.914, 0.925, 0.922], horse: [0.36, 0.374, 0.389] }
+    light: { dust: [0.92, 0.905, 0.89], horse: [0.9, 0.886, 0.873], text: [0.99, 0.985, 0.98] },
+    dark: { dust: [0.914, 0.925, 0.922], horse: [0.36, 0.374, 0.389], text: [0.914, 0.925, 0.922] }
   };
 
   function rng(seed) {
@@ -98,23 +107,72 @@
     "void main(){ vec2 d = gl_PointCoord - 0.5; float k = exp(-dot(d, d) * 4.0 * kk);",
     "  gl_FragColor = vec4(vc * va * k, va * k); }"
   ].join("\n");
+  // the headline and the index: targets in stage pixels, each group with its own timing
+  var VS_TEXT = [
+    "attribute vec4 aP; attribute vec4 aQ; attribute vec2 aS;",
+    "uniform vec2 res; uniform vec2 cc; uniform vec3 ptr; uniform vec3 tcol; uniform vec3 dcol;",
+    "uniform float t, dpr, R, sm, am, prad, pitch, visP, visI;",
+    "varying float va; varying vec3 vc;",
+    "const float PI = 3.14159265;",
+    "float eio(float x){ return x < 0.5 ? 4.0*x*x*x : 1.0 - pow(-2.0*x + 2.0, 3.0) * 0.5; }",
+    "void main(){",
+    "  float f = clamp((t - aQ.x) / aQ.y, 0.0, 1.0);",
+    "  float an = aQ.z*2.0*PI + t*(0.035 + 0.2*(1.0 - aS.x));",
+    "  float rr = (0.015 + 0.985*pow(aS.x, 0.62)) * R;",
+    "  vec2 l = vec2(cos(an)*rr, sin(an)*rr*0.5);",
+    "  vec2 s = cc + vec2(l.x*0.9287 + l.y*0.3709, -l.x*0.3709 + l.y*0.9287)",
+    "    + vec2(sin(t*0.5 + aS.y*6.283), cos(t*0.6 + aQ.w*6.283)) * 10.0;",
+    "  float e = eio(f);",
+    "  vec2 dd = aP.xy - s;",
+    "  float k = sin(PI*e) * (aQ.w - 0.5) * 0.44;",
+    "  vec2 pos = s + dd*e + vec2(-dd.y, dd.x)*k;",
+    "  float dust = 0.035 + 0.55*pow(aS.y, 4.0);",
+    "  float a = mix(dust, aP.z, smoothstep(0.6, 1.0, e));",
+    "  a *= mix(1.0, aP.w < 1.5 ? visP : visI, step(0.999, f));",
+    "  vec2 dp = pos - ptr.xy; float dist = length(dp);",
+    "  float q = 1.0 - smoothstep(0.0, prad, dist);",
+    "  vec2 dir = dp / max(dist, 0.001);",
+    "  pos += (dir * q * q * prad * 0.3 * (0.35 + 1.3*aS.x) + vec2(-dir.y, dir.x) * q * prad * 0.16 * (aS.y - 0.5)) * ptr.z;",
+    "  gl_Position = vec4(pos.x / res.x * 2.0 - 1.0, 1.0 - pos.y / res.y * 2.0, 0.0, 1.0);",
+    "  gl_PointSize = max(1.0, mix(2.2, 2.0*pitch, e) * dpr * sm);",
+    "  va = a * am;",
+    "  vc = mix(dcol, tcol, smoothstep(0.6, 1.0, e));",
+    "}"
+  ].join("\n");
 
   var gl = null;
   try { gl = canvas.getContext("webgl", { antialias: false, alpha: true, premultipliedAlpha: true }); } catch (e) { gl = null; }
-  if (!gl) return;
+  if (!gl) { giveUp(); return; }
   function shader(type, src) { var o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; }
-  var prog = gl.createProgram();
-  gl.attachShader(prog, shader(gl.VERTEX_SHADER, VS));
-  gl.attachShader(prog, shader(gl.FRAGMENT_SHADER, FS));
-  gl.linkProgram(prog);
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
-  gl.useProgram(prog);
-  var U = {};
-  ["res", "hb", "ptr", "hcol", "dcol", "t", "m", "dpr", "pitch", "R", "sm", "am", "prad", "sheen", "kk"].forEach(function (n) {
-    U[n] = gl.getUniformLocation(prog, n);
-  });
+  function program(vs) {
+    var p = gl.createProgram();
+    gl.attachShader(p, shader(gl.VERTEX_SHADER, vs));
+    gl.attachShader(p, shader(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(p);
+    return gl.getProgramParameter(p, gl.LINK_STATUS) ? p : null;
+  }
+  function uniforms(p, names) { var u = {}; names.forEach(function (n) { u[n] = gl.getUniformLocation(p, n); }); return u; }
+  var prog = program(VS);
+  if (!prog) { giveUp(); return; }
+  var progT = program(VS_TEXT);
+  var U = uniforms(prog, ["res", "hb", "ptr", "hcol", "dcol", "t", "m", "dpr", "pitch", "R", "sm", "am", "prad", "sheen", "kk"]);
+  var UT = progT ? uniforms(progT, ["res", "cc", "ptr", "tcol", "dcol", "t", "dpr", "R", "sm", "am", "prad", "pitch", "visP", "visI", "kk"]) : null;
+  var MAX_ATTRIBS = Math.min(8, gl.getParameter(gl.MAX_VERTEX_ATTRIBS));
+  // both programs share the attribute slots: each draw switches them to its own buffers
+  function attribs(list) {
+    for (var i = 0; i < MAX_ATTRIBS; i++) gl.disableVertexAttribArray(i);
+    list.forEach(function (a) {
+      var l = gl.getAttribLocation(a[0], a[1]);
+      if (l < 0) return;
+      gl.bindBuffer(gl.ARRAY_BUFFER, a[2]);
+      gl.enableVertexAttribArray(l);
+      gl.vertexAttribPointer(l, a[3], gl.FLOAT, false, a[4], a[5]);
+    });
+  }
 
-  var N = 0, PW = 0, PH = 0, px = null, cBuf = null, chartAttr = null, chartReady = false, order = null;
+  var N = 0, PW = 0, PH = 0, px = null, sBuf = null, cBuf = null, chartAttr = null, chartReady = false, order = null;
+  var TS = 1.25;            // the text is sampled at 1.25 particles per CSS pixel
+  var tBuf = null, TN = 0, textOn = false, T_P = 3, T_I = 4, crispP = false, crispI = false;
   var W = 0, H = 0, DPR = 1, box = null, cbox = null;
   var t0 = 0, running = false, visible = true, lastP = -1, frameNo = 0;
   var ptr = { x: -1e4, y: -1e4, sx: -1e4, sy: -1e4, s: 0, last: -1e9 };
@@ -142,21 +200,13 @@
       st[o + 4] = r(); st[o + 5] = r(); st[o + 6] = r(); st[o + 7] = r();
       st[o + 8] = gauss(r); st[o + 9] = r(); st[o + 10] = r(); st[o + 11] = r();
     }
-    var sBuf = gl.createBuffer();
+    sBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, sBuf);
     gl.bufferData(gl.ARRAY_BUFFER, st, gl.STATIC_DRAW);
-    [["aH", 0], ["aR", 16], ["aR2", 32]].forEach(function (a) {
-      var l = gl.getAttribLocation(prog, a[0]);
-      gl.enableVertexAttribArray(l);
-      gl.vertexAttribPointer(l, 4, gl.FLOAT, false, 48, a[1]);
-    });
     cBuf = gl.createBuffer();
     chartAttr = new Float32Array(N * 3);
     gl.bindBuffer(gl.ARRAY_BUFFER, cBuf);
     gl.bufferData(gl.ARRAY_BUFFER, chartAttr, gl.DYNAMIC_DRAW);
-    var lc = gl.getAttribLocation(prog, "aC");
-    gl.enableVertexAttribArray(lc);
-    gl.vertexAttribPointer(lc, 3, gl.FLOAT, false, 12, 0);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE);
     gl.clearColor(0, 0, 0, 0);
@@ -164,23 +214,87 @@
 
   /* ---------- layout: the horse sits exactly where the still engraving sits ---------- */
   function measure() {
-    var s = stage.getBoundingClientRect(), a = art.getBoundingClientRect(), c = copy.querySelector("h1") || copy;
+    var s = stage.getBoundingClientRect(), a = horseImg.getBoundingClientRect(), slot = art.getBoundingClientRect();
     W = Math.max(1, Math.round(s.width)); H = Math.max(1, Math.round(s.height));
     DPR = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
     gl.viewport(0, 0, canvas.width, canvas.height);
-    var k = a.width / SRC.side;
+    var k = a.height / SRC.side; // the engraving is square; its height is what the layout sets
     box = { cx: a.left - s.left + (SRC.x + SRC.w / 2) * k, cy: a.top - s.top + (SRC.y + SRC.h / 2) * k, w: SRC.w * k, h: SRC.h * k };
-    // the chart: right of the headline on wide screens, above it on narrow ones, inside the page gutters
+    // the chart takes the horse's place: the right half on wide screens (the headline is top
+    // left, the index bottom left), the horse's slot between them on phones
     var gutter = Math.min(56, Math.max(16, W * 0.04)), side = Math.max(0, (W - 1440) / 2);
-    var L = side + gutter, Rt = W - side - gutter, top = c.getBoundingClientRect().top - s.top;
-    var y0 = Math.max(64 + 32, H * 0.16), y1 = Math.min(H * (W > 860 ? 0.56 : 0.48), top - 64);
-    if (y1 - y0 < 120) y1 = y0 + 120;
-    cbox = W > 860
-      ? { x: Math.round(L + (Rt - L) * 0.44), y: Math.round(y0), w: Math.round((Rt - L) * 0.56), h: Math.round(y1 - y0) }
-      : { x: Math.round(L), y: Math.round(y0), w: Math.round(Rt - L), h: Math.round(y1 - y0) };
+    var L = side + gutter, Rt = W - side - gutter, y0, y1;
+    if (W > 860) {
+      y0 = Math.max(64 + 40, H * 0.2); y1 = Math.min(H * 0.7, H - 150);
+      if (y1 - y0 < 160) y1 = y0 + 160;
+      cbox = { x: Math.round(L + (Rt - L) * 0.52), y: Math.round(y0), w: Math.round((Rt - L) * 0.48), h: Math.round(y1 - y0) };
+    } else {
+      y0 = slot.top - s.top + 8; y1 = slot.bottom - s.top - 28;
+      if (y1 - y0 < 100) y1 = y0 + 100;
+      cbox = { x: Math.round(L), y: Math.round(y0), w: Math.round(Rt - L), h: Math.round(y1 - y0) };
+    }
     if (stamp) { stamp.style.left = cbox.x + "px"; stamp.style.top = (cbox.y + cbox.h + 12) + "px"; }
     chartReady = false;
+  }
+
+  /* ---------- the headline and the index, character by character ---------- */
+  function sampleText(el, group, delay, dur, out, r) {
+    var s = stage.getBoundingClientRect(), cs = getComputedStyle(el), b = el.getBoundingClientRect();
+    var size = parseFloat(cs.fontSize), pad = 4;
+    var w = Math.ceil((b.width + pad * 2) * TS), h = Math.ceil((b.height + pad * 2) * TS);
+    if (w < 2 || h < 2) return;
+    var c = document.createElement("canvas"); c.width = w; c.height = h;
+    var x = c.getContext("2d", { willReadFrequently: true });
+    x.setTransform(TS, 0, 0, TS, (pad - b.left) * TS, (pad - b.top) * TS);
+    x.font = cs.fontWeight + " " + size + "px " + cs.fontFamily;
+    x.fillStyle = "#fff"; x.textBaseline = "alphabetic";
+    var m = x.measureText("Mg"), asc = m.fontBoundingBoxAscent || size * 0.8;
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), range = document.createRange(), node, i, rc;
+    while ((node = walker.nextNode())) {
+      for (i = 0; i < node.textContent.length; i++) {
+        if (!node.textContent[i].trim()) continue;
+        range.setStart(node, i); range.setEnd(node, i + 1);
+        rc = range.getClientRects()[0];
+        if (rc) x.fillText(node.textContent[i], rc.left, rc.top + asc);
+      }
+    }
+    var d = x.getImageData(0, 0, w, h).data, xx, yy, a, px, py;
+    for (yy = 0; yy < h; yy++) for (xx = 0; xx < w; xx++) {
+      a = d[(yy * w + xx) * 4 + 3] / 255;
+      if (a < 0.06) continue;
+      px = b.left - pad + (xx + 0.5) / TS - s.left; py = b.top - pad + (yy + 0.5) / TS - s.top;
+      out.push(px, py, Math.min(1, a * 1.05), group, delay((px - (b.left - s.left)) / Math.max(1, b.width), r), dur, r(), r(), r(), r());
+    }
+  }
+
+  function buildText() {
+    var r = rng(5150), out = [];
+    // the headline first, left to right as it reads; then the index, item by item
+    sampleText(headline, 1, function (u, rr) { return 0.15 + u * 0.9 + rr() * 0.3; }, 1.6, out, r);
+    T_P = 0.15 + 0.9 + 0.3 + 1.6;
+    links.forEach(function (el, k) {
+      sampleText(el, 2, function (u, rr) { return 0.95 + k * 0.09 + u * 0.3 + rr() * 0.2; }, 1.3, out, r);
+    });
+    T_I = 0.95 + Math.max(0, links.length - 1) * 0.09 + 0.3 + 0.2 + 1.3;
+    TN = out.length / 10;
+    // shuffled, so the halo pass (the first third) covers every word
+    var A = new Float32Array(out), tmp = new Float32Array(10), q, j, k2;
+    for (q = TN - 1; q > 0; q--) {
+      j = Math.floor(r() * (q + 1));
+      for (k2 = 0; k2 < 10; k2++) { tmp[k2] = A[q * 10 + k2]; A[q * 10 + k2] = A[j * 10 + k2]; A[j * 10 + k2] = tmp[k2]; }
+    }
+    if (!tBuf) tBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, tBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, A, gl.STATIC_DRAW);
+  }
+
+  // the real text takes over for good; the page no longer needs the forming state
+  function finishText() {
+    textOn = false;
+    hero.classList.add("crisp-h1", "crisp-ix");
+    root.classList.add("hero-formed");
+    root.classList.remove("hero-forming");
   }
 
   /* ---------- the chart, drawn like an engraving and shared out among the particles ---------- */
@@ -299,6 +413,8 @@
     if (m > 0 && !chartReady) buildChart();
     var col = COLOURS[theme()];
     gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.useProgram(prog);
+    attribs([[prog, "aH", sBuf, 4, 48, 0], [prog, "aR", sBuf, 4, 48, 16], [prog, "aR2", sBuf, 4, 48, 32], [prog, "aC", cBuf, 3, 12, 0]]);
     gl.uniform2f(U.res, W, H);
     gl.uniform1f(U.dpr, DPR);
     gl.uniform4f(U.hb, box.cx, box.cy, box.w, box.h);
@@ -316,8 +432,29 @@
     gl.drawArrays(gl.POINTS, 0, Math.floor(N / 3));
     gl.uniform1f(U.sm, 1); gl.uniform1f(U.am, 0.86); gl.uniform1f(U.kk, 2.8);
     gl.drawArrays(gl.POINTS, 0, N);
+    if (textOn) drawText(t, col);
     if (stamp) stamp.style.opacity = smooth(0.7, 1, m).toFixed(3);
     lastP = p;
+  }
+
+  function drawText(t, col) {
+    var cp = t >= T_P, ci = t >= T_I;
+    if (cp !== crispP) { crispP = cp; hero.classList.toggle("crisp-h1", cp); }
+    if (ci !== crispI) { crispI = ci; hero.classList.toggle("crisp-ix", ci); }
+    if (t >= T_I + 0.6) { finishText(); return; }
+    if (!TN) return;
+    gl.useProgram(progT);
+    attribs([[progT, "aP", tBuf, 4, 40, 0], [progT, "aQ", tBuf, 4, 40, 16], [progT, "aS", tBuf, 2, 40, 32]]);
+    gl.uniform2f(UT.res, W, H); gl.uniform1f(UT.dpr, DPR);
+    gl.uniform2f(UT.cc, box.cx, box.cy); gl.uniform1f(UT.R, Math.max(W, H) * 0.62);
+    gl.uniform3f(UT.ptr, ptr.sx, ptr.sy, ptr.s); gl.uniform1f(UT.prad, W > 860 ? 95 : 70);
+    gl.uniform1f(UT.t, t); gl.uniform1f(UT.pitch, 1 / TS);
+    gl.uniform1f(UT.visP, 1 - smooth(T_P, T_P + 0.45, t)); gl.uniform1f(UT.visI, 1 - smooth(T_I, T_I + 0.45, t));
+    gl.uniform3f(UT.tcol, col.text[0], col.text[1], col.text[2]); gl.uniform3f(UT.dcol, col.dust[0], col.dust[1], col.dust[2]);
+    gl.uniform1f(UT.sm, 4.5); gl.uniform1f(UT.am, 0.05); gl.uniform1f(UT.kk, 2.0);
+    gl.drawArrays(gl.POINTS, 0, Math.floor(TN / 3));
+    gl.uniform1f(UT.sm, 1); gl.uniform1f(UT.am, 0.86); gl.uniform1f(UT.kk, 2.8);
+    gl.drawArrays(gl.POINTS, 0, TN);
   }
 
   function loop(now) {
@@ -334,12 +471,32 @@
   function stop() { running = false; }
   function still() { draw((performance.now() - t0) / 1000, progress()); }
 
+  // resolves true once the page's font is ready, false if it takes longer than ms
+  function fontReady(ms) {
+    if (!document.fonts || !document.fonts.load) return Promise.resolve(true);
+    var font = getComputedStyle(headline).fontWeight + " 32px " + getComputedStyle(headline).fontFamily;
+    return Promise.race([
+      document.fonts.load(font).then(function () { return document.fonts.ready; }).then(function () { return true; }, function () { return false; }),
+      new Promise(function (res) { setTimeout(function () { res(false); }, ms); })
+    ]);
+  }
+
   function begin(image) {
     build(image);
-    if (!N) return;
+    if (!N) { giveUp(); return; }
+    // the headline and index form too, unless the page already gave up waiting (HERO_BOOT)
+    var withText = !!(progT && headline && root.classList.contains("hero-forming") && !reduce);
+    if (!withText) giveUp();
     hero.classList.add("is-live");
     measure();
     t0 = performance.now();
+    if (withText) {
+      fontReady(1500).then(function (ok) {
+        if (!ok) { finishText(); return; }
+        buildText(); textOn = true;
+        if (!running) still();
+      });
+    }
     if (reduce) still(); else start();
     // the chart is only needed once the visitor scrolls; build it when the page is quiet
     setTimeout(function () { if (!chartReady) buildChart(); }, (DONE + 1) * 1000);
@@ -359,7 +516,7 @@
     var rt;
     window.addEventListener("resize", function () {
       clearTimeout(rt);
-      rt = setTimeout(function () { measure(); if (!running) still(); }, 120);
+      rt = setTimeout(function () { measure(); if (textOn) buildText(); if (!running) still(); }, 120);
     });
     var onMotion = function (e) { reduce = e.matches; measure(); if (reduce) { stop(); still(); } else start(); };
     if (mq.addEventListener) mq.addEventListener("change", onMotion);
@@ -368,5 +525,6 @@
   var image = new Image();
   image.decoding = "async";
   image.onload = function () { begin(image); };
+  image.onerror = giveUp;
   image.src = canvas.getAttribute("data-src");
 })();
