@@ -5,6 +5,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 
 - `assets/`: stylesheet, script, self-hosted font, brand mark.
 - `tools/build_site.py`: generates every page from one shell. Edit markup here. It also writes `assets/search-index.js` (the header search index, not committed).
+- `tools/check_site.py`: run after the build, at every deploy. It fails the deploy if a close note page came out without a section its note has, or the homepage index lacks a section of the menu, so the live site keeps its last good version.
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
 - `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
 - `tools/company_data.py`: fetches the figures behind the company pages (the calendar's 600: the 200 largest in the S&P 500, the STOXX Europe 600 and the six Asian markets) at deploy time, into `.cache/companies/`.
