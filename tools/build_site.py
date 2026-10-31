@@ -67,9 +67,12 @@ SOCIALS = [
 ]
 
 # Absolute site address, no trailing slash, e.g. "https://andramarkets.com".
-# Social cards need it for og:image and canonical links. Left empty until the
-# site has its own domain, so no account name is baked into the pages.
-SITE_URL = ""
+# Social cards need it for og:image and canonical links: without it LinkedIn,
+# X and WhatsApp show a shared link with no image. Left empty until the site
+# has its own domain, so no account name is baked into the pages. Set it with
+# the repository variable SITE_URL (Settings, Secrets and variables, Actions,
+# Variables); the deploy passes it here.
+SITE_URL = os.environ.get("SITE_URL", "").strip().rstrip("/")
 
 # The profile API (worker/, a Cloudflare Worker) that the company pages call for live
 # prices, fundamentals and news, with no trailing slash. The address is public
