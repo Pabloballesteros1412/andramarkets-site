@@ -26,7 +26,7 @@
   // far pole; each particle drifts slowly round the line of view and floats a little.
   var VS_P = [
     "attribute vec4 a;",
-    "uniform float t, focal, dpr, side, zSplit, power; uniform vec2 res, center, turn; uniform vec3 cam;",
+    "uniform float t, focal, dpr, side, zSplit, power; uniform mediump float ink; uniform vec2 res, center, turn; uniform vec3 cam;",
     "varying float va; varying float vsoft;",
     "vec3 rotY(vec3 p, float a){ float c = cos(a), s = sin(a); return vec3(c*p.x + s*p.z, p.y, -s*p.x + c*p.z); }",
     "vec3 rotX(vec3 p, float a){ float c = cos(a), s = sin(a); return vec3(p.x, c*p.y - s*p.z, s*p.y + c*p.z); }",
@@ -53,10 +53,14 @@
     "  va = lit * (0.35 + 0.65 * fract(r * 3.71)) / (1.0 + near * 7.0) * power;",
     "}"
   ].join("\n");
+  // The light theme inverts the canvas in CSS; there the particles print in full black
+  // (owner, 31 Oct 2026): the dark theme's scene as it is, sizes, blur and motion, reversed:
+  // drawn white and two and a half times as strong, so what glows on black prints in black.
   var FS_P = [
-    "precision mediump float; varying float va; varying float vsoft;",
+    "precision mediump float; varying float va; varying float vsoft; uniform float ink;",
     "void main(){ vec2 d = gl_PointCoord - 0.5; float k = exp(-dot(d, d) * mix(18.0, 5.0, vsoft));",
-    "  gl_FragColor = vec4(vec3(0.86, 0.9, 0.96) * va * k, 0.0); }"
+    "  float v = mix(va, min(1.0, va * 2.5), ink);",
+    "  gl_FragColor = vec4(mix(vec3(0.86, 0.9, 0.96), vec3(1.0), ink) * v * k, 0.0); }"
   ].join("\n");
 
   // The horse: black, so it hides what floats behind it. The light is behind it, a little to
@@ -99,7 +103,7 @@
   function uniforms(p, names) { var u = {}; names.forEach(function (n) { u[n] = gl.getUniformLocation(p, n); }); return u; }
   var PP = program(VS_P, FS_P), PH = program(VS_H, FS_H);
   if (!PP || !PH) return;
-  var UP = uniforms(PP, ["t", "focal", "dpr", "side", "zSplit", "power", "res", "center", "turn", "cam"]);
+  var UP = uniforms(PP, ["t", "focal", "dpr", "side", "zSplit", "power", "res", "center", "turn", "cam", "ink"]);
   var UH = uniforms(PH, ["horse", "res", "box", "dpr", "power", "srcpx"]);
   var aP = gl.getAttribLocation(PP, "a"), aQ = gl.getAttribLocation(PH, "p");
 
@@ -162,6 +166,7 @@
       gl.uniform1f(UP.zSplit, dz - 0.02); gl.uniform1f(UP.power, (0.35 + 0.65 * power) * fade);
       gl.uniform2f(UP.res, W, H); gl.uniform2f(UP.center, cx, cy); gl.uniform2f(UP.turn, turn[0], turn[1]);
       gl.uniform3f(UP.cam, cam[0], cam[1], cam[2]);
+      gl.uniform1f(UP.ink, document.documentElement.getAttribute("data-theme") === "dark" ? 0 : 1);
       gl.drawArrays(gl.POINTS, 0, N);
     }
     particles(1);
@@ -207,6 +212,9 @@
   var rt;
   window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { resize(); if (!running) still(); }, 120); });
   window.addEventListener("scroll", function () { if (!running) still(); }, { passive: true });
+  // a theme change redraws a still scene (reduced motion) in the new ink
+  if (window.MutationObserver) new MutationObserver(function () { if (!running) still(); })
+    .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
   var onMotion = function (e) { reduce = e.matches; if (reduce) { stop(); still(); } else start(); };
   if (mq.addEventListener) mq.addEventListener("change", onMotion);
 })();

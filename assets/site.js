@@ -249,6 +249,40 @@
     });
   });
 
+  // The menu's groups (owner-approved, 31 Oct 2026): above 960px each button opens its
+  // panel under the header, one at a time. A click outside, Escape or a link closes it.
+  var groupBtns = document.querySelectorAll(".nav__btn");
+  function closeGroups(except) {
+    var any = false;
+    groupBtns.forEach(function (b) {
+      var open = b === except;
+      b.setAttribute("aria-expanded", String(open));
+      b.parentNode.classList.toggle("is-open", open);
+      any = any || open;
+    });
+    if (header && !(menuBtnOpen())) header.classList.toggle("is-open", any);
+  }
+  function menuBtnOpen() {
+    var m = document.querySelector(".menu-btn");
+    return m && m.getAttribute("aria-expanded") === "true";
+  }
+  if (groupBtns.length) {
+    groupBtns.forEach(function (b) {
+      b.addEventListener("click", function () {
+        closeGroups(b.getAttribute("aria-expanded") === "true" ? null : b);
+      });
+    });
+    document.addEventListener("click", function (e) {
+      if (!e.target.closest(".nav__btn") && !e.target.closest(".nav__panel")) closeGroups(null);
+      else if (e.target.closest(".nav__panel a")) closeGroups(null);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      var open = document.querySelector('.nav__btn[aria-expanded="true"]');
+      if (open) { closeGroups(null); open.focus(); }
+    });
+  }
+
   // Mobile menu.
   var menuBtn = document.querySelector(".menu-btn");
   var nav = document.getElementById("site-nav");

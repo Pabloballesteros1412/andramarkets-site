@@ -52,7 +52,8 @@ def check_notes():
 
 def nav_links(html, pattern):
     m = re.search(pattern, html, re.S)
-    return re.findall(r'href="(?:\.\./)*([^"]*)"', m.group(1)) if m else []
+    # page links only: the menu's icons are <use href="#i-..."> too
+    return re.findall(r'<a [^>]*href="(?:\.\./)*([^"]*)"', m.group(1)) if m else []
 
 
 def check_home():
