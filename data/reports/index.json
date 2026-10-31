@@ -122,6 +122,27 @@
       ]
     },
     {
+      "slug": "2026-62-tesla-spacex-merger",
+      "date": "2026-10-21",
+      "type": "research",
+      "title": "Tesla and SpaceX: Anatomy of a $3.4 Trillion Merger",
+      "summary": "Elon Musk confirmed that Tesla and SpaceX boards have formed committees to study a combination. No terms exist yet. The two businesses, the valuation gap, the governance hurdles and the likely outcomes.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
+      "slug": "2026-60-russia-sanctions",
+      "date": "2026-10-19",
+      "type": "research",
+      "title": "Russia Sanctions: The Graham Act Waiver and Its Market Consequences",
+      "summary": "President Trump waived the new sanctions and secondary tariffs two days before they took effect; existing sanctions remain. What was suspended, why oil and diesel drive the decision, and what it means for markets.",
+      "tags": [
+        "commodities",
+        "macro"
+      ]
+    },
+    {
       "slug": "2026-59-france",
       "date": "2026-10-19",
       "type": "research",
@@ -273,6 +294,17 @@
       ]
     },
     {
+      "slug": "2026-40-semiconductors-rates",
+      "date": "2026-10-08",
+      "type": "research",
+      "title": "Semiconductors and Rates",
+      "summary": "Chip stocks have almost doubled this year even as bond yields rose a full percentage point. Earnings have outrun rates so far. The state of the market and what further rate increases could mean for it.",
+      "tags": [
+        "equities",
+        "rates"
+      ]
+    },
+    {
       "slug": "2026-39-asml",
       "date": "2026-10-08",
       "type": "research",
@@ -362,6 +394,16 @@
       "tags": [
         "rates",
         "macro"
+      ]
+    },
+    {
+      "slug": "2026-29-spacex",
+      "date": "2026-10-07",
+      "type": "research",
+      "title": "SpaceX",
+      "summary": "The largest IPO in history created a $2 trillion company that is three businesses in one: satellite internet, rocket launches and a loss-making AI compute venture. What investors own and what the price assumes.",
+      "tags": [
+        "equities"
       ]
     },
     {
