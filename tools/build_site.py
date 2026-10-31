@@ -907,7 +907,9 @@ def page(notes, cal):
     <div class="hero__stage">
       <span class="hero__sentinel" aria-hidden="true"></span>
       <div class="hero__art" aria-hidden="true">
-        <img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="low" decoding="async">
+        <img class="horse" data-src="assets/andra-horse.png" alt="" width="1024" height="1024" decoding="async">
+        <script>if(!window.__heroMap)__heroStill()</script>
+        <noscript><img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" decoding="async"></noscript>
       </div>
       <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" aria-hidden="true"></canvas>
       <div class="wrap hero__copy">
@@ -924,8 +926,9 @@ def page(notes, cal):
         scripts=("hero-horse.js",),
         nav=False,
         footer=False,
-        # the particle map is what the hero waits for: fetch it before anything else
-        head=f'\n<link rel="preload" href="assets/horse-particles.png?v={ver("horse-particles.png")}" as="image" fetchpriority="high">',
+        # the particle map is what the hero waits for: fetch it before anything else (the
+        # WebP copy; a browser that cannot decode WebP skips this and HERO_BOOT loads the PNG)
+        head=f'\n<link rel="preload" href="assets/horse-particles.webp?v={ver("horse-particles.webp")}" as="image" type="image/webp" fetchpriority="high">',
     )
 
 
@@ -991,16 +994,27 @@ def hero_index():
 
 def hero_boot():
     """Runs before the hero is parsed. With WebGL it starts the particle map's download at
-    once (assets/hero-horse.js picks it up), and, when motion is allowed, marks the page so
-    the still engraving, the headline and the index start hidden: the particles form them.
-    If the hero has not gone live within 3s (script blocked, slow network), they show."""
-    return ("if(window.WebGLRenderingContext){"
+    once (assets/hero-horse.js picks it up; the WebP copy, else the PNG), and, when motion
+    is allowed, marks the page so the still engraving, the headline and the index start
+    hidden: the particles form them. If the hero has not gone live within 3s (script
+    blocked, slow network), they show.
+
+    The still engraving is only a fallback, so it is fetched only when it may show:
+    __heroStill() gives it its src without WebGL (right after the img), at the 3s mark,
+    and when hero-horse.js cannot run. Where the particles draw the horse, its 433 KB
+    are never downloaded."""
+    png = f"assets/horse-particles.png?v={ver('horse-particles.png')}"
+    webp = f"assets/horse-particles.webp?v={ver('horse-particles.webp')}"
+    return ("window.__heroStill=function(){var i=document.querySelector('.hero__art .horse');"
+            "if(i&&!i.getAttribute('src'))i.src=i.getAttribute('data-src')};"
+            "if(window.WebGLRenderingContext){"
             "var m=new Image();m.fetchPriority='high';m.decoding='async';"
-            f"m.src='assets/horse-particles.png?v={ver('horse-particles.png')}';window.__heroMap=m;"
-            "if(!matchMedia('(prefers-reduced-motion: reduce)').matches){"
-            "var r=document.documentElement;r.classList.add('hero-forming');"
+            f"m.onerror=function(){{m.onerror=null;m.src='{png}'}};"
+            f"m.src='{webp}';window.__heroMap=m;"
+            "var r=document.documentElement;"
+            "if(!matchMedia('(prefers-reduced-motion: reduce)').matches)r.classList.add('hero-forming');"
             "setTimeout(function(){var h=document.querySelector('.hero');"
-            "if(!h||!h.classList.contains('is-live'))r.classList.remove('hero-forming')},3000)}}")
+            "if(!h||!h.classList.contains('is-live')){r.classList.remove('hero-forming');__heroStill()}},3000)}")
 
 
 def site_header(home, base, nav=True):

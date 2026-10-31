@@ -6,7 +6,8 @@ The drawing they settle into is the horse as the light theme shows it today
 .92), the pencil look the owner approved on 31 Oct 2026. The source is upsampled
 1.5x before the filter so the strokes stay crisp at hero size.
 
-    assets/horse-particles.png   R: ink density of each pixel (0 = none)
+    assets/horse-particles.png   (and a lossless .webp copy)
+                                 R: ink density of each pixel (0 = none)
                                  G: 255 on the outline (inked pixels within 11px
                                     of the ground outside the horse), so the
                                     cloud can sketch the silhouette first
@@ -55,6 +56,9 @@ def main():
     edge = ((r > 10) & near).astype(np.uint8) * 255
     out = np.dstack([r, edge, np.zeros_like(r)])
     Image.fromarray(out, "RGB").save(OUT, optimize=True)
+    # The hero loads the lossless WebP copy (same pixels, about a third lighter) and falls
+    # back to the PNG where WebP does not decode.
+    Image.fromarray(out, "RGB").save(OUT.with_suffix(".webp"), lossless=True, quality=100, method=6)
     print(f"{OUT.relative_to(ROOT)}: {out.shape[1]}x{out.shape[0]}, "
           f"{int((r > 10).sum())} particles, {int((edge > 0).sum())} on the outline")
 
