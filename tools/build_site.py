@@ -1052,10 +1052,12 @@ def site_header(home, base, nav=True):
       <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
     </button>""" if nav else ""
     # The homepage (nav=False): no search, and the legal line at the top right, as it has no footer.
+    # The two spans let phones set the disclaimer on two lines in the corner beside the theme button.
     search = """<button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
       <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
     </button>""" if nav else ""
-    legal = "" if nav else (f'<p class="site-header__legal"><a href="{base}legal/">For information only. Not investment advice.</a>'
+    legal = "" if nav else (f'<p class="site-header__legal"><a href="{base}legal/"><span>For information only.</span> '
+                            f'<span>Not investment advice.</span></a>'
                             f'<a href="{base}privacy/">Privacy and cookies</a></p>')
     return f"""<header class="site-header{'' if nav else ' site-header--home'}">
   <div class="wrap">
