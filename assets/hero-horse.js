@@ -56,17 +56,23 @@
   }
   function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
   function smooth(a, b, v) { var t = clamp01((v - a) / (b - a)); return t * t * (3 - 2 * t); }
-  function gauss(r) { var u = 0; while (!u) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * r()); }
   function theme() { return root.getAttribute("data-theme") === "dark" ? "dark" : "light"; }
 
+  // a sine-free hash (Dave Hoskins), stable on mobile GPUs: one random number in [0, 1) per input
+  var HASH = "float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }";
   var VS = [
-    "attribute vec4 aH; attribute vec4 aR; attribute vec4 aR2; attribute vec3 aC;",
-    "uniform vec2 res; uniform vec4 hb; uniform vec3 ptr; uniform vec3 hcol; uniform vec3 dcol;",
+    "attribute vec4 aH; attribute vec3 aC;",
+    "uniform vec2 res; uniform vec4 hb; uniform vec3 ptr; uniform vec3 hcol; uniform vec3 dcol; uniform vec2 dim;",
     "uniform float t, m, dpr, pitch, R, sm, am, prad, sheen;",
     "varying float va; varying vec3 vc;",
     "const float PI = 3.14159265;",
     "float eio(float x){ return x < 0.5 ? 4.0*x*x*x : 1.0 - pow(-2.0*x + 2.0, 3.0) * 0.5; }",
+    HASH,
     "void main(){",
+    // each particle's random numbers, from its own pixel: nothing to build or upload
+    "  vec2 cell = aH.xy * dim;",
+    "  vec4 aR = vec4(hash(cell), hash(cell + 17.31), hash(cell + 41.97), hash(cell + 73.13));",
+    "  vec4 aR2 = vec4(0.0, hash(cell + 101.7), hash(cell + 131.9), hash(cell + 163.3));",
     "  vec2 home = hb.xy + (aH.xy - 0.5) * hb.zw;",
     // outline first, then the shading from the head down
     "  float d = aH.w > 0.5 ? 0.5 + 1.2*aR.w : 1.6 + 1.1*aH.y + 0.6*aR.w;",
@@ -111,22 +117,26 @@
   ].join("\n");
   // the headline and the index: targets in stage pixels, each group with its own timing
   var VS_TEXT = [
-    "attribute vec4 aP; attribute vec4 aQ; attribute vec2 aS;",
+    "attribute vec4 aP; attribute vec2 aQ;",
     "uniform vec2 res; uniform vec2 cc; uniform vec3 ptr; uniform vec3 tcol; uniform vec3 dcol;",
     "uniform float t, dpr, R, sm, am, prad, pitch, visP, visI;",
     "varying float va; varying vec3 vc;",
     "const float PI = 3.14159265;",
     "float eio(float x){ return x < 0.5 ? 4.0*x*x*x : 1.0 - pow(-2.0*x + 2.0, 3.0) * 0.5; }",
+    HASH,
     "void main(){",
+    "  vec2 cell = aP.xy * 1.25 + 7.0;",
+    "  vec4 rq = vec4(hash(cell), hash(cell + 23.7), hash(cell + 57.1), hash(cell + 89.3));",
+    "  vec2 aS = rq.zw;",
     "  float f = clamp((t - aQ.x) / aQ.y, 0.0, 1.0);",
-    "  float an = aQ.z*2.0*PI + t*(0.035 + 0.2*(1.0 - aS.x));",
+    "  float an = rq.x*2.0*PI + t*(0.035 + 0.2*(1.0 - aS.x));",
     "  float rr = (0.015 + 0.985*pow(aS.x, 0.62)) * R;",
     "  vec2 l = vec2(cos(an)*rr, sin(an)*rr*0.5);",
     "  vec2 s = cc + vec2(l.x*0.9287 + l.y*0.3709, -l.x*0.3709 + l.y*0.9287)",
-    "    + vec2(sin(t*0.5 + aS.y*6.283), cos(t*0.6 + aQ.w*6.283)) * 10.0;",
+    "    + vec2(sin(t*0.5 + aS.y*6.283), cos(t*0.6 + rq.y*6.283)) * 10.0;",
     "  float e = eio(f);",
     "  vec2 dd = aP.xy - s;",
-    "  float k = sin(PI*e) * (aQ.w - 0.5) * 0.44;",
+    "  float k = sin(PI*e) * (rq.y - 0.5) * 0.44;",
     "  vec2 pos = s + dd*e + vec2(-dd.y, dd.x)*k;",
     "  float dust = 0.035 + 0.55*pow(aS.y, 4.0);",
     "  float a = mix(dust, aP.z, smoothstep(0.6, 1.0, e));",
@@ -157,7 +167,7 @@
   var prog = program(VS);
   if (!prog) { giveUp(); return; }
   var progT = program(VS_TEXT);
-  var U = uniforms(prog, ["res", "hb", "ptr", "hcol", "dcol", "t", "m", "dpr", "pitch", "R", "sm", "am", "prad", "sheen", "kk"]);
+  var U = uniforms(prog, ["res", "hb", "ptr", "hcol", "dcol", "dim", "t", "m", "dpr", "pitch", "R", "sm", "am", "prad", "sheen", "kk"]);
   var UT = progT ? uniforms(progT, ["res", "cc", "ptr", "tcol", "dcol", "t", "dpr", "R", "sm", "am", "prad", "pitch", "visP", "visI", "kk"]) : null;
   var MAX_ATTRIBS = Math.min(8, gl.getParameter(gl.MAX_VERTEX_ATTRIBS));
   // both programs share the attribute slots: each draw switches them to its own buffers
@@ -193,14 +203,12 @@
     for (var j = idx.length - 1; j > 0; j--) { var k = Math.floor(r() * (j + 1)), tmp = idx[j]; idx[j] = idx[k]; idx[k] = tmp; }
     N = idx.length;
     px = new Uint32Array(idx);
-    var st = new Float32Array(N * 12);
-    r = rng(20261031);
-    for (var q = 0, o = 0; q < N; q++, o += 12) {
+    // position, ink and outline only: the shader makes each particle's random numbers
+    var st = new Float32Array(N * 4);
+    for (var q = 0, o = 0; q < N; q++, o += 4) {
       var p = idx[q], xx = p % PW, yy = (p - xx) / PW;
       st[o] = (xx + 0.5) / PW; st[o + 1] = (yy + 0.5) / PH;
       st[o + 2] = d[p * 4] / 255; st[o + 3] = d[p * 4 + 1] > 127 ? 1 : 0;
-      st[o + 4] = r(); st[o + 5] = r(); st[o + 6] = r(); st[o + 7] = r();
-      st[o + 8] = gauss(r); st[o + 9] = r(); st[o + 10] = r(); st[o + 11] = r();
     }
     sBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, sBuf);
@@ -241,11 +249,13 @@
   }
 
   /* ---------- the headline and the index, character by character ---------- */
-  function sampleText(el, group, delay, dur, out, r) {
+  // Draws el's characters where the page sets them and returns its inked pixels as
+  // [x, y, ink, group, delay, duration] records (six floats each), in stage pixels.
+  function sampleText(el, group, delay, dur, r) {
     var s = stage.getBoundingClientRect(), cs = getComputedStyle(el), b = el.getBoundingClientRect();
     var size = parseFloat(cs.fontSize), pad = 4;
     var w = Math.ceil((b.width + pad * 2) * TS), h = Math.ceil((b.height + pad * 2) * TS);
-    if (w < 2 || h < 2) return;
+    if (w < 2 || h < 2) return new Float32Array(0);
     var c = document.createElement("canvas"); c.width = w; c.height = h;
     var x = c.getContext("2d", { willReadFrequently: true });
     x.setTransform(TS, 0, 0, TS, (pad - b.left) * TS, (pad - b.top) * TS);
@@ -261,30 +271,37 @@
         if (rc) x.fillText(node.textContent[i], rc.left, rc.top + asc);
       }
     }
-    var d = x.getImageData(0, 0, w, h).data, xx, yy, a, px, py;
-    for (yy = 0; yy < h; yy++) for (xx = 0; xx < w; xx++) {
-      a = d[(yy * w + xx) * 4 + 3] / 255;
-      if (a < 0.06) continue;
-      px = b.left - pad + (xx + 0.5) / TS - s.left; py = b.top - pad + (yy + 0.5) / TS - s.top;
-      out.push(px, py, Math.min(1, a * 1.05), group, delay((px - (b.left - s.left)) / Math.max(1, b.width), r), dur, r(), r(), r(), r());
+    var d = x.getImageData(0, 0, w, h).data, n = 0, k;
+    for (k = 3; k < d.length; k += 4) if (d[k] >= 16) n++;
+    var out = new Float32Array(n * 6), o = 0, x0 = b.left - pad - s.left, y0 = b.top - pad - s.top, bw = Math.max(1, b.width), xx, yy, px;
+    for (yy = 0, k = 3; yy < h; yy++) for (xx = 0; xx < w; xx++, k += 4) {
+      if (d[k] < 16) continue;
+      px = x0 + (xx + 0.5) / TS;
+      out[o] = px; out[o + 1] = y0 + (yy + 0.5) / TS; out[o + 2] = Math.min(1, d[k] / 255 * 1.05);
+      out[o + 3] = group; out[o + 4] = delay((px - x0 - pad) / bw, r); out[o + 5] = dur;
+      o += 6;
     }
+    return out;
   }
 
   function buildText() {
-    var r = rng(5150), out = [];
+    var r = rng(5150), parts = [], total = 0;
     // the headline first, left to right as it reads; then the index, item by item
-    sampleText(headline, 1, function (u, rr) { return 0.15 + u * 0.9 + rr() * 0.3; }, 1.6, out, r);
+    parts.push(sampleText(headline, 1, function (u, rr) { return 0.15 + u * 0.9 + rr() * 0.3; }, 1.6, r));
     T_P = 0.15 + 0.9 + 0.3 + 1.6;
     links.forEach(function (el, k) {
-      sampleText(el, 2, function (u, rr) { return 0.95 + k * 0.09 + u * 0.3 + rr() * 0.2; }, 1.3, out, r);
+      parts.push(sampleText(el, 2, function (u, rr) { return 0.95 + k * 0.09 + u * 0.3 + rr() * 0.2; }, 1.3, r));
     });
     T_I = 0.95 + Math.max(0, links.length - 1) * 0.09 + 0.3 + 0.2 + 1.3;
-    TN = out.length / 10;
+    parts.forEach(function (a) { total += a.length; });
+    var A = new Float32Array(total), o = 0;
+    parts.forEach(function (a) { A.set(a, o); o += a.length; });
+    TN = total / 6;
     // shuffled, so the halo pass (the first third) covers every word
-    var A = new Float32Array(out), tmp = new Float32Array(10), q, j, k2;
+    var q, j, k2, tmp;
     for (q = TN - 1; q > 0; q--) {
       j = Math.floor(r() * (q + 1));
-      for (k2 = 0; k2 < 10; k2++) { tmp[k2] = A[q * 10 + k2]; A[q * 10 + k2] = A[j * 10 + k2]; A[j * 10 + k2] = tmp[k2]; }
+      for (k2 = 0; k2 < 6; k2++) { tmp = A[q * 6 + k2]; A[q * 6 + k2] = A[j * 6 + k2]; A[j * 6 + k2] = tmp; }
     }
     if (!tBuf) tBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuf);
@@ -418,7 +435,8 @@
     var col = COLOURS[theme()];
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(prog);
-    attribs([[prog, "aH", sBuf, 4, 48, 0], [prog, "aR", sBuf, 4, 48, 16], [prog, "aR2", sBuf, 4, 48, 32], [prog, "aC", cBuf, 3, 12, 0]]);
+    attribs([[prog, "aH", sBuf, 4, 16, 0], [prog, "aC", cBuf, 3, 12, 0]]);
+    gl.uniform2f(U.dim, PW, PH);
     gl.uniform2f(U.res, W, H);
     gl.uniform1f(U.dpr, DPR);
     gl.uniform4f(U.hb, box.cx, box.cy, box.w, box.h);
@@ -452,7 +470,7 @@
     if (t >= T_I + 0.6) { finishText(); return; }
     if (!TN) return;
     gl.useProgram(progT);
-    attribs([[progT, "aP", tBuf, 4, 40, 0], [progT, "aQ", tBuf, 4, 40, 16], [progT, "aS", tBuf, 2, 40, 32]]);
+    attribs([[progT, "aP", tBuf, 4, 24, 0], [progT, "aQ", tBuf, 2, 24, 16]]);
     gl.uniform2f(UT.res, W, H); gl.uniform1f(UT.dpr, DPR);
     gl.uniform2f(UT.cc, box.cx, box.cy); gl.uniform1f(UT.R, Math.max(W, H) * 0.62);
     gl.uniform3f(UT.ptr, ptr.sx, ptr.sy, ptr.s); gl.uniform1f(UT.prad, W > 860 ? 95 : 70);
@@ -503,8 +521,9 @@
     if (withText) {
       fontReady(1500).then(function (ok) {
         if (!ok) { finishText(); return; }
-        buildText(); textOn = true;
-        if (!running) still();
+        requestAnimationFrame(function () {
+          setTimeout(function () { buildText(); textOn = true; if (!running) still(); }, 0);
+        });
       });
     }
     if (reduce) still(); else start();
@@ -532,9 +551,12 @@
     if (mq.addEventListener) mq.addEventListener("change", onMotion);
   }
 
-  var image = new Image();
-  image.decoding = "async";
-  image.onload = function () { begin(image); };
-  image.onerror = giveUp;
-  image.src = canvas.getAttribute("data-src");
+  var image = window.__heroMap;
+  if (image && image.complete) {
+    if (image.naturalWidth) begin(image); else giveUp();
+  } else {
+    if (!image) { image = new Image(); image.decoding = "async"; image.src = canvas.getAttribute("data-src"); }
+    image.addEventListener("load", function () { begin(image); });
+    image.addEventListener("error", giveUp);
+  }
 })();
