@@ -37,4 +37,4 @@ public, so a report's PDF never goes in here (`*.pdf` is ignored by git).
 
 `## Heading` starts a section, a blank line separates paragraphs, lines
 starting `- ` make a ruled list, `**bold**` is bold. A line starting
-`Source:` is set as a source line. Nothing else is interpreted.
+`Source:` or `Sources:` is set as a source line. Nothing else is interpreted.
