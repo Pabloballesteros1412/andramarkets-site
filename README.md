@@ -26,6 +26,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `assets/profile.js`, `worker/`: the live company data on the Companies pages (search, live price, news, analysts, other US companies) and the Cloudflare Worker it reads from (below).
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
+- `assets/hero-horse.js`, `tools/make_horse_particles.py`: the homepage hero's particle horse and the particle map it is drawn from (`assets/horse-particles.png`, made from `andra-horse.png`).
 - `data/notes/<date>.json`: one record per close note: its text and the ten
   closing levels for the tape. No PDF or facts file is ever stored here.
 - `DESIGN.md`: the design system. Every page follows it.

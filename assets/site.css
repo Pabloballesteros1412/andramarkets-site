@@ -528,12 +528,16 @@ ul {
 
 .hero {
   position: relative;
+  view-timeline-name: --hero;
+}
+
+.hero__stage {
+  position: relative;
   /* 56px short of the viewport so the tape's top edge shows at the fold. */
   min-height: calc(100svh - 56px);
   overflow: hidden;
   display: flex;
   align-items: flex-end;
-  view-timeline-name: --hero;
 }
 
 .hero__sentinel {
@@ -562,7 +566,60 @@ ul {
   opacity: var(--horse-opacity);
 }
 
-.hero::after {
+/* The particle horse (assets/hero-horse.js, owner-approved 31 Oct 2026). It replaces the
+   still engraving once WebGL is running; until then, and without it, the engraving shows.
+   The canvas draws light dots on a clear ground; the light theme inverts it, so the dots
+   print in soft black (0.8 opacity keeps the deepest ink near #333). */
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  pointer-events: none;
+}
+
+.hero.is-live .hero__canvas {
+  display: block;
+}
+
+.hero.is-live .hero__art {
+  visibility: hidden;
+  animation: none;
+}
+
+:root:not([data-theme="dark"]) .hero__canvas {
+  filter: invert(1);
+  opacity: 0.8;
+}
+
+/* Under the chart the horse turns into while the hero scrolls. */
+.hero__stamp {
+  position: absolute;
+  z-index: 1;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Scroll room for the horse to come apart into the chart: the stage holds still while
+   the hero scrolls 130svh, then the tape follows. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero.is-live {
+    height: 230svh;
+  }
+
+  .hero.is-live .hero__stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    min-height: 0;
+  }
+}
+
+.hero__stage::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -570,7 +627,7 @@ ul {
   background: linear-gradient(to top, var(--ground) 0%, transparent 40%);
 }
 
-:root[data-theme="dark"] .hero::after {
+:root[data-theme="dark"] .hero__stage::after {
   background:
     radial-gradient(120% 90% at 63% 45%, transparent 40%, rgba(10, 12, 13, 0.75) 100%),
     linear-gradient(to top, var(--ground) 0%, transparent 38%);
