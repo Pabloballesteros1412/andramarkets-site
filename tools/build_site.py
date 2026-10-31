@@ -619,7 +619,7 @@ DASH_MORE = {
 def dashboard_page(key, cat, name, desc, source, rec):
     slug, default, how, long_source = DASH_PAGES[key]
     cat_label = {k: label for k, label, _ in CATEGORIES}[cat]
-    crumbs = f'<p class="dd__crumbs"><a href="../../#dashboards">Dashboards</a> <span aria-hidden="true">/</span> {cat_label}</p>'
+    crumbs = f'<p class="dd__crumbs"><a href="../">Dashboards</a> <span aria-hidden="true">/</span> {cat_label}</p>'
     # A record cached before the pages carried histories draws as pending until refetched.
     if rec and rec["detail"]["kind"] in ("perf", "matrix", "curve") and not rec["detail"].get("hist"):
         rec = None
@@ -896,37 +896,40 @@ THEME_BOOT = (
 
 
 def page(notes, cal):
-    latest = notes[0] if notes else None
-    strip = load_strip(latest)
-    if strip:
-        tape, tape_title, tape_src = strip
-    elif latest:
-        d = latest["day"]
-        items, any_stale = tape_items(latest)
-        tape = "".join(
-            f'<li class="tape__item"><span class="tape__name">{n}</span>'
-            f'<span class="tape__level">{level}</span><span class="tape__chg {move_class(change)}">{change}</span></li>'
-            for n, level, change in items
-        )
-        tape_title = f'Markets {day_med(d)}, {nyse.close_time(d)} ET'
-        tape_src = "Close and daily change. Sources: Yahoo Finance, FRED for the US 10Y yield."
-        if any_stale:
-            tape_src += " Prior close: no print yet for the session."
-    else:
-        tape = "".join(
-            f'<li class="tape__item"><span class="tape__name">{n}</span>'
-            f'<span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li>'
-            for n, *_ in TAPE
-        )
-        tape_title = f'Markets {ph("[date]")}, {ph("[time]")} ET'
-        tape_src = f'Last and daily change. Source {ph("[data vendor]")}'
-    if latest:
-        # Always the newest published note, whatever the strip shows.
-        tape_note = (f'<a class="tape__note" href="reports/{latest["date"]}/"><span>Latest close note, {day_med(latest["day"])}: '
-                     f'{esc(latest["note"]["headline"])}</span>{icon("arrow-right")}</a>')
-    else:
-        tape_note = (f'<a class="tape__note" href="#note"><span>Latest close note, {ph("[date]")}: '
-                     f'<span class="ph ph--ink">[headline]</span></span>{icon("arrow-right")}</a>')
+    """The homepage: one screen, the headline, the horse and the index of sections
+    (owner, 31 Oct 2026). No header menu and no footer: the index is the way in."""
+    return shell(
+        title="Andra Markets: markets research platform",
+        desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
+        body=f"""<main id="main" class="home">
+  <script>{HERO_BOOT}</script>
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="hero__stage">
+      <span class="hero__sentinel" aria-hidden="true"></span>
+      <div class="hero__art" aria-hidden="true">
+        <img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="high">
+      </div>
+      <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" aria-hidden="true"></canvas>
+      <div class="wrap hero__copy">
+        <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
+        <nav class="hero__index" aria-label="All sections" style="--i:1">
+          <ul>{hero_index()}</ul>
+        </nav>
+        <p class="hero__legal"><a href="legal/">For information only. Not investment advice.</a><a href="privacy/">Privacy and cookies</a></p>
+      </div>
+    </div>
+  </section>
+</main>""",
+        home="",
+        base="",
+        scripts=("hero-horse.js",),
+        nav=False,
+        footer=False,
+    )
+
+
+def dashboards_index():
+    """Every dashboard on one page (they were a homepage section until 31 Oct 2026)."""
     dash_data = load_dash_data()
     filters = f'<button type="button" class="chip" data-filter="all" data-label="All" aria-pressed="true">All <span class="chip__n">{len(DASHBOARDS)}</span></button>' + "".join(
         f'<button type="button" class="chip" data-filter="{key}" data-label="{label}" aria-pressed="false">{short} '
@@ -947,174 +950,35 @@ def page(notes, cal):
             figure = '<div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p>'
             src = f"{cat_label[cat]}. {source}."
         return (f'<li class="dash-tile reveal" data-cat="{cat}" style="--i:{i % 3}">'
-                f'<a href="dashboards/{DASH_PAGES[key][0]}/" class="dash-tile__link">{figure}'
+                f'<a href="{DASH_PAGES[key][0]}/" class="dash-tile__link">{figure}'
                 f'<div class="dash-tile__text">'
                 f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p>'
                 f'<p class="dash-tile__src">{src}</p></div>'
                 f'<span class="dash-tile__go">{icon("arrow-up-right")}</span></a></li>')
 
     tiles = "".join(tile(i, *t) for i, t in enumerate(DASHBOARDS))
-    calendar = calendar_home(cal, dt.datetime.now(dt.timezone.utc)) or '<p class="cl__none reveal">The calendar fills at the next deploy.</p>'
-    if latest:
-        archive = "".join(
-            f'<li><a href="reports/{r["date"]}/"><time datetime="{r["date"]}">{day_med(r["day"])}</time>'
-            f'<span class="note-list__title">{esc(r["note"]["headline"])}</span>{icon("arrow-right")}</a></li>'
-            for r in notes[1:4]
-        )
-        note_latest = f"""<article class="reveal" style="--i:1">
-          <h3 class="note__title">{esc(latest["note"]["headline"])}</h3>
-          <p class="note__summary">{esc(" ".join(latest["note"]["standfirst"].split()))}</p>
-          <p class="note__meta"><time datetime="{latest["date"]}">{day_med(latest["day"])}</time><span>{read_minutes(latest)} min read</span></p>
-          <a class="btn" href="reports/{latest["date"]}/">Read the note {icon("arrow-right")}</a>
-        </article>"""
-        all_notes = "reports/"
-    else:
-        archive = "".join(
-            f'<li><a href="#note"><span class="ph">[date]</span><span class="note-list__title"><span class="ph ph--ink">[Close note headline]</span></span>{icon("arrow-right")}</a></li>'
-            for _ in range(3)
-        )
-        note_latest = f"""<article class="reveal" style="--i:1">
-          <h3 class="note__title"><span class="ph ph--ink">[Headline of the latest close note]</span></h3>
-          <p class="note__summary">{ph("[Two sentences on the session: what moved, and why it mattered.]")}</p>
-          <p class="note__meta">{ph("[date]")}<span>{ph("[n]")} min read</span></p>
-          <a class="btn" href="#note">Read the note {icon("arrow-right")}</a>
-        </article>"""
-        all_notes = "#note"
-    return shell(
-        title="Andra Markets: markets research platform",
-        desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
-        body=f"""<main id="main">
-  <script>{HERO_BOOT}</script>
-  <section class="hero" id="top" aria-labelledby="hero-title">
-    <div class="hero__stage">
-      <span class="hero__sentinel" aria-hidden="true"></span>
-      <div class="hero__art" aria-hidden="true">
-        <img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="high">
-      </div>
-      <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" aria-hidden="true"></canvas>
-      <p class="hero__stamp" aria-hidden="true">Illustrative, not market data</p>
-      <div class="wrap hero__copy">
-        <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
-        <nav class="hero__index" aria-label="All sections" style="--i:1">
-          <ul>{hero_index()}</ul>
-        </nav>
-      </div>
-    </div>
-  </section>
-
-  <section class="tape" aria-labelledby="tape-title">
-    <div class="wrap">
-      <div class="tape__head">
-        <h2 id="tape-title">{tape_title}</h2>
-        {tape_note}
-      </div>
-      <ul class="tape__list" tabindex="0" aria-label="Market levels">{tape}</ul>
-      <p class="tape__src">{tape_src}</p>
-    </div>
-  </section>
-
-  <section class="section dash" id="dashboards" aria-labelledby="dash-title">
-    <div class="wrap">
-      <div class="section-head">
-        <h2 class="section-title reveal" id="dash-title">Dashboards</h2>
-        <p class="lede reveal">Interactive views across rates, equities, macro and cross-asset. Each preview names its source and date.</p>
-      </div>
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Dashboards</h1>
+      <p class="lede">Interactive views across rates, equities, macro and cross-asset. Each preview names its source and date.</p>
+    </header>
+    <section class="dash dash-index" aria-label="All dashboards">
       <div class="filters" role="group" aria-label="Filter dashboards by category">{filters}</div>
       <p class="filters__status" role="status" aria-live="polite">Showing all {len(DASHBOARDS)} dashboards</p>
       <ul class="dash-grid">{tiles}</ul>
-    </div>
-  </section>
-
-{sim_home()}
-  <section class="section lab" id="lab" aria-labelledby="lab-title">
-    <div class="wrap">
-      <div class="section-head">
-        <h2 class="section-title reveal" id="lab-title">Lab</h2>
-        <p class="lede reveal">Interactive quant tools. Change the inputs, watch the result move.</p>
-      </div>
-      <div class="lab-grid">
-        <a class="tool tool--wide reveal" href="lab/options-payoff/">
-          <div class="draw">{c_payoff()}</div>
-          <p class="key"><span><i class="k-solid"></i>Value today</span><span><i class="k-dash"></i>Payoff at expiry</span><span class="key__note">Illustrative</span></p>
-          <div class="tool__text">
-            <h3>Options payoff diagram</h3>
-            <p>Pick a strategy, from a single call to a straddle, and see its profit or loss at expiry and today across prices of the underlying.</p>
-            <p class="tool__params">Ten strategies. Strikes, volatility, days to expiry and rate are yours to set.</p>
-            <p class="tool__src">Black-Scholes model, calculated in your browser</p>
-          </div>
-          <span class="link">Open the diagram {icon("arrow-up-right")}</span>
-        </a>
-        <a class="tool reveal" href="lab/bond-calculator/" style="--i:1">
-          <div class="draw">{c_bond()}</div>
-          <p class="key"><span><i class="k-solid"></i>Price</span><span><i class="k-dash"></i>Duration estimate</span><span class="key__note">Illustrative</span></p>
-          <div class="tool__text">
-            <h3>Bond price and duration</h3>
-            <p>Price a bond from its yield and see how far the price moves when the yield does.</p>
-            <p class="tool__src">Discounted cash flows, calculated in your browser</p>
-          </div>
-          <span class="link">Open the calculator {icon("arrow-up-right")}</span>
-        </a>
-        <div class="tool tool--next reveal" style="--i:2">
-          <h3>Also in the Lab</h3>
-          <p>Eight more tools: risk and correlation across the companies in the earnings calendar, a Black-Scholes pricer with the Greeks, yield to maturity, a two-asset efficient frontier, discounted cash flow, position sizing and value at risk, real return after inflation, and compound growth.</p>
-          <a class="link" href="lab/risk-correlation/">Risk and correlation {icon("arrow-right")}</a>
-          <a class="link" href="lab/black-scholes/">Black-Scholes pricer {icon("arrow-right")}</a>
-          <a class="link" href="lab/">All Lab tools {icon("arrow-right")}</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section calendar" id="calendar" aria-labelledby="cal-title">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title reveal" id="cal-title">Calendar</h2>
-          <p class="lede reveal">This week's high-importance releases, central bank meetings and earnings. Times in New York and Madrid.</p>
-        </div>
-        <a class="link reveal" href="calendar/">Full calendar {icon("arrow-right")}</a>
-      </div>
-      <div class="reveal">{calendar}</div>
-    </div>
-  </section>
-
-  <section class="section note" id="note" aria-labelledby="note-title">
-    <div class="wrap grid">
-      <div class="note__latest">
-        <h2 class="section-title reveal" id="note-title">Daily close note</h2>
-        {note_latest}
-      </div>
-      <div class="note__archive reveal" style="--i:2">
-        <p class="note__label">Every US trading day, after the close.</p>
-        <ol class="note-list">{archive}</ol>
-        <a class="link" href="{all_notes}">All notes {icon("arrow-right")}</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section about" id="about" aria-labelledby="about-title">
-    <div class="wrap grid">
-      <h2 class="visually-hidden" id="about-title">About Andra Markets</h2>
-      <p class="about__statement reveal">Andra Markets reads the data every trading day and keeps the dashboards, tools, calendar and notes current. Built for professionals, written so anyone can learn from it.</p>
-      <dl class="reveal" style="--i:1">
-        <div><dt>Covers</dt><dd>US and global markets: rates, equities, macro, FX and commodities</dd></div>
-        <div><dt>Publishes</dt><dd>A close note every US trading day</dd></div>
-        <div><dt>Data</dt><dd class="ph">[data sources]</dd></div>
-      </dl>
-    </div>
-  </section>
-</main>""",
-        home="",
-        base="",
-        scripts=("hero-horse.js",),
-    )
-
+    </section>
+  </div>
+</main>"""
+    return shell(title="Dashboards: Andra Markets",
+                 desc="Interactive views across rates, equities, macro and cross-asset, each with its source and date.",
+                 body=body, home="../", base="../", path="dashboards/")
 
 # The homepage index: every section, in the header's order and with its links.
 SECTIONS = (
-    ("Dashboards", "#dashboards"), ("Fed &amp; Rates", "fed-rates/"), ("Companies", "companies/"),
+    ("Dashboards", "dashboards/"), ("Fed &amp; Rates", "fed-rates/"), ("Companies", "companies/"),
     ("Lab", "lab/"), ("Simulators", "simulators/"), ("Calendar", "calendar/"), ("World", "world/"),
-    ("FX", "fx/"), ("Research", "research/"), ("Daily note", "#note"),
+    ("FX", "fx/"), ("Research", "research/"), ("Daily note", "reports/"),
     ("Interview prep", "interview-prep/"), ("Break into Wall Street", "break-into-wall-street/"),
 )
 
@@ -1132,15 +996,9 @@ HERO_BOOT = ("if(window.WebGLRenderingContext&&!matchMedia('(prefers-reduced-mot
              "if(!h||!h.classList.contains('is-live'))r.classList.remove('hero-forming')},3000)}")
 
 
-def site_header(home, base):
-    return f"""<header class="site-header">
-  <div class="wrap">
-    <a class="brand" href="{home or '#top'}" aria-label="Andra Markets, home">
-      <span class="brand__mark"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></span>
-      <span class="brand__name">Andra Markets</span>
-    </a>
-    <nav class="nav" id="site-nav" aria-label="Primary">
-      <a href="{home}#dashboards">Dashboards</a>
+def site_header(home, base, nav=True):
+    menu = f"""<nav class="nav" id="site-nav" aria-label="Primary">
+      <a href="{base}dashboards/">Dashboards</a>
       <a href="{base}fed-rates/">Fed &amp; Rates</a>
       <a href="{base}companies/">Companies</a>
       <a href="{base}lab/">Lab</a>
@@ -1149,10 +1007,20 @@ def site_header(home, base):
       <a href="{base}world/">World</a>
       <a href="{base}fx/">FX</a>
       <a href="{base}research/">Research</a>
-      <a href="{home}#note">Daily note</a>
+      <a href="{base}reports/">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
       <a href="{base}break-into-wall-street/">Break into Wall Street</a>
-    </nav>
+    </nav>""" if nav else ""
+    menu_btn = """<button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
+      <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
+    </button>""" if nav else ""
+    return f"""<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="{home or '#top'}" aria-label="Andra Markets, home">
+      <span class="brand__mark"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></span>
+      <span class="brand__name">Andra Markets</span>
+    </a>
+    {menu}
     <button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
       <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
     </button>
@@ -1160,9 +1028,7 @@ def site_header(home, base):
       <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
       <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
     </button>
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
-      <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
-    </button>
+    {menu_btn}
   </div>
 </header>"""
 
@@ -1182,7 +1048,7 @@ def site_footer(home, base):
       <p>Research on US and global markets.</p>
     </div>
     <nav class="foot__nav" aria-label="Footer">
-      <a href="{home}#dashboards">Dashboards</a>
+      <a href="{base}dashboards/">Dashboards</a>
       <a href="{base}fed-rates/">Fed &amp; Rates</a>
       <a href="{base}companies/">Companies</a>
       <a href="{base}lab/">Lab</a>
@@ -1191,11 +1057,9 @@ def site_footer(home, base):
       <a href="{base}world/">World markets</a>
       <a href="{base}fx/">FX</a>
       <a href="{base}research/">Research Library</a>
-      <a href="{base}reports/">All notes</a>
-      <a href="{home}#note">Daily note</a>
+      <a href="{base}reports/">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
       <a href="{base}break-into-wall-street/">Break into Wall Street</a>
-      <a href="{home}#about">About</a>
       <a href="{base}methodology/">Methodology</a>
       <a href="{base}sources/">Data sources</a>
       <a href="{base}legal/">Legal notice</a>
@@ -1218,7 +1082,7 @@ def ver(name):
     return hashlib.sha1((ROOT / "assets" / name).read_bytes()).hexdigest()[:10]
 
 
-def shell(title, desc, body, home, base, path="", scripts=()):
+def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=True):
     url = f"{SITE_URL}/{path}" if SITE_URL else ""
     og_image = f"{SITE_URL}/assets/og-image.png" if SITE_URL else f"{base}assets/og-image.png"
     canonical = f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n' if url else ""
@@ -1250,11 +1114,11 @@ def shell(title, desc, body, home, base, path="", scripts=()):
 {sprite()}
 <a class="skip" href="#main">Skip to content</a>
 
-{site_header(home, base)}
+{site_header(home, base, nav)}
 
 {body}
 
-{site_footer(home, base)}
+{site_footer(home, base) if footer else ""}
 
 <script src="{base}assets/site.js?v={ver("site.js")}" defer></script>{"".join(f'<script src="{base}assets/{js}?v={ver(js)}" defer></script>' for js in scripts)}
 </body>
@@ -5288,7 +5152,7 @@ def fin_ticker(t):
 
 
 SEARCH_PAGES = [
-    ("Dashboards", "#dashboards", "Home"),
+    ("Dashboards", "dashboards/", "Page"),
     ("Fed & Rates", "fed-rates/", "Page"),
     ("Break into Wall Street", "break-into-wall-street/", "Page"),
     ("Recruiting calendar", "break-into-wall-street/recruiting-calendar/", "Break into Wall Street"),
@@ -5302,10 +5166,8 @@ SEARCH_PAGES = [
     ("Economic calendar", "calendar/", "Page"),
     ("World markets", "world/", "Page"),
     ("FX", "fx/", "Page"),
-    ("Daily close note", "#note", "Home"),
-    ("About", "#about", "Home"),
     ("Research Library", "research/", "Page"),
-    ("All close notes", "reports/", "Archive"),
+    ("Daily close notes", "reports/", "Archive"),
     ("Markets Interview Prep", "interview-prep/", "Page"),
     ("Methodology", "methodology/", "Page"),
     ("Data sources", "sources/", "Page"),
@@ -5350,6 +5212,8 @@ def main():
     companies = load_companies()
     (OUT / "assets" / "search-index.js").write_text(search_index(notes, companies, load_library()), encoding="utf-8")
     (OUT / "index.html").write_text(page(notes, cal))
+    (OUT / "dashboards").mkdir(exist_ok=True)
+    (OUT / "dashboards" / "index.html").write_text(dashboards_index())
     (OUT / "watch").mkdir(exist_ok=True)
     (OUT / "watch" / "index.html").write_text(watch_redirect())
     (OUT / "fed-rates").mkdir(exist_ok=True)
