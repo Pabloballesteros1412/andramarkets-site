@@ -120,9 +120,8 @@ PRIVACY = [
     ("collect", "What we collect",
      "<p>Very little. The site has no accounts, no analytics, no advertising and no tracking pixels, and "
      "Andra Markets sets no cookies.</p>"
-     "<p>The email signup form does not send or store your address yet: the newsletter has not launched. "
-     "When it does, this policy will name the newsletter platform and explain how your address is used "
-     "before any address is collected.</p>"),
+     "<p>The site does not collect email addresses. If a newsletter launches, this policy will name the "
+     "newsletter platform and explain how your address is used before any address is collected.</p>"),
 
     ("storage", "Cookies and storage on your device",
      "<p>When you switch between the light and dark theme, your choice is kept in your browser's local "

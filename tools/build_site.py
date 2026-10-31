@@ -991,10 +991,6 @@ def page(notes, cal):
     </div>
     <div class="wrap hero__copy">
       <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
-      <div class="hero__actions" style="--i:1">
-        <a class="btn" href="#dashboards">Explore dashboards {icon("arrow-right")}</a>
-        <a class="btn btn--ghost" href="#subscribe">Subscribe</a>
-      </div>
     </div>
   </section>
 
@@ -1099,24 +1095,6 @@ def page(notes, cal):
       </dl>
     </div>
   </section>
-
-  <section class="section signup" id="subscribe" aria-labelledby="subscribe-title">
-    <div class="signup__art" aria-hidden="true"><img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" loading="lazy"></div>
-    <div class="wrap grid">
-      <h2 class="section-title reveal" id="subscribe-title">The market, in your inbox.</h2>
-      <form class="reveal" style="--i:1" novalidate>
-        <div class="field">
-          <label for="email">Email address</label>
-          <div class="field__row">
-            <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" aria-describedby="email-help email-status">
-            <button class="btn" type="submit">Subscribe</button>
-          </div>
-          <p class="field__help" id="email-help">The daily close note and new tools. Unsubscribe in one click.</p>
-          <p class="field__status" id="email-status" role="status" aria-live="polite"><span class="field__icon">{icon("warning-circle")}</span><span class="field__msg"></span></p>
-        </div>
-      </form>
-    </div>
-  </section>
 </main>""",
         home="",
         base="",
@@ -1143,7 +1121,6 @@ def site_header(home, base):
       <a href="{home}#note">Daily note</a>
       <a href="{base}interview-prep/">Interview prep</a>
       <a href="{base}break-into-wall-street/">Break into Wall Street</a>
-      <a class="nav__subscribe" href="{home}#subscribe">Subscribe</a>
     </nav>
     <button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
       <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
@@ -1152,7 +1129,6 @@ def site_header(home, base):
       <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
       <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
     </button>
-    <a class="btn btn--sm" href="{home}#subscribe">Subscribe</a>
     <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
       <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
     </button>
@@ -2814,7 +2790,6 @@ def report(rec, newer, older, cal):
         pager += f'<a class="link" href="../../{session}">The calendar for this session {icon("arrow-right")}</a>'
     pager += f'<a class="link" href="../">All notes {icon("arrow-right")}</a>'
     pager += f'<a class="link" href="../../research/">Research Library {icon("arrow-right")}</a>'
-    pager += f'<a class="link" href="../../#subscribe">Get the note by email {icon("arrow-right")}</a>'
     standfirst = " ".join(n.get("standfirst", "").split())
     body = f"""<main id="main" class="page report">
   <div class="wrap">
@@ -4110,8 +4085,6 @@ def company_page(t, data, cal):
             <li>Three scenarios with their assumptions</li>
             <li>What to watch at the next results</li>
           </ul>
-          <button class="btn" type="button" data-soon="Subscriptions open soon. Get the free close note by email in the meantime, from the home page.">Subscribe for the memo</button>
-          <p class="co-gate__status" role="status" aria-live="polite"></p>
         </div>
       </section>
       <section aria-labelledby="co-ahead-t">
@@ -5202,8 +5175,7 @@ def live_page(companies):
             '<li><span>Segment by segment, with the model&rsquo;s workings</span></li>'
             '<li><span>Three scenarios and their assumptions</span></li>'
             '<li><span>What to watch at the next results</span></li></ul>'
-            '<button class="btn" type="button" data-soon="Subscriptions open soon. Get the free close note by email in the meantime, from the home page.">Subscribe for the memo</button>'
-            '<p class="co-gate__status" role="status" aria-live="polite"></p></div></section>')
+            '</div></section>')
     kpis = "".join(f'<li class="kpi__item"><span class="kpi__name">{n}</span><span class="kpi__level" id="pf-k-{k}">&nbsp;</span>'
                    f'<span class="kpi__chg" id="pf-k-{k}-n">&nbsp;</span></li>'
                    for k, n in (("mcap", "Market value"), ("pe", "P/E, last 12 months"), ("ev", "EV / EBITDA"), ("ps", "Price to sales"),
@@ -5300,7 +5272,6 @@ SEARCH_PAGES = [
     ("World markets", "world/", "Page"),
     ("FX", "fx/", "Page"),
     ("Daily close note", "#note", "Home"),
-    ("Subscribe", "#subscribe", "Home"),
     ("About", "#about", "Home"),
     ("Research Library", "research/", "Page"),
     ("All close notes", "reports/", "Archive"),
