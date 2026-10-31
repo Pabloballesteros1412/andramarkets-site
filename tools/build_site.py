@@ -976,7 +976,8 @@ def dashboards_index():
                  body=body, home="../", base="../", path="dashboards/")
 
 # The homepage index: every section, in the header's order and with its links.
-SECTIONS = (
+# Not SECTIONS: that name is the close note's sections, read by report().
+HOME_INDEX = (
     ("Dashboards", "dashboards/"), ("Fed &amp; Rates", "fed-rates/"), ("Companies", "companies/"),
     ("Lab", "lab/"), ("Simulators", "simulators/"), ("Calendar", "calendar/"), ("World", "world/"),
     ("FX", "fx/"), ("Research", "research/"), ("Daily note", "reports/"),
@@ -985,7 +986,7 @@ SECTIONS = (
 
 
 def hero_index():
-    return "".join(f'<li><a href="{href}">{name}</a></li>' for name, href in SECTIONS)
+    return "".join(f'<li><a href="{href}">{name}</a></li>' for name, href in HOME_INDEX)
 
 
 def hero_boot():
