@@ -2,7 +2,9 @@
    growth, Black-Scholes pricer, yield to maturity, two-asset frontier,
    discounted cash flow, position sizing and value at risk, real return, and
    risk and correlation. Everything is calculated in the browser from the
-   inputs on the page: nothing is sent or stored. The risk tool loads the daily
+   inputs on the page: nothing is sent or stored. The inputs that differ from
+   the defaults are kept in the URL fragment, which the browser never sends, so
+   a link shares a setup. The risk tool loads the daily
    returns baked into assets/lab-risk-<market>.js at deploy time. Charts are drawn at the
    plot's own pixel width, with a readout that follows the pointer or the arrow
    keys (as on the dashboard pages). Tokens and rules: DESIGN.md. */
@@ -753,6 +755,7 @@
       find.value = "";
       close();
       risk();
+      share();
     }
     find.addEventListener("input", function () { active = -1; render(); });
     find.addEventListener("keydown", function (e) {
@@ -780,6 +783,7 @@
       R.picked = R.picked.filter(function (x) { return x !== sym; });
       delete R.weights[sym];
       risk();
+      share();
       find.focus();
     });
     page.querySelector(".lt-picked").addEventListener("input", function (e) {
@@ -787,6 +791,7 @@
       if (!inp) return;
       R.weights[inp.getAttribute("data-weight")] = parseFloat(inp.value);
       riskCalc();
+      share();
     });
   }
   function esc(t) {
@@ -1024,6 +1029,96 @@
     hover.show(index >= 0 && index < cells.length ? index : 0);
   }
 
+  /* Shareable link ------------------------------------------------------------ */
+
+  // The inputs that differ from the page's defaults live in the URL fragment
+  // (#yld=5&freq=1), which the browser never sends to the server: a link
+  // carries a setup and the page still sends and stores nothing. A number
+  // input's key is its id without the tool's prefix, a chip group's is the
+  // group; the risk tool adds its companies in order (co) and, with custom
+  // weights, each one's weight in the same order (w). Read back, a value out of
+  // range, unknown or malformed is ignored and the default stays.
+  var NUMBER = /^-?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i;
+  var saving = null;
+  function keyOf(id) { return id.slice(id.indexOf("-") + 1); }
+  // The number written in s if it is one within [lo, hi], else null.
+  function within(s, lo, hi) {
+    var v = NUMBER.test(s) ? parseFloat(s) : NaN;
+    return isFinite(v) && !(v < lo) && !(v > hi) ? v : null;
+  }
+  function save() {
+    var pairs = [];
+    page.querySelectorAll(".lt-chips").forEach(function (g) {
+      var on = g.querySelector('.chip[aria-pressed="true"]');
+      if (on && !on.hasAttribute("data-default")) pairs.push([g.getAttribute("data-group"), on.getAttribute("data-value")]);
+    });
+    page.querySelectorAll(".lt-field input").forEach(function (input) {
+      var v = within(input.value, parseFloat(input.min), parseFloat(input.max));
+      if (v != null && v !== parseFloat(input.defaultValue)) pairs.push([keyOf(input.id), String(v)]);
+    });
+    if (R) {
+      if (R.picked.join(",") !== R.defaults.join(",")) pairs.push(["co", R.picked.join(",")]);
+      var w = pressed("weights") !== "custom" ? "" : R.picked.map(function (s) {
+        var x = R.weights[s];
+        return isFinite(x) && x >= 0 && x <= 100 ? String(x) : "";
+      }).join(",").replace(/,+$/, "");
+      if (w) pairs.push(["w", w]);
+    }
+    var frag = pairs.map(function (p) {
+      return encodeURIComponent(p[0]) + "=" + encodeURIComponent(p[1]).replace(/%2C/g, ",");
+    }).join("&");
+    if ((frag ? "#" + frag : "") === location.hash) return;
+    try {
+      history.replaceState(null, "", location.pathname + location.search + (frag ? "#" + frag : ""));
+    } catch (e) {
+      // a browser that rate-limits history updates refuses this one; the next change writes the fragment
+    }
+  }
+  // After each change, held briefly so a burst of keystrokes makes one history update.
+  function share() {
+    clearTimeout(saving);
+    saving = setTimeout(save, 150);
+  }
+  function restore() {
+    var got = Object.create(null);
+    location.hash.slice(1).split("&").forEach(function (pair) {
+      var i = pair.indexOf("=");
+      if (i < 1) return;
+      try {
+        got[decodeURIComponent(pair.slice(0, i))] = decodeURIComponent(pair.slice(i + 1));
+      } catch (e) {
+        // a malformed escape: ignored
+      }
+    });
+    page.querySelectorAll(".lt-chips").forEach(function (g) {
+      var want = got[g.getAttribute("data-group")], chips = g.querySelectorAll(".chip");
+      var hit = Array.prototype.filter.call(chips, function (c) { return c.getAttribute("data-value") === want; })[0];
+      if (!hit) return;
+      chips.forEach(function (c) { c.setAttribute("aria-pressed", c === hit ? "true" : "false"); });
+    });
+    page.querySelectorAll(".lt-field input").forEach(function (input) {
+      var k = keyOf(input.id), v = k in got ? within(got[k], parseFloat(input.min), parseFloat(input.max)) : null;
+      if (v != null) input.value = String(v);
+    });
+    if (tool !== "risk") return;
+    if (!R) riskSetup();
+    if (!R) return;
+    // A company not in the tool's list (it holds only those with returns) is dropped, as are repeats and any past the tenth.
+    var syms = "co" in got ? got.co.split(",") : R.defaults, ws = "w" in got ? got.w.split(",") : [];
+    var picked = [], weights = {};
+    syms.forEach(function (s, i) {
+      if (!Object.prototype.hasOwnProperty.call(R.by, s) || picked.indexOf(s) >= 0 || picked.length >= 10) return;
+      picked.push(s);
+      var x = i < ws.length ? within(ws[i], 0, 100) : null;
+      if (x != null) weights[s] = x;
+    });
+    // An empty pick ("co=") is kept as it was shared; a list of only unknown companies is ignored.
+    if (picked.length || !got.co) {
+      R.picked = picked;
+      R.weights = weights;
+    }
+  }
+
   var run = { bond: bond, options: options, growth: growth, bs: pricer, ytm: ytm, frontier: frontier, dcf: dcf,
     "var": sizing, real: real, risk: risk }[tool];
   page.querySelectorAll(".lt-chips .chip").forEach(function (chip) {
@@ -1032,31 +1127,51 @@
         c.setAttribute("aria-pressed", c === chip ? "true" : "false");
       });
       run();
+      share();
     });
   });
   page.querySelectorAll(".lt-field input").forEach(function (input) {
-    input.addEventListener("input", run);
+    input.addEventListener("input", function () {
+      run();
+      share();
+    });
   });
+  // Every input back to its default: the reset button, and a fragment opened in this tab.
+  function clear() {
+    page.querySelectorAll(".lt-field input").forEach(function (input) {
+      input.value = input.defaultValue;
+    });
+    page.querySelectorAll(".lt-chips").forEach(function (g) {
+      g.querySelectorAll(".chip").forEach(function (c) {
+        c.setAttribute("aria-pressed", c.hasAttribute("data-default") ? "true" : "false");
+      });
+    });
+    if (R) {
+      R.picked = R.defaults.slice();
+      R.weights = {};
+    }
+  }
   // The risk tool redraws only its chart on resize; its inputs live outside .lt-field.
   var reset = page.querySelector(".lt-reset");
   if (reset) {
     reset.addEventListener("click", function () {
-      page.querySelectorAll(".lt-field input").forEach(function (input) {
-        input.value = input.defaultValue;
-      });
-      page.querySelectorAll(".lt-chips").forEach(function (g) {
-        g.querySelectorAll(".chip").forEach(function (c) {
-          c.setAttribute("aria-pressed", c.hasAttribute("data-default") ? "true" : "false");
-        });
-      });
-      if (R) {
-        R.picked = R.defaults.slice();
-        R.weights = {};
-      }
+      clear();
       run();
+      share();
     });
   }
+  // A link to another setup opened in this tab changes only the fragment, and the
+  // page does not reload. A fragment with no value in it is an in-page link (the
+  // skip link's #main) and leaves the inputs as they are.
+  window.addEventListener("hashchange", function () {
+    if (location.hash.length > 1 && location.hash.indexOf("=") < 0) return;
+    clearTimeout(saving);
+    clear();
+    restore();
+    run();
+  });
   page.querySelector(".lt-tool").hidden = false;
+  restore();
   run();
   var last = plot.clientWidth;
   window.addEventListener("resize", function () {

@@ -21,7 +21,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one PDF per report in `pdf/`, published as it is at `research/pdf/`. `tools/import_report.py` copies a report's PDF and adds its line; see `data/reports/README.md`.
 - `data/interview_prep.json`: Markets Interview Prep (`interview-prep/`): the weekly block (`week`, rewritten each week) and the question bank.
 - `tools/legal_content.py`: the legal notice (`legal/`) and the privacy and cookies policy (`privacy/`).
-- `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser.
+- `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser. The inputs that differ from a tool's defaults are kept in the URL fragment (`#yld=5&freq=1`), never sent to the server, so a link shares a setup.
 - `tools/lab_data.py`: fetches the daily closes behind the Lab's risk and correlation tool at deploy time (below).
 - `assets/sim.js`, `assets/fed-game.js`, `assets/portfolio-game.js`, `tools/sim_data.py`, `tools/sim_content.py`: the four Simulators (`simulators/`), their history fetched at deploy time and the historical episodes they reveal (below).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
