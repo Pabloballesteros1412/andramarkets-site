@@ -101,6 +101,16 @@
       ]
     },
     {
+      "slug": "2026-67-big-tech-q3",
+      "date": "2026-10-29",
+      "type": "research",
+      "title": "Big Tech’s AI Bill Comes Due",
+      "summary": "Alphabet, Microsoft and Meta all grew revenue by about a fifth or more in the September quarter, but the market only paid where operating cash covered the spending. The three quarters compared.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
       "slug": "2026-56-anthropic",
       "date": "2026-10-13",
       "type": "research",
@@ -108,6 +118,17 @@
       "summary": "Annualised revenue has risen from about $1bn to more than $65bn in nineteen months and the company is preparing to list. What the latest data show and what an IPO valuation would assume.",
       "tags": [
         "equities"
+      ]
+    },
+    {
+      "slug": "2026-51-earnings-quality",
+      "date": "2026-10-12",
+      "type": "research",
+      "title": "Capital Expenditure, Depreciation and the Quality of US Earnings",
+      "summary": "AI chips are expensed over five or six years while the chipmaker books the profit at once. How much that timing gap and other AI-era accounting flatter S&P 500 earnings, and when the bill arrives.",
+      "tags": [
+        "equities",
+        "credit"
       ]
     },
     {
@@ -143,6 +164,16 @@
       ]
     },
     {
+      "slug": "2026-37-broadcom",
+      "date": "2026-10-08",
+      "type": "research",
+      "title": "Broadcom",
+      "summary": "The designer of custom AI chips for the largest AI developers says its AI revenue will double next year and again the year after. The shares are still a quarter below their high on fears of competition.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
       "slug": "2026-32-amazon",
       "date": "2026-10-08",
       "type": "research",
@@ -153,11 +184,31 @@
       ]
     },
     {
+      "slug": "2026-31-constellation-brands",
+      "date": "2026-10-08",
+      "type": "research",
+      "title": "Constellation Brands",
+      "summary": "Second-quarter results beat expectations, but the beat came from refilling distributor warehouses rather than from more people buying Modelo and Corona. What the numbers say about demand.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
       "slug": "2026-27-alphabet",
       "date": "2026-10-05",
       "type": "research",
       "title": "Alphabet",
       "summary": "Search still grows, Google Cloud is up 82% and the antitrust cases ended without a break-up. The price is $200 billion of capex a year and the first negative cash flow quarter in two decades.",
+      "tags": [
+        "equities"
+      ]
+    },
+    {
+      "slug": "2026-26-coca-cola",
+      "date": "2026-10-05",
+      "type": "research",
+      "title": "Coca-Cola",
+      "summary": "One of its best years in a decade, under a new chief executive and with volumes growing again. The business model, the shift from price to volume, the $20 billion tax dispute and the valuation.",
       "tags": [
         "equities"
       ]
