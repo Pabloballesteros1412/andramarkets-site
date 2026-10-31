@@ -133,6 +133,18 @@
       ]
     },
     {
+      "slug": "2026-63-uk-inflation-gilts",
+      "date": "2026-10-21",
+      "type": "research",
+      "title": "The United Kingdom: Inflation, Gilts and the Budget",
+      "summary": "September inflation rose to 3.5%, borrowing ran above forecast and net debt passed £3 trillion in the week before the Budget. Inflation, jobs, the Bank of England, gilts, public finances and the scenarios.",
+      "tags": [
+        "macro",
+        "rates",
+        "fx"
+      ]
+    },
+    {
       "slug": "2026-62-tesla-spacex-merger",
       "date": "2026-10-21",
       "type": "research",
@@ -140,6 +152,18 @@
       "summary": "Elon Musk confirmed that Tesla and SpaceX boards have formed committees to study a combination. No terms exist yet. The two businesses, the valuation gap, the governance hurdles and the likely outcomes.",
       "tags": [
         "equities"
+      ]
+    },
+    {
+      "slug": "2026-61-us-deficit",
+      "date": "2026-10-20",
+      "type": "research",
+      "title": "The US Deficit: $2 Trillion and the Price of Borrowing",
+      "summary": "Interest now costs more than defence and the 10-year yields above 5%. The deficit, the cost of interest, the debt, Treasury supply and demand, ratings and the policy options.",
+      "tags": [
+        "rates",
+        "macro",
+        "credit"
       ]
     },
     {
