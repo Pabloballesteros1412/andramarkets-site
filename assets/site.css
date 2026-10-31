@@ -501,12 +501,13 @@ body.has-scene {
   }
 }
 
-/* Phones: in the header row's right corner beside the theme button (owner, 31 Oct 2026),
-   stacked on three right-aligned lines: the disclaimer on two, then Privacy and cookies.
-   The 4px gap keeps the two links' 24px targets apart. Measured in Chromium: at 0.75rem
-   "Not investment advice." is 127px wide, so it fits from 370px; 352px to 369px use
-   0.6875rem and 4px header gaps. */
-@media (min-width: 352px) and (max-width: 600px) {
+/* Phones: in the header row's right corner beside the theme button (owner, 31 Oct 2026), on
+   two right-aligned lines: "Not investment advice." then Privacy and cookies. "For information
+   only." is left out here (owner, 31 Oct 2026): with it the disclaimer only fits one line at
+   about 7px. 15px lines, 2px apart (the approved mock). Measured in
+   Chromium: at 0.6875rem "Not investment advice." is 117px wide, which fits beside the theme
+   button from 370px, and from 360px with 4px header gaps. */
+@media (min-width: 360px) and (max-width: 600px) {
   .site-header--home .brand {
     margin-right: 0;
   }
@@ -514,29 +515,25 @@ body.has-scene {
   .site-header__legal {
     flex-direction: column;
     align-items: flex-end;
-    gap: 4px;
-    font-size: 0.75rem;
-    line-height: 16px;
+    gap: 2px;
+    font-size: 0.6875rem;
+    line-height: 15px;
     text-align: right;
   }
 
-  .site-header__legal span {
-    display: block;
+  .site-header__legal a > span:first-child {
+    display: none;
   }
 }
 
-@media (min-width: 352px) and (max-width: 369px) {
+@media (min-width: 360px) and (max-width: 369px) {
   .site-header.site-header--home .wrap {
     gap: 4px;
   }
-
-  .site-header__legal {
-    font-size: 0.6875rem;
-  }
 }
 
-/* Very narrow phones (below 352px): no room in the row, so it sits just under it, still top right. */
-@media (max-width: 351px) {
+/* Very narrow phones (below 360px): no room in the row, so it sits just under it, still top right. */
+@media (max-width: 359px) {
   .site-header__legal {
     position: absolute;
     top: 100%;

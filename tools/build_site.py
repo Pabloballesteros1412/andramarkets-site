@@ -1052,7 +1052,7 @@ def site_header(home, base, nav=True):
       <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
     </button>""" if nav else ""
     # The homepage (nav=False): no search, and the legal line at the top right, as it has no footer.
-    # The two spans let phones set the disclaimer on two lines in the corner beside the theme button.
+    # Phones leave out the first span: the disclaimer then fits beside the theme button (site.css).
     search = """<button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
       <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
     </button>""" if nav else ""
