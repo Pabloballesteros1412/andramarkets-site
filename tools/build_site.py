@@ -985,12 +985,16 @@ def page(notes, cal):
         desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
         body=f"""<main id="main">
   <section class="hero" id="top" aria-labelledby="hero-title">
-    <span class="hero__sentinel" aria-hidden="true"></span>
-    <div class="hero__art" aria-hidden="true">
-      <img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="high">
-    </div>
-    <div class="wrap hero__copy">
-      <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
+    <div class="hero__stage">
+      <span class="hero__sentinel" aria-hidden="true"></span>
+      <div class="hero__art" aria-hidden="true">
+        <img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="high">
+      </div>
+      <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" aria-hidden="true"></canvas>
+      <p class="hero__stamp" aria-hidden="true">Illustrative, not market data</p>
+      <div class="wrap hero__copy">
+        <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
+      </div>
     </div>
   </section>
 
@@ -1098,6 +1102,7 @@ def page(notes, cal):
 </main>""",
         home="",
         base="",
+        scripts=("hero-horse.js",),
     )
 
 
