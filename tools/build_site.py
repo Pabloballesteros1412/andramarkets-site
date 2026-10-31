@@ -1126,10 +1126,16 @@ def ver(name):
     return hashlib.sha1((ROOT / "assets" / name).read_bytes()).hexdigest()[:10]
 
 
-def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=True, head=""):
+def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=True, head="", scene=None):
     url = f"{SITE_URL}/{path}" if SITE_URL else ""
     og_image = f"{SITE_URL}/assets/og-image.png" if SITE_URL else f"{base}assets/og-image.png"
     canonical = f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n' if url else ""
+    # Every section page sits inside the black sphere with the backlit horse (assets/section-scene.js,
+    # owner-approved 31 Oct 2026); the homepage has its own hero, redirects need nothing.
+    scene = nav if scene is None else scene
+    scripts = (*scripts, "section-scene.js") if scene else scripts
+    scene_html = (f'<div class="scene" aria-hidden="true"><canvas class="scene__canvas" '
+                  f'data-src="{base}assets/section-horse.png?v={ver("section-horse.png")}"></canvas></div>\n') if scene else ""
     return f"""<!doctype html>
 <html lang="en" data-theme="light">
 <head>
@@ -1155,8 +1161,8 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 <link rel="stylesheet" href="{base}assets/site.css?v={ver("site.css")}">{head}
 {SPECULATION}
 </head>
-<body data-base="{base}">
-{sprite()}
+<body data-base="{base}"{' class="has-scene"' if scene else ""}>
+{scene_html}{sprite()}
 <a class="skip" href="#main">Skip to content</a>
 
 {site_header(home, base, nav)}
@@ -1177,7 +1183,7 @@ def watch_redirect():
             f'<p class="lede">Videos are no longer on this site. Go to the <a class="link" href="../">home page</a>.</p></header></div></main>'
             f'<script>location.replace("../");</script>')
     return shell(title="Andra Markets", desc="Videos are no longer on this site.",
-                 body=body, home="../", base="../", path="watch/")
+                 body=body, home="../", base="../", path="watch/", scene=False)
 
 
 # Lab tools: (slug, data-tool, title, description, how it works, assumptions).
@@ -4549,7 +4555,7 @@ def moved_redirect(path, to, title, text):
             f'<script>location.replace("{up}{to}");</script>')
     name = title[0].upper() + title[1:]
     return shell(title=f"{name}: Andra Markets" if name != "Andra Markets" else name, desc=f"{text} {title}.",
-                 body=body, home=up, base=up, path=path)
+                 body=body, home=up, base=up, path=path, scene=False)
 
 
 # Old addresses: path -> (where it went, its title, what the page says).
@@ -5187,7 +5193,7 @@ def profile_redirect():
             f'<p class="lede">The company profile is now part of <a class="link" href="../companies/">Companies</a>.</p></header></div></main>'
             f'<script>{js}</script>')
     return shell(title="Companies: Andra Markets", desc="The company profile is now part of Companies.",
-                 body=body, home="../", base="../", path="profile/")
+                 body=body, home="../", base="../", path="profile/", scene=False)
 
 
 def fin_ticker(t):

@@ -315,6 +315,64 @@ ul {
     border-color 240ms ease;
 }
 
+/* Section pages: the black sphere and the backlit horse behind everything (assets/section-scene.js,
+   owner-approved 31 Oct 2026). Fixed behind the page, under the header too. Dark: pure black.
+   Light: the same scene inverted, white with dark particles. */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+
+.scene.is-live {
+  opacity: 1;
+}
+
+.scene__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+:root:not([data-theme="dark"]) .scene__canvas {
+  filter: invert(1);
+}
+
+/* the body's own ground would cover the scene; the page's ground stays on html */
+body.has-scene {
+  background: transparent;
+}
+
+:root[data-theme="dark"]:has(body.has-scene) {
+  --ground: #000000;
+}
+
+/* the header stays clear over the scene; once the page scrolls, a shade behind the menu keeps
+   it readable over the content, and the scene still shows through it */
+.has-scene .site-header.is-solid:not(.is-open) {
+  background: transparent;
+  border-bottom-color: transparent;
+}
+
+.has-scene .site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -28px;
+  z-index: -1;
+  background: var(--ground);
+  background: linear-gradient(var(--ground) 0%, color-mix(in srgb, var(--ground) 86%, transparent) 62%, transparent);
+  opacity: 0;
+  transition: opacity 240ms ease;
+  pointer-events: none;
+}
+
+.has-scene .site-header.is-solid::before {
+  opacity: 1;
+}
+
 .site-header.is-solid,
 .site-header.is-open {
   background: var(--ground);
