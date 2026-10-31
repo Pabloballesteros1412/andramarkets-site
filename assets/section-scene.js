@@ -26,7 +26,7 @@
   // far pole; each particle drifts slowly round the line of view and floats a little.
   var VS_P = [
     "attribute vec4 a;",
-    "uniform float t, focal, dpr, side, zSplit, power; uniform vec2 res, center, turn; uniform vec3 cam;",
+    "uniform float t, focal, dpr, side, zSplit, power; uniform mediump float ink; uniform vec2 res, center, turn; uniform vec3 cam;",
     "varying float va; varying float vsoft;",
     "vec3 rotY(vec3 p, float a){ float c = cos(a), s = sin(a); return vec3(c*p.x + s*p.z, p.y, -s*p.x + c*p.z); }",
     "vec3 rotX(vec3 p, float a){ float c = cos(a), s = sin(a); return vec3(p.x, c*p.y - s*p.z, s*p.y + c*p.z); }",
@@ -48,18 +48,20 @@
     // near ones big and soft (out of focus), far ones small and sharp
     "  float near = 1.0 - smoothstep(0.15, 0.7, q.z);",
     "  float size = (1.1 + 1.6 * fract(r * 7.13)) * (0.9 / q.z) * (1.0 + near * 5.0);",
+    // the light theme: every particle a small sharp dot, like the homepage's (owner, 31 Oct 2026)
+    "  size = mix(size, 1.0 + 1.2 * fract(r * 7.13), ink);",
     "  gl_PointSize = clamp(size * dpr, 1.0, 26.0 * dpr);",
-    "  vsoft = near;",
-    "  va = lit * (0.35 + 0.65 * fract(r * 3.71)) / (1.0 + near * 7.0) * power;",
+    "  vsoft = near * (1.0 - ink);",
+    "  va = lit * (0.35 + 0.65 * fract(r * 3.71)) / (1.0 + near * 7.0 * (1.0 - ink)) * power;",
     "}"
   ].join("\n");
   // The light theme inverts the canvas in CSS; there the particles print in full black
-  // (owner, 31 Oct 2026): drawn white and three times as strong, so they invert to black;
-  // the near, out-of-focus ones a little sharper and stronger, so none reads as a grey smudge.
+  // (owner, 31 Oct 2026): drawn in full white, so they invert to pure black, and all small
+  // and sharp (the vertex shader drops the near ones' size and blur).
   var FS_P = [
     "precision mediump float; varying float va; varying float vsoft; uniform float ink;",
-    "void main(){ vec2 d = gl_PointCoord - 0.5; float k = exp(-dot(d, d) * mix(18.0, mix(5.0, 14.0, ink), vsoft));",
-    "  float v = mix(va, min(1.0, va * 3.0 * (1.0 + 4.0 * vsoft)), ink);",
+    "void main(){ vec2 d = gl_PointCoord - 0.5; float k = exp(-dot(d, d) * mix(18.0, 5.0, vsoft));",
+    "  float v = mix(va, 1.0, ink);",
     "  gl_FragColor = vec4(mix(vec3(0.86, 0.9, 0.96), vec3(1.0), ink) * v * k, 0.0); }"
   ].join("\n");
 
