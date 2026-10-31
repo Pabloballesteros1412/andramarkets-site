@@ -405,7 +405,7 @@ No uppercase, no letter-spaced labels, no italics are used.
 
 ## Layout
 
-**The homepage is one screen** (owner, 31 Oct 2026). It holds the hero only: the headline, the horse and the index of sections, which is the homepage's only way into the site. Nothing follows it, so it does not scroll at any size; the header there has no nav and no menu button (brand, search and theme only) and there is no footer, so a legal line sits in the hero's corner. The homepage modules recorded below (the tape, the dashboards section, Simulators, the Lab plate, the calendar section, the daily note module and About) are no longer on it: the dashboards grid is its own page, `dashboards/`, and "Daily note" opens the newest close note. Inner pages keep the header nav and the footer.
+**The homepage is one screen** (owner, 31 Oct 2026). It holds the hero only: the headline, the horse and the index of sections, which is the homepage's only way into the site. Nothing follows it, so it does not scroll at any size; the header there has no nav and no menu button (brand, search and theme only) and there is no footer, so a legal line sits in the hero's corner. The homepage modules recorded below (the tape, the dashboards section, Simulators, the Lab plate, the calendar section, the daily note module and About) are no longer on it: the dashboards grid is its own page, `dashboards/`, and "Daily note" opens the archive of every close note, newest first (`reports/`). Inner pages keep the header nav and the footer.
 
 **Container.** `.wrap`: full width, max `1440px`, centred, side padding `--gutter` = `clamp(16px, 4vw, 56px)`. Full-bleed sections (hero, tape, Lab plate, signup) paint edge to edge and put a `.wrap` inside.
 
@@ -613,7 +613,7 @@ One component, `.cl__table`, on three surfaces: the calendar page (`calendar/`),
 - **Close notes:** from the calendar's first week on, each note's pager carries "The calendar for this session", linking to `calendar/week/<monday>/#d-<date>`.
 
 ### Daily note module
-Not on the homepage since 31 Oct 2026. "Daily note" in the nav, the footer, the search and the homepage index opens the newest close note (`reports/<date>/`), or the archive while there is none.
+Not on the homepage since 31 Oct 2026. "Daily note" in the nav, the footer and the homepage index opens the note archive (`reports/`: every close note, newest first, grouped by month); the footer's "All notes" link went, as it led to the same page, and the search lists the archive as "Daily close notes".
 - **Latest (columns 1 to 6):** section title, then an article: note title (note-title style, 28px above), summary (max 46ch), meta row (date and read time, 0.875rem ink-2, 20px gap), and a primary "Read the note" button.
 - **Archive (columns 8 to 12, bottom-aligned):** a label line ("Every US trading day, after the close.", 0.875rem ink-2) over a `--rule-strong` rule, then a ruled list of rows `7rem | title | 20px arrow`, 18px vertical padding. Hover underlines the title and nudges the arrow 4px. Mobile stacks date above title. An "All notes" link follows.
 - **Real notes:** the latest note fills the article (headline in ink, standfirst as summary, read time from the word count at 230 words a minute) and the archive lists the three before it. Dates are `<time>` in ink-2 with tabular figures ("9 Oct 2026"; 0.8125rem on mobile). Until a note is published the placeholders stay.
