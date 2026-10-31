@@ -130,6 +130,11 @@
       },
       { threshold: 0 }
     ).observe(hero);
+  } else if (header && document.body.classList.contains("has-scene")) {
+    // section pages: the header stays clear over the scene until the page scrolls
+    var shade = function () { header.classList.toggle("is-solid", window.scrollY > 8); };
+    window.addEventListener("scroll", shade, { passive: true });
+    shade();
   } else if (header) {
     header.classList.add("is-solid");
   }
