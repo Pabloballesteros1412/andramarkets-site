@@ -111,6 +111,18 @@
       ]
     },
     {
+      "slug": "2026-59-france",
+      "date": "2026-10-19",
+      "type": "research",
+      "title": "What Happened to You, France? Public Finances, Bond Markets and Politics in 2026",
+      "summary": "Record debt, a deficit twice the euro-area average and three governments lost since 2024. France now borrows above Italy. The fiscal trajectory, the bond market, ratings and the politics behind them.",
+      "tags": [
+        "macro",
+        "rates",
+        "credit"
+      ]
+    },
+    {
       "slug": "2026-56-anthropic",
       "date": "2026-10-13",
       "type": "research",
@@ -140,6 +152,27 @@
       "tags": [
         "credit",
         "equities",
+        "rates"
+      ]
+    },
+    {
+      "slug": "2026-45-audusd",
+      "date": "2026-10-09",
+      "type": "research",
+      "title": "AUD/USD: A Quantitative Review",
+      "summary": "The Australian dollar is still up for the year, helped by the most hawkish central bank in the G10, but it has lost almost 4% in a month. The trend break, record-low volatility and the role of risk appetite.",
+      "tags": [
+        "fx"
+      ]
+    },
+    {
+      "slug": "2026-43-gbpusd",
+      "date": "2026-10-09",
+      "type": "research",
+      "title": "GBP/USD: A Quantitative Review",
+      "summary": "Sterling has slipped to a three-month low while gilt yields hit their highest since 2007. How the pound trades, what drives it and what the numbers imply before the 28 October Budget.",
+      "tags": [
+        "fx",
         "rates"
       ]
     },
@@ -191,6 +224,17 @@
       "summary": "Second-quarter results beat expectations, but the beat came from refilling distributor warehouses rather than from more people buying Modelo and Corona. What the numbers say about demand.",
       "tags": [
         "equities"
+      ]
+    },
+    {
+      "slug": "2026-30-fomc-minutes-september",
+      "date": "2026-10-07",
+      "type": "research",
+      "title": "FOMC Minutes: September Meeting",
+      "summary": "The Fed raised rates unanimously in September, but the minutes show a committee that agreed on the move far more than on the reasons. Most officials expect one more increase by year end.",
+      "tags": [
+        "rates",
+        "macro"
       ]
     },
     {
