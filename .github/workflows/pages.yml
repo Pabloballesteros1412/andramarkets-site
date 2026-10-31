@@ -258,6 +258,8 @@ jobs:
           cp -r research interview-prep sources legal privacy _site/
           cp -r fed-rates careers break-into-wall-street _site/
           cp -r profile _site/
+          # Search engines and feed readers: written only when SITE_URL is set.
+          for f in sitemap.xml robots.txt feed.xml; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
           rm -rf _site/assets/icons
       # The site is free: no PDF or data file may ever be published, except
       # the Research Library's reports, which are published as their PDFs.

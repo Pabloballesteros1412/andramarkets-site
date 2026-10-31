@@ -939,6 +939,8 @@ def page(notes, cal):
         scripts=("hero-horse.js",),
         nav=False,
         footer=False,
+        ld={"@context": "https://schema.org", "@graph": [
+            ld_org(), dict({"@type": "WebSite", "name": "Andra Markets"}, **({"url": abs_url()} if SITE_URL else {}))]},
         # the particle map is what the hero waits for: fetch it before anything else (the
         # WebP copy; a browser that cannot decode WebP skips this and HERO_BOOT loads the PNG).
         # HERO_BOOT runs in the head, so the header, which forms from the particles too, is
@@ -1113,7 +1115,7 @@ def site_footer(home, base):
 {social_links}
     </ul>
     <div class="foot__legal">
-      <span>&copy; {ph("[year]")} Andra Markets</span>
+      <span>&copy; {dt.datetime.now(dt.timezone.utc).year} Andra Markets</span>
       <span><a href="{base}legal/">For information only. Not investment advice.</a></span>
     </div>
   </div>
@@ -1126,10 +1128,57 @@ def ver(name):
     return hashlib.sha1((ROOT / "assets" / name).read_bytes()).hexdigest()[:10]
 
 
-def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=True, head="", scene=None):
-    url = f"{SITE_URL}/{path}" if SITE_URL else ""
+# Search engines and feed readers ----------------------------------------------
+#
+# Every page built through shell() with index=True is listed here (path -> its
+# last-modified date, or None), and written to sitemap.xml at the end of the
+# build. Redirects pass index=False: they carry noindex and stay out of it.
+# The sitemap, robots.txt and feed.xml need absolute addresses, so they are
+# written only when SITE_URL is set (a robots.txt also only counts at the root
+# of a domain, which the site has once it has its own).
+SITEMAP = {}
+LOGO = "assets/andra-horse.png"  # the brand mark (CLAUDE.md rule 3), for structured data
+
+
+def abs_url(path=""):
+    return f"{SITE_URL}/{path}" if SITE_URL else ""
+
+
+def ld_json(data):
+    """Structured data (schema.org JSON-LD) as a script tag that no text can break out of."""
+    raw = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+    raw = raw.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
+    return f'\n<script type="application/ld+json">{raw}</script>'
+
+
+def ld_org():
+    org = {"@type": "Organization", "name": "Andra Markets",
+           "sameAs": [u for _, u, _ in SOCIALS if u]}
+    if SITE_URL:
+        org.update(url=abs_url(), logo=abs_url(LOGO))
+    return org
+
+
+def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=True, head="", scene=None,
+          index=True, ld=None, published=None):
+    """One page. index=False (redirects) keeps it out of search engines and the sitemap;
+    ld is the page's schema.org structured data; published (ISO) marks an article."""
+    url = abs_url(path)
     og_image = f"{SITE_URL}/assets/og-image.png" if SITE_URL else f"{base}assets/og-image.png"
     canonical = f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n' if url else ""
+    if index:
+        m = re.fullmatch(r"(?:reports|fx)/(\d{4}-\d{2}-\d{2})/", path)
+        SITEMAP[path] = m.group(1) if m else None
+    else:
+        canonical = '<meta name="robots" content="noindex">\n' + canonical
+    og_type = "article" if published else "website"
+    if published:
+        canonical += f'<meta property="article:published_time" content="{published}">\n'
+    # after the page's own head (the homepage's preload and boot script must stay first)
+    if SITE_URL:
+        head += f'\n<link rel="alternate" type="application/rss+xml" title="Andra Markets" href="{abs_url("feed.xml")}">'
+    if ld:
+        head += ld_json(ld)
     # Every section page sits inside the black sphere with the backlit horse (assets/section-scene.js,
     # owner-approved 31 Oct 2026); the homepage has its own hero, redirects need nothing.
     scene = nav if scene is None else scene
@@ -1148,7 +1197,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 <link rel="icon" href="{base}assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="{base}assets/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="apple-touch-icon" href="{base}assets/apple-touch-icon.png">
-{canonical}<meta property="og:type" content="website">
+{canonical}<meta property="og:type" content="{og_type}">
 <meta property="og:site_name" content="Andra Markets">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
@@ -1183,7 +1232,7 @@ def watch_redirect():
             f'<p class="lede">Videos are no longer on this site. Go to the <a class="link" href="../">home page</a>.</p></header></div></main>'
             f'<script>location.replace("../");</script>')
     return shell(title="Andra Markets", desc="Videos are no longer on this site.",
-                 body=body, home="../", base="../", path="watch/", scene=False)
+                 body=body, home="../", base="../", path="watch/", scene=False, index=False)
 
 
 # Lab tools: (slug, data-tool, title, description, how it works, assumptions).
@@ -2760,7 +2809,25 @@ def report(rec, newer, older, cal):
         home="../../",
         base="../../",
         path=f"reports/{rec['date']}/",
+        published=note_published(rec),
+        ld=ld_article(n["headline"], standfirst or f"The Andra Markets close note for {day_long(d)}.",
+                      note_published(rec), f"reports/{rec['date']}/"),
     )
+
+
+def note_published(rec):
+    """When a note went out: its agent run's time (UTC), else its session date."""
+    t = (rec.get("source") or {}).get("created_at") or ""
+    return t if re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", t) else rec["date"]
+
+
+def ld_article(headline, desc, published, path):
+    art = {"@context": "https://schema.org", "@type": "Article", "headline": headline,
+           "description": desc, "datePublished": published, "dateModified": published,
+           "inLanguage": "en", "author": ld_org(), "publisher": ld_org()}
+    if SITE_URL:
+        art.update(mainEntityOfPage=abs_url(path), url=abs_url(path), image=abs_url("assets/og-image.png"))
+    return art
 
 
 # FX -----------------------------------------------------------------------------
@@ -4555,7 +4622,7 @@ def moved_redirect(path, to, title, text):
             f'<script>location.replace("{up}{to}");</script>')
     name = title[0].upper() + title[1:]
     return shell(title=f"{name}: Andra Markets" if name != "Andra Markets" else name, desc=f"{text} {title}.",
-                 body=body, home=up, base=up, path=path, scene=False)
+                 body=body, home=up, base=up, path=path, scene=False, index=False)
 
 
 # Old addresses: path -> (where it went, its title, what the page says).
@@ -5193,7 +5260,7 @@ def profile_redirect():
             f'<p class="lede">The company profile is now part of <a class="link" href="../companies/">Companies</a>.</p></header></div></main>'
             f'<script>{js}</script>')
     return shell(title="Companies: Andra Markets", desc="The company profile is now part of Companies.",
-                 body=body, home="../", base="../", path="profile/", scene=False)
+                 body=body, home="../", base="../", path="profile/", scene=False, index=False)
 
 
 def fin_ticker(t):
@@ -5253,6 +5320,72 @@ def search_index(notes, companies=None, library=()):
         items.append({"g": "Pages", "t": title, "m": meta, "u": url, "k": SEARCH_PAGE_TERMS.get(url, "")})
     payload = json.dumps(items, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     return "// Generated by tools/build_site.py. Do not edit.\nwindow.ANDRA_SEARCH=" + payload + ";\n"
+
+
+FEED_ITEMS = 40  # newest close notes and research reports in feed.xml
+DISCOVERY = ("sitemap.xml", "robots.txt", "feed.xml")
+
+
+def xesc(text):
+    return html.escape(str(text), quote=False)
+
+
+def rfc822(iso):
+    """An ISO date or UTC time as RSS wants it. A date alone is taken at noon UTC."""
+    t = (dt.datetime.strptime(iso, "%Y-%m-%dT%H:%M:%SZ") if "T" in iso
+         else dt.datetime.combine(dt.date.fromisoformat(iso), dt.time(12)))
+    return t.replace(tzinfo=dt.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
+
+
+def sitemap_xml():
+    paths = sorted(SITEMAP, key=lambda p: (p != "", p))  # the homepage first
+    rows = "".join(
+        f"<url><loc>{xesc(abs_url(p))}</loc>" + (f"<lastmod>{SITEMAP[p]}</lastmod>" if SITEMAP[p] else "") + "</url>\n"
+        for p in paths)
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{rows}</urlset>\n')
+
+
+def feed_xml(notes, library):
+    """RSS 2.0: the close notes (link to the note page) and the Research Library's
+    reports (link to the PDF, as the library does), newest first."""
+    items = []
+    for r in notes:
+        n = r["note"]
+        link = abs_url(f"reports/{r['date']}/")
+        items.append((note_published(r), f"<item><title>{xesc(n['headline'])}</title><link>{xesc(link)}</link>"
+                      f'<guid isPermaLink="true">{xesc(link)}</guid><pubDate>{rfc822(note_published(r))}</pubDate>'
+                      f"<category>Close note</category><description>{xesc(n.get('standfirst') or '')}</description></item>"))
+    for r in library:
+        link = abs_url(f"research/pdf/{r['slug']}.pdf")
+        cats = "".join(f"<category>{xesc(t.title())}</category>" for t in r.get("tags") or [])
+        items.append((r["date"], f"<item><title>{xesc(r['title'])}</title><link>{xesc(link)}</link>"
+                      f'<guid isPermaLink="true">{xesc(link)}</guid><pubDate>{rfc822(r["date"])}</pubDate>'
+                      f"<category>Research</category>{cats}<description>{xesc(r.get('summary') or '')}</description></item>"))
+    # newest first; a bare date counts as noon UTC, as in pubDate
+    items.sort(key=lambda i: i[0] if "T" in i[0] else i[0] + "T12:00:00Z", reverse=True)
+    items = items[:FEED_ITEMS]
+    built = f"<lastBuildDate>{rfc822(items[0][0])}</lastBuildDate>" if items else ""
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>\n'
+            f"<title>Andra Markets</title><link>{xesc(abs_url())}</link>"
+            f'<atom:link href="{xesc(abs_url("feed.xml"))}" rel="self" type="application/rss+xml"/>'
+            "<description>The Andra Markets daily US close note and research reports.</description>"
+            f"<language>en</language>{built}\n" + "\n".join(i[1] for i in items) + "\n</channel></rss>\n")
+
+
+def write_discovery(notes, library):
+    """sitemap.xml, robots.txt and feed.xml at the site root, only with SITE_URL (they need
+    absolute addresses). Without it any stale copy is removed, so none is ever published."""
+    if not SITE_URL:
+        for name in DISCOVERY:
+            (OUT / name).unlink(missing_ok=True)
+        print("SITE_URL not set: no sitemap.xml, robots.txt or feed.xml")
+        return
+    (OUT / "sitemap.xml").write_text(sitemap_xml(), encoding="utf-8")
+    (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {abs_url('sitemap.xml')}\n", encoding="utf-8")
+    (OUT / "feed.xml").write_text(feed_xml(notes, library), encoding="utf-8")
+    print(f"wrote sitemap.xml ({len(SITEMAP)} pages), robots.txt and feed.xml")
 
 
 def main():
@@ -5361,6 +5494,7 @@ def main():
             if logo:
                 shutil.copyfile(logo, folder / f"logo{logo.suffix}")
         print(f"wrote {len(companies['order'])} company pages")
+    write_discovery(notes, library)
     print(f"wrote index.html, methodology/index.html, reports/index.html, {len(DASHBOARDS)} dashboard pages, "
           f"{len(notes)} report page(s) and the calendar with {len(weeks)} week page(s)")
 

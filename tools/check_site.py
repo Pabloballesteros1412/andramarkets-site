@@ -8,12 +8,16 @@ the last good deploy stays up and GitHub emails the owner about the failed run.
 Checks:
 - every published close note has its page, and every section the note has
   text for (takeaways, desk view, what we watch, equities, ...) is on it;
-- the homepage index lists every section of the inner pages' menu.
+- the homepage index lists every section of the inner pages' menu;
+- with SITE_URL set: sitemap.xml lists the homepage and every published close
+  note and no redirect, robots.txt points to it, feed.xml is valid RSS with
+  the newest note; with SITE_URL unset, none of the three exists.
 
     python3 tools/check_site.py
 """
 import re
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -68,9 +72,44 @@ def check_home():
     return [f"index.html: the section index lacks {', '.join(missing)}"] if missing else []
 
 
+def check_discovery():
+    """The sitemap, robots.txt and feed: complete with SITE_URL, absent without it."""
+    files = {name: ROOT / name for name in site.DISCOVERY}
+    if not site.SITE_URL:
+        return [f"{name}: written without SITE_URL" for name, f in files.items() if f.exists()]
+    missing = [name for name, f in files.items() if not f.exists()]
+    if missing:
+        return [f"{name}: missing" for name in missing]
+    problems = []
+    try:
+        ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        locs = {e.text for e in ET.parse(files["sitemap.xml"]).getroot().findall("s:url/s:loc", ns)}
+        feed = ET.parse(files["feed.xml"]).getroot()
+    except ET.ParseError as e:
+        return [f"sitemap.xml or feed.xml: not valid XML ({e})"]
+    notes = site.load_notes()
+    wanted = [site.abs_url()] + [site.abs_url(f"reports/{r['date']}/") for r in notes]
+    problems += [f"sitemap.xml: lacks {u}" for u in wanted if u not in locs]
+    for loc in locs:
+        page = ROOT / loc[len(site.SITE_URL) + 1:] / "index.html"
+        if not page.exists():
+            problems.append(f"sitemap.xml: {loc} has no page")
+        elif 'name="robots" content="noindex"' in page.read_text(encoding="utf-8"):
+            problems.append(f"sitemap.xml: {loc} is a redirect")
+    if site.abs_url("sitemap.xml") not in files["robots.txt"].read_text(encoding="utf-8"):
+        problems.append("robots.txt: does not point to the sitemap")
+    links = [e.text for e in feed.findall("channel/item/link")]
+    if not links:
+        problems.append("feed.xml: no items")
+    elif notes and site.abs_url(f"reports/{notes[0]['date']}/") not in links:
+        problems.append("feed.xml: lacks the newest close note")
+    return problems
+
+
 def main():
     n, problems, warnings = check_notes()
     problems += check_home()
+    problems += check_discovery()
     for w in warnings[:20]:
         print(f"::warning::{w}")
     if problems:
@@ -79,7 +118,8 @@ def main():
         if len(problems) > 40:
             print(f"::error::... and {len(problems) - 40} more")
         sys.exit(1)
-    print(f"site check passed: {n} close note pages, homepage index")
+    print(f"site check passed: {n} close note pages, homepage index"
+          + (", sitemap, robots.txt and feed" if site.SITE_URL else ""))
 
 
 if __name__ == "__main__":

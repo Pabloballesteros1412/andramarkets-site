@@ -466,7 +466,7 @@ an excerpt of any page that failed to parse.
 ## Placeholders still to fill
 
 Everything in square brackets on the site is a placeholder, never invented
-data: the copyright year. The legal notice and privacy policy give the brand
+data (none is left: the copyright year is the build's year). The legal notice and privacy policy give the brand
 contact, andramarkets@gmail.com (`tools/legal_content.py`), and no personal data: before
 the site earns anything, the company (SL) that will run it replaces this with
 its name, CIF and registered address (LSSI art. 10).
@@ -483,6 +483,36 @@ are illustrative shapes until real data is wired in, and say so. The signup form
 placeholder until the free newsletter launches on a newsletter platform
 (Substack, Beehiiv or Ghost); it will then link there. See PRODUCT.md,
 Business Model.
+
+## Search engines, link previews and the feed
+
+Link previews (LinkedIn, X, WhatsApp), canonical links, the sitemap, robots.txt
+and the RSS feed all need the site's absolute address, so they turn on only
+when the repository variable `SITE_URL` is set (**Settings → Secrets and
+variables → Actions → Variables**, e.g. `https://andramarkets.com`, no
+trailing slash). It is left empty until the site has its own domain, so the
+GitHub account name is never written into the pages. Once it is set, every
+deploy also writes, at the site root:
+
+- `sitemap.xml`: every page except redirects (which carry `noindex`), close
+  notes and FX analyses with their date as `lastmod`;
+- `robots.txt`: allows everything and points to the sitemap;
+- `feed.xml`: RSS 2.0 with the newest 40 close notes and Research Library
+  reports (a report links to its PDF, as the library does); every page links
+  to it in its head.
+
+Whatever `SITE_URL` says, the homepage carries schema.org structured data for
+the organisation and the site, and each close note an `Article` with its
+publication time (the agent run's, from the note record); the absolute
+fields (url, logo, image) are added only with `SITE_URL`.
+`tools/check_site.py` fails the deploy if the three files are missing or
+broken with `SITE_URL` set, or present without it.
+
+To move to a domain: point its DNS at GitHub Pages, add it in **Settings →
+Pages → Custom domain**, set `SITE_URL`, and add the domain to
+`ALLOWED_ORIGINS` in `worker/wrangler.toml` (the company pages' live data),
+then run **Deploy profile API** once. Submit `https://<domain>/sitemap.xml`
+in Google Search Console and Bing Webmaster Tools.
 
 ## Licenses
 
