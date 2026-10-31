@@ -139,7 +139,7 @@
     header.classList.add("is-solid");
   }
 
-  // Theme: light by default, the visitor's choice is remembered.
+  // Theme: dark by default (owner, 31 Oct 2026), the visitor's choice is remembered.
   var themeBtn = document.querySelector(".theme-btn");
   function syncThemeBtn() {
     var dark = root.getAttribute("data-theme") === "dark";

@@ -283,7 +283,7 @@ Colour is withheld on purpose. The UI is monochrome ink on ground in both themes
 The system refuses the fintech template: no gradient hero, no metric tiles, no three equal feature cards, no accent colour in UI.
 
 **Key Characteristics:**
-- Two themes, light by default, toggled and remembered per visitor.
+- Two themes, dark by default (owner, 31 Oct 2026), toggled and remembered per visitor.
 - One family: Schibsted Grotesk, variable 400 to 900, every stack ending in `sans-serif`.
 - Hairline rules (1px) and tonal layering instead of shadows or cards.
 - Square corners everywhere.
@@ -295,7 +295,7 @@ The system refuses the fintech template: no gradient hero, no metric tiles, no t
 
 A monochrome ink-and-ground palette in two themes, with one darker "plate" surface and a chart-only red/green pair.
 
-**Theme mechanics.** Light is the default: the HTML ships `data-theme="light"` and the CSS applies the light set to both `:root` and `:root[data-theme="light"]`. An inline boot script in `<head>` runs before paint and resolves the theme in this order: a `?theme=light` or `?theme=dark` URL parameter (which is also written to storage), then the `andra-theme` value in `localStorage`, then `light`. The operating system colour scheme is not consulted. It sets `data-theme` on `<html>` and sets `<meta name="theme-color">` to the theme's ground (`#ffffff` light, `#0a0c0d` dark). The header toggle flips `data-theme`, writes `andra-theme`, updates `theme-color` and the button's `aria-label` ("Switch to dark theme" / "Switch to light theme"), and wraps the swap in `document.startViewTransition` when available. Each theme sets `color-scheme` to match.
+**Theme mechanics.** Dark is the default (owner, 31 Oct 2026; it was light): the HTML ships `data-theme="dark"`, with `theme-color` `#0a0c0d` and the theme button labelled "Switch to light theme". The CSS applies the light set to `:root` and `:root[data-theme="light"]` and the dark set to `:root[data-theme="dark"]`; every page carries the attribute. An inline boot script in `<head>` runs before paint and resolves the theme in this order: a `?theme=light` or `?theme=dark` URL parameter (which is also written to storage), then the `andra-theme` value in `localStorage`, then `dark`. A visitor who chose light keeps it. The operating system colour scheme is not consulted. It sets `data-theme` on `<html>` and sets `<meta name="theme-color">` to the theme's ground (`#ffffff` light, `#0a0c0d` dark). The header toggle flips `data-theme`, writes `andra-theme`, updates `theme-color` and the button's `aria-label` ("Switch to dark theme" / "Switch to light theme"), and wraps the swap in `document.startViewTransition` when available. Each theme sets `color-scheme` to match.
 
 ### Primary
 - **Ink** (light `#0e1215`, dark `#e9eceb`): all headings and body copy, the primary button fill, pressed chips, focus rings, chart lines and dots. It is the only "accent" the UI has.
@@ -757,7 +757,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep light as the default theme, resolve it as `?theme=` param, then `andra-theme` in localStorage, then light, and keep `theme-color` in step (`#ffffff` / `#0a0c0d`).
+- **Do** keep dark as the default theme, resolve it as `?theme=` param, then `andra-theme` in localStorage, then dark, and keep `theme-color` in step (`#ffffff` / `#0a0c0d`).
 - **Do** set every colour through the theme custom properties so both themes and the Lab plate work without per-component overrides.
 - **Do** use the one `--font` stack ending in `sans-serif`, with variable weights between 400 and 650 as recorded in Typography.
 - **Do** apply tabular figures only to elements that hold numbers.

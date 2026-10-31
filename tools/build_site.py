@@ -890,7 +890,7 @@ def finite(v):
 # Page ------------------------------------------------------------------------
 
 THEME_BOOT = (
-    "(function(){var t='light';try{var q=new URLSearchParams(location.search).get('theme');"
+    "(function(){var t='dark';try{var q=new URLSearchParams(location.search).get('theme');"
     "if(q==='light'||q==='dark'){t=q;localStorage.setItem('andra-theme',q)}"
     "else{var s=localStorage.getItem('andra-theme');if(s==='light'||s==='dark')t=s}}catch(e){}"
     "document.documentElement.setAttribute('data-theme',t);"
@@ -1067,7 +1067,7 @@ def site_header(home, base, nav=True):
     </a>
     {menu}
     {search}
-    <button class="theme-btn" type="button" aria-label="Switch to dark theme">
+    <button class="theme-btn" type="button" aria-label="Switch to light theme">
       <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
       <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
     </button>
@@ -1137,13 +1137,13 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
     scene_html = (f'<div class="scene" aria-hidden="true"><canvas class="scene__canvas" '
                   f'data-src="{base}assets/section-horse.png?v={ver("section-horse.png")}"></canvas></div>\n') if scene else ""
     return f"""<!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#0a0c0d">
 <script>{THEME_BOOT}</script>
 <link rel="icon" href="{base}assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="{base}assets/favicon-48.png" sizes="48x48" type="image/png">
