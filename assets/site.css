@@ -443,8 +443,42 @@ ul {
   }
 }
 
-/* Phones: no room beside the brand, so it sits just under the header row, still top right. */
-@media (max-width: 600px) {
+/* Phones: in the header row's right corner beside the theme button (owner, 31 Oct 2026),
+   stacked on three right-aligned lines: the disclaimer on two, then Privacy and cookies.
+   The 4px gap keeps the two links' 24px targets apart. Measured in Chromium: at 0.75rem
+   "Not investment advice." is 127px wide, so it fits from 370px; 352px to 369px use
+   0.6875rem and 4px header gaps. */
+@media (min-width: 352px) and (max-width: 600px) {
+  .site-header--home .brand {
+    margin-right: 0;
+  }
+
+  .site-header__legal {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    font-size: 0.75rem;
+    line-height: 16px;
+    text-align: right;
+  }
+
+  .site-header__legal span {
+    display: block;
+  }
+}
+
+@media (min-width: 352px) and (max-width: 369px) {
+  .site-header.site-header--home .wrap {
+    gap: 4px;
+  }
+
+  .site-header__legal {
+    font-size: 0.6875rem;
+  }
+}
+
+/* Very narrow phones (below 352px): no room in the row, so it sits just under it, still top right. */
+@media (max-width: 351px) {
   .site-header__legal {
     position: absolute;
     top: 100%;
