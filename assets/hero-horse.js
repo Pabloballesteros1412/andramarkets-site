@@ -431,17 +431,21 @@
     gl.uniform1f(U.sheen, reduce ? 0 : 1);
     gl.uniform3f(U.hcol, col.horse[0], col.horse[1], col.horse[2]);
     gl.uniform3f(U.dcol, col.dust[0], col.dust[1], col.dust[2]);
-    // a faint halo from a third of the particles, then every particle sharp
-    gl.uniform1f(U.sm, 4.5); gl.uniform1f(U.am, 0.05); gl.uniform1f(U.kk, 2.0);
-    gl.drawArrays(gl.POINTS, 0, Math.floor(N / 3));
+    // a faint halo from a third of the particles (light theme only: the dark homepage is
+    // matte black, owner 31 Oct 2026), then every particle sharp
+    var halo = theme() === "light";
+    if (halo) {
+      gl.uniform1f(U.sm, 4.5); gl.uniform1f(U.am, 0.05); gl.uniform1f(U.kk, 2.0);
+      gl.drawArrays(gl.POINTS, 0, Math.floor(N / 3));
+    }
     gl.uniform1f(U.sm, 1); gl.uniform1f(U.am, 0.86); gl.uniform1f(U.kk, 2.8);
     gl.drawArrays(gl.POINTS, 0, N);
-    if (textOn) drawText(t, col);
+    if (textOn) drawText(t, col, halo);
     if (stamp) stamp.style.opacity = smooth(0.7, 1, m).toFixed(3);
     lastP = p;
   }
 
-  function drawText(t, col) {
+  function drawText(t, col, halo) {
     var cp = t >= T_P, ci = t >= T_I;
     if (cp !== crispP) { crispP = cp; hero.classList.toggle("crisp-h1", cp); }
     if (ci !== crispI) { crispI = ci; hero.classList.toggle("crisp-ix", ci); }
@@ -455,8 +459,10 @@
     gl.uniform1f(UT.t, t); gl.uniform1f(UT.pitch, 1 / TS);
     gl.uniform1f(UT.visP, 1 - smooth(T_P, T_P + 0.45, t)); gl.uniform1f(UT.visI, 1 - smooth(T_I, T_I + 0.45, t));
     gl.uniform3f(UT.tcol, col.text[0], col.text[1], col.text[2]); gl.uniform3f(UT.dcol, col.dust[0], col.dust[1], col.dust[2]);
-    gl.uniform1f(UT.sm, 4.5); gl.uniform1f(UT.am, 0.05); gl.uniform1f(UT.kk, 2.0);
-    gl.drawArrays(gl.POINTS, 0, Math.floor(TN / 3));
+    if (halo) {
+      gl.uniform1f(UT.sm, 4.5); gl.uniform1f(UT.am, 0.05); gl.uniform1f(UT.kk, 2.0);
+      gl.drawArrays(gl.POINTS, 0, Math.floor(TN / 3));
+    }
     gl.uniform1f(UT.sm, 1); gl.uniform1f(UT.am, 0.86); gl.uniform1f(UT.kk, 2.8);
     gl.drawArrays(gl.POINTS, 0, TN);
   }
