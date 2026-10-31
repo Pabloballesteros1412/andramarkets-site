@@ -396,6 +396,19 @@ ul {
   }
 }
 
+/* Desktop: the links spread across the whole bar, from the brand to the
+   search and theme buttons. */
+@media (min-width: 1301px) {
+  .brand {
+    margin-right: clamp(16px, 3vw, 48px);
+  }
+  .nav {
+    flex: 1;
+    justify-content: space-between;
+    margin-right: clamp(8px, 1.5vw, 24px);
+  }
+}
+
 @media (hover: hover) and (pointer: fine) {
   .nav a:hover {
     color: var(--ink);
