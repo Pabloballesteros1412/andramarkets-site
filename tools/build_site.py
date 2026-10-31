@@ -2384,7 +2384,7 @@ def md_sections(text):
             sections.append([None, ""])
         if all(ln.startswith("- ") for ln in lines):
             sections[-1][1] += '<ul class="ruled">' + "".join(f"<li>{md_inline(ln[2:])}</li>" for ln in lines) + "</ul>"
-        elif lines[0].startswith("Source:"):
+        elif lines[0].startswith(("Source:", "Sources:")):
             sections[-1][1] += f'<p class="lib-src">{md_inline(" ".join(lines))}</p>'
         else:
             sections[-1][1] += f"<p>{md_inline(' '.join(lines))}</p>"
