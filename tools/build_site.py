@@ -984,6 +984,7 @@ def page(notes, cal):
         title="Andra Markets: markets research platform",
         desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
         body=f"""<main id="main">
+  <script>{HERO_BOOT}</script>
   <section class="hero" id="top" aria-labelledby="hero-title">
     <div class="hero__stage">
       <span class="hero__sentinel" aria-hidden="true"></span>
@@ -994,6 +995,9 @@ def page(notes, cal):
       <p class="hero__stamp" aria-hidden="true">Illustrative, not market data</p>
       <div class="wrap hero__copy">
         <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
+        <nav class="hero__index" aria-label="All sections" style="--i:1">
+          <ul>{hero_index()}</ul>
+        </nav>
       </div>
     </div>
   </section>
@@ -1104,6 +1108,28 @@ def page(notes, cal):
         base="",
         scripts=("hero-horse.js",),
     )
+
+
+# The homepage index: every section, in the header's order and with its links.
+SECTIONS = (
+    ("Dashboards", "#dashboards"), ("Fed &amp; Rates", "fed-rates/"), ("Companies", "companies/"),
+    ("Lab", "lab/"), ("Simulators", "simulators/"), ("Calendar", "calendar/"), ("World", "world/"),
+    ("FX", "fx/"), ("Research", "research/"), ("Daily note", "#note"),
+    ("Interview prep", "interview-prep/"), ("Break into Wall Street", "break-into-wall-street/"),
+)
+
+
+def hero_index():
+    return "".join(f'<li><a href="{href}">{name}</a></li>' for name, href in SECTIONS)
+
+
+# Runs before the hero is parsed: when the particle hero can run, the headline and index
+# start clear so their particles can form them (assets/hero-horse.js). If the hero has not
+# gone live within 3s (script blocked, slow network), the text simply shows.
+HERO_BOOT = ("if(window.WebGLRenderingContext&&!matchMedia('(prefers-reduced-motion: reduce)').matches){"
+             "var r=document.documentElement;r.classList.add('hero-forming');"
+             "setTimeout(function(){var h=document.querySelector('.hero');"
+             "if(!h||!h.classList.contains('is-live'))r.classList.remove('hero-forming')},3000)}")
 
 
 def site_header(home, base):
