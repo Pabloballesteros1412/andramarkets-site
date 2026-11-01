@@ -250,16 +250,47 @@
     });
   }
 
-  // Moving to another page (owner-approved, 1 Nov 2026): section pages cross-fade into one
-  // another (VIEW_TRANSITION in tools/build_site.py). The homepage takes no part, so a
-  // transition towards it is called off here, before the browser starts it for nothing.
+  // Moving from one section to another (owner-approved, 1 Nov 2026; VIEW_TRANSITION and
+  // MOVE_BOOT in tools/build_site.py, the motion in site.css). As this page goes it marks the
+  // move "leave" (its main fades on its own) and leaves a note for the next page: whether the
+  // move went back in history, and whether it started from a section in the open menu, whose
+  // name then flies into the next page's title. The homepage takes no part, so a transition
+  // towards it is called off here, before the browser starts it for nothing.
+  var MOVES = "onpageswap" in window;
+  var chosen = null;   // the menu link just clicked, kept until the page goes
+  function plainClick(e, a) {
+    return MOVES && !still() && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey &&
+      !e.defaultPrevented && !a.hasAttribute("download") && (!a.target || a.target === "_self") &&
+      a.origin === location.origin && !/\.pdf$/i.test(a.pathname) &&
+      // a part of this same page (Tools' themes on the Lab page) moves nothing: the menu closes
+      !(a.hash && a.pathname === location.pathname && a.search === location.search);
+  }
   window.addEventListener("pageswap", function (e) {
-    var vt = e.viewTransition, to = e.activation && e.activation.entry && e.activation.entry.url;
+    var vt = e.viewTransition, act = e.activation, to = act && act.entry && act.entry.url;
     if (!vt || !to) return;
     vt.ready.catch(function () {});
     vt.finished.catch(function () {});
+    var dest = new URL(to);
     var home = new URL(document.body.getAttribute("data-base") || "./", location.href).pathname;
-    if (new URL(to).pathname === home) vt.skipTransition();
+    if (dest.pathname === home) { vt.skipTransition(); return; }
+    vt.types.add("leave");
+    var back = act.navigationType === "traverse" && act.from && act.entry.index < act.from.index;
+    // only a section's own page: a link to a part of one (lab/#options) lands scrolled to that
+    // part, away from the title, so there the page simply rises
+    var label = chosen && chosen.pathname === dest.pathname && !chosen.hash && !back && chosen.querySelector(".nav__label");
+    if (label) label.style.viewTransitionName = "page-title";
+    try {
+      sessionStorage.setItem("andra-move", JSON.stringify({ menu: !!label, back: !!back, at: Date.now() }));
+    } catch (err) { /* private mode: the next page simply rises */ }
+  });
+  // Back here from the back/forward cache: the menu the page was left with closes and the
+  // name goes back to its place in it.
+  window.addEventListener("pageshow", function (e) {
+    if (!e.persisted) return;
+    chosen = null;
+    document.querySelectorAll(".nav__label").forEach(function (l) { l.style.viewTransitionName = ""; });
+    if (groupBtns.length) closeGroups(null);
+    if (menuBtn && nav && menuBtn.getAttribute("aria-expanded") === "true") setMenu(false);
   });
 
   // Chip groups: the ink fill glides to the pressed chip. Works for any
@@ -439,8 +470,10 @@
       });
     });
     document.addEventListener("click", function (e) {
+      var a = e.target.closest(".nav__panel a");
       if (!e.target.closest(".nav__btn") && !e.target.closest(".nav__panel")) closeGroups(null);
-      else if (e.target.closest(".nav__panel a")) closeGroups(null);
+      else if (a && plainClick(e, a)) chosen = a;   // stays open: its name flies into the next page
+      else if (a) closeGroups(null);
     });
     document.addEventListener("keydown", function (e) {
       if (e.key !== "Escape") return;
@@ -464,7 +497,10 @@
       setMenu(menuBtn.getAttribute("aria-expanded") !== "true");
     });
     nav.addEventListener("click", function (e) {
-      if (e.target.closest("a")) setMenu(false);
+      var a = e.target.closest("a");
+      if (!a || menuBtn.getAttribute("aria-expanded") !== "true") return;
+      if (plainClick(e, a)) chosen = a;   // the sheet stays open: its name flies into the next page
+      else setMenu(false);
     });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && menuBtn.getAttribute("aria-expanded") === "true") {

@@ -1092,9 +1092,27 @@ ARRIVE_BOOT = (
 
 # From one section page to another: a view transition across pages (Chrome, Edge, Safari;
 # others change page as before). Every page but the homepage opts in, so the homepage keeps
-# its own way out and the way back to it is unchanged. The page cross-fades, the header stays
-# put (site.css) and the sphere carries on behind it (assets/section-scene.js).
+# its own way out and the way back to it is unchanged. The header stays put, the sphere
+# carries on behind (assets/section-scene.js), the page before fades and the next one rises
+# into place; from the menu, the section's name flies into the new page's title (owner-
+# approved, 1 Nov 2026; site.css has the motion).
 VIEW_TRANSITION = "@media (prefers-reduced-motion: no-preference){@view-transition{navigation:auto;types:section}}"
+
+# The arriving half of that move, in the head so it runs before the page's first frame (the
+# moment the browser takes its picture of the new page). assets/site.js leaves a note as the
+# page before goes (andra-move: whether the move started from the menu, and whether it goes
+# back in history). The new page marks the move "enter" (its main rises into place), "back"
+# (it comes down instead) and, from the menu, "menu" when its title sits on one line, so the
+# name can fly into it; a title that wraps would land as a different shape, so there the name
+# simply fades. The expect link holds the first frame until main is parsed, title included.
+MOVE_BOOT = (
+    "addEventListener('pagereveal',function(e){var v=e.viewTransition;if(!v)return;"
+    "v.types.add('enter');var n=null;"
+    "try{n=JSON.parse(sessionStorage.getItem('andra-move'));sessionStorage.removeItem('andra-move')}catch(x){}"
+    "if(!n||!(Date.now()-n.at<8000))return;if(n.back)v.types.add('back');"
+    "var h=n.menu&&document.querySelector('main .page__title');"
+    "if(h&&h.offsetHeight&&h.offsetHeight<parseFloat(getComputedStyle(h).fontSize)*1.5)v.types.add('menu')});"
+)
 
 # Faster moves between pages: where the browser supports speculation rules (Chrome, Edge),
 # a page's HTML is fetched while the pointer rests on its link (or, on phones, when the
@@ -1319,7 +1337,7 @@ def nav_menu(base):
     groups = []
     for key, name, intro, links in NAV_GROUPS:
         items = "".join(
-            f'<li style="--k:{k}"><a href="{base}{href}">{nav_chart(href)}<span class="nav__name">{label}{icon("arrow-right")}</span>'
+            f'<li style="--k:{k}"><a href="{base}{href}">{nav_chart(href)}<span class="nav__name"><span class="nav__label">{label}</span>{icon("arrow-right")}</span>'
             f'<span class="nav__sub">{sub}</span></a></li>' for k, (label, href, sub) in enumerate(links))
         groups.append(f"""<div class="nav__group">
         <button class="nav__btn" type="button" aria-expanded="false" aria-controls="nav-{key}">{name}<svg class="icon nav__caret" aria-hidden="true"><use href="#i-caret-down"/></svg></button>
@@ -1483,7 +1501,8 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
                   f'data-src="{base}assets/section-horse.png?v={ver("section-horse.png")}"></canvas></div>\n') if scene else ""
     # The sphere's horse texture is asked for with the page, not once its script has run, so it
     # is in before the first frame: put on the GPU then, not in the middle of the sphere opening.
-    scene_head = (f"<script>{ARRIVE_BOOT}</script>\n<style>{VIEW_TRANSITION}</style>\n"
+    scene_head = (f'<script>{ARRIVE_BOOT}{MOVE_BOOT}</script>\n<style>{VIEW_TRANSITION}</style>\n'
+                  f'<link rel="expect" href="#main" blocking="render">\n'
                   f'<link rel="preload" href="{base}assets/section-horse.png?v={ver("section-horse.png")}" as="image">\n') if scene else ""
     return f"""<!doctype html>
 <html lang="en" data-theme="dark">

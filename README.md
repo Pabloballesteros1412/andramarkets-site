@@ -35,7 +35,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `assets/profile.js`, `worker/`: the live company data on the Companies pages (search, live price, news, analysts, other US companies) and the Cloudflare Worker it reads from (below).
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
 - `assets/hero-horse.js`, `tools/make_horse_particles.py`: the homepage hero's particle horse and the particle map it is drawn from (`assets/horse-particles.png`, made from `andra-horse.png`). A click on a link to another page takes the hero back into the point it formed from before the page opens (DESIGN.md, Page transitions).
-- `assets/section-scene.js`, `tools/make_section_horse.py`: the section pages' backdrop (a black sphere of floating particles with the horse lit from behind) and the horse texture it uses (`assets/section-horse.png`, made from `andra-horse.png`). Arriving from the homepage the sphere opens out of that point; from one section to the next it carries on while the page cross-fades.
+- `assets/section-scene.js`, `tools/make_section_horse.py`: the section pages' backdrop (a black sphere of floating particles with the horse lit from behind) and the horse texture it uses (`assets/section-horse.png`, made from `andra-horse.png`). Arriving from the homepage the sphere opens out of that point; from one section to the next it carries on while the page changes (the next one rises into place; from the menu, the section's name flies into its title: DESIGN.md, Page transitions).
 - `data/notes/<date>.json`: one record per close note: its text and the ten
   closing levels for the tape. No PDF or facts file is ever stored here.
 - `DESIGN.md`: the design system. Every page follows it.
