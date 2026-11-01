@@ -4,7 +4,7 @@ The Andra Markets website: a markets research platform with dashboards, quant
 tools, an economic calendar, a daily close note, a research library, interview prep and explainers.
 
 - `assets/`: stylesheet, script, self-hosted font, brand mark.
-- `tools/build_site.py`: generates every page from one shell. Edit markup here. It also writes `assets/search-index.js` (the header search index, not committed).
+- `tools/build_site.py`: generates every page from one shell. Edit markup here, except for the section pages added on 1 Nov 2026, which each live in their own module, `tools/page_<name>.py` (`pages(site)` returns their HTML; `site` is build_site itself, for its shell and helpers). It also writes `assets/search-index.js` (the header search index, not committed).
 - `tools/check_site.py`: run after the build, at every deploy. It fails the deploy if a close note page came out without a section its note has, or the homepage index lacks a section of the menu, so the live site keeps its last good version.
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
 - `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
@@ -16,7 +16,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
 - `tools/fedrates_data.py`, `assets/fedrates.js`: the Fed & Rates section (`fed-rates/`): fetches its figures at deploy time and every 15 minutes in US hours (below), and draws its charts.
 - `data/path_to_wall_street.json`, `assets/careers.js`: Break into Wall Street (`break-into-wall-street/`), the careers guide.
-- `data/recruiting_calendar.json`, `assets/recruiting.js`: its recruiting calendar (`break-into-wall-street/recruiting-calendar/`), kept by hand (below).
+- `data/recruiting_calendar.json`, `assets/recruiting.js`: the recruiting calendar (`recruiting-calendar/`; it was part of the guide until 1 Nov 2026 and its old address redirects), kept by hand (below).
 - `data/technicals/<topic>.json`, `assets/technicals.js`: its nine technical preparation pages (`break-into-wall-street/technicals/<topic>/`): what to know, a worked example, practice cards, common mistakes. Edit the guide's text in the data file and update its `reviewed` date.
 - `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one PDF per report in `pdf/`, published as it is at `research/pdf/`. `tools/import_report.py` copies a report's PDF and adds its line; see `data/reports/README.md`.
 - `data/interview_prep.json`: Markets Interview Prep (`interview-prep/`): the weekly block (`week`, rewritten each week) and the question bank.

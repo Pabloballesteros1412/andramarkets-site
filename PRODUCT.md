@@ -71,14 +71,15 @@ record. The daily note is one module among others, not the centrepiece.
   30 Oct 2026; renamed from Path to Wall Street, `careers/` redirects): a
   guide for students entering IB, S&T, asset management, equity research and
   hedge funds, especially from non-target universities and outside the US:
-  the roles, a recruiting calendar, a one-page CV, networking with email
+  the roles, a one-page CV, networking with email
   templates, technical preparation, visas, certifications and resources. Its
   text lives in `data/path_to_wall_street.json`; it shows its "Last reviewed"
   date and is reviewed each quarter. The owner approved publishing after
   Claude's review.
-  - Recruiting calendar (`break-into-wall-street/recruiting-calendar/`,
-    owner-approved preview, 30 Oct 2026; replaced the timeline by academic
-    year): US only (owner's choice), about 40 banks, boutiques, asset managers,
+  - Recruiting calendar (`recruiting-calendar/`, owner-approved preview,
+    30 Oct 2026; replaced the timeline by academic year; its own section of
+    the Careers menu since 1 Nov 2026, owner: it left the guide, and
+    `break-into-wall-street/recruiting-calendar/` redirects): US only (owner's choice), about 40 banks, boutiques, asset managers,
     hedge funds and trading firms, by date and by firm, from
     `data/recruiting_calendar.json`. No free source lists firms' dates and the
     aggregators' terms forbid reuse, so the file is kept by hand from each
