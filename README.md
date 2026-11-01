@@ -4,7 +4,7 @@ The Andra Markets website: a markets research platform with dashboards, quant
 tools, an economic calendar, a daily close note, a research library, interview prep and explainers.
 
 - `assets/`: stylesheet, script, self-hosted font, brand mark.
-- `tools/build_site.py`: generates every page from one shell. Edit markup here. It also writes `assets/search-index.js` (the header search index, not committed).
+- `tools/build_site.py`: generates every page from one shell. Edit markup here, except for the section pages added on 1 Nov 2026, which each live in their own module, `tools/page_<name>.py` (`pages(site)` returns their HTML; `site` is build_site itself, for its shell and helpers). It also writes `assets/search-index.js` (the header search index, not committed).
 - `tools/check_site.py`: run after the build, at every deploy. It fails the deploy if a close note page came out without a section its note has, or the homepage index lacks a section of the menu, so the live site keeps its last good version.
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
 - `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
@@ -16,10 +16,17 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
 - `tools/fedrates_data.py`, `assets/fedrates.js`: the Fed & Rates section (`fed-rates/`): fetches its figures at deploy time and every 15 minutes in US hours (below), and draws its charts.
 - `data/path_to_wall_street.json`, `assets/careers.js`: Break into Wall Street (`break-into-wall-street/`), the careers guide.
-- `data/recruiting_calendar.json`, `assets/recruiting.js`: its recruiting calendar (`break-into-wall-street/recruiting-calendar/`), kept by hand (below).
+- `data/recruiting_calendar.json`, `assets/recruiting.js`: the recruiting calendar (`recruiting-calendar/`; it was part of the guide until 1 Nov 2026 and its old address redirects), kept by hand (below).
+- `tools/page_firms.py`, `assets/firms.js`: Firms (`firms/`), a directory built from `data/recruiting_calendar.json`.
+- `tools/page_application_tracker.py`, `assets/tracker.js`: the Application tracker (`application-tracker/`); the reader's entries stay in localStorage (`andra-tracker`).
 - `data/technicals/<topic>.json`, `assets/technicals.js`: its nine technical preparation pages (`break-into-wall-street/technicals/<topic>/`): what to know, a worked example, practice cards, common mistakes. Edit the guide's text in the data file and update its `reviewed` date.
 - `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one PDF per report in `pdf/`, published as it is at `research/pdf/`. `tools/import_report.py` copies a report's PDF and adds its line; see `data/reports/README.md`.
 - `data/interview_prep.json`: Markets Interview Prep (`interview-prep/`): the weekly block (`week`, rewritten each week) and the question bank.
+- `tools/page_central_banks.py`, `tools/centralbanks_data.py`, `assets/centralbanks.js`: Central banks (`central-banks/`): the four policy rates and next meetings, fetched at deploy time (below).
+- `tools/page_recession_watch.py`, `tools/recession_data.py`, `assets/recession.js`: Recession watch (`recession-watch/`): five indicators and NBER recessions from FRED, fetched at deploy time (below).
+- `tools/page_chart_of_the_day.py`, `assets/chart-of-the-day.js`: Chart of the day (`chart-of-the-day/`), one chart per close note.
+- `tools/page_market_history.py`, `assets/market-history.js`, `tools/history_data.py`: Market history (`market-history/`), its S&P 500 history fetched at deploy (below).
+- `data/interview_simulator.json`, `assets/interview-sim.js`, `tools/page_interview_simulator.py`: the Interview simulator (`interview-simulator/`): tracks and their topics, lengths, same-question groups and the key points of each model answer, kept by hand. The build drops any key point whose words or figures are not in its answer and prints it, as it does key points for a question whose wording changed.
 - `tools/legal_content.py`: the legal notice (`legal/`) and the privacy and cookies policy (`privacy/`).
 - `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser. The inputs that differ from a tool's defaults are kept in the URL fragment (`#yld=5&freq=1`), never sent to the server, so a link shares a setup.
 - `tools/lab_data.py`: fetches the daily closes behind the Lab's risk and correlation tool at deploy time (below).
@@ -240,6 +247,33 @@ page head counts how many dated rows have been re-checked (owner, 30 Oct
 expected windows to confirmed dates as firms post them. The page counts
 down to closing dates in the browser, so it stays right between deploys.
 
+## Central banks and Recession watch data
+
+`tools/centralbanks_data.py` writes `.cache/centralbanks/centralbanks.json`
+(Actions cache, full deploys only). Rates: the Fed from FRED `DFEDTARU` and
+`DFEDTARL`; the ECB deposit facility rate from the ECB Data Portal
+(`FM.B.U2.EUR.4F.KR.DFR.LEV`, which lists changes only, so its as-of date is
+the day it was read), FRED `ECBDFR` as backup; Bank Rate from the Bank of
+England's database (`IUDBEDR`), the BIS as backup; the Bank of Japan from the
+BIS (`WS_CBPOL`: the API, then the bulk file). Decision dates for 400 days
+ahead come from each bank's own calendar, read with `calendar_data.py`'s
+parsers. `tools/recession_data.py` writes `.cache/recession/recession.json`
+from FRED `T10Y3M`, `SAHMREALTIME`, `ICSA`, `IC4WSA`, `BAMLH0A0HYM2`, `NFCI`
+and `USREC`. Each source is fetched on its own and keeps its last good copy;
+with none the pages show "Data pending". Neither endpoint could be reached
+from the session that built them, so the first deploy is their first live
+test: check its log.
+
+## Market history data
+
+`tools/history_data.py` runs at deploy before the build and writes
+`.cache/history/sp500.json` (Actions cache): every S&P 500 daily close since
+the end of 1927 from Yahoo Finance `^GSPC` (the S&P 90 before March 1957),
+price only. It fetches at most once a day and keeps its last good copy. The
+build measures each episode from it and prints a warning when a measured fall
+differs from its text's "about N%" by more than 4 points. With no copy the
+pages show "Data pending".
+
 ## Lab data
 
 Nine of the ten Lab tools are calculators with no data. The tenth, risk and
@@ -390,7 +424,7 @@ secret and run **Deploy profile API** again. Tests: `cd worker && npm test`.
 
 ## FRED API key
 
-The dashboards and the calendar read FRED through its official API
+The dashboards, the calendar, Central banks and Recession watch read FRED through its official API
 (`api.stlouisfed.org`), which needs a key; the keyless download they used
 before kept timing out from GitHub's runners. Add it once as a repository
 secret: **Settings → Secrets and variables → Actions → New repository

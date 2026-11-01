@@ -50,6 +50,13 @@ import nyse  # noqa: E402
 from calendar_data import MOVES as CAL_MOVES, SOURCES as CAL_SOURCES  # noqa: E402
 from legal_content import LEGAL, LEGAL_UPDATED, PRIVACY, PRIVACY_UPDATED  # noqa: E402
 from world_data import AXES as WORLD_AXES, MARKETS as WORLD_MARKETS  # noqa: E402
+import page_chart_of_the_day  # noqa: E402
+import page_central_banks  # noqa: E402
+import page_recession_watch  # noqa: E402
+import page_market_history  # noqa: E402
+import page_interview_simulator  # noqa: E402
+import page_firms  # noqa: E402
+import page_application_tracker  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT
@@ -1236,7 +1243,9 @@ def hero_boot():
 
 # The header menu in four groups (owner-approved, 31 Oct 2026): each opens a panel the
 # width of the page, its links with a line each. On phones and tablets the same markup
-# is the menu sheet, the group names as headings over their links.
+# is the menu sheet, the group names as headings over their links. Six sections in
+# every group (owner-approved, 1 Nov 2026): Tools holds the fourteen Lab tools and
+# Simulators in six themes, each opening its group on the Lab or Simulators page.
 NAV_GROUPS = (
     ("markets", "Markets", "Prices, rates and what is coming, with each figure's source and date.", (
         ("Dashboards", "dashboards/", "Nine views across rates, equities, macro and cross-asset."),
@@ -1245,15 +1254,27 @@ NAV_GROUPS = (
         ("World", "world/", "Twenty-five markets compared on the same scale."),
         ("FX", "fx/", "The dollar, the G10 majors and emerging-market currencies."),
         ("Companies", "companies/", "Earnings and figures for 600 companies."))),
-    ("tools", "Tools", "Run the numbers yourself, in the browser.", (
-        ("Lab", "lab/", "Ten quant tools: risk, options, bonds, the efficient frontier."),
-        ("Simulators", "simulators/", "Trading, the Panic Test, Guess the Fed, the Portfolio Builder."))),
+    ("tools", "Tools", "Fourteen tools and simulators that run in your browser.", (
+        ("Options", "lab/#options", "The payoff at expiry and Black-Scholes with its Greeks."),
+        ("Bonds", "lab/#bonds", "Price, duration and convexity; yield to maturity."),
+        ("Risk &amp; portfolio", "lab/#risk", "Correlation, the efficient frontier, position size and VaR."),
+        ("Valuation &amp; growth", "lab/#valuation", "Discounted cash flow, compound growth, real return."),
+        ("Market replays", "simulators/#replays", "The Trading Simulator and the Panic Test, on real history."),
+        ("Strategy games", "simulators/#games", "Guess the Fed and the Portfolio Builder."))),
     ("research", "Research", "What happened and why, on the record.", (
         ("Daily note", "reports/", "One note every US trading day, after the close."),
-        ("Research Library", "research/", "Weekly reviews and longer research, as PDFs."))),
+        ("Research Library", "research/", "Weekly reviews and longer research, as PDFs."),
+        ("Chart of the day", "chart-of-the-day/", "One chart from each session's close note."),
+        ("Central banks", "central-banks/", "The Fed, ECB, BoE and BoJ: rates, last moves, next meetings."),
+        ("Recession watch", "recession-watch/", "The curve, the Sahm rule, claims, credit and conditions."),
+        ("Market history", "market-history/", "The S&amp;P 500 since 1928, episode by episode."))),
     ("careers", "Careers", "For students breaking into markets.", (
         ("Interview prep", "interview-prep/", "This week's markets and the questions interviewers ask."),
-        ("Break into Wall Street", "break-into-wall-street/", "Roles, recruiting calendar, CV, networking, visas."))),
+        ("Interview simulator", "interview-simulator/", "A timed mock interview, answered aloud, scored by topic."),
+        ("Break into Wall Street", "break-into-wall-street/", "Roles, CV, networking, technicals, visas."),
+        ("Recruiting calendar", "recruiting-calendar/", "When US firms open and close applications."),
+        ("Firms", "firms/", "The banks, boutiques and funds that hire, and for what."),
+        ("Application tracker", "application-tracker/", "Your applications, deadlines and contacts, kept in your browser."))),
 )
 
 
@@ -1268,12 +1289,24 @@ NAV_CHARTS = {
     "world/": '<path class="soft" d="M56 4L84 18L82 46L56 60L30 46L28 18Z"/><path class="draw" pathLength="1" d="M56 12L74 22L78 42L56 50L38 40L34 22Z"/><circle class="dot" cx="78" cy="42" r="3"/>',
     "fx/": '<path class="draw" pathLength="1" d="M2 14C30 18 50 46 110 50"/><path class="draw" pathLength="1" d="M2 48C34 44 60 18 110 14"/><circle class="dot" cx="57" cy="32" r="3"/>',
     "companies/": '<path class="base" d="M2 60H110"/><path class="draw bar" pathLength="1" d="M12 60V42M28 60V32M44 60V38M60 60V22M76 60V28M92 60V12"/>',
-    "lab/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 58C30 58 38 8 56 8C74 8 82 58 110 58"/><path class="soft" d="M56 8V60"/>',
-    "simulators/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 40L12 34L20 42L30 26L40 32L50 18L60 28L70 22L80 36L92 24L104 30"/><circle class="dot" cx="104" cy="30" r="3"/>',
+    "lab/#options": '<path class="base" d="M2 60H110"/><path class="soft" d="M48 8V60"/><path class="draw" pathLength="1" d="M2 46H48L106 8"/><circle class="dot" cx="106" cy="8" r="3"/>',
+    "lab/#bonds": '<path class="base" d="M2 60H110"/><path class="soft" d="M8 16L67 60"/><path class="draw" pathLength="1" d="M6 6C22 34 50 50 108 56"/><circle class="dot" cx="28" cy="31" r="3"/>',
+    "lab/#risk": '<path class="base" d="M4 4V60H110"/><path class="draw" pathLength="1" d="M34 58C14 48 14 32 30 24C50 14 76 10 104 6"/><circle class="dot" cx="30" cy="24" r="3"/>',
+    "lab/#valuation": '<path class="base" d="M2 60H110"/><path class="draw bar" pathLength="1" d="M14 60V40M30 60V43M46 60V46M62 60V49M78 60V52M98 60V14"/>',
+    "simulators/#replays": '<path class="base" d="M2 60H110"/><path class="soft" d="M22 14H110"/><path class="draw" pathLength="1" d="M2 30L12 22L22 14L30 26L38 44L46 54L56 48L66 38L78 30L90 22L100 16L110 12"/><circle class="dot" cx="110" cy="12" r="3"/>',
+    "simulators/#games": '<path class="soft" d="M44 32H96M44 32L96 52"/><path class="draw" pathLength="1" d="M8 32H44L96 12"/><circle class="dot" cx="96" cy="12" r="3"/>',
     "reports/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 46L20 40L36 44L52 30L68 34L84 20L104 24"/><circle class="dot" cx="104" cy="24" r="3"/>',
     "research/": '<path class="draw" pathLength="1" d="M10 12H92M10 24H104M10 36H82M10 48H96"/><path class="soft" d="M10 60H70"/>',
     "interview-prep/": '<path class="draw" pathLength="1" d="M6 36L16 46L34 22"/><path class="draw" pathLength="1" d="M46 24H106M46 40H92"/>',
     "break-into-wall-street/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 58H24V46H46V34H68V22H90V8"/><path class="soft" d="M84 14L90 8L96 14"/><circle class="dot" cx="90" cy="8" r="3"/>',
+    "chart-of-the-day/": '<path class="soft" d="M4 4H108V60H4Z"/><path class="draw" pathLength="1" d="M14 48L30 40L44 44L60 28L76 32L98 16"/><circle class="dot" cx="98" cy="16" r="3"/>',
+    "central-banks/": '<path class="base" d="M2 60H110"/><path class="soft" d="M2 56H28V50H54V40H80V44H110"/><path class="draw" pathLength="1" d="M2 52H20V42H40V30H66V38H88V46H110"/><circle class="dot" cx="110" cy="46" r="3"/>',
+    "recession-watch/": '<path class="soft" d="M46 4V60M64 4V60"/><path class="base" d="M2 34H110"/><path class="draw" pathLength="1" d="M2 22C18 20 30 26 42 40C50 48 60 48 68 38C80 24 96 20 110 18"/><circle class="dot" cx="110" cy="18" r="3"/>',
+    "market-history/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 56L12 50L18 56L26 52L34 44L40 48L50 36L56 46L64 34L74 28L80 38L90 22L100 16L110 8"/><circle class="dot" cx="110" cy="8" r="3"/>',
+    "interview-simulator/": '<path class="soft" d="M56 8A24 24 0 1 1 55.99 8"/><path class="draw" pathLength="1" d="M56 8A24 24 0 0 1 80 32M56 32V18"/><circle class="dot" cx="56" cy="32" r="3"/>',
+    "recruiting-calendar/": '<path class="soft" d="M10 6H102V60H10ZM10 20H102"/><path class="draw" pathLength="1" d="M24 32H36M50 32H62M76 32H88M24 46H36M50 46H62"/><circle class="dot" cx="82" cy="46" r="3"/>',
+    "firms/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M10 60V30H30V60M38 60V10H62V60M70 60V24H90V60M96 60V40H106V60"/>',
+    "application-tracker/": '<path class="soft" d="M6 6H36V58H6ZM41 6H71V58H41ZM76 6H106V58H76Z"/><path class="draw" pathLength="1" d="M11 16H31M11 26H31M11 36H31M46 16H66M46 26H66M81 16H101"/>',
 }
 
 
@@ -1355,8 +1388,16 @@ def site_footer(home, base):
       <a href="{base}fx/">FX</a>
       <a href="{base}research/">Research Library</a>
       <a href="{base}reports/">Daily note</a>
+      <a href="{base}chart-of-the-day/">Chart of the day</a>
+      <a href="{base}central-banks/">Central banks</a>
+      <a href="{base}recession-watch/">Recession watch</a>
+      <a href="{base}market-history/">Market history</a>
       <a href="{base}interview-prep/">Interview prep</a>
+      <a href="{base}interview-simulator/">Interview simulator</a>
       <a href="{base}break-into-wall-street/">Break into Wall Street</a>
+      <a href="{base}recruiting-calendar/">Recruiting calendar</a>
+      <a href="{base}firms/">Firms</a>
+      <a href="{base}application-tracker/">Application tracker</a>
       <a href="{base}methodology/">Methodology</a>
       <a href="{base}sources/">Data sources</a>
       <a href="{base}legal/">Legal notice</a>
@@ -1493,6 +1534,28 @@ def watch_redirect():
 
 # Lab tools: (slug, data-tool, title, description, how it works, assumptions).
 # Calculated by assets/lab.js in the browser: nothing leaves it.
+# The Lab and the Simulators in the six themes of the Tools menu (owner-approved,
+# 1 Nov 2026): each theme is a group on its page, its id the menu link's anchor.
+LAB_GROUPS = (
+    ("options", "Options", ("options-payoff", "black-scholes")),
+    ("bonds", "Bonds", ("bond-calculator", "yield-to-maturity")),
+    ("risk", "Risk &amp; portfolio", ("risk-correlation", "efficient-frontier", "position-sizing")),
+    ("valuation", "Valuation &amp; growth", ("dcf", "compound-growth", "real-return")),
+)
+SIM_GROUPS = (
+    ("replays", "Market replays", ("trading-simulator", "panic-test")),
+    ("games", "Strategy games", ("guess-the-fed", "portfolio-builder")),
+)
+
+
+def tool_groups(groups, row):
+    """A Lab or Simulators index in its themes: a heading per theme over its ruled list."""
+    return '<div class="archive lab-groups">' + "".join(
+        f'<section class="archive__month" id="{key}" aria-labelledby="{key}-h"><h2 id="{key}-h">{name}</h2>'
+        f'<ol class="learn-list lab-index">{"".join(row(slug) for slug in slugs)}</ol></section>'
+        for key, name, slugs in groups) + "</div>"
+
+
 LAB_TOOLS = [
     ("options-payoff", "options", "Options payoff diagram",
      "Pick a strategy and see its profit or loss at expiry, and today, across prices of the underlying.",
@@ -1872,17 +1935,18 @@ def risk_page(i, data, key):
 
 
 def lab_index():
-    rows = "".join(
-        f'<li><a href="{slug}/"><span class="learn-list__title">{title}</span>'
-        f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">{"Yahoo Finance closes, calculated in your browser" if kind == "risk" else "Calculator, runs in your browser"}</span></a></li>'
-        for slug, kind, title, desc, _, _ in LAB_TOOLS)
+    tools = {t[0]: t for t in LAB_TOOLS}
+    rows = tool_groups(LAB_GROUPS, lambda slug: (
+        f'<li><a href="{slug}/"><span class="learn-list__title">{tools[slug][2]}</span>'
+        f'<span class="learn-list__desc">{tools[slug][3]}</span><span class="learn-list__time">'
+        f'{"Yahoo Finance closes, calculated in your browser" if tools[slug][1] == "risk" else "Calculator, runs in your browser"}</span></a></li>'))
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Lab</h1>
       <p class="lede">Interactive quant tools. Change the inputs, watch the result move. Every tool runs in your browser: nothing you enter is sent or stored.</p>
     </header>
-    <ol class="learn-list lab-index">{rows}</ol>
+    {rows}
     <p class="lab-index__next">A momentum regime backtest is in development. New tools are announced in the daily note.</p>
   </div>
 </main>"""
@@ -2060,16 +2124,17 @@ def sim_index(sim):
            "panic-test": "Every fall of 25% or more on record, in the same four markets",
            "guess-the-fed": "FRED: CPI, unemployment, the Fed's target and the 2-year yield",
            "portfolio-builder": "S&amp;P 500 with dividends and 10-year Treasuries since 1928"}
-    rows = "".join(f'<li><a href="{slug}/"><span class="learn-list__title">{name}</span>'
-                   f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">{src[slug]}</span></a></li>'
-                   for slug, name, desc in SIMULATORS)
+    sims = {x[0]: x for x in SIMULATORS}
+    rows = tool_groups(SIM_GROUPS, lambda slug: (
+        f'<li><a href="{slug}/"><span class="learn-list__title">{sims[slug][1]}</span>'
+        f'<span class="learn-list__desc">{sims[slug][2]}</span><span class="learn-list__time">{src[slug]}</span></a></li>'))
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Simulators</h1>
       <p class="lede">Play through real market history and test your decisions. Every simulator runs in your browser; your results stay on your device.</p>
     </header>
-    <ol class="learn-list lab-index">{rows}</ol>
+    {rows}
   </div>
 </main>"""
     return shell(title="Simulators: Andra Markets", desc="Four market simulators that run in your browser: the Trading Simulator, the Panic Test, Guess the Fed and the Portfolio Builder.",
@@ -2714,14 +2779,18 @@ DATA_SOURCES = [
      "Closing prices of equity indices, sector ETFs, volatility indices, currencies, commodity futures, credit ETFs, "
      "digital assets and the watchlist stocks; CBOT fed funds futures and the Cboe Treasury yield indices; earnings "
      "dates, diluted EPS and market caps.",
-     "Close notes, dashboards, Fed &amp; Rates, World, FX, calendar earnings, company pages, Simulators",
+     "Close notes, dashboards, Fed &amp; Rates, World, FX, calendar earnings, company pages, Simulators, "
+     "Market history (S&amp;P 500 daily closes since 1927, ^GSPC)",
      "After each US close for the notes; at every deploy for the dashboards; every 15 minutes while the NYSE is "
      "open for the fed funds futures and intraday yields"),
     ("FRED, Federal Reserve Bank of St. Louis", "https://fred.stlouisfed.org/",
      "The US Treasury's daily par yield curve, breakevens and real yields, the 2s10s and 3m10y spreads, the Fed's "
      "target range, the effective and monthly federal funds rates, ICE BofA credit spreads, inflation, unemployment "
-     "and payrolls; the 10-year Treasury yield since 1953 for the Portfolio Builder.",
-     "Close notes, dashboards, Fed &amp; Rates, calendar actuals, Guess the Fed, Portfolio Builder",
+     "and payrolls; the 10-year Treasury yield since 1953 for the Portfolio Builder; the ECB deposit facility rate "
+     "(backup), the Sahm rule, initial jobless claims and their 4-week average, the high-yield spread, the Chicago "
+     "Fed's NFCI and the NBER recession dates.",
+     "Close notes, dashboards, Fed &amp; Rates, calendar actuals, Guess the Fed, Portfolio Builder, Central banks, "
+     "Recession watch",
      "Daily; FRED posts the Treasury curve late in the evening and credit spreads with a short delay"),
     ("US Treasury and TreasuryDirect", "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
      "Note and bond auction schedules and results; the daily par yield curve and real yield curve.",
@@ -2735,7 +2804,14 @@ DATA_SOURCES = [
      "Global, The Conference Board, the University of Michigan, the ECB, Eurostat, the Bank of England, the ONS, "
      "the Bank of Japan, China's National Bureau of Statistics and the People's Bank of China; actual figures from "
      "Eurostat, the ECB, the ONS and the Bank of England.",
-     "Calendar, Fed &amp; Rates (FOMC dates)", "At every deploy; each source's last read is on the calendar page"),
+     "Calendar, Fed &amp; Rates (FOMC dates), Central banks (meeting dates)",
+     "At every deploy; each source's last read is on the calendar page"),
+    ("ECB Data Portal", "https://data.ecb.europa.eu/", "The ECB deposit facility rate.", "Central banks",
+     "At every deploy, each weekday"),
+    ("Bank of England database", "https://www.bankofengland.co.uk/boeapps/database/", "Bank Rate.", "Central banks",
+     "At every deploy, each weekday"),
+    ("BIS central bank policy rates", "https://data.bis.org/",
+     "The Bank of Japan's policy rate; Bank Rate as a backup.", "Central banks", "At every deploy, each weekday"),
     ("State Street and iShares", "https://www.ssga.com/",
      "Index membership from the SPY holdings (S&amp;P 500) and the iShares STOXX Europe 600 ETF holdings.",
      "Calendar earnings, company pages", "At every deploy"),
@@ -4922,6 +4998,7 @@ MOVED = {
     "learn/cpi-vs-pce/": ("dashboards/inflation-and-labour/", "Inflation and labour", _LEARNT),
     "learn/credit-spreads/": ("dashboards/credit-spreads/", "Credit spreads", _LEARNT),
     "careers/": ("break-into-wall-street/", "Break into Wall Street", "This guide is now"),
+    "break-into-wall-street/recruiting-calendar/": ("recruiting-calendar/", "the recruiting calendar", "This page moved to"),
 }
 
 
@@ -5031,7 +5108,9 @@ def technical_page(t, topics):
                  home="../../../", base="../../../", path=f"break-into-wall-street/technicals/{slug}/", scripts=("technicals.js",))
 
 
-# Recruiting calendar (break-into-wall-street/recruiting-calendar/) ----------------
+# Recruiting calendar (recruiting-calendar/) -------------------------------------
+# Its own section of the Careers menu (owner, 1 Nov 2026); it was part of the guide,
+# at break-into-wall-street/recruiting-calendar/, which now redirects here.
 # data/recruiting_calendar.json, kept by hand: one row per programme, each
 # date taken from the firm's own site. A row not yet re-checked by hand on
 # that site (verified false) says so on the page. Never an invented date.
@@ -5112,14 +5191,6 @@ def rc_when(d, what, r, today):
     return f'<span class="rc-when rc-when--ex">Expected {esc(w)}</span>'
 
 
-def rc_upcoming(rows, today, n=6):
-    """The next dated opens and closes, then the nearest expected windows."""
-    ev = [x for x in rc_events(rows) if x[0] and x[0] >= today.replace(day=1)]
-    dated = sorted([x for x in ev if x[1] in ("opens", "closes") and x[0] >= today], key=lambda x: (x[0], x[2]["firm"]))
-    loose = sorted([x for x in ev if x[1] in ("opens_ex", "closes_ex")], key=lambda x: (x[0], x[2]["firm"]))
-    return (dated + loose)[:n]
-
-
 def recruiting_page(rows):
     today = dt.datetime.now(NY).date()
     ev = rc_events(rows)
@@ -5161,8 +5232,17 @@ def recruiting_page(rows):
             return f"{d.day} {MON3[d.month - 1]} {d.year}" + (" (closed)" if closed else "")
         w = r.get(f"{what}_window")
         return f"Expected {esc(w)}" if w else ("Rolling" if r["status"] == "rolling" else "Not announced")
+    seen = set()
+
+    def fid(r):
+        """The first row of each firm carries its anchor, f-<slug>, the target of the Firms page's links."""
+        key = page_firms.slug(r["firm"])
+        if key in seen:
+            return ""
+        seen.add(key)
+        return f' id="f-{key}"'
     firm_rows = "".join(
-        f'<tr class="rc-row" {rc_attrs(r)}>{rc_firm(r, basis=True)}<td data-label="Cycle">{esc(r.get("cycle", ""))}</td>'
+        f'<tr class="rc-row"{fid(r)} {rc_attrs(r)}>{rc_firm(r, basis=True)}<td data-label="Cycle">{esc(r.get("cycle", ""))}</td>'
         f'<td data-label="Opens">{when(r, "opens")}</td><td data-label="Closes">{when(r, "closes")}</td><td>{rc_apply(r)}</td></tr>'
         for r in sorted(rows, key=lambda r: (order.get(RC_GROUP_OF.get(r["group"], r["group"]), 9), r["firm"], r["programme"])))
     byfirm = (f'<div class="rc-byfirm"><table class="rc-firmtab" aria-label="Recruiting calendar by firm"><thead><tr>'
@@ -5181,7 +5261,6 @@ def recruiting_page(rows):
     body = f"""<main id="main" class="page cl rc">
   <div class="wrap">
     <header class="page__head cl__head">
-      <p class="dd__crumbs"><a href="../">Break into Wall Street</a> <span aria-hidden="true">/</span> Recruiting calendar</p>
       <h1 class="page__title">Recruiting calendar</h1>
       <p class="lede">When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications for internships and analyst programmes.</p>
       <p class="note__meta"><span>{len({r["firm"] for r in rows})} firms, {len(rows)} programmes</span><span>{counts["confirmed"]} confirmed, {counts["expected"]} expected, {counts["rolling"]} rolling</span><span>{checked_txt}</span></p>
@@ -5205,9 +5284,9 @@ def recruiting_page(rows):
     </div>
   </div>
 </main>"""
-    return shell(title="Recruiting calendar: Break into Wall Street, Andra Markets",
+    return shell(title="Recruiting calendar: Andra Markets",
                  desc="When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications for internships and analyst programmes, checked against each firm's careers site.",
-                 body=body, home="../../", base="../../", path="break-into-wall-street/recruiting-calendar/", scripts=("recruiting.js",))
+                 body=body, home="../", base="../", path="recruiting-calendar/", scripts=("recruiting.js",))
 
 
 # Break into Wall Street (break-into-wall-street/) ---------------------------------------------------
@@ -5219,7 +5298,7 @@ CAREERS_DATA = ROOT / "data" / "path_to_wall_street.json"
 def careers_page():
     c = json.loads(CAREERS_DATA.read_text(encoding="utf-8"))
     base = "../"
-    toc = [("pw-roles", "The roles"), ("pw-time", "Recruiting calendar"), ("pw-cv", "A one-page CV"),
+    toc = [("pw-roles", "The roles"), ("pw-cv", "A one-page CV"),
            ("pw-net", "Networking and cold emails"), ("pw-tech", "Technical preparation"),
            ("pw-visa", "Visas for international students"), ("pw-cert", "Certifications"), ("pw-res", "Resources")]
     toc_html = "".join(f'<li><a class="link" href="#{i}">{t}</a></li>' for i, t in toc)
@@ -5232,15 +5311,6 @@ def careers_page():
                   f'<p>{esc(r["what"])}</p><p class="pw-lab">A typical day</p><ol class="ruled pw-day">{day}</ol>'
                   f'<p class="pw-lab">Suits you if</p><p>{esc(r["fit"])}</p>'
                   f'<p class="pw-lab">Where it leads</p><p>{esc(r["exits"])}</p></div></div></div>')
-    today = dt.datetime.now(NY).date()
-    rc_rows = load_recruiting()
-    nxt = "".join(
-        f'<tr class="rc-row"><td class="rc-date">{rc_when(d, what, r, today)}</td>{rc_firm(r)}'
-        f'<td class="rc-act"><span class="rc-what">{"Opens" if what.startswith("opens") else "Closes"}</span></td>'
-        f'<td class="rc-go">{rc_apply(r)}</td></tr>'
-        for d, what, r in rc_upcoming(rc_rows, today))
-    upcoming = (f'<table class="rc-next" aria-label="Next application dates"><tbody>{nxt}</tbody></table>'
-                if nxt else '<p class="rc-none">No dated windows yet.</p>')
     cv, s = c["cv"], c["cv"]["sample"]
     cv_rows = ""
     for sec in s["sections"]:
@@ -5297,12 +5367,6 @@ def careers_page():
         <div class="acc acc--multi">{roles}</div>
       </section>
     </div>
-    <section id="pw-time" class="pw-time" aria-labelledby="pw-time-h">
-      <h2 id="pw-time-h">Recruiting calendar</h2>
-      <p class="pw-time__lede">When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications. The next dates:</p>
-      {upcoming}
-      <p class="rc-more"><a class="link" href="recruiting-calendar/">Full recruiting calendar, by date and by firm {icon("arrow-right")}</a></p>
-    </section>
     <div class="page__body pw__body">
       <section id="pw-cv" aria-labelledby="pw-cv-h">
         <h2 id="pw-cv-h">A one-page CV</h2>
@@ -5352,7 +5416,7 @@ def careers_page():
                  desc="A guide for students breaking into investment banking, sales and trading, asset management, equity research "
                       "and hedge funds, from non-target universities and from outside the US: roles, recruiting timelines, CV, "
                       "networking, visas and certifications.",
-                 body=body, home="../", base="../", path="break-into-wall-street/", scripts=("careers.js", "recruiting.js"))
+                 body=body, home="../", base="../", path="break-into-wall-street/", scripts=("careers.js",))
 
 
 def slug_s(s):
@@ -5377,8 +5441,22 @@ SEARCH_TERMS = {
 SEARCH_PAGE_TERMS = {
     "fed-rates/": "Fed FOMC policy rate fed funds futures meeting probabilities yield curve Treasury 2s10s 3m10y "
                   "inversion spreads TIPS real yield breakeven inflation CPI PCE unemployment",
-    "break-into-wall-street/recruiting-calendar/": "application deadlines internship summer analyst opens closes banks "
-                                                   "hedge funds asset managers recruiting dates",
+    "recruiting-calendar/": "application deadlines internship summer analyst opens closes banks "
+                            "hedge funds asset managers recruiting dates",
+    "central-banks/": "central banks policy rates interest rates Fed ECB Bank of England BoE Bank of Japan BoJ target "
+                      "range deposit facility rate Bank Rate rate decision meeting dates last move",
+    "recession-watch/": "recession indicators yield curve inversion 10Y-3M T10Y3M Sahm rule unemployment initial jobless "
+                        "claims high-yield credit spread HY OAS Chicago Fed NFCI financial conditions NBER recessions",
+    "firms/": "banks boutiques asset managers hedge funds trading quant firms bulge bracket elite boutique divisions "
+              "IB S&T offices internship programmes apply careers",
+    "application-tracker/": "applications tracker deadlines status applied interview superday offer contacts notes "
+                            "networking export",
+    "chart-of-the-day/": "chart sectors volatility VIX currencies dollar commodities oil gold digital assets bitcoin "
+                         "crypto global indices close note daily share",
+    "market-history/": "S&P 500 history 1928 crash bear market drawdown recovery Great Depression 1929 Black Monday "
+                       "1987 dot-com 2000 financial crisis 2008 Lehman Covid 2020 inflation 2022 tariffs episodes",
+    "interview-simulator/": "mock interview practice timed questions model answers key points investment banking "
+                            "sales trading asset management equity research IB S&T technicals behavioural",
     "break-into-wall-street/": "careers jobs internships spring week summer analyst off-cycle graduate programme recruiting CV resume "
                 "networking cold email visa OPT H-1B CFA investment banking sales trading asset management hedge funds",
 }
@@ -5556,7 +5634,14 @@ SEARCH_PAGES = [
     ("Dashboards", "dashboards/", "Page"),
     ("Fed & Rates", "fed-rates/", "Page"),
     ("Break into Wall Street", "break-into-wall-street/", "Page"),
-    ("Recruiting calendar", "break-into-wall-street/recruiting-calendar/", "Break into Wall Street"),
+    ("Recruiting calendar", "recruiting-calendar/", "Page"),
+    ("Chart of the day", "chart-of-the-day/", "Page"),
+    ("Central banks", "central-banks/", "Page"),
+    ("Recession watch", "recession-watch/", "Page"),
+    ("Market history", "market-history/", "Page"),
+    ("Interview simulator", "interview-simulator/", "Page"),
+    ("Firms", "firms/", "Page"),
+    ("Application tracker", "application-tracker/", "Page"),
     ("The Lab", "lab/", "Page"),
     ("Simulators", "simulators/", "Page"),
     ("Trading Simulator", "simulators/trading-simulator/", "Simulators"),
@@ -5602,6 +5687,9 @@ def search_index(notes, companies=None, library=()):
                       "k": t["short"] + " interview questions " + " ".join(e["title"] for e in t["essentials"])})
     for title, url, meta in SEARCH_PAGES:
         items.append({"g": "Pages", "t": title, "m": meta, "u": url, "k": SEARCH_PAGE_TERMS.get(url, "")})
+    for e in page_market_history.episodes():
+        items.append({"g": "Pages", "t": e["title"], "m": f"Market history, {e['years']}",
+                      "u": f"market-history/{e['slug']}/", "k": e["text"]})
     payload = json.dumps(items, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     return "// Generated by tools/build_site.py. Do not edit.\nwindow.ANDRA_SEARCH=" + payload + ";\n"
 
@@ -5672,6 +5760,12 @@ def write_discovery(notes, library):
     print(f"wrote sitemap.xml ({len(SITEMAP)} pages), robots.txt and feed.xml")
 
 
+# Section pages built in their own modules (tools/page_*.py), each returning
+# {output path: page HTML}: the Research and Careers sections added on 1 Nov 2026.
+PAGE_MODULES = (page_chart_of_the_day, page_central_banks, page_recession_watch, page_market_history,
+                page_interview_simulator, page_firms, page_application_tracker)
+
+
 def main():
     notes = load_notes()
     cal = load_calendar()
@@ -5687,8 +5781,8 @@ def main():
     (OUT / "fed-rates" / "index.html").write_text(fedrates_page(load_fedrates()))
     (OUT / "break-into-wall-street").mkdir(exist_ok=True)
     (OUT / "break-into-wall-street" / "index.html").write_text(careers_page())
-    (OUT / "break-into-wall-street" / "recruiting-calendar").mkdir(exist_ok=True)
-    (OUT / "break-into-wall-street" / "recruiting-calendar" / "index.html").write_text(recruiting_page(load_recruiting()))
+    (OUT / "recruiting-calendar").mkdir(exist_ok=True)
+    (OUT / "recruiting-calendar" / "index.html").write_text(recruiting_page(load_recruiting()))
     topics = load_technicals()
     for t in topics:
         folder = OUT / "break-into-wall-street" / "technicals" / t["slug"]
@@ -5779,6 +5873,10 @@ def main():
             if logo:
                 shutil.copyfile(logo, folder / f"logo{logo.suffix}")
         print(f"wrote {len(companies['order'])} company pages")
+    for mod in PAGE_MODULES:
+        for path, html_out in mod.pages(sys.modules[__name__]).items():
+            (OUT / path).mkdir(parents=True, exist_ok=True)
+            (OUT / path / "index.html").write_text(html_out)
     write_discovery(notes, library)
     print(f"Content Security Policy on {secure_pages()} pages")
     print(f"wrote index.html, methodology/index.html, reports/index.html, {len(DASHBOARDS)} dashboard pages, "
@@ -5801,7 +5899,9 @@ def main():
 # Everything the build writes that holds pages (the folders .gitignore lists).
 GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", "profile", "calendar",
              "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
-             "legal", "privacy", "fed-rates", "careers", "break-into-wall-street")
+             "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
+             "chart-of-the-day", "central-banks", "recession-watch", "market-history",
+             "interview-simulator", "firms", "application-tracker")
 INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
 # Data blocks the browser never runs: the policy does not apply to them.
 DATA_SCRIPTS = ("application/json", "application/ld+json")

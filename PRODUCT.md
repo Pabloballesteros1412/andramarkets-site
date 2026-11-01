@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
+Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `central-banks/`, `recession-watch/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
 by `tools/build_site.py` at deploy time and deployed to GitHub Pages from `main` by
 `.github/workflows/pages.yml`. No framework, no build step beyond the generator.
 
@@ -71,14 +71,15 @@ record. The daily note is one module among others, not the centrepiece.
   30 Oct 2026; renamed from Path to Wall Street, `careers/` redirects): a
   guide for students entering IB, S&T, asset management, equity research and
   hedge funds, especially from non-target universities and outside the US:
-  the roles, a recruiting calendar, a one-page CV, networking with email
+  the roles, a one-page CV, networking with email
   templates, technical preparation, visas, certifications and resources. Its
   text lives in `data/path_to_wall_street.json`; it shows its "Last reviewed"
   date and is reviewed each quarter. The owner approved publishing after
   Claude's review.
-  - Recruiting calendar (`break-into-wall-street/recruiting-calendar/`,
-    owner-approved preview, 30 Oct 2026; replaced the timeline by academic
-    year): US only (owner's choice), about 40 banks, boutiques, asset managers,
+  - Recruiting calendar (`recruiting-calendar/`, owner-approved preview,
+    30 Oct 2026; replaced the timeline by academic year; its own section of
+    the Careers menu since 1 Nov 2026, owner: it left the guide, and
+    `break-into-wall-street/recruiting-calendar/` redirects): US only (owner's choice), about 40 banks, boutiques, asset managers,
     hedge funds and trading firms, by date and by firm, from
     `data/recruiting_calendar.json`. No free source lists firms' dates and the
     aggregators' terms forbid reuse, so the file is kept by hand from each
@@ -93,6 +94,16 @@ record. The daily note is one module among others, not the centrepiece.
     know, a worked example, practice cards whose progress stays in the
     browser, and common mistakes; Brainteasers adds a timed mental maths drill.
     Content in `data/technicals/`, reviewed before publishing.
+- Firms (`firms/`, owner-approved sketch, 1 Nov 2026): the ~40 firms of the
+  Recruiting calendar with their type, the divisions and US offices their
+  programmes name, and each programme's window and apply link, from
+  `data/recruiting_calendar.json` only. Type chips use the calendar's own
+  groups (Banks, Boutiques, Asset managers, Hedge funds, Trading and quant).
+- Application tracker (`application-tracker/`, owner-approved sketch, 1 Nov
+  2026): the reader's applications (calendar programmes or their own), status,
+  deadlines, next step, contacts and notes, kept in the browser's localStorage
+  and never sent; the reader can export and import a copy of their own entries
+  as a file (their data, not site data).
 - Calendar (real data, owner-approved 22 Oct 2026): five weeks of market-moving
   releases and events for the US, euro area, UK, Japan and China, central bank
   decisions, minutes and key speeches, Treasury note and bond auctions, NYSE
@@ -137,6 +148,40 @@ record. The daily note is one module among others, not the centrepiece.
   need to know this week" block (five to seven topics, figures only from the
   week's close notes) and a question bank with model answers in six subjects,
   all from one file, `data/interview_prep.json`, updated weekly.
+- Central banks (`central-banks/`, owner-approved sketch, 1 Nov 2026): the
+  Fed, ECB, Bank of England and Bank of Japan in one table, each policy rate
+  (target range, deposit facility rate, Bank Rate, policy rate) with its date,
+  its last move in basis points and the next meeting with the days to it, and
+  the four rates since 2019. Sources: the Federal Reserve via FRED, the ECB
+  Data Portal (FRED as backup), the Bank of England's database (the BIS as
+  backup), the BIS for the Bank of Japan; meeting dates from each bank's own
+  calendar. The Fed's row links to Fed & Rates.
+- Recession watch (`recession-watch/`, owner-approved sketch, 1 Nov 2026): the
+  10Y-3M curve, the Sahm rule, initial jobless claims, the high-yield spread
+  and the Chicago Fed's NFCI, each with its latest reading, a plain reading
+  against its own published definition (or the note that it has none) and its
+  history since 1970 or its first observation, NBER recessions shaded. All
+  from FRED. No forecast or probability of our own.
+- Chart of the day (`chart-of-the-day/`, owner-approved sketch, 1 Nov 2026):
+  one chart per session from its close note, chosen by a published rule (the
+  chart that moved most against its previous 20 sessions), with a line from
+  its figures, a quote from the note, the link to the note and Share; an
+  archive by date. Nothing beyond the note's figures and words.
+- Market history (`market-history/`, owner-approved sketch, 1 Nov 2026): the
+  Trading Simulator's 36 US episodes since 1928, each with the S&P 500 from
+  peak to low and back, its fall, months to the low and to recover, the text
+  as reviewed for the simulator, and a link to play it. S&P 500 daily closes,
+  price only, Yahoo Finance ^GSPC, fetched at deploy.
+- Interview simulator (`interview-simulator/`, owner-approved sketch, 1 Nov
+  2026): a timed mock interview answered aloud. Pick a track (IB, S&T,
+  AM/ER) and a length (10, 20, 30 minutes; 4, 8, 12 questions, two minutes
+  each); compare with the model answer and its key points, rate yourself, and
+  get a result by topic with the pages to review. Questions are used as they
+  are from the technical topics and the Interview Prep bank and weekly block
+  (with its close-note dates, while under two weeks old); key points, tracks
+  and same-question groups are kept by hand in `data/interview_simulator.json`
+  (the key points are new text, pending the owner's review). Nothing is
+  recorded or sent; progress stays in the browser.
 - Data sources, legal notice and privacy and cookies (`sources/`, `legal/`,
   `privacy/`), linked from the footer. The legal notice covers US, UK and EU
   readers. The operator's legal name, tax number, address and contact email

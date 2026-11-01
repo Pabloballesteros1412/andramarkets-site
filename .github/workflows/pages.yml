@@ -137,6 +137,25 @@ jobs:
         with:
           path: .cache/sim
           key: sim-${{ github.run_id }}-${{ github.run_attempt }}
+      # Market history (tools/history_data.py): S&P 500 daily closes since 1927,
+      # price only, from Yahoo (^GSPC); fetched at most once a day, a failed fetch
+      # keeps the last good copy, and with none the pages show Data pending.
+      - name: Restore market history
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .cache/history
+          key: history-${{ github.run_id }}
+          restore-keys: history-
+      - name: Fetch market history
+        if: ${{ !inputs.strip_only }}
+        continue-on-error: true
+        run: python3 tools/history_data.py
+      - name: Save market history
+        if: ${{ !inputs.strip_only }}
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .cache/history
+          key: history-${{ github.run_id }}-${{ github.run_attempt }}
       # The World markets page (tools/world_data.py): Yahoo, OECD, World Bank,
       # IMF; each figure keeps its last good value and date when a source fails.
       - name: Restore world figures
@@ -215,6 +234,47 @@ jobs:
         with:
           path: .cache/fedrates
           key: fedrates-${{ github.run_id }}-${{ github.run_attempt }}
+      # Central banks (tools/centralbanks_data.py): the four policy rates (FRED,
+      # the ECB Data Portal, the Bank of England's database, the BIS) and each
+      # bank's decision dates for the year ahead; each keeps its last good copy.
+      - name: Restore central banks
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .cache/centralbanks
+          key: centralbanks-${{ github.run_id }}
+          restore-keys: centralbanks-
+      - name: Fetch central banks
+        if: ${{ !inputs.strip_only }}
+        continue-on-error: true
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python3 tools/centralbanks_data.py
+      - name: Save central banks
+        if: ${{ !inputs.strip_only }}
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .cache/centralbanks
+          key: centralbanks-${{ github.run_id }}-${{ github.run_attempt }}
+      # Recession watch (tools/recession_data.py): five indicators and the NBER
+      # recession dates, all from FRED; each keeps its last good copy.
+      - name: Restore recession watch
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .cache/recession
+          key: recession-${{ github.run_id }}
+          restore-keys: recession-
+      - name: Fetch recession watch
+        if: ${{ !inputs.strip_only }}
+        continue-on-error: true
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: python3 tools/recession_data.py
+      - name: Save recession watch
+        if: ${{ !inputs.strip_only }}
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .cache/recession
+          key: recession-${{ github.run_id }}-${{ github.run_attempt }}
       # The tape between deploys (tools/strip_data.py): every figure keeps
       # its last good value and time when a source fails.
       - name: Restore market strip
@@ -262,6 +322,8 @@ jobs:
           cp -r lab simulators _site/
           cp -r research interview-prep sources legal privacy _site/
           cp -r fed-rates careers break-into-wall-street _site/
+          cp -r recruiting-calendar interview-simulator firms application-tracker _site/
+          cp -r chart-of-the-day central-banks recession-watch market-history _site/
           cp -r profile _site/
           # Search engines and feed readers: written only when SITE_URL is set.
           for f in sitemap.xml robots.txt feed.xml; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
