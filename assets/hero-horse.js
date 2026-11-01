@@ -15,11 +15,11 @@
 // drawing stands still and nothing morphs. Without WebGL or JavaScript the hero keeps the
 // still engraving (.horse).
 //
-// The headline, the index of sections and the header (the mark, the name, the theme
-// button and the legal line; owner, 31 Oct 2026) fly out of the same point (owner-approved,
-// 31 Oct 2026): each character, the mark and the icon are drawn where the page sets them and
-// sampled into particles; once they settle, the real page (crisp, selectable, the links and
-// the button working) takes over. The page marks html.hero-forming in its head, before the
+// The headline, the index of sections and the header (the mark, which is also the theme
+// switch, the name and the legal line; owner, 31 Oct and 1 Nov 2026) fly out of the same point
+// (owner-approved, 31 Oct 2026): each character and the mark are drawn where the page sets them
+// and sampled into particles; once they settle, the real page (crisp, selectable, the links and
+// the switch working) takes over. The page marks html.hero-forming in its head, before the
 // header is parsed (HERO_BOOT in tools/build_site.py); this script removes it whenever it
 // cannot run, so nothing is left hidden.
 //
@@ -329,22 +329,11 @@
     }, group, delay, dur, r, ink, ref);
   }
 
-  // the header's mark (its transparent PNG, by its alpha) and the theme button's icon (its
-  // sprite path), where the page shows them
+  // the header's mark (its transparent PNG, by its alpha), where the page shows it
   function sampleImage(img, group, delay, dur, r, ink, ref) {
     if (!img.complete || !img.naturalWidth) return new Float32Array(0);
     var b = img.getBoundingClientRect();
     return sample(b, function (x) { x.drawImage(img, b.left, b.top, b.width, b.height); }, group, delay, dur, r, ink, ref);
-  }
-  function sampleIcon(svg, group, delay, dur, r, ink, ref) {
-    var use = svg.querySelector("use"), id = use && (use.getAttribute("href") || use.getAttribute("xlink:href") || "");
-    var sym = id && document.getElementById(id.replace(/^#/, "")), path = sym && sym.querySelector("path");
-    if (!path || !window.Path2D) return new Float32Array(0);
-    var vb = (sym.getAttribute("viewBox") || "0 0 256 256").split(/[\s,]+/).map(Number), b = svg.getBoundingClientRect();
-    return sample(b, function (x) {
-      x.translate(b.left, b.top); x.scale(b.width / vb[2], b.height / vb[3]); x.translate(-vb[0], -vb[1]);
-      x.fill(new Path2D(path.getAttribute("d")));
-    }, group, delay, dur, r, ink, ref);
   }
   function shown(el) { var b = el.getBoundingClientRect(); return b.width > 0 && b.height > 0; }
 
@@ -370,8 +359,8 @@
       parts.push(sampleText(el, 2, function (u, rr) { return 0.95 + k * 0.09 + u * 0.3 + rr() * 0.2; }, 1.3, r, 1));
     });
     T_I = 0.95 + Math.max(0, links.length - 1) * 0.09 + 0.3 + 0.2 + 1.3;
-    // the header with the headline, left to right across the bar: the mark, the name, the
-    // theme button, then the legal line in its lighter tone
+    // the header with the headline, left to right across the bar: the mark, the name, then
+    // the legal line in its lighter tone
     if (bar) {
       var row = bar.querySelector(".wrap") || bar, ref = row.getBoundingClientRect();
       var hd = function (u, rr) { return 0.3 + Math.max(0, Math.min(1, u)) * 0.8 + rr() * 0.3; };
@@ -380,9 +369,6 @@
       });
       Array.prototype.forEach.call(bar.querySelectorAll(".brand__name"), function (el) {
         parts.push(sampleText(el, 3, hd, 1.6, r, 1, ref));
-      });
-      Array.prototype.forEach.call(bar.querySelectorAll(".theme-btn .icon"), function (el) {
-        if (shown(el)) parts.push(sampleIcon(el, 3, hd, 1.6, r, 1, ref));
       });
       var legal = weight("--ink-3");
       Array.prototype.forEach.call(bar.querySelectorAll(".site-header__legal a"), function (el) {

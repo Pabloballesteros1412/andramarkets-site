@@ -437,6 +437,22 @@ body.has-scene {
 .brand__name {
   position: relative;
   z-index: 1;
+  text-decoration: none;
+}
+
+/* The header's mark is the theme switch (owner, 1 Nov 2026; it replaced the sun and moon
+   button). It looks exactly like the mark: the padding, taken back by the negative margin,
+   only widens what a finger or pointer can hit (at least 44px tall) without moving anything. */
+.brand__toggle {
+  box-sizing: content-box;
+  margin: -9px -5px -9px -10px;
+  padding: 9px 5px 9px 10px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Transparent marks (tools/make_mark.py), one per theme: no box, no blend.
@@ -659,12 +675,13 @@ html:not(.js) .nav__group:focus-within .nav__panel {
   }
 }
 
-/* Phones: in the header row's right corner beside the theme button (owner, 31 Oct 2026), on
+/* Phones: in the header row's right corner (owner, 31 Oct 2026), on
    two right-aligned lines: "Not investment advice." then Privacy and cookies. "For information
    only." is left out here (owner, 31 Oct 2026): with it the disclaimer only fits one line at
    about 7px. 15px lines, 2px apart (the approved mock). Measured in
-   Chromium: at 0.6875rem "Not investment advice." is 117px wide, which fits beside the theme
-   button from 370px, and from 360px with 4px header gaps. */
+   Chromium: at 0.6875rem "Not investment advice." is 117px wide; with the 44px theme button
+   that stood beside it until 1 Nov 2026 it fitted from 370px, and from 360px with 4px header
+   gaps, so there is room to spare now. */
 @media (min-width: 360px) and (max-width: 600px) {
   .site-header--home .brand {
     margin-right: 0;
@@ -708,7 +725,6 @@ html:not(.js) .nav__group:focus-within .nav__panel {
   }
 }
 
-.theme-btn,
 .menu-btn {
   display: inline-flex;
   align-items: center;
@@ -724,22 +740,6 @@ html:not(.js) .nav__group:focus-within .nav__panel {
   font-size: 0.9375rem;
   font-weight: 550;
   cursor: pointer;
-}
-
-.theme-btn .icon {
-  font-size: 1.25rem;
-  transition: transform 300ms var(--ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .theme-btn:hover .icon {
-    transform: rotate(-20deg);
-  }
-}
-
-:root[data-theme="dark"] .icon--moon,
-:root:not([data-theme="dark"]) .icon--sun {
-  display: none;
 }
 
 .menu-btn {
@@ -1035,10 +1035,9 @@ html.hero-formed .hero__copy > * {
   animation: none;
 }
 
-/* The homepage header forms from the same particles (owner, 31 Oct 2026): the mark, the
-   name, the theme button and the legal line are in place but clear until they settle. */
+/* The homepage header forms from the same particles (owner, 31 Oct 2026): the mark (the
+   theme switch), the name and the legal line are in place but clear until they settle. */
 html.hero-forming .site-header--home .brand__name,
-html.hero-forming .site-header--home .theme-btn,
 html.hero-forming .site-header--home .site-header__legal a {
   transition: color 450ms ease;
 }
@@ -1048,7 +1047,6 @@ html.hero-forming .site-header--home .brand__mark {
 }
 
 html.hero-forming .site-header--home:not(.crisp-hd) .brand__name,
-html.hero-forming .site-header--home:not(.crisp-hd) .theme-btn,
 html.hero-forming .site-header--home:not(.crisp-hd) .site-header__legal a {
   color: transparent;
 }
@@ -1064,7 +1062,6 @@ html.hero-forming .site-header--home:not(.crisp-hd) .brand__mark {
 html.hero-leaving .hero h1,
 html.hero-leaving .hero__index a,
 html.hero-leaving .site-header--home .brand__name,
-html.hero-leaving .site-header--home .theme-btn,
 html.hero-leaving .site-header--home .site-header__legal a {
   color: transparent;
   text-decoration-color: transparent;
@@ -1082,7 +1079,6 @@ html.hero-leaving .hero .today {
 }
 
 html.hero-returning .site-header--home .brand__name,
-html.hero-returning .site-header--home .theme-btn,
 html.hero-returning .site-header--home .site-header__legal a {
   transition: color 450ms ease;
 }

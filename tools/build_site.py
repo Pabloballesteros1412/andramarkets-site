@@ -527,7 +527,7 @@ def tile_asof(key, rec):
 
 # Icons -----------------------------------------------------------------------
 
-ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "sun", "moon",
+ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x",
               "magnifying-glass", "check", "link", "pause", "play", "caret-down"] + [
     icon_name for _, url, icon_name in SOCIALS if url
 ]
@@ -1316,25 +1316,23 @@ def site_header(home, base, nav=True):
       <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
     </button>""" if nav else ""
     # The homepage (nav=False): no search, and the legal line at the top right, as it has no footer.
-    # Phones leave out the first span: the disclaimer then fits beside the theme button (site.css).
+    # Phones leave out the first span: the disclaimer then fits on two lines (site.css).
     search = """<button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
       <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
     </button>""" if nav else ""
     legal = "" if nav else (f'<p class="site-header__legal"><a href="{base}legal/"><span>For information only.</span> '
                             f'<span>Not investment advice.</span></a>'
                             f'<a href="{base}privacy/">Privacy and cookies</a></p>')
+    # The mark is the theme switch (owner, 1 Nov 2026): it replaced the sun and moon button.
+    # The name beside it stays the link home.
     return f"""<header class="site-header{'' if nav else ' site-header--home'}">
   <div class="wrap">
-    <a class="brand" href="{home or '#top'}" aria-label="Andra Markets, home">
-      <span class="brand__mark"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></span>
-      <span class="brand__name">Andra Markets</span>
-    </a>
+    <div class="brand">
+      <button class="brand__mark brand__toggle" type="button" aria-label="Switch to light theme" title="Switch to light theme"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></button>
+      <a class="brand__name" href="{home or '#top'}" aria-label="Andra Markets, home">Andra Markets</a>
+    </div>
     {menu}
     {search}
-    <button class="theme-btn" type="button" aria-label="Switch to light theme">
-      <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
-      <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
-    </button>
     {legal}
     {menu_btn}
   </div>
