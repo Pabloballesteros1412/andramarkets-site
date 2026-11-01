@@ -21,7 +21,10 @@
   var canvas = document.querySelector(".scene__canvas");
   if (!canvas || !window.WebGLRenderingContext) return;
   var gl = null;
-  try { gl = canvas.getContext("webgl", { antialias: true, alpha: false }); } catch (e) { gl = null; }
+  // No antialiasing (owner-approved, 1 Nov 2026, for a smoother site): the particles are soft
+  // dots and the horse's edge is smoothed in its own shader, so it only cost a four-times
+  // buffer to clear and resolve on every frame, heaviest on laptops with integrated graphics.
+  try { gl = canvas.getContext("webgl", { antialias: false, alpha: false }); } catch (e) { gl = null; }
   if (!gl) return;
 
   var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
