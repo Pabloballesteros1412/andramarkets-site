@@ -183,6 +183,18 @@
     });
   }
 
+  // Moving to another page (owner-approved, 1 Nov 2026): section pages cross-fade into one
+  // another (VIEW_TRANSITION in tools/build_site.py). The homepage takes no part, so a
+  // transition towards it is called off here, before the browser starts it for nothing.
+  window.addEventListener("pageswap", function (e) {
+    var vt = e.viewTransition, to = e.activation && e.activation.entry && e.activation.entry.url;
+    if (!vt || !to) return;
+    vt.ready.catch(function () {});
+    vt.finished.catch(function () {});
+    var home = new URL(document.body.getAttribute("data-base") || "./", location.href).pathname;
+    if (new URL(to).pathname === home) vt.skipTransition();
+  });
+
   // Chip groups: the ink fill glides to the pressed chip. Works for any
   // .filters group, including the range chips that dashboard.js presses.
   // Chips pressed while the page sets up (a view or filter from the link's

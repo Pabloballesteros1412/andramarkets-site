@@ -22,6 +22,10 @@
 // the button working) takes over. The page marks html.hero-forming in its head, before the
 // header is parsed (HERO_BOOT in tools/build_site.py); this script removes it whenever it
 // cannot run, so nothing is left hidden.
+//
+// A click on a link to another page takes the whole hero back into that point before the
+// page opens (owner-approved, 1 Nov 2026); the section page opens out of it
+// (assets/section-scene.js).
 (function () {
   "use strict";
   var hero = document.querySelector(".hero");
@@ -76,7 +80,7 @@
   var VS = [
     "attribute vec4 aH; attribute vec3 aC;",
     "uniform vec2 res; uniform vec2 cc; uniform vec4 hb; uniform vec3 ptr; uniform vec3 hcol; uniform vec3 dcol; uniform vec2 dim;",
-    "uniform float t, m, dpr, pitch, sm, am, prad, sheen;",
+    "uniform float t, m, dpr, pitch, sm, am, prad, sheen, xt, xo;",
     "varying float va; varying vec3 vc;",
     "const float PI = 3.14159265;",
     "float eio(float x){ return x < 0.5 ? 4.0*x*x*x : 1.0 - pow(-2.0*x + 2.0, 3.0) * 0.5; }",
@@ -108,6 +112,14 @@
     "  pos = mix(pos, aC.xy, eg) + vec2(cos(ang), sin(ang))*sc;",
     "  a = mix(mix(a, dust, sin(PI*eg)), aC.z, smoothstep(0.6, 1.0, eg));",
     "  sz = mix(sz, 2.0, eg);",
+    // leaving for a section: back into the point, the shading first and the outline last,
+    // slow away from its place and fast into the point (the way in, reversed)
+    "  float xf = clamp((xt - (aH.w > 0.5 ? 0.1 : 0.0) - 0.1*aR.w) / 0.42, 0.0, 1.0);",
+    "  float xe = xf*xf*xf;",
+    "  vec2 xd = pos - s;",
+    "  pos = s + xd*(1.0 - xe) + vec2(-xd.y, xd.x) * sin(PI*xe) * (aR.z - 0.5) * 0.44;",
+    "  a = mix(a, dust, smoothstep(0.0, 0.4, xe)) * xo;",
+    "  sz = mix(sz, 2.2, xe);",
     // pointer: the dots part around it and close again behind it
     "  vec2 dp = pos - ptr.xy; float dist = length(dp);",
     "  float q = 1.0 - smoothstep(0.0, prad, dist);",
@@ -121,7 +133,7 @@
     "  float ps = sz * dpr * sm;",
     "  gl_PointSize = max(1.0, ps);",
     "  va = a * am * min(1.0, ps * ps);",
-    "  vc = mix(dcol, hcol, smoothstep(0.6, 1.0, e) * (1.0 - smoothstep(0.0, 0.5, eg)));",
+    "  vc = mix(dcol, hcol, smoothstep(0.6, 1.0, e) * (1.0 - smoothstep(0.0, 0.5, eg)) * (1.0 - smoothstep(0.0, 0.4, xe)));",
     "}"
   ].join("\n");
   var FS = [
@@ -133,7 +145,7 @@
   var VS_TEXT = [
     "attribute vec4 aP; attribute vec2 aQ;",
     "uniform vec2 res; uniform vec2 cc; uniform vec3 ptr; uniform vec3 tcol; uniform vec3 dcol;",
-    "uniform float t, dpr, sm, am, prad, pitch, visP, visI, visH;",
+    "uniform float t, dpr, sm, am, prad, pitch, visP, visI, visH, xt, xo;",
     "varying float va; varying vec3 vc;",
     "const float PI = 3.14159265;",
     HASH,
@@ -151,6 +163,13 @@
     "  float dust = 0.035 + 0.55*pow(aS.y, 4.0);",
     "  float a = mix(dust, aP.z, smoothstep(0.6, 1.0, e));",
     "  a *= mix(1.0, aP.w < 1.5 ? visP : aP.w < 2.5 ? visI : visH, step(0.999, f));",
+    // leaving for a section: the text goes back into the point a moment before the horse
+    "  float xf = clamp((xt - 0.1*rq.y) / 0.42, 0.0, 1.0);",
+    "  float xe = xf*xf*xf;",
+    "  vec2 xd = pos - s;",
+    "  pos = s + xd*(1.0 - xe) + vec2(-xd.y, xd.x) * sin(PI*xe) * (rq.y - 0.5) * 0.44;",
+    "  a = mix(a, dust, smoothstep(0.0, 0.4, xe)) * xo;",
+    "  e *= 1.0 - xe;",
     "  vec2 dp = pos - ptr.xy; float dist = length(dp);",
     "  float q = 1.0 - smoothstep(0.0, prad, dist);",
     "  vec2 dir = dp / max(dist, 0.001);",
@@ -177,8 +196,8 @@
   var prog = program(VS);
   if (!prog) { fail(); return; }
   var progT = program(VS_TEXT);
-  var U = uniforms(prog, ["res", "cc", "hb", "ptr", "hcol", "dcol", "dim", "t", "m", "dpr", "pitch", "sm", "am", "prad", "sheen", "kk"]);
-  var UT = progT ? uniforms(progT, ["res", "cc", "ptr", "tcol", "dcol", "t", "dpr", "sm", "am", "prad", "pitch", "visP", "visI", "visH", "kk"]) : null;
+  var U = uniforms(prog, ["res", "cc", "hb", "ptr", "hcol", "dcol", "dim", "t", "m", "dpr", "pitch", "sm", "am", "prad", "sheen", "kk", "xt", "xo"]);
+  var UT = progT ? uniforms(progT, ["res", "cc", "ptr", "tcol", "dcol", "t", "dpr", "sm", "am", "prad", "pitch", "visP", "visI", "visH", "kk", "xt", "xo"]) : null;
   var MAX_ATTRIBS = Math.min(8, gl.getParameter(gl.MAX_VERTEX_ATTRIBS));
   // both programs share the attribute slots: each draw switches them to its own buffers
   function attribs(list) {
@@ -198,6 +217,10 @@
   var W = 0, H = 0, DPR = 1, box = null, cbox = null;
   var t0 = 0, running = false, visible = true, lastP = -1, frameNo = 0;
   var ptr = { x: -1e4, y: -1e4, sx: -1e4, sy: -1e4, s: 0, last: -1e9 };
+  // leaving for a section (owner-approved, 1 Nov 2026): xMode 1 on the way into the point,
+  // 2 on the way back out (the page shown again from the back/forward cache), 3 while the
+  // real text takes over again; xT is how far into the way in, in seconds
+  var EXIT = 0.64, BACK = 0.5, xMode = 0, xT = 0, xO = 1, xVis = 1, xS = 0, xLast = 0, xGo = null;
 
   /* ---------- the particles, from the map ---------- */
   function build(image) {
@@ -526,6 +549,7 @@
     gl.uniform1f(U.m, m);
     gl.uniform2f(U.cc, W / 2, H / 2);
     gl.uniform1f(U.sheen, reduce ? 0 : 1);
+    gl.uniform1f(U.xt, xT); gl.uniform1f(U.xo, xO);
     gl.uniform3f(U.hcol, col.horse[0], col.horse[1], col.horse[2]);
     gl.uniform3f(U.dcol, col.dust[0], col.dust[1], col.dust[2]);
     // a faint halo from a third of the particles (light theme only: the dark homepage is
@@ -543,11 +567,13 @@
   }
 
   function drawText(t, col, halo) {
-    var cp = t >= T_P, ci = t >= T_I, ch = t >= T_H;
-    if (cp !== crispP) { crispP = cp; hero.classList.toggle("crisp-h1", cp); }
-    if (ci !== crispI) { crispI = ci; hero.classList.toggle("crisp-ix", ci); }
-    if (ch !== crispH) { crispH = ch; if (bar) bar.classList.toggle("crisp-hd", ch); }
-    if (t >= Math.max(T_P, T_I, T_H) + 0.6) { finishText(); return; }
+    if (!xMode) {
+      var cp = t >= T_P, ci = t >= T_I, ch = t >= T_H;
+      if (cp !== crispP) { crispP = cp; hero.classList.toggle("crisp-h1", cp); }
+      if (ci !== crispI) { crispI = ci; hero.classList.toggle("crisp-ix", ci); }
+      if (ch !== crispH) { crispH = ch; if (bar) bar.classList.toggle("crisp-hd", ch); }
+      if (t >= Math.max(T_P, T_I, T_H) + 0.6) { finishText(); return; }
+    }
     if (!TN) return;
     gl.useProgram(progT);
     attribs([[progT, "aP", tBuf, 4, 24, 0], [progT, "aQ", tBuf, 2, 24, 16]]);
@@ -555,8 +581,13 @@
     gl.uniform2f(UT.cc, W / 2, H / 2);
     gl.uniform3f(UT.ptr, ptr.sx, ptr.sy, ptr.s); gl.uniform1f(UT.prad, W > 860 ? 95 : 70);
     gl.uniform1f(UT.t, t); gl.uniform1f(UT.pitch, 1 / TS);
-    gl.uniform1f(UT.visP, 1 - smooth(T_P, T_P + 0.45, t)); gl.uniform1f(UT.visI, 1 - smooth(T_I, T_I + 0.45, t));
-    gl.uniform1f(UT.visH, 1 - smooth(T_H, T_H + 0.45, t));
+    if (xMode) {
+      gl.uniform1f(UT.visP, xVis); gl.uniform1f(UT.visI, xVis); gl.uniform1f(UT.visH, xVis);
+    } else {
+      gl.uniform1f(UT.visP, 1 - smooth(T_P, T_P + 0.45, t)); gl.uniform1f(UT.visI, 1 - smooth(T_I, T_I + 0.45, t));
+      gl.uniform1f(UT.visH, 1 - smooth(T_H, T_H + 0.45, t));
+    }
+    gl.uniform1f(UT.xt, xT); gl.uniform1f(UT.xo, xO);
     gl.uniform3f(UT.tcol, col.text[0], col.text[1], col.text[2]); gl.uniform3f(UT.dcol, col.dust[0], col.dust[1], col.dust[2]);
     if (halo) {
       gl.uniform1f(UT.sm, 4.5); gl.uniform1f(UT.am, 0.05); gl.uniform1f(UT.kk, 2.0);
@@ -572,9 +603,77 @@
     ptr.s += ((now - ptr.last < 1200 ? 1 : 0) - ptr.s) * 0.08;
     ptr.sx += (ptr.x - ptr.sx) * 0.22; ptr.sy += (ptr.y - ptr.sy) * 0.22;
     var t = (now - t0) / 1000, p = progress();
+    if (xMode) exitClock(now);
     // once settled and untouched, half the frame rate is plenty for the band of light
-    if (t > DONE + 0.5 && ptr.s < 0.01 && p === lastP && (frameNo++ & 1)) return;
+    else if (t > DONE + 0.5 && ptr.s < 0.01 && p === lastP && (frameNo++ & 1)) return;
     draw(t, p);
+    if (xMode === 1 && xT >= EXIT) go();
+  }
+
+  /* ---------- leaving for a section: everything goes back into the point ---------- */
+  // Clicking a link to another page (a section in the index, the close note, the legal line)
+  // takes the horse, the headline, the index and the header back into the point at the
+  // centre they came out of, the way in reversed (0.64s), then opens the page, which opens
+  // out of the same point (assets/section-scene.js, html.arrive). Not under reduced motion,
+  // nor before the particles are drawing; a link opened in a new tab or window goes as usual.
+  // Its clock moves at most 1/20s a frame, so a frame held up pauses it rather than skipping it.
+  function exitClock(now) {
+    var dt = xLast ? Math.max(0, Math.min(now - xLast, 50)) / 1000 : 0;
+    xLast = now;
+    if (xMode === 1) xT = Math.min(EXIT, xT + dt);
+    else if (xMode === 2) {
+      xT = Math.max(0, xT - dt * EXIT / BACK);
+      if (xT <= 0) {
+        // back in place: the real page takes over again as the text particles fade (as when
+        // it first formed)
+        xMode = 3; xS = 0;
+        hero.classList.add("crisp-h1", "crisp-ix");
+        if (bar) bar.classList.add("crisp-hd");
+        root.classList.add("hero-returning", "hero-formed");
+        root.classList.remove("hero-leaving", "hero-forming");
+      }
+    } else if (xMode === 3) {
+      xS += dt; xVis = 1 - smooth(0, 0.45, xS);
+      if (xS >= 0.5) { xMode = 0; xVis = 1; textOn = false; root.classList.remove("hero-returning"); }
+    }
+    xO = 1 - smooth(EXIT - 0.12, EXIT, xT);
+  }
+
+  function go() {
+    if (xMode !== 1 || !xGo) return;
+    var href = xGo;
+    xGo = null;
+    location.href = href;
+  }
+
+  function leave(href) {
+    if (xMode === 1) { xGo = href; return; }
+    // the text as it stands, so it can go back into the point with the horse
+    if (progT && !textOn) { buildText(); textOn = true; }
+    if (xMode !== 2) xT = 0;
+    xMode = 1; xLast = 0; xGo = href; xVis = 1;
+    root.classList.add("hero-leaving");
+    root.classList.remove("hero-returning");
+    ptr.last = -1e9;
+    try { sessionStorage.setItem("andra-arrive", String(Date.now())); } catch (e) { /* private mode */ }
+    // fetch the page while the hero leaves (the speculation rules may have already)
+    var l = document.createElement("link");
+    l.rel = "prefetch"; l.href = href;
+    document.head.appendChild(l);
+    exitClock(performance.now());
+    start();
+    // if frames stall (a hidden tab), go anyway
+    setTimeout(go, (EXIT - xT) * 1000 + 600);
+  }
+
+  function onClick(e) {
+    if (reduce || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a || a.target || a.hasAttribute("download") || a.origin !== location.origin) return;
+    if (a.pathname === location.pathname || /\.pdf$/i.test(a.pathname)) return;
+    if (!hero.classList.contains("is-live")) return;
+    e.preventDefault();
+    leave(a.href);
   }
   function start() { if (!running && !reduce && visible && !document.hidden) { running = true; requestAnimationFrame(loop); } }
   function stop() { running = false; }
@@ -618,6 +717,14 @@
       ptr.last = performance.now();
     }, { passive: true });
     stage.addEventListener("pointerleave", function () { ptr.last = -1e9; });
+    document.addEventListener("click", onClick);
+    // shown again from the back/forward cache after leaving: everything comes back out of
+    // the point (the way in, reversed again, 0.5s)
+    window.addEventListener("pageshow", function (e) {
+      if (!e.persisted || xMode !== 1) return;
+      xGo = null; xMode = 2; xLast = 0;
+      start();
+    });
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible) start(); else stop(); }).observe(hero);
     }

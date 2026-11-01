@@ -10,6 +10,12 @@
 // The horse comes from assets/section-horse.png (tools/make_section_horse.py, from
 // andra-horse.png). The light theme shows the same scene inverted in CSS. Reduced motion:
 // one still frame. Without WebGL the page keeps its plain ground.
+//
+// Moving between pages (owner-approved, 1 Nov 2026): arriving from the homepage, whose hero
+// went back into the point at the centre of the screen (assets/hero-horse.js), the sphere
+// opens out of that point (the page's head marks html.arrive). From one section to the next
+// the sphere carries on: its clock, its light and its turn are kept for the next page, so it
+// neither restarts nor goes dark while the page cross-fades.
 (function () {
   "use strict";
   var canvas = document.querySelector(".scene__canvas");
@@ -26,7 +32,7 @@
   // far pole; each particle drifts slowly round the line of view and floats a little.
   var VS_P = [
     "attribute vec4 a;",
-    "uniform float t, focal, dpr, side, zSplit, power; uniform mediump float ink; uniform vec2 res, center, turn; uniform vec3 cam;",
+    "uniform float t, focal, dpr, side, zSplit, power, op; uniform mediump float ink; uniform vec2 res, center, turn; uniform vec3 cam;",
     "varying float va; varying float vsoft;",
     "vec3 rotY(vec3 p, float a){ float c = cos(a), s = sin(a); return vec3(c*p.x + s*p.z, p.y, -s*p.x + c*p.z); }",
     "vec3 rotX(vec3 p, float a){ float c = cos(a), s = sin(a); return vec3(p.x, c*p.y - s*p.z, s*p.y + c*p.z); }",
@@ -40,6 +46,11 @@
     "  float behind = step(zSplit, q.z);",
     "  if (q.z < 0.06 || abs(behind - side) > 0.5) { gl_Position = vec4(2.0, 2.0, 0.0, 1.0); gl_PointSize = 0.0; va = 0.0; vsoft = 0.0; return; }",
     "  vec2 s = center + vec2(q.x, -q.y) / q.z * focal;",
+    // arriving from the homepage: out of the point at the centre, quick out of it and slowing
+    // into place
+    "  float oe = clamp(op * 1.6 - 0.6 * fract(r * 5.31), 0.0, 1.0);",
+    "  oe = 1.0 - (1.0 - oe) * (1.0 - oe) * (1.0 - oe);",
+    "  s = center + (s - center) * oe;",
     "  gl_Position = vec4(s.x / res.x * 2.0 - 1.0, 1.0 - s.y / res.y * 2.0, 0.0, 1.0);",
     // a little brighter near the light behind the horse
     "  vec3 L = vec3(0.0, 0.02, 1.0) - cam;",
@@ -48,9 +59,10 @@
     // near ones big and soft (out of focus), far ones small and sharp
     "  float near = 1.0 - smoothstep(0.15, 0.7, q.z);",
     "  float size = (1.1 + 1.6 * fract(r * 7.13)) * (0.9 / q.z) * (1.0 + near * 5.0);",
-    "  gl_PointSize = clamp(size * dpr, 1.0, 26.0 * dpr);",
+    "  gl_PointSize = clamp(size * dpr * mix(0.35, 1.0, oe), 1.0, mix(4.0, 26.0, oe) * dpr);",
     "  vsoft = near;",
-    "  va = lit * (0.35 + 0.65 * fract(r * 3.71)) / (1.0 + near * 7.0) * power;",
+    // (brighter while they fly out, so the opening reads against the black)
+    "  va = lit * (0.35 + 0.65 * fract(r * 3.71)) / (1.0 + near * 7.0) * power * (1.0 + 2.5 * (1.0 - oe) * step(op, 0.999));",
     "}"
   ].join("\n");
   // The light theme inverts the canvas in CSS; there the particles print in full black
@@ -103,7 +115,7 @@
   function uniforms(p, names) { var u = {}; names.forEach(function (n) { u[n] = gl.getUniformLocation(p, n); }); return u; }
   var PP = program(VS_P, FS_P), PH = program(VS_H, FS_H);
   if (!PP || !PH) return;
-  var UP = uniforms(PP, ["t", "focal", "dpr", "side", "zSplit", "power", "res", "center", "turn", "cam", "ink"]);
+  var UP = uniforms(PP, ["t", "focal", "dpr", "side", "zSplit", "power", "op", "res", "center", "turn", "cam", "ink"]);
   var UH = uniforms(PH, ["horse", "res", "box", "dpr", "power", "srcpx"]);
   var aP = gl.getAttribLocation(PP, "a"), aQ = gl.getAttribLocation(PH, "p");
 
@@ -128,6 +140,14 @@
 
   var W = 0, H = 0, DPR = 1, ready = false, running = false, t0 = 0, on = 0;
   var ptr = { x: 0, y: 0, sx: 0, sy: 0 };
+  // texReady: the horse's texture is in; hz: the horse's own light, so a texture that comes
+  // in after the first frame fades in rather than appearing at once
+  var texReady = false, hz = 0, drawn = false;
+  // opening: arriving from the homepage, the sphere opens out of the point over OPEN seconds
+  var root = document.documentElement;
+  // (its clock moves at most 1/20s a frame, so a frame held up while the page loads pauses
+  // the opening rather than skipping it)
+  var opening = !reduce && root.classList.contains("arrive"), OPEN = 1.3, openT = 0, openLast = 0;
   var CAM_Z = -0.25, ASP = BOX.w / BOX.h;
 
   function resize() {
@@ -138,6 +158,15 @@
 
   function frame(now) {
     var t = reduce ? 30 : (now - t0) / 1000;
+    var o = 1;
+    if (opening) {
+      openT += openLast ? Math.max(0, Math.min(now - openLast, 50)) : 0;
+      openLast = now;
+      o = Math.min(1, openT / 1000 / OPEN);
+      if (o >= 1) opening = false;
+    }
+    if (texReady && hz < 1) hz = Math.min(1, hz + 0.06);
+    drawn = true;
     on = reduce ? 1 : Math.min(1, on + 0.008);               // the light comes up over about two seconds
     ptr.sx += (ptr.x - ptr.sx) * 0.025; ptr.sy += (ptr.y - ptr.sy) * 0.025;
     var sc = Math.min(1, (window.scrollY || 0) / (window.innerHeight * 0.8));
@@ -152,7 +181,9 @@
     var dz = pz - cam[2];
     var cx = W / 2, cy = H / 2;
     var hx = cx + px / dz * focal, hy = cy - py / dz * focal;
-    var hh = (W > 960 ? H * 0.185 : H * 0.165) * (1 + 0.2 * sc);
+    // opening: the horse grows out of the point a little after the particles
+    var ho = 1 - Math.pow(1 - Math.min(1, Math.max(0, (o - 0.2) / 0.8)), 3);
+    var hh = (W > 960 ? H * 0.185 : H * 0.165) * (1 + 0.2 * sc) * ho;
     var box = [hx - hh * ASP / 2, hy - hh / 2, hh * ASP, hh];
 
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -163,20 +194,22 @@
       gl.disableVertexAttribArray(aQ);
       gl.bindBuffer(gl.ARRAY_BUFFER, pBuf); gl.enableVertexAttribArray(aP); gl.vertexAttribPointer(aP, 4, gl.FLOAT, false, 0, 0);
       gl.uniform1f(UP.t, t); gl.uniform1f(UP.focal, focal); gl.uniform1f(UP.dpr, DPR); gl.uniform1f(UP.side, side);
-      gl.uniform1f(UP.zSplit, dz - 0.02); gl.uniform1f(UP.power, (0.35 + 0.65 * power) * fade);
+      gl.uniform1f(UP.zSplit, dz - 0.02); gl.uniform1f(UP.power, (0.35 + 0.65 * power) * fade); gl.uniform1f(UP.op, o);
       gl.uniform2f(UP.res, W, H); gl.uniform2f(UP.center, cx, cy); gl.uniform2f(UP.turn, turn[0], turn[1]);
       gl.uniform3f(UP.cam, cam[0], cam[1], cam[2]);
       gl.uniform1f(UP.ink, document.documentElement.getAttribute("data-theme") === "dark" ? 0 : 1);
       gl.drawArrays(gl.POINTS, 0, N);
     }
     particles(1);
-    gl.useProgram(PH); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    gl.disableVertexAttribArray(aP);
-    gl.bindBuffer(gl.ARRAY_BUFFER, qBuf); gl.enableVertexAttribArray(aQ); gl.vertexAttribPointer(aQ, 2, gl.FLOAT, false, 0, 0);
-    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(UH.horse, 0);
-    gl.uniform2f(UH.res, W, H); gl.uniform4f(UH.box, box[0], box[1], box[2], box[3]); gl.uniform1f(UH.dpr, DPR);
-    gl.uniform1f(UH.power, power * fade); gl.uniform1f(UH.srcpx, box[2] / BOX.w);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (texReady && hh > 1) {
+      gl.useProgram(PH); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      gl.disableVertexAttribArray(aP);
+      gl.bindBuffer(gl.ARRAY_BUFFER, qBuf); gl.enableVertexAttribArray(aQ); gl.vertexAttribPointer(aQ, 2, gl.FLOAT, false, 0, 0);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(UH.horse, 0);
+      gl.uniform2f(UH.res, W, H); gl.uniform4f(UH.box, box[0], box[1], box[2], box[3]); gl.uniform1f(UH.dpr, DPR);
+      gl.uniform1f(UH.power, power * fade * hz * ho); gl.uniform1f(UH.srcpx, box[2] / BOX.w);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
     particles(0);
   }
 
@@ -185,9 +218,26 @@
   function stop() { running = false; }
   function still() { if (ready) frame(performance.now()); }
 
+  // from the page before, if it was a section a moment ago: the sphere carries on from there
+  var kept = null, age = -1;
+  if (!reduce && !opening) {
+    try { kept = JSON.parse(sessionStorage.getItem("andra-scene") || "null"); } catch (e) { kept = null; }
+    age = kept ? Date.now() - kept.at : -1;
+    if (!(age >= 0 && age < 8000 && isFinite(kept.t))) kept = null;
+  }
+  window.addEventListener("pagehide", function () {
+    if (reduce || !ready) return;
+    try {
+      sessionStorage.setItem("andra-scene", JSON.stringify({ t: (performance.now() - t0) / 1000, on: on,
+        x: ptr.x, y: ptr.y, sx: ptr.sx, sy: ptr.sy, at: Date.now() }));
+    } catch (e) { /* private mode */ }
+  });
+
+  // the particles draw at once; the horse joins them when its texture is in
   var img = new Image();
   img.decoding = "async";
-  img.onload = function () {
+  function texture() {
+    if (texReady || !img.naturalWidth) return;
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
     gl.generateMipmap(gl.TEXTURE_2D);   // power of two: the outline stays smooth at any size
@@ -195,13 +245,25 @@
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    ready = true;
-    resize();
-    t0 = performance.now();
-    canvas.parentNode.classList.add("is-live");
-    if (reduce) still(); else start();
-  };
+    texReady = true;
+    if (!drawn || reduce || kept) hz = 1;
+    if (!running) still();
+  }
+  img.onload = texture;
   img.src = canvas.getAttribute("data-src");
+  if (img.complete) texture();     // already in memory from the page before
+
+  ready = true;
+  resize();
+  t0 = performance.now() - (kept ? kept.t * 1000 + age : 0);
+  if (opening) on = 0.4;           // the light is partly up already as the sphere opens
+  if (kept) {
+    on = Math.min(1, Math.max(0, +kept.on || 0));
+    ptr.x = +kept.x || 0; ptr.y = +kept.y || 0; ptr.sx = +kept.sx || 0; ptr.sy = +kept.sy || 0;
+  }
+  if (opening || kept) canvas.parentNode.classList.add("is-now");
+  canvas.parentNode.classList.add("is-live");
+  if (reduce) still(); else start();
 
   if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
     window.addEventListener("pointermove", function (e) {
