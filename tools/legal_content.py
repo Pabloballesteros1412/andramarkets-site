@@ -7,8 +7,8 @@ cookie, a vendor or the newsletter changes, change the privacy policy too.
 Both should be reviewed by a qualified lawyer before the paid tier opens.
 """
 
-LEGAL_UPDATED = "2026-10-30"
-PRIVACY_UPDATED = "2026-10-30"
+LEGAL_UPDATED = "2026-11-01"
+PRIVACY_UPDATED = "2026-11-01"
 
 LEGAL = [
     ("publisher", "Who publishes this site",
@@ -41,8 +41,11 @@ LEGAL = [
      "on the <a href=\"../sources/\">data sources</a> page, the text is drafted with the help of a language "
      "model and every figure in it is checked against the session's verified data before publication. "
      "The <a href=\"../methodology/\">methodology</a> explains the process.</p>"
-     "<p>Interview Prep model answers and Learn explainers are educational. Lab tools, backtests and "
-     "diagrams marked Illustrative are hypothetical and are not a record of any real portfolio.</p>"),
+     "<p>Illustrations in research reports may be generated with AI tools; each report says so in its "
+     "methodology. They are artwork, not photographs, and do not depict real events.</p>"
+     "<p>Interview Prep model answers, Break into Wall Street and the technical training pages are "
+     "educational. Lab tools, simulators, backtests and diagrams marked Illustrative are hypothetical and "
+     "are not a record of any real portfolio.</p>"),
 
     ("conflicts", "Conflicts of interest",
      "<p>Andra Markets receives no payment from the companies or issuers it writes about, and publishes no "
@@ -124,11 +127,23 @@ PRIVACY = [
      "newsletter platform and explain how your address is used before any address is collected.</p>"),
 
     ("storage", "Cookies and storage on your device",
-     "<p>When you switch between the light and dark theme, your choice is kept in your browser's local "
-     "storage under the name <b>andra-theme</b>, so the site opens in the same theme next time. It "
-     "stays on your device, is never sent to us, and is used only because you asked for it: storage that is "
-     "strictly necessary for a service you request is exempt from consent under Article 22.2 of the LSSI, so "
-     "the site shows no cookie banner. You can clear it in your browser settings at any time.</p>"),
+     "<p>Andra Markets sets no cookies. A few features keep a small note in your browser's storage so they "
+     "work as you expect. Each one stays on your device, is never sent to us or to anyone else, holds "
+     "nothing that identifies you and is used only for the feature you are using:</p>"
+     "<ul class=\"ruled\">"
+     "<li><b>andra-theme</b> (local storage): the light or dark theme you chose, so the site opens in the "
+     "same theme next time.</li>"
+     "<li><b>andra-tq-</b> and <b>andra-md-</b> followed by the topic (local storage): your progress on the "
+     "practice cards and your best score in the mental maths drill on the technical training pages.</li>"
+     "<li><b>andra-sim-games</b>, <b>andra-panic-games</b> and <b>andra-fed-games</b> (local storage): your "
+     "last results in the simulators, so you can compare your games.</li>"
+     "<li><b>andra-arrive</b> and <b>andra-scene</b> (session storage): where the background animation was "
+     "when you moved to another page, so it carries on smoothly. They are deleted when you close the "
+     "tab.</li>"
+     "</ul>"
+     "<p>Storage that is strictly necessary for a service you request is exempt from consent under Article "
+     "22.2 of the LSSI, so the site shows no cookie banner. You can clear it in your browser settings at "
+     "any time; the site keeps working, and only your theme, progress and results are reset.</p>"),
 
     ("hosting", "Hosting and service providers",
      "<ul class=\"ruled\">"

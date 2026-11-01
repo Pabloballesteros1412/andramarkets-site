@@ -3008,6 +3008,10 @@ def side_panel(rec):
             f'risk score and breadth by Andra Markets.</p></aside>')
 
 
+AI_DRAFTED = ('The text was drafted with a language model from that fact pack; the '
+              '<a href="../../methodology/">methodology</a> explains how.')
+
+
 def report(rec, newer, older, cal):
     n = rec["note"]
     d = rec["day"]
@@ -3035,9 +3039,11 @@ def report(rec, newer, older, cal):
     if rec.get("figure_check") == "failed":
         checked = ("This edition did not fully pass the automated figure check against the "
                    "session's verified fact pack. It was reviewed before publication.")
+    # Machine-drafted text published to inform the public says so where it is read
+    # (EU AI Act, Article 50(4), applicable since 2 August 2026).
     sources = (f'<section aria-labelledby="s-sources"><h2 id="s-sources">Sources</h2>'
                f"<p>Levels at the official close from Yahoo Finance; the Treasury curve, breakevens and real "
-               f"yields from FRED. {checked}</p><p>For information only. Not investment advice.</p></section>")
+               f"yields from FRED. {checked} {AI_DRAFTED}</p><p>For information only. Not investment advice.</p></section>")
     pager = ""
     if older:
         pager += f'<a class="link" href="../{older["date"]}/">Previous note, {day_med(older["day"])} {icon("arrow-right")}</a>'
@@ -3207,7 +3213,8 @@ def fx_page(a, newer, older):
              if a["mode"] == "quantitative" else "")
     sections += (f'<section aria-labelledby="fx-src"><h2 id="fx-src">Sources</h2><p>Exchange rates and the dollar index '
                  f'at the session close from Yahoo Finance; the Fed and ECB rates and Treasury yields from FRED. Every '
-                 f'figure in this analysis was checked against the session\'s verified fact pack.{quant}</p>'
+                 f'figure in this analysis was checked against the session\'s verified fact pack.{quant}'
+                 f'{"" if quant else " " + AI_DRAFTED}</p>'
                  f'<p>For information only. Not investment advice.</p></section>')
     dxy = next((p for p in a["pairs"] if p["key"] == "dxy"), None)
     side_rows = [p for p in a["pairs"] if p["key"] in ("dxy", "eurusd", "usdjpy", "gbpusd", "usdchf", "audusd",
