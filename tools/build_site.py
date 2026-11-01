@@ -207,132 +207,226 @@ def span(vals, pad_frac=0.12, floor=0.05):
     return lo - pad, hi + pad
 
 
+# Each tile names what it draws (owner-approved, 1 Nov 2026): names and values
+# are written on the chart, so it reads without a pointer, on a phone too.
+TW, TH = 320, 176  # tile chart box, in user units
+
+# Heat cells (sectors, correlation): deep green or red, the same in both themes,
+# deeper for a larger move; white type on them. A move that rounds to zero is grey.
+HEAT_UP = ((0x0E, 0x4A, 0x2B), (0x11, 0x80, 0x3F))
+HEAT_DOWN = ((0x5A, 0x17, 0x1C), (0xB3, 0x21, 0x2A))
+HEAT_ZERO = (0x2A, 0x30, 0x35)
+
+
+def heat(v, m, decimals=2, from_zero=False):
+    if round(v, decimals) == 0:
+        return "#%02x%02x%02x" % HEAT_ZERO
+    lo, hi = HEAT_UP if v > 0 else HEAT_DOWN
+    if from_zero:
+        lo = HEAT_ZERO
+    t = min(1.0, abs(v) / (m or 1))
+    return "#%02x%02x%02x" % tuple(round(a + (b - a) * t) for a, b in zip(lo, hi))
+
+
+def tsvg(body, label, h=TH):
+    return f'<svg class="chart chart--tile" viewBox="0 0 {TW} {h:.0f}" role="img" aria-label="{esc(label)}">{body}</svg>'
+
+
+def ttext(x, y, text, cls="chart__label", anchor=None):
+    a = f' text-anchor="{anchor}"' if anchor else ""
+    return f'<text class="{cls}" x="{x:.1f}" y="{y:.1f}"{a}>{text}</text>'
+
+
+def tvalue(x, y, text, anchor=None):
+    """A signed figure on a chart, red or green from its printed sign."""
+    return ttext(x, y, text, f"chart__value {move_class(text)}".strip(), anchor)
+
+
+def ladder(items, gap=15):
+    """End-of-line labels [(y, svg)] pushed apart so none overlap."""
+    items = sorted(items, key=lambda it: it[0])
+    for i in range(1, len(items)):
+        if items[i][0] - items[i - 1][0] < gap:
+            items[i] = (items[i - 1][0] + gap, items[i][1])
+    return items
+
+
+def scale_y(vals, lo, hi, top, bottom):
+    rng = (hi - lo) or 1
+    return [bottom - (v - lo) / rng * (bottom - top) for v in vals]
+
+
+def xs_for(n, width, left=0.0):
+    return [left + (width * i / (n - 1) if n > 1 else 0) for i in range(n)]
+
+
+SECTOR_SHORT = {"Cons. discretionary": "Cons. disc.", "Cons. staples": "Staples", "Communications": "Comms"}
+
+
 def r_sector_heatmap(rec):
     rows = rec["data"]["rows"]
-    rows_n, cols, gap = 3, 4, 3
-    cw, ch = (W - gap * (cols - 1)) / cols, (H - gap * (rows_n - 1)) / rows_n
+    cols, gap = 4, 3
+    n_rows = -(-len(rows) // cols)
+    cw, ch = (TW - gap * (cols - 1)) / cols, (TH - gap * (n_rows - 1)) / n_rows
     m = max(abs(v) for _, v in rows) or 1
-    cells = "".join(
-        f'<rect class="{"up" if v >= 0 else "down"}" x="{(i % cols) * (cw + gap):.1f}" y="{(i // cols) * (ch + gap):.1f}" '
-        f'width="{cw:.1f}" height="{ch:.1f}" opacity="{0.45 + 0.55 * abs(v) / m:.2f}">{tip(f"{n}: {chg(v)}")}</rect>'
-        for i, (n, v) in enumerate(rows))
+    cells = []
+    for i, (n, v) in enumerate(rows):
+        x, y = (i % cols) * (cw + gap), (i // cols) * (ch + gap)
+        cells.append(f'<g>{tip(f"{n}: {chg(v)}")}<rect x="{x:.1f}" y="{y:.1f}" width="{cw:.1f}" height="{ch:.1f}" style="fill:{heat(v, m)}"/>'
+                     + ttext(x + 9, y + ch / 2 - 4, esc(SECTOR_SHORT.get(n, n)), "chart__heat")
+                     + ttext(x + 9, y + ch / 2 + 13, chg(v), "chart__heat chart__heat--v") + "</g>")
     label = "S&P 500 sector ETFs ranked by the day's move: " + ", ".join(f"{n} {chg(v)}" for n, v in rows)
-    return data_svg(W, H, cells, label, stretch=False), [("up", "Up"), ("down", "Down")]
+    return tsvg("".join(cells), label)
 
 
-def r_hbars(rows, label, gap):
-    m = max(abs(r[1]) for r in rows) or 1
-    rh = (H - gap * (len(rows) - 1)) / len(rows)
-    mid = W / 2
-    out = [f'<line class="ref" x1="{mid}" x2="{mid}" y1="0" y2="{H}"/>']
-    for i, r in enumerate(rows):
-        n, v = r[0], r[1]
-        bw = max(1.0, abs(v) / m * (mid - 6))
-        x = mid if v >= 0 else mid - bw
-        out.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{x:.1f}" y="{i * (rh + gap):.1f}" width="{bw:.1f}" height="{rh:.1f}">'
-                   f'{tip(f"{n}: {chg(v)}" + (f", {short_day(r[2])}" if len(r) > 2 else ""))}</rect>')
-    return data_svg(W, H, "".join(out), label)
+def r_hbars(rows, label):
+    """Diverging bars with each name and its signed change: [(name, change)]."""
+    rh = min(24.0, TH / len(rows))
+    h = rh * len(rows)
+    x0, half = 206, 66
+    m = max(abs(v) for _, v in rows) or 1
+    out = [f'<line class="ref" x1="{x0}" x2="{x0}" y1="0" y2="{h:.1f}"/>']
+    for i, (name, v) in enumerate(rows):
+        y = i * rh + rh / 2
+        bw = max(1.0, half * abs(v) / m)
+        x = x0 if v >= 0 else x0 - bw
+        out.append(f'<g>{tip(f"{name}: {chg(v)}")}' + ttext(0, y + 4, esc(name))
+                   + f'<rect class="{"up" if v >= 0 else "down"}" x="{x:.1f}" y="{y - 5:.1f}" width="{bw:.1f}" height="10"/>'
+                   + tvalue(TW, y + 4, chg(v), "end") + "</g>")
+    return tsvg("".join(out), label, h)
 
 
 def r_global_indices(rec):
     rows = rec["data"]["rows"]
     label = "Equity index moves at each latest local close: " + ", ".join(
         f"{n} {chg(v)}" + ("" if day == rec["asof"] else f" ({short_day(day)})") for n, v, day in rows)
-    return r_hbars(rows, label, 4), [("up", "Up"), ("down", "Down")]
+    return r_hbars([(n if day == rec["asof"] else f"{n}, {short_day(day)}", v) for n, v, day in rows], label)
 
 
 def r_fx_majors(rec):
     rows = rec["data"]["rows"]
     label = "The US dollar's move against each major currency: " + ", ".join(f"{n} {chg(v)}" for n, v in rows)
-    return r_hbars([[f"Dollar against the {n.lower()}" if n != "Euro" else "Dollar against the euro", v] for n, v in rows], label, 6), \
-        [("up", "Dollar stronger"), ("down", "Dollar weaker")]
+    return r_hbars([(n, v) for n, v in rows], label)
+
+
+TENOR = {"9D": "9 days", "1M": "1 month", "3M": "3 months", "6M": "6 months"}
 
 
 def r_vol_term(rec):
     d = rec["data"]
     lo, hi = span(d["now"] + d["before"], 0.15, 0.5)
-    X = lambda t: 14 + (W - 28) * (math.sqrt(t) - math.sqrt(d["days"][0])) / (math.sqrt(d["days"][-1]) - math.sqrt(d["days"][0]))  # noqa: E731
-    Y = lambda v: H - 12 - (H - 24) * (v - lo) / (hi - lo)  # noqa: E731
-    a = [(X(t), Y(v)) for t, v in zip(d["days"], d["now"])]
-    b = [(X(t), Y(v)) for t, v in zip(d["days"], d["before"])]
+    # Expiries evenly spaced on the tile, so their names never collide (the
+    # dashboard page spaces them by time).
+    xs = xs_for(len(d["days"]), TW - 80, 24)
+    yn, yb = scale_y(d["now"], lo, hi, 26, 140), scale_y(d["before"], lo, hi, 26, 140)
     now, then = short_day(rec["asof"]), short_day(d["then"])
-    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5">{tip(f"{lb}: {v:.2f} ({then}: {o:.2f})")}</circle>'
-                   for (x, y), lb, v, o in zip(a, d["labels"], d["now"], d["before"]))
+    out = [f'<line class="grid-line" x1="0" x2="{TW}" y1="{y}" y2="{y}"/>' for y in (26, 83, 140)]
+    out.append(f'<path class="dash" d="{d_path(list(zip(xs, yb)))}"/><path class="line" d="{d_path(list(zip(xs, yn)))}"/>')
+    for x, y, lb, v, o in zip(xs, yn, d["labels"], d["now"], d["before"]):
+        out.append(f'<g>{tip(f"{lb}: {v:.2f} ({then}: {o:.2f})")}<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="3"/></g>'
+                   + ttext(x, y - 10, f"{v:.2f}", "chart__value", "middle")
+                   + ttext(x, TH - 6, TENOR.get(lb, lb), "chart__label", "middle"))
+    out.append(ttext(xs[-1] + 8, yb[-1] + 4, then))
     label = (f"Cboe S&P 500 implied volatility by expiry on {now} against {then}: "
              + ", ".join(f"{lb} {v:.2f}" for lb, v in zip(d["labels"], d["now"])))
-    return (data_svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d_path(b)}"/><path class="line" d="{d_path(a)}"/>' + dots, label, stretch=False),
-            [("line", now), ("dash", then)])
+    return tsvg("".join(out), label)
+
+
+def end_lines(series, lo, hi, plot_w, fmt, ref=None):
+    """Lines across the plot with each one's name and last value at its end:
+    series is [(name, values, style)]."""
+    out = [f'<line class="grid-line" x1="0" x2="{plot_w}" y1="{y}" y2="{y}"/>' for y in (10, 88, 166)]
+    if ref is not None:
+        ry = scale_y([ref], lo, hi, 10, 166)[0]
+        out.append(f'<line class="ref" x1="0" x2="{plot_w}" y1="{ry:.1f}" y2="{ry:.1f}"/>')
+    labels = []
+    for name, vals, style in series:
+        ys = scale_y(vals, lo, hi, 10, 166)
+        pts = list(zip(xs_for(len(vals), plot_w), ys))
+        out.append(f'<path class="{style}" d="{d_path(pts)}"/>')
+        if style == "line":
+            out.append(f'<circle class="dot" cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="2.6"/>')
+        labels.append((ys[-1] + 4, f"{name} {fmt(vals[-1])}"))
+    out += [ttext(plot_w + 10, y, text, "chart__value") for y, text in ladder(labels)]
+    return "".join(out)
 
 
 def r_commodities(rec):
     d = rec["data"]
-    pa, pb = fit([d["oil"], d["gold"]], W, H, 8)
+    lo, hi = span(d["oil"] + d["gold"] + [100], 0.06, 0.5)
+    body = end_lines([("WTI", d["oil"], "line"), ("Gold", d["gold"], "dash")], lo, hi, TW - 82, lambda v: f"{v:.1f}", ref=100)
     label = (f"WTI crude and gold front-month futures, rebased to 100 on {short_day(d['start'])}: "
              f"WTI {d['oil'][-1]:.1f}, gold {d['gold'][-1]:.1f} on {short_day(rec['asof'])}")
-    return (data_svg(W, H, grid_lines(W, H, 3) + f'<path class="line" d="{d_path(pa)}"/><path class="dash" d="{d_path(pb)}"/>', label),
-            [("line", "WTI crude"), ("dash", "Gold")])
+    return tsvg(body, label)
 
 
 def r_credit_spreads(rec):
     d = rec["data"]
-    pa, pb = fit([d["hy"], d["ig"]], W, H, 8, 0, max(d["hy"]) * 1.08)
-    area = d_path(pb) + f" L{pb[-1][0]:.1f} {H} L{pb[0][0]:.1f} {H} Z"
+    body = end_lines([("HY", d["hy"], "line"), ("IG", d["ig"], "dash")], 0, max(d["hy"]) * 1.08, TW - 82, pct)
     label = (f"Option-adjusted spreads over Treasuries since {short_day(d['start'])}: high yield {pct(d['hy'][-1])}, "
              f"investment grade {pct(d['ig'][-1])} on {short_day(rec['asof'])}")
-    return (data_svg(W, H, grid_lines(W, H, 3) + f'<path class="area" d="{area}"/><path class="line" d="{d_path(pa)}"/><path class="dash" d="{d_path(pb)}"/>', label),
-            [("line", "High yield"), ("dash", "Investment grade")])
+    return tsvg(body, label)
 
 
 def r_inflation_labour(rec):
     d = rec["data"]
     infl = [v for _, v in d["cpi"]]
-    pa, = fit([infl], W, H * 0.55, 8)
     jobs = d["jobs"]
+    pw = TW - 70
+    lo, hi = span(infl, 0.1, 0.2)
+    pts = list(zip(xs_for(len(infl), pw), scale_y(infl, lo, hi, 10, 92)))
+    out = [f'<path class="line" d="{d_path(pts)}"/><circle class="dot" cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="2.6"/>',
+           ttext(pw + 10, pts[-1][1] + 4, f"CPI {pct(infl[-1], 1)}", "chart__value")]
     m = max(abs(v) for _, v in jobs) or 1
-    bw = W / len(jobs)
-    base = H - 4
-    bars = "".join(
-        f'<rect class="{"up" if v >= 0 else "down"}" x="{i * bw + 1:.1f}" y="{base - abs(v) / m * 36:.1f}" width="{bw - 2:.1f}" height="{max(abs(v) / m * 36, 0.5):.1f}">'
-        f'{tip(f"{month_name(day)}: {signed(v, 0)}k jobs")}</rect>'
-        for i, (day, v) in enumerate(jobs))
+    bw, base = pw / len(jobs), TH - 4
+    for i, (day, v) in enumerate(jobs):
+        bh = max(abs(v) / m * 52, 0.6)
+        out.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{i * bw + 0.8:.1f}" y="{base - bh:.1f}" width="{max(bw - 1.6, 0.6):.1f}" height="{bh:.1f}">'
+                   f'{tip(f"{month_name(day)}: {signed(v, 0)}k jobs")}</rect>')
+    out.append(ttext(pw + 10, base - 16, "Jobs") + tvalue(pw + 10, base - 1, f"{signed(jobs[-1][1], 0)}k"))
     label = (f"US consumer price inflation, year on year, {pct(infl[-1], 1)} in {month_name(d['cpi_month'])}, "
              f"above monthly payroll changes, {signed(jobs[-1][1], 0)} thousand in {month_name(d['jobs_month'])}")
-    return data_svg(W, H, f'<path class="line" d="{d_path(pa)}"/>' + bars, label), [("line", "Inflation, y/y"), ("up", "Jobs added")]
+    return tsvg("".join(out), label)
 
 
 def r_correlation(rec):
     d = rec["data"]
     names, mx = d["names"], d["matrix"]
-    n, gap = len(names), 3
-    c = (H - gap * (n - 1)) / n
-    cells = []
-    for r in range(n):
-        for col in range(r, n):
-            v = mx[r][col]
-            cells.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{col * (c + gap):.1f}" y="{r * (c + gap):.1f}" '
-                         f'width="{c:.1f}" height="{c:.1f}" opacity="{0.45 + 0.55 * abs(v):.2f}">'
-                         f'{tip(f"{names[r]} and {names[col]}: {v:+.2f}".replace("-", MINUS))}</rect>')
+    n, gap, lw, th = len(names), 3, 44, 20
+    cw, ch = (TW - lw - gap * (n - 2)) / (n - 1), (TH - th - gap * (n - 2)) / (n - 1)
+    short = lambda name: esc(SHORT.get(name, name))  # noqa: E731
+    out = [ttext(lw + col * (cw + gap) + cw / 2, 13, short(names[col]), "chart__label", "middle") for col in range(n - 1)]
+    for r in range(1, n):
+        y = th + (r - 1) * (ch + gap)
+        out.append(ttext(0, y + ch / 2 + 4, short(names[r])))
+        for col in range(r):
+            x, v = lw + col * (cw + gap), mx[r][col]
+            fig = f"{v:+.2f}".replace("-", MINUS) if round(v, 2) else "0.00"
+            out.append(f'<g>{tip(f"{names[r]} and {names[col]}: {fig}")}'
+                       f'<rect x="{x:.1f}" y="{y:.1f}" width="{cw:.1f}" height="{ch:.1f}" style="fill:{heat(v, 1, from_zero=True)}"/>'
+                       + ttext(x + cw / 2, y + ch / 2 + 4, fig, "chart__heat", "middle") + "</g>")
     pairs = [f"{names[r]} and {names[col]} {mx[r][col]:+.2f}".replace("-", MINUS) for r in range(n) for col in range(r + 1, n)]
     label = f"Correlation of daily returns over {d['sessions']} sessions to {short_day(rec['asof'])}: " + ", ".join(pairs)
-    return data_svg(H, H, "".join(cells), label, stretch=False), [("up", "Positive"), ("down", "Negative")]
+    return tsvg("".join(out), label)
 
 
 def r_breadth(rec):
     d = rec["data"]
     net = [(day, adv - dec, adv, dec) for day, adv, dec, _ in d["sessions"]]
+    pw, gap = TW - 48, 2
     m = max(abs(v) for _, v, _, _ in net) or 1
-    gap = 3
-    bw = (W - gap * (len(net) - 1)) / len(net)
-    mid = H / 2
-    bars = [f'<line class="ref" x1="0" x2="{W}" y1="{mid}" y2="{mid}"/>']
+    bw = (pw - gap * (len(net) - 1)) / len(net)
+    mid = (TH - 16) / 2
+    out = [f'<line class="ref" x1="0" x2="{pw}" y1="{mid:.1f}" y2="{mid:.1f}"/>']
     for i, (day, v, adv, dec) in enumerate(net):
         bh = max(abs(v) / m * (mid - 4), 1.0)
-        y = mid - bh if v >= 0 else mid
-        bars.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{i * (bw + gap):.1f}" y="{y:.1f}" width="{bw:.1f}" height="{bh:.1f}">'
-                    f'{tip(f"{short_day(day)}: {adv} up, {dec} down")}</rect>')
+        out.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{i * (bw + gap):.1f}" y="{mid - bh if v >= 0 else mid:.1f}" width="{bw:.1f}" height="{bh:.1f}">'
+                   f'{tip(f"{short_day(day)}: {adv} up, {dec} down")}</rect>')
+    out.append(tvalue(TW, mid + 4, signed(net[-1][1], 0), "end"))
+    out.append(ttext(0, TH - 2, short_day(net[0][0])) + ttext(pw, TH - 2, short_day(net[-1][0]), anchor="end"))
     label = (f"Advancers less decliners across the Andra Markets watchlist of {d['size']} US large caps, "
              f"{len(net)} sessions to {short_day(rec['asof'])}: " + ", ".join(f"{short_day(day)} {signed(v, 0)}" for day, v, _, _ in net))
-    return data_svg(W, H, "".join(bars), label), [("up", "More advancers"), ("down", "More decliners")]
+    return tsvg("".join(out), label)
 
 
 REAL = {
@@ -341,6 +435,84 @@ REAL = {
     "commodities": r_commodities, "credit_spreads": r_credit_spreads,
     "inflation_labour": r_inflation_labour, "breadth": r_breadth, "correlation": r_correlation,
 }
+
+
+def currency(name):
+    return name[0].lower() + name[1:] if name in ("Euro", "Pound") else name
+
+
+def tile_reading(key, rec):
+    """What a tile leads with: one figure and one line, from the figures it draws.
+    None when the record lacks what the line needs (the tile then shows its
+    description); a reading never breaks the build."""
+    try:
+        return _tile_reading(key, rec)
+    except (KeyError, IndexError, TypeError, ValueError, ZeroDivisionError):
+        return None
+
+
+def _tile_reading(key, rec):
+    d = rec["data"]
+    if key in ("sector_heatmap", "global_indices"):
+        rows = [(r[0], r[1]) for r in d["rows"]]
+        n, noun = len(rows), "sectors" if key == "sector_heatmap" else "benchmarks"
+        down_day = sorted(v for _, v in rows)[n // 2] < 0
+        lo, hi = min(rows, key=lambda r: r[1]), max(rows, key=lambda r: r[1])
+        lead, other = (lo, hi) if down_day else (hi, lo)
+        if down_day:
+            rose = sum(1 for _, v in rows if round(v, 2) > 0)
+            sub = f"Weakest of {n} {noun}. {rose} of {n} rose; {esc(other[0])} {mv(chg(other[1]))} led."
+        else:
+            fell = sum(1 for _, v in rows if round(v, 2) < 0)
+            sub = f"Strongest of {n} {noun}. {fell} of {n} fell; {esc(other[0])} {mv(chg(other[1]))} lagged."
+        return f"{esc(lead[0])} {mv(chg(lead[1]))}", sub
+    if key == "fx_majors":
+        rows = d["rows"]
+        big = max(rows, key=lambda r: abs(r[1]))
+        up = sum(1 for _, v in rows if round(v, 2) > 0)
+        down = sum(1 for _, v in rows if round(v, 2) < 0)
+        return (f"Dollar {mv(chg(big[1]))}",
+                f"against the {currency(big[0])}, its largest move. Stronger against {up} of {len(rows)} majors, weaker against {down}.")
+    if key == "vol_term":
+        now, before, labels = d["now"], d["before"], d["labels"]
+        i = labels.index("1M")
+        if now[0] > now[i]:
+            shape = "The 9-day sits above the 1-month: the front of the curve is inverted."
+        elif now[-1] > now[0]:
+            shape = "The curve slopes up: calm now, more uncertainty further out."
+        else:
+            shape = "The curve is flat across expiries."
+        return f"VIX {now[i]:.2f}", f"{mv(signed(now[i] - before[i], 2))} points since {short_day(d['then'])}. {shape}"
+    if key == "commodities":
+        oil, gold = d["oil"], d["gold"]
+        moves = [("WTI", (oil[-1] / oil[-2] - 1) * 100), ("Gold", (gold[-1] / gold[-2] - 1) * 100)]
+        lead, other = sorted(moves, key=lambda m: -abs(m[1]))
+        return (f"{lead[0]} {mv(chg(lead[1]))}",
+                f"on the day; {other[0]} {mv(chg(other[1]))}. Since {short_day(d['start'])}: WTI {oil[-1]:.0f}, gold {gold[-1]:.0f} (start = 100).")
+    if key == "credit_spreads":
+        det = rec["detail"]
+        hy = next(s["values"] for s in det["series"] if s["name"] == "High yield")
+        base = det["dates"].index(next(x for x in det["dates"] if x >= months_back_iso(det["dates"][-1], 1)))
+        bp = signed((hy[-1] - hy[base]) * 100, 0, "bp")
+        return f"High yield {pct(d['hy'][-1])}", f"{mv(bp)} in a month. Investment grade {pct(d['ig'][-1])}."
+    if key == "inflation_labour":
+        cpi, jobs = [x for x in d["cpi"] if x[1] is not None], [x for x in d["jobs"] if x[1] is not None]
+        when = "the same month" if jobs[-1][0] == cpi[-1][0] else month_name(jobs[-1][0])
+        return (f"CPI {pct(cpi[-1][1], 1)}",
+                f"year on year in {month_name(cpi[-1][0])}. Payrolls {mv(signed(jobs[-1][1], 0) + 'k')} in {when}.")
+    if key == "breadth":
+        day, adv, dec, _ = d["sessions"][-1]
+        return f"Net {mv(signed(adv - dec, 0))}", f"{adv} advancers and {dec} decliners of {d['size']} on {short_day(day)}."
+    if key == "correlation":
+        names, r = d["names"], d["matrix"][0][1]
+        a = abs(r)
+        how = ("barely move together" if a < 0.2
+               else ("move together, loosely" if r > 0 else "move apart, loosely") if a < 0.5
+               else ("move closely together" if r > 0 else "move in opposite directions"))
+        fig = f"{r:+.2f}".replace("-", MINUS) if round(r, 2) else "0.00"
+        return (f"{esc(SHORT.get(names[0], names[0]))} and {esc(SHORT.get(names[1], names[1]))} {fig}",
+                f"Stocks and long Treasuries {how} over {d['sessions']} sessions.")
+    return None
 
 
 def tile_asof(key, rec):
@@ -960,31 +1132,39 @@ def dashboards_index():
         for key, label, short in CATEGORIES
     )
     cat_label = {k: label for k, label, _ in CATEGORIES}
-    swatch = {"line": "k-solid", "dash": "k-dash", "up": "sw-up", "down": "sw-down"}
 
+    # Each tile leads with its reading (a figure and one line), then the chart with
+    # its names and values written on it (owner-approved, 1 Nov 2026). A tile
+    # without figures keeps its description and "Data pending".
     def tile(i, key, cat, name, desc, source):
         rec = dash_data.get(key)
+        reading = tile_reading(key, rec) if rec else None
         if rec:
-            chart, leg = REAL[key](rec)
-            items = "".join(f'<span><i class="{swatch[kind]}"></i>{label}</span>' for kind, label in leg)
-            figure = f'<div class="dash-tile__chart draw">{chart}</div><p class="key">{items}</p>'
+            figure = f'<div class="dash-tile__chart draw">{REAL[key](rec)}</div>'
             src = f'{cat_label[cat]}. {esc(rec["source"])}, {tile_asof(key, rec)}'
         else:
-            figure = '<div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p>'
+            figure = '<div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div>'
             src = f"{cat_label[cat]}. {source}."
+        lead = (f'<p class="dash-tile__fig">{reading[0]}</p><p class="dash-tile__sub">{reading[1]}</p>' if reading
+                else f'<p class="dash-tile__sub">{desc}</p>')
         return (f'<li class="dash-tile reveal" data-cat="{cat}" style="--i:{i % 3}">'
-                f'<a href="{DASH_PAGES[key][0]}/" class="dash-tile__link">{figure}'
-                f'<div class="dash-tile__text">'
-                f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p>'
-                f'<p class="dash-tile__src">{src}</p></div>'
-                f'<span class="dash-tile__go">{icon("arrow-up-right")}</span></a></li>')
+                f'<a href="{DASH_PAGES[key][0]}/" class="dash-tile__link">'
+                f'<div class="dash-tile__top"><h3>{name}</h3><span class="dash-tile__go">{icon("arrow-up-right")}</span></div>'
+                f'<div class="dash-tile__read">{lead}</div>{figure}'
+                f'<p class="dash-tile__src">{src}</p></a></li>')
 
     tiles = "".join(tile(i, *t) for i, t in enumerate(DASHBOARDS))
+    # The newest session among the daily tiles (inflation is monthly).
+    days = [rec["asof"] for key, rec in dash_data.items() if key != "inflation_labour" and rec.get("asof")]
+    asof = ""
+    if days:
+        last = dt.date.fromisoformat(max(days))
+        asof = f'\n      <p class="page__asof">Figures to the close of {last:%A} {day_med(last)}. Each tile names its own source and date.</p>'
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Dashboards</h1>
-      <p class="lede">Interactive views across rates, equities, macro and cross-asset. Each preview names its source and date.</p>
+      <p class="lede">Interactive views across rates, equities, macro and cross-asset. Open any one for its full history.</p>{asof}
     </header>
     <section class="dash dash-index" aria-label="All dashboards">
       <div class="filters" role="group" aria-label="Filter dashboards by category">{filters}</div>
