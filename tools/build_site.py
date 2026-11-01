@@ -897,6 +897,23 @@ THEME_BOOT = (
     "var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0a0c0d':'#ffffff'})();"
 )
 
+# Moving between pages (owner-approved, 1 Nov 2026). From the homepage, its hero goes back
+# into the point at the centre (assets/hero-horse.js) and leaves a note in sessionStorage;
+# the section page's head picks it up before the first paint and marks html.arrive, so the
+# sphere opens out of that point and the page fades up over it (assets/section-scene.js,
+# site.css). Not under reduced motion; a note older than 8s is ignored.
+ARRIVE_BOOT = (
+    "(function(){try{var a=+sessionStorage.getItem('andra-arrive');sessionStorage.removeItem('andra-arrive');"
+    "if(a&&Date.now()-a<8000&&!matchMedia('(prefers-reduced-motion: reduce)').matches)"
+    "document.documentElement.classList.add('arrive')}catch(e){}})();"
+)
+
+# From one section page to another: a view transition across pages (Chrome, Edge, Safari;
+# others change page as before). Every page but the homepage opts in, so the homepage keeps
+# its own way out and the way back to it is unchanged. The page cross-fades, the header stays
+# put (site.css) and the sphere carries on behind it (assets/section-scene.js).
+VIEW_TRANSITION = "@media (prefers-reduced-motion: no-preference){@view-transition{navigation:auto;types:section}}"
+
 # Faster moves between pages: where the browser supports speculation rules (Chrome, Edge),
 # a page's HTML is fetched while the pointer rests on its link (or, on phones, when the
 # browser judges a link likely), so the click opens it without waiting for the network.
@@ -1251,6 +1268,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
     scripts = (*scripts, "section-scene.js") if scene else scripts
     scene_html = (f'<div class="scene" aria-hidden="true"><canvas class="scene__canvas" '
                   f'data-src="{base}assets/section-horse.png?v={ver("section-horse.png")}"></canvas></div>\n') if scene else ""
+    scene_head = f"<script>{ARRIVE_BOOT}</script>\n<style>{VIEW_TRANSITION}</style>\n" if scene else ""
     return f"""<!doctype html>
 <html lang="en" data-theme="dark">
 <head>
@@ -1260,7 +1278,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 <meta name="description" content="{desc}">
 <meta name="theme-color" content="#0a0c0d">
 <script>{THEME_BOOT}</script>
-<link rel="icon" href="{base}assets/favicon-32.png" sizes="32x32" type="image/png">
+{scene_head}<link rel="icon" href="{base}assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="{base}assets/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="apple-touch-icon" href="{base}assets/apple-touch-icon.png">
 {canonical}<meta property="og:type" content="{og_type}">

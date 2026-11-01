@@ -22,7 +22,10 @@
   --plate-down: #ff4b52;
   --plate-up-tint: rgba(31, 210, 122, 0.3);
   --plate-down-tint: rgba(255, 75, 82, 0.3);
-  --horse-x: 63%;
+  /* the horse's centre: 70% across (owner, 1 Nov 2026; it was 63%), short of that where its
+     front hooves (22.5% of --horse-size right of the centre) would pass the right gutter,
+     and never left of where it was */
+  --horse-x: clamp(63%, calc(100% - 0.225 * var(--horse-size) - var(--gutter)), 70%);
   --horse-y: 50%;
 }
 
@@ -329,6 +332,12 @@ ul {
 
 .scene.is-live {
   opacity: 1;
+}
+
+/* arriving from the homepage, or from another section: the sphere is there at once (it opens
+   out of the point, or carries on from the page before) */
+.scene.is-now {
+  transition: none;
 }
 
 .scene__canvas {
@@ -1046,6 +1055,40 @@ html.hero-forming .site-header--home:not(.crisp-hd) .site-header__legal a {
 
 html.hero-forming .site-header--home:not(.crisp-hd) .brand__mark {
   opacity: 0;
+}
+
+/* Leaving for a section (owner-approved, 1 Nov 2026; assets/hero-horse.js): the particles take
+   the headline, the index and the header back into the point, so the real text clears at once
+   and the close note fades out. Shown again from the back/forward cache, it all comes back out
+   of the point and the real text takes over as it did when it first formed. */
+html.hero-leaving .hero h1,
+html.hero-leaving .hero__index a,
+html.hero-leaving .site-header--home .brand__name,
+html.hero-leaving .site-header--home .theme-btn,
+html.hero-leaving .site-header--home .site-header__legal a {
+  color: transparent;
+  text-decoration-color: transparent;
+  transition: none;
+}
+
+html.hero-leaving .site-header--home .brand__mark {
+  opacity: 0;
+  transition: none;
+}
+
+html.hero-leaving .hero .today {
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+html.hero-returning .site-header--home .brand__name,
+html.hero-returning .site-header--home .theme-btn,
+html.hero-returning .site-header--home .site-header__legal a {
+  transition: color 450ms ease;
+}
+
+html.hero-returning .site-header--home .brand__mark {
+  transition: opacity 450ms ease;
 }
 
 /* Short screens (laptops, phones on their side): everything still fits one screen. */
@@ -3671,6 +3714,40 @@ html.hero-forming .hero:not(.crisp-ix) .today {
   html.theme-reveal::view-transition-new(root) {
     animation: none;
     mix-blend-mode: normal;
+  }
+
+  /* Between section pages (owner-approved, 1 Nov 2026): every page but the homepage opts in to
+     a view transition across pages (VIEW_TRANSITION in tools/build_site.py). The page
+     cross-fades (260ms, above) while the header stays put, and the sphere carries on behind
+     it: assets/section-scene.js keeps its clock, light and turn from one page to the next. */
+  html:active-view-transition-type(section) .site-header {
+    view-transition-name: site-header;
+  }
+
+  /* Arriving from the homepage (owner-approved, 1 Nov 2026): the sphere opens out of the point
+     the homepage went back into (assets/section-scene.js) and the page fades up over it. The
+     page's head marks html.arrive (ARRIVE_BOOT in tools/build_site.py). Opacity only on the
+     header and the footer, which hold fixed panels. */
+  html.arrive .site-header,
+  html.arrive .site-footer {
+    animation: arrive-fade 600ms var(--ease-out) 360ms backwards;
+  }
+
+  html.arrive main {
+    animation: arrive-rise 700ms var(--ease-out) 300ms backwards;
+  }
+
+  @keyframes arrive-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes arrive-rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
   }
 }
 
