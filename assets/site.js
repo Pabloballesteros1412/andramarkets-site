@@ -186,6 +186,70 @@
     });
   }
 
+  // Homepage groups (owner, 1 Nov 2026: the sections opened too abruptly): a group's list
+  // grows to its height as it fades in, its sections following one another 25ms apart, and
+  // folds away a little faster. One group is open at a time: the open one folds first, then
+  // the next opens, so two lists never share the space (on phones they open in the same
+  // place). The details keep their name attribute for when this script does not run; here
+  // the script keeps one open itself, as the browser would close the other at once. Reduced
+  // motion: the details open and close as they are.
+  var groups = Array.prototype.slice.call(document.querySelectorAll(".hero__group"));
+  var EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
+  // the list is clipped only while it moves, so a focused section's outline is never cut
+  function clip(list, on) { list.style.overflow = on ? "hidden" : ""; }
+  function foldGroup(d, done) {
+    var list = d.querySelector("ul");
+    if (d._anim) d._anim.cancel();
+    if (!d.open) { if (done) done(); return; }
+    clip(list, true);
+    var a = list.animate(
+      [{ height: list.offsetHeight + "px", paddingTop: getComputedStyle(list).paddingTop, opacity: 1 },
+       { height: "0px", paddingTop: "0px", opacity: 0 }],
+      { duration: 180, easing: "ease-in" }
+    );
+    d._anim = a;
+    a.onfinish = function () { d._anim = null; d.open = false; clip(list, false); if (done) done(); };
+  }
+  function unfoldGroup(d) {
+    var list = d.querySelector("ul");
+    if (d._anim) d._anim.cancel();
+    d.open = true;
+    clip(list, true);
+    var a = list.animate(
+      [{ height: "0px", paddingTop: "0px", opacity: 0 },
+       { height: list.offsetHeight + "px", paddingTop: getComputedStyle(list).paddingTop, opacity: 1 }],
+      { duration: 280, easing: EASE_OUT }
+    );
+    d._anim = a;
+    a.onfinish = function () { d._anim = null; clip(list, false); };
+    Array.prototype.forEach.call(list.querySelectorAll("li"), function (li, i) {
+      li.animate(
+        [{ opacity: 0, transform: "translateY(-4px)" }, { opacity: 1, transform: "none" }],
+        { duration: 240, delay: 40 + i * 25, easing: EASE_OUT, fill: "backwards" }
+      );
+    });
+  }
+  if (groups.length && "animate" in Element.prototype) {
+    groups.forEach(function (d) { d.removeAttribute("name"); });
+    groups.forEach(function (d) {
+      d.querySelector("summary").addEventListener("click", function (e) {
+        e.preventDefault();
+        var opening = !d.open || (d._anim && d._anim.playState === "running" && d._closing);
+        var other = groups.filter(function (g) { return g !== d && g.open; });
+        if (still()) {
+          other.forEach(function (g) { g.open = false; });
+          d.open = !d.open;
+          return;
+        }
+        if (!opening) { d._closing = true; foldGroup(d, function () { d._closing = false; }); return; }
+        d._closing = false;
+        if (!other.length) { unfoldGroup(d); return; }
+        var left = other.length;
+        other.forEach(function (g) { foldGroup(g, function () { if (--left === 0) unfoldGroup(d); }); });
+      });
+    });
+  }
+
   // Moving to another page (owner-approved, 1 Nov 2026): section pages cross-fade into one
   // another (VIEW_TRANSITION in tools/build_site.py). The homepage takes no part, so a
   // transition towards it is called off here, before the browser starts it for nothing.
