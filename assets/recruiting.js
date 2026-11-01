@@ -1,4 +1,4 @@
-// Recruiting calendar (break-into-wall-street/recruiting-calendar/): view
+// Recruiting calendar (recruiting-calendar/): view
 // (by date or by firm), month tabs and filters, and "Closes in n days" from
 // today's New York date. Without JavaScript both views show in full.
 (function () {

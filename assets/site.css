@@ -2759,6 +2759,11 @@ html.hero-returning .site-header--home .brand__mark {
   max-width: 44rem;
 }
 
+/* the Lab and Simulators indexes in their themes (the Tools menu's six) */
+.lab-groups .learn-list {
+  border-top: 0;
+}
+
 .lab-index__next {
   max-width: 44rem;
   margin-top: 24px;
@@ -7925,8 +7930,8 @@ html.js .tq-nojs, html:not(.js) .tq-js { display: none; }
 .tq-md__log { margin-top: 12px; min-height: 1.5em; font-size: 0.875rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .tq-pager { margin-top: 32px; }
 
-/* Recruiting calendar (break-into-wall-street/recruiting-calendar/ and the guide's
-   next dates): the calendar table's shape, plus a by-firm table. */
+/* Recruiting calendar (recruiting-calendar/; the guide showed its next dates until
+   1 Nov 2026): the calendar table's shape, plus a by-firm table. */
 .rc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .rc-when { font-weight: 600; }
 .rc-when--ex { font-weight: 500; color: var(--ink-2); }
@@ -7966,3 +7971,38 @@ html.js .tq-nojs, html:not(.js) .tq-js { display: none; }
   .rc-next .rc-go { grid-column: 2; }
 }
 .rc-tags .tag { font-weight: 400; }
+
+
+/* ==== Chart of the day (chart-of-the-day/) ==== */
+
+/* ==== end Chart of the day ==== */
+
+
+/* ==== Central banks (central-banks/) ==== */
+
+/* ==== end Central banks ==== */
+
+
+/* ==== Recession watch (recession-watch/) ==== */
+
+/* ==== end Recession watch ==== */
+
+
+/* ==== Market history (market-history/) ==== */
+
+/* ==== end Market history ==== */
+
+
+/* ==== Interview simulator (interview-simulator/) ==== */
+
+/* ==== end Interview simulator ==== */
+
+
+/* ==== Firms (firms/) ==== */
+
+/* ==== end Firms ==== */
+
+
+/* ==== Application tracker (application-tracker/) ==== */
+
+/* ==== end Application tracker ==== */
