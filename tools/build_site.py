@@ -2953,6 +2953,16 @@ def bar_chart(rows, label):
     H = top + row * len(rows) + 2
     x0, half = 186, 64
     span = max(abs(r[1]) for r in rows) or 1
+    # The figures sit right-aligned at W and a rising bar runs towards its own. A figure is
+    # about 7.65 units a character (12px tabular digits in Schibsted Grotesk; the fallback
+    # fonts are narrower), so one with two whole digits (+21.76%, 54 units) is wider than the
+    # 50 the track leaves and its bar ran under it. Where a figure needs the room, the track
+    # shortens on both sides (every bar keeps the same scale) so each rising bar stops at
+    # least 4 units short of its figure, the gap the narrower figures already had.
+    for _, chg, _ in rows:
+        if chg > 0:
+            room = W - 4 - 7.65 * len(signed(chg, 2, "%")) - x0
+            half = min(half, room * span / chg)
     body = f'<line class="ref" x1="{x0}" x2="{x0}" y1="0" y2="{H}"/>'
     for i, (name, chg, last) in enumerate(rows):
         y = top + i * row
