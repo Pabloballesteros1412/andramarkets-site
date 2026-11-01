@@ -139,11 +139,14 @@
     header.classList.add("is-solid");
   }
 
-  // Theme: dark by default (owner, 31 Oct 2026), the visitor's choice is remembered.
-  var themeBtn = document.querySelector(".theme-btn");
+  // Theme: dark by default (owner, 31 Oct 2026), the visitor's choice is remembered. The
+  // header's mark is the switch (owner, 1 Nov 2026).
+  var themeBtn = document.querySelector(".brand__toggle");
   function syncThemeBtn() {
     var dark = root.getAttribute("data-theme") === "dark";
-    themeBtn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+    var label = dark ? "Switch to light theme" : "Switch to dark theme";
+    themeBtn.setAttribute("aria-label", label);
+    themeBtn.setAttribute("title", label);
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute("content", dark ? "#0a0c0d" : "#ffffff");
   }
@@ -162,7 +165,7 @@
         apply();
         return;
       }
-      // The new theme opens as a circle from the button and covers the page.
+      // The new theme opens as a circle from the mark and covers the page.
       var r = themeBtn.getBoundingClientRect();
       var x = r.left + r.width / 2;
       var y = r.top + r.height / 2;
