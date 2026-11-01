@@ -7975,6 +7975,172 @@ html.js .tq-nojs, html:not(.js) .tq-js { display: none; }
 
 /* ==== Chart of the day (chart-of-the-day/) ==== */
 
+/* One session: its date with the previous and next sessions, the note's own margin
+   chart in a ruled card (the close note's bar and curve charts, sized so their 12-unit
+   labels read at about 16px), two lines, the note link and Share, the source. */
+.cotd__day {
+  max-width: 30rem;
+  margin-top: clamp(32px, 5vw, 48px);
+}
+
+.cotd__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cotd__date {
+  font-size: 1.1875rem;
+  font-weight: 540;
+  letter-spacing: -0.015em;
+}
+
+.cotd__nav {
+  display: flex;
+  gap: 8px;
+}
+
+.cotd__step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  transition: background-color 200ms var(--ease-out), color 200ms var(--ease-out);
+}
+
+.cotd__step .icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.cotd__step--prev .icon {
+  transform: rotate(90deg);
+}
+
+.cotd__step--next .icon {
+  transform: rotate(-90deg);
+}
+
+span.cotd__step {
+  border-color: var(--rule);
+  color: var(--ink-3);
+  opacity: 0.5;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.cotd__step:hover {
+    background: var(--ink);
+    color: var(--ground);
+  }
+}
+
+.cotd .report__margin.cotd__fig {
+  margin: 16px 0 0;
+  padding: clamp(20px, 3vw, 28px);
+  border: 1px solid var(--rule-strong);
+}
+
+.cotd__ctitle {
+  margin-bottom: 16px;
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.cotd__read {
+  margin-top: 20px;
+  font-size: 1.0625rem;
+}
+
+.cotd__quote {
+  margin: 12px 0 0;
+  padding-left: 16px;
+  border-left: 1px solid var(--rule-strong);
+}
+
+.cotd__quote p {
+  color: var(--ink-2);
+}
+
+.cotd__quote footer {
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.cotd__acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  margin-top: 24px;
+}
+
+.cotd__share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+}
+
+.cotd__share[hidden] {
+  display: none;
+}
+
+.cotd__src {
+  margin-top: 20px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.cotd__lead {
+  margin-left: 8px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.cotd__lead .mv {
+  font-variant-numeric: tabular-nums;
+}
+
+.cotd__empty {
+  margin-top: 32px;
+  color: var(--ink-2);
+}
+
+.cotd__text {
+  margin-top: clamp(40px, 6vw, 64px);
+}
+
+.cotd .report__pager {
+  margin-top: 32px;
+}
+
+@media (max-width: 960px) {
+  .cotd .report__margin.cotd__fig {
+    padding: 20px;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+}
+
+@media (max-width: 640px) {
+  .cotd__share,
+  .cotd__share .btn {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cotd__step {
+    transition: none;
+  }
+}
+
 /* ==== end Chart of the day ==== */
 
 
@@ -7989,6 +8155,223 @@ html.js .tq-nojs, html:not(.js) .tq-js { display: none; }
 
 
 /* ==== Market history (market-history/) ==== */
+
+/* Index: the whole history on one chart, then every episode as a ruled timeline.
+   Episode pages use the dashboard page grid (.dd__grid). assets/market-history.js
+   draws the charts at their pixel width inside .dd__plot. */
+.mh-over,
+.mh-tl {
+  margin-top: clamp(40px, 6vw, 64px);
+}
+
+.mh .page__head .note__meta {
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.mh__h2 {
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.mh-over .dd__plot {
+  height: clamp(260px, 36vw, 420px);
+}
+
+.mh__plot--open {
+  cursor: pointer;
+}
+
+.chart .mh-epband {
+  fill: var(--chart-fill);
+}
+
+.chart .mh-tick,
+.chart .mh-base {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.chart .chart__label.mh-mark {
+  fill: var(--ink);
+  font-weight: 550;
+  paint-order: stroke;
+  stroke: var(--ground);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.key .mh-sw {
+  background: var(--down-tint);
+}
+
+.key .mh-k-ep {
+  width: 12px;
+  height: 12px;
+  background: var(--chart-fill);
+  outline: 1px solid var(--rule);
+  outline-offset: -1px;
+}
+
+/* The timeline: years, name, the fall as a bar and a signed figure, arrow. */
+.mh-tl__head,
+.mh-tl__list a {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr) minmax(64px, 10rem) 4.75rem 20px;
+  gap: 16px;
+  align-items: center;
+}
+
+.mh-tl__head {
+  margin-top: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.mh-tl__head span:last-child {
+  grid-column: 3 / span 2;
+  text-align: right;
+}
+
+.mh-tl__list a {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.mh-tl__years {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.mh-tl__name {
+  font-size: 1.0625rem;
+  font-weight: 540;
+  letter-spacing: -0.01em;
+}
+
+.mh-tl__bar {
+  display: flex;
+  justify-content: flex-end;
+  height: 8px;
+}
+
+.mh-tl__bar i {
+  display: block;
+  height: 100%;
+  background: var(--down);
+}
+
+.mh-tl__fall {
+  text-align: right;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.mh-tl__fall--pending {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.mh-tl__list .icon {
+  transition: transform 200ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mh-tl__list a:hover .mh-tl__name {
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 0.2em;
+  }
+  .mh-tl__list a:hover .icon {
+    transform: translateX(4px);
+  }
+}
+
+.mh__text {
+  margin-top: clamp(40px, 6vw, 64px);
+}
+
+/* Episode pages */
+.mh-ep .dd__text {
+  margin-top: 0;
+}
+
+.mh__acts {
+  margin-top: 20px;
+}
+
+.mh-rel {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+}
+
+.mh__pager {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
+.mh__pending {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+@media (max-width: 960px) {
+  .mh-tl__head,
+  .mh-tl__list a {
+    grid-template-columns: 7rem minmax(0, 1fr) 4.75rem 20px;
+  }
+  .mh-tl__bar {
+    display: none;
+  }
+  .mh-tl__head span:last-child {
+    grid-column: 3 / span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .mh-tl__head {
+    display: none;
+  }
+  .mh-tl__list a {
+    grid-template-columns: minmax(0, 1fr) auto 20px;
+    gap: 2px 12px;
+    padding: 14px 0;
+  }
+  .mh-tl__years {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 0.8125rem;
+  }
+  .mh-tl__name {
+    grid-column: 1;
+    grid-row: 2;
+    font-size: 1rem;
+  }
+  .mh-tl__fall {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  .mh-tl__list .icon {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mh-tl__list .icon {
+    transition: none;
+  }
+}
 
 /* ==== end Market history ==== */
 
