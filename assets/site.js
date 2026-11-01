@@ -369,9 +369,61 @@
       var open = b === except;
       b.setAttribute("aria-expanded", String(open));
       b.parentNode.classList.toggle("is-open", open);
+      if (open) orbit(b.parentNode);
       any = any || open;
     });
     if (header && !(menuBtnOpen())) header.classList.toggle("is-open", any);
+  }
+
+  // The open group's sections orbit its title (owner-approved, 1 Nov 2026; site.css has the
+  // panel). Above 960px they sit on an ellipse the size of the panel, the first at the top
+  // (with two sections, top left and bottom right), and come out of the title over 1.1s as
+  // the group opens; the ellipse then turns once every 120s. It stops while the pointer or
+  // the focus is on a section, so it is easy to take, and every opening starts from the same
+  // places. It runs only while the group is open. Reduced motion: the sections stand still in
+  // their places.
+  var wideMenu = window.matchMedia("(min-width: 961px)");
+  var ORBIT_TURN = 120;
+  function orbit(g) {
+    var ul = g.querySelector(".nav__links");
+    if (!ul || !wideMenu.matches) return;
+    var items = Array.prototype.slice.call(ul.children);
+    var start = items.length === 2 ? -0.82 * Math.PI : -Math.PI / 2;
+    var t = 0, last = 0, t0 = performance.now();
+    if (g._orbit) cancelAnimationFrame(g._orbit);
+    if (!g._held) {
+      g._held = 0;
+      items.forEach(function (li) {
+        var on = function () { g._held++; }, off = function () { g._held = Math.max(0, g._held - 1); };
+        li.addEventListener("pointerenter", on);
+        li.addEventListener("pointerleave", off);
+        li.addEventListener("focusin", on);
+        li.addEventListener("focusout", off);
+      });
+    }
+    function place(now) {
+      if (!g.classList.contains("is-open") || !wideMenu.matches) {
+        g._orbit = 0;
+        items.forEach(function (li) { li.style.transform = ""; li.style.opacity = ""; });
+        return;
+      }
+      var dt = last ? (now - last) / 1000 : 0;
+      last = now;
+      if (!g._held && !still()) t += dt;
+      var k = still() ? 1 : Math.min(1, (now - t0) / 1100);
+      k = 1 - Math.pow(1 - k, 3);
+      var W = ul.clientWidth, H = ul.clientHeight;
+      items.forEach(function (li, i) {
+        var w = li.offsetWidth, h = li.offsetHeight;
+        var a = start + i * 2 * Math.PI / items.length + t * 2 * Math.PI / ORBIT_TURN;
+        var x = W / 2 - w / 2 + Math.cos(a) * (W - w) / 2 * k;
+        var y = H / 2 - h / 2 + Math.sin(a) * (H - h) / 2 * k;
+        li.style.transform = "translate(" + x.toFixed(1) + "px, " + y.toFixed(1) + "px)";
+        li.style.opacity = Math.min(1, k * 1.4).toFixed(3);
+      });
+      g._orbit = requestAnimationFrame(place);
+    }
+    place(t0);
   }
   function menuBtnOpen() {
     var m = document.querySelector(".menu-btn");

@@ -1257,12 +1257,37 @@ NAV_GROUPS = (
 )
 
 
+# A small chart drawn beside each section in the open menu (owner-approved, 1 Nov 2026): a
+# line drawing in ink that says what the section is, with no figures, so it never reads as
+# data. Paths have pathLength 1, so site.css draws each from 0 to 1; .dot and .soft show
+# once the line is drawn; .base is the axis.
+NAV_CHARTS = {
+    "dashboards/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 50L18 42L30 46L44 30L58 34L72 20L86 26L110 10"/><circle class="dot" cx="110" cy="10" r="3"/>',
+    "fed-rates/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 52H24V42H46V32H68V24H84"/><path class="soft" d="M84 24H96V30H110"/><circle class="dot" cx="84" cy="24" r="3"/>',
+    "calendar/": '<path class="base" d="M2 44H110"/><path class="draw" pathLength="1" d="M14 44V26M34 44V32M54 44V14M74 44V30M94 44V20"/><circle class="dot" cx="54" cy="14" r="3"/>',
+    "world/": '<path class="soft" d="M56 4L84 18L82 46L56 60L30 46L28 18Z"/><path class="draw" pathLength="1" d="M56 12L74 22L78 42L56 50L38 40L34 22Z"/><circle class="dot" cx="78" cy="42" r="3"/>',
+    "fx/": '<path class="draw" pathLength="1" d="M2 14C30 18 50 46 110 50"/><path class="draw" pathLength="1" d="M2 48C34 44 60 18 110 14"/><circle class="dot" cx="57" cy="32" r="3"/>',
+    "companies/": '<path class="base" d="M2 60H110"/><path class="draw bar" pathLength="1" d="M12 60V42M28 60V32M44 60V38M60 60V22M76 60V28M92 60V12"/>',
+    "lab/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 58C30 58 38 8 56 8C74 8 82 58 110 58"/><path class="soft" d="M56 8V60"/>',
+    "simulators/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 40L12 34L20 42L30 26L40 32L50 18L60 28L70 22L80 36L92 24L104 30"/><circle class="dot" cx="104" cy="30" r="3"/>',
+    "reports/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 46L20 40L36 44L52 30L68 34L84 20L104 24"/><circle class="dot" cx="104" cy="24" r="3"/>',
+    "research/": '<path class="draw" pathLength="1" d="M10 12H92M10 24H104M10 36H82M10 48H96"/><path class="soft" d="M10 60H70"/>',
+    "interview-prep/": '<path class="draw" pathLength="1" d="M6 36L16 46L34 22"/><path class="draw" pathLength="1" d="M46 24H106M46 40H92"/>',
+    "break-into-wall-street/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 58H24V46H46V34H68V22H90V8"/><path class="soft" d="M84 14L90 8L96 14"/><circle class="dot" cx="90" cy="8" r="3"/>',
+}
+
+
+def nav_chart(href):
+    paths = NAV_CHARTS.get(href)
+    return f'<svg class="nav-chart" viewBox="0 0 112 64" aria-hidden="true">{paths}</svg>' if paths else ""
+
+
 def nav_menu(base):
     groups = []
     for key, name, intro, links in NAV_GROUPS:
         items = "".join(
-            f'<li><a href="{base}{href}"><span class="nav__name">{label}{icon("arrow-right")}</span>'
-            f'<span class="nav__sub">{sub}</span></a></li>' for label, href, sub in links)
+            f'<li style="--k:{k}"><a href="{base}{href}">{nav_chart(href)}<span class="nav__name">{label}{icon("arrow-right")}</span>'
+            f'<span class="nav__sub">{sub}</span></a></li>' for k, (label, href, sub) in enumerate(links))
         groups.append(f"""<div class="nav__group">
         <button class="nav__btn" type="button" aria-expanded="false" aria-controls="nav-{key}">{name}<svg class="icon nav__caret" aria-hidden="true"><use href="#i-caret-down"/></svg></button>
         <div class="nav__panel" id="nav-{key}">

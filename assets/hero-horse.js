@@ -49,7 +49,12 @@
   var reduce = mq.matches;
   var TAU = Math.PI * 2;
   var SRC = { x: 278, y: 258, w: 454, h: 516, side: 1024 }; // the horse inside the 1024px engraving
-  var DONE = 6; // seconds until every particle has settled
+  // The hero's clock runs 1.4x real time (owner, 1 Nov 2026: "a little faster"), so every
+  // timing below, in hero seconds, is 1/1.4 of it in real time: the horse settles at about
+  // 4.3s, the phrase, the groups and the header turn crisp from about 2.1s. The band of
+  // light over the settled horse keeps its real-time pace.
+  var SPEED = 1.4;
+  var DONE = 6; // hero seconds until every particle has settled
 
   // Colours as the canvas draws them. In the light theme the canvas is inverted, so each
   // value is the complement of the ink on screen: soft black dust and horse (about #333 with
@@ -105,7 +110,7 @@
     "  float dust = 0.035 + 0.55*pow(aR2.w, 4.0);",
     "  float a = mix(dust, aH.z, smoothstep(0.6, 1.0, e));",
     "  float sz = mix(2.2, 2.0*pitch, e);",
-    "  float band = (aH.x + aH.y*0.6) - mod(t*0.12, 2.6) + 0.5;",
+    "  float band = (aH.x + aH.y*0.6) - mod(t*" + (0.12 / SPEED).toFixed(4) + ", 2.6) + 0.5;",
     "  a *= 1.0 + sheen * 0.5 * f * exp(-band*band*80.0);",
     // scroll: the horse comes apart into dust and settles as the chart
     "  float eg = eio(clamp(m*1.75 - aH.x*0.75, 0.0, 1.0));",
@@ -520,7 +525,7 @@
 
   function draw(t, p) {
     var m = reduce ? 0 : smooth(0.15, 0.75, p);
-    if (m > 0 && t < DONE) { t0 -= (DONE - t) * 1000; t = DONE; } // scrolling finishes the drawing
+    if (m > 0 && t < DONE) { t0 -= (DONE - t) / SPEED * 1000; t = DONE; } // scrolling finishes the drawing
     if (m > 0 && !chartReady) buildChart();
     var col = COLOURS[theme()];
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -590,7 +595,7 @@
     requestAnimationFrame(loop);
     ptr.s += ((now - ptr.last < 1200 ? 1 : 0) - ptr.s) * 0.08;
     ptr.sx += (ptr.x - ptr.sx) * 0.22; ptr.sy += (ptr.y - ptr.sy) * 0.22;
-    var t = (now - t0) / 1000, p = progress();
+    var t = (now - t0) / 1000 * SPEED, p = progress();
     if (xMode) exitClock(now);
     // once settled and untouched, half the frame rate is plenty for the band of light
     else if (t > DONE + 0.5 && ptr.s < 0.01 && p === lastP && (frameNo++ & 1)) return;
@@ -665,7 +670,7 @@
   }
   function start() { if (!running && !reduce && visible && !document.hidden) { running = true; requestAnimationFrame(loop); } }
   function stop() { running = false; }
-  function still() { draw((performance.now() - t0) / 1000, progress()); }
+  function still() { draw((performance.now() - t0) / 1000 * SPEED, progress()); }
 
   // resolves true once the page's font is ready, false if it takes longer than ms
   function fontReady(ms) {

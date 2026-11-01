@@ -404,6 +404,12 @@ body.has-scene {
   background: transparent;
 }
 
+/* Without JavaScript the page cannot fade out behind an open panel, so the panel keeps
+   its ground. */
+html:not(.js) .has-scene .nav__panel {
+  background: var(--ground);
+}
+
 .has-scene main,
 .has-scene .site-footer {
   transition: opacity 200ms var(--ease-out);
@@ -627,6 +633,211 @@ html:not(.js) .nav__group:focus-within .nav__panel {
   max-width: 40ch;
   font-size: 0.875rem;
   color: var(--ink-2);
+}
+
+/* The open group, above 960px (owner-approved, 1 Nov 2026): it fills the screen under the
+   header, the group's title and line in the middle and its sections orbiting them, each with a
+   small chart that draws itself (NAV_CHARTS in tools/build_site.py). assets/site.js places the
+   sections on an ellipse the size of the panel and turns it once every 120s; they come out of
+   the title as the group opens, and stop while the pointer or the focus is on one. Without
+   JavaScript the panel keeps the layout above; the phones' menu sheet is unchanged. */
+.nav-chart {
+  display: none;
+}
+
+@media (min-width: 961px) {
+  html.js .nav__panel {
+    inset: var(--nav-h) 0 0;
+    padding: clamp(28px, 5vh, 56px) 0 clamp(28px, 6vh, 64px);
+    border-bottom: 0;
+    display: flex;
+  }
+
+  html.js .nav__inner {
+    position: relative;
+    flex: 1;
+    width: 100%;
+  }
+
+  html.js .nav__intro {
+    /* out of its grid column, so it centres on the whole panel */
+    grid-column: auto;
+    grid-row: auto;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(36ch, 26%);
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  html.js .nav__title {
+    margin-bottom: 10px;
+    font-size: clamp(1.75rem, 2.4vw, 2.5rem);
+  }
+
+  html.js .nav__desc {
+    margin: 0 auto;
+  }
+
+  html.js .nav__links {
+    grid-column: 1 / -1;
+    position: relative;
+    display: block;
+    height: 100%;
+    border-top: 0;
+  }
+
+  html.js .nav__links li {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: min(380px, 27%);
+    border-bottom: 0;
+    will-change: transform, opacity;
+  }
+
+  html.js .nav__links a {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    column-gap: 18px;
+    row-gap: 4px;
+    align-content: start;
+    align-items: center;
+    min-height: clamp(104px, 17svh, 136px);
+    padding: clamp(10px, 1.8svh, 16px) 0 clamp(12px, 2svh, 18px);
+    border-top: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  html.js .nav__name,
+  html.js .nav__sub {
+    grid-column: 2;
+  }
+
+  /* narrower screens: a smaller chart, so the sections keep clear of one another */
+  @media (max-width: 1180px) {
+    html.js .nav__links a {
+      grid-template-columns: 80px minmax(0, 1fr);
+      column-gap: 14px;
+    }
+    html.js .nav-chart {
+      width: 80px !important;
+      height: 46px !important;
+    }
+    html.js .nav__sub {
+      font-size: 0.8125rem;
+    }
+  }
+
+  html.js .nav-chart {
+    display: block;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+    width: 112px;
+    height: 64px;
+    overflow: visible;
+    color: var(--ink-2);
+  }
+
+  .nav-chart * {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .nav-chart .bar {
+    stroke-width: 7;
+    stroke-linecap: butt;
+  }
+
+  .nav-chart .base {
+    stroke: var(--rule-strong);
+    stroke-width: 1;
+  }
+
+  .nav-chart .dot {
+    fill: var(--ink);
+    stroke: none;
+  }
+
+  .nav-chart .soft {
+    stroke: var(--ink-3);
+    stroke-dasharray: 2 4;
+  }
+
+  /* each chart draws itself as its section arrives, then its dot or guide shows */
+  .nav__group.is-open .nav-chart .draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: nav-draw 1100ms var(--ease-in-out) forwards;
+    animation-delay: calc(420ms + var(--k, 0) * 80ms);
+  }
+
+  .nav__group.is-open .nav-chart .dot,
+  .nav__group.is-open .nav-chart .soft {
+    opacity: 0;
+    animation: nav-fade 500ms ease forwards;
+    animation-delay: calc(1300ms + var(--k, 0) * 80ms);
+  }
+
+  html.js .nav__group.is-open .nav__intro > * {
+    animation: nav-title-in 700ms var(--ease-out) both;
+  }
+
+  html.js .nav__group.is-open .nav__intro > :nth-child(2) {
+    animation-delay: 80ms;
+  }
+
+  /* section pages: the scene dims while a group is open, so its sections read over it */
+  .has-scene .scene {
+    transition: opacity 300ms ease;
+  }
+
+  .has-scene:has(.site-header.is-open) .scene {
+    opacity: 0.4;
+  }
+}
+
+@keyframes nav-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nav-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nav-title-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav__group.is-open .nav-chart .draw,
+  .nav__group.is-open .nav-chart .dot,
+  .nav__group.is-open .nav-chart .soft,
+  html.js .nav__group.is-open .nav__intro > * {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
 }
 
 @media (min-width: 961px) {
