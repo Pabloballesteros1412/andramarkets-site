@@ -94,45 +94,68 @@
     HASH,
     SEED,
     "void main(){",
-    // each particle's random numbers, from its own pixel: nothing to build or upload
-    "  vec2 cell = aH.xy * dim;",
-    "  vec4 aR = vec4(hash(cell), hash(cell + 17.31), hash(cell + 41.97), hash(cell + 73.13));",
-    "  vec4 aR2 = vec4(0.0, hash(cell + 101.7), hash(cell + 131.9), hash(cell + 163.3));",
+    // Most of the time the horse stands settled: every particle at home, nothing flying,
+    // nothing leaving, no pointer. Each stage below is then skipped as a whole (the test is on
+    // uniforms, so every particle takes the same way and nothing is lost to branching), and
+    // what is left is the place, the ink and the band of light. Skipped, each stage would
+    // have changed nothing: past DONE every particle has landed (f and e are 1), m is 0 but
+    // for a chart, xt is 0 but when leaving and ptr.z 0 once the pointer has gone.
     "  vec2 home = hb.xy + (aH.xy - 0.5) * hb.zw;",
+    "  vec2 pos = home, s = cc;",
+    "  float a = aH.z, sz = 2.0*pitch, f = 1.0, e = 1.0, eg = 0.0, xe = 0.0, dust = 0.0;",
+    // each particle's random numbers, from its own pixel: nothing to build or upload, and only
+    // made while something moves (the pointer needs two)
+    "  vec2 cell = aH.xy * dim;",
+    "  vec4 aR = vec4(0.0), aR2 = vec4(0.0);",
+    "  bool moving = t < " + DONE.toFixed(1) + " || m > 0.0 || xt > 0.0;",
+    "  if (moving || ptr.z > 0.0) aR.xy = vec2(hash(cell), hash(cell + 17.31));",
+    "  if (moving) {",
+    "    aR.zw = vec2(hash(cell + 41.97), hash(cell + 73.13));",
+    "    aR2 = vec4(0.0, hash(cell + 101.7), hash(cell + 131.9), hash(cell + 163.3));",
+    "    s = seed(cc, vec2(aR.x, aR2.y), t);",
+    "    dust = 0.035 + 0.55*pow(aR2.w, 4.0);",
+    "  }",
     // outline first, then the shading from the head down
-    "  float d = aH.w > 0.5 ? 0.5 + 1.2*aR.w : 1.6 + 1.1*aH.y + 0.6*aR.w;",
-    "  float f = clamp((t - d) / 2.3, 0.0, 1.0);",
-    "  vec2 s = seed(cc, vec2(aR.x, aR2.y), t);",
-    "  float e = fly(f);",
-    "  vec2 dd = home - s;",
-    "  float k = sin(PI*e) * (aR.z - 0.5) * 0.44;",
-    "  vec2 pos = s + dd*e + vec2(-dd.y, dd.x)*k;",
-    "  float dust = 0.035 + 0.55*pow(aR2.w, 4.0);",
-    "  float a = mix(dust, aH.z, smoothstep(0.6, 1.0, e));",
-    "  float sz = mix(2.2, 2.0*pitch, e);",
+    "  if (t < " + DONE.toFixed(1) + ") {",
+    "    float d = aH.w > 0.5 ? 0.5 + 1.2*aR.w : 1.6 + 1.1*aH.y + 0.6*aR.w;",
+    "    f = clamp((t - d) / 2.3, 0.0, 1.0);",
+    "    e = fly(f);",
+    "    vec2 dd = home - s;",
+    "    float k = sin(PI*e) * (aR.z - 0.5) * 0.44;",
+    "    pos = s + dd*e + vec2(-dd.y, dd.x)*k;",
+    "    a = mix(dust, aH.z, smoothstep(0.6, 1.0, e));",
+    "    sz = mix(2.2, 2.0*pitch, e);",
+    "  }",
     "  float band = (aH.x + aH.y*0.6) - mod(t*" + (0.12 / SPEED).toFixed(4) + ", 2.6) + 0.5;",
     "  a *= 1.0 + sheen * 0.5 * f * exp(-band*band*80.0);",
     // scroll: the horse comes apart into dust and settles as the chart
-    "  float eg = eio(clamp(m*1.75 - aH.x*0.75, 0.0, 1.0));",
-    "  float sc = sin(PI*eg) * (24.0 + 70.0*aR2.y);",
-    "  float ang = aR2.z*2.0*PI;",
-    "  pos = mix(pos, aC.xy, eg) + vec2(cos(ang), sin(ang))*sc;",
-    "  a = mix(mix(a, dust, sin(PI*eg)), aC.z, smoothstep(0.6, 1.0, eg));",
-    "  sz = mix(sz, 2.0, eg);",
+    "  if (m > 0.0) {",
+    "    eg = eio(clamp(m*1.75 - aH.x*0.75, 0.0, 1.0));",
+    "    float sc = sin(PI*eg) * (24.0 + 70.0*aR2.y);",
+    "    float ang = aR2.z*2.0*PI;",
+    "    pos = mix(pos, aC.xy, eg) + vec2(cos(ang), sin(ang))*sc;",
+    "    a = mix(mix(a, dust, sin(PI*eg)), aC.z, smoothstep(0.6, 1.0, eg));",
+    "    sz = mix(sz, 2.0, eg);",
+    "  }",
     // leaving for a section: back into the point, the shading first and the outline last,
     // slow away from its place and fast into the point (the way in, reversed)
-    "  float xf = clamp((xt - (aH.w > 0.5 ? 0.1 : 0.0) - 0.1*aR.w) / 0.42, 0.0, 1.0);",
-    "  float xe = xf*xf*xf;",
-    "  vec2 xd = pos - s;",
-    "  pos = s + xd*(1.0 - xe) + vec2(-xd.y, xd.x) * sin(PI*xe) * (aR.z - 0.5) * 0.44;",
-    "  a = mix(a, dust, smoothstep(0.0, 0.4, xe)) * xo;",
-    "  sz = mix(sz, 2.2, xe);",
+    "  if (xt > 0.0) {",
+    "    float xf = clamp((xt - (aH.w > 0.5 ? 0.1 : 0.0) - 0.1*aR.w) / 0.42, 0.0, 1.0);",
+    "    xe = xf*xf*xf;",
+    "    vec2 xd = pos - s;",
+    "    pos = s + xd*(1.0 - xe) + vec2(-xd.y, xd.x) * sin(PI*xe) * (aR.z - 0.5) * 0.44;",
+    "    a = mix(a, dust, smoothstep(0.0, 0.4, xe));",
+    "    sz = mix(sz, 2.2, xe);",
+    "  }",
+    "  a *= xo;",
     // pointer: the dots part around it and close again behind it
-    "  vec2 dp = pos - ptr.xy; float dist = length(dp);",
-    "  float q = 1.0 - smoothstep(0.0, prad, dist);",
-    "  vec2 dir = dp / max(dist, 0.001);",
-    "  pos += (dir * q * q * prad * 0.3 * (0.35 + 1.3*aR.x) + vec2(-dir.y, dir.x) * q * prad * 0.16 * (aR.y - 0.5)) * ptr.z;",
-    "  a *= 1.0 + 0.6 * q * ptr.z;",
+    "  if (ptr.z > 0.0) {",
+    "    vec2 dp = pos - ptr.xy; float dist = length(dp);",
+    "    float q = 1.0 - smoothstep(0.0, prad, dist);",
+    "    vec2 dir = dp / max(dist, 0.001);",
+    "    pos += (dir * q * q * prad * 0.3 * (0.35 + 1.3*aR.x) + vec2(-dir.y, dir.x) * q * prad * 0.16 * (aR.y - 0.5)) * ptr.z;",
+    "    a *= 1.0 + 0.6 * q * ptr.z;",
+    "  }",
     "  gl_Position = vec4(pos.x / res.x * 2.0 - 1.0, 1.0 - pos.y / res.y * 2.0, 0.0, 1.0);",
     // a point is never drawn under one device pixel, so in a small slot on a low-density
     // screen (phones give the horse a smaller slot) the dots would overlap and brighten:
@@ -192,25 +215,35 @@
   try { gl = canvas.getContext("webgl", { antialias: false, alpha: true, premultipliedAlpha: true }); } catch (e) { gl = null; }
   if (!gl) { fail(); return; }
   function shader(type, src) { var o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; }
-  function program(vs) {
+  // first: the attribute always fed from a buffer takes slot 0, which some drivers need
+  // enabled (the horse's aC is fed only if a chart is built)
+  function program(vs, first) {
     var p = gl.createProgram();
     gl.attachShader(p, shader(gl.VERTEX_SHADER, vs));
     gl.attachShader(p, shader(gl.FRAGMENT_SHADER, FS));
+    gl.bindAttribLocation(p, 0, first);
     gl.linkProgram(p);
     return gl.getProgramParameter(p, gl.LINK_STATUS) ? p : null;
   }
   function uniforms(p, names) { var u = {}; names.forEach(function (n) { u[n] = gl.getUniformLocation(p, n); }); return u; }
-  var prog = program(VS);
+  var prog = program(VS, "aH");
   if (!prog) { fail(); return; }
-  var progT = program(VS_TEXT);
+  var progT = program(VS_TEXT, "aP");
   var U = uniforms(prog, ["res", "cc", "hb", "ptr", "hcol", "dcol", "dim", "t", "m", "dpr", "pitch", "sm", "am", "prad", "sheen", "kk", "xt", "xo"]);
   var UT = progT ? uniforms(progT, ["res", "cc", "ptr", "tcol", "dcol", "t", "dpr", "sm", "am", "prad", "pitch", "visP", "visI", "visH", "kk", "xt", "xo"]) : null;
   var MAX_ATTRIBS = Math.min(8, gl.getParameter(gl.MAX_VERTEX_ATTRIBS));
   // both programs share the attribute slots: each draw switches them to its own buffers
+  // (each attribute's slot is looked up once, not on every frame)
+  var slots = {};
+  function slot(p, name) {
+    var k = (p === prog ? "h:" : "t:") + name;
+    if (!(k in slots)) slots[k] = gl.getAttribLocation(p, name);
+    return slots[k];
+  }
   function attribs(list) {
     for (var i = 0; i < MAX_ATTRIBS; i++) gl.disableVertexAttribArray(i);
     list.forEach(function (a) {
-      var l = gl.getAttribLocation(a[0], a[1]);
+      var l = slot(a[0], a[1]);
       if (l < 0) return;
       gl.bindBuffer(gl.ARRAY_BUFFER, a[2]);
       gl.enableVertexAttribArray(l);
@@ -236,13 +269,17 @@
     var x = c.getContext("2d", { willReadFrequently: true });
     x.drawImage(image, 0, 0);
     var d = x.getImageData(0, 0, PW, PH).data;
-    var idx = [];
-    for (var i = 0, n = PW * PH; i < n; i++) if (d[i * 4] > 10) idx.push(i);
+    // the inked pixels, counted first so they go straight into a typed array (a plain array
+    // grown pixel by pixel took most of this function's time on a phone)
+    var n = PW * PH, i, k = 0;
+    for (i = 0; i < n; i++) if (d[i * 4] > 10) k++;
+    var idx = new Uint32Array(k);
+    for (i = 0, k = 0; i < n; i++) if (d[i * 4] > 10) idx[k++] = i;
     // shuffled, so the first third (the halo pass) is a fair sample of the whole drawing
     var r = rng(1412);
-    for (var j = idx.length - 1; j > 0; j--) { var k = Math.floor(r() * (j + 1)), tmp = idx[j]; idx[j] = idx[k]; idx[k] = tmp; }
+    for (var j = idx.length - 1; j > 0; j--) { var w = Math.floor(r() * (j + 1)), tmp = idx[j]; idx[j] = idx[w]; idx[w] = tmp; }
     N = idx.length;
-    px = new Uint32Array(idx);
+    px = idx;
     // position, ink and outline only: the shader makes each particle's random numbers
     var st = new Float32Array(N * 4);
     for (var q = 0, o = 0; q < N; q++, o += 4) {
@@ -253,10 +290,7 @@
     sBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, sBuf);
     gl.bufferData(gl.ARRAY_BUFFER, st, gl.STATIC_DRAW);
-    cBuf = gl.createBuffer();
-    chartAttr = new Float32Array(N * 3);
-    gl.bindBuffer(gl.ARRAY_BUFFER, cBuf);
-    gl.bufferData(gl.ARRAY_BUFFER, chartAttr, gl.DYNAMIC_DRAW);
+    // the chart's places (cBuf) are made only if a chart is ever built (buildChart)
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.ONE, gl.ONE);
     gl.clearColor(0, 0, 0, 0);
@@ -396,7 +430,26 @@
     if (!tBuf) tBuf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, tBuf);
     gl.bufferData(gl.ARRAY_BUFFER, A, gl.STATIC_DRAW);
+    textAt = textKey();
   }
+
+  // Sampling the text takes a moment (about 10ms on a laptop, 30 to 45ms on a phone), too
+  // long to spend as the hero starts to leave: the particles from the last time are kept and
+  // sampled again only if something they came from has moved or the theme has changed.
+  // textKey is where each piece stands, its size and the theme; freshText samples again only
+  // if it differs.
+  var textAt = null;
+  function textKey() {
+    var s = stage.getBoundingClientRect(), k = [theme()], els = [headline].concat(links);
+    if (bar) els = els.concat(Array.prototype.slice.call(bar.querySelectorAll(".wrap, .brand__mark img, .brand__name, .site-header__legal a")));
+    els.forEach(function (el) {
+      var b = el.getBoundingClientRect();
+      k.push(Math.round((b.left - s.left) * 8), Math.round((b.top - s.top) * 8), Math.round(b.width * 8), Math.round(b.height * 8),
+        el.tagName === "IMG" ? (el.complete && el.naturalWidth ? 1 : 0) : 1);
+    });
+    return k.join(",");
+  }
+  function freshText() { if (!tBuf || textKey() !== textAt) buildText(); }
 
   // the real text takes over for good; the page no longer needs the forming state
   function finishText() {
@@ -480,6 +533,7 @@
   }
 
   function buildChart() {
+    if (!cBuf) { cBuf = gl.createBuffer(); chartAttr = new Float32Array(N * 3); }
     if (!order) {
       // the left of the horse becomes the left of the chart
       order = Array.prototype.slice.call(new Uint32Array(N).map(function (_, i) { return i; }));
@@ -530,7 +584,7 @@
     var col = COLOURS[theme()];
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.useProgram(prog);
-    attribs([[prog, "aH", sBuf, 4, 16, 0], [prog, "aC", cBuf, 3, 12, 0]]);
+    attribs(cBuf ? [[prog, "aH", sBuf, 4, 16, 0], [prog, "aC", cBuf, 3, 12, 0]] : [[prog, "aH", sBuf, 4, 16, 0]]);
     gl.uniform2f(U.dim, PW, PH);
     gl.uniform2f(U.res, W, H);
     gl.uniform1f(U.dpr, DPR);
@@ -593,7 +647,11 @@
   function loop(now) {
     if (!running) return;
     requestAnimationFrame(loop);
-    ptr.s += ((now - ptr.last < 1200 ? 1 : 0) - ptr.s) * 0.08;
+    var held = now - ptr.last < 1200;
+    ptr.s += ((held ? 1 : 0) - ptr.s) * 0.08;
+    // the pointer's hold fades to nothing rather than ever closer to it, so a settled horse
+    // goes back to its cheapest drawing (at a thousandth the dots stir by under 0.05px)
+    if (!held && ptr.s < 0.001) ptr.s = 0;
     ptr.sx += (ptr.x - ptr.sx) * 0.22; ptr.sy += (ptr.y - ptr.sy) * 0.22;
     var t = (now - t0) / 1000 * SPEED, p = progress();
     if (xMode) exitClock(now);
@@ -641,8 +699,9 @@
 
   function leave(href) {
     if (xMode === 1) { xGo = href; return; }
-    // the text as it stands, so it can go back into the point with the horse
-    if (progT && !textOn) { buildText(); textOn = true; }
+    // the text as it stands, so it can go back into the point with the horse (sampled again
+    // only if it moved since: usually done already as the pointer went down on the link)
+    if (progT && !textOn) { freshText(); textOn = true; }
     if (xMode !== 2) xT = 0;
     xMode = 1; xLast = 0; xGo = href; xVis = 1;
     root.classList.add("hero-leaving");
@@ -653,24 +712,46 @@
     var l = document.createElement("link");
     l.rel = "prefetch"; l.href = href;
     document.head.appendChild(l);
+    // and the section's sphere texture, so it is in the cache when that page asks for it
+    var next = canvas.getAttribute("data-next");
+    if (next && !leave.next) { leave.next = new Image(); leave.next.src = next; }
     exitClock(performance.now());
     start();
     // if frames stall (a hidden tab), go anyway
     setTimeout(go, (EXIT - xT) * 1000 + 600);
   }
 
-  function onClick(e) {
-    if (reduce || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  // the link a click or press would leave by, if the hero takes it back into the point
+  function exitLink(e) {
+    if (reduce || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return null;
     var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
-    if (!a || a.target || a.hasAttribute("download") || a.origin !== location.origin) return;
-    if (a.pathname === location.pathname || /\.pdf$/i.test(a.pathname)) return;
-    if (!hero.classList.contains("is-live")) return;
+    if (!a || a.target || a.hasAttribute("download") || a.origin !== location.origin) return null;
+    if (a.pathname === location.pathname || /\.pdf$/i.test(a.pathname)) return null;
+    if (!hero.classList.contains("is-live")) return null;
+    return a;
+  }
+  function onClick(e) {
+    var a = exitLink(e);
+    if (!a) return;
     e.preventDefault();
     leave(a.href);
   }
+  // the pointer going down on such a link: the text is made ready then, before the click, so
+  // the way back into the point starts without stopping to sample it
+  function onPress(e) { if (progT && !textOn && !xMode && exitLink(e)) freshText(); }
   function start() { if (!running && !reduce && visible && !document.hidden) { running = true; requestAnimationFrame(loop); } }
   function stop() { running = false; }
   function still() { draw((performance.now() - t0) / 1000 * SPEED, progress()); }
+
+  // everything the text particles are sampled from is in: the headline's font (the header
+  // and the index use the same) and the header's mark as the page shows it
+  function textIn() {
+    if (!document.fonts || !document.fonts.check) return false;
+    var marks = bar ? Array.prototype.filter.call(bar.querySelectorAll(".brand__mark img"), shown) : [];
+    if (marks.some(function (img) { return !img.complete || !img.naturalWidth; })) return false;
+    var cs = getComputedStyle(headline);
+    try { return document.fonts.check(cs.fontWeight + " 32px " + cs.fontFamily); } catch (e) { return false; }
+  }
 
   // resolves true once the page's font is ready, false if it takes longer than ms
   function fontReady(ms) {
@@ -690,8 +771,12 @@
     if (!withText) giveUp();
     hero.classList.add("is-live");
     measure();
+    // the text, sampled before the clock starts when its font and the mark are already in
+    // (the usual case), so the flight never stops a moment to sample it once under way
+    var early = withText && textIn();
+    if (early) { buildText(); textOn = true; }
     t0 = performance.now();
-    if (withText) {
+    if (withText && !early) {
       fontReady(1500).then(function (ok) {
         if (!ok) { finishText(); return; }
         requestAnimationFrame(function () {
@@ -711,6 +796,7 @@
     }, { passive: true });
     stage.addEventListener("pointerleave", function () { ptr.last = -1e9; });
     document.addEventListener("click", onClick);
+    document.addEventListener("pointerdown", onPress, { passive: true });
     // shown again from the back/forward cache after leaving: everything comes back out of
     // the point (the way in, reversed again, 0.5s)
     window.addEventListener("pageshow", function (e) {

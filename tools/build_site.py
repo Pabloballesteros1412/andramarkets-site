@@ -1143,7 +1143,7 @@ def page(notes, cal):
         <script>if(!window.__heroMap)__heroStill()</script>
         <noscript><img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" decoding="async"></noscript>
       </div>
-      <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" aria-hidden="true"></canvas>
+      <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" data-next="assets/section-horse.png?v={ver("section-horse.png")}" aria-hidden="true"></canvas>
       <div class="wrap hero__copy">
         <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
         <nav class="hero__index" aria-label="All sections" style="--i:2">{hero_groups()}</nav>
@@ -1499,8 +1499,11 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
     scripts = (*scripts, "section-scene.js") if scene else scripts
     scene_html = (f'<div class="scene" aria-hidden="true"><canvas class="scene__canvas" '
                   f'data-src="{base}assets/section-horse.png?v={ver("section-horse.png")}"></canvas></div>\n') if scene else ""
+    # The sphere's horse texture is asked for with the page, not once its script has run, so it
+    # is in before the first frame: put on the GPU then, not in the middle of the sphere opening.
     scene_head = (f'<script>{ARRIVE_BOOT}{MOVE_BOOT}</script>\n<style>{VIEW_TRANSITION}</style>\n'
-                  f'<link rel="expect" href="#main" blocking="render">\n') if scene else ""
+                  f'<link rel="expect" href="#main" blocking="render">\n'
+                  f'<link rel="preload" href="{base}assets/section-horse.png?v={ver("section-horse.png")}" as="image">\n') if scene else ""
     return f"""<!doctype html>
 <html lang="en" data-theme="dark">
 <head>
