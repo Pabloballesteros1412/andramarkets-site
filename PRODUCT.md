@@ -94,6 +94,16 @@ record. The daily note is one module among others, not the centrepiece.
     know, a worked example, practice cards whose progress stays in the
     browser, and common mistakes; Brainteasers adds a timed mental maths drill.
     Content in `data/technicals/`, reviewed before publishing.
+- Firms (`firms/`, owner-approved sketch, 1 Nov 2026): the ~40 firms of the
+  Recruiting calendar with their type, the divisions and US offices their
+  programmes name, and each programme's window and apply link, from
+  `data/recruiting_calendar.json` only. Type chips use the calendar's own
+  groups (Banks, Boutiques, Asset managers, Hedge funds, Trading and quant).
+- Application tracker (`application-tracker/`, owner-approved sketch, 1 Nov
+  2026): the reader's applications (calendar programmes or their own), status,
+  deadlines, next step, contacts and notes, kept in the browser's localStorage
+  and never sent; the reader can export and import a copy of their own entries
+  as a file (their data, not site data).
 - Calendar (real data, owner-approved 22 Oct 2026): five weeks of market-moving
   releases and events for the US, euro area, UK, Japan and China, central bank
   decisions, minutes and key speeches, Treasury note and bond auctions, NYSE

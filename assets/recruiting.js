@@ -54,5 +54,14 @@
       });
     });
   });
+  // A link from the Firms page (#f-<firm>) opens the by-firm view at that firm.
+  var tgt = /^#f-[a-z0-9-]+$/.test(location.hash) && document.querySelector(".rc-byfirm " + location.hash);
+  if (tgt) {
+    f.view = "firm";
+    document.querySelectorAll("button[data-view]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-view") === "firm"));
+    });
+  }
   apply();
+  if (tgt) tgt.scrollIntoView();
 })();

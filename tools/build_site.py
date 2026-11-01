@@ -5191,14 +5191,6 @@ def rc_when(d, what, r, today):
     return f'<span class="rc-when rc-when--ex">Expected {esc(w)}</span>'
 
 
-def rc_upcoming(rows, today, n=6):
-    """The next dated opens and closes, then the nearest expected windows."""
-    ev = [x for x in rc_events(rows) if x[0] and x[0] >= today.replace(day=1)]
-    dated = sorted([x for x in ev if x[1] in ("opens", "closes") and x[0] >= today], key=lambda x: (x[0], x[2]["firm"]))
-    loose = sorted([x for x in ev if x[1] in ("opens_ex", "closes_ex")], key=lambda x: (x[0], x[2]["firm"]))
-    return (dated + loose)[:n]
-
-
 def recruiting_page(rows):
     today = dt.datetime.now(NY).date()
     ev = rc_events(rows)
@@ -5240,8 +5232,17 @@ def recruiting_page(rows):
             return f"{d.day} {MON3[d.month - 1]} {d.year}" + (" (closed)" if closed else "")
         w = r.get(f"{what}_window")
         return f"Expected {esc(w)}" if w else ("Rolling" if r["status"] == "rolling" else "Not announced")
+    seen = set()
+
+    def fid(r):
+        """The first row of each firm carries its anchor, f-<slug>, the target of the Firms page's links."""
+        key = page_firms.slug(r["firm"])
+        if key in seen:
+            return ""
+        seen.add(key)
+        return f' id="f-{key}"'
     firm_rows = "".join(
-        f'<tr class="rc-row" {rc_attrs(r)}>{rc_firm(r, basis=True)}<td data-label="Cycle">{esc(r.get("cycle", ""))}</td>'
+        f'<tr class="rc-row"{fid(r)} {rc_attrs(r)}>{rc_firm(r, basis=True)}<td data-label="Cycle">{esc(r.get("cycle", ""))}</td>'
         f'<td data-label="Opens">{when(r, "opens")}</td><td data-label="Closes">{when(r, "closes")}</td><td>{rc_apply(r)}</td></tr>'
         for r in sorted(rows, key=lambda r: (order.get(RC_GROUP_OF.get(r["group"], r["group"]), 9), r["firm"], r["programme"])))
     byfirm = (f'<div class="rc-byfirm"><table class="rc-firmtab" aria-label="Recruiting calendar by firm"><thead><tr>'
@@ -5446,6 +5447,10 @@ SEARCH_PAGE_TERMS = {
                       "range deposit facility rate Bank Rate rate decision meeting dates last move",
     "recession-watch/": "recession indicators yield curve inversion 10Y-3M T10Y3M Sahm rule unemployment initial jobless "
                         "claims high-yield credit spread HY OAS Chicago Fed NFCI financial conditions NBER recessions",
+    "firms/": "banks boutiques asset managers hedge funds trading quant firms bulge bracket elite boutique divisions "
+              "IB S&T offices internship programmes apply careers",
+    "application-tracker/": "applications tracker deadlines status applied interview superday offer contacts notes "
+                            "networking export",
     "chart-of-the-day/": "chart sectors volatility VIX currencies dollar commodities oil gold digital assets bitcoin "
                          "crypto global indices close note daily share",
     "market-history/": "S&P 500 history 1928 crash bear market drawdown recovery Great Depression 1929 Black Monday "

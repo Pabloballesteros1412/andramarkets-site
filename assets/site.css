@@ -6874,13 +6874,12 @@ html:not(.js) .ip-filters {
 .pw-lab { margin-top: 18px !important; font-size: 0.8125rem; font-weight: 600; color: var(--ink) !important; }
 .pw-day { margin-top: 6px; }
 
-.pw-time, .pw-visa {
+.pw-visa {
   padding: 28px 0 32px;
   border-bottom: 1px solid var(--rule);
 }
-.pw-time h2, .pw-visa h2 { font-size: 1.375rem; font-weight: 540; letter-spacing: -0.02em; }
+.pw-visa h2 { font-size: 1.375rem; font-weight: 540; letter-spacing: -0.02em; }
 .pw-time__lede { margin-top: 8px; max-width: 65ch; color: var(--ink-2); }
-.pw-time .dd__ctl { margin-top: 20px; }
 
 html:not(.js) .pw-js { display: none; }
 
@@ -7945,30 +7944,12 @@ html.js .tq-nojs, html:not(.js) .tq-js { display: none; }
 .rc-firmtab thead th { font-size: 0.8125rem; font-weight: 500; color: var(--ink-2); border-bottom-color: var(--rule-strong); }
 .rc-firmtab td { color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .rc-firmtab th[scope="row"] { font-weight: 540; }
-.rc-next { margin-top: 18px; }
 .rc-basis { display: block; margin-top: 4px; font-size: 0.8125rem; font-weight: 400; color: var(--ink-3); max-width: 60ch; }
-.rc-more { margin-top: 16px; }
-.rc-none { margin-top: 14px; color: var(--ink-3); }
 .rc-byfirm { margin-top: 24px; overflow-x: auto; }
 .rc-firmtab { min-width: 44rem; }
 .rc-soon:empty { display: none; }
 @media (max-width: 640px) {
   .rc-table .rc-divs, .rc-table .rc-cycle { display: none; }
-}
-.rc-next { width: 100%; max-width: 64rem; margin-top: 18px; border-collapse: collapse; table-layout: fixed; border-top: 1px solid var(--rule-strong); }
-.rc-next td, .rc-next th { padding: 14px 12px 14px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
-.rc-next th { font-weight: 400; }
-.rc-next .cl__ev { display: block; font-size: 1.0625rem; font-weight: 540; }
-.rc-next .rc-date { width: 9rem; }
-.rc-next .rc-act { width: 6rem; }
-.rc-next .rc-go { width: 6rem; text-align: right; }
-.rc-next th[scope="row"] { width: auto; }
-@media (max-width: 640px) {
-  .rc-next, .rc-next tbody, .rc-next tr { display: block; }
-  .rc-next tr { display: grid; grid-template-columns: 5.5rem 1fr; gap: 4px 12px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
-  .rc-next td, .rc-next th { display: block; width: auto !important; padding: 0; border: 0; text-align: left; }
-  .rc-next .rc-act { grid-column: 1; grid-row: 2; }
-  .rc-next .rc-go { grid-column: 2; }
 }
 .rc-tags .tag { font-weight: 400; }
 
