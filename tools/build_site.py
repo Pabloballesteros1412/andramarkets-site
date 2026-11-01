@@ -5431,6 +5431,8 @@ SEARCH_PAGE_TERMS = {
                   "inversion spreads TIPS real yield breakeven inflation CPI PCE unemployment",
     "recruiting-calendar/": "application deadlines internship summer analyst opens closes banks "
                             "hedge funds asset managers recruiting dates",
+    "interview-simulator/": "mock interview practice timed questions model answers key points investment banking "
+                            "sales trading asset management equity research IB S&T technicals behavioural",
     "break-into-wall-street/": "careers jobs internships spring week summer analyst off-cycle graduate programme recruiting CV resume "
                 "networking cold email visa OPT H-1B CFA investment banking sales trading asset management hedge funds",
 }

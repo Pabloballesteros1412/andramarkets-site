@@ -138,6 +138,16 @@ record. The daily note is one module among others, not the centrepiece.
   need to know this week" block (five to seven topics, figures only from the
   week's close notes) and a question bank with model answers in six subjects,
   all from one file, `data/interview_prep.json`, updated weekly.
+- Interview simulator (`interview-simulator/`, owner-approved sketch, 1 Nov
+  2026): a timed mock interview answered aloud. Pick a track (IB, S&T,
+  AM/ER) and a length (10, 20, 30 minutes; 4, 8, 12 questions, two minutes
+  each); compare with the model answer and its key points, rate yourself, and
+  get a result by topic with the pages to review. Questions are used as they
+  are from the technical topics and the Interview Prep bank and weekly block
+  (with its close-note dates, while under two weeks old); key points, tracks
+  and same-question groups are kept by hand in `data/interview_simulator.json`
+  (the key points are new text, pending the owner's review). Nothing is
+  recorded or sent; progress stays in the browser.
 - Data sources, legal notice and privacy and cookies (`sources/`, `legal/`,
   `privacy/`), linked from the footer. The legal notice covers US, UK and EU
   readers. The operator's legal name, tax number, address and contact email
