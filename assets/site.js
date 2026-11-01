@@ -412,9 +412,12 @@
       if (!g._held && !still()) t += dt;
       var k = still() ? 1 : Math.min(1, (now - t0) / 1100);
       k = 1 - Math.pow(1 - k, 3);
+      // every size is read before any section is moved: a read after a move would make the
+      // browser work out the styles again, once for each section on every frame
       var W = ul.clientWidth, H = ul.clientHeight;
+      var sizes = items.map(function (li) { return [li.offsetWidth, li.offsetHeight]; });
       items.forEach(function (li, i) {
-        var w = li.offsetWidth, h = li.offsetHeight;
+        var w = sizes[i][0], h = sizes[i][1];
         var a = start + i * 2 * Math.PI / items.length + t * 2 * Math.PI / ORBIT_TURN;
         var x = W / 2 - w / 2 + Math.cos(a) * (W - w) / 2 * k;
         var y = H / 2 - h / 2 + Math.sin(a) * (H - h) / 2 * k;

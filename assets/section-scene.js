@@ -80,9 +80,18 @@
   // outside, a faint glow behind the neck, and the engraving's shading barely there.
   // The texture is read the same way for every pixel, with no branch round the read: a
   // phone's GPU picks the wrong mipmap along the edge of such a branch and drew the
-  // texture's square round the horse. The spill fades out to nothing, so the cheap pass
-  // far from the horse (glow only) leaves no seam either.
-  var VS_H = "attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }";
+  // texture's square round the horse.
+  // Only the pixels round the horse are drawn, not the whole screen: the horse's own box
+  // (uv 0 to 1) and the glow out to where it falls under a tenth of a level (0.79 of the
+  // box's height from the glow's centre). Every pixel left out would have come out the same,
+  // and the shader runs on about a twentieth of the screen instead of all of it.
+  var VS_H = [
+    "attribute vec2 p; uniform vec2 res; uniform vec4 box;",
+    "void main(){",
+    "  vec2 s = box.xy + mix(vec2(-0.3, -0.45), vec2(1.55, 1.25), p) * box.zw;",
+    "  gl_Position = vec4(s.x / res.x * 2.0 - 1.0, 1.0 - s.y / res.y * 2.0, 0.0, 1.0);",
+    "}"
+  ].join("\n");
   var FS_H = [
     "precision highp float;",
     "uniform sampler2D horse; uniform vec2 res; uniform vec4 box; uniform float dpr, power, srcpx;",
@@ -97,7 +106,6 @@
     "  vec2 L = normalize(vec2(0.78, -0.62));",
     "  vec2 dh = (uv - vec2(0.62, 0.40)) * vec2(box.z / box.w, 1.0);",
     "  float glow = exp(-dot(dh, dh) / 0.12) * 0.075;",
-    "  if (uv.x < -0.8 || uv.y < -0.8 || uv.x > 1.8 || uv.y > 1.8) { gl_FragColor = vec4(vec3(glow) * power, 0.0); return; }",
     "  vec4 h = at(uv);",
     "  vec2 e = vec2(3.0 / 1020.0, 3.0 / 1120.0);",
     "  vec2 g = vec2(at(uv + vec2(e.x, 0.0)).g - at(uv - vec2(e.x, 0.0)).g, at(uv + vec2(0.0, e.y)).g - at(uv - vec2(0.0, e.y)).g);",
@@ -143,7 +151,7 @@
     pts[i * 4] = sq * Math.cos(th) * rad; pts[i * 4 + 1] = sq * Math.sin(th) * rad; pts[i * 4 + 2] = u * rad; pts[i * 4 + 3] = rnd();
   }
   var pBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, pBuf); gl.bufferData(gl.ARRAY_BUFFER, pts, gl.STATIC_DRAW);
-  var qBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, qBuf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  var qBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, qBuf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]), gl.STATIC_DRAW);
   var tex = gl.createTexture();
 
   var W = 0, H = 0, DPR = 1, ready = false, running = false, t0 = 0, on = 0;
@@ -158,8 +166,12 @@
   var opening = !reduce && root.classList.contains("arrive"), OPEN = 1.3, openT = 0, openLast = 0;
   var CAM_Z = -0.25, ASP = BOX.w / BOX.h;
 
+  // the page's scroll and the window's height, kept as they change rather than asked for on
+  // every frame (asking can make the browser work out the page's layout again mid-frame)
+  var sy = 0, vh = 1;
   function resize() {
     W = Math.max(1, canvas.clientWidth); H = Math.max(1, canvas.clientHeight);
+    sy = window.scrollY || 0; vh = window.innerHeight || 1;
     DPR = Math.min(window.devicePixelRatio || 1, 1.5);
     canvas.width = Math.round(W * DPR); canvas.height = Math.round(H * DPR);
   }
@@ -177,7 +189,7 @@
     drawn = true;
     on = reduce ? 1 : Math.min(1, on + 0.008);               // the light comes up over about two seconds
     ptr.sx += (ptr.x - ptr.sx) * 0.025; ptr.sy += (ptr.y - ptr.sy) * 0.025;
-    var sc = Math.min(1, (window.scrollY || 0) / (window.innerHeight * 0.8));
+    var sc = Math.min(1, sy / (vh * 0.8));
     var power = 1 - Math.pow(1 - on, 3);
     var fade = 0.32 + 0.68 * (1 - sc);                        // dimmer behind the page as it scrolls
     var turn = [ptr.sx * 0.12 + (reduce ? 0 : Math.sin(t * 0.03) * 0.02), -ptr.sy * 0.08];
@@ -216,7 +228,7 @@
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(UH.horse, 0);
       gl.uniform2f(UH.res, W, H); gl.uniform4f(UH.box, box[0], box[1], box[2], box[3]); gl.uniform1f(UH.dpr, DPR);
       gl.uniform1f(UH.power, power * fade * hz * ho); gl.uniform1f(UH.srcpx, box[2] / BOX.w);
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
     particles(0);
   }
@@ -284,7 +296,7 @@
   document.addEventListener("visibilitychange", function () { if (document.hidden) stop(); else start(); });
   var rt;
   window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { resize(); if (!running) still(); }, 120); });
-  window.addEventListener("scroll", function () { if (!running) still(); }, { passive: true });
+  window.addEventListener("scroll", function () { sy = window.scrollY || 0; if (!running) still(); }, { passive: true });
   // a theme change redraws a still scene (reduced motion) in the new ink
   if (window.MutationObserver) new MutationObserver(function () { if (!running) still(); })
     .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
