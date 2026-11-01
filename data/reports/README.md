@@ -21,12 +21,7 @@ check in `pages.yml` refuse every other PDF.
          --summary "One or two sentences." --tags equities,commodities
 
    This writes `data/reports/pdf/<slug>.pdf` and adds the entry, with its
-   page count, to `index.json`. With `pikepdf` installed (`pip install
-   pikepdf`) it also keeps one copy of each image the export repeated on
-   every page (`tools/shrink_pdf.py`): nothing is re-encoded and every page
-   renders exactly as before, but a 19 MB report can drop to 7 MB, which
-   matters on a phone. For a PDF already in `pdf/`, run
-   `python3 tools/shrink_pdf.py data/reports/pdf/<slug>.pdf`.
+   page count, to `index.json`.
 
 2. Or by hand: put the PDF at `data/reports/pdf/<slug>.pdf` and add one line
    to the `reports` list in `index.json`:
