@@ -323,7 +323,7 @@ class ApiError extends Error {
 
 function corsHeaders(origin, env) {
   const allowed = String(env.ALLOWED_ORIGINS || "").split(",").map((s) => s.trim()).filter(Boolean);
-  const base = { "Access-Control-Allow-Methods": "GET, OPTIONS", "Access-Control-Max-Age": "86400", Vary: "Origin" };
+  const base = { "Access-Control-Allow-Methods": "GET, OPTIONS", "Access-Control-Max-Age": "86400", Vary: "Origin", "X-Content-Type-Options": "nosniff" };
   if (origin && allowed.includes(origin)) return { ...base, "Access-Control-Allow-Origin": origin };
   return base;
 }
@@ -341,7 +341,7 @@ function cleanQuery(q) {
 }
 
 function json(obj, status, headers) {
-  return new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json; charset=utf-8", ...headers } });
+  return new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json; charset=utf-8", "X-Content-Type-Options": "nosniff", ...headers } });
 }
 
 function withHeaders(res, headers) {

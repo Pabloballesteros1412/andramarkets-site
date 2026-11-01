@@ -30,7 +30,9 @@ without a record shows its source and "Data pending". Lab charts are schematic
 shapes, not market data, and labelled "Illustrative". The calendar reads
 .cache/calendar/calendar.json, written by tools/calendar_data.py. Follow DESIGN.md.
 """
+import base64
 import datetime as dt
+import hashlib
 import html
 import json
 import math
@@ -40,6 +42,7 @@ import re
 import shutil
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -3008,6 +3011,10 @@ def side_panel(rec):
             f'risk score and breadth by Andra Markets.</p></aside>')
 
 
+AI_DRAFTED = ('The text was drafted with a language model from that fact pack; the '
+              '<a href="../../methodology/">methodology</a> explains how.')
+
+
 def report(rec, newer, older, cal):
     n = rec["note"]
     d = rec["day"]
@@ -3035,9 +3042,11 @@ def report(rec, newer, older, cal):
     if rec.get("figure_check") == "failed":
         checked = ("This edition did not fully pass the automated figure check against the "
                    "session's verified fact pack. It was reviewed before publication.")
+    # Machine-drafted text published to inform the public says so where it is read
+    # (EU AI Act, Article 50(4), applicable since 2 August 2026).
     sources = (f'<section aria-labelledby="s-sources"><h2 id="s-sources">Sources</h2>'
                f"<p>Levels at the official close from Yahoo Finance; the Treasury curve, breakevens and real "
-               f"yields from FRED. {checked}</p><p>For information only. Not investment advice.</p></section>")
+               f"yields from FRED. {checked} {AI_DRAFTED}</p><p>For information only. Not investment advice.</p></section>")
     pager = ""
     if older:
         pager += f'<a class="link" href="../{older["date"]}/">Previous note, {day_med(older["day"])} {icon("arrow-right")}</a>'
@@ -3207,7 +3216,8 @@ def fx_page(a, newer, older):
              if a["mode"] == "quantitative" else "")
     sections += (f'<section aria-labelledby="fx-src"><h2 id="fx-src">Sources</h2><p>Exchange rates and the dollar index '
                  f'at the session close from Yahoo Finance; the Fed and ECB rates and Treasury yields from FRED. Every '
-                 f'figure in this analysis was checked against the session\'s verified fact pack.{quant}</p>'
+                 f'figure in this analysis was checked against the session\'s verified fact pack.{quant}'
+                 f'{"" if quant else " " + AI_DRAFTED}</p>'
                  f'<p>For information only. Not investment advice.</p></section>')
     dxy = next((p for p in a["pairs"] if p["key"] == "dxy"), None)
     side_rows = [p for p in a["pairs"] if p["key"] in ("dxy", "eurusd", "usdjpy", "gbpusd", "usdchf", "audusd",
@@ -5781,8 +5791,98 @@ def main():
                 shutil.copyfile(logo, folder / f"logo{logo.suffix}")
         print(f"wrote {len(companies['order'])} company pages")
     write_discovery(notes, library)
+    print(f"Content Security Policy on {secure_pages()} pages")
     print(f"wrote index.html, methodology/index.html, reports/index.html, {len(DASHBOARDS)} dashboard pages, "
           f"{len(notes)} report page(s) and the calendar with {len(weeks)} week page(s)")
+
+
+# Content Security Policy -----------------------------------------------------
+
+# GitHub Pages sets no security headers, so every page carries its policy in a
+# <meta> tag, written after the page itself. Scripts run only from the site's
+# own files or as the exact inline scripts the build wrote, each allowed by its
+# SHA-256 hash: an injected <script>, or a script from another host, never
+# runs. The browser may talk only to the site and the profile API, and plugins,
+# a changed <base> and forms posting elsewhere are blocked. Styles keep
+# 'unsafe-inline' because pages use style attributes. A <meta> policy cannot
+# set frame-ancestors (that needs a response header, so a host in front of
+# GitHub Pages). tools/check_site.py fails the deploy if a page lacks it or an
+# inline script is not covered.
+
+# Everything the build writes that holds pages (the folders .gitignore lists).
+GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", "profile", "calendar",
+             "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
+             "legal", "privacy", "fed-rates", "careers", "break-into-wall-street")
+INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
+# Data blocks the browser never runs: the policy does not apply to them.
+DATA_SCRIPTS = ("application/json", "application/ld+json")
+CSP_META = re.compile(r'<meta http-equiv="Content-Security-Policy" content="[^"]*">\n?')
+
+
+def inline_hashes(page_html):
+    """'sha256-...' for each inline script the browser would run, in page order."""
+    out = []
+    for m in INLINE_SCRIPT.finditer(page_html):
+        attrs = m.group("attrs")
+        if re.search(r"\ssrc=", attrs):
+            continue
+        kind = re.search(r'\stype="([^"]+)"', attrs)
+        if kind and kind.group(1).lower() in DATA_SCRIPTS:
+            continue
+        # the browser hashes the text after turning CRLF and CR into LF
+        body = m.group("body").replace("\r\n", "\n").replace("\r", "\n")
+        h = "'sha256-" + base64.b64encode(hashlib.sha256(body.encode("utf-8")).digest()).decode("ascii") + "'"
+        if h not in out:
+            out.append(h)
+    return out
+
+
+def csp_policy(page_html):
+    api = urlsplit(PROFILE_API)
+    api_origin = f"{api.scheme}://{api.netloc}" if api.scheme in ("http", "https") and api.netloc else ""
+    return "; ".join([
+        "default-src 'self'",
+        " ".join(["script-src 'self'"] + inline_hashes(page_html)),
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self'",
+        "connect-src 'self'" + (f" {api_origin}" if api_origin else ""),
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+    ])
+
+
+def with_csp(page_html):
+    """The page with its policy as the first tag after <meta charset>, so it covers every script."""
+    page_html = CSP_META.sub("", page_html)
+    policy = csp_policy(page_html)  # quotes are single, base64 has no markup: safe in the attribute as is
+    tag = f'<meta http-equiv="Content-Security-Policy" content="{policy}">\n'
+    anchor = re.search(r"<meta charset=[^>]*>\n?", page_html, re.I) or re.search(r"<head[^>]*>\n?", page_html, re.I)
+    if not anchor:
+        return page_html
+    return page_html[:anchor.end()] + tag + page_html[anchor.end():]
+
+
+def generated_pages():
+    for name in GENERATED:
+        path = OUT / name
+        if path.is_file():
+            yield path
+        elif path.is_dir():
+            yield from sorted(path.rglob("*.html"))
+
+
+def secure_pages():
+    n = 0
+    for f in generated_pages():
+        text = f.read_text(encoding="utf-8")
+        new = with_csp(text)
+        if new != text:
+            f.write_text(new, encoding="utf-8")
+            n += 1
+    return n
+
 
 
 if __name__ == "__main__":

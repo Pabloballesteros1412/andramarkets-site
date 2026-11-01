@@ -9,6 +9,9 @@ Checks:
 - every published close note has its page, and every section the note has
   text for (takeaways, desk view, what we watch, equities, ...) is on it;
 - the homepage index lists every section of the inner pages' menu;
+- every page carries its Content Security Policy before any script, and the
+  policy allows each inline script the page runs (by hash), so no script on
+  the live site is blocked and no unlisted one runs;
 - with SITE_URL set: sitemap.xml lists the homepage and every published close
   note and no redirect, robots.txt points to it, feed.xml is valid RSS with
   the newest note; with SITE_URL unset, none of the three exists.
@@ -107,8 +110,28 @@ def check_discovery():
     return problems
 
 
+def check_csp():
+    """Each page's policy comes before its first script and covers every inline script."""
+    problems = []
+    for f in site.generated_pages():
+        html = f.read_text(encoding="utf-8")
+        rel = f.relative_to(ROOT).as_posix()
+        m = re.search(r'<meta http-equiv="Content-Security-Policy" content="([^"]*)">', html)
+        if not m:
+            problems.append(f"{rel}: no Content Security Policy")
+            continue
+        first_script = html.find("<script")
+        if first_script >= 0 and first_script < m.start():
+            problems.append(f"{rel}: a script comes before the Content Security Policy")
+        missing = [h for h in site.inline_hashes(html) if h not in m.group(1)]
+        if missing:
+            problems.append(f"{rel}: {len(missing)} inline script(s) not allowed by the policy")
+    return problems
+
+
 def main():
     n, problems, warnings = check_notes()
+    problems += check_csp()
     problems += check_home()
     problems += check_discovery()
     for w in warnings[:20]:
@@ -119,7 +142,7 @@ def main():
         if len(problems) > 40:
             print(f"::error::... and {len(problems) - 40} more")
         sys.exit(1)
-    print(f"site check passed: {n} close note pages, homepage index"
+    print(f"site check passed: {n} close note pages, homepage index, Content Security Policy"
           + (", sitemap, robots.txt and feed" if site.SITE_URL else ""))
 
 
