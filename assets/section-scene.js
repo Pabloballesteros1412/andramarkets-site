@@ -78,11 +78,19 @@
   // The horse: black, so it hides what floats behind it. The light is behind it, a little to
   // the right and above: a 1.2px edge of light where the outline faces it, a 4px spill just
   // outside, a faint glow behind the neck, and the engraving's shading barely there.
+  // The texture is read the same way for every pixel, with no branch round the read: a
+  // phone's GPU picks the wrong mipmap along the edge of such a branch and drew the
+  // texture's square round the horse. The spill fades out to nothing, so the cheap pass
+  // far from the horse (glow only) leaves no seam either.
   var VS_H = "attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }";
   var FS_H = [
     "precision highp float;",
     "uniform sampler2D horse; uniform vec2 res; uniform vec4 box; uniform float dpr, power, srcpx;",
-    "vec4 at(vec2 uv){ return (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) ? vec4(1.0, 0.0, 0.0, 1.0) : texture2D(horse, uv); }",
+    "vec4 at(vec2 uv){",
+    "  vec4 h = texture2D(horse, clamp(uv, 0.0, 1.0));",
+    "  vec2 inb = step(vec2(0.0), uv) * step(uv, vec2(1.0));",
+    "  return mix(vec4(1.0, 0.0, 0.0, 1.0), h, inb.x * inb.y);",
+    "}",
     "void main(){",
     "  vec2 p = vec2(gl_FragCoord.x, res.y * dpr - gl_FragCoord.y) / dpr;",
     "  vec2 uv = (p - box.xy) / box.zw;",
@@ -96,7 +104,7 @@
     "  vec2 outward = length(g) > 0.002 ? -normalize(g) : vec2(0.0);",
     "  float facing = pow(clamp((dot(outward, L) + 0.15) / 0.9, 0.0, 1.0), 1.5);",
     "  float rim = exp(-h.r * 9.0 * srcpx / 1.2) * h.g * facing;",
-    "  float spill = exp(-h.a * 14.0 * srcpx / 4.0) * (1.0 - h.g) * facing;",
+    "  float spill = exp(-h.a * 14.0 * srcpx / 4.0) * (1.0 - h.g) * facing * (1.0 - smoothstep(0.6, 1.0, h.a));",
     "  vec3 light = vec3(0.92, 0.94, 0.97);",
     "  vec3 col = light * (rim + spill * 0.16) + light * h.b * h.g * 0.045 + light * glow * (1.0 - h.g);",
     // premultiplied: the body covers what is behind it, the light adds
@@ -239,6 +247,9 @@
   function texture() {
     if (texReady || !img.naturalWidth) return;
     gl.bindTexture(gl.TEXTURE_2D, tex);
+    // the texture holds measurements, not colours: read as stored
+    gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
     gl.generateMipmap(gl.TEXTURE_2D);   // power of two: the outline stays smooth at any size
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
