@@ -20,6 +20,8 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `data/technicals/<topic>.json`, `assets/technicals.js`: its nine technical preparation pages (`break-into-wall-street/technicals/<topic>/`): what to know, a worked example, practice cards, common mistakes. Edit the guide's text in the data file and update its `reviewed` date.
 - `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one PDF per report in `pdf/`, published as it is at `research/pdf/`. `tools/import_report.py` copies a report's PDF and adds its line; see `data/reports/README.md`.
 - `data/interview_prep.json`: Markets Interview Prep (`interview-prep/`): the weekly block (`week`, rewritten each week) and the question bank.
+- `tools/page_chart_of_the_day.py`, `assets/chart-of-the-day.js`: Chart of the day (`chart-of-the-day/`), one chart per close note.
+- `tools/page_market_history.py`, `assets/market-history.js`, `tools/history_data.py`: Market history (`market-history/`), its S&P 500 history fetched at deploy (below).
 - `data/interview_simulator.json`, `assets/interview-sim.js`, `tools/page_interview_simulator.py`: the Interview simulator (`interview-simulator/`): tracks and their topics, lengths, same-question groups and the key points of each model answer, kept by hand. The build drops any key point whose words or figures are not in its answer and prints it, as it does key points for a question whose wording changed.
 - `tools/legal_content.py`: the legal notice (`legal/`) and the privacy and cookies policy (`privacy/`).
 - `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser. The inputs that differ from a tool's defaults are kept in the URL fragment (`#yld=5&freq=1`), never sent to the server, so a link shares a setup.
@@ -240,6 +242,16 @@ page head counts how many dated rows have been re-checked (owner, 30 Oct
 2026: show the calendar now, re-check as the firms' sites become reachable). Re-check the open rows each month and move
 expected windows to confirmed dates as firms post them. The page counts
 down to closing dates in the browser, so it stays right between deploys.
+
+## Market history data
+
+`tools/history_data.py` runs at deploy before the build and writes
+`.cache/history/sp500.json` (Actions cache): every S&P 500 daily close since
+the end of 1927 from Yahoo Finance `^GSPC` (the S&P 90 before March 1957),
+price only. It fetches at most once a day and keeps its last good copy. The
+build measures each episode from it and prints a warning when a measured fall
+differs from its text's "about N%" by more than 4 points. With no copy the
+pages show "Data pending".
 
 ## Lab data
 

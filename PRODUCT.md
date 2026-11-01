@@ -138,6 +138,16 @@ record. The daily note is one module among others, not the centrepiece.
   need to know this week" block (five to seven topics, figures only from the
   week's close notes) and a question bank with model answers in six subjects,
   all from one file, `data/interview_prep.json`, updated weekly.
+- Chart of the day (`chart-of-the-day/`, owner-approved sketch, 1 Nov 2026):
+  one chart per session from its close note, chosen by a published rule (the
+  chart that moved most against its previous 20 sessions), with a line from
+  its figures, a quote from the note, the link to the note and Share; an
+  archive by date. Nothing beyond the note's figures and words.
+- Market history (`market-history/`, owner-approved sketch, 1 Nov 2026): the
+  Trading Simulator's 36 US episodes since 1928, each with the S&P 500 from
+  peak to low and back, its fall, months to the low and to recover, the text
+  as reviewed for the simulator, and a link to play it. S&P 500 daily closes,
+  price only, Yahoo Finance ^GSPC, fetched at deploy.
 - Interview simulator (`interview-simulator/`, owner-approved sketch, 1 Nov
   2026): a timed mock interview answered aloud. Pick a track (IB, S&T,
   AM/ER) and a length (10, 20, 30 minutes; 4, 8, 12 questions, two minutes
