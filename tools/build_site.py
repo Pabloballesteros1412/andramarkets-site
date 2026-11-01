@@ -1102,8 +1102,10 @@ SPECULATION = ('<script type="speculationrules">'
 
 
 def page(notes, cal):
-    """The homepage: one screen, the headline, the horse and the index of sections
-    (owner, 31 Oct 2026). No header menu and no footer: the index is the way in."""
+    """The homepage: one screen, the phrase on top, the horse in the middle and the four
+    groups of the header menu around it (owner-approved, 1 Nov 2026; it was the headline,
+    the latest close note and an index of every section). No header menu and no footer:
+    the groups are the way in."""
     return shell(
         title="Andra Markets: markets research platform",
         desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
@@ -1119,10 +1121,7 @@ def page(notes, cal):
       <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" aria-hidden="true"></canvas>
       <div class="wrap hero__copy">
         <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
-        {today_block(notes[0] if notes else None)}
-        <nav class="hero__index" aria-label="All sections" style="--i:2">
-          <ul>{hero_index()}</ul>
-        </nav>
+        <nav class="hero__index" aria-label="All sections" style="--i:2">{hero_groups()}</nav>
       </div>
     </div>
   </section>
@@ -1197,50 +1196,17 @@ def dashboards_index():
                  desc="Interactive views across rates, equities, macro and cross-asset, each with its source and date.",
                  body=body, home="../", base="../", path="dashboards/")
 
-# The homepage index: every section, in the header's order and with its links.
-# Not SECTIONS: that name is the close note's sections, read by report().
-HOME_INDEX = (
-    ("Dashboards", "dashboards/"), ("Fed &amp; Rates", "fed-rates/"), ("Companies", "companies/"),
-    ("Lab", "lab/"), ("Simulators", "simulators/"), ("Calendar", "calendar/"), ("World", "world/"),
-    ("FX", "fx/"), ("Research", "research/"), ("Daily note", "reports/"),
-    ("Interview prep", "interview-prep/"), ("Break into Wall Street", "break-into-wall-street/"),
-)
-
-
-# The homepage's "today" (owner-approved, 31 Oct 2026): the latest close note's date, its
-# headline and five of its closes, between the headline and the index. Phones keep three.
-TODAY = (("S&amp;P 500", "spx", 2, True), ("Nasdaq 100", "ndx", 2, True), ("Euro Stoxx 50", "sx5e", 2, False),
-         ("VIX", "vix", 2, True), ("Gold", "gold", 1, False))
-
-
-def today_block(rec):
-    if not rec or not (rec.get("note") or {}).get("headline"):
-        return ""
-    d, closes = rec["day"], rec.get("closes") or {}
-    items = []
-    for label, key, dec, phone in TODAY:
-        row = closes.get(key) or {}
-        last, chg = row.get("last"), row.get("chg")
-        if not finite(last):
-            continue
-        change = "Prior close" if row.get("stale") or not finite(chg) else signed(chg, 2, "%")
-        cls = "" if phone else ' class="today__wide"'
-        items.append(f'<li{cls}><span class="today__name">{label}</span>'
-                     f'<span class="today__level">{last:,.{dec}f}</span>'
-                     f'<span class="today__chg {move_class(change)}">{change}</span></li>')
-    head = esc(rec["note"]["headline"])
-    first, _, last_word = head.rpartition(" ")
-    title = f'{first} <span class="today__nw">{last_word}{icon("arrow-right")}</span>' if first else f'{head}{icon("arrow-right")}'
-    tape = f'<ul class="today__tape" aria-label="Close and daily change, {day_med(d)}">{"".join(items)}</ul>' if items else ""
-    return f"""<section class="today" aria-label="The latest close note" style="--i:1">
-          <p class="today__when">Close note, <time datetime="{rec['date']}"><span class="today__wide">{d:%A} </span>{d.day} {d:%b}<span class="today__wide"> {d.year}</span></time></p>
-          <a class="today__note" href="reports/{rec['date']}/">{title}</a>
-          {tape}
-        </section>"""
-
-
-def hero_index():
-    return "".join(f'<li><a href="{href}">{name}</a></li>' for name, href in HOME_INDEX)
+def hero_groups():
+    """The homepage index: the header menu's four groups (owner-approved, 1 Nov 2026), two
+    each side of the horse (Markets and Tools left, Research and Careers right; two rows of
+    two on phones). Each name opens to its sections, one group at a time (details name)."""
+    def group(name, links):
+        items = "".join(f'<li><a href="{href}">{label}</a></li>' for label, href, _ in links)
+        return f'<details class="hero__group" name="hero-group"><summary>{name}</summary><ul>{items}</ul></details>'
+    groups = [group(name, links) for _, name, _, links in NAV_GROUPS]
+    half = len(groups) // 2
+    return (f'<div class="hero__side hero__side--l">{"".join(groups[:half])}</div>'
+            f'<div class="hero__side hero__side--r">{"".join(groups[half:])}</div>')
 
 
 def hero_boot():

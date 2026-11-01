@@ -1,8 +1,8 @@
 // Andra Markets homepage hero: the horse drawn by particles (owner-approved, 31 Oct 2026).
 //
 // Every dot starts at one point at the centre of the hero and flies out from it to its place
-// in the horse (owner, 31 Oct 2026), outline first, as the light theme prints it (the pencil
-// look): one particle per inked pixel of
+// in the horse (owner, 31 Oct 2026), outline first, as the header's mark shows it (owner-
+// approved, 1 Nov 2026; until then the pencil look): one particle per inked pixel of
 // assets/horse-particles.png (loaded as its lossless WebP copy where the browser decodes it),
 // made from andra-horse.png by tools/make_horse_particles.py.
 // The pointer parts the dots; a slow band of light passes over the drawing. Where the hero
@@ -15,7 +15,7 @@
 // drawing stands still and nothing morphs. Without WebGL or JavaScript the hero keeps the
 // still engraving (.horse).
 //
-// The headline, the index of sections and the header (the mark, which is also the theme
+// The headline, the index (the four group names) and the header (the mark, which is also the theme
 // switch, the name and the legal line; owner, 31 Oct and 1 Nov 2026) fly out of the same point
 // (owner-approved, 31 Oct 2026): each character and the mark are drawn where the page sets them
 // and sampled into particles; once they settle, the real page (crisp, selectable, the links and
@@ -43,7 +43,8 @@
   function fail() { giveUp(); if (window.__heroStill) window.__heroStill(); }
   if (!stage || !canvas || !art || !copy || !horseImg || !window.WebGLRenderingContext) { fail(); return; }
   var headline = copy.querySelector("h1");
-  var links = Array.prototype.slice.call(copy.querySelectorAll(".hero__index a"));
+  // the index's four group names (owner-approved, 1 Nov 2026): their sections are folded away
+  var links = Array.prototype.slice.call(copy.querySelectorAll(".hero__index summary"));
   var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
   var reduce = mq.matches;
   var TAU = Math.PI * 2;
@@ -52,10 +53,11 @@
 
   // Colours as the canvas draws them. In the light theme the canvas is inverted, so each
   // value is the complement of the ink on screen: soft black dust and horse (about #333 with
-  // the canvas at 0.8 opacity). In the dark theme: ink dust and chart, a dark grey horse.
+  // the canvas at 0.8 opacity). In the dark theme the horse settles in the ink, as the
+  // header's mark shows it (owner-approved, 1 Nov 2026; it was dark grey).
   var COLOURS = {
     light: { dust: [0.92, 0.905, 0.89], horse: [0.9, 0.886, 0.873], text: [0.99, 0.985, 0.98] },
-    dark: { dust: [0.914, 0.925, 0.922], horse: [0.36, 0.374, 0.389], text: [0.914, 0.925, 0.922] }
+    dark: { dust: [0.914, 0.925, 0.922], horse: [0.914, 0.925, 0.922], text: [0.914, 0.925, 0.922] }
   };
 
   function rng(seed) {
@@ -128,8 +130,8 @@
     "  a *= 1.0 + 0.6 * q * ptr.z;",
     "  gl_Position = vec4(pos.x / res.x * 2.0 - 1.0, 1.0 - pos.y / res.y * 2.0, 0.0, 1.0);",
     // a point is never drawn under one device pixel, so in a small slot on a low-density
-    // screen (the homepage's today block leaves phones a smaller horse) the dots would
-    // overlap and brighten: dim them by the area they gain instead
+    // screen (phones give the horse a smaller slot) the dots would overlap and brighten:
+    // dim them by the area they gain instead
     "  float ps = sz * dpr * sm;",
     "  gl_PointSize = max(1.0, ps);",
     "  va = a * am * min(1.0, ps * ps);",
@@ -597,7 +599,7 @@
   }
 
   /* ---------- leaving for a section: everything goes back into the point ---------- */
-  // Clicking a link to another page (a section in the index, the close note, the legal line)
+  // Clicking a link to another page (a section in an open group, the legal line)
   // takes the horse, the headline, the index and the header back into the point at the
   // centre they came out of, the way in reversed (0.64s), then opens the page, which opens
   // out of the same point (assets/section-scene.js, html.arrive). Not under reduced motion,

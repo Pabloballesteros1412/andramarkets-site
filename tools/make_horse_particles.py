@@ -1,10 +1,13 @@
 """Make the particle map for the homepage hero from andra-horse.png.
 
 The hero draws the horse with one particle per inked pixel (assets/hero-horse.js).
-The drawing they settle into is the horse as the light theme shows it today
-(--horse-filter: invert, grayscale, brightness .85, contrast 3; --horse-opacity
-.92), the pencil look the owner approved on 31 Oct 2026. The source is upsampled
-1.5x before the filter so the strokes stay crisp at hero size.
+Since 1 Nov 2026 the drawing they settle into is the horse as the header's mark shows
+it (owner: "the small horse beside Andra Markets", tools/make_mark.py): the engraving's
+own light becomes ink, so the horse prints in ink on white and in light on black. The
+mark's tones are kept with the faintest shading dropped and a gentle curve (TONE), since
+particles add up where they overlap and a light wash of them reads as haze. Until then
+it was the light theme's pencil look (invert, grayscale, contrast 3). The source is
+upsampled 1.5x so the strokes stay crisp at hero size.
 
     assets/horse-particles.png   (and a lossless .webp copy)
                                  R: ink density of each pixel (0 = none)
@@ -28,6 +31,7 @@ BOX = (278, 258, 732, 774)    # the horse in the 1024px source, with a small mar
 SCALE = 1.5
 EDGE = 11                     # px at 1.5x; the light theme leaves the dark outline blank
 LUMA = np.array([0.2126, 0.7152, 0.0722])
+TONE = (28, 165, 1.35)        # luminance that starts ink, that is full ink, and the curve
 
 
 def main():
@@ -36,10 +40,10 @@ def main():
     im = im.resize((round((x1 - x0) * SCALE), round((y1 - y0) * SCALE)), Image.LANCZOS)
     rgb = np.asarray(im).astype(np.float64) / 255
 
-    # --horse-filter, then --horse-opacity: what the light theme prints on paper
-    g = (1 - rgb) @ LUMA
-    g = np.clip((g * 0.85 - 0.5) * 3 + 0.5, 0, 1)
-    ink = (1 - g) * 0.92
+    # the mark's look: the engraving's light is the ink (tools/make_mark.py), its faintest
+    # shading dropped and the rest on a gentle curve
+    lo, hi, curve = TONE
+    ink = np.clip(((rgb @ LUMA) * 255 - lo) / (hi - lo), 0, 1) ** curve
 
     # silhouette from the engraving itself: flood the ground in from the corner
     lit = (rgb @ LUMA) > 14 / 255
