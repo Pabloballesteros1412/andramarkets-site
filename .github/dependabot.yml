@@ -1,0 +1,13 @@
+# Keeps the GitHub Actions the workflows use up to date. The workflows pin each
+# action to a commit (a tag can be moved to other code; a commit cannot), so
+# Dependabot opens a pull request when a new release comes out, with the new
+# commit and its version in the comment. Nothing merges on its own.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]

@@ -10,6 +10,20 @@ workers_dev = true
 # The site's origin(s), comma-separated: only their pages may call the API.
 ALLOWED_ORIGINS = "https://pabloballesteros1412.github.io"
 
+# Per-visitor rate limit: index.js reads it as env.LIMITER and keys it by the
+# visitor's IP. 60 requests a minute is about a dozen company pages, plenty for
+# a reader, and stops one client from spending the vendors' daily free quota
+# for everyone (the Origin check alone does not: any script can send an Origin
+# header). Counted per Cloudflare location, so it is a loose limit, not an exact
+# one. Needs Wrangler 4.36 or later (pinned in profile-api.yml).
+[[ratelimits]]
+name = "LIMITER"
+namespace_id = "1001"
+
+  [ratelimits.simple]
+  limit = 60
+  period = 60
+
 # Optional: keep the last good answer for each request and serve it when a
 # vendor fails or the free quota runs out. Create the namespace with
 #   npx wrangler kv namespace create STALE
