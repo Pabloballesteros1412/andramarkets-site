@@ -16,17 +16,18 @@
   --section: clamp(88px, 12vh, 152px);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --horse-size: min(167svh, 200vw);
+  --horse-size: min(116svh, 96vw);
   /* The Lab plate is dark in both themes, so its chart colours are fixed. */
   --plate-up: #1fd27a;
   --plate-down: #ff4b52;
   --plate-up-tint: rgba(31, 210, 122, 0.3);
   --plate-down-tint: rgba(255, 75, 82, 0.3);
-  /* the horse's centre: 70% across (owner, 1 Nov 2026; it was 63%), short of that where its
-     front hooves (22.5% of --horse-size right of the centre) would pass the right gutter,
-     and never left of where it was */
-  --horse-x: clamp(63%, calc(100% - 0.225 * var(--horse-size) - var(--gutter)), 70%);
-  --horse-y: 50%;
+  /* the horse in the middle (owner-approved, 1 Nov 2026; it was 70% across, on the right):
+     the centre of its silhouette (x 513 of the engraving's 1024px; the box's anchor is 502)
+     on the page's centre line, and halfway between the phrase and the foot of the screen,
+     following the hero's top padding (the short-screen rules below set their own) */
+  --horse-x: calc(50% - 0.0107 * var(--horse-size));
+  --horse-y: calc(50% + 32px + clamp(12px, 3vh, 36px) + 11px);
 }
 
 /* Light: pure white paper, ink type, the horse printed as an engraving. */
@@ -962,55 +963,101 @@ html:not(.js) .nav__group:focus-within .nav__panel {
   background: none;
 }
 
+/* The phrase, small and centred above the horse (owner-approved, 1 Nov 2026). */
 .hero h1 {
-  font-size: clamp(3rem, 8vw, 6rem);
+  font-size: clamp(1.25rem, 1.9vw, 1.625rem);
   font-weight: 560;
-  line-height: 0.98;
-  letter-spacing: -0.04em;
-  max-width: 12ch;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-align: center;
   text-wrap: balance;
 }
 
-/* Headline at the top, the index of every section at the bottom, the horse to the right
-   (owner-approved, 31 Oct 2026). */
+/* The phrase on top, the horse in the middle, the four groups of the header menu around it,
+   all symmetric (owner-approved, 1 Nov 2026). */
 .hero__copy {
   position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 40px;
+  align-items: center;
   padding-top: calc(var(--nav-h) + clamp(24px, 6vh, 72px));
   padding-bottom: clamp(32px, 6vh, 64px);
 }
 
-.hero__index ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: clamp(16px, 2vw, 28px);
-  width: min(100%, max(50%, 420px));
+/* Two groups each side of the horse, mirrored around it at the height of its centre and
+   aligned towards it, 64px clear of its silhouette's box (0.444 of --horse-size wide). */
+.hero__index {
+  position: absolute;
+  left: 50%;
+  top: var(--horse-y);
+  transform: translate(-50%, -50%);
+  width: min(100% - 2 * var(--gutter), calc(0.444 * var(--horse-size) + 2 * (180px + 64px)));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.hero__index a {
-  display: flex;
-  align-items: center;
-  min-height: 46px;
+.hero__side {
+  display: grid;
+  gap: 22px;
+  width: 180px;
+}
+
+.hero__side--l {
+  text-align: right;
+}
+
+.hero__group summary {
+  display: block;
+  list-style: none;
+  cursor: pointer;
   color: var(--ink);
-  font-size: 1.0625rem;
-  font-weight: 550;
+  font-size: 1rem;
+  font-weight: 600;
   letter-spacing: -0.01em;
+  transition: color 450ms ease;
+}
+
+.hero__group summary::-webkit-details-marker {
+  display: none;
+}
+
+.hero__group ul {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0 0;
+}
+
+.hero__group a {
+  display: block;
+  padding: 3px 0;
+  color: var(--ink-2);
+  font-size: 0.875rem;
   text-decoration: underline 1px transparent;
   text-underline-offset: 0.22em;
-  transition: color 450ms ease, text-decoration-color 160ms ease;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .hero__index a:hover {
+  .hero__group a:hover {
+    color: var(--ink);
     text-decoration-color: var(--rule-strong);
   }
+}
+
+/* The still engraving (no WebGL or JavaScript) in the mark's look, as the particles draw it:
+   light on black, ink on white. */
+:root[data-theme="dark"] .home .hero__art {
+  filter: none;
+}
+
+:root:not([data-theme="dark"]) .home .hero__art {
+  filter: invert(1) grayscale(1);
+}
+
+.home .hero__art .horse {
+  opacity: 1;
 }
 
 .hero h1 {
@@ -1026,7 +1073,7 @@ html.hero-forming .hero__art {
 }
 
 html.hero-forming .hero:not(.crisp-h1) h1,
-html.hero-forming .hero:not(.crisp-ix) .hero__index a {
+html.hero-forming .hero:not(.crisp-ix) .hero__index summary {
   color: transparent;
 }
 
@@ -1056,11 +1103,11 @@ html.hero-forming .site-header--home:not(.crisp-hd) .brand__mark {
 }
 
 /* Leaving for a section (owner-approved, 1 Nov 2026; assets/hero-horse.js): the particles take
-   the headline, the index and the header back into the point, so the real text clears at once
-   and the close note fades out. Shown again from the back/forward cache, it all comes back out
+   the phrase, the group names and the header back into the point, so the real text clears at
+   once and an open group's sections fade out. Shown again from the back/forward cache, it all comes back out
    of the point and the real text takes over as it did when it first formed. */
 html.hero-leaving .hero h1,
-html.hero-leaving .hero__index a,
+html.hero-leaving .hero__index summary,
 html.hero-leaving .site-header--home .brand__name,
 html.hero-leaving .site-header--home .site-header__legal a {
   color: transparent;
@@ -1073,7 +1120,7 @@ html.hero-leaving .site-header--home .brand__mark {
   transition: none;
 }
 
-html.hero-leaving .hero .today {
+html.hero-leaving .hero__group ul {
   opacity: 0;
   transition: opacity 240ms ease;
 }
@@ -1095,20 +1142,18 @@ html.hero-returning .site-header--home .brand__mark {
     padding-bottom: 20px;
   }
 
-  .hero h1 {
-    font-size: min(clamp(3rem, 8vw, 6rem), 10.5svh);
+  :root {
+    --horse-y: calc(50% + 51px);
   }
-
-  .hero__index a {
-    min-height: max(30px, 6svh);
-    font-size: 0.9375rem;
-  }
-
 }
 
-/* Phones and small tablets held upright: one column, headline, horse, index. The horse takes
-   the room the other two leave; the still engraving sits in that slot too. On their side
-   they use the wide layout above, with the short-screen sizes. */
+/* Phones and small tablets held upright: one column, all centred (owner-approved, 1 Nov 2026):
+   the phrase on top, the horse, then the four group names in two rows of two. The horse and
+   the names sit as one block halfway between the phrase and the foot of the screen; an open
+   group's sections show centred under the names, over the empty room below, so opening one
+   moves nothing (the particles were drawn where the horse stood). The still engraving sits
+   in the horse's slot too. On their side phones use the wide layout above, with the
+   short-screen sizes. */
 @media (max-width: 860px) and (orientation: portrait) {
   .hero__stage {
     flex-direction: column;
@@ -1128,7 +1173,7 @@ html.hero-returning .site-header--home .brand__mark {
   .hero h1 {
     order: 1;
     padding-top: calc(var(--nav-h) + 20px);
-    font-size: clamp(2.6rem, 12.5vw, 4rem);
+    font-size: 1.25rem;
   }
 
   .hero__stage .hero__art {
@@ -1137,10 +1182,9 @@ html.hero-returning .site-header--home .brand__mark {
     left: auto;
     top: auto;
     width: auto;
-    height: auto;
-    flex: 1 1 0;
-    min-height: 110px;
-    margin-block: 12px;
+    height: min(42svh, 80vw);
+    flex: 0 0 auto;
+    margin-block: auto 16px;
     transform: none;
     animation: none;
     container-type: size;
@@ -1148,231 +1192,76 @@ html.hero-returning .site-header--home .brand__mark {
 
   .hero__art .horse {
     position: absolute;
-    /* the horse is 516 of the engraving's 1024px, centred at (505, 516) */
+    /* the horse is 516 of the engraving's 1024px; the centre of its silhouette, x 513 of
+       1024, on the centre line */
     width: 198.4cqh;
     max-width: none;
     height: 198.4cqh;
-    left: calc(50% - 97.8cqh);
+    left: calc(50% - 99.4cqh);
     top: calc(50% - 100cqh);
   }
 
   .hero__index {
     order: 3;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: auto;
+    margin-bottom: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    align-items: start;
+    gap: 12px 0;
   }
 
-
-  .hero__index ul {
-    width: 100%;
-    column-gap: 16px;
+  .hero__side {
+    display: contents;
   }
 
-  .hero__index a {
-    min-height: 44px;
-    font-size: 0.875rem;
-    letter-spacing: -0.005em;
+  .hero__side--l {
+    text-align: center;
   }
-}
 
-
-
-/* Today (owner-approved, 31 Oct 2026): the latest close note between the headline and the
-   index: its date, its headline (linked to the note) and five closes with their daily change,
-   coloured as rises and falls. Phones keep three closes and the short date. It does not form
-   from the particles: it fades in with the index. */
-.today {
-  width: min(100%, 600px);
-  display: grid;
-  gap: 12px;
-}
-
-.today__when {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--ink-2);
-}
-
-.today__note {
-  display: block;
-  max-width: 34ch;
-  color: var(--ink);
-  font-size: clamp(1.1875rem, 1.6vw, 1.5rem);
-  font-weight: 520;
-  line-height: 1.18;
-  letter-spacing: -0.022em;
-  text-decoration: underline 1px transparent;
-  text-underline-offset: 0.2em;
-  text-wrap: balance;
-  transition: text-decoration-color 160ms ease;
-}
-
-.today__nw {
-  white-space: nowrap;
-}
-
-.today__note .icon {
-  display: inline-block;
-  width: 0.8em;
-  height: 0.8em;
-  margin-left: 0.25em;
-  vertical-align: -0.06em;
-  transition: transform 200ms var(--ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .today__note:hover {
-    text-decoration-color: var(--rule-strong);
+  .hero__group summary {
+    text-align: center;
   }
-  .today__note:hover .icon {
-    transform: translateX(3px);
+
+  .hero__group ul {
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    top: calc(100% + 14px);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px 18px;
+    padding: 0;
+  }
+
+  .hero__group a {
+    padding: 4px 0;
   }
 }
 
-.today__tape {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  border-top: 1px solid var(--rule);
-  border-bottom: 1px solid var(--rule);
-}
-
-.today__tape li {
-  display: grid;
-  padding: 10px 12px 10px 0;
-}
-
-.today__tape li + li {
-  padding-left: 12px;
-  border-left: 1px solid var(--rule);
-}
-
-.today__name {
-  font-size: 0.8125rem;
-  color: var(--ink-2);
-  white-space: nowrap;
-}
-
-.today__level {
-  font-size: 1.0625rem;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-
-.today__chg {
-  font-size: 0.875rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.home .hero__copy {
-  gap: 28px;
-}
-
-.today {
-  transition: opacity 450ms ease;
-}
-
-html.hero-forming .hero:not(.crisp-ix) .today {
-  opacity: 0;
-}
-
-@media (orientation: landscape) and (max-height: 720px) {
-  .home .hero__copy {
-    gap: 14px;
-  }
-  .today {
-    gap: 8px;
-  }
-  .today__note {
-    font-size: 1.0625rem;
-  }
-  .today__tape li {
-    padding-block: 6px;
-  }
-}
-
-/* Laptop screens 721 to 899px tall: the headline, the today block and the index tighten with
-   the height, so the homepage stays one screen (it never scrolls). */
-@media (orientation: landscape) and (min-height: 721px) and (max-height: 899px) {
-  .home .hero__copy {
-    gap: 2.2svh;
-    padding-top: calc(var(--nav-h) + 3svh);
-    padding-bottom: 3svh;
-  }
-  .home .hero h1 {
-    font-size: min(clamp(3rem, 8vw, 6rem), 10.5svh);
-  }
-  .home .hero__index a {
-    min-height: max(32px, 5svh);
-  }
-  .today {
-    gap: 8px;
-  }
-  .today__tape li {
-    padding-block: 6px;
-  }
-}
-
-/* Phones on their side have no room for it: the hero stays as it was. */
-@media (orientation: landscape) and (max-height: 500px) {
-  .today {
-    display: none;
-  }
-}
-
-/* Small phones held upright (667px tall and less) keep the date and the headline. */
-@media (max-width: 860px) and (orientation: portrait) and (max-height: 760px) {
-  .hero .today {
-    margin-top: 6px;
-    gap: 6px;
-  }
+/* Small phones held upright (760px tall and less): the phrase a little closer to the header
+   (below 360px wide the legal line sits under the header row and keeps its room). */
+@media (min-width: 360px) and (max-width: 860px) and (orientation: portrait) and (max-height: 760px) {
   .home .hero h1 {
     padding-top: calc(var(--nav-h) + 14px);
   }
-  .today .today__tape {
-    display: none;
-  }
 }
 
-@media (max-width: 860px) and (orientation: portrait) {
-  .today {
-    order: 2;
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    gap: 8px;
-    margin-top: 18px;
-    padding-inline: var(--gutter);
+/* Laptop screens 721 to 899px tall: the hero's top room follows the height, and the horse
+   with it, so the space above and below the horse stays equal. */
+@media (orientation: landscape) and (min-height: 721px) and (max-height: 899px) {
+  .home .hero__copy {
+    padding-top: calc(var(--nav-h) + 3svh);
+    padding-bottom: 3svh;
   }
-  .hero__stage .hero__art {
-    order: 3;
-  }
-  .hero__index {
-    order: 4;
-  }
-  .today__when {
-    font-size: 0.8125rem;
-  }
-  .today__note {
-    max-width: none;
-    font-size: 1.0625rem;
-  }
-  .today__tape {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-top: 2px;
-  }
-  .today__wide,
-  .today__tape .today__wide {
-    display: none;
-  }
-  .today__tape li {
-    padding-block: 8px;
-  }
-  .today__level {
-    font-size: 0.9375rem;
-  }
-  .today__chg {
-    font-size: 0.8125rem;
+
+  :root {
+    --horse-y: calc(50% + 32px + 1.5svh + 11px);
   }
 }
 
