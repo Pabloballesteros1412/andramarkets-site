@@ -20,6 +20,8 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `data/technicals/<topic>.json`, `assets/technicals.js`: its nine technical preparation pages (`break-into-wall-street/technicals/<topic>/`): what to know, a worked example, practice cards, common mistakes. Edit the guide's text in the data file and update its `reviewed` date.
 - `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one PDF per report in `pdf/`, published as it is at `research/pdf/`. `tools/import_report.py` copies a report's PDF and adds its line; see `data/reports/README.md`.
 - `data/interview_prep.json`: Markets Interview Prep (`interview-prep/`): the weekly block (`week`, rewritten each week) and the question bank.
+- `tools/page_central_banks.py`, `tools/centralbanks_data.py`, `assets/centralbanks.js`: Central banks (`central-banks/`): the four policy rates and next meetings, fetched at deploy time (below).
+- `tools/page_recession_watch.py`, `tools/recession_data.py`, `assets/recession.js`: Recession watch (`recession-watch/`): five indicators and NBER recessions from FRED, fetched at deploy time (below).
 - `tools/page_chart_of_the_day.py`, `assets/chart-of-the-day.js`: Chart of the day (`chart-of-the-day/`), one chart per close note.
 - `tools/page_market_history.py`, `assets/market-history.js`, `tools/history_data.py`: Market history (`market-history/`), its S&P 500 history fetched at deploy (below).
 - `data/interview_simulator.json`, `assets/interview-sim.js`, `tools/page_interview_simulator.py`: the Interview simulator (`interview-simulator/`): tracks and their topics, lengths, same-question groups and the key points of each model answer, kept by hand. The build drops any key point whose words or figures are not in its answer and prints it, as it does key points for a question whose wording changed.
@@ -243,6 +245,23 @@ page head counts how many dated rows have been re-checked (owner, 30 Oct
 expected windows to confirmed dates as firms post them. The page counts
 down to closing dates in the browser, so it stays right between deploys.
 
+## Central banks and Recession watch data
+
+`tools/centralbanks_data.py` writes `.cache/centralbanks/centralbanks.json`
+(Actions cache, full deploys only). Rates: the Fed from FRED `DFEDTARU` and
+`DFEDTARL`; the ECB deposit facility rate from the ECB Data Portal
+(`FM.B.U2.EUR.4F.KR.DFR.LEV`, which lists changes only, so its as-of date is
+the day it was read), FRED `ECBDFR` as backup; Bank Rate from the Bank of
+England's database (`IUDBEDR`), the BIS as backup; the Bank of Japan from the
+BIS (`WS_CBPOL`: the API, then the bulk file). Decision dates for 400 days
+ahead come from each bank's own calendar, read with `calendar_data.py`'s
+parsers. `tools/recession_data.py` writes `.cache/recession/recession.json`
+from FRED `T10Y3M`, `SAHMREALTIME`, `ICSA`, `IC4WSA`, `BAMLH0A0HYM2`, `NFCI`
+and `USREC`. Each source is fetched on its own and keeps its last good copy;
+with none the pages show "Data pending". Neither endpoint could be reached
+from the session that built them, so the first deploy is their first live
+test: check its log.
+
 ## Market history data
 
 `tools/history_data.py` runs at deploy before the build and writes
@@ -403,7 +422,7 @@ secret and run **Deploy profile API** again. Tests: `cd worker && npm test`.
 
 ## FRED API key
 
-The dashboards and the calendar read FRED through its official API
+The dashboards, the calendar, Central banks and Recession watch read FRED through its official API
 (`api.stlouisfed.org`), which needs a key; the keyless download they used
 before kept timing out from GitHub's runners. Add it once as a repository
 secret: **Settings → Secrets and variables → Actions → New repository

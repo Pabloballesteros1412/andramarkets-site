@@ -75,6 +75,11 @@ def chart_payload(rates):
     return {"from": CHART_FROM, "banks": banks}
 
 
+# "Save image" (a PNG made in the browser) is off: PRODUCT.md allows it on Fed & Rates
+# only. Set True once the owner extends that exception to this page.
+SAVE_IMAGE = False
+
+
 def pages(site):
     """{output path: page HTML}. site is tools/build_site.py, for shell(), icon() and the loaders."""
     data, cal, fed = load(site), site.load_calendar(), site.load_fedrates()
@@ -127,7 +132,7 @@ def pages(site):
         inner, chart_src = site.FR_PENDING, "Each central bank, FRED and the BIS."
     chart_p = site.fr_panel("cb-rates", "The four rates since 2019",
                             "Each rate as it stood every day. The Fed's line is the top of its target range.",
-                            inner, chart_src, save=bool(payload["banks"]))
+                            inner, chart_src, save=SAVE_IMAGE and bool(payload["banks"]))
     stamps = [x["fetched"] for grp in ("rates", "meetings") for x in (data.get(grp) or {}).values() if x.get("fetched")]
     updated = f"Updated {site.et_stamp(max(stamps))}" if stamps else "Data pending"
     blob = json.dumps(payload, separators=(",", ":")).replace("</", "<\\/")

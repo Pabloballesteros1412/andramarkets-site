@@ -2786,8 +2786,11 @@ DATA_SOURCES = [
     ("FRED, Federal Reserve Bank of St. Louis", "https://fred.stlouisfed.org/",
      "The US Treasury's daily par yield curve, breakevens and real yields, the 2s10s and 3m10y spreads, the Fed's "
      "target range, the effective and monthly federal funds rates, ICE BofA credit spreads, inflation, unemployment "
-     "and payrolls; the 10-year Treasury yield since 1953 for the Portfolio Builder.",
-     "Close notes, dashboards, Fed &amp; Rates, calendar actuals, Guess the Fed, Portfolio Builder",
+     "and payrolls; the 10-year Treasury yield since 1953 for the Portfolio Builder; the ECB deposit facility rate "
+     "(backup), the Sahm rule, initial jobless claims and their 4-week average, the high-yield spread, the Chicago "
+     "Fed's NFCI and the NBER recession dates.",
+     "Close notes, dashboards, Fed &amp; Rates, calendar actuals, Guess the Fed, Portfolio Builder, Central banks, "
+     "Recession watch",
      "Daily; FRED posts the Treasury curve late in the evening and credit spreads with a short delay"),
     ("US Treasury and TreasuryDirect", "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
      "Note and bond auction schedules and results; the daily par yield curve and real yield curve.",
@@ -2801,7 +2804,14 @@ DATA_SOURCES = [
      "Global, The Conference Board, the University of Michigan, the ECB, Eurostat, the Bank of England, the ONS, "
      "the Bank of Japan, China's National Bureau of Statistics and the People's Bank of China; actual figures from "
      "Eurostat, the ECB, the ONS and the Bank of England.",
-     "Calendar, Fed &amp; Rates (FOMC dates)", "At every deploy; each source's last read is on the calendar page"),
+     "Calendar, Fed &amp; Rates (FOMC dates), Central banks (meeting dates)",
+     "At every deploy; each source's last read is on the calendar page"),
+    ("ECB Data Portal", "https://data.ecb.europa.eu/", "The ECB deposit facility rate.", "Central banks",
+     "At every deploy, each weekday"),
+    ("Bank of England database", "https://www.bankofengland.co.uk/boeapps/database/", "Bank Rate.", "Central banks",
+     "At every deploy, each weekday"),
+    ("BIS central bank policy rates", "https://data.bis.org/",
+     "The Bank of Japan's policy rate; Bank Rate as a backup.", "Central banks", "At every deploy, each weekday"),
     ("State Street and iShares", "https://www.ssga.com/",
      "Index membership from the SPY holdings (S&amp;P 500) and the iShares STOXX Europe 600 ETF holdings.",
      "Calendar earnings, company pages", "At every deploy"),
@@ -5432,6 +5442,10 @@ SEARCH_PAGE_TERMS = {
                   "inversion spreads TIPS real yield breakeven inflation CPI PCE unemployment",
     "recruiting-calendar/": "application deadlines internship summer analyst opens closes banks "
                             "hedge funds asset managers recruiting dates",
+    "central-banks/": "central banks policy rates interest rates Fed ECB Bank of England BoE Bank of Japan BoJ target "
+                      "range deposit facility rate Bank Rate rate decision meeting dates last move",
+    "recession-watch/": "recession indicators yield curve inversion 10Y-3M T10Y3M Sahm rule unemployment initial jobless "
+                        "claims high-yield credit spread HY OAS Chicago Fed NFCI financial conditions NBER recessions",
     "chart-of-the-day/": "chart sectors volatility VIX currencies dollar commodities oil gold digital assets bitcoin "
                          "crypto global indices close note daily share",
     "market-history/": "S&P 500 history 1928 crash bear market drawdown recovery Great Depression 1929 Black Monday "

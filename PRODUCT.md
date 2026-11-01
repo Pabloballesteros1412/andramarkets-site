@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
+Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `central-banks/`, `recession-watch/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
 by `tools/build_site.py` at deploy time and deployed to GitHub Pages from `main` by
 `.github/workflows/pages.yml`. No framework, no build step beyond the generator.
 
@@ -138,6 +138,20 @@ record. The daily note is one module among others, not the centrepiece.
   need to know this week" block (five to seven topics, figures only from the
   week's close notes) and a question bank with model answers in six subjects,
   all from one file, `data/interview_prep.json`, updated weekly.
+- Central banks (`central-banks/`, owner-approved sketch, 1 Nov 2026): the
+  Fed, ECB, Bank of England and Bank of Japan in one table, each policy rate
+  (target range, deposit facility rate, Bank Rate, policy rate) with its date,
+  its last move in basis points and the next meeting with the days to it, and
+  the four rates since 2019. Sources: the Federal Reserve via FRED, the ECB
+  Data Portal (FRED as backup), the Bank of England's database (the BIS as
+  backup), the BIS for the Bank of Japan; meeting dates from each bank's own
+  calendar. The Fed's row links to Fed & Rates.
+- Recession watch (`recession-watch/`, owner-approved sketch, 1 Nov 2026): the
+  10Y-3M curve, the Sahm rule, initial jobless claims, the high-yield spread
+  and the Chicago Fed's NFCI, each with its latest reading, a plain reading
+  against its own published definition (or the note that it has none) and its
+  history since 1970 or its first observation, NBER recessions shaded. All
+  from FRED. No forecast or probability of our own.
 - Chart of the day (`chart-of-the-day/`, owner-approved sketch, 1 Nov 2026):
   one chart per session from its close note, chosen by a published rule (the
   chart that moved most against its previous 20 sessions), with a line from

@@ -111,6 +111,11 @@ def payload(data):
     return out
 
 
+# "Save image" (a PNG made in the browser) is off: PRODUCT.md allows it on Fed & Rates
+# only. Set True once the owner extends that exception to this page.
+SAVE_IMAGE = False
+
+
 def pages(site):
     """{output path: page HTML}. site is tools/build_site.py, for shell(), icon() and the loaders."""
     data = load(site)
@@ -141,7 +146,7 @@ def pages(site):
         else:
             rows += f'<tr>{head}<td colspan="3" class="rw-none"><span class="cb-pending">Data pending</span></td></tr>'
             inner, src = site.FR_PENDING, f"FRED. {rec_src}"
-        panels += site.fr_panel(f"rw-{key}", title, intro, inner, src, save=bool(b))
+        panels += site.fr_panel(f"rw-{key}", title, intro, inner, src, save=SAVE_IMAGE and bool(b))
     table = ('<div class="cb-wrap"><table class="cb-tab rw-tab"><caption class="visually-hidden">Latest reading, signal and date of each indicator</caption>'
              '<thead><tr><th scope="col">Indicator</th><th scope="col">Latest</th><th scope="col">Signal</th>'
              f'<th scope="col">Date</th></tr></thead><tbody>{rows}</tbody></table></div>')
