@@ -188,7 +188,8 @@ record. The daily note is one module among others, not the centrepiece.
   InvestIQ, an AI equity research product run by a third party, not by
   Andra Markets (getinvestiq.com): its name, what it does (only what its video
   shows), its 58-second video served from the site, a button to its website and
-  a note saying it is not run by Andra Markets. Linked under the horse on the
+  a note saying it is not run by Andra Markets and that Andra Markets receives
+  nothing for the page (owner, 2 Nov 2026). Linked under the horse on the
   homepage, after the four groups in the header menu and in the footer. It is
   the site's only promotion; the legal notice says so, also under conflicts of
   interest. Not research: nothing on it is Andra Markets data.
@@ -209,14 +210,15 @@ record. The daily note is one module among others, not the centrepiece.
   redraw, recolor, crop or replace it without owner approval. The owner
   approved showing it on light grounds via a CSS invert + grayscale + multiply
   treatment that leaves the file untouched.
-- InvestIQ (2 Nov 2026): a third party's product. Pending before it goes
-  live: whether Andra Markets receives anything for the page (if it does, it
-  is sponsorship, the page and the legal notice must say so, and the
-  publisher's full identification under LSSI article 10 is due now); the
-  InvestIQ owner's written permission to host its video and logo, and the
-  music's licence for that use; and a lawyer's view on InvestIQ's portfolio
-  review ("Portfolio Fit"), which could read as personalised advice, a service
-  that needs CNMV authorisation.
+- InvestIQ (2 Nov 2026): a third party's product, run by a company outside
+  Spain. Andra Markets receives nothing for the page (owner), so it is not
+  sponsorship and adds no economic activity; if that changes, the page and the
+  legal notice must say "Sponsored" and the publisher's full identification
+  under LSSI article 10 is due. The owner has the InvestIQ owner's permission
+  to publish the video and the logo, and the music is licensed. Still open: a
+  lawyer's view on InvestIQ's portfolio review ("Portfolio Fit"), which could
+  read as personalised advice, a service that needs authorisation where its
+  users are, whatever the company's country.
 - Published only as Andra Markets: no personal names anywhere on the site,
   the legal notice included (owner, 30 Oct 2026). While the site has no
   economic activity (no income, sales, ads, sponsorship or affiliate links)

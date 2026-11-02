@@ -15,7 +15,8 @@ LEGAL = [
      "<p>This website is published by Andra Markets, based in Spain. Contact: <a href=\"mailto:andramarkets@gmail.com\">andramarkets@gmail.com</a>.</p>"
      "<p>Andra Markets has no income and sells nothing. It carries no advertising, sponsorship or "
      "affiliate links, except its <a href=\"../investiq/\">InvestIQ</a> page, which presents InvestIQ, an "
-     "independent product run by a third party, not by Andra Markets. When Andra Markets "
+     "independent product run by a third party, not by Andra Markets; Andra Markets receives nothing for "
+     "it. When Andra Markets "
      "starts any economic activity, such as a paid subscription, this notice will identify the company "
      "that runs it, as Article 10 of Spanish Law 34/2002 on information society services and electronic "
      "commerce (LSSI) requires.</p>"
@@ -52,7 +53,7 @@ LEGAL = [
     ("conflicts", "Conflicts of interest",
      "<p>Andra Markets receives no payment from the companies or issuers it writes about, and publishes no "
      "sponsored research. InvestIQ, which the site presents on its own page, is run by a third party, not "
-     "by Andra Markets. Where Andra Markets or its operator holds a position in an instrument that a "
+     "by Andra Markets, and Andra Markets receives nothing for presenting it. Where Andra Markets or its operator holds a position in an instrument that a "
      "report discusses specifically, the report says so. Andra Markets does not trade on a report before "
      "it is published.</p>"),
 
