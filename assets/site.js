@@ -466,33 +466,64 @@
   if (groupBtns.length) {
     groupBtns.forEach(function (b) {
       b.addEventListener("click", function () {
-        closeGroups(b.getAttribute("aria-expanded") === "true" ? null : b);
+        var open = b.getAttribute("aria-expanded") === "true";
+        if (open && menuBtnOpen()) return;   // the sheet always shows a group
+        closeGroups(open ? null : b);
       });
     });
     document.addEventListener("click", function (e) {
+      // the menu sheet (960px and below) opens and closes its groups itself
+      if (menuBtnOpen() || e.target.closest(".menu-btn")) return;
       var a = e.target.closest(".nav__panel a");
       if (!e.target.closest(".nav__btn") && !e.target.closest(".nav__panel")) closeGroups(null);
       else if (a && plainClick(e, a)) chosen = a;   // stays open: its name flies into the next page
       else if (a) closeGroups(null);
     });
     document.addEventListener("keydown", function (e) {
-      if (e.key !== "Escape") return;
+      if (e.key !== "Escape" || menuBtnOpen()) return;
       var open = document.querySelector('.nav__btn[aria-expanded="true"]');
       if (open) { closeGroups(null); open.focus(); }
     });
   }
 
-  // Mobile menu.
+  // The menu sheet, 960px and below (owner-approved, 2 Nov 2026): the group names in a row and
+  // one group open under them, as above 960px. It opens on the group of this page (the one
+  // with the longest link this address starts with; Markets elsewhere), and the group closes
+  // once the sheet has faded (200ms), so it never empties while it goes.
   var menuBtn = document.querySelector(".menu-btn");
   var nav = document.getElementById("site-nav");
+  var menuShut = 0;
+  function pageGroup() {
+    var best = groupBtns[0], len = 0;
+    groupBtns.forEach(function (b) {
+      b.parentNode.querySelectorAll(".nav__panel a").forEach(function (a) {
+        var p = a.pathname;
+        if (p.length > len && location.pathname.indexOf(p) === 0) { best = b; len = p.length; }
+      });
+    });
+    return best;
+  }
   function setMenu(open) {
     header.classList.toggle("is-open", open);
     menuBtn.setAttribute("aria-expanded", String(open));
     menuBtn.querySelector("span").textContent = open ? "Close" : "Menu";
     menuBtn.querySelector("use").setAttribute("href", open ? "#i-x" : "#i-list");
-    if (open) nav.querySelector("a").focus();
+    clearTimeout(menuShut);
+    if (open) {
+      if (groupBtns.length) closeGroups(pageGroup());
+      (nav.querySelector(".nav__group.is-open .nav__panel a") || nav.querySelector("a")).focus();
+    } else if (groupBtns.length) {
+      menuShut = setTimeout(function () { if (!menuBtnOpen()) closeGroups(null); }, 220);
+    }
   }
   if (menuBtn && nav) {
+    // across 960px the sheet and the panels swap: whatever was open closes
+    var swapMenu = function () {
+      if (menuBtnOpen()) setMenu(false);
+      if (groupBtns.length) closeGroups(null);
+    };
+    if (wideMenu.addEventListener) wideMenu.addEventListener("change", swapMenu);
+    else if (wideMenu.addListener) wideMenu.addListener(swapMenu);
     menuBtn.addEventListener("click", function () {
       setMenu(menuBtn.getAttribute("aria-expanded") !== "true");
     });
