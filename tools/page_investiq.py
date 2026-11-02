@@ -1,5 +1,5 @@
-"""InvestIQ (investiq/): one page presenting InvestIQ, a separate product built by the
-team behind Andra Markets. Owner-approved sketch, 2 Nov 2026: the name, a short text,
+"""InvestIQ (investiq/): one page presenting InvestIQ, an independent product run by a
+third party, not by Andra Markets. Owner-approved sketch, 2 Nov 2026: the name, a short text,
 InvestIQ's own 58-second video and a button to its website, centred above 960px.
 
 The video is served from the site itself (assets/investiq.mp4, its poster
@@ -8,9 +8,9 @@ nothing from a third party and sets no cookie (the site's Content Security Polic
 would block a platform's player anyway). It does not play by itself and is fetched
 only when the reader presses play.
 
-The text says only what the video shows. The line under the button names the
-relationship between the two products, so the page reads as a promotion of InvestIQ
-(LSSI article 20) and never as Andra Markets research.
+The text says only what the video shows. The line under the button says who runs
+InvestIQ, so the page reads as a promotion of InvestIQ on its behalf (LSSI article 20)
+and never as Andra Markets research.
 """
 
 URL = "https://www.getinvestiq.com/"
@@ -46,11 +46,11 @@ def pages(site):
       <p class="visually-hidden" id="iq-video-text">{VIDEO_TEXT}</p>
     </div>
     <p class="iq__cta"><a class="btn" href="{URL}" target="_blank" rel="noopener">Visit InvestIQ{site.icon("arrow-up-right")}</a></p>
-    <p class="iq__note">InvestIQ is a separate product, built by the team behind Andra Markets. It is free to start. Nothing on this page is investment advice.</p>
+    <p class="iq__note">InvestIQ is an independent product, not run by Andra Markets. It is free to start. Nothing on this page is investment advice.</p>
   </div>
 </main>"""
     return {"investiq/": site.shell(
         title="InvestIQ: Andra Markets",
-        desc="InvestIQ, an AI equity research team built by the team behind Andra Markets: what it does, "
+        desc="InvestIQ, an independent AI equity research product: what it does, "
              "a 58-second video and a link to its website.",
         body=body, home="../", base="../", path="investiq/")}

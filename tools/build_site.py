@@ -1298,7 +1298,7 @@ NAV_GROUPS = (
 )
 
 
-# InvestIQ, a separate product built by the team behind Andra Markets (owner-approved,
+# InvestIQ, an independent product run by a third party, not by Andra Markets (owner-approved,
 # 2 Nov 2026): its page (tools/page_investiq.py) is linked after the four groups, in the
 # header menu and under the horse on the homepage, set apart from them by a rule.
 INVESTIQ = ("InvestIQ", "investiq/")
