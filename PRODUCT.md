@@ -187,6 +187,16 @@ record. The daily note is one module among others, not the centrepiece.
   readers. The operator's legal name, tax number, address and contact email
   are bracketed placeholders until the owner supplies them (Spanish law asks a
   site's publisher to identify itself).
+  Reviewed 2 Nov 2026 (owner: "completely legal"): the privacy policy now lists
+  every storage key the site uses (the Application tracker, the Interview
+  simulator and page moves were missing), the Gmail mailbox, the legal basis
+  and a 12-month limit for emails, and that no automated decisions are made;
+  the legal notice says the content is commentary, not MAR investment
+  recommendations, and that machine-drafted pages say so (AI Act art. 50).
+  Open, for the owner: the GDPR asks the privacy policy to name the data
+  controller, a person, not only the brand; and the notice promises that a
+  report discussing an instrument the operator holds says so, which no note
+  page does yet.
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
   time, newsletter platform (Substack, Beehiiv or Ghost), a YouTube channel.
