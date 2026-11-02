@@ -7,19 +7,16 @@ cookie, a vendor or the newsletter changes, change the privacy policy too.
 Both should be reviewed by a qualified lawyer before the paid tier opens.
 """
 
-LEGAL_UPDATED = "2026-11-02"
-PRIVACY_UPDATED = "2026-11-02"
+LEGAL_UPDATED = "2026-11-01"
+PRIVACY_UPDATED = "2026-11-01"
 
 LEGAL = [
     ("publisher", "Who publishes this site",
      "<p>This website is published by Andra Markets, based in Spain. Contact: <a href=\"mailto:andramarkets@gmail.com\">andramarkets@gmail.com</a>.</p>"
-     "<p>Andra Markets has no income and sells nothing. It carries no advertising, sponsorship or "
-     "affiliate links, except its <a href=\"../investiq/\">InvestIQ</a> page, which presents InvestIQ, an "
-     "independent product run by a third party, not by Andra Markets; Andra Markets receives nothing for "
-     "it. When Andra Markets "
-     "starts any economic activity, such as a paid subscription, this notice will identify the company "
-     "that runs it, as Article 10 of Spanish Law 34/2002 on information society services and electronic "
-     "commerce (LSSI) requires.</p>"
+     "<p>Andra Markets is a non-commercial publication: it has no income, sells nothing and carries no "
+     "advertising, sponsorship or affiliate links. When it starts any economic activity, such as a paid "
+     "subscription, this notice will identify the company that runs it, as Article 10 of Spanish Law "
+     "34/2002 on information society services and electronic commerce (LSSI) requires.</p>"
      "<p>Andra Markets publishes market research: daily close notes, weekly market reviews, research "
      "reports, dashboards, an economic calendar, interactive tools and educational material.</p>"),
 
@@ -52,8 +49,7 @@ LEGAL = [
 
     ("conflicts", "Conflicts of interest",
      "<p>Andra Markets receives no payment from the companies or issuers it writes about, and publishes no "
-     "sponsored research. InvestIQ, which the site presents on its own page, is run by a third party, not "
-     "by Andra Markets, and Andra Markets receives nothing for presenting it. Where Andra Markets or its operator holds a position in an instrument that a "
+     "sponsored research. Where Andra Markets or its operator holds a position in an instrument that a "
      "report discusses specifically, the report says so. Andra Markets does not trade on a report before "
      "it is published.</p>"),
 
@@ -101,10 +97,9 @@ LEGAL = [
      "opinions, and any conflicts of interest.</p>"),
 
     ("links", "Links to other websites",
-     "<p>The site links to third-party websites, such as data publishers, the Andra Markets pages on "
-     "LinkedIn and TikTok, and InvestIQ. It embeds no third-party players or feeds: the InvestIQ video is "
-     "served from this site. Andra Markets is not responsible for the content or practices of other "
-     "websites, which are governed by their own terms.</p>"),
+     "<p>The site links to third-party websites, such as data publishers and the Andra Markets pages on "
+     "LinkedIn and TikTok. It embeds no third-party players or feeds. Andra Markets is not responsible for "
+     "the content or practices of other websites, which are governed by their own terms.</p>"),
 
     ("liability", "Limitation of liability",
      "<p>To the fullest extent permitted by law, Andra Markets is not liable for any loss or damage arising "
@@ -160,7 +155,7 @@ PRIVACY = [
      "Modeling Prep to fetch its figures; no personal data is sent to them. Cloudflare processes your IP "
      "address to deliver the response and protect the service.</li>"
      "</ul>"
-     "<p>The site's fonts, scripts, images and video are served from the site itself, not from third-party "
+     "<p>The site's fonts, scripts and images are served from the site itself, not from third-party "
      "networks, and no third-party player, feed or widget is embedded. Links to LinkedIn and TikTok are "
      "plain links: nothing loads from those services unless you follow one, and then their own policies "
      "apply.</p>"),

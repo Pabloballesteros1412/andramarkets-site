@@ -57,7 +57,6 @@ import page_market_history  # noqa: E402
 import page_interview_simulator  # noqa: E402
 import page_firms  # noqa: E402
 import page_application_tracker  # noqa: E402
-import page_investiq  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT
@@ -1130,8 +1129,8 @@ SPECULATION = ('<script type="speculationrules">'
 def page(notes, cal):
     """The homepage: one screen, the phrase on top, the horse in the middle and the four
     groups of the header menu around it (owner-approved, 1 Nov 2026; it was the headline,
-    the latest close note and an index of every section), and InvestIQ under the horse
-    (owner-approved, 2 Nov 2026). No header menu and no footer: the groups are the way in."""
+    the latest close note and an index of every section). No header menu and no footer:
+    the groups are the way in."""
     return shell(
         title="Andra Markets: markets research platform",
         desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
@@ -1148,7 +1147,6 @@ def page(notes, cal):
       <div class="wrap hero__copy">
         <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
         <nav class="hero__index" aria-label="All sections" style="--i:2">{hero_groups()}</nav>
-        <a class="hero__iq" href="{INVESTIQ[1]}">{INVESTIQ[0]}</a>
       </div>
     </div>
   </section>
@@ -1298,12 +1296,6 @@ NAV_GROUPS = (
 )
 
 
-# InvestIQ, an independent product run by a third party, not by Andra Markets (owner-approved,
-# 2 Nov 2026): its page (tools/page_investiq.py) is linked after the four groups, in the
-# header menu and under the horse on the homepage, set apart from them by a rule.
-INVESTIQ = ("InvestIQ", "investiq/")
-
-
 # A small chart drawn beside each section in the open menu (owner-approved, 1 Nov 2026): a
 # line drawing in ink that says what the section is, with no figures, so it never reads as
 # data. Paths have pathLength 1, so site.css draws each from 0 to 1; .dot and .soft show
@@ -1356,9 +1348,6 @@ def nav_menu(base):
           </div>
         </div>
       </div>""")
-    # InvestIQ after the four groups (owner-approved, 2 Nov 2026): a link of its own, not a
-    # group, since it is one page; in the menu sheet it closes the list under a strong rule.
-    groups.append(f'<a class="nav__solo" href="{base}{INVESTIQ[1]}">{INVESTIQ[0]}</a>')
     sep = "\n      "
     return f'<nav class="nav" id="site-nav" aria-label="Primary">{sep}{sep.join(groups)}\n    </nav>'
 
@@ -1427,7 +1416,6 @@ def site_footer(home, base):
       <a href="{base}recruiting-calendar/">Recruiting calendar</a>
       <a href="{base}firms/">Firms</a>
       <a href="{base}application-tracker/">Application tracker</a>
-      <a href="{base}investiq/">InvestIQ</a>
       <a href="{base}methodology/">Methodology</a>
       <a href="{base}sources/">Data sources</a>
       <a href="{base}legal/">Legal notice</a>
@@ -5686,7 +5674,6 @@ SEARCH_PAGES = [
     ("Interview simulator", "interview-simulator/", "Page"),
     ("Firms", "firms/", "Page"),
     ("Application tracker", "application-tracker/", "Page"),
-    ("InvestIQ", "investiq/", "Page"),
     ("The Lab", "lab/", "Page"),
     ("Simulators", "simulators/", "Page"),
     ("Trading Simulator", "simulators/trading-simulator/", "Simulators"),
@@ -5808,7 +5795,7 @@ def write_discovery(notes, library):
 # Section pages built in their own modules (tools/page_*.py), each returning
 # {output path: page HTML}: the Research and Careers sections added on 1 Nov 2026.
 PAGE_MODULES = (page_chart_of_the_day, page_central_banks, page_recession_watch, page_market_history,
-                page_interview_simulator, page_firms, page_application_tracker, page_investiq)
+                page_interview_simulator, page_firms, page_application_tracker)
 
 
 def main():
@@ -5946,7 +5933,7 @@ GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", 
              "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
              "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
              "chart-of-the-day", "central-banks", "recession-watch", "market-history",
-             "interview-simulator", "firms", "application-tracker", "investiq")
+             "interview-simulator", "firms", "application-tracker")
 INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
 # Data blocks the browser never runs: the policy does not apply to them.
 DATA_SCRIPTS = ("application/json", "application/ld+json")

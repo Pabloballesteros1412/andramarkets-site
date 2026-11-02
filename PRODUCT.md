@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `central-banks/`, `recession-watch/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `investiq/`, `assets/`), generated
+Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `central-banks/`, `recession-watch/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
 by `tools/build_site.py` at deploy time and deployed to GitHub Pages from `main` by
 `.github/workflows/pages.yml`. No framework, no build step beyond the generator.
 
@@ -29,9 +29,7 @@ quant tools (momentum regime backtest explorer, options pricer, more to come);
 an economic calendar; a daily US market close note; a Research Library; Fed & Rates; Markets Interview Prep; and
 Break into Wall Street, a careers guide. Videos stay on
 TikTok and LinkedIn: the site links to them and embeds nothing (owner, 30 Oct
-2026: the Watch section was removed so the site sets no third-party cookies). The
-one video on the site, InvestIQ's (2 Nov 2026), is a file the site serves itself,
-so it sets no cookie either. Success: visitors explore
+2026: the Watch section was removed so the site sets no third-party cookies). Success: visitors explore
 a dashboard or tool, come back for the calendar and note, and subscribe by email.
 
 ## Positioning
@@ -184,15 +182,6 @@ record. The daily note is one module among others, not the centrepiece.
   and same-question groups are kept by hand in `data/interview_simulator.json`
   (the key points are new text, pending the owner's review). Nothing is
   recorded or sent; progress stays in the browser.
-- InvestIQ (`investiq/`, owner-approved sketch, 2 Nov 2026): one page for
-  InvestIQ, an AI equity research product run by a third party, not by
-  Andra Markets (getinvestiq.com): its name, what it does (only what its video
-  shows), its 58-second video served from the site, a button to its website and
-  a note saying it is not run by Andra Markets and that Andra Markets receives
-  nothing for the page (owner, 2 Nov 2026). Linked under the horse on the
-  homepage, after the four groups in the header menu and in the footer. It is
-  the site's only promotion; the legal notice says so, also under conflicts of
-  interest. Not research: nothing on it is Andra Markets data.
 - Data sources, legal notice and privacy and cookies (`sources/`, `legal/`,
   `privacy/`), linked from the footer. The legal notice covers US, UK and EU
   readers. The operator's legal name, tax number, address and contact email
@@ -210,15 +199,6 @@ record. The daily note is one module among others, not the centrepiece.
   redraw, recolor, crop or replace it without owner approval. The owner
   approved showing it on light grounds via a CSS invert + grayscale + multiply
   treatment that leaves the file untouched.
-- InvestIQ (2 Nov 2026): a third party's product, run by a company outside
-  Spain. Andra Markets receives nothing for the page (owner), so it is not
-  sponsorship and adds no economic activity; if that changes, the page and the
-  legal notice must say "Sponsored" and the publisher's full identification
-  under LSSI article 10 is due. The owner has the InvestIQ owner's permission
-  to publish the video and the logo, and the music is licensed. Still open: a
-  lawyer's view on InvestIQ's portfolio review ("Portfolio Fit"), which could
-  read as personalised advice, a service that needs authorisation where its
-  users are, whatever the company's country.
 - Published only as Andra Markets: no personal names anywhere on the site,
   the legal notice included (owner, 30 Oct 2026). While the site has no
   economic activity (no income, sales, ads, sponsorship or affiliate links)

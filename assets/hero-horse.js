@@ -43,9 +43,8 @@
   function fail() { giveUp(); if (window.__heroStill) window.__heroStill(); }
   if (!stage || !canvas || !art || !copy || !horseImg || !window.WebGLRenderingContext) { fail(); return; }
   var headline = copy.querySelector("h1");
-  // the index's four group names (owner-approved, 1 Nov 2026): their sections are folded away;
-  // then InvestIQ under the horse (owner-approved, 2 Nov 2026)
-  var links = Array.prototype.slice.call(copy.querySelectorAll(".hero__index summary, .hero__iq"));
+  // the index's four group names (owner-approved, 1 Nov 2026): their sections are folded away
+  var links = Array.prototype.slice.call(copy.querySelectorAll(".hero__index summary"));
   var mq = window.matchMedia("(prefers-reduced-motion: reduce)");
   var reduce = mq.matches;
   var TAU = Math.PI * 2;
@@ -378,9 +377,6 @@
     return sample(b, function (x) { x.drawImage(img, b.left, b.top, b.width, b.height); }, group, delay, dur, r, ink, ref);
   }
   function shown(el) { var b = el.getBoundingClientRect(); return b.width > 0 && b.height > 0; }
-  // on the page now: InvestIQ steps aside on phones while a group is open (site.css), and the
-  // particles must not draw it there
-  function drawn(el) { var cs = getComputedStyle(el); return cs.visibility !== "hidden" && cs.opacity !== "0"; }
 
   // how far a colour token stands from the ground, against the ink's (for the legal line)
   function tone(name) {
@@ -401,7 +397,6 @@
     parts.push(sampleText(headline, 1, function (u, rr) { return 0.15 + u * 0.9 + rr() * 0.3; }, 1.6, r, 1));
     T_P = 0.15 + 0.9 + 0.3 + 1.6;
     links.forEach(function (el, k) {
-      if (!drawn(el)) return;
       parts.push(sampleText(el, 2, function (u, rr) { return 0.95 + k * 0.09 + u * 0.3 + rr() * 0.2; }, 1.3, r, 1));
     });
     T_I = 0.95 + Math.max(0, links.length - 1) * 0.09 + 0.3 + 0.2 + 1.3;
@@ -450,7 +445,7 @@
     els.forEach(function (el) {
       var b = el.getBoundingClientRect();
       k.push(Math.round((b.left - s.left) * 8), Math.round((b.top - s.top) * 8), Math.round(b.width * 8), Math.round(b.height * 8),
-        el.tagName === "IMG" ? (el.complete && el.naturalWidth ? 1 : 0) : (drawn(el) ? 1 : 0));
+        el.tagName === "IMG" ? (el.complete && el.naturalWidth ? 1 : 0) : 1);
     });
     return k.join(",");
   }
