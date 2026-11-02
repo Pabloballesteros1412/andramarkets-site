@@ -187,6 +187,18 @@ record. The daily note is one module among others, not the centrepiece.
   readers. The operator's legal name, tax number, address and contact email
   are bracketed placeholders until the owner supplies them (Spanish law asks a
   site's publisher to identify itself).
+  Reviewed 2 Nov 2026 (owner: "completely legal"): the privacy policy now lists
+  every storage key the site uses (the Application tracker, the Interview
+  simulator and page moves were missing), the Gmail mailbox, the legal basis
+  and a 12-month limit for emails, and that no automated decisions are made;
+  the legal notice says the content is commentary, not MAR investment
+  recommendations, and that machine-drafted pages say so (AI Act art. 50).
+  The owner (2 Nov 2026) receives no emails, earns nothing from the site or
+  anyone and holds no positions: the notice now says that neither Andra
+  Markets nor its operator holds a position in any instrument the reports
+  discuss, and that a report will say so if that changes. The privacy
+  policy names the owner as the data controller (GDPR art. 13; owner's
+  choice, 2 Nov 2026, over forming a company now or naming no one).
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
   time, newsletter platform (Substack, Beehiiv or Ghost), a YouTube channel.
@@ -200,13 +212,16 @@ record. The daily note is one module among others, not the centrepiece.
   approved showing it on light grounds via a CSS invert + grayscale + multiply
   treatment that leaves the file untouched.
 - Published only as Andra Markets: no personal names anywhere on the site,
-  the legal notice included (owner, 30 Oct 2026). While the site has no
-  economic activity (no income, sales, ads, sponsorship or affiliate links)
-  the legal notice and privacy policy name only Andra Markets and a brand
-  contact email. Before any monetisation (newsletter sponsorship, paid tier)
-  the owner will form a company (SL), and the legal notice will then carry
-  its name, CIF and registered address as LSSI article 10 requires. Never
-  publish the owner's own name, DNI or home address.
+  the legal notice included (owner, 30 Oct 2026), with one exception: the
+  privacy policy names the owner, Pablo Ballesteros Sánchez, as the data
+  controller, as GDPR article 13 requires (owner, 2 Nov 2026: "completely
+  legal"). His name appears nowhere else. While the site has no economic
+  activity (no income, sales, ads, sponsorship or affiliate links) the legal
+  notice names only Andra Markets and a brand contact email. Before any
+  monetisation (newsletter sponsorship, paid tier) the owner will form a
+  company (SL), and the legal notice will then carry its name, CIF and
+  registered address as LSSI article 10 requires. Never publish the owner's
+  DNI or home address.
 - Owner-approved derivatives of the mark: the favicon and touch icon are a
   head-and-neck crop (the owner asked for "a favicon (head and neck crop of the
   horse)" and approved it as shown); the social share image uses the full horse.
