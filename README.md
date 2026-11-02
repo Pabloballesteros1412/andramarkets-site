@@ -501,8 +501,9 @@ an excerpt of any page that failed to parse.
 
 Everything in square brackets on the site is a placeholder, never invented
 data (none is left: the copyright year is the build's year). The legal notice and privacy policy give the brand
-contact, andramarkets@gmail.com (`tools/legal_content.py`), and no personal data: before
-the site earns anything, the company (SL) that will run it replaces this with
+contact, andramarkets@gmail.com (`tools/legal_content.py`); the privacy policy also names
+the owner as the data controller (GDPR art. 13), the only personal name on the site. Before
+the site earns anything, the company (SL) that will run it is named in the legal notice with
 its name, CIF and registered address (LSSI art. 10).
 The Methodology page (`methodology()` in `tools/build_site.py`) describes the
 note pipeline, sources and limits: update it when a source or check changes. The tape and the daily note module fill themselves

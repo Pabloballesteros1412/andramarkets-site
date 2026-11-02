@@ -827,7 +827,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Don't** use red or green for anything but a rise or a fall: not for errors, success, tags, links, labels or prose, and never on a figure without its sign.
 - **Don't** put an eyebrow, kicker or category label above a heading.
 - **Don't** use em dashes or en dashes in copy; use commas, colons or full stops.
-- **Don't** put a personal name anywhere on the site.
+- **Don't** put a personal name anywhere on the site. The one exception is the privacy policy, which names the owner as the data controller (GDPR art. 13; owner, 2 Nov 2026).
 - **Don't** crop, redraw, recolour (in the file), replace or regenerate `andra-horse.png`; don't add a second image or illustration style. The approved derivatives are the favicon set, the transparent header marks and the hero particle map (Brand assets); any other derivative needs owner approval first.
 - **Don't** use a serif face or a fallback stack that ends in `serif`, and don't add a second family.
 - **Don't** invent numbers, prices, counts or dates; use a bracketed placeholder.

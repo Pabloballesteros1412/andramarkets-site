@@ -120,10 +120,11 @@ LEGAL = [
 
 PRIVACY = [
     ("controller", "Who is responsible",
-     "<p>Andra Markets, based in Spain, is responsible for any personal data processed through this site, "
-     "under the General Data Protection Regulation (EU) 2016/679 and Spanish Organic Law 3/2018. Contact: "
-     "<a href=\"mailto:andramarkets@gmail.com\">andramarkets@gmail.com</a>. The site collects almost no personal data (see below); when that changes, this "
-     "policy will give the full identity of the controller first.</p>"),
+     "<p>Andra Markets is run by Pablo Ballesteros S&aacute;nchez, based in Spain, who is the controller of "
+     "any personal data processed through this site under the General Data Protection Regulation (EU) "
+     "2016/679 and Spanish Organic Law 3/2018. Contact: "
+     "<a href=\"mailto:andramarkets@gmail.com\">andramarkets@gmail.com</a>. The site collects almost no "
+     "personal data (see below).</p>"),
 
     ("collect", "What we collect",
      "<p>Very little. The site has no accounts, no analytics, no advertising and no tracking pixels, and "
