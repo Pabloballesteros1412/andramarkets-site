@@ -19,6 +19,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `data/recruiting_calendar.json`, `assets/recruiting.js`: the recruiting calendar (`recruiting-calendar/`; it was part of the guide until 1 Nov 2026 and its old address redirects), kept by hand (below).
 - `tools/page_firms.py`, `assets/firms.js`: Firms (`firms/`), a directory built from `data/recruiting_calendar.json`.
 - `tools/page_application_tracker.py`, `assets/tracker.js`: the Application tracker (`application-tracker/`); the reader's entries stay in localStorage (`andra-tracker`).
+- `tools/page_investiq.py`, `assets/investiq.mp4`, `assets/investiq-poster.jpg`: the InvestIQ page (`investiq/`), with InvestIQ's video served from the site (no embed). `INVESTIQ` in `tools/build_site.py` links it under the horse on the homepage and after the four groups in the menu.
 - `data/technicals/<topic>.json`, `assets/technicals.js`: its nine technical preparation pages (`break-into-wall-street/technicals/<topic>/`): what to know, a worked example, practice cards, common mistakes. Edit the guide's text in the data file and update its `reviewed` date.
 - `data/reports/`: the weekly reviews and research in the Research Library (`research/`): `index.json` plus one PDF per report in `pdf/`, published as it is at `research/pdf/`. `tools/import_report.py` copies a report's PDF and adds its line; see `data/reports/README.md`.
 - `data/interview_prep.json`: Markets Interview Prep (`interview-prep/`): the weekly block (`week`, rewritten each week) and the question bank.

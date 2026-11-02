@@ -514,6 +514,19 @@ html:not(.js) .has-scene .nav__panel {
   transition: color 160ms ease, text-decoration-color 160ms ease;
 }
 
+.nav__solo {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+  font-weight: 550;
+  white-space: nowrap;
+  text-decoration: underline 1px transparent;
+  text-underline-offset: 0.5em;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
+}
+
 .nav__caret {
   font-size: 0.75em;
   transition: transform 200ms var(--ease-out);
@@ -862,7 +875,8 @@ html:not(.js) .nav__group:focus-within .nav__panel {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .nav__btn:hover {
+  .nav__btn:hover,
+  .nav__solo:hover {
     color: var(--ink);
   }
   .nav__links a:hover .nav__name .icon {
@@ -1057,6 +1071,16 @@ html:not(.js) .nav__group:focus-within .nav__panel {
     padding: 0;
   }
   .nav__name {
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+  .nav__solo {
+    display: flex;
+    min-height: 48px;
+    margin-top: 22px;
+    border-top: 1px solid var(--rule-strong);
+    color: var(--ink);
     font-size: 1.25rem;
     font-weight: 500;
     letter-spacing: -0.02em;
@@ -1269,6 +1293,72 @@ html:not(.js) .nav__group:focus-within .nav__panel {
   }
 }
 
+/* InvestIQ under the horse (owner-approved, 2 Nov 2026): a fifth name, centred near the foot of
+   the screen and set apart from the four groups by a rule above it, as it is another product.
+   It opens its page; the particles form it with the group names. Near the foot of the screen,
+   but never higher than 24px under the hooves (the horse's silhouette ends 0.251 of
+   --horse-size under --horse-y), so on short screens it moves down rather than touch them.
+   Not centred with a transform, which the hero's entrance animation would replace. */
+.hero__iq {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  right: 0;
+  top: max(calc(100% - 42px - clamp(16px, 5vh, 56px)), calc(var(--horse-y) + 0.251 * var(--horse-size) + 24px));
+  width: max-content;
+  min-width: 120px;
+  margin-inline: auto;
+  padding: 12px 0 4px;
+  border-top: 1px solid var(--rule-strong);
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-align: center;
+  text-decoration: underline 1px transparent;
+  text-underline-offset: 0.22em;
+  transition: color 450ms ease, border-color 450ms ease, text-decoration-color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero__iq:hover {
+    text-decoration-color: var(--rule-strong);
+  }
+}
+
+/* Phones (upright, and on their side when under 560px tall): an open group's sections take
+   the room InvestIQ stands in, so it steps aside while a group is open (assets/hero-horse.js
+   then leaves it out of the particles). On their side there is no room under the hooves, so
+   it stands at the foot of the screen on the right. */
+@media (max-width: 860px) and (orientation: portrait), (orientation: landscape) and (max-height: 560px) {
+  .hero__iq {
+    transition: color 450ms ease, border-color 450ms ease, text-decoration-color 160ms ease, opacity 180ms ease, visibility 0s;
+  }
+
+  .hero:has(.hero__group[open]) .hero__iq {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 180ms ease, visibility 0s linear 180ms;
+  }
+}
+
+@media (max-width: 860px) and (orientation: portrait) {
+  .hero__iq {
+    top: auto;
+    bottom: clamp(28px, 6vh, 56px);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .hero__iq {
+    top: auto;
+    bottom: 10px;
+    left: auto;
+    right: var(--gutter);
+    margin: 0;
+  }
+}
+
 /* The still engraving (no WebGL or JavaScript) in the mark's look, as the particles draw it:
    light on black, ink on white. */
 :root[data-theme="dark"] .home .hero__art {
@@ -1296,8 +1386,13 @@ html.hero-forming .hero__art {
 }
 
 html.hero-forming .hero:not(.crisp-h1) h1,
-html.hero-forming .hero:not(.crisp-ix) .hero__index summary {
+html.hero-forming .hero:not(.crisp-ix) .hero__index summary,
+html.hero-forming .hero:not(.crisp-ix) .hero__iq {
   color: transparent;
+}
+
+html.hero-forming .hero:not(.crisp-ix) .hero__iq {
+  border-top-color: transparent;
 }
 
 html.hero-forming .hero__copy > *,
@@ -1331,6 +1426,7 @@ html.hero-forming .site-header--home:not(.crisp-hd) .brand__mark {
    of the point and the real text takes over as it did when it first formed. */
 html.hero-leaving .hero h1,
 html.hero-leaving .hero__index summary,
+html.hero-leaving .hero__iq,
 html.hero-leaving .site-header--home .brand__name,
 html.hero-leaving .site-header--home .site-header__legal a {
   color: transparent;
@@ -1341,6 +1437,10 @@ html.hero-leaving .site-header--home .site-header__legal a {
 html.hero-leaving .site-header--home .brand__mark {
   opacity: 0;
   transition: none;
+}
+
+html.hero-leaving .hero__iq {
+  border-top-color: transparent;
 }
 
 html.hero-leaving .hero__group ul {
@@ -8933,3 +9033,55 @@ a.cb-bank .icon { width: 0.9em; height: 0.9em; transition: transform 200ms var(-
 }
 
 /* ==== end Application tracker ==== */
+
+
+/* ==== InvestIQ (investiq/, owner-approved sketch, 2 Nov 2026) ==== */
+/* The name, a short text, InvestIQ's video and a button to its website; centred above 960px,
+   left-aligned below like every other page. */
+.iq__head {
+  padding-bottom: clamp(24px, 3vw, 40px);
+  border-bottom: 0;
+}
+
+.iq__video {
+  max-width: 56rem;
+}
+
+.iq__video video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 848 / 480;
+  background: var(--ground-2);
+  border: 1px solid var(--rule-strong);
+}
+
+.iq__cta {
+  margin-top: 32px;
+}
+
+.iq__note {
+  margin-top: 16px;
+  max-width: 56ch;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+@media (min-width: 961px) {
+  .iq .wrap {
+    text-align: center;
+  }
+
+  .iq__head,
+  .iq__head .lede,
+  .iq__video,
+  .iq__note {
+    margin-inline: auto;
+  }
+
+  .iq__head .lede,
+  .iq__note {
+    text-wrap: balance;
+  }
+}
+/* ==== end InvestIQ ==== */

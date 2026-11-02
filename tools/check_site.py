@@ -8,7 +8,8 @@ the last good deploy stays up and GitHub emails the owner about the failed run.
 Checks:
 - every published close note has its page, and every section the note has
   text for (takeaways, desk view, what we watch, equities, ...) is on it;
-- the homepage index lists every section of the inner pages' menu;
+- the homepage lists every section of the inner pages' menu (the four groups'
+  sections in its index, InvestIQ under the horse);
 - every page carries its Content Security Policy before any script, and the
   policy allows each inline script the page runs (by hash), so no script on
   the live site is blocked and no unlisted one runs;
@@ -64,10 +65,10 @@ def nav_links(html, pattern):
 
 
 def check_home():
-    """The homepage index is the homepage's only menu: it must list every section the
-    inner pages' menu lists."""
+    """The homepage's hero is its only menu (the index of the four groups and InvestIQ
+    under the horse): it must link every page the inner pages' menu links."""
     home = nav_links((ROOT / "index.html").read_text(encoding="utf-8"),
-                     r'<nav class="hero__index"[^>]*>(.*?)</nav>')
+                     r'<section class="hero"[^>]*>(.*?)</section>')
     menu = nav_links((site.REPORTS / "index.html").read_text(encoding="utf-8"),
                      r'<nav class="nav"[^>]*>(.*?)</nav>')
     if not home:
