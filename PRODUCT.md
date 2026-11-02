@@ -193,10 +193,12 @@ record. The daily note is one module among others, not the centrepiece.
   and a 12-month limit for emails, and that no automated decisions are made;
   the legal notice says the content is commentary, not MAR investment
   recommendations, and that machine-drafted pages say so (AI Act art. 50).
-  Open, for the owner: the GDPR asks the privacy policy to name the data
-  controller, a person, not only the brand; and the notice promises that a
-  report discussing an instrument the operator holds says so, which no note
-  page does yet.
+  The owner (2 Nov 2026) receives no emails, earns nothing from the site or
+  anyone and holds no positions: the notice now says that neither Andra
+  Markets nor its operator holds a position in any instrument the reports
+  discuss, and that a report will say so if that changes. Open, for the
+  owner: the GDPR asks the privacy policy to name the data controller, a
+  person, not only the brand.
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
   time, newsletter platform (Substack, Beehiiv or Ghost), a YouTube channel.

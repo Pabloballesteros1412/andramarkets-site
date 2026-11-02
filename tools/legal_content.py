@@ -50,10 +50,11 @@ LEGAL = [
      "are not a record of any real portfolio.</p>"),
 
     ("conflicts", "Conflicts of interest",
-     "<p>Andra Markets receives no payment from the companies or issuers it writes about, and publishes no "
-     "sponsored research. Where Andra Markets or its operator holds a position in an instrument that a "
-     "report discusses specifically, the report says so. Andra Markets does not trade on a report before "
-     "it is published.</p>"),
+     "<p>Andra Markets receives no payment from anyone: not from the companies or issuers it writes about, "
+     "nor from any data provider, broker or platform, and it publishes no sponsored research.</p>"
+     "<p>Neither Andra Markets nor its operator holds a position in any instrument the reports discuss "
+     "specifically. If that ever changes, the report concerned will say so clearly, and no one at Andra "
+     "Markets will trade on a report before it is published.</p>"),
 
     ("performance", "Past performance and forecasts",
      "<p>Past performance is not a reliable indicator of future results. The value of investments and the "
