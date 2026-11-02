@@ -416,8 +416,8 @@ shows the variables for `npx wrangler dev`.
    (Settings → Secrets and variables → Actions → Variables), which wins.
 
 The Worker answers only pages from `ALLOWED_ORIGINS` in
-`worker/wrangler.toml` (the site's GitHub Pages origin; add the custom
-domain there if the site gets one). Optional: bind a KV namespace `STALE`
+`worker/wrangler.toml`: `https://andramarkets.com`, its `www` variant and the
+GitHub Pages address. Optional: bind a KV namespace `STALE`
 (see `wrangler.toml`) so a vendor outage or a spent quota serves the last
 good answer, marked with its date. To change a key, update the repository
 secret and run **Deploy profile API** again. Tests: `cd worker && npm test`.
