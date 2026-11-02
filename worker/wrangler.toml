@@ -8,7 +8,9 @@ workers_dev = true
 
 [vars]
 # The site's origin(s), comma-separated: only their pages may call the API.
-ALLOWED_ORIGINS = "https://pabloballesteros1412.github.io"
+# andramarkets.com is the site (www redirects to it); the GitHub Pages address
+# stays so the pages keep working if the custom domain is ever removed.
+ALLOWED_ORIGINS = "https://andramarkets.com,https://www.andramarkets.com,https://pabloballesteros1412.github.io"
 
 # Per-visitor rate limit: index.js reads it as env.LIMITER and keys it by the
 # visitor's IP. 60 requests a minute is about a dozen company pages, plenty for
