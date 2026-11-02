@@ -1261,7 +1261,8 @@ def hero_boot():
 
 # The header menu in four groups (owner-approved, 31 Oct 2026): each opens a panel the
 # width of the page, its links with a line each. On phones and tablets the same markup
-# is the menu sheet, the group names as headings over their links. Six sections in
+# is the menu sheet: the group names in a row and one group under them, its sections in
+# the panel's cards one under another (owner-approved, 2 Nov 2026). Six sections in
 # every group (owner-approved, 1 Nov 2026): Tools holds the fourteen Lab tools and
 # Simulators in six themes, each opening its group on the Lab or Simulators page.
 NAV_GROUPS = (

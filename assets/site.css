@@ -652,7 +652,8 @@ html:not(.js) .nav__group:focus-within .nav__panel {
    small chart that draws itself (NAV_CHARTS in tools/build_site.py). assets/site.js places the
    sections on an ellipse the size of the panel and turns it once every 120s; they come out of
    the title as the group opens, and stop while the pointer or the focus is on one. Without
-   JavaScript the panel keeps the layout above; the phones' menu sheet is unchanged. */
+   JavaScript the panel keeps the layout above. The menu sheet at 960px and below uses the same
+   cards, one under another (below). */
 .nav-chart {
   display: none;
 }
@@ -753,67 +754,69 @@ html:not(.js) .nav__group:focus-within .nav__panel {
     overflow: visible;
     color: var(--ink-2);
   }
+}
 
-  .nav-chart * {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    vector-effect: non-scaling-stroke;
-  }
+/* The charts and the opening, at every size: the panel above 960px and, with JavaScript, the
+   menu sheet at 960px and below (owner-approved, 2 Nov 2026) both use them. */
+.nav-chart * {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
 
-  .nav-chart .bar {
-    stroke-width: 7;
-    stroke-linecap: butt;
-  }
+.nav-chart .bar {
+  stroke-width: 7;
+  stroke-linecap: butt;
+}
 
-  .nav-chart .base {
-    stroke: var(--rule-strong);
-    stroke-width: 1;
-  }
+.nav-chart .base {
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+}
 
-  .nav-chart .dot {
-    fill: var(--ink);
-    stroke: none;
-  }
+.nav-chart .dot {
+  fill: var(--ink);
+  stroke: none;
+}
 
-  .nav-chart .soft {
-    stroke: var(--ink-3);
-    stroke-dasharray: 2 4;
-  }
+.nav-chart .soft {
+  stroke: var(--ink-3);
+  stroke-dasharray: 2 4;
+}
 
-  /* each chart draws itself as its section arrives, then its dot or guide shows */
-  .nav__group.is-open .nav-chart .draw {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: nav-draw 1100ms var(--ease-in-out) forwards;
-    animation-delay: calc(420ms + var(--k, 0) * 80ms);
-  }
+/* each chart draws itself as its section arrives, then its dot or guide shows */
+.nav__group.is-open .nav-chart .draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: nav-draw 1100ms var(--ease-in-out) forwards;
+  animation-delay: calc(420ms + var(--k, 0) * 80ms);
+}
 
-  .nav__group.is-open .nav-chart .dot,
-  .nav__group.is-open .nav-chart .soft {
-    opacity: 0;
-    animation: nav-fade 500ms ease forwards;
-    animation-delay: calc(1300ms + var(--k, 0) * 80ms);
-  }
+.nav__group.is-open .nav-chart .dot,
+.nav__group.is-open .nav-chart .soft {
+  opacity: 0;
+  animation: nav-fade 500ms ease forwards;
+  animation-delay: calc(1300ms + var(--k, 0) * 80ms);
+}
 
-  html.js .nav__group.is-open .nav__intro > * {
-    animation: nav-title-in 700ms var(--ease-out) both;
-  }
+html.js .nav__group.is-open .nav__intro > * {
+  animation: nav-title-in 700ms var(--ease-out) both;
+}
 
-  html.js .nav__group.is-open .nav__intro > :nth-child(2) {
-    animation-delay: 80ms;
-  }
+html.js .nav__group.is-open .nav__intro > :nth-child(2) {
+  animation-delay: 80ms;
+}
 
-  /* section pages: the scene dims while a group is open, so its sections read over it */
-  .has-scene .scene {
-    transition: opacity 300ms ease;
-  }
+/* section pages: the scene dims while the menu is open, so its sections read over it */
+.has-scene .scene {
+  transition: opacity 300ms ease;
+}
 
-  .has-scene:has(.site-header.is-open) .scene {
-    opacity: 0.4;
-  }
+.has-scene:has(.site-header.is-open) .scene {
+  opacity: 0.4;
 }
 
 @keyframes nav-draw {
@@ -1066,6 +1069,151 @@ html:not(.js) .nav__group:focus-within .nav__panel {
   }
   .site-header .wrap {
     gap: 8px;
+  }
+}
+
+/* 960px and below, with JavaScript (owner-approved, 2 Nov 2026, after the owner asked for the
+   phone menu to look like the computer's): the sheet is the open group of the panel above
+   960px, laid out for a phone. The four group names sit in a row at the top, as in the header
+   bar; under them the open group, one at a time: its name and line centred, then its six
+   sections one under another, each the panel's card (its chart, its name and arrow, its line).
+   The sheet fills the screen under the header and the group scrolls under the row if it is
+   taller. assets/site.js opens the group of the page the menu is opened on (Markets elsewhere)
+   and keeps a group open while the sheet is. On tablets the row and the group keep a phone's
+   column, 600px wide, centred. Without JavaScript the sheet keeps the layout above. */
+@media (max-width: 960px) {
+  html.js .nav {
+    inset: var(--nav-h) 0 0;
+    max-height: none;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    grid-template-rows: auto minmax(0, 1fr);
+    justify-content: space-between;
+    padding: 0 max(var(--gutter), calc((100% - 600px) / 2));
+    border-bottom: 0;
+  }
+  html.js .nav__group {
+    display: contents;
+  }
+  html.js .nav__btn {
+    display: inline-flex;
+    grid-row: 1;
+    min-height: 48px;
+  }
+  html.js .nav__panel {
+    display: none;
+  }
+  /* The group adds nothing to the row's widths (width 0), so the names keep their own and
+     the space falls between them; it then fills the row (min-width), 6px wider each side so
+     the focus ring (2px, 3px out) stays inside the scrolling box. Its spacing tightens on
+     shorter screens (svh), so a group fits whole on more of them. */
+  html.js .nav__group.is-open .nav__panel {
+    display: block;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 0;
+    min-width: calc(100% + 12px);
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: 0 -6px;
+    padding: clamp(12px, 2.4svh, 20px) 6px 24px;
+  }
+  html.js .nav__intro {
+    margin-bottom: clamp(12px, 2.2svh, 18px);
+    text-align: center;
+  }
+  html.js .nav__title,
+  html.js .nav__group:first-child .nav__title {
+    margin: 0 0 8px;
+    padding: 0;
+    border: 0;
+    font-size: 1.75rem;
+    font-weight: 540;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  html.js .nav__desc {
+    display: block;
+    margin: 0 auto;
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+  html.js .nav__links,
+  html.js .nav__links--two {
+    display: block;
+    border-top: 0;
+  }
+  html.js .nav__links li {
+    border-bottom: 0;
+  }
+  html.js .nav__links li + li {
+    margin-top: clamp(2px, 0.75svh, 6px);
+  }
+  html.js .nav__links a {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    column-gap: 16px;
+    row-gap: 3px;
+    align-items: center;
+    min-height: 0;
+    padding: clamp(7px, 1.35svh, 11px) 0 clamp(8px, 1.45svh, 12px);
+    border-top: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule);
+  }
+  html.js .nav-chart {
+    display: block;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 80px;
+    height: 46px;
+    overflow: visible;
+    color: var(--ink-2);
+  }
+  html.js .nav__name,
+  html.js .nav__sub {
+    grid-column: 2;
+  }
+  html.js .nav__name {
+    font-size: 1.0625rem;
+    font-weight: 540;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+  }
+  html.js .nav__name .icon {
+    display: block;
+  }
+  html.js .nav__sub {
+    display: block;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+  /* the sections come down out of the title, one after another, as the group opens */
+  html.js .nav__group.is-open .nav__links li {
+    animation: nav-card-in 480ms var(--ease-out) both;
+    animation-delay: calc(80ms + var(--k, 0) * 40ms);
+  }
+}
+
+/* the four names keep room between them on the narrowest phones */
+@media (max-width: 359px) {
+  html.js .nav__btn {
+    gap: 4px;
+    font-size: 0.875rem;
+  }
+}
+
+@keyframes nav-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .nav__group.is-open .nav__links li {
+    animation: none;
   }
 }
 
