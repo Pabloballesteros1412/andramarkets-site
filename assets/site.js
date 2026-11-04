@@ -262,7 +262,7 @@
     return MOVES && !still() && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey &&
       !e.defaultPrevented && !a.hasAttribute("download") && (!a.target || a.target === "_self") &&
       a.origin === location.origin && !/\.pdf$/i.test(a.pathname) &&
-      // a part of this same page (Tools' themes on the Lab page) moves nothing: the menu closes
+      // a part of this same page (a link with a #) moves nothing: the menu closes
       !(a.hash && a.pathname === location.pathname && a.search === location.search);
   }
   window.addEventListener("pageswap", function (e) {
@@ -275,8 +275,8 @@
     if (dest.pathname === home) { vt.skipTransition(); return; }
     vt.types.add("leave");
     var back = act.navigationType === "traverse" && act.from && act.entry.index < act.from.index;
-    // only a section's own page: a link to a part of one (lab/#options) lands scrolled to that
-    // part, away from the title, so there the page simply rises
+    // only a section's own page: a link to a part of one (a link with a #) lands scrolled to
+    // that part, away from the title, so there the page simply rises
     var label = chosen && chosen.pathname === dest.pathname && !chosen.hash && !back && chosen.querySelector(".nav__label");
     if (label) label.style.viewTransitionName = "page-title";
     try {
@@ -488,16 +488,19 @@
 
   // The menu sheet, 960px and below (owner-approved, 2 Nov 2026): the group names in a row and
   // one group open under them, as above 960px. It opens on the group of this page (the one
-  // with the longest link this address starts with; Markets elsewhere), and the group closes
-  // once the sheet has faded (200ms), so it never empties while it goes.
+  // with the longest link whose top folder this address is in; Markets elsewhere), and the
+  // group closes once the sheet has faded (200ms), so it never empties while it goes. A link's
+  // top folder: Tools' themes (lab/options/) stand for all of lab/, so its tools open Tools too.
   var menuBtn = document.querySelector(".menu-btn");
   var nav = document.getElementById("site-nav");
   var menuShut = 0;
   function pageGroup() {
+    var home = new URL(document.body.getAttribute("data-base") || "./", location.href).pathname;
     var best = groupBtns[0], len = 0;
     groupBtns.forEach(function (b) {
       b.parentNode.querySelectorAll(".nav__panel a").forEach(function (a) {
-        var p = a.pathname;
+        var p = a.pathname, rest = p.indexOf(home) === 0 ? p.slice(home.length) : "";
+        if (rest.indexOf("/") > 0) p = home + rest.slice(0, rest.indexOf("/") + 1);
         if (p.length > len && location.pathname.indexOf(p) === 0) { best = b; len = p.length; }
       });
     });

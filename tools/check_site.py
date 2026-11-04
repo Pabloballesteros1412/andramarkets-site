@@ -8,7 +8,8 @@ the last good deploy stays up and GitHub emails the owner about the failed run.
 Checks:
 - every published close note has its page, and every section the note has
   text for (takeaways, desk view, what we watch, equities, ...) is on it;
-- the homepage index lists every section of the inner pages' menu;
+- the homepage index lists every section of the inner pages' menu, and each of
+  those sections was built as a page of its own;
 - every page carries its Content Security Policy before any script, and the
   policy allows each inline script the page runs (by hash), so no script on
   the live site is blocked and no unlisted one runs;
@@ -73,7 +74,13 @@ def check_home():
     if not home:
         return ["index.html: the section index is empty"]
     missing = [h for h in menu if h not in home]
-    return [f"index.html: the section index lacks {', '.join(missing)}"] if missing else []
+    problems = [f"index.html: the section index lacks {', '.join(missing)}"] if missing else []
+    # every section the menu lists is a page of its own (Tools' themes since 4 Nov 2026);
+    # Companies is built only when its data is cached, and the deploy then leaves it out
+    unbuilt = [h for h in menu if h != "companies/" and not (ROOT / h.split("#")[0] / "index.html").is_file()]
+    if unbuilt:
+        problems.append(f"the menu links to pages that were not built: {', '.join(unbuilt)}")
+    return problems
 
 
 def check_discovery():
