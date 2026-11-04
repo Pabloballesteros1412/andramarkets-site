@@ -1264,7 +1264,9 @@ def hero_boot():
 # is the menu sheet: the group names in a row and one group under them, its sections in
 # the panel's cards one under another (owner-approved, 2 Nov 2026). Six sections in
 # every group (owner-approved, 1 Nov 2026): Tools holds the fourteen Lab tools and
-# Simulators in six themes, each opening its group on the Lab or Simulators page.
+# Simulators in six themes. Each theme is a page of its own (owner, 4 Nov 2026: a link
+# into the Lab page halfway down did not feel like a section), as in the other groups:
+# TOOL_THEMES builds them.
 NAV_GROUPS = (
     ("markets", "Markets", "Prices, rates and what is coming, with each figure's source and date.", (
         ("Dashboards", "dashboards/", "Nine views across rates, equities, macro and cross-asset."),
@@ -1274,12 +1276,12 @@ NAV_GROUPS = (
         ("FX", "fx/", "The dollar, the G10 majors and emerging-market currencies."),
         ("Companies", "companies/", "Earnings and figures for 600 companies."))),
     ("tools", "Tools", "Fourteen tools and simulators that run in your browser.", (
-        ("Options", "lab/#options", "The payoff at expiry and Black-Scholes with its Greeks."),
-        ("Bonds", "lab/#bonds", "Price, duration and convexity; yield to maturity."),
-        ("Risk &amp; portfolio", "lab/#risk", "Correlation, the efficient frontier, position size and VaR."),
-        ("Valuation &amp; growth", "lab/#valuation", "Discounted cash flow, compound growth, real return."),
-        ("Market replays", "simulators/#replays", "The Trading Simulator and the Panic Test, on real history."),
-        ("Strategy games", "simulators/#games", "Guess the Fed and the Portfolio Builder."))),
+        ("Options", "lab/options/", "The payoff at expiry and Black-Scholes with its Greeks."),
+        ("Bonds", "lab/bonds/", "Price, duration and convexity; yield to maturity."),
+        ("Risk &amp; portfolio", "lab/risk-and-portfolio/", "Correlation, the efficient frontier, position size and VaR."),
+        ("Valuation &amp; growth", "lab/valuation-and-growth/", "Discounted cash flow, compound growth, real return."),
+        ("Market replays", "simulators/market-replays/", "The Trading Simulator and the Panic Test, on real history."),
+        ("Strategy games", "simulators/strategy-games/", "Guess the Fed and the Portfolio Builder."))),
     ("research", "Research", "What happened and why, on the record.", (
         ("Daily note", "reports/", "One note every US trading day, after the close."),
         ("Research Library", "research/", "Weekly reviews and longer research, as PDFs."),
@@ -1308,12 +1310,12 @@ NAV_CHARTS = {
     "world/": '<path class="soft" d="M56 4L84 18L82 46L56 60L30 46L28 18Z"/><path class="draw" pathLength="1" d="M56 12L74 22L78 42L56 50L38 40L34 22Z"/><circle class="dot" cx="78" cy="42" r="3"/>',
     "fx/": '<path class="draw" pathLength="1" d="M2 14C30 18 50 46 110 50"/><path class="draw" pathLength="1" d="M2 48C34 44 60 18 110 14"/><circle class="dot" cx="57" cy="32" r="3"/>',
     "companies/": '<path class="base" d="M2 60H110"/><path class="draw bar" pathLength="1" d="M12 60V42M28 60V32M44 60V38M60 60V22M76 60V28M92 60V12"/>',
-    "lab/#options": '<path class="base" d="M2 60H110"/><path class="soft" d="M48 8V60"/><path class="draw" pathLength="1" d="M2 46H48L106 8"/><circle class="dot" cx="106" cy="8" r="3"/>',
-    "lab/#bonds": '<path class="base" d="M2 60H110"/><path class="soft" d="M8 16L67 60"/><path class="draw" pathLength="1" d="M6 6C22 34 50 50 108 56"/><circle class="dot" cx="28" cy="31" r="3"/>',
-    "lab/#risk": '<path class="base" d="M4 4V60H110"/><path class="draw" pathLength="1" d="M34 58C14 48 14 32 30 24C50 14 76 10 104 6"/><circle class="dot" cx="30" cy="24" r="3"/>',
-    "lab/#valuation": '<path class="base" d="M2 60H110"/><path class="draw bar" pathLength="1" d="M14 60V40M30 60V43M46 60V46M62 60V49M78 60V52M98 60V14"/>',
-    "simulators/#replays": '<path class="base" d="M2 60H110"/><path class="soft" d="M22 14H110"/><path class="draw" pathLength="1" d="M2 30L12 22L22 14L30 26L38 44L46 54L56 48L66 38L78 30L90 22L100 16L110 12"/><circle class="dot" cx="110" cy="12" r="3"/>',
-    "simulators/#games": '<path class="soft" d="M44 32H96M44 32L96 52"/><path class="draw" pathLength="1" d="M8 32H44L96 12"/><circle class="dot" cx="96" cy="12" r="3"/>',
+    "lab/options/": '<path class="base" d="M2 60H110"/><path class="soft" d="M48 8V60"/><path class="draw" pathLength="1" d="M2 46H48L106 8"/><circle class="dot" cx="106" cy="8" r="3"/>',
+    "lab/bonds/": '<path class="base" d="M2 60H110"/><path class="soft" d="M8 16L67 60"/><path class="draw" pathLength="1" d="M6 6C22 34 50 50 108 56"/><circle class="dot" cx="28" cy="31" r="3"/>',
+    "lab/risk-and-portfolio/": '<path class="base" d="M4 4V60H110"/><path class="draw" pathLength="1" d="M34 58C14 48 14 32 30 24C50 14 76 10 104 6"/><circle class="dot" cx="30" cy="24" r="3"/>',
+    "lab/valuation-and-growth/": '<path class="base" d="M2 60H110"/><path class="draw bar" pathLength="1" d="M14 60V40M30 60V43M46 60V46M62 60V49M78 60V52M98 60V14"/>',
+    "simulators/market-replays/": '<path class="base" d="M2 60H110"/><path class="soft" d="M22 14H110"/><path class="draw" pathLength="1" d="M2 30L12 22L22 14L30 26L38 44L46 54L56 48L66 38L78 30L90 22L100 16L110 12"/><circle class="dot" cx="110" cy="12" r="3"/>',
+    "simulators/strategy-games/": '<path class="soft" d="M44 32H96M44 32L96 52"/><path class="draw" pathLength="1" d="M8 32H44L96 12"/><circle class="dot" cx="96" cy="12" r="3"/>',
     "reports/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 46L20 40L36 44L52 30L68 34L84 20L104 24"/><circle class="dot" cx="104" cy="24" r="3"/>',
     "research/": '<path class="draw" pathLength="1" d="M10 12H92M10 24H104M10 36H82M10 48H96"/><path class="soft" d="M10 60H70"/>',
     "interview-prep/": '<path class="draw" pathLength="1" d="M6 36L16 46L34 22"/><path class="draw" pathLength="1" d="M46 24H106M46 40H92"/>',
@@ -1558,17 +1560,33 @@ def watch_redirect():
 # Lab tools: (slug, data-tool, title, description, how it works, assumptions).
 # Calculated by assets/lab.js in the browser: nothing leaves it.
 # The Lab and the Simulators in the six themes of the Tools menu (owner-approved,
-# 1 Nov 2026): each theme is a group on its page, its id the menu link's anchor.
-LAB_GROUPS = (
-    ("options", "Options", ("options-payoff", "black-scholes")),
-    ("bonds", "Bonds", ("bond-calculator", "yield-to-maturity")),
-    ("risk", "Risk &amp; portfolio", ("risk-correlation", "efficient-frontier", "position-sizing")),
-    ("valuation", "Valuation &amp; growth", ("dcf", "compound-growth", "real-return")),
+# 1 Nov 2026): (id, page, name, lede, tools). Each theme is a group on the Lab or
+# Simulators index (its id the group's anchor) and, since 4 Nov 2026, a page of its
+# own that the menu opens (owner: the menu took you into the Lab page, not to the section).
+TOOL_THEMES = (
+    ("options", "lab/options/", "Options",
+     "Two options calculators: a strategy's profit or loss at expiry and today, and the Black-Scholes value of a call "
+     "or put with its Greeks.", ("options-payoff", "black-scholes")),
+    ("bonds", "lab/bonds/", "Bonds",
+     "Two bond calculators: a fixed-coupon bond's price, duration and convexity from its yield, and its yield to "
+     "maturity from its price.", ("bond-calculator", "yield-to-maturity")),
+    ("risk", "lab/risk-and-portfolio/", "Risk &amp; portfolio",
+     "How companies move together, how two assets mix into a frontier of risk and return, and how large a position "
+     "can be for the loss you accept.", ("risk-correlation", "efficient-frontier", "position-sizing")),
+    ("valuation", "lab/valuation-and-growth/", "Valuation &amp; growth",
+     "A business valued from its cash flows, a sum compounding at a steady return, and what a return is worth after "
+     "inflation and tax.", ("dcf", "compound-growth", "real-return")),
+    ("replays", "simulators/market-replays/", "Market replays",
+     "Real market history, played day by day: two hidden years to trade, and one of the great crashes to sit through.",
+     ("trading-simulator", "panic-test")),
+    ("games", "simulators/strategy-games/", "Strategy games",
+     "Call the Fed's next move from the figures it had, and run a portfolio of stocks, bonds and cash through ten "
+     "hidden years.", ("guess-the-fed", "portfolio-builder")),
 )
-SIM_GROUPS = (
-    ("replays", "Market replays", ("trading-simulator", "panic-test")),
-    ("games", "Strategy games", ("guess-the-fed", "portfolio-builder")),
-)
+LAB_GROUPS = tuple((key, name, slugs) for key, page, name, _, slugs in TOOL_THEMES if page.startswith("lab/"))
+SIM_GROUPS = tuple((key, name, slugs) for key, page, name, _, slugs in TOOL_THEMES if page.startswith("simulators/"))
+# Each tool's theme page, from its own folder (lab/<slug>/ or simulators/<slug>/): (link, name).
+TOOL_THEME_OF = {slug: ("../" + page.split("/", 1)[1], name) for _, page, name, _, slugs in TOOL_THEMES for slug in slugs}
 
 
 def tool_groups(groups, row):
@@ -1577,6 +1595,26 @@ def tool_groups(groups, row):
         f'<section class="archive__month" id="{key}" aria-labelledby="{key}-h"><h2 id="{key}-h">{name}</h2>'
         f'<ol class="learn-list lab-index">{"".join(row(slug) for slug in slugs)}</ol></section>'
         for key, name, slugs in groups) + "</div>"
+
+
+def tool_theme_page(page, name, lede, slugs):
+    """One theme of the Tools menu, a section page of its own: its title, a line, and its
+    tools in the Lab index's ruled list, each row as on the Lab or Simulators index."""
+    lab = page.startswith("lab/")
+    rows = "".join((lab_row if lab else sim_row)(slug, "../") for slug in slugs)
+    note = ("Every tool runs in your browser: nothing you enter is sent or stored." if lab
+            else "Every simulator runs in your browser; your results stay on your device.")
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">{name}</h1>
+      <p class="lede">{lede} {note}</p>
+    </header>
+    <ol class="learn-list lab-index">{rows}</ol>
+  </div>
+</main>"""
+    return shell(title=f"{name}: Andra Markets", desc=f"{lede} {note}", body=body,
+                 home="../../", base="../../", path=page)
 
 
 LAB_TOOLS = [
@@ -1880,7 +1918,7 @@ def lab_page(i, risk=None):
     body = f"""<main id="main" class="page dd lt" data-tool="{kind}">
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
-      <p class="dd__crumbs"><a href="../">Lab</a> <span aria-hidden="true">/</span> Calculator</p>
+      <p class="dd__crumbs"><a href="{TOOL_THEME_OF[slug][0]}">{TOOL_THEME_OF[slug][1]}</a> <span aria-hidden="true">/</span> Calculator</p>
       <h1 class="page__title">{title}</h1>
       <p class="lede">{desc}</p>
       <p class="note__meta">Runs in your browser. Nothing you enter is sent or stored.</p>
@@ -1935,7 +1973,7 @@ def risk_page(i, data, key):
     body = f"""<main id="main" class="page dd lt" data-tool="{kind}">
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
-      <p class="dd__crumbs"><a href="../">Lab</a> <span aria-hidden="true">/</span> Calculator</p>
+      <p class="dd__crumbs"><a href="{TOOL_THEME_OF[slug][0]}">{TOOL_THEME_OF[slug][1]}</a> <span aria-hidden="true">/</span> Calculator</p>
       <h1 class="page__title">{title}</h1>
       <p class="lede">{desc}</p>
       <p class="note__meta">{meta}</p>
@@ -1957,12 +1995,16 @@ def risk_page(i, data, key):
                  path=f"lab/{slug}/", scripts=("lab.js",) if data else ())
 
 
+def lab_row(slug, to=""):
+    """A Lab tool's row in a ruled list; to is the way from the page to lab/."""
+    _, kind, title, desc = next(t for t in LAB_TOOLS if t[0] == slug)[:4]
+    meta = "Yahoo Finance closes, calculated in your browser" if kind == "risk" else "Calculator, runs in your browser"
+    return (f'<li><a href="{to}{slug}/"><span class="learn-list__title">{title}</span>'
+            f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">{meta}</span></a></li>')
+
+
 def lab_index():
-    tools = {t[0]: t for t in LAB_TOOLS}
-    rows = tool_groups(LAB_GROUPS, lambda slug: (
-        f'<li><a href="{slug}/"><span class="learn-list__title">{tools[slug][2]}</span>'
-        f'<span class="learn-list__desc">{tools[slug][3]}</span><span class="learn-list__time">'
-        f'{"Yahoo Finance closes, calculated in your browser" if tools[slug][1] == "risk" else "Calculator, runs in your browser"}</span></a></li>'))
+    rows = tool_groups(LAB_GROUPS, lab_row)
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
@@ -2142,15 +2184,21 @@ def sim_home():
 """
 
 
+SIM_SOURCES = {"trading-simulator": "S&amp;P 500 with dividends since 1928; Nasdaq, Euro Stoxx 50 and Nikkei prices",
+               "panic-test": "Every fall of 25% or more on record, in the same four markets",
+               "guess-the-fed": "FRED: CPI, unemployment, the Fed's target and the 2-year yield",
+               "portfolio-builder": "S&amp;P 500 with dividends and 10-year Treasuries since 1928"}
+
+
+def sim_row(slug, to=""):
+    """A simulator's row in a ruled list; to is the way from the page to simulators/."""
+    _, name, desc = next(s for s in SIMULATORS if s[0] == slug)
+    return (f'<li><a href="{to}{slug}/"><span class="learn-list__title">{name}</span>'
+            f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">{SIM_SOURCES[slug]}</span></a></li>')
+
+
 def sim_index(sim):
-    src = {"trading-simulator": "S&amp;P 500 with dividends since 1928; Nasdaq, Euro Stoxx 50 and Nikkei prices",
-           "panic-test": "Every fall of 25% or more on record, in the same four markets",
-           "guess-the-fed": "FRED: CPI, unemployment, the Fed's target and the 2-year yield",
-           "portfolio-builder": "S&amp;P 500 with dividends and 10-year Treasuries since 1928"}
-    sims = {x[0]: x for x in SIMULATORS}
-    rows = tool_groups(SIM_GROUPS, lambda slug: (
-        f'<li><a href="{slug}/"><span class="learn-list__title">{sims[slug][1]}</span>'
-        f'<span class="learn-list__desc">{sims[slug][2]}</span><span class="learn-list__time">{src[slug]}</span></a></li>'))
+    rows = tool_groups(SIM_GROUPS, sim_row)
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
@@ -2165,7 +2213,8 @@ def sim_index(sim):
 
 
 def sim_head(name, tag_attr):
-    return (f'<div class="sim-head"><div><p class="dd__crumbs"><a href="../">Simulators</a> <span aria-hidden="true">/</span> {name}</p>'
+    theme, theme_name = TOOL_THEME_OF[next(s[0] for s in SIMULATORS if s[1] == name)]
+    return (f'<div class="sim-head"><div><p class="dd__crumbs"><a href="{theme}">{theme_name}</a> <span aria-hidden="true">/</span> {name}</p>'
             f'<h1 class="sim-title">{name}</h1></div><p class="sim-tag" {tag_attr}></p></div>')
 
 
@@ -5492,6 +5541,14 @@ SEARCH_PAGE_TERMS = {
                             "sales trading asset management equity research IB S&T technicals behavioural",
     "break-into-wall-street/": "careers jobs internships spring week summer analyst off-cycle graduate programme recruiting CV resume "
                 "networking cold email visa OPT H-1B CFA investment banking sales trading asset management hedge funds",
+    "lab/options/": "options calls puts payoff strategy strike expiry break-even Black-Scholes Greeks delta gamma vega theta rho",
+    "lab/bonds/": "bonds price yield duration modified Macaulay convexity DV01 coupon yield to maturity",
+    "lab/risk-and-portfolio/": "risk correlation volatility beta efficient frontier diversification Sharpe position size "
+                               "stop loss value at risk VaR expected shortfall",
+    "lab/valuation-and-growth/": "valuation DCF discounted cash flow terminal value compound growth interest inflation "
+                                 "real return tax",
+    "simulators/market-replays/": "trading simulator panic test crash bear market replay market history game",
+    "simulators/strategy-games/": "guess the Fed rate decision cut hold hike portfolio builder 60/40 stocks bonds cash game",
 }
 
 # Live company data (the profile API) -------------------------------------------
@@ -5677,6 +5734,12 @@ SEARCH_PAGES = [
     ("Application tracker", "application-tracker/", "Page"),
     ("The Lab", "lab/", "Page"),
     ("Simulators", "simulators/", "Page"),
+    ("Options", "lab/options/", "Tools"),
+    ("Bonds", "lab/bonds/", "Tools"),
+    ("Risk & portfolio", "lab/risk-and-portfolio/", "Tools"),
+    ("Valuation & growth", "lab/valuation-and-growth/", "Tools"),
+    ("Market replays", "simulators/market-replays/", "Tools"),
+    ("Strategy games", "simulators/strategy-games/", "Tools"),
     ("Trading Simulator", "simulators/trading-simulator/", "Simulators"),
     ("Panic Test", "simulators/panic-test/", "Simulators"),
     ("Guess the Fed", "simulators/guess-the-fed/", "Simulators"),
@@ -5831,6 +5894,9 @@ def main():
         (OUT / path / "index.html").write_text(moved_redirect(path, to, title, text))
     (OUT / "lab").mkdir(exist_ok=True)
     (OUT / "lab" / "index.html").write_text(lab_index())
+    for _, theme, name, lede, slugs in TOOL_THEMES:
+        (OUT / theme).mkdir(parents=True, exist_ok=True)
+        (OUT / theme / "index.html").write_text(tool_theme_page(theme, name, lede, slugs))
     risk = risk_data()
     for i, t in enumerate(LAB_TOOLS):
         (OUT / "lab" / t[0]).mkdir(exist_ok=True)
