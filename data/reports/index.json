@@ -1,6 +1,17 @@
 {
   "reports": [
     {
+      "slug": "2026-86-anthropic-s1",
+      "date": "2026-11-03",
+      "type": "research",
+      "title": "Inside Anthropic’s S-1: The Numbers Behind the Largest AI IPO",
+      "summary": "Long-form research. Anthropic’s prospectus read for investors: $33.2 billion of revenue in nine months, a first operating profit, nearly $900 billion of committed spending and the Long-Term Benefit Trust.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 15
+    },
+    {
       "slug": "2026-85-midterms-election-day",
       "date": "2026-11-03",
       "type": "research",
