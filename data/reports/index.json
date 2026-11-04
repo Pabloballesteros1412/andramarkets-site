@@ -1,6 +1,17 @@
 {
   "reports": [
     {
+      "slug": "2026-87-palantir-q3",
+      "date": "2026-11-03",
+      "type": "research",
+      "title": "Palantir Q3 2026: The Best Quarter in Its History, and Why the Stock Fell",
+      "summary": "Long-form research. Revenue up 96% to $2.31 billion and guidance raised to 91% growth, yet the shares fell after hours. The quarter by segment, the pipeline, the valuation debate and what it says about AI demand.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 12
+    },
+    {
       "slug": "2026-86-anthropic-s1",
       "date": "2026-11-03",
       "type": "research",
