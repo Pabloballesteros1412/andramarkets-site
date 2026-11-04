@@ -566,7 +566,7 @@
       main.querySelector(".sim-head").outerHTML.replace('data-sim="tag"', "").replace(/<h1 class="sim-title">/, '<h1 class="sim-title" id="sim-final-title" tabindex="-1">') +
       '<section class="sim-v"><div><p class="sim-word' + (word.length > 6 ? " sim-word--long" : "") + '">' + word + '</p><p class="sim-sub">' + sub + '</p><div class="sim-act"><button class="btn" type="button" data-act="again">Play again</button><button class="btn btn--ghost" type="button" data-act="share" aria-expanded="false">Share</button></div></div>' +
       "<div>" + right + "</div></section>" +
-      '<section class="sim-share" data-act="panel" hidden><div><canvas class="sim-card" width="1200" height="630" role="img" aria-label="Share image: ' + esc(word) + ", " + esc(signed(pts, 1, " pts").text) + '"></canvas></div><div><p class="sim-text">' + esc(text) + " " + esc(link) + "</p>" +
+      '<section class="sim-share" data-act="panel" hidden><div><canvas class="sim-card" width="1200" height="630" role="img" aria-label="Share image: ' + esc(word) + ", " + esc(signed(pts, 1, " pts").text) + ", with the chart of your game against " + RIVAL + '"></canvas></div><div><p class="sim-text">' + esc(text) + " " + esc(link) + "</p>" +
       '<div class="sim-btns"><a class="btn btn--ghost btn--sm" target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(link) + '">LinkedIn</a>' +
       '<a class="btn btn--ghost btn--sm" target="_blank" rel="noopener" href="https://x.com/intent/post?text=' + encodeURIComponent(text) + "&url=" + encodeURIComponent(link) + '">X</a>' +
       '<a class="btn btn--ghost btn--sm" target="_blank" rel="noopener" href="https://wa.me/?text=' + encodeURIComponent(text + " " + link) + '">WhatsApp</a>' +
@@ -587,7 +587,7 @@
       var panel = fin.querySelector('[data-act="panel"]');
       panel.hidden = !panel.hidden;
       e.currentTarget.setAttribute("aria-expanded", panel.hidden ? "false" : "true");
-      if (!panel.hidden) drawCard(canvas, word, pts, share, game.trades, name);
+      if (!panel.hidden) drawCard(canvas, game, word, pts, share, name);
     });
     fin.querySelector('[data-act="copy"]').addEventListener("click", function () {
       var status = fin.querySelector(".sim-status");
@@ -614,49 +614,162 @@
     fin.querySelector("#sim-final-title").focus({ preventScroll: true });
   }
 
-  // The share image (owner-approved: black, 30 Oct 2026): the whole horse
-  // screen-blended on the dark ground, as on the site's social card.
-  var horse = new Image();
-  horse.src = BASE + "assets/andra-horse.png";
-  function drawCard(canvas, word, pts, share, trades, name) {
+  // The share image (owner-approved, 1 Nov 2026; black since 30 Oct): the
+  // mark and the wordmark, the word and the sentence across the top, and the
+  // game's chart the full width below it, drawn as on the end screen.
+  var mark = new Image();
+  mark.src = BASE + "assets/andra-mark-dark.png";
+  var CARD = { ground: "#0a0c0d", ink: "#e9eceb", ink2: "#a8b0b4", ink3: "#899196", grid: "rgba(233,236,235,0.09)", fill: "rgba(233,236,235,0.08)", up: "#1fd27a", down: "#ff4b52" };
+
+  // The chart in the box (bx, by, bw, bh): stretches out of the market as
+  // bands labelled at their top, the grid with its dollar labels, the rival
+  // dashed, your line heavy in the market and light out of it, then the strip.
+  function cardChart(ctx, game, bx, by, bw, bh, font) {
+    var span = game.n, lo = game.lo, hi = game.hi, pad = (hi - lo) * 0.06;
+    lo -= pad;
+    hi += pad;
+    var x = function (i) {
+      return bx + (i / span) * bw;
+    };
+    var y = function (v) {
+      return by + 8 + ((hi - v) / (hi - lo)) * (bh - 16);
+    };
+    var i, j, a = -1;
+    ctx.font = "400 18px " + font;
+    for (i = 0; i <= span; i++) {
+      var off = i < span && !game.pos[i];
+      if (off && a < 0) a = i;
+      if (!off && a >= 0) {
+        ctx.fillStyle = CARD.fill;
+        ctx.fillRect(x(a), by, x(i) - x(a), bh);
+        if (x(i) - x(a) > ctx.measureText(OUT_WORD).width + 16) {
+          ctx.fillStyle = CARD.ink2;
+          ctx.fillText(OUT_WORD, x(a) + 8, by + 24);
+        }
+        a = -1;
+      }
+    }
+    var st = niceStep(hi - lo);
+    for (var v = Math.ceil(lo / st) * st; v < hi; v += st) {
+      ctx.fillStyle = CARD.grid;
+      ctx.fillRect(bx, Math.round(y(v)), bw, 1);
+      ctx.fillStyle = CARD.ink3;
+      ctx.fillText(money(v), bx, y(v) - 7);
+    }
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = CARD.ink3;
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    for (i = 0; i <= span; i++) ctx[i ? "lineTo" : "moveTo"](x(i), y(game.idx[i]));
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.strokeStyle = CARD.ink;
+    var runStart = 0;
+    for (i = 1; i <= span; i++) {
+      if (i === span || game.pos[i] !== game.pos[runStart]) {
+        ctx.lineWidth = game.pos[runStart] ? 3.4 : 1.6;
+        ctx.beginPath();
+        for (j = runStart; j <= i; j++) ctx[j > runStart ? "lineTo" : "moveTo"](x(j), y(game.you[j]));
+        ctx.stroke();
+        runStart = i;
+      }
+    }
+    var sy = by + bh + 14;
+    a = 0;
+    for (i = 1; i <= span; i++) {
+      if (i === span || game.pos[i] !== game.pos[a]) {
+        ctx.fillStyle = game.pos[a] ? CARD.ink : CARD.ink3;
+        if (game.pos[a]) ctx.fillRect(x(a), sy, x(i) - x(a), 12);
+        else ctx.fillRect(x(a), sy + 5, x(i) - x(a), 2);
+        a = i;
+      }
+    }
+  }
+
+  // The key: your line, a band (only when you left the market), the rival.
+  function cardKey(ctx, kx, ky, font, trades) {
+    ctx.font = "400 20px " + font;
+    ctx.fillStyle = CARD.ink;
+    ctx.fillRect(kx, ky - 8.5, 22, 3);
+    ctx.fillStyle = CARD.ink2;
+    ctx.fillText("You", kx + 32, ky);
+    kx += 32 + ctx.measureText("You").width + 28;
+    if (trades) {
+      var out = PANIC ? "Sold" : "In cash";
+      ctx.fillStyle = CARD.fill;
+      ctx.fillRect(kx, ky - 16, 22, 20);
+      ctx.fillStyle = CARD.ink2;
+      ctx.fillText(out, kx + 32, ky);
+      kx += 32 + ctx.measureText(out).width + 28;
+    }
+    ctx.strokeStyle = CARD.ink3;
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(kx, ky - 7);
+    ctx.lineTo(kx + 22, ky - 7);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillText(PANIC ? "Holding on" : "The Index", kx + 32, ky);
+  }
+
+  // Runs of text, each with its colour and weight, wrapped word by word.
+  function cardWrap(ctx, runs, x0, y0, maxW, lh, fs, font) {
+    var x = x0, y = y0;
+    runs.forEach(function (r) {
+      r[0].split(/(?= )/).forEach(function (t) {
+        ctx.font = (r[2] || 400) + " " + fs + "px " + font;
+        var w = ctx.measureText(t).width;
+        if (x > x0 && x + w > x0 + maxW) {
+          x = x0;
+          y += lh;
+          t = t.replace(/^ /, "");
+          w = ctx.measureText(t).width;
+        }
+        ctx.fillStyle = r[1];
+        ctx.fillText(t, x, y);
+        x += w;
+      });
+    });
+  }
+
+  function drawCard(canvas, game, word, pts, share, name) {
     var ctx = canvas.getContext("2d");
     var font = '"Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif';
+    var m = signed(pts, 1, " pts");
+    var sub = [["I finished ", CARD.ink2], [m.text, m.cls === "mv--up" ? CARD.up : m.cls === "mv--down" ? CARD.down : CARD.ink, 500],
+      [PANIC ? " against holding on through a hidden " + name + " crash." : " against the " + name + (game.trades ? " and beat " + Math.round(share * 100) + "% of random players." : " and never left the market."), CARD.ink2]];
     function paint() {
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = "#0a0c0d";
+      ctx.fillStyle = CARD.ground;
       ctx.fillRect(0, 0, 1200, 630);
-      if (horse.complete && horse.naturalWidth) {
-        ctx.globalCompositeOperation = "screen";
-        ctx.globalAlpha = 0.55;
-        ctx.drawImage(horse, 560, -105, 840, 840);
-        ctx.globalAlpha = 1;
-        ctx.globalCompositeOperation = "source-over";
+      var bx = 64;
+      if (mark.complete && mark.naturalWidth) {
+        ctx.drawImage(mark, 64, 52, 30, 34);
+        bx = 104;
       }
-      ctx.fillStyle = "#e9eceb";
-      ctx.font = "650 30px " + font;
-      ctx.fillText("Andra Markets", 64, 92);
-      ctx.font = "560 " + (word.length > 6 ? 140 : 168) + "px " + font;
-      ctx.fillText(word + ".", 56, 330);
-      var m = signed(pts, 1, " pts"), x = 64;
-      ctx.font = "400 34px " + font;
-      ctx.fillStyle = "#a8b0b4";
-      ctx.fillText("I finished ", x, 410);
-      x += ctx.measureText("I finished ").width;
-      ctx.font = "500 34px " + font;
-      ctx.fillStyle = m.cls === "mv--up" ? "#1fd27a" : m.cls === "mv--down" ? "#ff4b52" : "#e9eceb";
-      ctx.fillText(m.text, x, 410);
-      x += ctx.measureText(m.text).width;
-      ctx.font = "400 34px " + font;
-      ctx.fillStyle = "#a8b0b4";
-      ctx.fillText(PANIC ? " against holding on" : " against the " + name, x, 410);
-      ctx.fillText(PANIC ? "through a hidden " + name + " crash." : trades ? "and beat " + Math.round(share * 100) + "% of random players." : "and never left the market.", 64, 458);
-      ctx.font = "400 24px " + font;
-      ctx.fillText((PANIC ? "Panic Test" : "Trading Simulator") + ", on Andra Markets", 64, 566);
+      ctx.fillStyle = CARD.ink;
+      ctx.font = "650 28px " + font;
+      ctx.fillText("Andra Markets", bx, 80);
+      var size = 124;
+      ctx.font = "560 " + size + "px " + font;
+      while (ctx.measureText(word + ".").width > 430 && size > 60) {
+        size -= 4;
+        ctx.font = "560 " + size + "px " + font;
+      }
+      ctx.fillText(word + ".", 56, 214);
+      cardWrap(ctx, sub, 520, 136, 616, 40, 30, font);
+      cardChart(ctx, game, 64, 262, 1072, 254, font);
+      cardKey(ctx, 64, 590, font, game.trades);
+      ctx.font = "400 20px " + font;
+      ctx.fillStyle = CARD.ink2;
+      var foot = (PANIC ? "Panic Test" : "Trading Simulator") + ", on Andra Markets";
+      ctx.fillText(foot, 1136 - ctx.measureText(foot).width, 590);
     }
     paint();
-    horse.addEventListener("load", paint, { once: true });
+    mark.addEventListener("load", paint, { once: true });
     if (document.fonts && document.fonts.load) {
-      Promise.all([document.fonts.load("560 168px 'Schibsted Grotesk'"), document.fonts.load("400 34px 'Schibsted Grotesk'")]).then(paint, function () {});
+      Promise.all([document.fonts.load("560 124px 'Schibsted Grotesk'"), document.fonts.load("400 30px 'Schibsted Grotesk'"), document.fonts.load("650 28px 'Schibsted Grotesk'")]).then(paint, function () {});
     }
   }
 

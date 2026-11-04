@@ -7,8 +7,8 @@ cookie, a vendor or the newsletter changes, change the privacy policy too.
 Both should be reviewed by a qualified lawyer before the paid tier opens.
 """
 
-LEGAL_UPDATED = "2026-10-30"
-PRIVACY_UPDATED = "2026-10-30"
+LEGAL_UPDATED = "2026-11-02"
+PRIVACY_UPDATED = "2026-11-02"
 
 LEGAL = [
     ("publisher", "Who publishes this site",
@@ -38,17 +38,23 @@ LEGAL = [
      "change without notice, and Andra Markets has no obligation to update a report after it is "
      "published.</p>"
      "<p>Reports are produced with an automated pipeline: the figures are collected from the sources listed "
-     "on the <a href=\"../sources/\">data sources</a> page, the text is drafted with the help of a language "
-     "model and every figure in it is checked against the session's verified data before publication. "
-     "The <a href=\"../methodology/\">methodology</a> explains the process.</p>"
-     "<p>Interview Prep model answers and Learn explainers are educational. Lab tools, backtests and "
-     "diagrams marked Illustrative are hypothetical and are not a record of any real portfolio.</p>"),
+     "on the <a href=\"../sources/\">data sources</a> page, the text is drafted by a language model and "
+     "every figure in it is checked against the session's verified data before publication. Every page "
+     "whose text is machine-drafted says so where it is read, as the EU Artificial Intelligence Act "
+     "(Regulation (EU) 2024/1689, Article 50) requires. The <a href=\"../methodology/\">methodology</a> "
+     "explains the process.</p>"
+     "<p>Illustrations in research reports may be generated with AI tools; each report says so in its "
+     "methodology. They are artwork, not photographs, and do not depict real events.</p>"
+     "<p>Interview Prep model answers, Break into Wall Street and the technical training pages are "
+     "educational. Lab tools, simulators, backtests and diagrams marked Illustrative are hypothetical and "
+     "are not a record of any real portfolio.</p>"),
 
     ("conflicts", "Conflicts of interest",
-     "<p>Andra Markets receives no payment from the companies or issuers it writes about, and publishes no "
-     "sponsored research. Where Andra Markets or its operator holds a position in an instrument that a "
-     "report discusses specifically, the report says so. Andra Markets does not trade on a report before "
-     "it is published.</p>"),
+     "<p>Andra Markets receives no payment from anyone: not from the companies or issuers it writes about, "
+     "nor from any data provider, broker or platform, and it publishes no sponsored research.</p>"
+     "<p>Neither Andra Markets nor its operator holds a position in any instrument the reports discuss "
+     "specifically. If that ever changes, the report concerned will say so clearly, and no one at Andra "
+     "Markets will trade on a report before it is published.</p>"),
 
     ("performance", "Past performance and forecasts",
      "<p>Past performance is not a reliable indicator of future results. The value of investments and the "
@@ -88,10 +94,12 @@ LEGAL = [
 
     ("eu", "Users in the European Union",
      "<p>Andra Markets is not an investment firm under MiFID II and is not registered with the CNMV or any "
-     "other national competent authority. Where a report contains an opinion on a specific issuer or "
-     "instrument, it is prepared with the disclosures the Market Abuse Regulation (EU) No 596/2014 asks of "
-     "investment recommendations: who produced it, its date, its sources, the difference between facts and "
-     "opinions, and any conflicts of interest.</p>"),
+     "other national competent authority. Its content is market commentary and education, not investment "
+     "recommendations under the Market Abuse Regulation (EU) No 596/2014: it does not tell readers to buy, "
+     "sell or hold any instrument, sets no price targets and gives no view on what a specific instrument "
+     "is worth or where its price will go. If Andra Markets ever publishes such a recommendation, it will "
+     "carry every disclosure that Regulation and Delegated Regulation (EU) 2016/958 require, including the "
+     "identity of the person who produced it.</p>"),
 
     ("links", "Links to other websites",
      "<p>The site links to third-party websites, such as data publishers and the Andra Markets pages on "
@@ -112,30 +120,51 @@ LEGAL = [
 
 PRIVACY = [
     ("controller", "Who is responsible",
-     "<p>Andra Markets, based in Spain, is responsible for any personal data processed through this site, "
-     "under the General Data Protection Regulation (EU) 2016/679 and Spanish Organic Law 3/2018. Contact: "
-     "<a href=\"mailto:andramarkets@gmail.com\">andramarkets@gmail.com</a>. The site collects almost no personal data (see below); when that changes, this "
-     "policy will give the full identity of the controller first.</p>"),
+     "<p>Andra Markets is run by Pablo Ballesteros S&aacute;nchez, based in Spain, who is the controller of "
+     "any personal data processed through this site under the General Data Protection Regulation (EU) "
+     "2016/679 and Spanish Organic Law 3/2018. Contact: "
+     "<a href=\"mailto:andramarkets@gmail.com\">andramarkets@gmail.com</a>. The site collects almost no "
+     "personal data (see below).</p>"),
 
     ("collect", "What we collect",
      "<p>Very little. The site has no accounts, no analytics, no advertising and no tracking pixels, and "
      "Andra Markets sets no cookies.</p>"
-     "<p>The email signup form does not send or store your address yet: the newsletter has not launched. "
-     "When it does, this policy will name the newsletter platform and explain how your address is used "
-     "before any address is collected.</p>"),
+     "<p>The site does not collect email addresses. If a newsletter launches, this policy will name the "
+     "newsletter platform and explain how your address is used before any address is collected.</p>"),
 
     ("storage", "Cookies and storage on your device",
-     "<p>When you switch between the light and dark theme, your choice is kept in your browser's local "
-     "storage under the name <b>andra-theme</b>, so the site opens in the same theme next time. It "
-     "stays on your device, is never sent to us, and is used only because you asked for it: storage that is "
-     "strictly necessary for a service you request is exempt from consent under Article 22.2 of the LSSI, so "
-     "the site shows no cookie banner. You can clear it in your browser settings at any time.</p>"),
+     "<p>Andra Markets sets no cookies. A few features keep a small note in your browser's storage so they "
+     "work as you expect. Each one stays on your device, is never sent to us or to anyone else and is used "
+     "only for the feature you are using. Only the Application tracker can hold personal details, and only "
+     "those you type into it:</p>"
+     "<ul class=\"ruled\">"
+     "<li><b>andra-theme</b> (local storage): the light or dark theme you chose, so the site opens in the "
+     "same theme next time.</li>"
+     "<li><b>andra-tq-</b> and <b>andra-md-</b> followed by the topic (local storage): your progress on the "
+     "practice cards and your best score in the mental maths drill on the technical training pages.</li>"
+     "<li><b>andra-sim-games</b>, <b>andra-panic-games</b> and <b>andra-fed-games</b> (local storage): your "
+     "last results in the simulators, so you can compare your games.</li>"
+     "<li><b>andra-isim</b> (local storage): your progress and results in the Interview simulator, so you "
+     "can resume an interview and see how you did by topic.</li>"
+     "<li><b>andra-tracker</b> (local storage): the applications you add to the Application tracker, with "
+     "their dates, status, next steps, notes and any contacts you type in. You can export them to a file, "
+     "import that file again, or delete them in the tracker or in your browser.</li>"
+     "<li><b>andra-arrive</b>, <b>andra-move</b> and <b>andra-scene</b> (session storage): how you moved to "
+     "another page and where the background animation was, so it carries on smoothly. They are deleted when "
+     "you close the tab.</li>"
+     "</ul>"
+     "<p>Storage that is strictly necessary for a service you request is exempt from consent under Article "
+     "22.2 of the LSSI, so the site shows no cookie banner. You can clear it in your browser settings at "
+     "any time; the site keeps working, and only your theme, progress, results and tracker entries are "
+     "reset.</p>"),
 
     ("hosting", "Hosting and service providers",
      "<ul class=\"ruled\">"
      "<li><b>GitHub Pages</b> (GitHub, Inc., United States) serves this site. Like any web server it "
      "processes your IP address and request details to deliver pages and protect the service, under "
      "GitHub's privacy statement.</li>"
+     "<li><b>Gmail</b> (Google) hosts the Andra Markets mailbox: if you write to us, your message and "
+     "address are stored there, under Google's privacy policy.</li>"
      "<li><b>Cloudflare Workers</b> (Cloudflare, Inc., United States) runs the Andra Markets data service "
      "behind the company pages. When you look up a company, the ticker is passed to Finnhub and Financial "
      "Modeling Prep to fetch its figures; no personal data is sent to them. Cloudflare processes your IP "
@@ -147,10 +176,13 @@ PRIVACY = [
      "apply.</p>"),
 
     ("basis", "Legal basis, retention and transfers",
-     "<p>Server data is processed for the legitimate interest of delivering a secure website, and kept by "
-     "the providers above for the periods their own policies set. If you email us, we use your message "
-     "only to reply and keep it no longer than needed. Providers in the United States receive data under "
-     "the safeguards they offer, such as the EU-US Data Privacy Framework or standard contractual "
+     "<p>Server data is processed for the legitimate interest of delivering a secure website (Article "
+     "6(1)(f) GDPR), and kept by the providers above for the periods their own policies set. If you email "
+     "us, your message is used only to reply, on the same legitimate interest of answering you, and is "
+     "deleted within 12 months of the last message, unless it is needed for a legal claim. Writing to us is "
+     "voluntary: it is the only way you give us personal data. No decision about you is made by automated "
+     "means and no profile of you is built. Providers in the United States receive data under the "
+     "safeguards they offer, such as the EU-US Data Privacy Framework or standard contractual "
      "clauses.</p>"),
 
     ("rights", "Your rights",

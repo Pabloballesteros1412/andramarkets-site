@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<base href="/dashboards/">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proposal 2: grouped menu</title>
+<meta name="description" content="Interactive views across rates, equities, macro and cross-asset, each with its source and date.">
+<meta name="theme-color" content="#0a0c0d">
+<script>(function(){var t='dark';try{var q=new URLSearchParams(location.search).get('theme');if(q==='light'||q==='dark'){t=q;localStorage.setItem('andra-theme',q)}else{var s=localStorage.getItem('andra-theme');if(s==='light'||s==='dark')t=s}}catch(e){}document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0a0c0d':'#ffffff'})();</script>
+<link rel="icon" href="../assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="../assets/favicon-48.png" sizes="48x48" type="image/png">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Andra Markets">
+<meta property="og:title" content="Dashboards: Andra Markets">
+<meta property="og:description" content="Interactive views across rates, equities, macro and cross-asset, each with its source and date.">
+<meta property="og:image" content="../assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Andra Markets engraved horse beside the line Markets, on the record.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" href="../assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css?v=13204eebbf">
+<script type="speculationrules">{"prefetch":[{"where":{"and":[{"href_matches":"/*"},{"not":{"selector_matches":"a[href$=\".pdf\"], a[download], a[target]"}}]},"eagerness":"moderate"}]}</script>
+<link rel="stylesheet" href="/docs/proposals/proposal.css">
+<meta name="robots" content="noindex">
+</head>
+<body data-base="../" class="has-scene">
+<div class="scene" aria-hidden="true"><canvas class="scene__canvas" data-src="../assets/section-horse.png?v=1d91663f9c"></canvas></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-warning-circle" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"/></symbol><symbol id="i-arrow-right" viewBox="0 0 256 256"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></symbol><symbol id="i-arrow-up-right" viewBox="0 0 256 256"><path d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"/></symbol><symbol id="i-list" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"/></symbol><symbol id="i-x" viewBox="0 0 256 256"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></symbol><symbol id="i-sun" viewBox="0 0 256 256"><path d="M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm72,88a64,64,0,1,1-64-64A64.07,64.07,0,0,1,192,128Zm-16,0a48,48,0,1,0-48,48A48.05,48.05,0,0,0,176,128ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z"/></symbol><symbol id="i-moon" viewBox="0 0 256 256"><path d="M233.54,142.23a8,8,0,0,0-8-2,88.08,88.08,0,0,1-109.8-109.8,8,8,0,0,0-10-10,104.84,104.84,0,0,0-52.91,37A104,104,0,0,0,136,224a103.09,103.09,0,0,0,62.52-20.88,104.84,104.84,0,0,0,37-52.91A8,8,0,0,0,233.54,142.23ZM188.9,190.34A88,88,0,0,1,65.66,67.11a89,89,0,0,1,31.4-26A106,106,0,0,0,96,56,104.11,104.11,0,0,0,200,160a106,106,0,0,0,14.92-1.06A89,89,0,0,1,188.9,190.34Z"/></symbol><symbol id="i-magnifying-glass" viewBox="0 0 256 256"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></symbol><symbol id="i-check" viewBox="0 0 256 256"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></symbol><symbol id="i-link" viewBox="0 0 256 256"><path d="M240,88.23a54.43,54.43,0,0,1-16,37L189.25,160a54.27,54.27,0,0,1-38.63,16h-.05A54.63,54.63,0,0,1,96,119.84a8,8,0,0,1,16,.45A38.62,38.62,0,0,0,150.58,160h0a38.39,38.39,0,0,0,27.31-11.31l34.75-34.75a38.63,38.63,0,0,0-54.63-54.63l-11,11A8,8,0,0,1,135.7,59l11-11A54.65,54.65,0,0,1,224,48,54.86,54.86,0,0,1,240,88.23ZM109,185.66l-11,11A38.41,38.41,0,0,1,70.6,208h0a38.63,38.63,0,0,1-27.29-65.94L78,107.31A38.63,38.63,0,0,1,144,135.71a8,8,0,0,0,16,.45A54.86,54.86,0,0,0,144,96a54.65,54.65,0,0,0-77.27,0L32,130.75A54.62,54.62,0,0,0,70.56,224h0a54.28,54.28,0,0,0,38.64-16l11-11A8,8,0,0,0,109,185.66Z"/></symbol><symbol id="i-pause" viewBox="0 0 256 256"><path d="M72,40h32a8,8,0,0,1,8,8V208a8,8,0,0,1-8,8H72a8,8,0,0,1-8-8V48A8,8,0,0,1,72,40Zm80,0h32a8,8,0,0,1,8,8V208a8,8,0,0,1-8,8H152a8,8,0,0,1-8-8V48A8,8,0,0,1,152,40Z"/></symbol><symbol id="i-play" viewBox="0 0 256 256"><path d="M72,39.9V216.1a8,8,0,0,0,12.2,6.8l141-88.1a8,8,0,0,0,0-13.6l-141-88.1A8,8,0,0,0,72,39.9Z"/></symbol><symbol id="i-linkedin-logo" viewBox="0 0 256 256"><path d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24Zm0,192H40V40H216V216ZM96,112v64a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0Zm88,28v36a8,8,0,0,1-16,0V140a20,20,0,0,0-40,0v36a8,8,0,0,1-16,0V112a8,8,0,0,1,15.79-1.78A36,36,0,0,1,184,140ZM100,84A12,12,0,1,1,88,72,12,12,0,0,1,100,84Z"/></symbol><symbol id="i-tiktok-logo" viewBox="0 0 256 256"><path d="M224,72a48.05,48.05,0,0,1-48-48,8,8,0,0,0-8-8H128a8,8,0,0,0-8,8V156a20,20,0,1,1-28.57-18.08A8,8,0,0,0,96,130.69V88a8,8,0,0,0-9.4-7.88C50.91,86.48,24,119.1,24,156a76,76,0,0,0,152,0V116.29A103.25,103.25,0,0,0,224,128a8,8,0,0,0,8-8V80A8,8,0,0,0,224,72Zm-8,39.64a87.19,87.19,0,0,1-43.33-16.15A8,8,0,0,0,160,102v54a60,60,0,0,1-120,0c0-25.9,16.64-49.13,40-57.6v27.67A36,36,0,1,0,136,156V32h24.5A64.14,64.14,0,0,0,216,87.5Z"/></symbol></svg>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header has-panel">
+  <div class="wrap">
+    <a class="brand" href="../" aria-label="Andra Markets, home">
+      <span class="brand__mark"><img class="brand__mark--light" src="../assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="../assets/andra-mark-dark.png" alt="" width="140" height="160"></span>
+      <span class="brand__name">Andra Markets</span>
+    </a>
+    <nav class="gnav" aria-label="Primary"><button class="gnav__btn" type="button" aria-expanded="true" aria-controls="mega-0">Markets<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg></button><button class="gnav__btn" type="button" aria-expanded="false" aria-controls="mega-1">Tools<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg></button><button class="gnav__btn" type="button" aria-expanded="false" aria-controls="mega-2">Research<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg></button><button class="gnav__btn" type="button" aria-expanded="false" aria-controls="mega-3">Careers<svg viewBox="0 0 256 256" aria-hidden="true"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg></button></nav>
+    <nav class="nav nav--old" id="site-nav" aria-label="Primary">
+      <a href="../dashboards/">Dashboards</a>
+      <a href="../fed-rates/">Fed &amp; Rates</a>
+      <a href="../companies/">Companies</a>
+      <a href="../lab/">Lab</a>
+      <a href="../simulators/">Simulators</a>
+      <a href="../calendar/">Calendar</a>
+      <a href="../world/">World</a>
+      <a href="../fx/">FX</a>
+      <a href="../research/">Research</a>
+      <a href="../reports/">Daily note</a>
+      <a href="../interview-prep/">Interview prep</a>
+      <a href="../break-into-wall-street/">Break into Wall Street</a>
+    </nav>
+    <button class="search-btn search-btn--wide" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets">
+      <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
+    </button>
+    <button class="theme-btn" type="button" aria-label="Switch to light theme">
+      <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
+      <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
+    </button>
+    
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
+      <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
+    </button>
+  </div>
+</header>
+<div class="mega-shade" aria-hidden="true"></div><div class="mega" id="mega-0"><div class="wrap"><div class="mega__intro"><h2>Markets</h2><p>Prices, rates and what is coming, with each figure's source and date.</p></div><ul class="mega__links"><li><a href="/dashboards/"><b>Dashboards<svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></b><span>Nine views across rates, equities, macro and cross-asset.</span></a></li><li><a href="/fed-rates/"><b>Fed &amp; Rates<svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></b><span>Policy rate, FOMC odds and countdown, the Treasury curve.</span></a></li><li><a href="/calendar/"><b>Calendar<svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></b><span>Releases, central banks and earnings, five weeks ahead.</span></a></li><li><a href="/world/"><b>World<svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></b><span>Twenty-five markets compared on the same scale.</span></a></li><li><a href="/fx/"><b>FX<svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></b><span>The dollar, the G10 majors and emerging-market currencies.</span></a></li><li><a href="/companies/"><b>Companies<svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></b><span>Earnings and figures for 600 companies.</span></a></li></ul></div></div><nav class="gsheet" aria-label="Primary"><h2>Markets</h2><div class="two"><a href="/dashboards/">Dashboards</a><a href="/fed-rates/">Fed &amp; Rates</a><a href="/calendar/">Calendar</a><a href="/world/">World</a><a href="/fx/">FX</a><a href="/companies/">Companies</a></div><h2>Tools</h2><div><a href="/lab/">Lab</a><a href="/simulators/">Simulators</a></div><h2>Research</h2><div><a href="/reports/">Daily note</a><a href="/research/">Research Library</a></div><h2>Careers</h2><div><a href="/interview-prep/">Interview prep</a><a href="/break-into-wall-street/">Break into Wall Street</a></div></nav>
+
+<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Dashboards</h1>
+      <p class="lede">Interactive views across rates, equities, macro and cross-asset. Each preview names its source and date.</p>
+    </header>
+    <section class="dash dash-index" aria-label="All dashboards">
+      <div class="filters" role="group" aria-label="Filter dashboards by category"><button type="button" class="chip" data-filter="all" data-label="All" aria-pressed="true">All <span class="chip__n">9</span></button><button type="button" class="chip" data-filter="rates" data-label="Rates and credit" aria-pressed="false">Rates <span class="chip__n">1</span></button><button type="button" class="chip" data-filter="macro" data-label="Macro and the Fed" aria-pressed="false">Macro <span class="chip__n">1</span></button><button type="button" class="chip" data-filter="equities" data-label="Equities" aria-pressed="false">Equities <span class="chip__n">3</span></button><button type="button" class="chip" data-filter="cross" data-label="Cross-asset" aria-pressed="false">Cross-asset <span class="chip__n">4</span></button></div>
+      <p class="filters__status" role="status" aria-live="polite">Showing all 9 dashboards</p>
+      <ul class="dash-grid"><li class="dash-tile reveal" data-cat="equities" style="--i:0"><a href="sector-heatmap/" class="dash-tile__link"><div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p><div class="dash-tile__text"><h3>Sector heatmap</h3><p class="dash-tile__desc">Every S&amp;P 500 sector, ranked by the day's move.</p><p class="dash-tile__src">Equities. Yahoo Finance, sector ETFs.</p></div><span class="dash-tile__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></a></li><li class="dash-tile reveal" data-cat="cross" style="--i:1"><a href="volatility-term-structure/" class="dash-tile__link"><div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p><div class="dash-tile__text"><h3>Volatility term structure</h3><p class="dash-tile__desc">Implied volatility across expiries, and how its shape is shifting.</p><p class="dash-tile__src">Cross-asset. Cboe, Yahoo Finance.</p></div><span class="dash-tile__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></a></li><li class="dash-tile reveal" data-cat="equities" style="--i:2"><a href="global-indices/" class="dash-tile__link"><div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p><div class="dash-tile__text"><h3>Global indices</h3><p class="dash-tile__desc">Major equity benchmarks across the US, Europe and Asia.</p><p class="dash-tile__src">Equities. Yahoo Finance, local closes.</p></div><span class="dash-tile__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></a></li><li class="dash-tile reveal" data-cat="cross" style="--i:0"><a href="fx-majors/" class="dash-tile__link"><div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p><div class="dash-tile__text"><h3>FX majors</h3><p class="dash-tile__desc">The dollar against the major currencies.</p><p class="dash-tile__src">Cross-asset. Yahoo Finance.</p></div><span class="dash-tile__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></a></li><li class="dash-tile reveal" data-cat="cross" style="--i:1"><a href="commodities/" class="dash-tile__link"><div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p><div class="dash-tile__text"><h3>Commodities</h3><p class="dash-tile__desc">Oil and gold, rebased to the same start.</p><p class="dash-tile__src">Cross-asset. Futures, Yahoo Finance.</p></div><span class="dash-tile__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></a></li><li class="dash-tile reveal" data-cat="rates" style="--i:2"><a href="credit-spreads/" class="dash-tile__link"><div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p><div class="dash-tile__text"><h3>Credit spreads</h3><p class="dash-tile__desc">High yield and investment grade spreads over Treasuries.</p><p class="dash-tile__src">Rates and credit. ICE BofA, FRED.</p></div><span class="dash-tile__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></a></li><li class="dash-tile reveal" data-cat="macro" style="--i:0"><a href="inflation-and-labour/" class="dash-tile__link"><div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p><div class="dash-tile__text"><h3>Inflation and labour</h3><p class="dash-tile__desc">Inflation prints alongside the monthly jobs report.</p><p class="dash-tile__src">Macro and the Fed. BLS, FRED.</p></div><span class="dash-tile__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></a></li><li class="dash-tile reveal" data-cat="equities" style="--i:1"><a href="watchlist-breadth/" class="dash-tile__link"><div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p><div class="dash-tile__text"><h3>Watchlist breadth</h3><p class="dash-tile__desc">Advancers less decliners across the Andra Markets watchlist of US large caps, session by session.</p><p class="dash-tile__src">Equities. Andra Markets watchlist, Yahoo Finance.</p></div><span class="dash-tile__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></a></li><li class="dash-tile reveal" data-cat="cross" style="--i:2"><a href="cross-asset-correlation/" class="dash-tile__link"><div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p><div class="dash-tile__text"><h3>Cross-asset correlation</h3><p class="dash-tile__desc">How stocks, bonds, the dollar and commodities move together.</p><p class="dash-tile__src">Cross-asset. Yahoo Finance, daily returns.</p></div><span class="dash-tile__go"><svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></span></a></li></ul>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap grid">
+    <div class="foot__brand">
+      <a class="brand" href="../" aria-label="Andra Markets, home">
+        <span class="brand__mark"><img class="brand__mark--light" src="../assets/andra-mark-light.png" alt="" width="140" height="160" loading="lazy"><img class="brand__mark--dark" src="../assets/andra-mark-dark.png" alt="" width="140" height="160" loading="lazy"></span>
+        <span class="brand__name">Andra Markets</span>
+      </a>
+      <p>Research on US and global markets.</p>
+    </div>
+    <nav class="foot__nav" aria-label="Footer">
+      <a href="../dashboards/">Dashboards</a>
+      <a href="../fed-rates/">Fed &amp; Rates</a>
+      <a href="../companies/">Companies</a>
+      <a href="../lab/">Lab</a>
+      <a href="../simulators/">Simulators</a>
+      <a href="../calendar/">Calendar</a>
+      <a href="../world/">World markets</a>
+      <a href="../fx/">FX</a>
+      <a href="../research/">Research Library</a>
+      <a href="../reports/">Daily note</a>
+      <a href="../interview-prep/">Interview prep</a>
+      <a href="../break-into-wall-street/">Break into Wall Street</a>
+      <a href="../methodology/">Methodology</a>
+      <a href="../sources/">Data sources</a>
+      <a href="../legal/">Legal notice</a>
+      <a href="../privacy/">Privacy and cookies</a>
+    </nav>
+    <ul class="foot__social" aria-label="Andra Markets on social media">
+      <li><a href="https://www.linkedin.com/company/andramarkets/" rel="me"><svg class="icon" aria-hidden="true"><use href="#i-linkedin-logo"/></svg>LinkedIn</a></li>
+      <li><a href="https://www.tiktok.com/@andramarkets" rel="me"><svg class="icon" aria-hidden="true"><use href="#i-tiktok-logo"/></svg>TikTok</a></li>
+    </ul>
+    <div class="foot__legal">
+      <span>&copy; <span class="ph">[year]</span> Andra Markets</span>
+      <span><a href="../legal/">For information only. Not investment advice.</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/site.js?v=3e266f9551" defer></script><script src="../assets/section-scene.js?v=f1893e411a" defer></script>
+</body>
+</html>

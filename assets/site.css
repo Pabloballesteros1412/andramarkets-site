@@ -16,21 +16,25 @@
   --section: clamp(88px, 12vh, 152px);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --horse-size: min(167svh, 200vw);
+  --horse-size: min(116svh, 96vw);
   /* The Lab plate is dark in both themes, so its chart colours are fixed. */
   --plate-up: #1fd27a;
   --plate-down: #ff4b52;
   --plate-up-tint: rgba(31, 210, 122, 0.3);
   --plate-down-tint: rgba(255, 75, 82, 0.3);
-  --horse-x: 63%;
-  --horse-y: 50%;
+  /* the horse in the middle (owner-approved, 1 Nov 2026; it was 70% across, on the right):
+     the centre of its silhouette (x 513 of the engraving's 1024px; the box's anchor is 502)
+     on the page's centre line, and halfway between the phrase and the foot of the screen,
+     following the hero's top padding (the short-screen rules below set their own) */
+  --horse-x: calc(50% - 0.0107 * var(--horse-size));
+  --horse-y: calc(50% + 32px + clamp(12px, 3vh, 36px) + 11px);
 }
 
-/* Light: cool off-white paper, ink type, the horse printed as an engraving. */
+/* Light: pure white paper, ink type, the horse printed as an engraving. */
 :root,
 :root[data-theme="light"] {
   color-scheme: light;
-  --ground: #f4f6f6;
+  --ground: #ffffff;
   --ground-2: #e9eded;
   --ink: #0e1215;
   --ink-2: #424a50;
@@ -38,7 +42,7 @@
   --rule: rgba(14, 18, 21, 0.15);
   --rule-strong: rgba(14, 18, 21, 0.78);
   --btn-bg: #0e1215;
-  --btn-fg: #f4f6f6;
+  --btn-fg: #ffffff;
   --btn-hover: #2a3036;
   --plate: #0e1215;
   --plate-2: #191f23;
@@ -315,10 +319,106 @@ ul {
     border-color 240ms ease;
 }
 
+/* Section pages: the black sphere and the backlit horse behind everything (assets/section-scene.js,
+   owner-approved 31 Oct 2026). Fixed behind the page, under the header too. Dark: pure black.
+   Light: the same scene inverted, white with dark particles. */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+
+.scene.is-live {
+  opacity: 1;
+}
+
+/* arriving from the homepage, or from another section: the sphere is there at once (it opens
+   out of the point, or carries on from the page before) */
+.scene.is-now {
+  transition: none;
+}
+
+.scene__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+:root:not([data-theme="dark"]) .scene__canvas {
+  filter: invert(1);
+}
+
+/* the body's own ground would cover the scene; the page's ground stays on html */
+body.has-scene {
+  background: transparent;
+}
+
+:root[data-theme="dark"]:has(body.has-scene) {
+  --ground: #000000;
+}
+
+/* the header stays clear over the scene; once the page scrolls, a shade behind the menu keeps
+   it readable over the content, and the scene still shows through it */
+.has-scene .site-header.is-solid:not(.is-open) {
+  background: transparent;
+  border-bottom-color: transparent;
+}
+
+.has-scene .site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -28px;
+  z-index: -1;
+  background: var(--ground);
+  background: linear-gradient(var(--ground) 0%, color-mix(in srgb, var(--ground) 86%, transparent) 62%, transparent);
+  opacity: 0;
+  transition: opacity 240ms ease;
+  pointer-events: none;
+}
+
+.has-scene .site-header.is-solid::before {
+  opacity: 1;
+}
+
 .site-header.is-solid,
 .site-header.is-open {
   background: var(--ground);
   border-bottom-color: var(--rule);
+}
+
+/* Section pages: the open menu (its panel above 960px, the sheet below) keeps the sphere in
+   view (owner, 31 Oct 2026). The header and the menu stay clear over the scene, and the page
+   itself fades out behind them while the menu is open, so the links read over the particles. */
+.has-scene .site-header.is-open {
+  background: transparent;
+}
+
+.has-scene .site-header.is-open::before {
+  opacity: 0;
+}
+
+.has-scene .nav__panel {
+  background: transparent;
+}
+
+/* Without JavaScript the page cannot fade out behind an open panel, so the panel keeps
+   its ground. */
+html:not(.js) .has-scene .nav__panel {
+  background: var(--ground);
+}
+
+.has-scene main,
+.has-scene .site-footer {
+  transition: opacity 200ms var(--ease-out);
+}
+
+.has-scene:has(.site-header.is-open) main,
+.has-scene:has(.site-header.is-open) .site-footer {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .site-header .wrap {
@@ -344,6 +444,22 @@ ul {
 .brand__name {
   position: relative;
   z-index: 1;
+  text-decoration: none;
+}
+
+/* The header's mark is the theme switch (owner, 1 Nov 2026; it replaced the sun and moon
+   button). It looks exactly like the mark: the padding, taken back by the negative margin,
+   only widens what a finger or pointer can hit (at least 44px tall) without moving anything. */
+.brand__toggle {
+  box-sizing: content-box;
+  margin: -9px -5px -9px -10px;
+  padding: 9px 5px 9px 10px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Transparent marks (tools/make_mark.py), one per theme: no box, no blend.
@@ -366,43 +482,476 @@ ul {
   display: none;
 }
 
+/* The menu in four groups (owner-approved, 31 Oct 2026): Markets, Tools, Research, Careers.
+   Above 960px each group is a button that opens a panel the width of the page under the
+   header: the group's name and a line on the left, its links in ruled rows on the right,
+   each with a line of its own. At 960px and below the same markup is the menu sheet. */
 .nav {
   display: flex;
-  gap: 16px;
-  font-size: 0.875rem;
+  gap: clamp(20px, 2.6vw, 40px);
 }
 
 .nav__subscribe {
   display: none;
 }
 
-.nav a {
-  text-decoration: none;
-  white-space: nowrap;
+.nav__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
   color: var(--ink-2);
-  transition: color 160ms ease;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 550;
+  white-space: nowrap;
+  cursor: pointer;
+  text-decoration: underline 1px transparent;
+  text-underline-offset: 0.5em;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
 }
 
-/* Thirteen links fit on one line beside the search icon, theme and Subscribe
-   buttons from 1301px; below that they move to the menu sheet. Sizes measured
-   in Chromium at every width from 1301px to 1920px. */
-@media (min-width: 1301px) and (max-width: 1539px) {
-  .nav {
-    gap: 10px;
-    font-size: 0.8125rem;
+.nav__caret {
+  font-size: 0.75em;
+  transition: transform 200ms var(--ease-out);
+}
+
+.nav__btn[aria-expanded="true"] {
+  color: var(--ink);
+  text-decoration-color: var(--ink);
+}
+
+.nav__btn[aria-expanded="true"] .nav__caret {
+  transform: rotate(180deg);
+}
+
+.nav__panel {
+  position: fixed;
+  inset: var(--nav-h) 0 auto;
+  padding: 32px 0 40px;
+  background: var(--ground);
+  border-bottom: 1px solid var(--rule);
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out),
+    visibility 0s linear 200ms;
+}
+
+.nav__group.is-open .nav__panel {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out),
+    visibility 0s;
+}
+
+/* Without JavaScript the panels open on hover and keyboard focus. */
+html:not(.js) .nav__group:hover .nav__panel,
+html:not(.js) .nav__group:focus-within .nav__panel {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+}
+
+.nav__inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(16px, 2vw, 32px);
+}
+
+.nav__intro {
+  grid-column: 1 / 4;
+}
+
+.nav__title {
+  margin: 0 0 8px;
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.nav__desc {
+  margin: 0;
+  max-width: 30ch;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+
+.nav__links {
+  grid-column: 4 / 13;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: clamp(16px, 2vw, 32px);
+  align-content: start;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.nav__links li {
+  border-bottom: 1px solid var(--rule);
+}
+
+.nav__links a {
+  display: grid;
+  gap: 4px;
+  padding: 16px 0 18px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.nav__name {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.1875rem;
+  font-weight: 540;
+  letter-spacing: -0.015em;
+}
+
+/* The name's line box is held by its parent, so the name itself can be exactly one em tall:
+   the same shape as a page title (line-height 1), which it flies into when clicked (Page
+   transitions, below). */
+.nav__name {
+  min-height: 1.55em;
+  min-height: 1lh;
+}
+
+.nav__label {
+  line-height: 1;
+}
+
+.nav__name .icon {
+  flex: none;
+  font-size: 1rem;
+  color: var(--ink-3);
+  transition: transform 200ms var(--ease-out), color 160ms ease;
+}
+
+.nav__sub {
+  max-width: 40ch;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
+/* The open group, above 960px (owner-approved, 1 Nov 2026): it fills the screen under the
+   header, the group's title and line in the middle and its sections orbiting them, each with a
+   small chart that draws itself (NAV_CHARTS in tools/build_site.py). assets/site.js places the
+   sections on an ellipse the size of the panel and turns it once every 120s; they come out of
+   the title as the group opens, and stop while the pointer or the focus is on one. Without
+   JavaScript the panel keeps the layout above. The menu sheet at 960px and below uses the same
+   cards, one under another (below). */
+.nav-chart {
+  display: none;
+}
+
+@media (min-width: 961px) {
+  html.js .nav__panel {
+    inset: var(--nav-h) 0 0;
+    padding: clamp(28px, 5vh, 56px) 0 clamp(28px, 6vh, 64px);
+    border-bottom: 0;
+    display: flex;
   }
-  .site-header .wrap {
-    gap: 10px;
+
+  html.js .nav__inner {
+    position: relative;
+    flex: 1;
+    width: 100%;
+  }
+
+  html.js .nav__intro {
+    /* out of its grid column, so it centres on the whole panel */
+    grid-column: auto;
+    grid-row: auto;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(36ch, 26%);
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  html.js .nav__title {
+    margin-bottom: 10px;
+    font-size: clamp(1.75rem, 2.4vw, 2.5rem);
+  }
+
+  html.js .nav__desc {
+    margin: 0 auto;
+  }
+
+  html.js .nav__links {
+    grid-column: 1 / -1;
+    position: relative;
+    display: block;
+    height: 100%;
+    border-top: 0;
+  }
+
+  html.js .nav__links li {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: min(380px, 27%);
+    border-bottom: 0;
+    will-change: transform, opacity;
+  }
+
+  html.js .nav__links a {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    column-gap: 18px;
+    row-gap: 4px;
+    align-content: start;
+    align-items: center;
+    min-height: clamp(104px, 17svh, 136px);
+    padding: clamp(10px, 1.8svh, 16px) 0 clamp(12px, 2svh, 18px);
+    border-top: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  html.js .nav__name,
+  html.js .nav__sub {
+    grid-column: 2;
+  }
+
+  /* narrower screens: a smaller chart, so the sections keep clear of one another */
+  @media (max-width: 1180px) {
+    html.js .nav__links a {
+      grid-template-columns: 80px minmax(0, 1fr);
+      column-gap: 14px;
+    }
+    html.js .nav-chart {
+      width: 80px !important;
+      height: 46px !important;
+    }
+    html.js .nav__sub {
+      font-size: 0.8125rem;
+    }
+  }
+
+  html.js .nav-chart {
+    display: block;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: center;
+    width: 112px;
+    height: 64px;
+    overflow: visible;
+    color: var(--ink-2);
+  }
+}
+
+/* The charts and the opening, at every size: the panel above 960px and, with JavaScript, the
+   menu sheet at 960px and below (owner-approved, 2 Nov 2026) both use them. */
+.nav-chart * {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.nav-chart .bar {
+  stroke-width: 7;
+  stroke-linecap: butt;
+}
+
+.nav-chart .base {
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+}
+
+.nav-chart .dot {
+  fill: var(--ink);
+  stroke: none;
+}
+
+.nav-chart .soft {
+  stroke: var(--ink-3);
+  stroke-dasharray: 2 4;
+}
+
+/* each chart draws itself as its section arrives, then its dot or guide shows */
+.nav__group.is-open .nav-chart .draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: nav-draw 1100ms var(--ease-in-out) forwards;
+  animation-delay: calc(420ms + var(--k, 0) * 80ms);
+}
+
+.nav__group.is-open .nav-chart .dot,
+.nav__group.is-open .nav-chart .soft {
+  opacity: 0;
+  animation: nav-fade 500ms ease forwards;
+  animation-delay: calc(1300ms + var(--k, 0) * 80ms);
+}
+
+html.js .nav__group.is-open .nav__intro > * {
+  animation: nav-title-in 700ms var(--ease-out) both;
+}
+
+html.js .nav__group.is-open .nav__intro > :nth-child(2) {
+  animation-delay: 80ms;
+}
+
+/* section pages: the scene dims while the menu is open, so its sections read over it */
+.has-scene .scene {
+  transition: opacity 300ms ease;
+}
+
+.has-scene:has(.site-header.is-open) .scene {
+  opacity: 0.4;
+}
+
+@keyframes nav-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nav-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nav-title-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav__group.is-open .nav-chart .draw,
+  .nav__group.is-open .nav-chart .dot,
+  .nav__group.is-open .nav-chart .soft,
+  html.js .nav__group.is-open .nav__intro > * {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@media (min-width: 961px) {
+  .brand {
+    margin-right: clamp(16px, 3vw, 48px);
+  }
+  .nav {
+    flex: 1;
   }
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .nav a:hover {
+  .nav__btn:hover {
+    color: var(--ink);
+  }
+  .nav__links a:hover .nav__name .icon {
+    transform: translateX(3px);
     color: var(--ink);
   }
 }
 
-.theme-btn,
+/* The homepage's legal line (it has no footer), at the top right of the header. */
+.site-header--home .brand {
+  margin-right: clamp(8px, 2vw, 32px);
+}
+
+.site-header__legal {
+  margin: 0 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 20px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.site-header__legal a {
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .site-header__legal a:hover {
+    color: var(--ink);
+  }
+}
+
+/* Phones: in the header row's right corner (owner, 31 Oct 2026), on
+   two right-aligned lines: "Not investment advice." then Privacy and cookies. "For information
+   only." is left out here (owner, 31 Oct 2026): with it the disclaimer only fits one line at
+   about 7px. 15px lines, 2px apart (the approved mock). Measured in
+   Chromium: at 0.6875rem "Not investment advice." is 117px wide; with the 44px theme button
+   that stood beside it until 1 Nov 2026 it fitted from 370px, and from 360px with 4px header
+   gaps, so there is room to spare now. */
+@media (min-width: 360px) and (max-width: 600px) {
+  .site-header--home .brand {
+    margin-right: 0;
+  }
+
+  .site-header__legal {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    font-size: 0.6875rem;
+    line-height: 15px;
+    text-align: right;
+  }
+
+  .site-header__legal a > span:first-child {
+    display: none;
+  }
+}
+
+@media (min-width: 360px) and (max-width: 369px) {
+  .site-header.site-header--home .wrap {
+    gap: 4px;
+  }
+}
+
+/* Very narrow phones (below 360px): no room in the row, so it sits just under it, still top right. */
+@media (max-width: 359px) {
+  .site-header__legal {
+    position: absolute;
+    top: 100%;
+    right: var(--gutter);
+    max-width: calc(100% - 2 * var(--gutter));
+    margin: 0;
+    gap: 0 14px;
+    font-size: 0.75rem;
+    line-height: 20px;
+  }
+
+  .home .hero h1 {
+    padding-top: calc(var(--nav-h) + 56px);
+  }
+}
+
 .menu-btn {
   display: inline-flex;
   align-items: center;
@@ -420,22 +969,6 @@ ul {
   cursor: pointer;
 }
 
-.theme-btn .icon {
-  font-size: 1.25rem;
-  transition: transform 300ms var(--ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .theme-btn:hover .icon {
-    transform: rotate(-20deg);
-  }
-}
-
-:root[data-theme="dark"] .icon--moon,
-:root:not([data-theme="dark"]) .icon--sun {
-  display: none;
-}
-
 .menu-btn {
   display: none;
 }
@@ -444,18 +977,19 @@ ul {
   font-size: 1.25rem;
 }
 
-@media (max-width: 1300px) {
+/* 960px and below: the menu sheet, the four groups one under the other, each name a
+   heading over its links (Markets in two columns), so the whole menu fits a phone. */
+@media (max-width: 960px) {
   .nav {
     position: fixed;
     inset: var(--nav-h) 0 auto;
+    max-height: calc(100svh - var(--nav-h));
+    overflow-y: auto;
     flex-direction: column;
     gap: 0;
-    padding: 8px var(--gutter) 24px;
+    padding: 4px var(--gutter) 28px;
     background: var(--ground);
     border-bottom: 1px solid var(--rule);
-    font-size: 1.375rem;
-    font-weight: 500;
-    letter-spacing: -0.02em;
     visibility: hidden;
     opacity: 0;
     transform: translateY(-8px);
@@ -464,13 +998,8 @@ ul {
       transform 200ms var(--ease-out),
       visibility 0s linear 200ms;
   }
-  .nav a {
-    padding: 12px 0;
-    color: var(--ink);
-    border-top: 1px solid var(--rule);
-  }
-  .nav a:first-child {
-    border-top: 0;
+  .has-scene .nav {
+    background: transparent;
   }
   .site-header.is-open .nav {
     visibility: visible;
@@ -481,6 +1010,60 @@ ul {
       transform 200ms var(--ease-out),
       visibility 0s;
   }
+  .nav__btn,
+  .nav__desc,
+  .nav__sub,
+  .nav__name .icon {
+    display: none;
+  }
+  .nav__panel,
+  .nav__group.is-open .nav__panel,
+  html:not(.js) .nav__group:hover .nav__panel,
+  html:not(.js) .nav__group:focus-within .nav__panel {
+    position: static;
+    padding: 0;
+    border: 0;
+    background: none;
+    visibility: inherit;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .nav__inner {
+    display: block;
+    padding: 0;
+  }
+  .nav__title {
+    margin: 0;
+    padding: 22px 0 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: normal;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .nav__group:first-child .nav__title {
+    padding-top: 12px;
+  }
+  .nav__links {
+    display: block;
+    border-top: 0;
+  }
+  .nav__links--two {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 16px;
+  }
+  .nav__links a {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0;
+  }
+  .nav__name {
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
   .menu-btn {
     display: inline-flex;
   }
@@ -489,10 +1072,148 @@ ul {
   }
 }
 
-@media (max-width: 1300px) {
-  .nav .nav__subscribe {
+/* 960px and below, with JavaScript (owner-approved, 2 Nov 2026, after the owner asked for the
+   phone menu to look like the computer's): the sheet is the open group of the panel above
+   960px, laid out for a phone. The four group names sit in a row at the top, as in the header
+   bar; under them the open group, one at a time: its name and line centred, then its six
+   sections one under another, each the panel's card (its chart, its name and arrow, its line).
+   The sheet fills the screen under the header and the group scrolls under the row if it is
+   taller. assets/site.js opens the group of the page the menu is opened on (Markets elsewhere)
+   and keeps a group open while the sheet is. On tablets the row and the group keep a phone's
+   column, 600px wide, centred. Without JavaScript the sheet keeps the layout above. */
+@media (max-width: 960px) {
+  html.js .nav {
+    inset: var(--nav-h) 0 0;
+    max-height: none;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    grid-template-rows: auto minmax(0, 1fr);
+    justify-content: space-between;
+    padding: 0 max(var(--gutter), calc((100% - 600px) / 2));
+    border-bottom: 0;
+  }
+  html.js .nav__group {
+    display: contents;
+  }
+  html.js .nav__btn {
+    display: inline-flex;
+    grid-row: 1;
+    min-height: 48px;
+  }
+  html.js .nav__panel {
+    display: none;
+  }
+  /* The group adds nothing to the row's widths (width 0), so the names keep their own and
+     the space falls between them; it then fills the row (min-width), 6px wider each side so
+     the focus ring (2px, 3px out) stays inside the scrolling box. Its spacing tightens on
+     shorter screens (svh), so a group fits whole on more of them. */
+  html.js .nav__group.is-open .nav__panel {
     display: block;
-    font-weight: 600;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 0;
+    min-width: calc(100% + 12px);
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: 0 -6px;
+    padding: clamp(12px, 2.4svh, 20px) 6px 24px;
+  }
+  html.js .nav__intro {
+    margin-bottom: clamp(12px, 2.2svh, 18px);
+    text-align: center;
+  }
+  html.js .nav__title,
+  html.js .nav__group:first-child .nav__title {
+    margin: 0 0 8px;
+    padding: 0;
+    border: 0;
+    font-size: 1.75rem;
+    font-weight: 540;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  html.js .nav__desc {
+    display: block;
+    margin: 0 auto;
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+  html.js .nav__links,
+  html.js .nav__links--two {
+    display: block;
+    border-top: 0;
+  }
+  html.js .nav__links li {
+    border-bottom: 0;
+  }
+  html.js .nav__links li + li {
+    margin-top: clamp(2px, 0.75svh, 6px);
+  }
+  html.js .nav__links a {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    column-gap: 16px;
+    row-gap: 3px;
+    align-items: center;
+    min-height: 0;
+    padding: clamp(7px, 1.35svh, 11px) 0 clamp(8px, 1.45svh, 12px);
+    border-top: 1px solid var(--rule-strong);
+    border-bottom: 1px solid var(--rule);
+  }
+  html.js .nav-chart {
+    display: block;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 80px;
+    height: 46px;
+    overflow: visible;
+    color: var(--ink-2);
+  }
+  html.js .nav__name,
+  html.js .nav__sub {
+    grid-column: 2;
+  }
+  html.js .nav__name {
+    font-size: 1.0625rem;
+    font-weight: 540;
+    letter-spacing: -0.015em;
+    line-height: 1.3;
+  }
+  html.js .nav__name .icon {
+    display: block;
+  }
+  html.js .nav__sub {
+    display: block;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+  /* the sections come down out of the title, one after another, as the group opens */
+  html.js .nav__group.is-open .nav__links li {
+    animation: nav-card-in 480ms var(--ease-out) both;
+    animation-delay: calc(80ms + var(--k, 0) * 40ms);
+  }
+}
+
+/* the four names keep room between them on the narrowest phones */
+@media (max-width: 359px) {
+  html.js .nav__btn {
+    gap: 4px;
+    font-size: 0.875rem;
+  }
+}
+
+@keyframes nav-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .nav__group.is-open .nav__links li {
+    animation: none;
   }
 }
 
@@ -515,12 +1236,16 @@ ul {
 
 .hero {
   position: relative;
-  /* 56px short of the viewport so the tape's top edge shows at the fold. */
-  min-height: calc(100svh - 56px);
+  view-timeline-name: --hero;
+}
+
+.hero__stage {
+  position: relative;
+  /* The homepage is this one screen (owner, 31 Oct 2026): nothing follows it. */
+  min-height: 100svh;
   overflow: hidden;
   display: flex;
-  align-items: flex-end;
-  view-timeline-name: --hero;
+  align-items: stretch;
 }
 
 .hero__sentinel {
@@ -549,7 +1274,45 @@ ul {
   opacity: var(--horse-opacity);
 }
 
-.hero::after {
+/* The particle horse (assets/hero-horse.js, owner-approved 31 Oct 2026). It replaces the
+   still engraving once WebGL is running; until then, and without it, the engraving shows.
+   The canvas draws light dots on a clear ground; the light theme inverts it, so the dots
+   print in soft black (0.8 opacity keeps the deepest ink near #333). */
+.hero__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  pointer-events: none;
+}
+
+.hero.is-live .hero__canvas {
+  display: block;
+}
+
+.hero.is-live .hero__art {
+  visibility: hidden;
+  animation: none;
+}
+
+:root:not([data-theme="dark"]) .hero__canvas {
+  filter: invert(1);
+  opacity: 0.8;
+}
+
+/* Under the chart the horse turns into while the hero scrolls. */
+.hero__stamp {
+  position: absolute;
+  z-index: 1;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hero__stage::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -557,56 +1320,329 @@ ul {
   background: linear-gradient(to top, var(--ground) 0%, transparent 40%);
 }
 
-:root[data-theme="dark"] .hero::after {
-  background:
-    radial-gradient(120% 90% at 63% 45%, transparent 40%, rgba(10, 12, 13, 0.75) 100%),
-    linear-gradient(to top, var(--ground) 0%, transparent 38%);
+/* Dark theme: the homepage is flat, matte black (owner, 31 Oct 2026): no vignette, no fade,
+   and no glow around the particles (assets/hero-horse.js). */
+:root[data-theme="dark"]:has(main.home) {
+  --ground: #000000;
 }
 
-.hero__copy {
-  position: relative;
-  z-index: 1;
-  padding-top: calc(var(--nav-h) + 48px);
-  padding-bottom: clamp(56px, 11vh, 120px);
+:root[data-theme="dark"] .hero__stage {
+  background: #000000;
 }
 
+:root[data-theme="dark"] .hero__stage::after {
+  background: none;
+}
+
+/* The phrase, small and centred above the horse (owner-approved, 1 Nov 2026). */
 .hero h1 {
-  font-size: clamp(3rem, 8vw, 6rem);
+  font-size: clamp(1.25rem, 1.9vw, 1.625rem);
   font-weight: 560;
-  line-height: 0.98;
-  letter-spacing: -0.04em;
-  max-width: 12ch;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-align: center;
   text-wrap: balance;
 }
 
-.hero__sub {
-  margin-top: 24px;
-  max-width: 36ch;
-  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
-  line-height: 1.45;
+/* The phrase on top, the horse in the middle, the four groups of the header menu around it,
+   all symmetric (owner-approved, 1 Nov 2026). */
+.hero__copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: calc(var(--nav-h) + clamp(24px, 6vh, 72px));
+  padding-bottom: clamp(32px, 6vh, 64px);
+}
+
+/* Two groups each side of the horse, mirrored around it at the height of its centre and
+   aligned towards it, 64px clear of its silhouette's box (0.444 of --horse-size wide). */
+.hero__index {
+  position: absolute;
+  left: 50%;
+  top: var(--horse-y);
+  transform: translate(-50%, -50%);
+  width: min(100% - 2 * var(--gutter), calc(0.444 * var(--horse-size) + 2 * (180px + 64px)));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hero__side {
+  display: grid;
+  gap: 22px;
+  width: 180px;
+}
+
+.hero__side--l {
+  text-align: right;
+}
+
+.hero__group summary {
+  display: block;
+  list-style: none;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: color 450ms ease;
+}
+
+.hero__group summary::-webkit-details-marker {
+  display: none;
+}
+
+.hero__group ul {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0 0;
+}
+
+.hero__group a {
+  display: block;
+  padding: 3px 0;
   color: var(--ink-2);
+  font-size: 0.875rem;
+  text-decoration: underline 1px transparent;
+  text-underline-offset: 0.22em;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero__group a:hover {
+    color: var(--ink);
+    text-decoration-color: var(--rule-strong);
+  }
+}
+
+/* The still engraving (no WebGL or JavaScript) in the mark's look, as the particles draw it:
+   light on black, ink on white. */
+:root[data-theme="dark"] .home .hero__art {
+  filter: none;
+}
+
+:root:not([data-theme="dark"]) .home .hero__art {
+  filter: invert(1) grayscale(1);
+}
+
+.home .hero__art .horse {
+  opacity: 1;
+}
+
+.hero h1 {
+  transition: color 450ms ease;
+}
+
+/* While particles form them (assets/hero-horse.js), the headline and the index are in
+   place but clear; each turns to ink once its particles have settled. */
+/* The still engraving is only a fallback: while the particles are about to form the horse it
+   stays hidden, so it never shows for a moment before the cloud starts. */
+html.hero-forming .hero__art {
+  visibility: hidden;
+}
+
+html.hero-forming .hero:not(.crisp-h1) h1,
+html.hero-forming .hero:not(.crisp-ix) .hero__index summary {
+  color: transparent;
+}
+
+html.hero-forming .hero__copy > *,
+html.hero-formed .hero__copy > * {
+  animation: none;
+}
+
+/* The homepage header forms from the same particles (owner, 31 Oct 2026): the mark (the
+   theme switch), the name and the legal line are in place but clear until they settle. */
+html.hero-forming .site-header--home .brand__name,
+html.hero-forming .site-header--home .site-header__legal a {
+  transition: color 450ms ease;
+}
+
+html.hero-forming .site-header--home .brand__mark {
+  transition: opacity 450ms ease;
+}
+
+html.hero-forming .site-header--home:not(.crisp-hd) .brand__name,
+html.hero-forming .site-header--home:not(.crisp-hd) .site-header__legal a {
+  color: transparent;
+}
+
+html.hero-forming .site-header--home:not(.crisp-hd) .brand__mark {
+  opacity: 0;
+}
+
+/* Leaving for a section (owner-approved, 1 Nov 2026; assets/hero-horse.js): the particles take
+   the phrase, the group names and the header back into the point, so the real text clears at
+   once and an open group's sections fade out. Shown again from the back/forward cache, it all comes back out
+   of the point and the real text takes over as it did when it first formed. */
+html.hero-leaving .hero h1,
+html.hero-leaving .hero__index summary,
+html.hero-leaving .site-header--home .brand__name,
+html.hero-leaving .site-header--home .site-header__legal a {
+  color: transparent;
+  text-decoration-color: transparent;
+  transition: none;
+}
+
+html.hero-leaving .site-header--home .brand__mark {
+  opacity: 0;
+  transition: none;
+}
+
+html.hero-leaving .hero__group ul {
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+html.hero-returning .site-header--home .brand__name,
+html.hero-returning .site-header--home .site-header__legal a {
+  transition: color 450ms ease;
+}
+
+html.hero-returning .site-header--home .brand__mark {
+  transition: opacity 450ms ease;
+}
+
+/* Short screens (laptops, phones on their side): everything still fits one screen. */
+@media (orientation: landscape) and (max-height: 720px) {
+  .hero__copy {
+    gap: 20px;
+    padding-top: calc(var(--nav-h) + 16px);
+    padding-bottom: 20px;
+  }
+
+  :root {
+    --horse-y: calc(50% + 51px);
+  }
+}
+
+/* Phones and small tablets held upright: one column, all centred (owner-approved, 1 Nov 2026):
+   the phrase on top, the horse, then the four group names in two rows of two. The horse and
+   the names sit as one block halfway between the phrase and the foot of the screen; an open
+   group's sections show centred under the names, over the empty room below, so opening one
+   moves nothing (the particles were drawn where the horse stood). The still engraving sits
+   in the horse's slot too. On their side phones use the wide layout above, with the
+   short-screen sizes. */
+@media (max-width: 860px) and (orientation: portrait) {
+  .hero__stage {
+    flex-direction: column;
+  }
+
+  .hero__copy {
+    display: contents;
+  }
+
+  .hero h1,
+  .hero__index {
+    position: relative;
+    z-index: 1;
+    padding-inline: var(--gutter);
+  }
+
+  .hero h1 {
+    order: 1;
+    padding-top: calc(var(--nav-h) + 20px);
+    font-size: 1.25rem;
+  }
+
+  .hero__stage .hero__art {
+    order: 2;
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    height: min(42svh, 80vw);
+    flex: 0 0 auto;
+    margin-block: auto 16px;
+    transform: none;
+    animation: none;
+    container-type: size;
+  }
+
+  .hero__art .horse {
+    position: absolute;
+    /* the horse is 516 of the engraving's 1024px; the centre of its silhouette, x 513 of
+       1024, on the centre line */
+    width: 198.4cqh;
+    max-width: none;
+    height: 198.4cqh;
+    left: calc(50% - 99.4cqh);
+    top: calc(50% - 100cqh);
+  }
+
+  .hero__index {
+    order: 3;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: auto;
+    margin-bottom: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    align-items: start;
+    gap: 12px 0;
+  }
+
+  .hero__side {
+    display: contents;
+  }
+
+  .hero__side--l {
+    text-align: center;
+  }
+
+  .hero__group summary {
+    text-align: center;
+  }
+
+  .hero__group ul {
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    top: calc(100% + 14px);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2px 18px;
+    padding: 0;
+  }
+
+  .hero__group a {
+    padding: 4px 0;
+  }
+}
+
+/* Small phones held upright (760px tall and less): the phrase a little closer to the header
+   (below 360px wide the legal line sits under the header row and keeps its room). */
+@media (min-width: 360px) and (max-width: 860px) and (orientation: portrait) and (max-height: 760px) {
+  .home .hero h1 {
+    padding-top: calc(var(--nav-h) + 14px);
+  }
+}
+
+/* Laptop screens 721 to 899px tall: the hero's top room follows the height, and the horse
+   with it, so the space above and below the horse stays equal. */
+@media (orientation: landscape) and (min-height: 721px) and (max-height: 899px) {
+  .home .hero__copy {
+    padding-top: calc(var(--nav-h) + 3svh);
+    padding-bottom: 3svh;
+  }
+
+  :root {
+    --horse-y: calc(50% + 32px + 1.5svh + 11px);
+  }
 }
 
 .hero__actions {
-  margin-top: 36px;
+  margin-top: 40px;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
-@media (max-width: 860px) {
-  :root {
-    --horse-x: 52%;
-    --horse-y: 36%;
-  }
-}
-
-@media (max-width: 520px) {
-  :root {
-    --horse-size: 180vw;
-    --horse-y: 27%;
-  }
-}
 
 /* Tape */
 
@@ -853,6 +1889,10 @@ ul {
 
 /* Dashboards: browsable, filterable grid */
 
+.dash-index {
+  padding-top: clamp(32px, 5vw, 56px);
+}
+
 .filters {
   position: relative;
   display: flex;
@@ -944,16 +1984,48 @@ ul {
   transition: background-color 200ms ease;
 }
 
+/* Each tile reads without a pointer (owner-approved, 1 Nov 2026): the title, the
+   reading (a figure and one line), then the chart with its names and values on it. */
+.dash-tile__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.dash-tile h3 {
+  font-size: clamp(1.1875rem, 1.5vw, 1.375rem);
+  font-weight: 540;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.dash-tile__read {
+  margin-top: 12px;
+}
+
+.dash-tile__fig {
+  font-size: 1.375rem;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+.dash-tile__sub {
+  margin-top: 4px;
+  max-width: 46ch;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
 .dash-tile__chart {
-  position: relative;
-  aspect-ratio: 2 / 1;
+  margin-top: 20px;
 }
 
 .dash-tile__chart .chart {
-  position: absolute;
-  inset: 0;
+  display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
 }
 
 /* No figures yet: the chart's box stays, with one quiet line, never a stand-in chart. */
@@ -961,44 +2033,67 @@ ul {
   display: flex;
   align-items: center;
   justify-content: center;
+  aspect-ratio: 320 / 176;
   font-size: 0.8125rem;
   color: var(--ink-3);
-}
-
-.dash-tile__text {
-  padding-top: 16px;
 }
 
 .dash-tile__src {
-  margin-top: 10px;
+  margin-top: auto;
+  padding-top: 18px;
   font-size: 0.8125rem;
   color: var(--ink-3);
 }
 
-.dash-tile h3 {
-  margin-top: 2px;
-  font-size: clamp(1.1875rem, 1.5vw, 1.375rem);
-  font-weight: 540;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-}
-
-.dash-tile__desc {
-  margin-top: 6px;
-  font-size: 0.9375rem;
-  color: var(--ink-2);
-}
-
 .dash-tile__go {
-  position: absolute;
-  top: clamp(18px, 2vw, 28px);
-  right: clamp(18px, 2vw, 28px);
+  flex: none;
   font-size: 1.125rem;
-  opacity: 0;
-  transform: translate(-4px, 4px);
+  opacity: 0.5;
   transition:
     opacity 200ms ease,
     transform 200ms var(--ease-out);
+}
+
+/* Tile charts: labels at 11.5 units of a 320-wide box (about 14px on a laptop,
+   12px on a phone); figures keep proportional digits so points and commas stay
+   narrow. */
+.chart--tile {
+  overflow: visible;
+}
+
+.chart.chart--tile .chart__label,
+.chart.chart--tile .chart__value {
+  font-size: 11.5px;
+  font-variant-numeric: normal;
+}
+
+.chart.chart--tile .chart__value {
+  font-weight: 500;
+}
+
+.chart.chart--tile .chart__heat {
+  font-size: 11.5px;
+  fill: #ffffff;
+}
+
+.chart.chart--tile .chart__heat--v {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+/* Deeper rises and falls on the tiles (owner, 1 Nov 2026): bars a shade darker
+   than the site's chart pair; text figures still pass WCAG AA. */
+.dash-grid {
+  --up: #0a7a3d;
+  --down: #c01d26;
+  --down-text: #b81c24;
+}
+
+:root[data-theme="dark"] .dash-grid {
+  --up: #12964f;
+  --down: #cf2a32;
+  --up-text: #19b866;
+  --down-text: #ee3f47;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1007,7 +2102,7 @@ ul {
   }
   .dash-tile__link:hover .dash-tile__go {
     opacity: 1;
-    transform: none;
+    transform: translate(2px, -2px);
   }
 }
 
@@ -1822,6 +2917,11 @@ ul {
 
 .lab-index {
   max-width: 44rem;
+}
+
+/* the Lab and Simulators indexes in their themes (the Tools menu's six) */
+.lab-groups .learn-list {
+  border-top: 0;
 }
 
 .lab-index__next {
@@ -2680,28 +3780,14 @@ ul {
   .tape__list {
     grid-template-columns: repeat(10, 40vw);
   }
+  .dash-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
   .dash-tile__link {
-    padding: 14px;
+    padding: 18px 16px;
   }
-  .dash-tile__text {
-    padding-top: 10px;
-  }
-  .dash-tile__src {
-    margin-top: 4px;
-    font-size: 0.75rem;
-  }
-  .dash-tile h3 {
-    font-size: 1rem;
-  }
-  .dash-tile__desc {
-    display: none;
-  }
-  .dash-tile .key {
-    gap: 4px 10px;
-    font-size: 0.75rem;
-  }
-  .dash-tile .key__note {
-    flex-basis: 100%;
+  .dash-tile__fig {
+    font-size: 1.25rem;
   }
   .cl__groups {
     display: block;
@@ -2919,17 +4005,137 @@ ul {
     }
   }
 
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation-duration: 260ms;
-    animation-timing-function: ease;
-  }
-
   /* Theme switch: the new theme opens as a circle from the button (site.js). */
   html.theme-reveal::view-transition-old(root),
   html.theme-reveal::view-transition-new(root) {
     animation: none;
     mix-blend-mode: normal;
+  }
+
+  /* Between section pages (owner-approved, 1 Nov 2026): every page but the homepage opts in to
+     a view transition across pages (VIEW_TRANSITION and MOVE_BOOT in tools/build_site.py; the
+     page going marks the move in assets/site.js). The header stays put and the sphere carries
+     on behind: assets/section-scene.js keeps its clock, light and turn from one page to the
+     next, so the page before only has to fade off it. The page before fades (160ms) and the
+     next one rises 14px into place (420ms ease-out, from 110ms), down from above when the move
+     goes back in history. From a section in the open menu, the menu fades (200ms) and the
+     section's name flies across the screen and grows into the new page's title (520ms,
+     ease-in-out): the two cross-fade over its first 140ms, while it has barely moved, so a
+     name shorter than its title ("World", "World markets") changes into it in place. */
+  html:active-view-transition-type(section) .site-header {
+    view-transition-name: site-header;
+  }
+
+  html:active-view-transition-type(enter) main {
+    view-transition-name: page;
+  }
+
+  html:active-view-transition-type(leave) main {
+    view-transition-name: page-out;
+  }
+
+  html:active-view-transition-type(menu) main .page__title {
+    view-transition-name: page-title;
+    width: fit-content;
+  }
+
+  html:active-view-transition-type(section)::view-transition-old(root) {
+    animation: move-out 260ms ease both;
+  }
+
+  html:active-view-transition-type(section)::view-transition-new(root),
+  html:active-view-transition-type(section)::view-transition-new(site-header) {
+    animation: none;
+  }
+
+  html:active-view-transition-type(section)::view-transition-old(site-header) {
+    animation: move-out 200ms ease both;
+  }
+
+  ::view-transition-old(page-out) {
+    animation: move-out 160ms cubic-bezier(0.4, 0, 1, 1) both;
+  }
+
+  ::view-transition-new(page) {
+    animation: move-rise 420ms var(--ease-out) 110ms both;
+  }
+
+  html:active-view-transition-type(back)::view-transition-new(page) {
+    animation-name: move-drop;
+  }
+
+  ::view-transition-group(page-title) {
+    animation-duration: 520ms;
+    animation-timing-function: var(--ease-in-out);
+  }
+
+  /* scaled by height and held to the left, so the words keep their shape as they grow */
+  ::view-transition-old(page-title),
+  ::view-transition-new(page-title) {
+    height: 100%;
+    width: auto;
+    inset-inline: 0 auto;
+    mix-blend-mode: plus-lighter;
+  }
+
+  ::view-transition-old(page-title) {
+    animation: move-out 140ms linear both;
+  }
+
+  ::view-transition-new(page-title) {
+    animation: move-in 140ms linear both;
+  }
+
+  @keyframes move-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes move-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes move-rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+
+  @keyframes move-drop {
+    from {
+      opacity: 0;
+      transform: translateY(-14px);
+    }
+  }
+
+  /* Arriving from the homepage (owner-approved, 1 Nov 2026): the sphere opens out of the point
+     the homepage went back into (assets/section-scene.js) and the page fades up over it. The
+     page's head marks html.arrive (ARRIVE_BOOT in tools/build_site.py). Opacity only on the
+     header and the footer, which hold fixed panels. */
+  html.arrive .site-header,
+  html.arrive .site-footer {
+    animation: arrive-fade 600ms var(--ease-out) 360ms backwards;
+  }
+
+  html.arrive main {
+    animation: arrive-rise 700ms var(--ease-out) 300ms backwards;
+  }
+
+  @keyframes arrive-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes arrive-rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
   }
 }
 
@@ -2970,6 +4176,13 @@ ul {
 
 .page__head .lede {
   margin-top: 16px;
+}
+
+/* The date the page's figures run to (dashboards). */
+.page__asof {
+  margin-top: 12px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
 }
 
 .page__body {
@@ -3610,8 +4823,8 @@ ul {
   }
 }
 
-/* Icon only below 1800px: thirteen nav links leave no room for the label. */
-@media (max-width: 1799px) {
+/* Icon only at 1100px and below, where the four menu groups leave no room for the label. */
+@media (max-width: 1100px) {
   .search-btn {
     min-width: 44px;
     min-height: 44px;
@@ -5907,13 +7120,12 @@ html:not(.js) .ip-filters {
 .pw-lab { margin-top: 18px !important; font-size: 0.8125rem; font-weight: 600; color: var(--ink) !important; }
 .pw-day { margin-top: 6px; }
 
-.pw-time, .pw-visa {
+.pw-visa {
   padding: 28px 0 32px;
   border-bottom: 1px solid var(--rule);
 }
-.pw-time h2, .pw-visa h2 { font-size: 1.375rem; font-weight: 540; letter-spacing: -0.02em; }
+.pw-visa h2 { font-size: 1.375rem; font-weight: 540; letter-spacing: -0.02em; }
 .pw-time__lede { margin-top: 8px; max-width: 65ch; color: var(--ink-2); }
-.pw-time .dd__ctl { margin-top: 20px; }
 
 html:not(.js) .pw-js { display: none; }
 
@@ -6963,8 +8175,8 @@ html.js .tq-nojs, html:not(.js) .tq-js { display: none; }
 .tq-md__log { margin-top: 12px; min-height: 1.5em; font-size: 0.875rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .tq-pager { margin-top: 32px; }
 
-/* Recruiting calendar (break-into-wall-street/recruiting-calendar/ and the guide's
-   next dates): the calendar table's shape, plus a by-firm table. */
+/* Recruiting calendar (recruiting-calendar/; the guide showed its next dates until
+   1 Nov 2026): the calendar table's shape, plus a by-firm table. */
 .rc-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .rc-when { font-weight: 600; }
 .rc-when--ex { font-weight: 500; color: var(--ink-2); }
@@ -6978,29 +8190,894 @@ html.js .tq-nojs, html:not(.js) .tq-js { display: none; }
 .rc-firmtab thead th { font-size: 0.8125rem; font-weight: 500; color: var(--ink-2); border-bottom-color: var(--rule-strong); }
 .rc-firmtab td { color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .rc-firmtab th[scope="row"] { font-weight: 540; }
-.rc-next { margin-top: 18px; }
 .rc-basis { display: block; margin-top: 4px; font-size: 0.8125rem; font-weight: 400; color: var(--ink-3); max-width: 60ch; }
-.rc-more { margin-top: 16px; }
-.rc-none { margin-top: 14px; color: var(--ink-3); }
 .rc-byfirm { margin-top: 24px; overflow-x: auto; }
 .rc-firmtab { min-width: 44rem; }
 .rc-soon:empty { display: none; }
 @media (max-width: 640px) {
   .rc-table .rc-divs, .rc-table .rc-cycle { display: none; }
 }
-.rc-next { width: 100%; max-width: 64rem; margin-top: 18px; border-collapse: collapse; table-layout: fixed; border-top: 1px solid var(--rule-strong); }
-.rc-next td, .rc-next th { padding: 14px 12px 14px 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
-.rc-next th { font-weight: 400; }
-.rc-next .cl__ev { display: block; font-size: 1.0625rem; font-weight: 540; }
-.rc-next .rc-date { width: 9rem; }
-.rc-next .rc-act { width: 6rem; }
-.rc-next .rc-go { width: 6rem; text-align: right; }
-.rc-next th[scope="row"] { width: auto; }
-@media (max-width: 640px) {
-  .rc-next, .rc-next tbody, .rc-next tr { display: block; }
-  .rc-next tr { display: grid; grid-template-columns: 5.5rem 1fr; gap: 4px 12px; padding: 14px 0; border-bottom: 1px solid var(--rule); }
-  .rc-next td, .rc-next th { display: block; width: auto !important; padding: 0; border: 0; text-align: left; }
-  .rc-next .rc-act { grid-column: 1; grid-row: 2; }
-  .rc-next .rc-go { grid-column: 2; }
-}
 .rc-tags .tag { font-weight: 400; }
+
+
+/* ==== Chart of the day (chart-of-the-day/) ==== */
+
+/* One session: its date with the previous and next sessions, the note's own margin
+   chart in a ruled card (the close note's bar and curve charts, sized so their 12-unit
+   labels read at about 16px), two lines, the note link and Share, the source. */
+.cotd__day {
+  max-width: 30rem;
+  margin-top: clamp(32px, 5vw, 48px);
+}
+
+.cotd__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cotd__date {
+  font-size: 1.1875rem;
+  font-weight: 540;
+  letter-spacing: -0.015em;
+}
+
+.cotd__nav {
+  display: flex;
+  gap: 8px;
+}
+
+.cotd__step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  transition: background-color 200ms var(--ease-out), color 200ms var(--ease-out);
+}
+
+.cotd__step .icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.cotd__step--prev .icon {
+  transform: rotate(90deg);
+}
+
+.cotd__step--next .icon {
+  transform: rotate(-90deg);
+}
+
+span.cotd__step {
+  border-color: var(--rule);
+  color: var(--ink-3);
+  opacity: 0.5;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.cotd__step:hover {
+    background: var(--ink);
+    color: var(--ground);
+  }
+}
+
+.cotd .report__margin.cotd__fig {
+  margin: 16px 0 0;
+  padding: clamp(20px, 3vw, 28px);
+  border: 1px solid var(--rule-strong);
+}
+
+.cotd__ctitle {
+  margin-bottom: 16px;
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.cotd__read {
+  margin-top: 20px;
+  font-size: 1.0625rem;
+}
+
+.cotd__quote {
+  margin: 12px 0 0;
+  padding-left: 16px;
+  border-left: 1px solid var(--rule-strong);
+}
+
+.cotd__quote p {
+  color: var(--ink-2);
+}
+
+.cotd__quote footer {
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.cotd__acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  margin-top: 24px;
+}
+
+.cotd__share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+}
+
+.cotd__share[hidden] {
+  display: none;
+}
+
+.cotd__src {
+  margin-top: 20px;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.cotd__lead {
+  margin-left: 8px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.cotd__lead .mv {
+  font-variant-numeric: tabular-nums;
+}
+
+.cotd__empty {
+  margin-top: 32px;
+  color: var(--ink-2);
+}
+
+.cotd__text {
+  margin-top: clamp(40px, 6vw, 64px);
+}
+
+.cotd .report__pager {
+  margin-top: 32px;
+}
+
+@media (max-width: 960px) {
+  .cotd .report__margin.cotd__fig {
+    padding: 20px;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+}
+
+@media (max-width: 640px) {
+  .cotd__share,
+  .cotd__share .btn {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cotd__step {
+    transition: none;
+  }
+}
+
+/* ==== end Chart of the day ==== */
+
+
+/* ==== Central banks (central-banks/) ==== */
+/* The Fed & Rates grid and panels (.dd, .fr), with one ruled table on top: the
+   four banks here, the five indicators on Recession watch (which reuses .cb-tab).
+   The first panel sits right under the head's rule, so it drops its own. */
+.cb .fr__main > .fr__panel:first-child,
+.rw .fr__main > .fr__panel:first-child { border-top: 0; padding-top: 0; }
+.cb-wrap { margin-top: 20px; }
+.cb-tab {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 1px solid var(--rule-strong);
+  font-size: 0.9375rem;
+}
+.cb-tab th,
+.cb-tab td {
+  padding: 14px 16px 14px 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+.cb-tab th:last-child,
+.cb-tab td:last-child { padding-right: 0; }
+.cb-tab thead th {
+  padding-block: 12px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+.cb-tab tbody th[scope="row"] { width: 34%; font-weight: 400; }
+.cb-bank {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.0625rem;
+  font-weight: 540;
+}
+a.cb-bank {
+  min-height: 24px;
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.22em;
+}
+a.cb-bank .icon { width: 0.9em; height: 0.9em; transition: transform 200ms var(--ease-out); }
+@media (hover: hover) and (pointer: fine) {
+  a.cb-bank:hover .icon { transform: translateX(3px); }
+}
+/* Proportional figures, as on the calendar: tabular points open wide gaps in this face. */
+.cb-fig {
+  display: block;
+  font-size: 1.1875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.cb-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+.cb-tab td .cb-sub { color: var(--ink-3); }
+.cb-pending { font-size: 0.875rem; color: var(--ink-3); }
+@media (max-width: 640px) {
+  .cb-tab thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .cb-tab,
+  .cb-tab tbody,
+  .cb-tab tr { display: block; }
+  .cb-tab tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+    padding: 14px 0 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .cb-tab th,
+  .cb-tab td { display: block; width: auto; padding: 0; border: 0; }
+  .cb-tab tbody th[scope="row"] { grid-column: 1 / -1; width: auto; }
+  .cb-tab td::before {
+    content: attr(data-l);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 0.75rem;
+    color: var(--ink-3);
+  }
+  .cb-tab td[colspan] { grid-column: 1 / -1; }
+}
+/* ==== end Central banks ==== */
+
+
+/* ==== Recession watch (recession-watch/) ==== */
+/* The Fed & Rates grid and panels; the table is .cb-tab (Central banks region).
+   The range chips sit between the table and the first chart. */
+@media (min-width: 641px) {
+  .rw-tab tbody th[scope="row"] { width: 30%; }
+}
+.rw-name {
+  font-size: 1.0625rem;
+  font-weight: 540;
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.22em;
+}
+.rw-sig { display: block; font-weight: 500; }
+.rw-date { white-space: nowrap; color: var(--ink-2); }
+.rw-range { margin: 4px 0 32px; }
+.rw .fr__panel .dd__ctl + .fr__fig { margin-top: 16px; }
+@media (max-width: 640px) {
+  .rw-tab td[data-l="Date"] { grid-column: 1 / -1; }
+  .rw-date { white-space: normal; }
+}
+/* ==== end Recession watch ==== */
+
+
+/* ==== Market history (market-history/) ==== */
+
+/* Index: the whole history on one chart, then every episode as a ruled timeline.
+   Episode pages use the dashboard page grid (.dd__grid). assets/market-history.js
+   draws the charts at their pixel width inside .dd__plot. */
+.mh-over,
+.mh-tl {
+  margin-top: clamp(40px, 6vw, 64px);
+}
+
+.mh .page__head .note__meta {
+  flex-wrap: wrap;
+  gap: 4px 20px;
+}
+
+.mh__h2 {
+  font-size: 1.375rem;
+  font-weight: 540;
+  letter-spacing: -0.02em;
+}
+
+.mh-over .dd__plot {
+  height: clamp(260px, 36vw, 420px);
+}
+
+.mh__plot--open {
+  cursor: pointer;
+}
+
+.chart .mh-epband {
+  fill: var(--chart-fill);
+}
+
+.chart .mh-tick,
+.chart .mh-base {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.chart .chart__label.mh-mark {
+  fill: var(--ink);
+  font-weight: 550;
+  paint-order: stroke;
+  stroke: var(--ground);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
+.key .mh-sw {
+  background: var(--down-tint);
+}
+
+.key .mh-k-ep {
+  width: 12px;
+  height: 12px;
+  background: var(--chart-fill);
+  outline: 1px solid var(--rule);
+  outline-offset: -1px;
+}
+
+/* The timeline: years, name, the fall as a bar and a signed figure, arrow. */
+.mh-tl__head,
+.mh-tl__list a {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr) minmax(64px, 10rem) 4.75rem 20px;
+  gap: 16px;
+  align-items: center;
+}
+
+.mh-tl__head {
+  margin-top: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--rule-strong);
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+
+.mh-tl__head span:last-child {
+  grid-column: 3 / span 2;
+  text-align: right;
+}
+
+.mh-tl__list a {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.mh-tl__years {
+  font-size: 0.875rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.mh-tl__name {
+  font-size: 1.0625rem;
+  font-weight: 540;
+  letter-spacing: -0.01em;
+}
+
+.mh-tl__bar {
+  display: flex;
+  justify-content: flex-end;
+  height: 8px;
+}
+
+.mh-tl__bar i {
+  display: block;
+  height: 100%;
+  background: var(--down);
+}
+
+.mh-tl__fall {
+  text-align: right;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.mh-tl__fall--pending {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+.mh-tl__list .icon {
+  transition: transform 200ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mh-tl__list a:hover .mh-tl__name {
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 0.2em;
+  }
+  .mh-tl__list a:hover .icon {
+    transform: translateX(4px);
+  }
+}
+
+.mh__text {
+  margin-top: clamp(40px, 6vw, 64px);
+}
+
+/* Episode pages */
+.mh-ep .dd__text {
+  margin-top: 0;
+}
+
+.mh__acts {
+  margin-top: 20px;
+}
+
+.mh-rel {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+}
+
+.mh__pager {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+
+.mh__pending {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+@media (max-width: 960px) {
+  .mh-tl__head,
+  .mh-tl__list a {
+    grid-template-columns: 7rem minmax(0, 1fr) 4.75rem 20px;
+  }
+  .mh-tl__bar {
+    display: none;
+  }
+  .mh-tl__head span:last-child {
+    grid-column: 3 / span 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .mh-tl__head {
+    display: none;
+  }
+  .mh-tl__list a {
+    grid-template-columns: minmax(0, 1fr) auto 20px;
+    gap: 2px 12px;
+    padding: 14px 0;
+  }
+  .mh-tl__years {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 0.8125rem;
+  }
+  .mh-tl__name {
+    grid-column: 1;
+    grid-row: 2;
+    font-size: 1rem;
+  }
+  .mh-tl__fall {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+  .mh-tl__list .icon {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mh-tl__list .icon {
+    transition: none;
+  }
+}
+
+/* ==== end Market history ==== */
+
+
+/* ==== Interview simulator (interview-simulator/) ==== */
+/* Built on the technicals practice card (.tq-card) and the mental maths drill's
+   clock (.tq-md__time); assets/interview-sim.js fills the card. */
+.isim__sim { padding: clamp(28px, 4vw, 40px) 0 32px; border-bottom: 1px solid var(--rule); }
+.isim__ctl { display: flex; flex-wrap: wrap; gap: 16px clamp(24px, 4vw, 48px); }
+.isim__ctl .filters { margin-inline: 0; padding-inline: 0; }
+.isim__ctl.is-locked .filters { opacity: 0.5; }
+.isim__ctl.is-locked .chip { cursor: default; }
+.isim__card { margin-top: 20px; }
+.isim__card .tq-card__meta { gap: 6px 16px; }
+.isim__time { margin-left: auto; color: var(--ink); font-size: 0.875rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.isim__up { margin-left: auto; color: var(--ink); font-weight: 550; }
+.isim__up:not([hidden]) + .isim__time { margin-left: 0; }
+.isim__h:focus, .isim__q:focus, .isim__lab:focus { outline: none; }
+.isim__h:focus-visible, .isim__q:focus-visible, .isim__lab:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.isim__txt, .isim__best, .isim__resume { margin-top: 12px; max-width: 62ch; color: var(--ink-2); }
+.isim__best { font-size: 0.875rem; }
+.isim__resume { padding-top: 14px; border-top: 1px solid var(--rule); color: var(--ink); font-weight: 500; }
+.isim__ctx { margin-top: 10px; font-size: 1.0625rem; font-weight: 540; color: var(--ink); max-width: 62ch; }
+.isim__notes { margin-top: 18px; }
+.isim__hint { font-size: 0.875rem; color: var(--ink-2); }
+.isim__notes textarea {
+  display: block;
+  width: 100%;
+  min-height: 96px;
+  margin-top: 8px;
+  padding: 12px 16px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+.isim__notes textarea::placeholder { color: var(--ink-3); opacity: 1; }
+.isim__notes textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 0; }
+.isim__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 20px; }
+.isim__acts > .btn:last-child { margin-left: auto; }
+.isim__acts--start > .btn:last-child { margin-left: 0; }
+.isim__acts .btn:disabled { opacity: 0.45; cursor: default; }
+.isim__end { padding-left: 0; }
+/* The answer opens under a rule across the card, as in the sketch. */
+.isim__ans { margin: 24px calc(-1 * clamp(20px, 3vw, 36px)) 0; padding: 22px clamp(20px, 3vw, 36px) 0; border-top: 1px solid var(--rule-strong); }
+.isim__lab { margin: 0; font-size: 0.8125rem; font-weight: 600; color: var(--ink); }
+.isim__lab--sec { margin-top: 24px; }
+.isim__a { margin-top: 6px; max-width: 65ch; color: var(--ink-2); }
+.isim__a p + p, .isim__a p + .ruled, .isim__a .ruled + p { margin-top: 10px; }
+.isim__a .ruled { margin-top: 10px; padding-left: 1.4em; border-top: 1px solid var(--rule); }
+.isim__a .ruled li { padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.isim__a .ip-follow { margin-top: 12px; }
+.isim__src { margin-top: 10px; font-size: 0.8125rem; color: var(--ink-3); }
+.isim__kp { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.isim__kps { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 8px; list-style: none; }
+.isim__kps li { display: flex; align-items: flex-start; gap: 8px; color: var(--ink); font-size: 0.9375rem; }
+.isim__kps .icon { flex: none; width: 1em; height: 1em; margin-top: 0.28em; fill: currentColor; }
+.isim__rate { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.isim__rbtns { display: flex; flex-wrap: wrap; gap: 8px; }
+.isim__rbtns .btn[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--ground); }
+.isim__ans > .isim__acts { margin-top: 24px; }
+@media (hover: hover) and (pointer: fine) {
+  .isim__rbtns .btn[aria-pressed="false"]:hover { background: var(--ground-2); }
+  .isim__acts .btn:not(:disabled):hover .icon { transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .isim__ans { animation: isim-in 260ms var(--ease-out) both; }
+  @keyframes isim-in { from { opacity: 0; transform: translateY(6px); } }
+}
+.isim__local { margin-top: 14px; max-width: 52rem; font-size: 0.875rem; color: var(--ink-2); }
+.isim__local .tq-reset { min-height: 44px; }
+.isim__nojs { padding-left: 0; color: var(--ink); }
+/* Results: ratings by topic and every question asked. */
+.isim-res__wrap { overflow-x: auto; }
+.isim-res { width: 100%; margin-top: 8px; border-collapse: collapse; border-top: 1px solid var(--rule-strong); font-size: 0.9375rem; }
+.isim-res thead th { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule-strong); font-size: 0.8125rem; font-weight: 500; color: var(--ink-2); text-align: left; white-space: nowrap; }
+.isim-res td, .isim-res tbody th { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); vertical-align: baseline; text-align: left; }
+.isim-res th:last-child, .isim-res td:last-child { padding-right: 0; }
+.isim-res tbody th { font-weight: 540; }
+.isim-res tbody th a { color: var(--ink); text-decoration-color: var(--rule-strong); }
+.isim-res tbody th .tag { margin-left: 6px; font-weight: 400; }
+.isim-res tbody th > span:last-child { display: block; font-size: 0.8125rem; font-weight: 400; color: var(--ink-3); }
+.isim-res .num { width: 5.5rem; text-align: right; font-variant-numeric: tabular-nums; }
+.isim-list { margin-top: 8px; padding-left: 1.6em; border-top: 1px solid var(--rule); font-size: 0.9375rem; }
+.isim-list li { padding: 10px 0; border-bottom: 1px solid var(--rule); color: var(--ink-3); }
+.isim-list__q { display: block; color: var(--ink); }
+.isim-list__m { display: block; font-size: 0.8125rem; color: var(--ink-2); }
+/* What each track covers. */
+.isim-tracks { list-style: none; margin-top: 12px; border-top: 1px solid var(--rule); }
+.isim-tracks li { padding: 10px 0; border-bottom: 1px solid var(--rule); color: var(--ink-2); }
+.isim-tracks b { font-weight: 600; color: var(--ink); }
+.isim-tracks span { color: var(--ink); }
+.isim-cov__wrap { overflow-x: auto; margin-top: 16px; }
+.isim-cov { width: 100%; border-collapse: collapse; border-top: 1px solid var(--rule-strong); font-size: 0.9375rem; }
+.isim-cov thead th { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--rule-strong); font-size: 0.8125rem; font-weight: 500; color: var(--ink-2); text-align: left; white-space: nowrap; }
+.isim-cov td, .isim-cov tbody th { padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); vertical-align: baseline; text-align: left; }
+.isim-cov th:last-child, .isim-cov td:last-child { padding-right: 0; }
+.isim-cov tbody th { font-weight: 540; }
+.isim-cov tbody th a { color: var(--ink); text-decoration-color: var(--rule-strong); }
+.isim-cov tbody th span { display: block; font-size: 0.8125rem; font-weight: 400; color: var(--ink-3); }
+.isim-cov .num { text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+.isim-cov__tracks { white-space: nowrap; }
+.isim-cov__tracks .tag + .tag { margin-left: 6px; }
+.isim-cov__none { font-size: 0.8125rem; color: var(--ink-3); }
+@media (max-width: 640px) {
+  .isim__acts > .btn:last-child { margin-left: 0; }
+  .isim__acts:not(.isim__acts--start) { flex-direction: column-reverse; align-items: stretch; }
+  .isim__acts:not(.isim__acts--start) .isim__end { align-self: flex-start; }
+  .isim__rbtns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+  .isim__rbtns .btn { padding: 0 8px; }
+  .isim-res .num { width: auto; padding-left: 10px; }
+  .isim-res tbody th .tag { display: table; margin: 4px 0 2px; }
+  .isim-cov thead th:first-child { white-space: normal; }
+}
+/* ==== end Interview simulator ==== */
+
+
+/* ==== Firms (firms/) ==== */
+/* Owner-approved sketch, 1 Nov 2026: one entry per firm of the Recruiting calendar (name
+   and type, divisions and US offices), its programmes as ruled rows (name, cycle and
+   offices, the calendar's tags; opens and closes; apply). The calendar's chips, tags,
+   countdown and links (.cl__*, .rc-*) are reused as they are. */
+.fm {
+  --fm-when: 17rem;
+  --fm-go: 6.5rem;
+  --fm-gap: 24px;
+}
+.fm-list { max-width: 64rem; margin-top: clamp(24px, 4vw, 40px); }
+.fm-ctl:not([hidden]) + .fm-list { margin-top: 0; }
+.fm-firm { padding-top: 28px; border-top: 1px solid var(--rule-strong); }
+.fm-firm[hidden], .fm-prog[hidden] { display: none; }
+.fm-firm__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) calc(var(--fm-when) + var(--fm-gap) + var(--fm-go));
+  gap: 4px var(--fm-gap);
+  align-items: baseline;
+}
+.fm-firm__name { font-size: 1.375rem; font-weight: 540; line-height: 1.2; letter-spacing: -0.02em; }
+.fm-firm__type { font-size: 0.875rem; font-weight: 550; color: var(--ink); }
+.fm-firm__divs { font-size: 0.9375rem; color: var(--ink-2); }
+.fm-firm__locs { font-size: 0.875rem; color: var(--ink-2); }
+.fm-progs { margin-top: 16px; }
+.fm-prog {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--fm-when) var(--fm-go);
+  gap: 10px var(--fm-gap);
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+}
+.fm-prog__name { font-size: 1rem; font-weight: 540; line-height: 1.4; letter-spacing: -0.01em; }
+.fm-prog__meta { margin-top: 2px; font-size: 0.875rem; color: var(--ink-2); }
+.fm-prog .rc-tags .tag { font-weight: 400; }
+.fm-when { font-size: 0.9375rem; }
+.fm-when div { display: grid; grid-template-columns: 3.5rem minmax(0, 1fr); gap: 8px; }
+.fm-when div + div { margin-top: 4px; }
+.fm-when dt { padding-top: 1px; font-size: 0.8125rem; color: var(--ink-3); }
+.fm-when dd { margin: 0; }
+.fm-prog__go { text-align: right; }
+/* the calendar's link, with a 44px target that keeps its line */
+.fm .rc-apply { min-height: 44px; margin-block: -10px; }
+.fm-firm__more { padding: 0 0 20px; }
+.fm-firm__more .rc-apply { margin-block: 0; }
+.fm-empty[hidden] { display: none; }
+.fm .page__body { margin-top: clamp(48px, 8vw, 88px); }
+@media (hover: hover) and (pointer: fine) {
+  .fm .rc-apply .icon { transition: transform 200ms var(--ease-out); }
+  .fm-prog__go .rc-apply:hover .icon { transform: translate(2px, -2px); }
+  .fm-firm__more .rc-apply:hover .icon { transform: translateX(3px); }
+}
+@media (max-width: 960px) {
+  .fm { --fm-when: 14.5rem; --fm-go: 5.5rem; --fm-gap: 16px; }
+}
+@media (max-width: 640px) {
+  .fm-firm { padding-top: 24px; }
+  .fm-firm__head { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .fm-firm__type { margin-bottom: 2px; }
+  .fm-prog { grid-template-columns: minmax(0, 1fr); padding: 14px 0; }
+  .fm-prog__go { text-align: left; }
+  .fm-prog__go .rc-apply { margin-block: -8px -12px; }
+}
+
+/* ==== end Firms ==== */
+
+
+/* ==== Application tracker (application-tracker/) ==== */
+/* Owner-approved sketch, 1 Nov 2026: the reader's applications in four columns by status
+   (one under another on phones), each a hairline card; add, details and confirm in modal
+   dialogs drawn like the search palette (ground, --rule-strong border, square, no shadow).
+   Fields follow the Lab's; errors are ink only. */
+.at-nojs { max-width: 44rem; margin-top: clamp(24px, 4vw, 40px); color: var(--ink-2); }
+.at-nojs[hidden], .at-app[hidden], .at-warn[hidden], .at-none[hidden], .at-dlg__links[hidden], .at-textbtn[hidden] { display: none; }
+.at-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-top: clamp(24px, 4vw, 40px); }
+.at-plus { position: relative; flex: none; width: 12px; height: 12px; }
+.at-plus::before,
+.at-plus::after { content: ""; position: absolute; top: 50%; left: 0; width: 12px; height: 1.5px; margin-top: -0.75px; background: currentColor; }
+.at-plus::after { transform: rotate(90deg); }
+.at-warn { display: flex; gap: 12px; max-width: 44rem; margin-top: 20px; padding: 16px 18px; border: 1px solid var(--rule-strong); }
+.at-warn > .icon { margin-top: 3px; font-size: 1.25rem; }
+.at-warn__t { font-weight: 600; }
+.at-warn p + p { margin-top: 4px; font-size: 0.9375rem; color: var(--ink-2); }
+
+.at-board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px clamp(16px, 2vw, 32px); align-items: start; margin-top: clamp(28px, 4vw, 48px); }
+.at-col__h { display: flex; align-items: baseline; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--rule-strong); font-size: 0.9375rem; font-weight: 600; }
+.at-n { font-variant-numeric: tabular-nums; font-weight: 450; color: var(--ink-3); }
+.at-none { padding: 14px 0; font-size: 0.875rem; color: var(--ink-3); }
+.at-list { display: grid; gap: 12px; margin-top: 12px; }
+.at-list:empty { display: none; }
+.at-card { padding: 16px; border: 1px solid var(--rule); }
+.at-card__firm { font-size: 1.0625rem; font-weight: 540; line-height: 1.3; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.at-card__role { margin-top: 2px; font-size: 0.875rem; color: var(--ink-2); overflow-wrap: anywhere; }
+.at-card__dl { display: grid; gap: 6px; margin-top: 12px; font-size: 0.875rem; }
+.at-card__dl div { display: grid; grid-template-columns: 3.75rem minmax(0, 1fr); gap: 8px; }
+.at-card__dl dt { padding-top: 1px; font-size: 0.8125rem; color: var(--ink-3); }
+.at-card__dl dd { margin: 0; overflow-wrap: anywhere; }
+.at-soon { display: block; margin-top: 2px; font-size: 0.8125rem; font-weight: 600; }
+.at-src { display: block; margin-top: 2px; font-size: 0.8125rem; color: var(--ink-3); }
+.at-card__extra { margin-top: 10px; font-size: 0.8125rem; color: var(--ink-3); }
+.at-card__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.at-card__lbl { font-size: 0.8125rem; color: var(--ink-3); }
+.at-card .at-open { margin-left: auto; }
+.at .btn--sm { min-height: 44px; }
+
+.at-select { position: relative; display: inline-flex; min-width: 0; }
+.at-select select {
+  min-height: 44px;
+  padding: 0 34px 0 12px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 550;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.at-select > .icon { position: absolute; top: 50%; right: 12px; font-size: 0.875rem; transform: translateY(-50%); pointer-events: none; }
+.at-select select:focus-visible { outline: 2px solid var(--focus); outline-offset: 0; }
+
+.at-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-top: clamp(32px, 5vw, 48px); padding-top: 16px; border-top: 1px solid var(--rule); }
+.at-foot__t { font-size: 0.875rem; color: var(--ink-2); }
+.at-foot__acts { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.at-foot__st { flex-basis: 100%; font-size: 0.875rem; color: var(--ink-2); }
+.at-foot__st:empty { display: none; }
+.at .page__body { margin-top: clamp(48px, 8vw, 88px); }
+
+/* Dialogs */
+.at-dlg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: clamp(16px, 6vh, 64px) var(--gutter);
+  border: 0;
+  background: var(--scrim);
+  color: var(--ink);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* the dialog is its own scrim, as the search palette is */
+.at-dlg::backdrop { background: transparent; }
+.at-dlg__panel { display: block; width: min(100%, 720px); margin: 0 auto; padding: clamp(20px, 3vw, 32px); border: 1px solid var(--rule-strong); background: var(--ground); }
+.at-dlg--sm .at-dlg__panel { width: min(100%, 480px); margin-top: clamp(0px, 12vh, 96px); }
+.at-dlg__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.at-dlg__title { font-size: clamp(1.375rem, 2vw, 1.75rem); font-weight: 540; line-height: 1.15; letter-spacing: -0.025em; overflow-wrap: anywhere; }
+.at-dlg__sub { margin-top: 6px; color: var(--ink-2); overflow-wrap: anywhere; }
+.at-x { display: grid; flex: none; place-items: center; width: 44px; height: 44px; margin: -10px -12px 0 0; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; font-size: 1.25rem; cursor: pointer; }
+.at-file { font: inherit; }
+.at-dlg__links { display: flex; flex-wrap: wrap; gap: 0 24px; margin-top: 8px; }
+.at-dlg__links .rc-apply { min-height: 44px; }
+.at-sec { margin: 24px 0 0; padding: 24px 0 0; border: 0; border-top: 1px solid var(--rule); min-width: 0; }
+.at-sec__h { margin-bottom: 14px; padding: 0; font-size: 1.0625rem; font-weight: 540; letter-spacing: -0.01em; }
+.at-contacts > .at-sec__h { float: left; width: 100%; margin-bottom: 12px; }
+.at-contacts > .at-sec__h + * { clear: both; }
+.at-dlg__note { margin-top: 24px; font-size: 0.8125rem; color: var(--ink-3); }
+.at-dlg__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; padding-top: 20px; border-top: 1px solid var(--rule); }
+.at-dlg__acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.at-dlg--sm .at-dlg__sub { max-width: 46ch; }
+
+.at-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); gap: 16px; }
+.at-fields--next { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); margin-top: 16px; }
+.at-fields--name { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+.at-field .at-select { display: flex; }
+.at-field .at-select select { width: 100%; min-height: 52px; padding-left: 16px; font-size: 1rem; font-weight: 400; }
+.at-field .at-select > .icon { right: 16px; }
+.at-field { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.at-field label,
+.at-pick label { display: flex; flex-wrap: wrap; gap: 0 8px; font-size: 0.875rem; font-weight: 550; }
+.at-unit { font-weight: 400; color: var(--ink-3); }
+.at-field input,
+.at-field textarea,
+.at-pick input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.at-field textarea { min-height: 128px; padding: 12px 16px; line-height: 1.5; resize: vertical; }
+.at-field input::placeholder,
+.at-pick input::placeholder { color: var(--ink-3); }
+.at-pick input::-webkit-search-cancel-button { display: none; }
+.at-field input:focus-visible,
+.at-field textarea:focus-visible,
+.at-pick input:focus-visible { outline: 2px solid var(--focus); outline-offset: 0; }
+.at-field input[aria-invalid="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.at-hint { font-size: 0.8125rem; color: var(--ink-3); }
+.at-hint:empty { display: none; }
+.at-textbtn { justify-self: start; min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; font-size: 0.875rem; font-weight: 550; text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 0.22em; cursor: pointer; }
+.at-err { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 0.875rem; color: var(--ink-2); }
+.at-err:empty { display: none; }
+.at-err.is-error { font-weight: 650; color: var(--ink); }
+.at-err .icon { font-size: 1.25rem; }
+.at-own .btn { margin-top: 16px; }
+
+/* the picker: the Lab's company list, set in the dialog */
+.at-pick { display: grid; gap: 8px; }
+.at-opts { max-height: min(44vh, 22rem); overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--rule-strong); border-top: 0; margin-top: -8px; }
+.at-opts li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; align-items: baseline; min-height: 44px; padding: 10px 16px; border-bottom: 1px solid var(--rule); cursor: pointer; }
+.at-opts li:last-child { border-bottom: 0; }
+.at-opts li[aria-selected="true"] { background: var(--ground-2); }
+.at-o__firm { font-size: 0.9375rem; font-weight: 540; }
+.at-o__prog { grid-column: 1; font-size: 0.875rem; color: var(--ink-2); }
+.at-o__meta { grid-column: 2; grid-row: 1 / span 2; align-self: center; font-size: 0.8125rem; color: var(--ink-3); text-align: right; }
+.at-o__on { display: block; color: var(--ink); font-weight: 550; }
+.at-opts li[aria-disabled="true"] { cursor: default; }
+.at-opts li[aria-disabled="true"] .at-o__firm,
+.at-opts li[aria-disabled="true"] .at-o__prog { color: var(--ink-3); }
+.at-opts .at-o__none { display: block; font-size: 0.875rem; color: var(--ink-2); cursor: default; }
+.at-qst { font-size: 0.875rem; color: var(--ink-2); }
+.at-qst:empty { display: none; }
+
+.at-clist { display: grid; gap: 16px; }
+.at-clist:empty { display: none; }
+.at-contact { padding-bottom: 16px; border-bottom: 1px solid var(--rule); }
+.at-contact__n { margin-bottom: 8px; font-size: 0.8125rem; color: var(--ink-3); }
+.at-clist:not(:empty) + .at-c-add { margin-top: 16px; }
+
+@media (hover: hover) and (pointer: fine) {
+  .at-opts li:not([aria-disabled="true"]):not(.at-o__none):hover { background: var(--ground-2); }
+  .at-x:hover { color: var(--ink-2); }
+  .at-textbtn:hover { text-decoration-color: var(--ink); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .at-dlg { opacity: 0; transition: opacity 180ms var(--ease-out); }
+  .at-dlg__panel { transform: translateY(-8px) scale(0.985); transition: transform 240ms var(--ease-out); }
+  .at-dlg.is-open { opacity: 1; }
+  .at-dlg.is-open .at-dlg__panel { transform: none; }
+}
+@media (max-width: 1100px) {
+  .at-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .at-bar .btn { flex: 1 1 100%; }
+  .at-board { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .at-foot__acts { margin-left: 0; }
+  .at-fields--next,
+  .at-fields--name { grid-template-columns: minmax(0, 1fr); }
+  .at-opts li { grid-template-columns: minmax(0, 1fr); }
+  .at-o__meta { grid-column: 1; grid-row: auto; text-align: left; }
+  .at-dlg { padding: 12px; }
+  .at-dlg--sm .at-dlg__panel { margin-top: 0; }
+  .at-dlg__foot .btn { flex: 1 1 auto; }
+}
+
+/* ==== end Application tracker ==== */

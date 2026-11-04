@@ -30,7 +30,9 @@ without a record shows its source and "Data pending". Lab charts are schematic
 shapes, not market data, and labelled "Illustrative". The calendar reads
 .cache/calendar/calendar.json, written by tools/calendar_data.py. Follow DESIGN.md.
 """
+import base64
 import datetime as dt
+import hashlib
 import html
 import json
 import math
@@ -40,6 +42,7 @@ import re
 import shutil
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -47,6 +50,13 @@ import nyse  # noqa: E402
 from calendar_data import MOVES as CAL_MOVES, SOURCES as CAL_SOURCES  # noqa: E402
 from legal_content import LEGAL, LEGAL_UPDATED, PRIVACY, PRIVACY_UPDATED  # noqa: E402
 from world_data import AXES as WORLD_AXES, MARKETS as WORLD_MARKETS  # noqa: E402
+import page_chart_of_the_day  # noqa: E402
+import page_central_banks  # noqa: E402
+import page_recession_watch  # noqa: E402
+import page_market_history  # noqa: E402
+import page_interview_simulator  # noqa: E402
+import page_firms  # noqa: E402
+import page_application_tracker  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT
@@ -67,9 +77,12 @@ SOCIALS = [
 ]
 
 # Absolute site address, no trailing slash, e.g. "https://andramarkets.com".
-# Social cards need it for og:image and canonical links. Left empty until the
-# site has its own domain, so no account name is baked into the pages.
-SITE_URL = ""
+# Social cards need it for og:image and canonical links: without it LinkedIn,
+# X and WhatsApp show a shared link with no image. Left empty until the site
+# has its own domain, so no account name is baked into the pages. Set it with
+# the repository variable SITE_URL (Settings, Secrets and variables, Actions,
+# Variables); the deploy passes it here.
+SITE_URL = os.environ.get("SITE_URL", "").strip().rstrip("/")
 
 # The profile API (worker/, a Cloudflare Worker) that the company pages call for live
 # prices, fundamentals and news, with no trailing slash. The address is public
@@ -204,132 +217,226 @@ def span(vals, pad_frac=0.12, floor=0.05):
     return lo - pad, hi + pad
 
 
+# Each tile names what it draws (owner-approved, 1 Nov 2026): names and values
+# are written on the chart, so it reads without a pointer, on a phone too.
+TW, TH = 320, 176  # tile chart box, in user units
+
+# Heat cells (sectors, correlation): deep green or red, the same in both themes,
+# deeper for a larger move; white type on them. A move that rounds to zero is grey.
+HEAT_UP = ((0x0E, 0x4A, 0x2B), (0x11, 0x80, 0x3F))
+HEAT_DOWN = ((0x5A, 0x17, 0x1C), (0xB3, 0x21, 0x2A))
+HEAT_ZERO = (0x2A, 0x30, 0x35)
+
+
+def heat(v, m, decimals=2, from_zero=False):
+    if round(v, decimals) == 0:
+        return "#%02x%02x%02x" % HEAT_ZERO
+    lo, hi = HEAT_UP if v > 0 else HEAT_DOWN
+    if from_zero:
+        lo = HEAT_ZERO
+    t = min(1.0, abs(v) / (m or 1))
+    return "#%02x%02x%02x" % tuple(round(a + (b - a) * t) for a, b in zip(lo, hi))
+
+
+def tsvg(body, label, h=TH):
+    return f'<svg class="chart chart--tile" viewBox="0 0 {TW} {h:.0f}" role="img" aria-label="{esc(label)}">{body}</svg>'
+
+
+def ttext(x, y, text, cls="chart__label", anchor=None):
+    a = f' text-anchor="{anchor}"' if anchor else ""
+    return f'<text class="{cls}" x="{x:.1f}" y="{y:.1f}"{a}>{text}</text>'
+
+
+def tvalue(x, y, text, anchor=None):
+    """A signed figure on a chart, red or green from its printed sign."""
+    return ttext(x, y, text, f"chart__value {move_class(text)}".strip(), anchor)
+
+
+def ladder(items, gap=15):
+    """End-of-line labels [(y, svg)] pushed apart so none overlap."""
+    items = sorted(items, key=lambda it: it[0])
+    for i in range(1, len(items)):
+        if items[i][0] - items[i - 1][0] < gap:
+            items[i] = (items[i - 1][0] + gap, items[i][1])
+    return items
+
+
+def scale_y(vals, lo, hi, top, bottom):
+    rng = (hi - lo) or 1
+    return [bottom - (v - lo) / rng * (bottom - top) for v in vals]
+
+
+def xs_for(n, width, left=0.0):
+    return [left + (width * i / (n - 1) if n > 1 else 0) for i in range(n)]
+
+
+SECTOR_SHORT = {"Cons. discretionary": "Cons. disc.", "Cons. staples": "Staples", "Communications": "Comms"}
+
+
 def r_sector_heatmap(rec):
     rows = rec["data"]["rows"]
-    rows_n, cols, gap = 3, 4, 3
-    cw, ch = (W - gap * (cols - 1)) / cols, (H - gap * (rows_n - 1)) / rows_n
+    cols, gap = 4, 3
+    n_rows = -(-len(rows) // cols)
+    cw, ch = (TW - gap * (cols - 1)) / cols, (TH - gap * (n_rows - 1)) / n_rows
     m = max(abs(v) for _, v in rows) or 1
-    cells = "".join(
-        f'<rect class="{"up" if v >= 0 else "down"}" x="{(i % cols) * (cw + gap):.1f}" y="{(i // cols) * (ch + gap):.1f}" '
-        f'width="{cw:.1f}" height="{ch:.1f}" opacity="{0.45 + 0.55 * abs(v) / m:.2f}">{tip(f"{n}: {chg(v)}")}</rect>'
-        for i, (n, v) in enumerate(rows))
+    cells = []
+    for i, (n, v) in enumerate(rows):
+        x, y = (i % cols) * (cw + gap), (i // cols) * (ch + gap)
+        cells.append(f'<g>{tip(f"{n}: {chg(v)}")}<rect x="{x:.1f}" y="{y:.1f}" width="{cw:.1f}" height="{ch:.1f}" style="fill:{heat(v, m)}"/>'
+                     + ttext(x + 9, y + ch / 2 - 4, esc(SECTOR_SHORT.get(n, n)), "chart__heat")
+                     + ttext(x + 9, y + ch / 2 + 13, chg(v), "chart__heat chart__heat--v") + "</g>")
     label = "S&P 500 sector ETFs ranked by the day's move: " + ", ".join(f"{n} {chg(v)}" for n, v in rows)
-    return data_svg(W, H, cells, label, stretch=False), [("up", "Up"), ("down", "Down")]
+    return tsvg("".join(cells), label)
 
 
-def r_hbars(rows, label, gap):
-    m = max(abs(r[1]) for r in rows) or 1
-    rh = (H - gap * (len(rows) - 1)) / len(rows)
-    mid = W / 2
-    out = [f'<line class="ref" x1="{mid}" x2="{mid}" y1="0" y2="{H}"/>']
-    for i, r in enumerate(rows):
-        n, v = r[0], r[1]
-        bw = max(1.0, abs(v) / m * (mid - 6))
-        x = mid if v >= 0 else mid - bw
-        out.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{x:.1f}" y="{i * (rh + gap):.1f}" width="{bw:.1f}" height="{rh:.1f}">'
-                   f'{tip(f"{n}: {chg(v)}" + (f", {short_day(r[2])}" if len(r) > 2 else ""))}</rect>')
-    return data_svg(W, H, "".join(out), label)
+def r_hbars(rows, label):
+    """Diverging bars with each name and its signed change: [(name, change)]."""
+    rh = min(24.0, TH / len(rows))
+    h = rh * len(rows)
+    x0, half = 206, 66
+    m = max(abs(v) for _, v in rows) or 1
+    out = [f'<line class="ref" x1="{x0}" x2="{x0}" y1="0" y2="{h:.1f}"/>']
+    for i, (name, v) in enumerate(rows):
+        y = i * rh + rh / 2
+        bw = max(1.0, half * abs(v) / m)
+        x = x0 if v >= 0 else x0 - bw
+        out.append(f'<g>{tip(f"{name}: {chg(v)}")}' + ttext(0, y + 4, esc(name))
+                   + f'<rect class="{"up" if v >= 0 else "down"}" x="{x:.1f}" y="{y - 5:.1f}" width="{bw:.1f}" height="10"/>'
+                   + tvalue(TW, y + 4, chg(v), "end") + "</g>")
+    return tsvg("".join(out), label, h)
 
 
 def r_global_indices(rec):
     rows = rec["data"]["rows"]
     label = "Equity index moves at each latest local close: " + ", ".join(
         f"{n} {chg(v)}" + ("" if day == rec["asof"] else f" ({short_day(day)})") for n, v, day in rows)
-    return r_hbars(rows, label, 4), [("up", "Up"), ("down", "Down")]
+    return r_hbars([(n if day == rec["asof"] else f"{n}, {short_day(day)}", v) for n, v, day in rows], label)
 
 
 def r_fx_majors(rec):
     rows = rec["data"]["rows"]
     label = "The US dollar's move against each major currency: " + ", ".join(f"{n} {chg(v)}" for n, v in rows)
-    return r_hbars([[f"Dollar against the {n.lower()}" if n != "Euro" else "Dollar against the euro", v] for n, v in rows], label, 6), \
-        [("up", "Dollar stronger"), ("down", "Dollar weaker")]
+    return r_hbars([(n, v) for n, v in rows], label)
+
+
+TENOR = {"9D": "9 days", "1M": "1 month", "3M": "3 months", "6M": "6 months"}
 
 
 def r_vol_term(rec):
     d = rec["data"]
     lo, hi = span(d["now"] + d["before"], 0.15, 0.5)
-    X = lambda t: 14 + (W - 28) * (math.sqrt(t) - math.sqrt(d["days"][0])) / (math.sqrt(d["days"][-1]) - math.sqrt(d["days"][0]))  # noqa: E731
-    Y = lambda v: H - 12 - (H - 24) * (v - lo) / (hi - lo)  # noqa: E731
-    a = [(X(t), Y(v)) for t, v in zip(d["days"], d["now"])]
-    b = [(X(t), Y(v)) for t, v in zip(d["days"], d["before"])]
+    # Expiries evenly spaced on the tile, so their names never collide (the
+    # dashboard page spaces them by time).
+    xs = xs_for(len(d["days"]), TW - 80, 24)
+    yn, yb = scale_y(d["now"], lo, hi, 26, 140), scale_y(d["before"], lo, hi, 26, 140)
     now, then = short_day(rec["asof"]), short_day(d["then"])
-    dots = "".join(f'<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="2.5">{tip(f"{lb}: {v:.2f} ({then}: {o:.2f})")}</circle>'
-                   for (x, y), lb, v, o in zip(a, d["labels"], d["now"], d["before"]))
+    out = [f'<line class="grid-line" x1="0" x2="{TW}" y1="{y}" y2="{y}"/>' for y in (26, 83, 140)]
+    out.append(f'<path class="dash" d="{d_path(list(zip(xs, yb)))}"/><path class="line" d="{d_path(list(zip(xs, yn)))}"/>')
+    for x, y, lb, v, o in zip(xs, yn, d["labels"], d["now"], d["before"]):
+        out.append(f'<g>{tip(f"{lb}: {v:.2f} ({then}: {o:.2f})")}<circle class="dot" cx="{x:.1f}" cy="{y:.1f}" r="3"/></g>'
+                   + ttext(x, y - 10, f"{v:.2f}", "chart__value", "middle")
+                   + ttext(x, TH - 6, TENOR.get(lb, lb), "chart__label", "middle"))
+    out.append(ttext(xs[-1] + 8, yb[-1] + 4, then))
     label = (f"Cboe S&P 500 implied volatility by expiry on {now} against {then}: "
              + ", ".join(f"{lb} {v:.2f}" for lb, v in zip(d["labels"], d["now"])))
-    return (data_svg(W, H, grid_lines(W, H, 4) + f'<path class="dash" d="{d_path(b)}"/><path class="line" d="{d_path(a)}"/>' + dots, label, stretch=False),
-            [("line", now), ("dash", then)])
+    return tsvg("".join(out), label)
+
+
+def end_lines(series, lo, hi, plot_w, fmt, ref=None):
+    """Lines across the plot with each one's name and last value at its end:
+    series is [(name, values, style)]."""
+    out = [f'<line class="grid-line" x1="0" x2="{plot_w}" y1="{y}" y2="{y}"/>' for y in (10, 88, 166)]
+    if ref is not None:
+        ry = scale_y([ref], lo, hi, 10, 166)[0]
+        out.append(f'<line class="ref" x1="0" x2="{plot_w}" y1="{ry:.1f}" y2="{ry:.1f}"/>')
+    labels = []
+    for name, vals, style in series:
+        ys = scale_y(vals, lo, hi, 10, 166)
+        pts = list(zip(xs_for(len(vals), plot_w), ys))
+        out.append(f'<path class="{style}" d="{d_path(pts)}"/>')
+        if style == "line":
+            out.append(f'<circle class="dot" cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="2.6"/>')
+        labels.append((ys[-1] + 4, f"{name} {fmt(vals[-1])}"))
+    out += [ttext(plot_w + 10, y, text, "chart__value") for y, text in ladder(labels)]
+    return "".join(out)
 
 
 def r_commodities(rec):
     d = rec["data"]
-    pa, pb = fit([d["oil"], d["gold"]], W, H, 8)
+    lo, hi = span(d["oil"] + d["gold"] + [100], 0.06, 0.5)
+    body = end_lines([("WTI", d["oil"], "line"), ("Gold", d["gold"], "dash")], lo, hi, TW - 82, lambda v: f"{v:.1f}", ref=100)
     label = (f"WTI crude and gold front-month futures, rebased to 100 on {short_day(d['start'])}: "
              f"WTI {d['oil'][-1]:.1f}, gold {d['gold'][-1]:.1f} on {short_day(rec['asof'])}")
-    return (data_svg(W, H, grid_lines(W, H, 3) + f'<path class="line" d="{d_path(pa)}"/><path class="dash" d="{d_path(pb)}"/>', label),
-            [("line", "WTI crude"), ("dash", "Gold")])
+    return tsvg(body, label)
 
 
 def r_credit_spreads(rec):
     d = rec["data"]
-    pa, pb = fit([d["hy"], d["ig"]], W, H, 8, 0, max(d["hy"]) * 1.08)
-    area = d_path(pb) + f" L{pb[-1][0]:.1f} {H} L{pb[0][0]:.1f} {H} Z"
+    body = end_lines([("HY", d["hy"], "line"), ("IG", d["ig"], "dash")], 0, max(d["hy"]) * 1.08, TW - 82, pct)
     label = (f"Option-adjusted spreads over Treasuries since {short_day(d['start'])}: high yield {pct(d['hy'][-1])}, "
              f"investment grade {pct(d['ig'][-1])} on {short_day(rec['asof'])}")
-    return (data_svg(W, H, grid_lines(W, H, 3) + f'<path class="area" d="{area}"/><path class="line" d="{d_path(pa)}"/><path class="dash" d="{d_path(pb)}"/>', label),
-            [("line", "High yield"), ("dash", "Investment grade")])
+    return tsvg(body, label)
 
 
 def r_inflation_labour(rec):
     d = rec["data"]
     infl = [v for _, v in d["cpi"]]
-    pa, = fit([infl], W, H * 0.55, 8)
     jobs = d["jobs"]
+    pw = TW - 70
+    lo, hi = span(infl, 0.1, 0.2)
+    pts = list(zip(xs_for(len(infl), pw), scale_y(infl, lo, hi, 10, 92)))
+    out = [f'<path class="line" d="{d_path(pts)}"/><circle class="dot" cx="{pts[-1][0]:.1f}" cy="{pts[-1][1]:.1f}" r="2.6"/>',
+           ttext(pw + 10, pts[-1][1] + 4, f"CPI {pct(infl[-1], 1)}", "chart__value")]
     m = max(abs(v) for _, v in jobs) or 1
-    bw = W / len(jobs)
-    base = H - 4
-    bars = "".join(
-        f'<rect class="{"up" if v >= 0 else "down"}" x="{i * bw + 1:.1f}" y="{base - abs(v) / m * 36:.1f}" width="{bw - 2:.1f}" height="{max(abs(v) / m * 36, 0.5):.1f}">'
-        f'{tip(f"{month_name(day)}: {signed(v, 0)}k jobs")}</rect>'
-        for i, (day, v) in enumerate(jobs))
+    bw, base = pw / len(jobs), TH - 4
+    for i, (day, v) in enumerate(jobs):
+        bh = max(abs(v) / m * 52, 0.6)
+        out.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{i * bw + 0.8:.1f}" y="{base - bh:.1f}" width="{max(bw - 1.6, 0.6):.1f}" height="{bh:.1f}">'
+                   f'{tip(f"{month_name(day)}: {signed(v, 0)}k jobs")}</rect>')
+    out.append(ttext(pw + 10, base - 16, "Jobs") + tvalue(pw + 10, base - 1, f"{signed(jobs[-1][1], 0)}k"))
     label = (f"US consumer price inflation, year on year, {pct(infl[-1], 1)} in {month_name(d['cpi_month'])}, "
              f"above monthly payroll changes, {signed(jobs[-1][1], 0)} thousand in {month_name(d['jobs_month'])}")
-    return data_svg(W, H, f'<path class="line" d="{d_path(pa)}"/>' + bars, label), [("line", "Inflation, y/y"), ("up", "Jobs added")]
+    return tsvg("".join(out), label)
 
 
 def r_correlation(rec):
     d = rec["data"]
     names, mx = d["names"], d["matrix"]
-    n, gap = len(names), 3
-    c = (H - gap * (n - 1)) / n
-    cells = []
-    for r in range(n):
-        for col in range(r, n):
-            v = mx[r][col]
-            cells.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{col * (c + gap):.1f}" y="{r * (c + gap):.1f}" '
-                         f'width="{c:.1f}" height="{c:.1f}" opacity="{0.45 + 0.55 * abs(v):.2f}">'
-                         f'{tip(f"{names[r]} and {names[col]}: {v:+.2f}".replace("-", MINUS))}</rect>')
+    n, gap, lw, th = len(names), 3, 44, 20
+    cw, ch = (TW - lw - gap * (n - 2)) / (n - 1), (TH - th - gap * (n - 2)) / (n - 1)
+    short = lambda name: esc(SHORT.get(name, name))  # noqa: E731
+    out = [ttext(lw + col * (cw + gap) + cw / 2, 13, short(names[col]), "chart__label", "middle") for col in range(n - 1)]
+    for r in range(1, n):
+        y = th + (r - 1) * (ch + gap)
+        out.append(ttext(0, y + ch / 2 + 4, short(names[r])))
+        for col in range(r):
+            x, v = lw + col * (cw + gap), mx[r][col]
+            fig = f"{v:+.2f}".replace("-", MINUS) if round(v, 2) else "0.00"
+            out.append(f'<g>{tip(f"{names[r]} and {names[col]}: {fig}")}'
+                       f'<rect x="{x:.1f}" y="{y:.1f}" width="{cw:.1f}" height="{ch:.1f}" style="fill:{heat(v, 1, from_zero=True)}"/>'
+                       + ttext(x + cw / 2, y + ch / 2 + 4, fig, "chart__heat", "middle") + "</g>")
     pairs = [f"{names[r]} and {names[col]} {mx[r][col]:+.2f}".replace("-", MINUS) for r in range(n) for col in range(r + 1, n)]
     label = f"Correlation of daily returns over {d['sessions']} sessions to {short_day(rec['asof'])}: " + ", ".join(pairs)
-    return data_svg(H, H, "".join(cells), label, stretch=False), [("up", "Positive"), ("down", "Negative")]
+    return tsvg("".join(out), label)
 
 
 def r_breadth(rec):
     d = rec["data"]
     net = [(day, adv - dec, adv, dec) for day, adv, dec, _ in d["sessions"]]
+    pw, gap = TW - 48, 2
     m = max(abs(v) for _, v, _, _ in net) or 1
-    gap = 3
-    bw = (W - gap * (len(net) - 1)) / len(net)
-    mid = H / 2
-    bars = [f'<line class="ref" x1="0" x2="{W}" y1="{mid}" y2="{mid}"/>']
+    bw = (pw - gap * (len(net) - 1)) / len(net)
+    mid = (TH - 16) / 2
+    out = [f'<line class="ref" x1="0" x2="{pw}" y1="{mid:.1f}" y2="{mid:.1f}"/>']
     for i, (day, v, adv, dec) in enumerate(net):
         bh = max(abs(v) / m * (mid - 4), 1.0)
-        y = mid - bh if v >= 0 else mid
-        bars.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{i * (bw + gap):.1f}" y="{y:.1f}" width="{bw:.1f}" height="{bh:.1f}">'
-                    f'{tip(f"{short_day(day)}: {adv} up, {dec} down")}</rect>')
+        out.append(f'<rect class="{"up" if v >= 0 else "down"}" x="{i * (bw + gap):.1f}" y="{mid - bh if v >= 0 else mid:.1f}" width="{bw:.1f}" height="{bh:.1f}">'
+                   f'{tip(f"{short_day(day)}: {adv} up, {dec} down")}</rect>')
+    out.append(tvalue(TW, mid + 4, signed(net[-1][1], 0), "end"))
+    out.append(ttext(0, TH - 2, short_day(net[0][0])) + ttext(pw, TH - 2, short_day(net[-1][0]), anchor="end"))
     label = (f"Advancers less decliners across the Andra Markets watchlist of {d['size']} US large caps, "
              f"{len(net)} sessions to {short_day(rec['asof'])}: " + ", ".join(f"{short_day(day)} {signed(v, 0)}" for day, v, _, _ in net))
-    return data_svg(W, H, "".join(bars), label), [("up", "More advancers"), ("down", "More decliners")]
+    return tsvg("".join(out), label)
 
 
 REAL = {
@@ -338,6 +445,84 @@ REAL = {
     "commodities": r_commodities, "credit_spreads": r_credit_spreads,
     "inflation_labour": r_inflation_labour, "breadth": r_breadth, "correlation": r_correlation,
 }
+
+
+def currency(name):
+    return name[0].lower() + name[1:] if name in ("Euro", "Pound") else name
+
+
+def tile_reading(key, rec):
+    """What a tile leads with: one figure and one line, from the figures it draws.
+    None when the record lacks what the line needs (the tile then shows its
+    description); a reading never breaks the build."""
+    try:
+        return _tile_reading(key, rec)
+    except (KeyError, IndexError, TypeError, ValueError, ZeroDivisionError):
+        return None
+
+
+def _tile_reading(key, rec):
+    d = rec["data"]
+    if key in ("sector_heatmap", "global_indices"):
+        rows = [(r[0], r[1]) for r in d["rows"]]
+        n, noun = len(rows), "sectors" if key == "sector_heatmap" else "benchmarks"
+        down_day = sorted(v for _, v in rows)[n // 2] < 0
+        lo, hi = min(rows, key=lambda r: r[1]), max(rows, key=lambda r: r[1])
+        lead, other = (lo, hi) if down_day else (hi, lo)
+        if down_day:
+            rose = sum(1 for _, v in rows if round(v, 2) > 0)
+            sub = f"Weakest of {n} {noun}. {rose} of {n} rose; {esc(other[0])} {mv(chg(other[1]))} led."
+        else:
+            fell = sum(1 for _, v in rows if round(v, 2) < 0)
+            sub = f"Strongest of {n} {noun}. {fell} of {n} fell; {esc(other[0])} {mv(chg(other[1]))} lagged."
+        return f"{esc(lead[0])} {mv(chg(lead[1]))}", sub
+    if key == "fx_majors":
+        rows = d["rows"]
+        big = max(rows, key=lambda r: abs(r[1]))
+        up = sum(1 for _, v in rows if round(v, 2) > 0)
+        down = sum(1 for _, v in rows if round(v, 2) < 0)
+        return (f"Dollar {mv(chg(big[1]))}",
+                f"against the {currency(big[0])}, its largest move. Stronger against {up} of {len(rows)} majors, weaker against {down}.")
+    if key == "vol_term":
+        now, before, labels = d["now"], d["before"], d["labels"]
+        i = labels.index("1M")
+        if now[0] > now[i]:
+            shape = "The 9-day sits above the 1-month: the front of the curve is inverted."
+        elif now[-1] > now[0]:
+            shape = "The curve slopes up: calm now, more uncertainty further out."
+        else:
+            shape = "The curve is flat across expiries."
+        return f"VIX {now[i]:.2f}", f"{mv(signed(now[i] - before[i], 2))} points since {short_day(d['then'])}. {shape}"
+    if key == "commodities":
+        oil, gold = d["oil"], d["gold"]
+        moves = [("WTI", (oil[-1] / oil[-2] - 1) * 100), ("Gold", (gold[-1] / gold[-2] - 1) * 100)]
+        lead, other = sorted(moves, key=lambda m: -abs(m[1]))
+        return (f"{lead[0]} {mv(chg(lead[1]))}",
+                f"on the day; {other[0]} {mv(chg(other[1]))}. Since {short_day(d['start'])}: WTI {oil[-1]:.0f}, gold {gold[-1]:.0f} (start = 100).")
+    if key == "credit_spreads":
+        det = rec["detail"]
+        hy = next(s["values"] for s in det["series"] if s["name"] == "High yield")
+        base = det["dates"].index(next(x for x in det["dates"] if x >= months_back_iso(det["dates"][-1], 1)))
+        bp = signed((hy[-1] - hy[base]) * 100, 0, "bp")
+        return f"High yield {pct(d['hy'][-1])}", f"{mv(bp)} in a month. Investment grade {pct(d['ig'][-1])}."
+    if key == "inflation_labour":
+        cpi, jobs = [x for x in d["cpi"] if x[1] is not None], [x for x in d["jobs"] if x[1] is not None]
+        when = "the same month" if jobs[-1][0] == cpi[-1][0] else month_name(jobs[-1][0])
+        return (f"CPI {pct(cpi[-1][1], 1)}",
+                f"year on year in {month_name(cpi[-1][0])}. Payrolls {mv(signed(jobs[-1][1], 0) + 'k')} in {when}.")
+    if key == "breadth":
+        day, adv, dec, _ = d["sessions"][-1]
+        return f"Net {mv(signed(adv - dec, 0))}", f"{adv} advancers and {dec} decliners of {d['size']} on {short_day(day)}."
+    if key == "correlation":
+        names, r = d["names"], d["matrix"][0][1]
+        a = abs(r)
+        how = ("barely move together" if a < 0.2
+               else ("move together, loosely" if r > 0 else "move apart, loosely") if a < 0.5
+               else ("move closely together" if r > 0 else "move in opposite directions"))
+        fig = f"{r:+.2f}".replace("-", MINUS) if round(r, 2) else "0.00"
+        return (f"{esc(SHORT.get(names[0], names[0]))} and {esc(SHORT.get(names[1], names[1]))} {fig}",
+                f"Stocks and long Treasuries {how} over {d['sessions']} sessions.")
+    return None
 
 
 def tile_asof(key, rec):
@@ -349,8 +534,8 @@ def tile_asof(key, rec):
 
 # Icons -----------------------------------------------------------------------
 
-ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x", "sun", "moon",
-              "magnifying-glass", "check", "link", "lock-simple", "pause", "play"] + [
+ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x",
+              "magnifying-glass", "check", "link", "pause", "play", "caret-down"] + [
     icon_name for _, url, icon_name in SOCIALS if url
 ]
 
@@ -619,7 +804,7 @@ DASH_MORE = {
 def dashboard_page(key, cat, name, desc, source, rec):
     slug, default, how, long_source = DASH_PAGES[key]
     cat_label = {k: label for k, label, _ in CATEGORIES}[cat]
-    crumbs = f'<p class="dd__crumbs"><a href="../../#dashboards">Dashboards</a> <span aria-hidden="true">/</span> {cat_label}</p>'
+    crumbs = f'<p class="dd__crumbs"><a href="../">Dashboards</a> <span aria-hidden="true">/</span> {cat_label}</p>'
     # A record cached before the pages carried histories draws as pending until refetched.
     if rec and rec["detail"]["kind"] in ("perf", "matrix", "curve") and not rec["detail"].get("hist"):
         rec = None
@@ -887,46 +1072,103 @@ def finite(v):
 # Page ------------------------------------------------------------------------
 
 THEME_BOOT = (
-    "(function(){var t='light';try{var q=new URLSearchParams(location.search).get('theme');"
+    "(function(){var t='dark';try{var q=new URLSearchParams(location.search).get('theme');"
     "if(q==='light'||q==='dark'){t=q;localStorage.setItem('andra-theme',q)}"
     "else{var s=localStorage.getItem('andra-theme');if(s==='light'||s==='dark')t=s}}catch(e){}"
     "document.documentElement.setAttribute('data-theme',t);"
-    "var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0a0c0d':'#f4f6f6'})();"
+    "var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0a0c0d':'#ffffff'})();"
 )
+
+# Moving between pages (owner-approved, 1 Nov 2026). From the homepage, its hero goes back
+# into the point at the centre (assets/hero-horse.js) and leaves a note in sessionStorage;
+# the section page's head picks it up before the first paint and marks html.arrive, so the
+# sphere opens out of that point and the page fades up over it (assets/section-scene.js,
+# site.css). Not under reduced motion; a note older than 8s is ignored.
+ARRIVE_BOOT = (
+    "(function(){try{var a=+sessionStorage.getItem('andra-arrive');sessionStorage.removeItem('andra-arrive');"
+    "if(a&&Date.now()-a<8000&&!matchMedia('(prefers-reduced-motion: reduce)').matches)"
+    "document.documentElement.classList.add('arrive')}catch(e){}})();"
+)
+
+# From one section page to another: a view transition across pages (Chrome, Edge, Safari;
+# others change page as before). Every page but the homepage opts in, so the homepage keeps
+# its own way out and the way back to it is unchanged. The header stays put, the sphere
+# carries on behind (assets/section-scene.js), the page before fades and the next one rises
+# into place; from the menu, the section's name flies into the new page's title (owner-
+# approved, 1 Nov 2026; site.css has the motion).
+VIEW_TRANSITION = "@media (prefers-reduced-motion: no-preference){@view-transition{navigation:auto;types:section}}"
+
+# The arriving half of that move, in the head so it runs before the page's first frame (the
+# moment the browser takes its picture of the new page). assets/site.js leaves a note as the
+# page before goes (andra-move: whether the move started from the menu, and whether it goes
+# back in history). The new page marks the move "enter" (its main rises into place), "back"
+# (it comes down instead) and, from the menu, "menu" when its title sits on one line, so the
+# name can fly into it; a title that wraps would land as a different shape, so there the name
+# simply fades. The expect link holds the first frame until main is parsed, title included.
+MOVE_BOOT = (
+    "addEventListener('pagereveal',function(e){var v=e.viewTransition;if(!v)return;"
+    "v.types.add('enter');var n=null;"
+    "try{n=JSON.parse(sessionStorage.getItem('andra-move'));sessionStorage.removeItem('andra-move')}catch(x){}"
+    "if(!n||!(Date.now()-n.at<8000))return;if(n.back)v.types.add('back');"
+    "var h=n.menu&&document.querySelector('main .page__title');"
+    "if(h&&h.offsetHeight&&h.offsetHeight<parseFloat(getComputedStyle(h).fontSize)*1.5)v.types.add('menu')});"
+)
+
+# Faster moves between pages: where the browser supports speculation rules (Chrome, Edge),
+# a page's HTML is fetched while the pointer rests on its link (or, on phones, when the
+# browser judges a link likely), so the click opens it without waiting for the network.
+# Only the HTML is fetched: no script runs before the click, nothing is shown, and a PDF
+# or a link that opens elsewhere is never fetched ahead. Other browsers ignore it.
+SPECULATION = ('<script type="speculationrules">'
+               '{"prefetch":[{"where":{"and":[{"href_matches":"/*"},'
+               '{"not":{"selector_matches":"a[href$=\\".pdf\\"], a[download], a[target]"}}]},'
+               '"eagerness":"moderate"}]}'
+               '</script>')
 
 
 def page(notes, cal):
-    latest = notes[0] if notes else None
-    strip = load_strip(latest)
-    if strip:
-        tape, tape_title, tape_src = strip
-    elif latest:
-        d = latest["day"]
-        items, any_stale = tape_items(latest)
-        tape = "".join(
-            f'<li class="tape__item"><span class="tape__name">{n}</span>'
-            f'<span class="tape__level">{level}</span><span class="tape__chg {move_class(change)}">{change}</span></li>'
-            for n, level, change in items
-        )
-        tape_title = f'Markets {day_med(d)}, {nyse.close_time(d)} ET'
-        tape_src = "Close and daily change. Sources: Yahoo Finance, FRED for the US 10Y yield."
-        if any_stale:
-            tape_src += " Prior close: no print yet for the session."
-    else:
-        tape = "".join(
-            f'<li class="tape__item"><span class="tape__name">{n}</span>'
-            f'<span class="tape__level ph">[live]</span><span class="tape__chg ph">[live]</span></li>'
-            for n, *_ in TAPE
-        )
-        tape_title = f'Markets {ph("[date]")}, {ph("[time]")} ET'
-        tape_src = f'Last and daily change. Source {ph("[data vendor]")}'
-    if latest:
-        # Always the newest published note, whatever the strip shows.
-        tape_note = (f'<a class="tape__note" href="reports/{latest["date"]}/"><span>Latest close note, {day_med(latest["day"])}: '
-                     f'{esc(latest["note"]["headline"])}</span>{icon("arrow-right")}</a>')
-    else:
-        tape_note = (f'<a class="tape__note" href="#note"><span>Latest close note, {ph("[date]")}: '
-                     f'<span class="ph ph--ink">[headline]</span></span>{icon("arrow-right")}</a>')
+    """The homepage: one screen, the phrase on top, the horse in the middle and the four
+    groups of the header menu around it (owner-approved, 1 Nov 2026; it was the headline,
+    the latest close note and an index of every section). No header menu and no footer:
+    the groups are the way in."""
+    return shell(
+        title="Andra Markets: markets research platform",
+        desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
+        body=f"""<main id="main" class="home">
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="hero__stage">
+      <span class="hero__sentinel" aria-hidden="true"></span>
+      <div class="hero__art" aria-hidden="true">
+        <img class="horse" data-src="assets/andra-horse.png" alt="" width="1024" height="1024" decoding="async">
+        <script>if(!window.__heroMap)__heroStill()</script>
+        <noscript><img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" decoding="async"></noscript>
+      </div>
+      <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" data-next="assets/section-horse.png?v={ver("section-horse.png")}" aria-hidden="true"></canvas>
+      <div class="wrap hero__copy">
+        <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
+        <nav class="hero__index" aria-label="All sections" style="--i:2">{hero_groups()}</nav>
+      </div>
+    </div>
+  </section>
+</main>""",
+        home="",
+        base="",
+        scripts=("hero-horse.js",),
+        nav=False,
+        footer=False,
+        ld={"@context": "https://schema.org", "@graph": [
+            ld_org(), dict({"@type": "WebSite", "name": "Andra Markets"}, **({"url": abs_url()} if SITE_URL else {}))]},
+        # the particle map is what the hero waits for: fetch it before anything else (the
+        # WebP copy; a browser that cannot decode WebP skips this and HERO_BOOT loads the PNG).
+        # HERO_BOOT runs in the head, so the header, which forms from the particles too, is
+        # clear before it is parsed.
+        head=(f'\n<link rel="preload" href="assets/horse-particles.webp?v={ver("horse-particles.webp")}" as="image" type="image/webp" fetchpriority="high">'
+              f'\n<script>{hero_boot()}</script>'),
+    )
+
+
+def dashboards_index():
+    """Every dashboard on one page (they were a homepage section until 31 Oct 2026)."""
     dash_data = load_dash_data()
     filters = f'<button type="button" class="chip" data-filter="all" data-label="All" aria-pressed="true">All <span class="chip__n">{len(DASHBOARDS)}</span></button>' + "".join(
         f'<button type="button" class="chip" data-filter="{key}" data-label="{label}" aria-pressed="false">{short} '
@@ -934,229 +1176,210 @@ def page(notes, cal):
         for key, label, short in CATEGORIES
     )
     cat_label = {k: label for k, label, _ in CATEGORIES}
-    swatch = {"line": "k-solid", "dash": "k-dash", "up": "sw-up", "down": "sw-down"}
 
+    # Each tile leads with its reading (a figure and one line), then the chart with
+    # its names and values written on it (owner-approved, 1 Nov 2026). A tile
+    # without figures keeps its description and "Data pending".
     def tile(i, key, cat, name, desc, source):
         rec = dash_data.get(key)
+        reading = tile_reading(key, rec) if rec else None
         if rec:
-            chart, leg = REAL[key](rec)
-            items = "".join(f'<span><i class="{swatch[kind]}"></i>{label}</span>' for kind, label in leg)
-            figure = f'<div class="dash-tile__chart draw">{chart}</div><p class="key">{items}</p>'
+            figure = f'<div class="dash-tile__chart draw">{REAL[key](rec)}</div>'
             src = f'{cat_label[cat]}. {esc(rec["source"])}, {tile_asof(key, rec)}'
         else:
-            figure = '<div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div><p class="key" aria-hidden="true">&nbsp;</p>'
+            figure = '<div class="dash-tile__chart dash-tile__chart--pending"><p>Data pending</p></div>'
             src = f"{cat_label[cat]}. {source}."
+        lead = (f'<p class="dash-tile__fig">{reading[0]}</p><p class="dash-tile__sub">{reading[1]}</p>' if reading
+                else f'<p class="dash-tile__sub">{desc}</p>')
         return (f'<li class="dash-tile reveal" data-cat="{cat}" style="--i:{i % 3}">'
-                f'<a href="dashboards/{DASH_PAGES[key][0]}/" class="dash-tile__link">{figure}'
-                f'<div class="dash-tile__text">'
-                f'<h3>{name}</h3><p class="dash-tile__desc">{desc}</p>'
-                f'<p class="dash-tile__src">{src}</p></div>'
-                f'<span class="dash-tile__go">{icon("arrow-up-right")}</span></a></li>')
+                f'<a href="{DASH_PAGES[key][0]}/" class="dash-tile__link">'
+                f'<div class="dash-tile__top"><h3>{name}</h3><span class="dash-tile__go">{icon("arrow-up-right")}</span></div>'
+                f'<div class="dash-tile__read">{lead}</div>{figure}'
+                f'<p class="dash-tile__src">{src}</p></a></li>')
 
     tiles = "".join(tile(i, *t) for i, t in enumerate(DASHBOARDS))
-    calendar = calendar_home(cal, dt.datetime.now(dt.timezone.utc)) or '<p class="cl__none reveal">The calendar fills at the next deploy.</p>'
-    if latest:
-        archive = "".join(
-            f'<li><a href="reports/{r["date"]}/"><time datetime="{r["date"]}">{day_med(r["day"])}</time>'
-            f'<span class="note-list__title">{esc(r["note"]["headline"])}</span>{icon("arrow-right")}</a></li>'
-            for r in notes[1:4]
-        )
-        note_latest = f"""<article class="reveal" style="--i:1">
-          <h3 class="note__title">{esc(latest["note"]["headline"])}</h3>
-          <p class="note__summary">{esc(" ".join(latest["note"]["standfirst"].split()))}</p>
-          <p class="note__meta"><time datetime="{latest["date"]}">{day_med(latest["day"])}</time><span>{read_minutes(latest)} min read</span></p>
-          <a class="btn" href="reports/{latest["date"]}/">Read the note {icon("arrow-right")}</a>
-        </article>"""
-        all_notes = "reports/"
-    else:
-        archive = "".join(
-            f'<li><a href="#note"><span class="ph">[date]</span><span class="note-list__title"><span class="ph ph--ink">[Close note headline]</span></span>{icon("arrow-right")}</a></li>'
-            for _ in range(3)
-        )
-        note_latest = f"""<article class="reveal" style="--i:1">
-          <h3 class="note__title"><span class="ph ph--ink">[Headline of the latest close note]</span></h3>
-          <p class="note__summary">{ph("[Two sentences on the session: what moved, and why it mattered.]")}</p>
-          <p class="note__meta">{ph("[date]")}<span>{ph("[n]")} min read</span></p>
-          <a class="btn" href="#note">Read the note {icon("arrow-right")}</a>
-        </article>"""
-        all_notes = "#note"
-    return shell(
-        title="Andra Markets: markets research platform",
-        desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
-        body=f"""<main id="main">
-  <section class="hero" id="top" aria-labelledby="hero-title">
-    <span class="hero__sentinel" aria-hidden="true"></span>
-    <div class="hero__art" aria-hidden="true">
-      <img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" fetchpriority="high">
-    </div>
-    <div class="wrap hero__copy">
-      <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
-      <p class="hero__sub" style="--i:1">A markets research platform. Live dashboards, quant tools, an economic calendar and a daily close note.</p>
-      <div class="hero__actions" style="--i:2">
-        <a class="btn" href="#dashboards">Explore dashboards {icon("arrow-right")}</a>
-        <a class="btn btn--ghost" href="#subscribe">Subscribe</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="tape" aria-labelledby="tape-title">
-    <div class="wrap">
-      <div class="tape__head">
-        <h2 id="tape-title">{tape_title}</h2>
-        {tape_note}
-      </div>
-      <ul class="tape__list" tabindex="0" aria-label="Market levels">{tape}</ul>
-      <p class="tape__src">{tape_src}</p>
-    </div>
-  </section>
-
-  <section class="section dash" id="dashboards" aria-labelledby="dash-title">
-    <div class="wrap">
-      <div class="section-head">
-        <h2 class="section-title reveal" id="dash-title">Dashboards</h2>
-        <p class="lede reveal">Interactive views across rates, equities, macro and cross-asset. Each preview names its source and date.</p>
-      </div>
+    # The newest session among the daily tiles (inflation is monthly).
+    days = [rec["asof"] for key, rec in dash_data.items() if key != "inflation_labour" and rec.get("asof")]
+    asof = ""
+    if days:
+        last = dt.date.fromisoformat(max(days))
+        asof = f'\n      <p class="page__asof">Figures to the close of {last:%A} {day_med(last)}. Each tile names its own source and date.</p>'
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Dashboards</h1>
+      <p class="lede">Interactive views across rates, equities, macro and cross-asset. Open any one for its full history.</p>{asof}
+    </header>
+    <section class="dash dash-index" aria-label="All dashboards">
       <div class="filters" role="group" aria-label="Filter dashboards by category">{filters}</div>
       <p class="filters__status" role="status" aria-live="polite">Showing all {len(DASHBOARDS)} dashboards</p>
       <ul class="dash-grid">{tiles}</ul>
-    </div>
-  </section>
+    </section>
+  </div>
+</main>"""
+    return shell(title="Dashboards: Andra Markets",
+                 desc="Interactive views across rates, equities, macro and cross-asset, each with its source and date.",
+                 body=body, home="../", base="../", path="dashboards/")
 
-{sim_home()}
-  <section class="section lab" id="lab" aria-labelledby="lab-title">
-    <div class="wrap">
-      <div class="section-head">
-        <h2 class="section-title reveal" id="lab-title">Lab</h2>
-        <p class="lede reveal">Interactive quant tools. Change the inputs, watch the result move.</p>
-      </div>
-      <div class="lab-grid">
-        <a class="tool tool--wide reveal" href="lab/options-payoff/">
-          <div class="draw">{c_payoff()}</div>
-          <p class="key"><span><i class="k-solid"></i>Value today</span><span><i class="k-dash"></i>Payoff at expiry</span><span class="key__note">Illustrative</span></p>
-          <div class="tool__text">
-            <h3>Options payoff diagram</h3>
-            <p>Pick a strategy, from a single call to a straddle, and see its profit or loss at expiry and today across prices of the underlying.</p>
-            <p class="tool__params">Ten strategies. Strikes, volatility, days to expiry and rate are yours to set.</p>
-            <p class="tool__src">Black-Scholes model, calculated in your browser</p>
+def hero_groups():
+    """The homepage index: the header menu's four groups (owner-approved, 1 Nov 2026), two
+    each side of the horse (Markets and Tools left, Research and Careers right; two rows of
+    two on phones). Each name opens to its sections, one group at a time (details name)."""
+    def group(name, links):
+        items = "".join(f'<li><a href="{href}">{label}</a></li>' for label, href, _ in links)
+        return f'<details class="hero__group" name="hero-group"><summary>{name}</summary><ul>{items}</ul></details>'
+    groups = [group(name, links) for _, name, _, links in NAV_GROUPS]
+    half = len(groups) // 2
+    return (f'<div class="hero__side hero__side--l">{"".join(groups[:half])}</div>'
+            f'<div class="hero__side hero__side--r">{"".join(groups[half:])}</div>')
+
+
+def hero_boot():
+    """Runs in the homepage head, before the header and the hero are parsed. With WebGL it
+    starts the particle map's download at once (assets/hero-horse.js picks it up; the WebP
+    copy, else the PNG), and, when motion is allowed, marks the page so the still engraving,
+    the headline, the index and the header start hidden: the particles form them. If the
+    hero has not gone live within 3s (script blocked, slow network), they show.
+
+    The still engraving is only a fallback, so it is fetched only when it may show:
+    __heroStill() gives it its src without WebGL (right after the img), at the 3s mark,
+    and when hero-horse.js cannot run. Where the particles draw the horse, its 433 KB
+    are never downloaded."""
+    png = f"assets/horse-particles.png?v={ver('horse-particles.png')}"
+    webp = f"assets/horse-particles.webp?v={ver('horse-particles.webp')}"
+    return ("window.__heroStill=function(){var i=document.querySelector('.hero__art .horse');"
+            "if(i&&!i.getAttribute('src'))i.src=i.getAttribute('data-src')};"
+            "if(window.WebGLRenderingContext){"
+            "var m=new Image();m.fetchPriority='high';m.decoding='async';"
+            f"m.onerror=function(){{m.onerror=null;m.src='{png}'}};"
+            f"m.src='{webp}';window.__heroMap=m;"
+            "var r=document.documentElement;"
+            "if(!matchMedia('(prefers-reduced-motion: reduce)').matches)r.classList.add('hero-forming');"
+            "setTimeout(function(){var h=document.querySelector('.hero');"
+            "if(!h||!h.classList.contains('is-live')){r.classList.remove('hero-forming');__heroStill()}},3000)}")
+
+
+# The header menu in four groups (owner-approved, 31 Oct 2026): each opens a panel the
+# width of the page, its links with a line each. On phones and tablets the same markup
+# is the menu sheet: the group names in a row and one group under them, its sections in
+# the panel's cards one under another (owner-approved, 2 Nov 2026). Six sections in
+# every group (owner-approved, 1 Nov 2026): Tools holds the fourteen Lab tools and
+# Simulators in six themes. Each theme is a page of its own (owner, 4 Nov 2026: a link
+# into the Lab page halfway down did not feel like a section), as in the other groups:
+# TOOL_THEMES builds them.
+NAV_GROUPS = (
+    ("markets", "Markets", "Prices, rates and what is coming, with each figure's source and date.", (
+        ("Dashboards", "dashboards/", "Nine views across rates, equities, macro and cross-asset."),
+        ("Fed &amp; Rates", "fed-rates/", "Policy rate, FOMC odds and countdown, the Treasury curve."),
+        ("Calendar", "calendar/", "Releases, central banks and earnings, five weeks ahead."),
+        ("World", "world/", "Twenty-five markets compared on the same scale."),
+        ("FX", "fx/", "The dollar, the G10 majors and emerging-market currencies."),
+        ("Companies", "companies/", "Earnings and figures for 600 companies."))),
+    ("tools", "Tools", "Fourteen tools and simulators that run in your browser.", (
+        ("Options", "lab/options/", "The payoff at expiry and Black-Scholes with its Greeks."),
+        ("Bonds", "lab/bonds/", "Price, duration and convexity; yield to maturity."),
+        ("Risk &amp; portfolio", "lab/risk-and-portfolio/", "Correlation, the efficient frontier, position size and VaR."),
+        ("Valuation &amp; growth", "lab/valuation-and-growth/", "Discounted cash flow, compound growth, real return."),
+        ("Market replays", "simulators/market-replays/", "The Trading Simulator and the Panic Test, on real history."),
+        ("Strategy games", "simulators/strategy-games/", "Guess the Fed and the Portfolio Builder."))),
+    ("research", "Research", "What happened and why, on the record.", (
+        ("Daily note", "reports/", "One note every US trading day, after the close."),
+        ("Research Library", "research/", "Weekly reviews and longer research, as PDFs."),
+        ("Chart of the day", "chart-of-the-day/", "One chart from each session's close note."),
+        ("Central banks", "central-banks/", "The Fed, ECB, BoE and BoJ: rates, last moves, next meetings."),
+        ("Recession watch", "recession-watch/", "The curve, the Sahm rule, claims, credit and conditions."),
+        ("Market history", "market-history/", "The S&amp;P 500 since 1928, episode by episode."))),
+    ("careers", "Careers", "For students breaking into markets.", (
+        ("Interview prep", "interview-prep/", "This week's markets and the questions interviewers ask."),
+        ("Interview simulator", "interview-simulator/", "A timed mock interview, answered aloud, scored by topic."),
+        ("Break into Wall Street", "break-into-wall-street/", "Roles, CV, networking, technicals, visas."),
+        ("Recruiting calendar", "recruiting-calendar/", "When US firms open and close applications."),
+        ("Firms", "firms/", "The banks, boutiques and funds that hire, and for what."),
+        ("Application tracker", "application-tracker/", "Your applications, deadlines and contacts, kept in your browser."))),
+)
+
+
+# A small chart drawn beside each section in the open menu (owner-approved, 1 Nov 2026): a
+# line drawing in ink that says what the section is, with no figures, so it never reads as
+# data. Paths have pathLength 1, so site.css draws each from 0 to 1; .dot and .soft show
+# once the line is drawn; .base is the axis.
+NAV_CHARTS = {
+    "dashboards/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 50L18 42L30 46L44 30L58 34L72 20L86 26L110 10"/><circle class="dot" cx="110" cy="10" r="3"/>',
+    "fed-rates/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 52H24V42H46V32H68V24H84"/><path class="soft" d="M84 24H96V30H110"/><circle class="dot" cx="84" cy="24" r="3"/>',
+    "calendar/": '<path class="base" d="M2 44H110"/><path class="draw" pathLength="1" d="M14 44V26M34 44V32M54 44V14M74 44V30M94 44V20"/><circle class="dot" cx="54" cy="14" r="3"/>',
+    "world/": '<path class="soft" d="M56 4L84 18L82 46L56 60L30 46L28 18Z"/><path class="draw" pathLength="1" d="M56 12L74 22L78 42L56 50L38 40L34 22Z"/><circle class="dot" cx="78" cy="42" r="3"/>',
+    "fx/": '<path class="draw" pathLength="1" d="M2 14C30 18 50 46 110 50"/><path class="draw" pathLength="1" d="M2 48C34 44 60 18 110 14"/><circle class="dot" cx="57" cy="32" r="3"/>',
+    "companies/": '<path class="base" d="M2 60H110"/><path class="draw bar" pathLength="1" d="M12 60V42M28 60V32M44 60V38M60 60V22M76 60V28M92 60V12"/>',
+    "lab/options/": '<path class="base" d="M2 60H110"/><path class="soft" d="M48 8V60"/><path class="draw" pathLength="1" d="M2 46H48L106 8"/><circle class="dot" cx="106" cy="8" r="3"/>',
+    "lab/bonds/": '<path class="base" d="M2 60H110"/><path class="soft" d="M8 16L67 60"/><path class="draw" pathLength="1" d="M6 6C22 34 50 50 108 56"/><circle class="dot" cx="28" cy="31" r="3"/>',
+    "lab/risk-and-portfolio/": '<path class="base" d="M4 4V60H110"/><path class="draw" pathLength="1" d="M34 58C14 48 14 32 30 24C50 14 76 10 104 6"/><circle class="dot" cx="30" cy="24" r="3"/>',
+    "lab/valuation-and-growth/": '<path class="base" d="M2 60H110"/><path class="draw bar" pathLength="1" d="M14 60V40M30 60V43M46 60V46M62 60V49M78 60V52M98 60V14"/>',
+    "simulators/market-replays/": '<path class="base" d="M2 60H110"/><path class="soft" d="M22 14H110"/><path class="draw" pathLength="1" d="M2 30L12 22L22 14L30 26L38 44L46 54L56 48L66 38L78 30L90 22L100 16L110 12"/><circle class="dot" cx="110" cy="12" r="3"/>',
+    "simulators/strategy-games/": '<path class="soft" d="M44 32H96M44 32L96 52"/><path class="draw" pathLength="1" d="M8 32H44L96 12"/><circle class="dot" cx="96" cy="12" r="3"/>',
+    "reports/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 46L20 40L36 44L52 30L68 34L84 20L104 24"/><circle class="dot" cx="104" cy="24" r="3"/>',
+    "research/": '<path class="draw" pathLength="1" d="M10 12H92M10 24H104M10 36H82M10 48H96"/><path class="soft" d="M10 60H70"/>',
+    "interview-prep/": '<path class="draw" pathLength="1" d="M6 36L16 46L34 22"/><path class="draw" pathLength="1" d="M46 24H106M46 40H92"/>',
+    "break-into-wall-street/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 58H24V46H46V34H68V22H90V8"/><path class="soft" d="M84 14L90 8L96 14"/><circle class="dot" cx="90" cy="8" r="3"/>',
+    "chart-of-the-day/": '<path class="soft" d="M4 4H108V60H4Z"/><path class="draw" pathLength="1" d="M14 48L30 40L44 44L60 28L76 32L98 16"/><circle class="dot" cx="98" cy="16" r="3"/>',
+    "central-banks/": '<path class="base" d="M2 60H110"/><path class="soft" d="M2 56H28V50H54V40H80V44H110"/><path class="draw" pathLength="1" d="M2 52H20V42H40V30H66V38H88V46H110"/><circle class="dot" cx="110" cy="46" r="3"/>',
+    "recession-watch/": '<path class="soft" d="M46 4V60M64 4V60"/><path class="base" d="M2 34H110"/><path class="draw" pathLength="1" d="M2 22C18 20 30 26 42 40C50 48 60 48 68 38C80 24 96 20 110 18"/><circle class="dot" cx="110" cy="18" r="3"/>',
+    "market-history/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 56L12 50L18 56L26 52L34 44L40 48L50 36L56 46L64 34L74 28L80 38L90 22L100 16L110 8"/><circle class="dot" cx="110" cy="8" r="3"/>',
+    "interview-simulator/": '<path class="soft" d="M56 8A24 24 0 1 1 55.99 8"/><path class="draw" pathLength="1" d="M56 8A24 24 0 0 1 80 32M56 32V18"/><circle class="dot" cx="56" cy="32" r="3"/>',
+    "recruiting-calendar/": '<path class="soft" d="M10 6H102V60H10ZM10 20H102"/><path class="draw" pathLength="1" d="M24 32H36M50 32H62M76 32H88M24 46H36M50 46H62"/><circle class="dot" cx="82" cy="46" r="3"/>',
+    "firms/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M10 60V30H30V60M38 60V10H62V60M70 60V24H90V60M96 60V40H106V60"/>',
+    "application-tracker/": '<path class="soft" d="M6 6H36V58H6ZM41 6H71V58H41ZM76 6H106V58H76Z"/><path class="draw" pathLength="1" d="M11 16H31M11 26H31M11 36H31M46 16H66M46 26H66M81 16H101"/>',
+}
+
+
+def nav_chart(href):
+    paths = NAV_CHARTS.get(href)
+    return f'<svg class="nav-chart" viewBox="0 0 112 64" aria-hidden="true">{paths}</svg>' if paths else ""
+
+
+def nav_menu(base):
+    groups = []
+    for key, name, intro, links in NAV_GROUPS:
+        items = "".join(
+            f'<li style="--k:{k}"><a href="{base}{href}">{nav_chart(href)}<span class="nav__name"><span class="nav__label">{label}</span>{icon("arrow-right")}</span>'
+            f'<span class="nav__sub">{sub}</span></a></li>' for k, (label, href, sub) in enumerate(links))
+        groups.append(f"""<div class="nav__group">
+        <button class="nav__btn" type="button" aria-expanded="false" aria-controls="nav-{key}">{name}<svg class="icon nav__caret" aria-hidden="true"><use href="#i-caret-down"/></svg></button>
+        <div class="nav__panel" id="nav-{key}">
+          <div class="nav__inner">
+            <div class="nav__intro"><p class="nav__title">{name}</p><p class="nav__desc">{intro}</p></div>
+            <ul class="nav__links{' nav__links--two' if len(links) > 2 else ''}">{items}</ul>
           </div>
-          <span class="link">Open the diagram {icon("arrow-up-right")}</span>
-        </a>
-        <a class="tool reveal" href="lab/bond-calculator/" style="--i:1">
-          <div class="draw">{c_bond()}</div>
-          <p class="key"><span><i class="k-solid"></i>Price</span><span><i class="k-dash"></i>Duration estimate</span><span class="key__note">Illustrative</span></p>
-          <div class="tool__text">
-            <h3>Bond price and duration</h3>
-            <p>Price a bond from its yield and see how far the price moves when the yield does.</p>
-            <p class="tool__src">Discounted cash flows, calculated in your browser</p>
-          </div>
-          <span class="link">Open the calculator {icon("arrow-up-right")}</span>
-        </a>
-        <div class="tool tool--next reveal" style="--i:2">
-          <h3>Also in the Lab</h3>
-          <p>Eight more tools: risk and correlation across the companies in the earnings calendar, a Black-Scholes pricer with the Greeks, yield to maturity, a two-asset efficient frontier, discounted cash flow, position sizing and value at risk, real return after inflation, and compound growth.</p>
-          <a class="link" href="lab/risk-correlation/">Risk and correlation {icon("arrow-right")}</a>
-          <a class="link" href="lab/black-scholes/">Black-Scholes pricer {icon("arrow-right")}</a>
-          <a class="link" href="lab/">All Lab tools {icon("arrow-right")}</a>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section calendar" id="calendar" aria-labelledby="cal-title">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title reveal" id="cal-title">Calendar</h2>
-          <p class="lede reveal">This week's high-importance releases, central bank meetings and earnings. Times in New York and Madrid.</p>
-        </div>
-        <a class="link reveal" href="calendar/">Full calendar {icon("arrow-right")}</a>
-      </div>
-      <div class="reveal">{calendar}</div>
-    </div>
-  </section>
-
-  <section class="section note" id="note" aria-labelledby="note-title">
-    <div class="wrap grid">
-      <div class="note__latest">
-        <h2 class="section-title reveal" id="note-title">Daily close note</h2>
-        {note_latest}
-      </div>
-      <div class="note__archive reveal" style="--i:2">
-        <p class="note__label">Every US trading day, after the close.</p>
-        <ol class="note-list">{archive}</ol>
-        <a class="link" href="{all_notes}">All notes {icon("arrow-right")}</a>
-      </div>
-    </div>
-  </section>
-
-  <section class="section about" id="about" aria-labelledby="about-title">
-    <div class="wrap grid">
-      <h2 class="visually-hidden" id="about-title">About Andra Markets</h2>
-      <p class="about__statement reveal">Andra Markets reads the data every trading day and keeps the dashboards, tools, calendar and notes current. Built for professionals, written so anyone can learn from it.</p>
-      <dl class="reveal" style="--i:1">
-        <div><dt>Covers</dt><dd>US and global markets: rates, equities, macro, FX and commodities</dd></div>
-        <div><dt>Publishes</dt><dd>A close note every US trading day</dd></div>
-        <div><dt>Data</dt><dd class="ph">[data sources]</dd></div>
-      </dl>
-    </div>
-  </section>
-
-  <section class="section signup" id="subscribe" aria-labelledby="subscribe-title">
-    <div class="signup__art" aria-hidden="true"><img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" loading="lazy"></div>
-    <div class="wrap grid">
-      <h2 class="section-title reveal" id="subscribe-title">The market, in your inbox.</h2>
-      <form class="reveal" style="--i:1" novalidate>
-        <div class="field">
-          <label for="email">Email address</label>
-          <div class="field__row">
-            <input id="email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="you@company.com" aria-describedby="email-help email-status">
-            <button class="btn" type="submit">Subscribe</button>
-          </div>
-          <p class="field__help" id="email-help">The daily close note and new tools. Unsubscribe in one click.</p>
-          <p class="field__status" id="email-status" role="status" aria-live="polite"><span class="field__icon">{icon("warning-circle")}</span><span class="field__msg"></span></p>
-        </div>
-      </form>
-    </div>
-  </section>
-</main>""",
-        home="",
-        base="",
-    )
+      </div>""")
+    sep = "\n      "
+    return f'<nav class="nav" id="site-nav" aria-label="Primary">{sep}{sep.join(groups)}\n    </nav>'
 
 
-def site_header(home, base):
-    return f"""<header class="site-header">
-  <div class="wrap">
-    <a class="brand" href="{home or '#top'}" aria-label="Andra Markets, home">
-      <span class="brand__mark"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></span>
-      <span class="brand__name">Andra Markets</span>
-    </a>
-    <nav class="nav" id="site-nav" aria-label="Primary">
-      <a href="{home}#dashboards">Dashboards</a>
-      <a href="{base}fed-rates/">Fed &amp; Rates</a>
-      <a href="{base}companies/">Companies</a>
-      <a href="{base}lab/">Lab</a>
-      <a href="{base}simulators/">Simulators</a>
-      <a href="{base}calendar/">Calendar</a>
-      <a href="{base}world/">World</a>
-      <a href="{base}fx/">FX</a>
-      <a href="{base}research/">Research</a>
-      <a href="{home}#note">Daily note</a>
-      <a href="{base}interview-prep/">Interview prep</a>
-      <a href="{base}break-into-wall-street/">Break into Wall Street</a>
-      <a class="nav__subscribe" href="{home}#subscribe">Subscribe</a>
-    </nav>
-    <button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
-      <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
-    </button>
-    <button class="theme-btn" type="button" aria-label="Switch to dark theme">
-      <svg class="icon icon--sun" aria-hidden="true"><use href="#i-sun"/></svg>
-      <svg class="icon icon--moon" aria-hidden="true"><use href="#i-moon"/></svg>
-    </button>
-    <a class="btn btn--sm" href="{home}#subscribe">Subscribe</a>
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
+def site_header(home, base, nav=True):
+    menu = nav_menu(base) if nav else ""
+    menu_btn = """<button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav">
       <svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span>Menu</span>
-    </button>
+    </button>""" if nav else ""
+    # The homepage (nav=False): no search, and the legal line at the top right, as it has no footer.
+    # Phones leave out the first span: the disclaimer then fits on two lines (site.css).
+    search = """<button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
+      <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
+    </button>""" if nav else ""
+    legal = "" if nav else (f'<p class="site-header__legal"><a href="{base}legal/"><span>For information only.</span> '
+                            f'<span>Not investment advice.</span></a>'
+                            f'<a href="{base}privacy/">Privacy and cookies</a></p>')
+    # The mark is the theme switch (owner, 1 Nov 2026): it replaced the sun and moon button.
+    # The name beside it stays the link home.
+    return f"""<header class="site-header{'' if nav else ' site-header--home'}">
+  <div class="wrap">
+    <div class="brand">
+      <button class="brand__mark brand__toggle" type="button" aria-label="Switch to light theme" title="Switch to light theme"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></button>
+      <a class="brand__name" href="{home or '#top'}" aria-label="Andra Markets, home">Andra Markets</a>
+    </div>
+    {menu}
+    {search}
+    {legal}
+    {menu_btn}
   </div>
 </header>"""
 
@@ -1176,7 +1399,7 @@ def site_footer(home, base):
       <p>Research on US and global markets.</p>
     </div>
     <nav class="foot__nav" aria-label="Footer">
-      <a href="{home}#dashboards">Dashboards</a>
+      <a href="{base}dashboards/">Dashboards</a>
       <a href="{base}fed-rates/">Fed &amp; Rates</a>
       <a href="{base}companies/">Companies</a>
       <a href="{base}lab/">Lab</a>
@@ -1185,11 +1408,17 @@ def site_footer(home, base):
       <a href="{base}world/">World markets</a>
       <a href="{base}fx/">FX</a>
       <a href="{base}research/">Research Library</a>
-      <a href="{base}reports/">All notes</a>
-      <a href="{home}#note">Daily note</a>
+      <a href="{base}reports/">Daily note</a>
+      <a href="{base}chart-of-the-day/">Chart of the day</a>
+      <a href="{base}central-banks/">Central banks</a>
+      <a href="{base}recession-watch/">Recession watch</a>
+      <a href="{base}market-history/">Market history</a>
       <a href="{base}interview-prep/">Interview prep</a>
+      <a href="{base}interview-simulator/">Interview simulator</a>
       <a href="{base}break-into-wall-street/">Break into Wall Street</a>
-      <a href="{home}#about">About</a>
+      <a href="{base}recruiting-calendar/">Recruiting calendar</a>
+      <a href="{base}firms/">Firms</a>
+      <a href="{base}application-tracker/">Application tracker</a>
       <a href="{base}methodology/">Methodology</a>
       <a href="{base}sources/">Data sources</a>
       <a href="{base}legal/">Legal notice</a>
@@ -1199,7 +1428,7 @@ def site_footer(home, base):
 {social_links}
     </ul>
     <div class="foot__legal">
-      <span>&copy; {ph("[year]")} Andra Markets</span>
+      <span>&copy; {dt.datetime.now(dt.timezone.utc).year} Andra Markets</span>
       <span><a href="{base}legal/">For information only. Not investment advice.</a></span>
     </div>
   </div>
@@ -1212,43 +1441,106 @@ def ver(name):
     return hashlib.sha1((ROOT / "assets" / name).read_bytes()).hexdigest()[:10]
 
 
-def shell(title, desc, body, home, base, path="", scripts=()):
-    url = f"{SITE_URL}/{path}" if SITE_URL else ""
-    og_image = f"{SITE_URL}/assets/og-image.png" if SITE_URL else f"{base}assets/og-image.png"
+# Search engines and feed readers ----------------------------------------------
+#
+# Every page built through shell() with index=True is listed here (path -> its
+# last-modified date, or None), and written to sitemap.xml at the end of the
+# build. Redirects pass index=False: they carry noindex and stay out of it.
+# The sitemap, robots.txt and feed.xml need absolute addresses, so they are
+# written only when SITE_URL is set (a robots.txt also only counts at the root
+# of a domain, which the site has once it has its own).
+SITEMAP = {}
+LOGO = "assets/andra-horse.png"  # the brand mark (CLAUDE.md rule 3), for structured data
+OG_DEFAULT = "assets/og-image.png"  # the social share image of every page without its own
+
+
+def abs_url(path=""):
+    return f"{SITE_URL}/{path}" if SITE_URL else ""
+
+
+def ld_json(data):
+    """Structured data (schema.org JSON-LD) as a script tag that no text can break out of."""
+    raw = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
+    raw = raw.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
+    return f'\n<script type="application/ld+json">{raw}</script>'
+
+
+def ld_org():
+    org = {"@type": "Organization", "name": "Andra Markets",
+           "sameAs": [u for _, u, _ in SOCIALS if u]}
+    if SITE_URL:
+        org.update(url=abs_url(), logo=abs_url(LOGO))
+    return org
+
+
+def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=True, head="", scene=None,
+          index=True, ld=None, published=None, og=None):
+    """One page. index=False (redirects) keeps it out of search engines and the sitemap;
+    ld is the page's schema.org structured data; published (ISO) marks an article.
+    og: (image path from the site root, alt text) for a page with a share image of its
+    own (each close note's); every other page shares assets/og-image.png."""
+    url = abs_url(path)
+    og_path, og_alt = og or (OG_DEFAULT, "The Andra Markets engraved horse beside the line Markets, on the record.")
+    og_image = abs_url(og_path) if SITE_URL else f"{base}{og_path}"
     canonical = f'<link rel="canonical" href="{url}">\n<meta property="og:url" content="{url}">\n' if url else ""
+    if index:
+        m = re.fullmatch(r"(?:reports|fx)/(\d{4}-\d{2}-\d{2})/", path)
+        SITEMAP[path] = m.group(1) if m else None
+    else:
+        canonical = '<meta name="robots" content="noindex">\n' + canonical
+    og_type = "article" if published else "website"
+    if published:
+        canonical += f'<meta property="article:published_time" content="{published}">\n'
+    # after the page's own head (the homepage's preload and boot script must stay first)
+    if SITE_URL:
+        head += f'\n<link rel="alternate" type="application/rss+xml" title="Andra Markets" href="{abs_url("feed.xml")}">'
+    if ld:
+        head += ld_json(ld)
+    # Every section page sits inside the black sphere with the backlit horse (assets/section-scene.js,
+    # owner-approved 31 Oct 2026); the homepage has its own hero, redirects need nothing.
+    scene = nav if scene is None else scene
+    scripts = (*scripts, "section-scene.js") if scene else scripts
+    scene_html = (f'<div class="scene" aria-hidden="true"><canvas class="scene__canvas" '
+                  f'data-src="{base}assets/section-horse.png?v={ver("section-horse.png")}"></canvas></div>\n') if scene else ""
+    # The sphere's horse texture is asked for with the page, not once its script has run, so it
+    # is in before the first frame: put on the GPU then, not in the middle of the sphere opening.
+    scene_head = (f'<script>{ARRIVE_BOOT}{MOVE_BOOT}</script>\n<style>{VIEW_TRANSITION}</style>\n'
+                  f'<link rel="expect" href="#main" blocking="render">\n'
+                  f'<link rel="preload" href="{base}assets/section-horse.png?v={ver("section-horse.png")}" as="image">\n') if scene else ""
     return f"""<!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
-<meta name="theme-color" content="#f4f6f6">
+<meta name="theme-color" content="#0a0c0d">
 <script>{THEME_BOOT}</script>
-<link rel="icon" href="{base}assets/favicon-32.png" sizes="32x32" type="image/png">
+{scene_head}<link rel="icon" href="{base}assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="{base}assets/favicon-48.png" sizes="48x48" type="image/png">
 <link rel="apple-touch-icon" href="{base}assets/apple-touch-icon.png">
-{canonical}<meta property="og:type" content="website">
+{canonical}<meta property="og:type" content="{og_type}">
 <meta property="og:site_name" content="Andra Markets">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:image" content="{og_image}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Andra Markets engraved horse beside the line Markets, on the record.">
+<meta property="og:image:alt" content="{og_alt}">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preload" href="{base}assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{base}assets/site.css?v={ver("site.css")}">
+<link rel="stylesheet" href="{base}assets/site.css?v={ver("site.css")}">{head}
+{SPECULATION}
 </head>
-<body data-base="{base}">
-{sprite()}
+<body data-base="{base}"{' class="has-scene"' if scene else ""}>
+{scene_html}{sprite()}
 <a class="skip" href="#main">Skip to content</a>
 
-{site_header(home, base)}
+{site_header(home, base, nav)}
 
 {body}
 
-{site_footer(home, base)}
+{site_footer(home, base) if footer else ""}
 
 <script src="{base}assets/site.js?v={ver("site.js")}" defer></script>{"".join(f'<script src="{base}assets/{js}?v={ver(js)}" defer></script>' for js in scripts)}
 </body>
@@ -1262,11 +1554,69 @@ def watch_redirect():
             f'<p class="lede">Videos are no longer on this site. Go to the <a class="link" href="../">home page</a>.</p></header></div></main>'
             f'<script>location.replace("../");</script>')
     return shell(title="Andra Markets", desc="Videos are no longer on this site.",
-                 body=body, home="../", base="../", path="watch/")
+                 body=body, home="../", base="../", path="watch/", scene=False, index=False)
 
 
 # Lab tools: (slug, data-tool, title, description, how it works, assumptions).
 # Calculated by assets/lab.js in the browser: nothing leaves it.
+# The Lab and the Simulators in the six themes of the Tools menu (owner-approved,
+# 1 Nov 2026): (id, page, name, lede, tools). Each theme is a group on the Lab or
+# Simulators index (its id the group's anchor) and, since 4 Nov 2026, a page of its
+# own that the menu opens (owner: the menu took you into the Lab page, not to the section).
+TOOL_THEMES = (
+    ("options", "lab/options/", "Options",
+     "Two options calculators: a strategy's profit or loss at expiry and today, and the Black-Scholes value of a call "
+     "or put with its Greeks.", ("options-payoff", "black-scholes")),
+    ("bonds", "lab/bonds/", "Bonds",
+     "Two bond calculators: a fixed-coupon bond's price, duration and convexity from its yield, and its yield to "
+     "maturity from its price.", ("bond-calculator", "yield-to-maturity")),
+    ("risk", "lab/risk-and-portfolio/", "Risk &amp; portfolio",
+     "How companies move together, how two assets mix into a frontier of risk and return, and how large a position "
+     "can be for the loss you accept.", ("risk-correlation", "efficient-frontier", "position-sizing")),
+    ("valuation", "lab/valuation-and-growth/", "Valuation &amp; growth",
+     "A business valued from its cash flows, a sum compounding at a steady return, and what a return is worth after "
+     "inflation and tax.", ("dcf", "compound-growth", "real-return")),
+    ("replays", "simulators/market-replays/", "Market replays",
+     "Real market history, played day by day: two hidden years to trade, and one of the great crashes to sit through.",
+     ("trading-simulator", "panic-test")),
+    ("games", "simulators/strategy-games/", "Strategy games",
+     "Call the Fed's next move from the figures it had, and run a portfolio of stocks, bonds and cash through ten "
+     "hidden years.", ("guess-the-fed", "portfolio-builder")),
+)
+LAB_GROUPS = tuple((key, name, slugs) for key, page, name, _, slugs in TOOL_THEMES if page.startswith("lab/"))
+SIM_GROUPS = tuple((key, name, slugs) for key, page, name, _, slugs in TOOL_THEMES if page.startswith("simulators/"))
+# Each tool's theme page, from its own folder (lab/<slug>/ or simulators/<slug>/): (link, name).
+TOOL_THEME_OF = {slug: ("../" + page.split("/", 1)[1], name) for _, page, name, _, slugs in TOOL_THEMES for slug in slugs}
+
+
+def tool_groups(groups, row):
+    """A Lab or Simulators index in its themes: a heading per theme over its ruled list."""
+    return '<div class="archive lab-groups">' + "".join(
+        f'<section class="archive__month" id="{key}" aria-labelledby="{key}-h"><h2 id="{key}-h">{name}</h2>'
+        f'<ol class="learn-list lab-index">{"".join(row(slug) for slug in slugs)}</ol></section>'
+        for key, name, slugs in groups) + "</div>"
+
+
+def tool_theme_page(page, name, lede, slugs):
+    """One theme of the Tools menu, a section page of its own: its title, a line, and its
+    tools in the Lab index's ruled list, each row as on the Lab or Simulators index."""
+    lab = page.startswith("lab/")
+    rows = "".join((lab_row if lab else sim_row)(slug, "../") for slug in slugs)
+    note = ("Every tool runs in your browser: nothing you enter is sent or stored." if lab
+            else "Every simulator runs in your browser; your results stay on your device.")
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">{name}</h1>
+      <p class="lede">{lede} {note}</p>
+    </header>
+    <ol class="learn-list lab-index">{rows}</ol>
+  </div>
+</main>"""
+    return shell(title=f"{name}: Andra Markets", desc=f"{lede} {note}", body=body,
+                 home="../../", base="../../", path=page)
+
+
 LAB_TOOLS = [
     ("options-payoff", "options", "Options payoff diagram",
      "Pick a strategy and see its profit or loss at expiry, and today, across prices of the underlying.",
@@ -1568,7 +1918,7 @@ def lab_page(i, risk=None):
     body = f"""<main id="main" class="page dd lt" data-tool="{kind}">
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
-      <p class="dd__crumbs"><a href="../">Lab</a> <span aria-hidden="true">/</span> Calculator</p>
+      <p class="dd__crumbs"><a href="{TOOL_THEME_OF[slug][0]}">{TOOL_THEME_OF[slug][1]}</a> <span aria-hidden="true">/</span> Calculator</p>
       <h1 class="page__title">{title}</h1>
       <p class="lede">{desc}</p>
       <p class="note__meta">Runs in your browser. Nothing you enter is sent or stored.</p>
@@ -1623,7 +1973,7 @@ def risk_page(i, data, key):
     body = f"""<main id="main" class="page dd lt" data-tool="{kind}">
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
-      <p class="dd__crumbs"><a href="../">Lab</a> <span aria-hidden="true">/</span> Calculator</p>
+      <p class="dd__crumbs"><a href="{TOOL_THEME_OF[slug][0]}">{TOOL_THEME_OF[slug][1]}</a> <span aria-hidden="true">/</span> Calculator</p>
       <h1 class="page__title">{title}</h1>
       <p class="lede">{desc}</p>
       <p class="note__meta">{meta}</p>
@@ -1645,18 +1995,23 @@ def risk_page(i, data, key):
                  path=f"lab/{slug}/", scripts=("lab.js",) if data else ())
 
 
+def lab_row(slug, to=""):
+    """A Lab tool's row in a ruled list; to is the way from the page to lab/."""
+    _, kind, title, desc = next(t for t in LAB_TOOLS if t[0] == slug)[:4]
+    meta = "Yahoo Finance closes, calculated in your browser" if kind == "risk" else "Calculator, runs in your browser"
+    return (f'<li><a href="{to}{slug}/"><span class="learn-list__title">{title}</span>'
+            f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">{meta}</span></a></li>')
+
+
 def lab_index():
-    rows = "".join(
-        f'<li><a href="{slug}/"><span class="learn-list__title">{title}</span>'
-        f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">{"Yahoo Finance closes, calculated in your browser" if kind == "risk" else "Calculator, runs in your browser"}</span></a></li>'
-        for slug, kind, title, desc, _, _ in LAB_TOOLS)
+    rows = tool_groups(LAB_GROUPS, lab_row)
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Lab</h1>
       <p class="lede">Interactive quant tools. Change the inputs, watch the result move. Every tool runs in your browser: nothing you enter is sent or stored.</p>
     </header>
-    <ol class="learn-list lab-index">{rows}</ol>
+    {rows}
     <p class="lab-index__next">A momentum regime backtest is in development. New tools are announced in the daily note.</p>
   </div>
 </main>"""
@@ -1829,21 +2184,28 @@ def sim_home():
 """
 
 
+SIM_SOURCES = {"trading-simulator": "S&amp;P 500 with dividends since 1928; Nasdaq, Euro Stoxx 50 and Nikkei prices",
+               "panic-test": "Every fall of 25% or more on record, in the same four markets",
+               "guess-the-fed": "FRED: CPI, unemployment, the Fed's target and the 2-year yield",
+               "portfolio-builder": "S&amp;P 500 with dividends and 10-year Treasuries since 1928"}
+
+
+def sim_row(slug, to=""):
+    """A simulator's row in a ruled list; to is the way from the page to simulators/."""
+    _, name, desc = next(s for s in SIMULATORS if s[0] == slug)
+    return (f'<li><a href="{to}{slug}/"><span class="learn-list__title">{name}</span>'
+            f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">{SIM_SOURCES[slug]}</span></a></li>')
+
+
 def sim_index(sim):
-    src = {"trading-simulator": "S&amp;P 500 with dividends since 1928; Nasdaq, Euro Stoxx 50 and Nikkei prices",
-           "panic-test": "Every fall of 25% or more on record, in the same four markets",
-           "guess-the-fed": "FRED: CPI, unemployment, the Fed's target and the 2-year yield",
-           "portfolio-builder": "S&amp;P 500 with dividends and 10-year Treasuries since 1928"}
-    rows = "".join(f'<li><a href="{slug}/"><span class="learn-list__title">{name}</span>'
-                   f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">{src[slug]}</span></a></li>'
-                   for slug, name, desc in SIMULATORS)
+    rows = tool_groups(SIM_GROUPS, sim_row)
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Simulators</h1>
       <p class="lede">Play through real market history and test your decisions. Every simulator runs in your browser; your results stay on your device.</p>
     </header>
-    <ol class="learn-list lab-index">{rows}</ol>
+    {rows}
   </div>
 </main>"""
     return shell(title="Simulators: Andra Markets", desc="Four market simulators that run in your browser: the Trading Simulator, the Panic Test, Guess the Fed and the Portfolio Builder.",
@@ -1851,7 +2213,8 @@ def sim_index(sim):
 
 
 def sim_head(name, tag_attr):
-    return (f'<div class="sim-head"><div><p class="dd__crumbs"><a href="../">Simulators</a> <span aria-hidden="true">/</span> {name}</p>'
+    theme, theme_name = TOOL_THEME_OF[next(s[0] for s in SIMULATORS if s[1] == name)]
+    return (f'<div class="sim-head"><div><p class="dd__crumbs"><a href="{theme}">{theme_name}</a> <span aria-hidden="true">/</span> {name}</p>'
             f'<h1 class="sim-title">{name}</h1></div><p class="sim-tag" {tag_attr}></p></div>')
 
 
@@ -2221,7 +2584,6 @@ LIB_TYPE_NAME = {"weekly": "Weekly market review", "research": "Research"}
 LIB_TAGS = [("equities", "Equities"), ("rates", "Rates"), ("fx", "FX"), ("commodities", "Commodities"),
             ("macro", "Macro"), ("credit", "Credit")]
 LIB_TAG_NAME = dict(LIB_TAGS)
-PDF_SOON = "PDF downloads open to subscribers with the paid tier. The full text is free to read here."
 
 
 def load_library():
@@ -2376,11 +2738,11 @@ def library_page(library):
 
 
 def share_row(what):
-    """The report share row: Share (system sheet or copy link) and the PDF
-    download, shown locked until the paid tier opens."""
+    """The report share row: Share (system sheet or copy link). The locked "Download PDF,
+    Subscribers only" button is paused with every subscribe entry point (owner, 31 Oct
+    2026); DESIGN.md keeps its spec for when the paid tier opens."""
     return f"""<div class="report__share" hidden>
           <button class="btn" type="button" data-share><span class="swap"><span class="swap__a">{icon("link")}Share this {what}</span><span class="swap__b" aria-hidden="true">{icon("check")}Link copied</span></span></button>
-          <button class="btn btn--ghost lib-pdf" type="button" aria-disabled="true" data-soon="{PDF_SOON}">{icon("lock-simple")}Download PDF<span class="lib-pdf__tag">Subscribers only</span></button>
           <p class="report__share-status" role="status" aria-live="polite"></p>
         </div>"""
 
@@ -2489,14 +2851,18 @@ DATA_SOURCES = [
      "Closing prices of equity indices, sector ETFs, volatility indices, currencies, commodity futures, credit ETFs, "
      "digital assets and the watchlist stocks; CBOT fed funds futures and the Cboe Treasury yield indices; earnings "
      "dates, diluted EPS and market caps.",
-     "Close notes, dashboards, Fed &amp; Rates, World, FX, calendar earnings, company pages, Simulators",
+     "Close notes, dashboards, Fed &amp; Rates, World, FX, calendar earnings, company pages, Simulators, "
+     "Market history (S&amp;P 500 daily closes since 1927, ^GSPC)",
      "After each US close for the notes; at every deploy for the dashboards; every 15 minutes while the NYSE is "
      "open for the fed funds futures and intraday yields"),
     ("FRED, Federal Reserve Bank of St. Louis", "https://fred.stlouisfed.org/",
      "The US Treasury's daily par yield curve, breakevens and real yields, the 2s10s and 3m10y spreads, the Fed's "
      "target range, the effective and monthly federal funds rates, ICE BofA credit spreads, inflation, unemployment "
-     "and payrolls; the 10-year Treasury yield since 1953 for the Portfolio Builder.",
-     "Close notes, dashboards, Fed &amp; Rates, calendar actuals, Guess the Fed, Portfolio Builder",
+     "and payrolls; the 10-year Treasury yield since 1953 for the Portfolio Builder; the ECB deposit facility rate "
+     "(backup), the Sahm rule, initial jobless claims and their 4-week average, the high-yield spread, the Chicago "
+     "Fed's NFCI and the NBER recession dates.",
+     "Close notes, dashboards, Fed &amp; Rates, calendar actuals, Guess the Fed, Portfolio Builder, Central banks, "
+     "Recession watch",
      "Daily; FRED posts the Treasury curve late in the evening and credit spreads with a short delay"),
     ("US Treasury and TreasuryDirect", "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
      "Note and bond auction schedules and results; the daily par yield curve and real yield curve.",
@@ -2510,7 +2876,14 @@ DATA_SOURCES = [
      "Global, The Conference Board, the University of Michigan, the ECB, Eurostat, the Bank of England, the ONS, "
      "the Bank of Japan, China's National Bureau of Statistics and the People's Bank of China; actual figures from "
      "Eurostat, the ECB, the ONS and the Bank of England.",
-     "Calendar, Fed &amp; Rates (FOMC dates)", "At every deploy; each source's last read is on the calendar page"),
+     "Calendar, Fed &amp; Rates (FOMC dates), Central banks (meeting dates)",
+     "At every deploy; each source's last read is on the calendar page"),
+    ("ECB Data Portal", "https://data.ecb.europa.eu/", "The ECB deposit facility rate.", "Central banks",
+     "At every deploy, each weekday"),
+    ("Bank of England database", "https://www.bankofengland.co.uk/boeapps/database/", "Bank Rate.", "Central banks",
+     "At every deploy, each weekday"),
+    ("BIS central bank policy rates", "https://data.bis.org/",
+     "The Bank of Japan's policy rate; Bank Rate as a backup.", "Central banks", "At every deploy, each weekday"),
     ("State Street and iShares", "https://www.ssga.com/",
      "Index membership from the SPY holdings (S&amp;P 500) and the iShares STOXX Europe 600 ETF holdings.",
      "Calendar earnings, company pages", "At every deploy"),
@@ -2630,6 +3003,16 @@ def bar_chart(rows, label):
     H = top + row * len(rows) + 2
     x0, half = 186, 64
     span = max(abs(r[1]) for r in rows) or 1
+    # The figures sit right-aligned at W and a rising bar runs towards its own. A figure is
+    # about 7.65 units a character (12px tabular digits in Schibsted Grotesk; the fallback
+    # fonts are narrower), so one with two whole digits (+21.76%, 54 units) is wider than the
+    # 50 the track leaves and its bar ran under it. Where a figure needs the room, the track
+    # shortens on both sides (every bar keeps the same scale) so each rising bar stops at
+    # least 4 units short of its figure, the gap the narrower figures already had.
+    for _, chg, _ in rows:
+        if chg > 0:
+            room = W - 4 - 7.65 * len(signed(chg, 2, "%")) - x0
+            half = min(half, room * span / chg)
     body = f'<line class="ref" x1="{x0}" x2="{x0}" y1="0" y2="{H}"/>'
     for i, (name, chg, last) in enumerate(rows):
         y = top + i * row
@@ -2775,6 +3158,10 @@ def side_panel(rec):
             f'risk score and breadth by Andra Markets.</p></aside>')
 
 
+AI_DRAFTED = ('The text was drafted with a language model from that fact pack; the '
+              '<a href="../../methodology/">methodology</a> explains how.')
+
+
 def report(rec, newer, older, cal):
     n = rec["note"]
     d = rec["day"]
@@ -2802,9 +3189,11 @@ def report(rec, newer, older, cal):
     if rec.get("figure_check") == "failed":
         checked = ("This edition did not fully pass the automated figure check against the "
                    "session's verified fact pack. It was reviewed before publication.")
+    # Machine-drafted text published to inform the public says so where it is read
+    # (EU AI Act, Article 50(4), applicable since 2 August 2026).
     sources = (f'<section aria-labelledby="s-sources"><h2 id="s-sources">Sources</h2>'
                f"<p>Levels at the official close from Yahoo Finance; the Treasury curve, breakevens and real "
-               f"yields from FRED. {checked}</p><p>For information only. Not investment advice.</p></section>")
+               f"yields from FRED. {checked} {AI_DRAFTED}</p><p>For information only. Not investment advice.</p></section>")
     pager = ""
     if older:
         pager += f'<a class="link" href="../{older["date"]}/">Previous note, {day_med(older["day"])} {icon("arrow-right")}</a>'
@@ -2815,7 +3204,6 @@ def report(rec, newer, older, cal):
         pager += f'<a class="link" href="../../{session}">The calendar for this session {icon("arrow-right")}</a>'
     pager += f'<a class="link" href="../">All notes {icon("arrow-right")}</a>'
     pager += f'<a class="link" href="../../research/">Research Library {icon("arrow-right")}</a>'
-    pager += f'<a class="link" href="../../#subscribe">Get the note by email {icon("arrow-right")}</a>'
     standfirst = " ".join(n.get("standfirst", "").split())
     body = f"""<main id="main" class="page report">
   <div class="wrap">
@@ -2834,6 +3222,7 @@ def report(rec, newer, older, cal):
     <nav class="report__pager" aria-label="More close notes">{pager}</nav>
   </div>
 </main>"""
+    og_path = f"reports/{rec['date']}/og.jpg" if rec.get("og") else None
     return shell(
         title=f"{esc(n['headline'])}: Andra Markets close note, {day_med(d)}",
         desc=esc(standfirst or f"The Andra Markets close note for {day_long(d)}."),
@@ -2841,7 +3230,45 @@ def report(rec, newer, older, cal):
         home="../../",
         base="../../",
         path=f"reports/{rec['date']}/",
+        published=note_published(rec),
+        ld=ld_article(n["headline"], standfirst or f"The Andra Markets close note for {day_long(d)}.",
+                      note_published(rec), f"reports/{rec['date']}/", og_path),
+        og=(og_path, f"The Andra Markets close note for {day_med(d)}: {esc(n['headline'])}") if rec.get("og") else None,
     )
+
+
+def note_published(rec):
+    """When a note went out: its agent run's time (UTC), else its session date."""
+    t = (rec.get("source") or {}).get("created_at") or ""
+    return t if re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z", t) else rec["date"]
+
+
+def ld_article(headline, desc, published, path, image=None):
+    art = {"@context": "https://schema.org", "@type": "Article", "headline": headline,
+           "description": desc, "datePublished": published, "dateModified": published,
+           "inLanguage": "en", "author": ld_org(), "publisher": ld_org()}
+    if SITE_URL:
+        art.update(mainEntityOfPage=abs_url(path), url=abs_url(path), image=abs_url(image or OG_DEFAULT))
+    return art
+
+
+def note_share_image(rec):
+    """Writes the note's share image (tools/og_note.py, owner-approved 31 Oct 2026) to
+    reports/<date>/og.jpg. False without Pillow or on a failure: the page then shares
+    assets/og-image.png."""
+    try:
+        import og_note
+        og_note.render(rec, REPORTS / rec["date"] / "og.jpg")
+        return True
+    except Exception as e:  # noqa: BLE001  (a share image never stops the build)
+        global OG_WARNED
+        if not OG_WARNED:
+            print(f"note share images skipped ({type(e).__name__}: {e}); the pages share assets/og-image.png")
+            OG_WARNED = True
+        return False
+
+
+OG_WARNED = False
 
 
 # FX -----------------------------------------------------------------------------
@@ -2936,7 +3363,8 @@ def fx_page(a, newer, older):
              if a["mode"] == "quantitative" else "")
     sections += (f'<section aria-labelledby="fx-src"><h2 id="fx-src">Sources</h2><p>Exchange rates and the dollar index '
                  f'at the session close from Yahoo Finance; the Fed and ECB rates and Treasury yields from FRED. Every '
-                 f'figure in this analysis was checked against the session\'s verified fact pack.{quant}</p>'
+                 f'figure in this analysis was checked against the session\'s verified fact pack.{quant}'
+                 f'{"" if quant else " " + AI_DRAFTED}</p>'
                  f'<p>For information only. Not investment advice.</p></section>')
     dxy = next((p for p in a["pairs"] if p["key"] == "dxy"), None)
     side_rows = [p for p in a["pairs"] if p["key"] in ("dxy", "eurusd", "usdjpy", "gbpusd", "usdchf", "audusd",
@@ -4111,8 +4539,6 @@ def company_page(t, data, cal):
             <li>Three scenarios with their assumptions</li>
             <li>What to watch at the next results</li>
           </ul>
-          <button class="btn" type="button" data-soon="Subscriptions open soon. Get the free close note by email in the meantime, from the home page.">Subscribe for the memo</button>
-          <p class="co-gate__status" role="status" aria-live="polite"></p>
         </div>
       </section>
       <section aria-labelledby="co-ahead-t">
@@ -4638,7 +5064,7 @@ def moved_redirect(path, to, title, text):
             f'<script>location.replace("{up}{to}");</script>')
     name = title[0].upper() + title[1:]
     return shell(title=f"{name}: Andra Markets" if name != "Andra Markets" else name, desc=f"{text} {title}.",
-                 body=body, home=up, base=up, path=path)
+                 body=body, home=up, base=up, path=path, scene=False, index=False)
 
 
 # Old addresses: path -> (where it went, its title, what the page says).
@@ -4654,6 +5080,7 @@ MOVED = {
     "learn/cpi-vs-pce/": ("dashboards/inflation-and-labour/", "Inflation and labour", _LEARNT),
     "learn/credit-spreads/": ("dashboards/credit-spreads/", "Credit spreads", _LEARNT),
     "careers/": ("break-into-wall-street/", "Break into Wall Street", "This guide is now"),
+    "break-into-wall-street/recruiting-calendar/": ("recruiting-calendar/", "the recruiting calendar", "This page moved to"),
 }
 
 
@@ -4763,7 +5190,9 @@ def technical_page(t, topics):
                  home="../../../", base="../../../", path=f"break-into-wall-street/technicals/{slug}/", scripts=("technicals.js",))
 
 
-# Recruiting calendar (break-into-wall-street/recruiting-calendar/) ----------------
+# Recruiting calendar (recruiting-calendar/) -------------------------------------
+# Its own section of the Careers menu (owner, 1 Nov 2026); it was part of the guide,
+# at break-into-wall-street/recruiting-calendar/, which now redirects here.
 # data/recruiting_calendar.json, kept by hand: one row per programme, each
 # date taken from the firm's own site. A row not yet re-checked by hand on
 # that site (verified false) says so on the page. Never an invented date.
@@ -4844,14 +5273,6 @@ def rc_when(d, what, r, today):
     return f'<span class="rc-when rc-when--ex">Expected {esc(w)}</span>'
 
 
-def rc_upcoming(rows, today, n=6):
-    """The next dated opens and closes, then the nearest expected windows."""
-    ev = [x for x in rc_events(rows) if x[0] and x[0] >= today.replace(day=1)]
-    dated = sorted([x for x in ev if x[1] in ("opens", "closes") and x[0] >= today], key=lambda x: (x[0], x[2]["firm"]))
-    loose = sorted([x for x in ev if x[1] in ("opens_ex", "closes_ex")], key=lambda x: (x[0], x[2]["firm"]))
-    return (dated + loose)[:n]
-
-
 def recruiting_page(rows):
     today = dt.datetime.now(NY).date()
     ev = rc_events(rows)
@@ -4893,8 +5314,17 @@ def recruiting_page(rows):
             return f"{d.day} {MON3[d.month - 1]} {d.year}" + (" (closed)" if closed else "")
         w = r.get(f"{what}_window")
         return f"Expected {esc(w)}" if w else ("Rolling" if r["status"] == "rolling" else "Not announced")
+    seen = set()
+
+    def fid(r):
+        """The first row of each firm carries its anchor, f-<slug>, the target of the Firms page's links."""
+        key = page_firms.slug(r["firm"])
+        if key in seen:
+            return ""
+        seen.add(key)
+        return f' id="f-{key}"'
     firm_rows = "".join(
-        f'<tr class="rc-row" {rc_attrs(r)}>{rc_firm(r, basis=True)}<td data-label="Cycle">{esc(r.get("cycle", ""))}</td>'
+        f'<tr class="rc-row"{fid(r)} {rc_attrs(r)}>{rc_firm(r, basis=True)}<td data-label="Cycle">{esc(r.get("cycle", ""))}</td>'
         f'<td data-label="Opens">{when(r, "opens")}</td><td data-label="Closes">{when(r, "closes")}</td><td>{rc_apply(r)}</td></tr>'
         for r in sorted(rows, key=lambda r: (order.get(RC_GROUP_OF.get(r["group"], r["group"]), 9), r["firm"], r["programme"])))
     byfirm = (f'<div class="rc-byfirm"><table class="rc-firmtab" aria-label="Recruiting calendar by firm"><thead><tr>'
@@ -4913,7 +5343,6 @@ def recruiting_page(rows):
     body = f"""<main id="main" class="page cl rc">
   <div class="wrap">
     <header class="page__head cl__head">
-      <p class="dd__crumbs"><a href="../">Break into Wall Street</a> <span aria-hidden="true">/</span> Recruiting calendar</p>
       <h1 class="page__title">Recruiting calendar</h1>
       <p class="lede">When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications for internships and analyst programmes.</p>
       <p class="note__meta"><span>{len({r["firm"] for r in rows})} firms, {len(rows)} programmes</span><span>{counts["confirmed"]} confirmed, {counts["expected"]} expected, {counts["rolling"]} rolling</span><span>{checked_txt}</span></p>
@@ -4937,9 +5366,9 @@ def recruiting_page(rows):
     </div>
   </div>
 </main>"""
-    return shell(title="Recruiting calendar: Break into Wall Street, Andra Markets",
+    return shell(title="Recruiting calendar: Andra Markets",
                  desc="When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications for internships and analyst programmes, checked against each firm's careers site.",
-                 body=body, home="../../", base="../../", path="break-into-wall-street/recruiting-calendar/", scripts=("recruiting.js",))
+                 body=body, home="../", base="../", path="recruiting-calendar/", scripts=("recruiting.js",))
 
 
 # Break into Wall Street (break-into-wall-street/) ---------------------------------------------------
@@ -4951,7 +5380,7 @@ CAREERS_DATA = ROOT / "data" / "path_to_wall_street.json"
 def careers_page():
     c = json.loads(CAREERS_DATA.read_text(encoding="utf-8"))
     base = "../"
-    toc = [("pw-roles", "The roles"), ("pw-time", "Recruiting calendar"), ("pw-cv", "A one-page CV"),
+    toc = [("pw-roles", "The roles"), ("pw-cv", "A one-page CV"),
            ("pw-net", "Networking and cold emails"), ("pw-tech", "Technical preparation"),
            ("pw-visa", "Visas for international students"), ("pw-cert", "Certifications"), ("pw-res", "Resources")]
     toc_html = "".join(f'<li><a class="link" href="#{i}">{t}</a></li>' for i, t in toc)
@@ -4964,15 +5393,6 @@ def careers_page():
                   f'<p>{esc(r["what"])}</p><p class="pw-lab">A typical day</p><ol class="ruled pw-day">{day}</ol>'
                   f'<p class="pw-lab">Suits you if</p><p>{esc(r["fit"])}</p>'
                   f'<p class="pw-lab">Where it leads</p><p>{esc(r["exits"])}</p></div></div></div>')
-    today = dt.datetime.now(NY).date()
-    rc_rows = load_recruiting()
-    nxt = "".join(
-        f'<tr class="rc-row"><td class="rc-date">{rc_when(d, what, r, today)}</td>{rc_firm(r)}'
-        f'<td class="rc-act"><span class="rc-what">{"Opens" if what.startswith("opens") else "Closes"}</span></td>'
-        f'<td class="rc-go">{rc_apply(r)}</td></tr>'
-        for d, what, r in rc_upcoming(rc_rows, today))
-    upcoming = (f'<table class="rc-next" aria-label="Next application dates"><tbody>{nxt}</tbody></table>'
-                if nxt else '<p class="rc-none">No dated windows yet.</p>')
     cv, s = c["cv"], c["cv"]["sample"]
     cv_rows = ""
     for sec in s["sections"]:
@@ -5029,12 +5449,6 @@ def careers_page():
         <div class="acc acc--multi">{roles}</div>
       </section>
     </div>
-    <section id="pw-time" class="pw-time" aria-labelledby="pw-time-h">
-      <h2 id="pw-time-h">Recruiting calendar</h2>
-      <p class="pw-time__lede">When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications. The next dates:</p>
-      {upcoming}
-      <p class="rc-more"><a class="link" href="recruiting-calendar/">Full recruiting calendar, by date and by firm {icon("arrow-right")}</a></p>
-    </section>
     <div class="page__body pw__body">
       <section id="pw-cv" aria-labelledby="pw-cv-h">
         <h2 id="pw-cv-h">A one-page CV</h2>
@@ -5084,7 +5498,7 @@ def careers_page():
                  desc="A guide for students breaking into investment banking, sales and trading, asset management, equity research "
                       "and hedge funds, from non-target universities and from outside the US: roles, recruiting timelines, CV, "
                       "networking, visas and certifications.",
-                 body=body, home="../", base="../", path="break-into-wall-street/", scripts=("careers.js", "recruiting.js"))
+                 body=body, home="../", base="../", path="break-into-wall-street/", scripts=("careers.js",))
 
 
 def slug_s(s):
@@ -5109,10 +5523,32 @@ SEARCH_TERMS = {
 SEARCH_PAGE_TERMS = {
     "fed-rates/": "Fed FOMC policy rate fed funds futures meeting probabilities yield curve Treasury 2s10s 3m10y "
                   "inversion spreads TIPS real yield breakeven inflation CPI PCE unemployment",
-    "break-into-wall-street/recruiting-calendar/": "application deadlines internship summer analyst opens closes banks "
-                                                   "hedge funds asset managers recruiting dates",
+    "recruiting-calendar/": "application deadlines internship summer analyst opens closes banks "
+                            "hedge funds asset managers recruiting dates",
+    "central-banks/": "central banks policy rates interest rates Fed ECB Bank of England BoE Bank of Japan BoJ target "
+                      "range deposit facility rate Bank Rate rate decision meeting dates last move",
+    "recession-watch/": "recession indicators yield curve inversion 10Y-3M T10Y3M Sahm rule unemployment initial jobless "
+                        "claims high-yield credit spread HY OAS Chicago Fed NFCI financial conditions NBER recessions",
+    "firms/": "banks boutiques asset managers hedge funds trading quant firms bulge bracket elite boutique divisions "
+              "IB S&T offices internship programmes apply careers",
+    "application-tracker/": "applications tracker deadlines status applied interview superday offer contacts notes "
+                            "networking export",
+    "chart-of-the-day/": "chart sectors volatility VIX currencies dollar commodities oil gold digital assets bitcoin "
+                         "crypto global indices close note daily share",
+    "market-history/": "S&P 500 history 1928 crash bear market drawdown recovery Great Depression 1929 Black Monday "
+                       "1987 dot-com 2000 financial crisis 2008 Lehman Covid 2020 inflation 2022 tariffs episodes",
+    "interview-simulator/": "mock interview practice timed questions model answers key points investment banking "
+                            "sales trading asset management equity research IB S&T technicals behavioural",
     "break-into-wall-street/": "careers jobs internships spring week summer analyst off-cycle graduate programme recruiting CV resume "
                 "networking cold email visa OPT H-1B CFA investment banking sales trading asset management hedge funds",
+    "lab/options/": "options calls puts payoff strategy strike expiry break-even Black-Scholes Greeks delta gamma vega theta rho",
+    "lab/bonds/": "bonds price yield duration modified Macaulay convexity DV01 coupon yield to maturity",
+    "lab/risk-and-portfolio/": "risk correlation volatility beta efficient frontier diversification Sharpe position size "
+                               "stop loss value at risk VaR expected shortfall",
+    "lab/valuation-and-growth/": "valuation DCF discounted cash flow terminal value compound growth interest inflation "
+                                 "real return tax",
+    "simulators/market-replays/": "trading simulator panic test crash bear market replay market history game",
+    "simulators/strategy-games/": "guess the Fed rate decision cut hold hike portfolio builder 60/40 stocks bonds cash game",
 }
 
 # Live company data (the profile API) -------------------------------------------
@@ -5203,8 +5639,7 @@ def live_page(companies):
             '<li><span>Segment by segment, with the model&rsquo;s workings</span></li>'
             '<li><span>Three scenarios and their assumptions</span></li>'
             '<li><span>What to watch at the next results</span></li></ul>'
-            '<button class="btn" type="button" data-soon="Subscriptions open soon. Get the free close note by email in the meantime, from the home page.">Subscribe for the memo</button>'
-            '<p class="co-gate__status" role="status" aria-live="polite"></p></div></section>')
+            '</div></section>')
     kpis = "".join(f'<li class="kpi__item"><span class="kpi__name">{n}</span><span class="kpi__level" id="pf-k-{k}">&nbsp;</span>'
                    f'<span class="kpi__chg" id="pf-k-{k}-n">&nbsp;</span></li>'
                    for k, n in (("mcap", "Market value"), ("pe", "P/E, last 12 months"), ("ev", "EV / EBITDA"), ("ps", "Price to sales"),
@@ -5277,7 +5712,7 @@ def profile_redirect():
             f'<p class="lede">The company profile is now part of <a class="link" href="../companies/">Companies</a>.</p></header></div></main>'
             f'<script>{js}</script>')
     return shell(title="Companies: Andra Markets", desc="The company profile is now part of Companies.",
-                 body=body, home="../", base="../", path="profile/")
+                 body=body, home="../", base="../", path="profile/", scene=False, index=False)
 
 
 def fin_ticker(t):
@@ -5286,12 +5721,25 @@ def fin_ticker(t):
 
 
 SEARCH_PAGES = [
-    ("Dashboards", "#dashboards", "Home"),
+    ("Dashboards", "dashboards/", "Page"),
     ("Fed & Rates", "fed-rates/", "Page"),
     ("Break into Wall Street", "break-into-wall-street/", "Page"),
-    ("Recruiting calendar", "break-into-wall-street/recruiting-calendar/", "Break into Wall Street"),
+    ("Recruiting calendar", "recruiting-calendar/", "Page"),
+    ("Chart of the day", "chart-of-the-day/", "Page"),
+    ("Central banks", "central-banks/", "Page"),
+    ("Recession watch", "recession-watch/", "Page"),
+    ("Market history", "market-history/", "Page"),
+    ("Interview simulator", "interview-simulator/", "Page"),
+    ("Firms", "firms/", "Page"),
+    ("Application tracker", "application-tracker/", "Page"),
     ("The Lab", "lab/", "Page"),
     ("Simulators", "simulators/", "Page"),
+    ("Options", "lab/options/", "Tools"),
+    ("Bonds", "lab/bonds/", "Tools"),
+    ("Risk & portfolio", "lab/risk-and-portfolio/", "Tools"),
+    ("Valuation & growth", "lab/valuation-and-growth/", "Tools"),
+    ("Market replays", "simulators/market-replays/", "Tools"),
+    ("Strategy games", "simulators/strategy-games/", "Tools"),
     ("Trading Simulator", "simulators/trading-simulator/", "Simulators"),
     ("Panic Test", "simulators/panic-test/", "Simulators"),
     ("Guess the Fed", "simulators/guess-the-fed/", "Simulators"),
@@ -5300,11 +5748,8 @@ SEARCH_PAGES = [
     ("Economic calendar", "calendar/", "Page"),
     ("World markets", "world/", "Page"),
     ("FX", "fx/", "Page"),
-    ("Daily close note", "#note", "Home"),
-    ("Subscribe", "#subscribe", "Home"),
-    ("About", "#about", "Home"),
     ("Research Library", "research/", "Page"),
-    ("All close notes", "reports/", "Archive"),
+    ("Daily close notes", "reports/", "Archive"),
     ("Markets Interview Prep", "interview-prep/", "Page"),
     ("Methodology", "methodology/", "Page"),
     ("Data sources", "sources/", "Page"),
@@ -5338,8 +5783,83 @@ def search_index(notes, companies=None, library=()):
                       "k": t["short"] + " interview questions " + " ".join(e["title"] for e in t["essentials"])})
     for title, url, meta in SEARCH_PAGES:
         items.append({"g": "Pages", "t": title, "m": meta, "u": url, "k": SEARCH_PAGE_TERMS.get(url, "")})
+    for e in page_market_history.episodes():
+        items.append({"g": "Pages", "t": e["title"], "m": f"Market history, {e['years']}",
+                      "u": f"market-history/{e['slug']}/", "k": e["text"]})
     payload = json.dumps(items, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     return "// Generated by tools/build_site.py. Do not edit.\nwindow.ANDRA_SEARCH=" + payload + ";\n"
+
+
+FEED_ITEMS = 40  # newest close notes and research reports in feed.xml
+DISCOVERY = ("sitemap.xml", "robots.txt", "feed.xml")
+
+
+def xesc(text):
+    return html.escape(str(text), quote=False)
+
+
+def rfc822(iso):
+    """An ISO date or UTC time as RSS wants it. A date alone is taken at noon UTC."""
+    t = (dt.datetime.strptime(iso, "%Y-%m-%dT%H:%M:%SZ") if "T" in iso
+         else dt.datetime.combine(dt.date.fromisoformat(iso), dt.time(12)))
+    return t.replace(tzinfo=dt.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
+
+
+def sitemap_xml():
+    paths = sorted(SITEMAP, key=lambda p: (p != "", p))  # the homepage first
+    rows = "".join(
+        f"<url><loc>{xesc(abs_url(p))}</loc>" + (f"<lastmod>{SITEMAP[p]}</lastmod>" if SITEMAP[p] else "") + "</url>\n"
+        for p in paths)
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{rows}</urlset>\n')
+
+
+def feed_xml(notes, library):
+    """RSS 2.0: the close notes (link to the note page) and the Research Library's
+    reports (link to the PDF, as the library does), newest first."""
+    items = []
+    for r in notes:
+        n = r["note"]
+        link = abs_url(f"reports/{r['date']}/")
+        items.append((note_published(r), f"<item><title>{xesc(n['headline'])}</title><link>{xesc(link)}</link>"
+                      f'<guid isPermaLink="true">{xesc(link)}</guid><pubDate>{rfc822(note_published(r))}</pubDate>'
+                      f"<category>Close note</category><description>{xesc(n.get('standfirst') or '')}</description></item>"))
+    for r in library:
+        link = abs_url(f"research/pdf/{r['slug']}.pdf")
+        cats = "".join(f"<category>{xesc(t.title())}</category>" for t in r.get("tags") or [])
+        items.append((r["date"], f"<item><title>{xesc(r['title'])}</title><link>{xesc(link)}</link>"
+                      f'<guid isPermaLink="true">{xesc(link)}</guid><pubDate>{rfc822(r["date"])}</pubDate>'
+                      f"<category>Research</category>{cats}<description>{xesc(r.get('summary') or '')}</description></item>"))
+    # newest first; a bare date counts as noon UTC, as in pubDate
+    items.sort(key=lambda i: i[0] if "T" in i[0] else i[0] + "T12:00:00Z", reverse=True)
+    items = items[:FEED_ITEMS]
+    built = f"<lastBuildDate>{rfc822(items[0][0])}</lastBuildDate>" if items else ""
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel>\n'
+            f"<title>Andra Markets</title><link>{xesc(abs_url())}</link>"
+            f'<atom:link href="{xesc(abs_url("feed.xml"))}" rel="self" type="application/rss+xml"/>'
+            "<description>The Andra Markets daily US close note and research reports.</description>"
+            f"<language>en</language>{built}\n" + "\n".join(i[1] for i in items) + "\n</channel></rss>\n")
+
+
+def write_discovery(notes, library):
+    """sitemap.xml, robots.txt and feed.xml at the site root, only with SITE_URL (they need
+    absolute addresses). Without it any stale copy is removed, so none is ever published."""
+    if not SITE_URL:
+        for name in DISCOVERY:
+            (OUT / name).unlink(missing_ok=True)
+        print("SITE_URL not set: no sitemap.xml, robots.txt or feed.xml")
+        return
+    (OUT / "sitemap.xml").write_text(sitemap_xml(), encoding="utf-8")
+    (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {abs_url('sitemap.xml')}\n", encoding="utf-8")
+    (OUT / "feed.xml").write_text(feed_xml(notes, library), encoding="utf-8")
+    print(f"wrote sitemap.xml ({len(SITEMAP)} pages), robots.txt and feed.xml")
+
+
+# Section pages built in their own modules (tools/page_*.py), each returning
+# {output path: page HTML}: the Research and Careers sections added on 1 Nov 2026.
+PAGE_MODULES = (page_chart_of_the_day, page_central_banks, page_recession_watch, page_market_history,
+                page_interview_simulator, page_firms, page_application_tracker)
 
 
 def main():
@@ -5349,14 +5869,16 @@ def main():
     companies = load_companies()
     (OUT / "assets" / "search-index.js").write_text(search_index(notes, companies, load_library()), encoding="utf-8")
     (OUT / "index.html").write_text(page(notes, cal))
+    (OUT / "dashboards").mkdir(exist_ok=True)
+    (OUT / "dashboards" / "index.html").write_text(dashboards_index())
     (OUT / "watch").mkdir(exist_ok=True)
     (OUT / "watch" / "index.html").write_text(watch_redirect())
     (OUT / "fed-rates").mkdir(exist_ok=True)
     (OUT / "fed-rates" / "index.html").write_text(fedrates_page(load_fedrates()))
     (OUT / "break-into-wall-street").mkdir(exist_ok=True)
     (OUT / "break-into-wall-street" / "index.html").write_text(careers_page())
-    (OUT / "break-into-wall-street" / "recruiting-calendar").mkdir(exist_ok=True)
-    (OUT / "break-into-wall-street" / "recruiting-calendar" / "index.html").write_text(recruiting_page(load_recruiting()))
+    (OUT / "recruiting-calendar").mkdir(exist_ok=True)
+    (OUT / "recruiting-calendar" / "index.html").write_text(recruiting_page(load_recruiting()))
     topics = load_technicals()
     for t in topics:
         folder = OUT / "break-into-wall-street" / "technicals" / t["slug"]
@@ -5372,6 +5894,9 @@ def main():
         (OUT / path / "index.html").write_text(moved_redirect(path, to, title, text))
     (OUT / "lab").mkdir(exist_ok=True)
     (OUT / "lab" / "index.html").write_text(lab_index())
+    for _, theme, name, lede, slugs in TOOL_THEMES:
+        (OUT / theme).mkdir(parents=True, exist_ok=True)
+        (OUT / theme / "index.html").write_text(tool_theme_page(theme, name, lede, slugs))
     risk = risk_data()
     for i, t in enumerate(LAB_TOOLS):
         (OUT / "lab" / t[0]).mkdir(exist_ok=True)
@@ -5418,6 +5943,7 @@ def main():
         newer = notes[i - 1] if i > 0 else None
         older = notes[i + 1] if i + 1 < len(notes) else None
         (REPORTS / rec["date"]).mkdir(exist_ok=True)
+        rec["og"] = note_share_image(rec)
         (REPORTS / rec["date"] / "index.html").write_text(report(rec, newer, older, cal))
     (OUT / "calendar").mkdir(exist_ok=True)
     (OUT / "calendar" / "index.html").write_text(calendar_page(cal, now))
@@ -5446,8 +5972,105 @@ def main():
             if logo:
                 shutil.copyfile(logo, folder / f"logo{logo.suffix}")
         print(f"wrote {len(companies['order'])} company pages")
+    for mod in PAGE_MODULES:
+        for path, html_out in mod.pages(sys.modules[__name__]).items():
+            (OUT / path).mkdir(parents=True, exist_ok=True)
+            (OUT / path / "index.html").write_text(html_out)
+    write_discovery(notes, library)
+    print(f"Content Security Policy on {secure_pages()} pages")
     print(f"wrote index.html, methodology/index.html, reports/index.html, {len(DASHBOARDS)} dashboard pages, "
           f"{len(notes)} report page(s) and the calendar with {len(weeks)} week page(s)")
+
+
+# Content Security Policy -----------------------------------------------------
+
+# GitHub Pages sets no security headers, so every page carries its policy in a
+# <meta> tag, written after the page itself. Scripts run only from the site's
+# own files or as the exact inline scripts the build wrote, each allowed by its
+# SHA-256 hash: an injected <script>, or a script from another host, never
+# runs. The browser may talk only to the site and the profile API, and plugins,
+# a changed <base> and forms posting elsewhere are blocked. Styles keep
+# 'unsafe-inline' because pages use style attributes. A <meta> policy cannot
+# set frame-ancestors (that needs a response header, so a host in front of
+# GitHub Pages). tools/check_site.py fails the deploy if a page lacks it or an
+# inline script is not covered.
+
+# Everything the build writes that holds pages (the folders .gitignore lists).
+GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", "profile", "calendar",
+             "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
+             "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
+             "chart-of-the-day", "central-banks", "recession-watch", "market-history",
+             "interview-simulator", "firms", "application-tracker")
+INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
+# Data blocks the browser never runs: the policy does not apply to them.
+DATA_SCRIPTS = ("application/json", "application/ld+json")
+CSP_META = re.compile(r'<meta http-equiv="Content-Security-Policy" content="[^"]*">\n?')
+
+
+def inline_hashes(page_html):
+    """'sha256-...' for each inline script the browser would run, in page order."""
+    out = []
+    for m in INLINE_SCRIPT.finditer(page_html):
+        attrs = m.group("attrs")
+        if re.search(r"\ssrc=", attrs):
+            continue
+        kind = re.search(r'\stype="([^"]+)"', attrs)
+        if kind and kind.group(1).lower() in DATA_SCRIPTS:
+            continue
+        # the browser hashes the text after turning CRLF and CR into LF
+        body = m.group("body").replace("\r\n", "\n").replace("\r", "\n")
+        h = "'sha256-" + base64.b64encode(hashlib.sha256(body.encode("utf-8")).digest()).decode("ascii") + "'"
+        if h not in out:
+            out.append(h)
+    return out
+
+
+def csp_policy(page_html):
+    api = urlsplit(PROFILE_API)
+    api_origin = f"{api.scheme}://{api.netloc}" if api.scheme in ("http", "https") and api.netloc else ""
+    return "; ".join([
+        "default-src 'self'",
+        " ".join(["script-src 'self'"] + inline_hashes(page_html)),
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob:",
+        "font-src 'self'",
+        "connect-src 'self'" + (f" {api_origin}" if api_origin else ""),
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+    ])
+
+
+def with_csp(page_html):
+    """The page with its policy as the first tag after <meta charset>, so it covers every script."""
+    page_html = CSP_META.sub("", page_html)
+    policy = csp_policy(page_html)  # quotes are single, base64 has no markup: safe in the attribute as is
+    tag = f'<meta http-equiv="Content-Security-Policy" content="{policy}">\n'
+    anchor = re.search(r"<meta charset=[^>]*>\n?", page_html, re.I) or re.search(r"<head[^>]*>\n?", page_html, re.I)
+    if not anchor:
+        return page_html
+    return page_html[:anchor.end()] + tag + page_html[anchor.end():]
+
+
+def generated_pages():
+    for name in GENERATED:
+        path = OUT / name
+        if path.is_file():
+            yield path
+        elif path.is_dir():
+            yield from sorted(path.rglob("*.html"))
+
+
+def secure_pages():
+    n = 0
+    for f in generated_pages():
+        text = f.read_text(encoding="utf-8")
+        new = with_csp(text)
+        if new != text:
+            f.write_text(new, encoding="utf-8")
+            n += 1
+    return n
+
 
 
 if __name__ == "__main__":

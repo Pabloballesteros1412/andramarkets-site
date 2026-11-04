@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
+Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `central-banks/`, `recession-watch/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
 by `tools/build_site.py` at deploy time and deployed to GitHub Pages from `main` by
 `.github/workflows/pages.yml`. No framework, no build step beyond the generator.
 
@@ -71,14 +71,15 @@ record. The daily note is one module among others, not the centrepiece.
   30 Oct 2026; renamed from Path to Wall Street, `careers/` redirects): a
   guide for students entering IB, S&T, asset management, equity research and
   hedge funds, especially from non-target universities and outside the US:
-  the roles, a recruiting calendar, a one-page CV, networking with email
+  the roles, a one-page CV, networking with email
   templates, technical preparation, visas, certifications and resources. Its
   text lives in `data/path_to_wall_street.json`; it shows its "Last reviewed"
   date and is reviewed each quarter. The owner approved publishing after
   Claude's review.
-  - Recruiting calendar (`break-into-wall-street/recruiting-calendar/`,
-    owner-approved preview, 30 Oct 2026; replaced the timeline by academic
-    year): US only (owner's choice), about 40 banks, boutiques, asset managers,
+  - Recruiting calendar (`recruiting-calendar/`, owner-approved preview,
+    30 Oct 2026; replaced the timeline by academic year; its own section of
+    the Careers menu since 1 Nov 2026, owner: it left the guide, and
+    `break-into-wall-street/recruiting-calendar/` redirects): US only (owner's choice), about 40 banks, boutiques, asset managers,
     hedge funds and trading firms, by date and by firm, from
     `data/recruiting_calendar.json`. No free source lists firms' dates and the
     aggregators' terms forbid reuse, so the file is kept by hand from each
@@ -93,6 +94,16 @@ record. The daily note is one module among others, not the centrepiece.
     know, a worked example, practice cards whose progress stays in the
     browser, and common mistakes; Brainteasers adds a timed mental maths drill.
     Content in `data/technicals/`, reviewed before publishing.
+- Firms (`firms/`, owner-approved sketch, 1 Nov 2026): the ~40 firms of the
+  Recruiting calendar with their type, the divisions and US offices their
+  programmes name, and each programme's window and apply link, from
+  `data/recruiting_calendar.json` only. Type chips use the calendar's own
+  groups (Banks, Boutiques, Asset managers, Hedge funds, Trading and quant).
+- Application tracker (`application-tracker/`, owner-approved sketch, 1 Nov
+  2026): the reader's applications (calendar programmes or their own), status,
+  deadlines, next step, contacts and notes, kept in the browser's localStorage
+  and never sent; the reader can export and import a copy of their own entries
+  as a file (their data, not site data).
 - Calendar (real data, owner-approved 22 Oct 2026): five weeks of market-moving
   releases and events for the US, euro area, UK, Japan and China, central bank
   decisions, minutes and key speeches, Treasury note and bond auctions, NYSE
@@ -137,11 +148,57 @@ record. The daily note is one module among others, not the centrepiece.
   need to know this week" block (five to seven topics, figures only from the
   week's close notes) and a question bank with model answers in six subjects,
   all from one file, `data/interview_prep.json`, updated weekly.
+- Central banks (`central-banks/`, owner-approved sketch, 1 Nov 2026): the
+  Fed, ECB, Bank of England and Bank of Japan in one table, each policy rate
+  (target range, deposit facility rate, Bank Rate, policy rate) with its date,
+  its last move in basis points and the next meeting with the days to it, and
+  the four rates since 2019. Sources: the Federal Reserve via FRED, the ECB
+  Data Portal (FRED as backup), the Bank of England's database (the BIS as
+  backup), the BIS for the Bank of Japan; meeting dates from each bank's own
+  calendar. The Fed's row links to Fed & Rates.
+- Recession watch (`recession-watch/`, owner-approved sketch, 1 Nov 2026): the
+  10Y-3M curve, the Sahm rule, initial jobless claims, the high-yield spread
+  and the Chicago Fed's NFCI, each with its latest reading, a plain reading
+  against its own published definition (or the note that it has none) and its
+  history since 1970 or its first observation, NBER recessions shaded. All
+  from FRED. No forecast or probability of our own.
+- Chart of the day (`chart-of-the-day/`, owner-approved sketch, 1 Nov 2026):
+  one chart per session from its close note, chosen by a published rule (the
+  chart that moved most against its previous 20 sessions), with a line from
+  its figures, a quote from the note, the link to the note and Share; an
+  archive by date. Nothing beyond the note's figures and words.
+- Market history (`market-history/`, owner-approved sketch, 1 Nov 2026): the
+  Trading Simulator's 36 US episodes since 1928, each with the S&P 500 from
+  peak to low and back, its fall, months to the low and to recover, the text
+  as reviewed for the simulator, and a link to play it. S&P 500 daily closes,
+  price only, Yahoo Finance ^GSPC, fetched at deploy.
+- Interview simulator (`interview-simulator/`, owner-approved sketch, 1 Nov
+  2026): a timed mock interview answered aloud. Pick a track (IB, S&T,
+  AM/ER) and a length (10, 20, 30 minutes; 4, 8, 12 questions, two minutes
+  each); compare with the model answer and its key points, rate yourself, and
+  get a result by topic with the pages to review. Questions are used as they
+  are from the technical topics and the Interview Prep bank and weekly block
+  (with its close-note dates, while under two weeks old); key points, tracks
+  and same-question groups are kept by hand in `data/interview_simulator.json`
+  (the key points are new text, pending the owner's review). Nothing is
+  recorded or sent; progress stays in the browser.
 - Data sources, legal notice and privacy and cookies (`sources/`, `legal/`,
   `privacy/`), linked from the footer. The legal notice covers US, UK and EU
   readers. The operator's legal name, tax number, address and contact email
   are bracketed placeholders until the owner supplies them (Spanish law asks a
   site's publisher to identify itself).
+  Reviewed 2 Nov 2026 (owner: "completely legal"): the privacy policy now lists
+  every storage key the site uses (the Application tracker, the Interview
+  simulator and page moves were missing), the Gmail mailbox, the legal basis
+  and a 12-month limit for emails, and that no automated decisions are made;
+  the legal notice says the content is commentary, not MAR investment
+  recommendations, and that machine-drafted pages say so (AI Act art. 50).
+  The owner (2 Nov 2026) receives no emails, earns nothing from the site or
+  anyone and holds no positions: the notice now says that neither Andra
+  Markets nor its operator holds a position in any instrument the reports
+  discuss, and that a report will say so if that changes. The privacy
+  policy names the owner as the data controller (GDPR art. 13; owner's
+  choice, 2 Nov 2026, over forming a company now or naming no one).
 - One site with a light (default) and dark theme, toggle remembered per visitor.
 - Undecided: dashboard names and count, study list, data sources, publication
   time, newsletter platform (Substack, Beehiiv or Ghost), a YouTube channel.
@@ -155,13 +212,16 @@ record. The daily note is one module among others, not the centrepiece.
   approved showing it on light grounds via a CSS invert + grayscale + multiply
   treatment that leaves the file untouched.
 - Published only as Andra Markets: no personal names anywhere on the site,
-  the legal notice included (owner, 30 Oct 2026). While the site has no
-  economic activity (no income, sales, ads, sponsorship or affiliate links)
-  the legal notice and privacy policy name only Andra Markets and a brand
-  contact email. Before any monetisation (newsletter sponsorship, paid tier)
-  the owner will form a company (SL), and the legal notice will then carry
-  its name, CIF and registered address as LSSI article 10 requires. Never
-  publish the owner's own name, DNI or home address.
+  the legal notice included (owner, 30 Oct 2026), with one exception: the
+  privacy policy names the owner, Pablo Ballesteros Sánchez, as the data
+  controller, as GDPR article 13 requires (owner, 2 Nov 2026: "completely
+  legal"). His name appears nowhere else. While the site has no economic
+  activity (no income, sales, ads, sponsorship or affiliate links) the legal
+  notice names only Andra Markets and a brand contact email. Before any
+  monetisation (newsletter sponsorship, paid tier) the owner will form a
+  company (SL), and the legal notice will then carry its name, CIF and
+  registered address as LSSI article 10 requires. Never publish the owner's
+  DNI or home address.
 - Owner-approved derivatives of the mark: the favicon and touch icon are a
   head-and-neck crop (the owner asked for "a favicon (head and neck crop of the
   horse)" and approved it as shown); the social share image uses the full horse.

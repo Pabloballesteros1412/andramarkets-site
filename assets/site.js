@@ -130,17 +130,25 @@
       },
       { threshold: 0 }
     ).observe(hero);
+  } else if (header && document.body.classList.contains("has-scene")) {
+    // section pages: the header stays clear over the scene until the page scrolls
+    var shade = function () { header.classList.toggle("is-solid", window.scrollY > 8); };
+    window.addEventListener("scroll", shade, { passive: true });
+    shade();
   } else if (header) {
     header.classList.add("is-solid");
   }
 
-  // Theme: light by default, the visitor's choice is remembered.
-  var themeBtn = document.querySelector(".theme-btn");
+  // Theme: dark by default (owner, 31 Oct 2026), the visitor's choice is remembered. The
+  // header's mark is the switch (owner, 1 Nov 2026).
+  var themeBtn = document.querySelector(".brand__toggle");
   function syncThemeBtn() {
     var dark = root.getAttribute("data-theme") === "dark";
-    themeBtn.setAttribute("aria-label", dark ? "Switch to light theme" : "Switch to dark theme");
+    var label = dark ? "Switch to light theme" : "Switch to dark theme";
+    themeBtn.setAttribute("aria-label", label);
+    themeBtn.setAttribute("title", label);
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", dark ? "#0a0c0d" : "#f4f6f6");
+    if (meta) meta.setAttribute("content", dark ? "#0a0c0d" : "#ffffff");
   }
   if (themeBtn) {
     syncThemeBtn();
@@ -157,7 +165,7 @@
         apply();
         return;
       }
-      // The new theme opens as a circle from the button and covers the page.
+      // The new theme opens as a circle from the mark and covers the page.
       var r = themeBtn.getBoundingClientRect();
       var x = r.left + r.width / 2;
       var y = r.top + r.height / 2;
@@ -178,8 +186,121 @@
     });
   }
 
+  // Homepage groups (owner, 1 Nov 2026: the sections opened too abruptly): a group's list
+  // grows to its height as it fades in, its sections following one another 25ms apart, and
+  // folds away a little faster. One group is open at a time: the open one folds first, then
+  // the next opens, so two lists never share the space (on phones they open in the same
+  // place). The details keep their name attribute for when this script does not run; here
+  // the script keeps one open itself, as the browser would close the other at once. Reduced
+  // motion: the details open and close as they are.
+  var groups = Array.prototype.slice.call(document.querySelectorAll(".hero__group"));
+  var EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
+  // the list is clipped only while it moves, so a focused section's outline is never cut
+  function clip(list, on) { list.style.overflow = on ? "hidden" : ""; }
+  function foldGroup(d, done) {
+    var list = d.querySelector("ul");
+    if (d._anim) d._anim.cancel();
+    if (!d.open) { if (done) done(); return; }
+    clip(list, true);
+    var a = list.animate(
+      [{ height: list.offsetHeight + "px", paddingTop: getComputedStyle(list).paddingTop, opacity: 1 },
+       { height: "0px", paddingTop: "0px", opacity: 0 }],
+      { duration: 180, easing: "ease-in" }
+    );
+    d._anim = a;
+    a.onfinish = function () { d._anim = null; d.open = false; clip(list, false); if (done) done(); };
+  }
+  function unfoldGroup(d) {
+    var list = d.querySelector("ul");
+    if (d._anim) d._anim.cancel();
+    d.open = true;
+    clip(list, true);
+    var a = list.animate(
+      [{ height: "0px", paddingTop: "0px", opacity: 0 },
+       { height: list.offsetHeight + "px", paddingTop: getComputedStyle(list).paddingTop, opacity: 1 }],
+      { duration: 280, easing: EASE_OUT }
+    );
+    d._anim = a;
+    a.onfinish = function () { d._anim = null; clip(list, false); };
+    Array.prototype.forEach.call(list.querySelectorAll("li"), function (li, i) {
+      li.animate(
+        [{ opacity: 0, transform: "translateY(-4px)" }, { opacity: 1, transform: "none" }],
+        { duration: 240, delay: 40 + i * 25, easing: EASE_OUT, fill: "backwards" }
+      );
+    });
+  }
+  if (groups.length && "animate" in Element.prototype) {
+    groups.forEach(function (d) { d.removeAttribute("name"); });
+    groups.forEach(function (d) {
+      d.querySelector("summary").addEventListener("click", function (e) {
+        e.preventDefault();
+        var opening = !d.open || (d._anim && d._anim.playState === "running" && d._closing);
+        var other = groups.filter(function (g) { return g !== d && g.open; });
+        if (still()) {
+          other.forEach(function (g) { g.open = false; });
+          d.open = !d.open;
+          return;
+        }
+        if (!opening) { d._closing = true; foldGroup(d, function () { d._closing = false; }); return; }
+        d._closing = false;
+        if (!other.length) { unfoldGroup(d); return; }
+        var left = other.length;
+        other.forEach(function (g) { foldGroup(g, function () { if (--left === 0) unfoldGroup(d); }); });
+      });
+    });
+  }
+
+  // Moving from one section to another (owner-approved, 1 Nov 2026; VIEW_TRANSITION and
+  // MOVE_BOOT in tools/build_site.py, the motion in site.css). As this page goes it marks the
+  // move "leave" (its main fades on its own) and leaves a note for the next page: whether the
+  // move went back in history, and whether it started from a section in the open menu, whose
+  // name then flies into the next page's title. The homepage takes no part, so a transition
+  // towards it is called off here, before the browser starts it for nothing.
+  var MOVES = "onpageswap" in window;
+  var chosen = null;   // the menu link just clicked, kept until the page goes
+  function plainClick(e, a) {
+    return MOVES && !still() && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey &&
+      !e.defaultPrevented && !a.hasAttribute("download") && (!a.target || a.target === "_self") &&
+      a.origin === location.origin && !/\.pdf$/i.test(a.pathname) &&
+      // a part of this same page (a link with a #) moves nothing: the menu closes
+      !(a.hash && a.pathname === location.pathname && a.search === location.search);
+  }
+  window.addEventListener("pageswap", function (e) {
+    var vt = e.viewTransition, act = e.activation, to = act && act.entry && act.entry.url;
+    if (!vt || !to) return;
+    vt.ready.catch(function () {});
+    vt.finished.catch(function () {});
+    var dest = new URL(to);
+    var home = new URL(document.body.getAttribute("data-base") || "./", location.href).pathname;
+    if (dest.pathname === home) { vt.skipTransition(); return; }
+    vt.types.add("leave");
+    var back = act.navigationType === "traverse" && act.from && act.entry.index < act.from.index;
+    // only a section's own page: a link to a part of one (a link with a #) lands scrolled to
+    // that part, away from the title, so there the page simply rises
+    var label = chosen && chosen.pathname === dest.pathname && !chosen.hash && !back && chosen.querySelector(".nav__label");
+    if (label) label.style.viewTransitionName = "page-title";
+    try {
+      sessionStorage.setItem("andra-move", JSON.stringify({ menu: !!label, back: !!back, at: Date.now() }));
+    } catch (err) { /* private mode: the next page simply rises */ }
+  });
+  // Back here from the back/forward cache: the menu the page was left with closes and the
+  // name goes back to its place in it.
+  window.addEventListener("pageshow", function (e) {
+    if (!e.persisted) return;
+    chosen = null;
+    document.querySelectorAll(".nav__label").forEach(function (l) { l.style.viewTransitionName = ""; });
+    if (groupBtns.length) closeGroups(null);
+    if (menuBtn && nav && menuBtn.getAttribute("aria-expanded") === "true") setMenu(false);
+  });
+
   // Chip groups: the ink fill glides to the pressed chip. Works for any
   // .filters group, including the range chips that dashboard.js presses.
+  // Chips pressed while the page sets up (a view or filter from the link's
+  // fragment) take their place at once, as if the page had been built so.
+  var settled = false;
+  document.addEventListener("DOMContentLoaded", function () {
+    settled = true;
+  });
   document.querySelectorAll(".filters").forEach(function (group) {
     var ind = document.createElement("span");
     ind.className = "filters__glide";
@@ -202,7 +323,19 @@
     }
     place(false);
     new MutationObserver(function () {
-      place(true);
+      if (settled) {
+        place(true);
+        return;
+      }
+      var chips = group.querySelectorAll(".chip");
+      chips.forEach(function (c) {
+        c.style.transition = "none";
+      });
+      place(false);
+      void group.offsetWidth;
+      chips.forEach(function (c) {
+        c.style.transition = "";
+      });
     }).observe(group, { attributes: true, subtree: true, attributeFilter: ["aria-pressed"] });
     window.addEventListener("resize", function () {
       place(false);
@@ -214,52 +347,194 @@
     }
   });
 
-  // Dashboard filters.
+  // Dashboard filters. The chosen category lives in the URL's fragment
+  // (dashboards/#rates), so a filtered page can be shared; All leaves none.
   var chips = document.querySelectorAll(".chip[data-filter]");
   var tiles = document.querySelectorAll(".dash-tile");
   var filterStatus = document.querySelector(".filters__status");
-  chips.forEach(function (chip) {
-    chip.addEventListener("click", function () {
-      var cat = chip.getAttribute("data-filter");
-      var shown = 0;
-      chips.forEach(function (c) {
-        c.setAttribute("aria-pressed", String(c === chip));
-      });
-      tiles.forEach(function (tile) {
-        var match = cat === "all" || tile.getAttribute("data-cat") === cat;
-        tile.hidden = !match;
-        tile.classList.remove("is-entering");
-        if (match) {
+  // enter: matching tiles fade in and rise; a filter from the link leaves
+  // them to reveal on scroll, as on any other visit.
+  var filterTo = function (chip, enter) {
+    var cat = chip.getAttribute("data-filter");
+    var shown = 0;
+    chips.forEach(function (c) {
+      c.setAttribute("aria-pressed", String(c === chip));
+    });
+    tiles.forEach(function (tile) {
+      var match = cat === "all" || tile.getAttribute("data-cat") === cat;
+      tile.hidden = !match;
+      tile.classList.remove("is-entering");
+      if (match) {
+        if (enter) {
           tile.style.setProperty("--e", shown);
-          shown++;
           tile.classList.add("is-in");
           void tile.offsetWidth;
           tile.classList.add("is-entering");
         }
-      });
-      filterStatus.textContent =
-        cat === "all"
-          ? "Showing all " + tiles.length + " dashboards"
-          : "Showing " + shown + " of " + tiles.length + " dashboards: " + chip.getAttribute("data-label");
+        shown++;
+      }
+    });
+    filterStatus.textContent =
+      cat === "all"
+        ? "Showing all " + tiles.length + " dashboards"
+        : "Showing " + shown + " of " + tiles.length + " dashboards: " + chip.getAttribute("data-label");
+  };
+  chips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      var cat = chip.getAttribute("data-filter");
+      filterTo(chip, true);
+      history.replaceState(null, "", location.pathname + location.search + (cat === "all" ? "" : "#" + encodeURIComponent(cat)));
     });
   });
+  var startCat = location.hash.slice(1).toLowerCase();
+  chips.forEach(function (chip) {
+    if (startCat && startCat !== "all" && chip.getAttribute("data-filter") === startCat) filterTo(chip, false);
+  });
 
-  // Mobile menu.
+  // The menu's groups (owner-approved, 31 Oct 2026): above 960px each button opens its
+  // panel under the header, one at a time. A click outside, Escape or a link closes it.
+  var groupBtns = document.querySelectorAll(".nav__btn");
+  function closeGroups(except) {
+    var any = false;
+    groupBtns.forEach(function (b) {
+      var open = b === except;
+      b.setAttribute("aria-expanded", String(open));
+      b.parentNode.classList.toggle("is-open", open);
+      if (open) orbit(b.parentNode);
+      any = any || open;
+    });
+    if (header && !(menuBtnOpen())) header.classList.toggle("is-open", any);
+  }
+
+  // The open group's sections orbit its title (owner-approved, 1 Nov 2026; site.css has the
+  // panel). Above 960px they sit on an ellipse the size of the panel, the first at the top
+  // (with two sections, top left and bottom right), and come out of the title over 1.1s as
+  // the group opens; the ellipse then turns once every 120s. It stops while the pointer or
+  // the focus is on a section, so it is easy to take, and every opening starts from the same
+  // places. It runs only while the group is open. Reduced motion: the sections stand still in
+  // their places.
+  var wideMenu = window.matchMedia("(min-width: 961px)");
+  var ORBIT_TURN = 120;
+  function orbit(g) {
+    var ul = g.querySelector(".nav__links");
+    if (!ul || !wideMenu.matches) return;
+    var items = Array.prototype.slice.call(ul.children);
+    var start = items.length === 2 ? -0.82 * Math.PI : -Math.PI / 2;
+    var t = 0, last = 0, t0 = performance.now();
+    if (g._orbit) cancelAnimationFrame(g._orbit);
+    if (!g._held) {
+      g._held = 0;
+      items.forEach(function (li) {
+        var on = function () { g._held++; }, off = function () { g._held = Math.max(0, g._held - 1); };
+        li.addEventListener("pointerenter", on);
+        li.addEventListener("pointerleave", off);
+        li.addEventListener("focusin", on);
+        li.addEventListener("focusout", off);
+      });
+    }
+    function place(now) {
+      if (!g.classList.contains("is-open") || !wideMenu.matches) {
+        g._orbit = 0;
+        items.forEach(function (li) { li.style.transform = ""; li.style.opacity = ""; });
+        return;
+      }
+      var dt = last ? (now - last) / 1000 : 0;
+      last = now;
+      if (!g._held && !still()) t += dt;
+      var k = still() ? 1 : Math.min(1, (now - t0) / 1100);
+      k = 1 - Math.pow(1 - k, 3);
+      // every size is read before any section is moved: a read after a move would make the
+      // browser work out the styles again, once for each section on every frame
+      var W = ul.clientWidth, H = ul.clientHeight;
+      var sizes = items.map(function (li) { return [li.offsetWidth, li.offsetHeight]; });
+      items.forEach(function (li, i) {
+        var w = sizes[i][0], h = sizes[i][1];
+        var a = start + i * 2 * Math.PI / items.length + t * 2 * Math.PI / ORBIT_TURN;
+        var x = W / 2 - w / 2 + Math.cos(a) * (W - w) / 2 * k;
+        var y = H / 2 - h / 2 + Math.sin(a) * (H - h) / 2 * k;
+        li.style.transform = "translate(" + x.toFixed(1) + "px, " + y.toFixed(1) + "px)";
+        li.style.opacity = Math.min(1, k * 1.4).toFixed(3);
+      });
+      g._orbit = requestAnimationFrame(place);
+    }
+    place(t0);
+  }
+  function menuBtnOpen() {
+    var m = document.querySelector(".menu-btn");
+    return m && m.getAttribute("aria-expanded") === "true";
+  }
+  if (groupBtns.length) {
+    groupBtns.forEach(function (b) {
+      b.addEventListener("click", function () {
+        var open = b.getAttribute("aria-expanded") === "true";
+        if (open && menuBtnOpen()) return;   // the sheet always shows a group
+        closeGroups(open ? null : b);
+      });
+    });
+    document.addEventListener("click", function (e) {
+      // the menu sheet (960px and below) opens and closes its groups itself
+      if (menuBtnOpen() || e.target.closest(".menu-btn")) return;
+      var a = e.target.closest(".nav__panel a");
+      if (!e.target.closest(".nav__btn") && !e.target.closest(".nav__panel")) closeGroups(null);
+      else if (a && plainClick(e, a)) chosen = a;   // stays open: its name flies into the next page
+      else if (a) closeGroups(null);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape" || menuBtnOpen()) return;
+      var open = document.querySelector('.nav__btn[aria-expanded="true"]');
+      if (open) { closeGroups(null); open.focus(); }
+    });
+  }
+
+  // The menu sheet, 960px and below (owner-approved, 2 Nov 2026): the group names in a row and
+  // one group open under them, as above 960px. It opens on the group of this page (the one
+  // with the longest link whose top folder this address is in; Markets elsewhere), and the
+  // group closes once the sheet has faded (200ms), so it never empties while it goes. A link's
+  // top folder: Tools' themes (lab/options/) stand for all of lab/, so its tools open Tools too.
   var menuBtn = document.querySelector(".menu-btn");
   var nav = document.getElementById("site-nav");
+  var menuShut = 0;
+  function pageGroup() {
+    var home = new URL(document.body.getAttribute("data-base") || "./", location.href).pathname;
+    var best = groupBtns[0], len = 0;
+    groupBtns.forEach(function (b) {
+      b.parentNode.querySelectorAll(".nav__panel a").forEach(function (a) {
+        var p = a.pathname, rest = p.indexOf(home) === 0 ? p.slice(home.length) : "";
+        if (rest.indexOf("/") > 0) p = home + rest.slice(0, rest.indexOf("/") + 1);
+        if (p.length > len && location.pathname.indexOf(p) === 0) { best = b; len = p.length; }
+      });
+    });
+    return best;
+  }
   function setMenu(open) {
     header.classList.toggle("is-open", open);
     menuBtn.setAttribute("aria-expanded", String(open));
     menuBtn.querySelector("span").textContent = open ? "Close" : "Menu";
     menuBtn.querySelector("use").setAttribute("href", open ? "#i-x" : "#i-list");
-    if (open) nav.querySelector("a").focus();
+    clearTimeout(menuShut);
+    if (open) {
+      if (groupBtns.length) closeGroups(pageGroup());
+      (nav.querySelector(".nav__group.is-open .nav__panel a") || nav.querySelector("a")).focus();
+    } else if (groupBtns.length) {
+      menuShut = setTimeout(function () { if (!menuBtnOpen()) closeGroups(null); }, 220);
+    }
   }
   if (menuBtn && nav) {
+    // across 960px the sheet and the panels swap: whatever was open closes
+    var swapMenu = function () {
+      if (menuBtnOpen()) setMenu(false);
+      if (groupBtns.length) closeGroups(null);
+    };
+    if (wideMenu.addEventListener) wideMenu.addEventListener("change", swapMenu);
+    else if (wideMenu.addListener) wideMenu.addListener(swapMenu);
     menuBtn.addEventListener("click", function () {
       setMenu(menuBtn.getAttribute("aria-expanded") !== "true");
     });
     nav.addEventListener("click", function (e) {
-      if (e.target.closest("a")) setMenu(false);
+      var a = e.target.closest("a");
+      if (!a || menuBtn.getAttribute("aria-expanded") !== "true") return;
+      if (plainClick(e, a)) chosen = a;   // the sheet stays open: its name flies into the next page
+      else setMenu(false);
     });
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape" && menuBtn.getAttribute("aria-expanded") === "true") {

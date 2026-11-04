@@ -7,7 +7,7 @@
       "ground": {
         "role": "neutral",
         "displayName": "Cool Paper",
-        "canonical": "#f4f6f6",
+        "canonical": "#ffffff",
         "purpose": "Light page ground, solid header, nav sheet, input fill, mark patch.",
         "tonalRamp": [
           "#0a0b0b",
@@ -145,7 +145,7 @@
       "btn-fg": {
         "role": "neutral",
         "displayName": "Button Paper",
-        "canonical": "#f4f6f6",
+        "canonical": "#ffffff",
         "purpose": "Light primary button label.",
         "tonalRamp": [
           "#0a0b0b",
@@ -1212,7 +1212,7 @@
       "storageKey": "andra-theme",
       "urlParam": "?theme=light|dark (wins and is persisted)",
       "themeColor": {
-        "light": "#f4f6f6",
+        "light": "#ffffff",
         "dark": "#0a0c0d"
       },
       "transition": "document.startViewTransition when available",
@@ -1270,7 +1270,7 @@
       "refersTo": "button-primary",
       "description": "Ink slab for the main action; trailing arrow nudges on hover.",
       "html": "<a class=\"ds-btn\" href=\"#\">Explore dashboards <svg class=\"ds-icon\" viewBox=\"0 0 256 256\" aria-hidden=\"true\"><path d=\"M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z\"/></svg></a>",
-      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 22px; border: 1px solid var(--btn-bg, #0e1215); border-radius: 0; background: var(--btn-bg, #0e1215); color: var(--btn-fg, #f4f6f6); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; font-size: 0.9375rem; font-weight: 550; text-decoration: none; cursor: pointer; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-icon { width: 1.05em; height: 1.05em; fill: currentColor; transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn:active { transform: scale(0.98); } .ds-btn:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 3px; } @media (hover: hover) and (pointer: fine) { .ds-btn:hover { background: var(--btn-hover, #2a3036); border-color: var(--btn-hover, #2a3036); } .ds-btn:hover .ds-icon { transform: translateX(3px); } }"
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 22px; border: 1px solid var(--btn-bg, #0e1215); border-radius: 0; background: var(--btn-bg, #0e1215); color: var(--btn-fg, #ffffff); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; font-size: 0.9375rem; font-weight: 550; text-decoration: none; cursor: pointer; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-icon { width: 1.05em; height: 1.05em; fill: currentColor; transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn:active { transform: scale(0.98); } .ds-btn:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 3px; } @media (hover: hover) and (pointer: fine) { .ds-btn:hover { background: var(--btn-hover, #2a3036); border-color: var(--btn-hover, #2a3036); } .ds-btn:hover .ds-icon { transform: translateX(3px); } }"
     },
     {
       "name": "Ghost Button",
@@ -1278,7 +1278,7 @@
       "refersTo": "button-ghost",
       "description": "Secondary action; outlined in the strong rule, fills with ink on hover.",
       "html": "<a class=\"ds-btn-ghost\" href=\"#\">Subscribe</a>",
-      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border: 1px solid var(--rule-strong, rgba(14, 18, 21, 0.78)); border-radius: 0; background: transparent; color: var(--ink, #0e1215); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; font-size: 0.9375rem; font-weight: 550; text-decoration: none; cursor: pointer; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn-ghost:active { transform: scale(0.98); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 3px; } @media (hover: hover) and (pointer: fine) { .ds-btn-ghost:hover { background: var(--ink, #0e1215); border-color: var(--ink, #0e1215); color: var(--ground, #f4f6f6); } }"
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border: 1px solid var(--rule-strong, rgba(14, 18, 21, 0.78)); border-radius: 0; background: transparent; color: var(--ink, #0e1215); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; font-size: 0.9375rem; font-weight: 550; text-decoration: none; cursor: pointer; transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1); } .ds-btn-ghost:active { transform: scale(0.98); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 3px; } @media (hover: hover) and (pointer: fine) { .ds-btn-ghost:hover { background: var(--ink, #0e1215); border-color: var(--ink, #0e1215); color: var(--ground, #ffffff); } }"
     },
     {
       "name": "Filter Chips",
@@ -1286,7 +1286,7 @@
       "refersTo": "chip",
       "description": "Single-select category filter with tabular counts; pressed chip is ink-filled.",
       "html": "<div class=\"ds-chips\"><button type=\"button\" class=\"ds-chip\" aria-pressed=\"true\">All <span class=\"ds-chip__n\">12</span></button><button type=\"button\" class=\"ds-chip\" aria-pressed=\"false\">Rates <span class=\"ds-chip__n\">2</span></button><button type=\"button\" class=\"ds-chip\" aria-pressed=\"false\">Equities <span class=\"ds-chip__n\">4</span></button></div>",
-      "css": ".ds-chips { display: flex; gap: 8px; } .ds-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid var(--rule, rgba(14, 18, 21, 0.15)); border-radius: 0; background: transparent; color: var(--ink-2, #424a50); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; font-size: 0.875rem; font-weight: 550; cursor: pointer; transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease; } .ds-chip__n { font-variant-numeric: tabular-nums; color: var(--ink-3, #5a6268); font-weight: 450; } .ds-chip[aria-pressed=\"true\"] { background: var(--ink, #0e1215); border-color: var(--ink, #0e1215); color: var(--ground, #f4f6f6); } .ds-chip[aria-pressed=\"true\"] .ds-chip__n { color: inherit; opacity: 0.7; } .ds-chip:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: -4px; } @media (hover: hover) and (pointer: fine) { .ds-chip[aria-pressed=\"false\"]:hover { border-color: var(--rule-strong, rgba(14, 18, 21, 0.78)); color: var(--ink, #0e1215); } }"
+      "css": ".ds-chips { display: flex; gap: 8px; } .ds-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 1px solid var(--rule, rgba(14, 18, 21, 0.15)); border-radius: 0; background: transparent; color: var(--ink-2, #424a50); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; font-size: 0.875rem; font-weight: 550; cursor: pointer; transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease; } .ds-chip__n { font-variant-numeric: tabular-nums; color: var(--ink-3, #5a6268); font-weight: 450; } .ds-chip[aria-pressed=\"true\"] { background: var(--ink, #0e1215); border-color: var(--ink, #0e1215); color: var(--ground, #ffffff); } .ds-chip[aria-pressed=\"true\"] .ds-chip__n { color: inherit; opacity: 0.7; } .ds-chip:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: -4px; } @media (hover: hover) and (pointer: fine) { .ds-chip[aria-pressed=\"false\"]:hover { border-color: var(--rule-strong, rgba(14, 18, 21, 0.78)); color: var(--ink, #0e1215); } }"
     },
     {
       "name": "Email Field (error state)",
@@ -1294,7 +1294,7 @@
       "refersTo": "input",
       "description": "Square input with a strong-rule border; the error is ink only, with a doubled border and a warning icon.",
       "html": "<div class=\"ds-field\"><label for=\"ds-email\">Email address</label><div class=\"ds-field__row\"><input id=\"ds-email\" type=\"email\" placeholder=\"you@company.com\" aria-invalid=\"true\"><button class=\"ds-field__btn\" type=\"submit\">Subscribe</button></div><p class=\"ds-field__status\"><svg class=\"ds-icon\" viewBox=\"0 0 256 256\" aria-hidden=\"true\"><path d=\"M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z\"/></svg><span>Enter your email address to subscribe.</span></p></div>",
-      "css": ".ds-field { font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; color: var(--ink, #0e1215); } .ds-field label { display: block; font-size: 0.875rem; font-weight: 550; margin-bottom: 8px; } .ds-field__row { display: flex; gap: 8px; } .ds-field input { flex: 1; min-width: 0; min-height: 52px; padding: 0 16px; border: 1px solid var(--rule-strong, rgba(14, 18, 21, 0.78)); border-radius: 0; background: var(--ground, #f4f6f6); color: var(--ink, #0e1215); font: inherit; font-size: 1rem; } .ds-field input::placeholder { color: var(--ink-3, #5a6268); opacity: 1; } .ds-field input:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 0; } .ds-field input[aria-invalid=\"true\"] { border-color: var(--ink, #0e1215); box-shadow: inset 0 0 0 1px var(--ink, #0e1215); } .ds-field__btn { min-height: 52px; padding: 0 22px; border: 1px solid var(--btn-bg, #0e1215); border-radius: 0; background: var(--btn-bg, #0e1215); color: var(--btn-fg, #f4f6f6); font: inherit; font-size: 0.9375rem; font-weight: 550; cursor: pointer; } .ds-field__status { margin: 10px 0 0; display: flex; align-items: center; gap: 8px; font-size: 0.9375rem; font-weight: 650; } .ds-icon { width: 1.25rem; height: 1.25rem; fill: currentColor; flex: none; }"
+      "css": ".ds-field { font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; color: var(--ink, #0e1215); } .ds-field label { display: block; font-size: 0.875rem; font-weight: 550; margin-bottom: 8px; } .ds-field__row { display: flex; gap: 8px; } .ds-field input { flex: 1; min-width: 0; min-height: 52px; padding: 0 16px; border: 1px solid var(--rule-strong, rgba(14, 18, 21, 0.78)); border-radius: 0; background: var(--ground, #ffffff); color: var(--ink, #0e1215); font: inherit; font-size: 1rem; } .ds-field input::placeholder { color: var(--ink-3, #5a6268); opacity: 1; } .ds-field input:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 0; } .ds-field input[aria-invalid=\"true\"] { border-color: var(--ink, #0e1215); box-shadow: inset 0 0 0 1px var(--ink, #0e1215); } .ds-field__btn { min-height: 52px; padding: 0 22px; border: 1px solid var(--btn-bg, #0e1215); border-radius: 0; background: var(--btn-bg, #0e1215); color: var(--btn-fg, #ffffff); font: inherit; font-size: 0.9375rem; font-weight: 550; cursor: pointer; } .ds-field__status { margin: 10px 0 0; display: flex; align-items: center; gap: 8px; font-size: 0.9375rem; font-weight: 650; } .ds-icon { width: 1.25rem; height: 1.25rem; fill: currentColor; flex: none; }"
     },
     {
       "name": "Site Header",
@@ -1302,7 +1302,7 @@
       "refersTo": "header-solid",
       "description": "Slim 64px header, shown in its solid state: wordmark, nav, theme toggle, small Subscribe.",
       "html": "<header class=\"ds-header\"><a class=\"ds-brand\" href=\"#\">Andra Markets</a><nav class=\"ds-nav\"><a href=\"#\">Dashboards</a><a href=\"#\">Lab</a><a href=\"#\">Calendar</a><a href=\"#\">Daily note</a><a href=\"#\">Learn</a><a href=\"#\">Watch</a></nav><a class=\"ds-btn-sm\" href=\"#\">Subscribe</a></header>",
-      "css": ".ds-header { display: flex; align-items: center; gap: 24px; height: 64px; padding: 0 clamp(16px, 4vw, 56px); background: var(--ground, #f4f6f6); border-bottom: 1px solid var(--rule, rgba(14, 18, 21, 0.15)); color: var(--ink, #0e1215); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; } .ds-brand { margin-right: auto; font-size: 1.0625rem; font-weight: 650; letter-spacing: -0.02em; text-decoration: none; color: inherit; } .ds-nav { display: flex; gap: 24px; font-size: 0.9375rem; } .ds-nav a { color: var(--ink-2, #424a50); text-decoration: none; transition: color 160ms ease; } .ds-nav a:focus-visible, .ds-btn-sm:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 3px; } .ds-btn-sm { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; background: var(--btn-bg, #0e1215); color: var(--btn-fg, #f4f6f6); font-size: 0.875rem; font-weight: 550; text-decoration: none; transition: background-color 160ms ease; } @media (hover: hover) and (pointer: fine) { .ds-nav a:hover { color: var(--ink, #0e1215); } .ds-btn-sm:hover { background: var(--btn-hover, #2a3036); } }"
+      "css": ".ds-header { display: flex; align-items: center; gap: 24px; height: 64px; padding: 0 clamp(16px, 4vw, 56px); background: var(--ground, #ffffff); border-bottom: 1px solid var(--rule, rgba(14, 18, 21, 0.15)); color: var(--ink, #0e1215); font-family: \"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif; } .ds-brand { margin-right: auto; font-size: 1.0625rem; font-weight: 650; letter-spacing: -0.02em; text-decoration: none; color: inherit; } .ds-nav { display: flex; gap: 24px; font-size: 0.9375rem; } .ds-nav a { color: var(--ink-2, #424a50); text-decoration: none; transition: color 160ms ease; } .ds-nav a:focus-visible, .ds-btn-sm:focus-visible { outline: 2px solid var(--focus, #0e1215); outline-offset: 3px; } .ds-btn-sm { display: inline-flex; align-items: center; min-height: 40px; padding: 0 16px; background: var(--btn-bg, #0e1215); color: var(--btn-fg, #ffffff); font-size: 0.875rem; font-weight: 550; text-decoration: none; transition: background-color 160ms ease; } @media (hover: hover) and (pointer: fine) { .ds-nav a:hover { color: var(--ink, #0e1215); } .ds-btn-sm:hover { background: var(--btn-hover, #2a3036); } }"
     },
     {
       "name": "Dashboard Tile",
@@ -1369,7 +1369,7 @@
       }
     ],
     "dos": [
-      "Do keep light as the default theme, resolve it as `?theme=` param, then `andra-theme` in localStorage, then light, and keep `theme-color` in step (`#f4f6f6` / `#0a0c0d`).",
+      "Do keep light as the default theme, resolve it as `?theme=` param, then `andra-theme` in localStorage, then light, and keep `theme-color` in step (`#ffffff` / `#0a0c0d`).",
       "Do set every colour through the theme custom properties so both themes and the Lab plate work without per-component overrides.",
       "Do use the one `--font` stack ending in `sans-serif`, with variable weights between 400 and 650 as recorded in Typography.",
       "Do apply tabular figures only to elements that hold numbers.",

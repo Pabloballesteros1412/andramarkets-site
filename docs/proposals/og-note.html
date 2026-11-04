@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Proposal 3: share image per note</title>
+<meta name="robots" content="noindex">
+<style>
+@font-face { font-family: "Schibsted Grotesk"; src: url("/assets/fonts/schibsted-grotesk-latin.woff2") format("woff2"); font-weight: 400 900; }
+html, body { margin: 0; background: #0a0c0d; }
+.og { position: relative; width: 1200px; height: 630px; overflow: hidden; background: #0a0c0d; color: #e9eceb;
+  font-family: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif; }
+.og__horse { position: absolute; width: 1024px; height: 1024px; left: 420px; top: -215px; mix-blend-mode: screen; opacity: 0.62; }
+.og__vig { position: absolute; inset: 0; background: radial-gradient(90% 100% at 70% 50%, transparent 45%, rgba(10,12,13,0.75) 100%); }
+.og__copy { position: absolute; left: 72px; top: 64px; bottom: 56px; width: 700px; display: flex; flex-direction: column; }
+.og__brand { display: flex; align-items: center; gap: 10px; font-size: 26px; font-weight: 650; letter-spacing: -0.02em; }
+.og__brand img { height: 34px; }
+.og__when { margin: 44px 0 14px; font-size: 22px; color: #a8b0b4; }
+.og h1 { margin: 0; font-size: 54px; font-weight: 560; line-height: 1.04; letter-spacing: -0.035em; text-wrap: balance; }
+.og__tape { margin-top: auto; display: grid; grid-template-columns: repeat(4, auto); justify-content: start; border-top: 1px solid rgba(233,236,235,0.13); }
+.og__tape div { padding: 16px 32px 0 0; display: grid; gap: 2px; }
+.og__tape div + div { padding-left: 24px; border-left: 1px solid rgba(233,236,235,0.13); }
+.og__tape .n { font-size: 19px; color: #a8b0b4; }
+.og__tape .c { font-size: 30px; font-weight: 520; font-variant-numeric: tabular-nums; }
+.up { color: #1fd27a; } .down { color: #ff4b52; }
+</style></head><body>
+<div class="og">
+  <img class="og__horse" src="/andra-horse.png" alt="">
+  <div class="og__vig"></div>
+  <div class="og__copy">
+    <div class="og__brand"><img src="/assets/andra-mark-dark.png" alt="">Andra Markets</div>
+    <p class="og__when">Close note, Friday 30 Oct 2026</p>
+    <h1>Rate cut fails to rally stocks as yields fall and vol spikes together</h1>
+    <div class="og__tape">
+      <div><span class="n">S&amp;P 500</span><span class="c down">−1.82%</span></div>
+      <div><span class="n">Nasdaq 100</span><span class="c down">−3.46%</span></div>
+      <div><span class="n">VIX</span><span class="c up">+12.91%</span></div>
+      <div><span class="n">Gold</span><span class="c down">−3.63%</span></div>
+    </div>
+  </div>
+</div></body></html>
