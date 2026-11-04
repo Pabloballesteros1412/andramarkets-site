@@ -1,6 +1,126 @@
 {
   "reports": [
     {
+      "slug": "2026-87-palantir-q3",
+      "date": "2026-11-03",
+      "type": "research",
+      "title": "Palantir Q3 2026: The Best Quarter in Its History, and Why the Stock Fell",
+      "summary": "Long-form research. Revenue up 96% to $2.31 billion and guidance raised to 91% growth, yet the shares fell after hours. The quarter by segment, the pipeline, the valuation debate and what it says about AI demand.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 12
+    },
+    {
+      "slug": "2026-86-anthropic-s1",
+      "date": "2026-11-03",
+      "type": "research",
+      "title": "Inside Anthropic’s S-1: The Numbers Behind the Largest AI IPO",
+      "summary": "Long-form research. Anthropic’s prospectus read for investors: $33.2 billion of revenue in nine months, a first operating profit, nearly $900 billion of committed spending and the Long-Term Benefit Trust.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 15
+    },
+    {
+      "slug": "2026-85-midterms-election-day",
+      "date": "2026-11-03",
+      "type": "research",
+      "title": "Midterms 2026: The Election-Day Guide for Investors",
+      "summary": "What is at stake, what prediction markets price, the races that decide the Senate, what to watch hour by hour on election night, what history says and how each outcome could affect sectors. It takes no position.",
+      "tags": [
+        "macro",
+        "equities"
+      ],
+      "pages": 12
+    },
+    {
+      "slug": "2026-84-charts-of-2026",
+      "date": "2026-10-31",
+      "type": "research",
+      "title": "The Charts That Explain 2026",
+      "summary": "Long-form research. The story of the markets in 2026 in twelve chapters, from the oil shock and the return of inflation to the AI build-out, the crypto bear market and Japan's exit from deflation.",
+      "tags": [
+        "macro",
+        "equities",
+        "rates",
+        "commodities"
+      ],
+      "pages": 17
+    },
+    {
+      "slug": "2026-83-oil-shocks-compared",
+      "date": "2026-10-31",
+      "type": "research",
+      "title": "Oil Shocks Compared: 2026 Against 1973, 1979, 1990 and 2022",
+      "summary": "Long-form research. Each major oil shock since 1970 reconstructed from the data: what happened to inflation, rates, jobs and stocks in the three years that followed, and how much of that history applies now.",
+      "tags": [
+        "commodities",
+        "macro",
+        "equities"
+      ],
+      "pages": 18
+    },
+    {
+      "slug": "2026-82-japan-2pct",
+      "date": "2026-10-31",
+      "type": "research",
+      "title": "Japan Hits 2%: The End of a 30-Year Fight Against Deflation",
+      "summary": "The Bank of Japan said for the first time that underlying inflation is consistent with its 2% target and signalled a hike as soon as December. What it declared, how Japan got here, and what it means for the yen.",
+      "tags": [
+        "macro",
+        "rates",
+        "fx"
+      ],
+      "pages": 5
+    },
+    {
+      "slug": "2026-81-neocloud-squeeze",
+      "date": "2026-10-31",
+      "type": "research",
+      "title": "The Neocloud Squeeze: When Lenders Stop Funding the AI Build-Out",
+      "summary": "The GPU cloud companies have lost a third of their market value in a month and, by several accounts, access to the bond market. The business model, the numbers, who is exposed and what it means for the AI trade.",
+      "tags": [
+        "credit",
+        "equities"
+      ],
+      "pages": 5
+    },
+    {
+      "slug": "2026-80-bonds-gold",
+      "date": "2026-10-31",
+      "type": "research",
+      "title": "Bonds and Gold: When Safe Havens Stop Agreeing",
+      "summary": "The 10-year yield touched 5.31%, its highest since 2002, then fell; gold dropped below $3,900 from about $5,000. Why the usual hedge behaved like a rate-sensitive asset, and what the curve is saying.",
+      "tags": [
+        "rates",
+        "commodities"
+      ],
+      "pages": 5
+    },
+    {
+      "slug": "2026-79-nvidia-preview",
+      "date": "2026-10-31",
+      "type": "research",
+      "title": "NVIDIA Into 17 November: The $108 Billion Quarter",
+      "summary": "NVIDIA reports on 17 November after guiding to $108 billion of revenue, more than twice a year earlier. What it guided, what consensus expects, the lines that matter and how the backdrop has changed.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 5
+    },
+    {
+      "slug": "2026-78-binance-update",
+      "date": "2026-10-31",
+      "type": "research",
+      "title": "Binance, Update: $6.3 Billion, North Korea and the Bill",
+      "summary": "Binance confirmed that about $6.3 billion was stolen from its hot wallets, four times the previous record, in an attack attributed to North Korea. Confirmed figures replace the estimates in report 2026-72.",
+      "tags": [
+        "fx"
+      ],
+      "pages": 5
+    },
+    {
       "slug": "2026-77-big-oil",
       "date": "2026-10-30",
       "type": "research",
