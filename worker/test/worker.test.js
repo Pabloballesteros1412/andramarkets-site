@@ -166,6 +166,38 @@ test("fundamentals: FMP's daily limit is busy; an unknown ticker is not_found", 
   assert.equal(a.res.status, 404);
 });
 
+test("fundamentals: asks FMP for the 5 years its free plan allows, never more", async () => {
+  routes["fmp:/profile"] = [{ companyName: "Example Corp" }];
+  await call("/fundamentals?t=EXMP");
+  const statements = calls.filter((c) => /income-statement|balance-sheet|cash-flow|ratios/.test(c));
+  assert.equal(statements.length, 4);
+  for (const c of statements) assert.equal(new URL(c).searchParams.get("limit"), String(_test.YEARS));
+  assert.equal(_test.YEARS, 5);
+});
+
+test("fundamentals: an FMP plan error that names 'limit' is the plan, not the daily allowance", async () => {
+  routes["fmp:/profile"] = { "Error Message": "Premium Query Parameter: 'Special Parameters : The values for 'limit' must be between 0 and 5'" };
+  const a = await call("/fundamentals?t=EXMP");
+  assert.equal(a.body.error.code, "plan");
+});
+
+test("metric=all: only the metric object is parsed, the series history is skipped", async () => {
+  const series = { annual: { eps: Array.from({ length: 3000 }, (_, i) => ({ period: "2000-01-01", v: i })) } };
+  const text = JSON.stringify({ metric: { peTTM: 24.6, "52WeekHigh": 197, "52WeekHighDate": "2026-10-01" }, metricType: "all", series, symbol: "EXMP" });
+  assert.deepEqual(_test.metricOnly(text), { metric: { peTTM: 24.6, "52WeekHigh": 197, "52WeekHighDate": "2026-10-01" } });
+  // Not where expected (spaces, another order, an empty answer): the whole answer is parsed.
+  assert.deepEqual(_test.metricOnly('{"symbol": "X", "metric": {"peTTM": 3}}'), { symbol: "X", metric: { peTTM: 3 } });
+  assert.deepEqual(_test.metricOnly('{"series":{},"metric":{"a":{"b":1}}}'), { series: {}, metric: { a: { b: 1 } } });
+  assert.deepEqual(_test.metricOnly("{}"), {});
+  assert.throws(() => _test.metricOnly("not json"));
+  // Through the route: the fundamentals still read the metrics.
+  routes["fmp:/profile"] = [{ companyName: "Example Corp" }];
+  routes["fh:/stock/metric"] = new Response(text, { status: 200 });
+  const a = await call("/fundamentals?t=EXMP");
+  assert.equal(a.body.metrics.pe, 24.6);
+  assert.equal(a.body.metrics.high52, 197);
+});
+
 test("with the STALE namespace, a failure serves the last good answer, marked stale", async () => {
   const kv = new Map();
   const STALE = { get: async (k) => kv.get(k) ?? null, put: async (k, v) => { kv.set(k, v); } };

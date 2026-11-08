@@ -97,7 +97,7 @@
   }
 
   /* ---- The API ---- */
-  function get(path) {
+  function get(path, again) {
     return fetch(API + path, { headers: { Accept: "application/json" } }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (d) {
         if (!r.ok || d.error) {
@@ -109,6 +109,9 @@
         return d;
       });
     }, function () {
+      // No answer at all (a dropped connection, or the API cut off by its host
+      // without CORS headers) usually comes through on a second try.
+      if (!again) return new Promise(function (ok) { setTimeout(ok, 1500); }).then(function () { return get(path, true); });
       var e = new Error("The connection failed.");
       e.code = "network";
       throw e;
@@ -396,6 +399,9 @@
     }
     if (last && fin(last.operatingIncome) && last.revenue) lede.appendChild(document.createTextNode(", with an operating margin of " + pct(last.operatingIncome / last.revenue * 100) + "."));
     else if (last) lede.appendChild(document.createTextNode("."));
+    // No statements because the plan leaves them out: say so here, since the
+    // sections that would carry the note are hidden.
+    if (!last && F.missing && F.missing.indexOf("income") !== -1) lede.appendChild(document.createTextNode("Its financial statements are not in the free data plan Andra Markets uses."));
 
     // Overview.
     $("pf-desc").textContent = p.description || "No description is available for " + p.name + ".";
