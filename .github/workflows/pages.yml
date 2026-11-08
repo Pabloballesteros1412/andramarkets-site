@@ -324,7 +324,7 @@ jobs:
           cp -r world _site/
           cp -r fx _site/
           cp -r lab simulators _site/
-          cp -r research interview-prep sources legal privacy _site/
+          cp -r research interview-prep sources legal privacy contact _site/
           cp -r fed-rates careers break-into-wall-street _site/
           cp -r recruiting-calendar interview-simulator firms application-tracker _site/
           cp -r chart-of-the-day central-banks recession-watch market-history _site/
@@ -332,6 +332,13 @@ jobs:
           # Search engines and feed readers: written only when SITE_URL is set.
           for f in sitemap.xml robots.txt feed.xml; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
           rm -rf _site/assets/icons
+      # Every folder of pages the build wrote (GENERATED in tools/build_site.py) must be
+      # staged: contact/ was built but left out of the list above on 8 Nov 2026, so the live
+      # site linked to a 404 until this check and the copy were added.
+      - name: Check every built page is published
+        run: |
+          missing=$(python3 -c "import sys; sys.path.insert(0, 'tools'); import build_site as s; print(' '.join(n for n in s.GENERATED if (s.OUT / n).exists() and not (s.OUT / '_site' / n).exists()))")
+          if [ -n "$missing" ]; then echo "::error::Built but not published (add them to Stage site): $missing"; exit 1; fi
       # The site is free: no PDF or data file may ever be published, except
       # the Research Library's reports, which are published as their PDFs.
       - name: Check no downloads are published
