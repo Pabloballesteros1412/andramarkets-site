@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `central-banks/`, `recession-watch/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `assets/`), generated
+Static site (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `central-banks/`, `recession-watch/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `contact/`, `dashboards/`, `assets/`), generated
 by `tools/build_site.py` at deploy time and deployed to GitHub Pages from `main` by
 `.github/workflows/pages.yml`. No framework, no build step beyond the generator.
 
@@ -44,6 +44,9 @@ record. The daily note is one module among others, not the centrepiece.
 - Visitors arrive from LinkedIn and TikTok as well as direct links.
 - Channels: LinkedIn https://www.linkedin.com/company/andramarkets/ and TikTok
   https://www.tiktok.com/@andramarkets. No YouTube channel yet.
+- Contact: andramarkets@gmail.com. The Contact us page (`contact/`, owner, 8 Nov
+  2026) gives it with LinkedIn and TikTok; a Contact us button links there from
+  the header (above 520px) and, on phones, from the foot of the page.
 
 ## Capabilities and Constraints
 

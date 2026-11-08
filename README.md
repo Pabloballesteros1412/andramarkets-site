@@ -42,7 +42,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `PRODUCT.md`: product truth and brand commitments.
 - `AGENT_FIXES.md`: known problems in the agent repo, to fix next.
 
-The HTML pages (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `dashboards/`, `calendar/`) are generated at
+The HTML pages (`index.html`, `methodology/`, `reports/`, `research/`, `interview-prep/`, `fed-rates/`, `break-into-wall-street/`, `sources/`, `legal/`, `privacy/`, `contact/`, `dashboards/`, `calendar/`) are generated at
 deploy time and are not stored in the repo. Pushes to `main` deploy to GitHub
 Pages via `.github/workflows/pages.yml`, which builds the pages and publishes
 only `index.html`, `methodology/`, `reports/`, `dashboards/`, `calendar/` and `assets/`. To preview

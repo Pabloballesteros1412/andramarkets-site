@@ -638,6 +638,36 @@
     });
   }
 
+  // Contact us: Copy address puts the email address on the clipboard and the label swaps to
+  // "Copied" for a moment. Hidden without JS, since it cannot work without it; where the
+  // clipboard is refused, the status line asks the visitor to copy the address by hand.
+  var copyBox = document.querySelector(".contact__copy");
+  if (copyBox) {
+    var copyBtn = copyBox.querySelector("[data-copy]");
+    var copySwap = copyBtn.querySelector(".swap");
+    var copyMsg = copyBox.querySelector("[role=status]");
+    var copyTimer;
+    var copyFail = function () {
+      copyMsg.textContent = "Select the address and copy it: " + copyBtn.getAttribute("data-copy");
+      copyMsg.classList.remove("visually-hidden");
+    };
+    copyBox.hidden = false;
+    copyBtn.addEventListener("click", function () {
+      copyMsg.textContent = "";
+      copyMsg.classList.add("visually-hidden");
+      if (!navigator.clipboard || !window.isSecureContext) { copyFail(); return; }
+      navigator.clipboard.writeText(copyBtn.getAttribute("data-copy")).then(function () {
+        copyMsg.textContent = "Email address copied.";
+        copySwap.classList.add("is-on");
+        clearTimeout(copyTimer);
+        copyTimer = setTimeout(function () {
+          copySwap.classList.remove("is-on");
+          copyMsg.textContent = "";
+        }, 2400);
+      }, copyFail);
+    });
+  }
+
   // Companies index: filter the table by market and by sector, both at once,
   // and by the search field (assets/profile.js calls andraCoFilter as you type).
   var coChips = document.querySelectorAll(".chip[data-cofilter], .chip[data-comarket]");
