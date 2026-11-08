@@ -36,6 +36,12 @@ def page_count(path):
     return len(PdfReader(str(path)).pages)
 
 
+def order(r):
+    """Date, then report number as a number (2026-103 after 2026-99 on the same day), then slug."""
+    m = re.match(r"\d{4}-(\d+)", r["slug"])
+    return r["date"], int(m.group(1)) if m else -1, r["slug"]
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("pdf", type=Path)
@@ -67,7 +73,7 @@ def main():
     shutil.copyfile(args.pdf, REPORTS / "pdf" / f"{slug}.pdf")
     index["reports"].append({"slug": slug, "date": args.date, "type": args.type, "title": args.title,
                              "summary": args.summary, "tags": tags, "pages": page_count(args.pdf)})
-    index["reports"].sort(key=lambda r: (r["date"], r["slug"]), reverse=True)
+    index["reports"].sort(key=order, reverse=True)
     index_file.write_text(json.dumps(index, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"copied the PDF to data/reports/pdf/{slug}.pdf and added it to data/reports/index.json")
 
