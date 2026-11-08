@@ -12,6 +12,7 @@ per visitor. Writes:
     research/pdf/<slug>.pdf    each report's PDF, copied from data/reports/pdf
     interview-prep/            Markets Interview Prep (data/interview_prep.json)
     sources/, legal/, privacy/ data sources, legal notice, privacy and cookies
+    contact/                   Contact us: the email address, LinkedIn and TikTok
     dashboards/<slug>/         one page per dashboard (assets/dashboard.js draws the chart)
     calendar/                  the calendar, five weeks (assets/calendar.js: tabs and filters)
     calendar/week/<monday>/    one page per week since the calendar started
@@ -75,6 +76,10 @@ SOCIALS = [
     ("TikTok", TIKTOK_URL, "tiktok-logo"),
     ("YouTube", YOUTUBE_URL, "youtube-logo"),
 ]
+
+# The brand's contact address (also in the legal notice and privacy policy, tools/legal_content.py).
+# The Contact us page (contact/) gives it with the social channels above (owner, 8 Nov 2026).
+CONTACT_EMAIL = "andramarkets@gmail.com"
 
 # Absolute site address, no trailing slash, e.g. "https://andramarkets.com".
 # Social cards need it for og:image and canonical links: without it LinkedIn,
@@ -535,7 +540,7 @@ def tile_asof(key, rec):
 # Icons -----------------------------------------------------------------------
 
 ICON_NAMES = ["warning-circle", "arrow-right", "arrow-up-right", "list", "x",
-              "magnifying-glass", "check", "link", "pause", "play", "caret-down"] + [
+              "magnifying-glass", "check", "link", "pause", "play", "caret-down", "envelope-simple"] + [
     icon_name for _, url, icon_name in SOCIALS if url
 ]
 
@@ -1147,6 +1152,7 @@ def page(notes, cal):
       <div class="wrap hero__copy">
         <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
         <nav class="hero__index" aria-label="All sections" style="--i:2">{hero_groups()}</nav>
+        <a class="btn btn--sm btn--ghost hero__contact" href="contact/" style="--i:3">Contact us</a>
       </div>
     </div>
   </section>
@@ -1368,6 +1374,10 @@ def site_header(home, base, nav=True):
     legal = "" if nav else (f'<p class="site-header__legal"><a href="{base}legal/"><span>For information only.</span> '
                             f'<span>Not investment advice.</span></a>'
                             f'<a href="{base}privacy/">Privacy and cookies</a></p>')
+    # Contact us (owner, 8 Nov 2026): at the right end of the bar, after the search or the legal
+    # line. Phones (520px and below) hide it with every header button: there it sits at the
+    # foot instead: in the footer and, on the homepage, under the four groups (.hero__contact).
+    contact = f'<a class="btn btn--sm btn--ghost contact-btn" href="{base}contact/">Contact us</a>'
     # The mark is the theme switch (owner, 1 Nov 2026): it replaced the sun and moon button.
     # The name beside it stays the link home.
     return f"""<header class="site-header{'' if nav else ' site-header--home'}">
@@ -1379,6 +1389,7 @@ def site_header(home, base, nav=True):
     {menu}
     {search}
     {legal}
+    {contact}
     {menu_btn}
   </div>
 </header>"""
@@ -1397,6 +1408,7 @@ def site_footer(home, base):
         <span class="brand__name">Andra Markets</span>
       </a>
       <p>Research on US and global markets.</p>
+      <a class="btn btn--sm btn--ghost foot__contact" href="{base}contact/">Contact us</a>
     </div>
     <nav class="foot__nav" aria-label="Footer">
       <a href="{base}dashboards/">Dashboards</a>
@@ -2972,6 +2984,47 @@ def privacy_page():
                      "Andra Markets collects almost nothing: no accounts, no analytics, no advertising and no cookies of its own.",
                      PRIVACY, PRIVACY_UPDATED,
                      "How Andra Markets handles personal data and cookies: what is stored, which providers serve the site, and your rights.")
+
+
+def contact_page():
+    """Contact us (contact/, owner-approved mock, 8 Nov 2026): the email address and the
+    social channels as a ruled list, one row each. The email row opens the visitor's mail app
+    and has a Copy address button (site.js; hidden without JavaScript, since it needs it); the
+    channels open in a new place, so they carry the arrow up and to the right."""
+    def row(href, icon_name, name, addr, end, rel=""):
+        return (f'<li><a class="contact__link" href="{href}"{rel}>'
+                f'<svg class="icon contact__icon" aria-hidden="true"><use href="#i-{icon_name}"/></svg>'
+                f'<span class="contact__name">{name}</span><span class="contact__addr">{addr}</span>{end}</a>')
+    arrow = '<svg class="icon contact__arrow" aria-hidden="true"><use href="#i-arrow-up-right"/></svg>'
+    copy = (f'<div class="contact__copy" hidden>'
+            f'<button class="btn btn--sm btn--ghost" type="button" data-copy="{CONTACT_EMAIL}"><span class="swap">'
+            f'<span class="swap__a">Copy<span class="contact__long">&nbsp;address</span></span>'
+            f'<span class="swap__b" aria-hidden="true">{icon("check")}Copied</span></span></button>'
+            f'<p class="visually-hidden" role="status" aria-live="polite"></p></div>')
+    # how each channel's address reads under its name: the TikTok handle, else the address
+    # without its scheme and www (linkedin.com/company/andramarkets)
+    def handle(url):
+        m = re.search(r"tiktok\.com/(@[^/?#]+)", url)
+        return m.group(1) if m else re.sub(r"^https?://(www\.)?", "", url).rstrip("/")
+    rows = [row(f"mailto:{CONTACT_EMAIL}", "envelope-simple", "Email", CONTACT_EMAIL, "") + copy + "</li>"]
+    rows += [row(url, icon_name, label, handle(url), arrow, ' rel="me"') + "</li>"
+             for label, url, icon_name in SOCIALS if url]
+    channels = " and ".join(label for label, url, _ in SOCIALS if url)
+    body = f"""<main id="main" class="page contact">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Contact us</h1>
+      <p class="lede">Questions, corrections or ideas for Andra Markets: write to us, or follow the research on {channels}.</p>
+    </header>
+    <div class="page__body">
+      <ul class="contact__list">{"".join(rows)}</ul>
+      <p class="contact__note">Andra Markets does not give personal investment advice: see the <a href="../legal/">legal notice</a>.</p>
+    </div>
+  </div>
+</main>"""
+    return shell(title="Contact us: Andra Markets",
+                 desc=f"Write to Andra Markets at {CONTACT_EMAIL}, or follow the research on {channels}.",
+                 body=body, home="../", base="../", path="contact/")
 
 
 # Report side panel: the session in numbers -----------------------------------
@@ -5521,6 +5574,7 @@ SEARCH_TERMS = {
 
 # Words a page is found by beyond its title.
 SEARCH_PAGE_TERMS = {
+    "contact/": f"contact email {CONTACT_EMAIL} write to us LinkedIn TikTok social media follow",
     "fed-rates/": "Fed FOMC policy rate fed funds futures meeting probabilities yield curve Treasury 2s10s 3m10y "
                   "inversion spreads TIPS real yield breakeven inflation CPI PCE unemployment",
     "recruiting-calendar/": "application deadlines internship summer analyst opens closes banks "
@@ -5755,6 +5809,7 @@ SEARCH_PAGES = [
     ("Data sources", "sources/", "Page"),
     ("Legal notice", "legal/", "Page"),
     ("Privacy and cookies", "privacy/", "Page"),
+    ("Contact us", "contact/", "Page"),
 ]
 
 
@@ -5936,7 +5991,7 @@ def main():
     for r in library:
         shutil.copyfile(r["pdf"], research_dir / "pdf" / f"{r['slug']}.pdf")
     for slug, make in (("interview-prep", lambda: interview_page(notes)), ("sources", sources_page),
-                       ("legal", legal_page), ("privacy", privacy_page)):
+                       ("legal", legal_page), ("privacy", privacy_page), ("contact", contact_page)):
         (OUT / slug).mkdir(exist_ok=True)
         (OUT / slug / "index.html").write_text(make())
     for i, rec in enumerate(notes):
@@ -6000,7 +6055,7 @@ GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", 
              "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
              "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
              "chart-of-the-day", "central-banks", "recession-watch", "market-history",
-             "interview-simulator", "firms", "application-tracker")
+             "interview-simulator", "firms", "application-tracker", "contact")
 INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
 # Data blocks the browser never runs: the policy does not apply to them.
 DATA_SCRIPTS = ("application/json", "application/ld+json")
