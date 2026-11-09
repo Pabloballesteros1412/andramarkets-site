@@ -51,7 +51,7 @@ jobs:
       cancel-in-progress: false
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -358,10 +358,16 @@ jobs:
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: _site
-      # Pages can take more than its default 10 minutes to sync the site now
-      # that the Research Library carries its PDFs (run 151 timed out while
-      # "syncing_files"), so wait up to 30.
+      # deploy-pages waits at most 10 minutes for Pages to sync the site, then
+      # cancels the deployment and fails: its source caps the timeout input at
+      # 600000 ms (MAX_TIMEOUT), so the 30 minutes set after run 151 never applied.
+      # Pages has taken longer than that since the Research Library carries its
+      # PDFs (runs 151 and 153, both cut at 10 minutes while "syncing_files").
+      # A failed first try gets a second one with the same upload, so a slow
+      # Pages has 20 minutes; the live site keeps its last deploy until one works.
       - id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
-        with:
-          timeout: 1800000
+      - id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
