@@ -1,0 +1,57 @@
+name: Publish reports
+
+# Publishes every report PDF dropped in data/reports/inbox/ to the Research
+# Library and deploys the site. See tools/publish_inbox.py and
+# data/reports/inbox/README.md.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/reports/inbox/**.pdf"
+      - "data/reports/inbox/**.PDF"
+      - "data/reports/inbox/**.json"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: publish-reports
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      published: ${{ steps.import.outputs.published }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: main
+          fetch-depth: 20
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - name: Install the PDF readers
+        run: |
+          sudo apt-get update -q && sudo apt-get install -y -q poppler-utils
+          pip install pypdf==5.1.0
+      - name: Publish the inbox
+        id: import
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          python3 tools/publish_inbox.py --push
+
+  deploy:
+    needs: import
+    # Deploy what was published even if another PDF in the inbox was rejected.
+    if: ${{ always() && needs.import.outputs.published == 'true' }}
+    uses: ./.github/workflows/pages.yml
+    secrets: inherit
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

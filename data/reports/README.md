@@ -13,6 +13,13 @@ check in `pages.yml` refuse every other PDF.
 
 ## Adding a report
 
+The usual way: drop the PDF in `inbox/` on `main` (on github.com, **Add file →
+Upload files** in that folder). The `Publish reports` workflow
+(`tools/publish_inbox.py`) reads the cover, files the PDF, adds its line to
+`index.json` and deploys. See `inbox/README.md`.
+
+By hand:
+
 1. Copy the PDF and add its line to the index in one step:
 
        python3 tools/import_report.py path/to/report.pdf --type research \
