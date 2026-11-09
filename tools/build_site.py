@@ -2613,7 +2613,13 @@ def load_library():
             continue
         out.append(dict(r, day=dt.date.fromisoformat(r["date"]), pdf=pdf, size=pdf.stat().st_size,
                         tags=[t for t in r.get("tags", []) if t in LIB_TAG_NAME]))
-    return sorted(out, key=lambda r: (r["date"], r["slug"]), reverse=True)
+    return sorted(out, key=lib_order, reverse=True)
+
+
+def lib_order(r):
+    """Date, then report number as a number (2026-103 after 2026-99 on the same day), then slug."""
+    m = re.match(r"\d{4}-(\d+)", r["slug"])
+    return r["date"], int(m.group(1)) if m else -1, r["slug"]
 
 
 def lib_chips(attr, options, counts=None):

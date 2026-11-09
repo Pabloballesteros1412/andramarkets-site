@@ -1,6 +1,101 @@
 {
   "reports": [
     {
+      "slug": "2026-105-nvidia-ceo-investigation",
+      "date": "2026-11-08",
+      "type": "research",
+      "title": "Nvidia’s Founder Under Investigation: What the Jensen Huang Affair Means for the World’s Most Important AI Company",
+      "summary": "Special report. Nvidia’s board has opened an independent investigation after reports about its chief executive. What is reported, what is confirmed, and the governance and policy risks for the company.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-104-rare-earth-deadline",
+      "date": "2026-11-08",
+      "type": "research",
+      "title": "48 Hours to the Rare-Earth Deadline: What Revives on 11 November Unless Beijing Signs",
+      "summary": "The truce runs to 10 January 2027 in politics, but China’s legal suspension of its rare-earth controls still expires on 10 November, as do 178 US tariff exclusions. What revives unless new notices appear.",
+      "tags": [
+        "macro",
+        "commodities",
+        "equities"
+      ],
+      "pages": 5
+    },
+    {
+      "slug": "2026-103-berkshire-q3",
+      "date": "2026-11-07",
+      "type": "research",
+      "title": "Berkshire’s Favourite Stock Is Berkshire: A Record Buyback, a Bigger Cash Pile and a Weaker GEICO",
+      "summary": "Greg Abel’s Berkshire spent a record $9.6 billion on buybacks in the third quarter and was a small net seller of other stocks. Operating earnings fell 5.8% as insurance underwriting dropped 43%.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 5
+    },
+    {
+      "slug": "2026-95-jobs-blowout",
+      "date": "2026-11-06",
+      "type": "research",
+      "title": "Jobs Blowout: 165,000 Payrolls Put the December Hike Back in Play",
+      "summary": "October payrolls rose 165,000, almost three times consensus, and unemployment fell to 4.1%. Yields and the dollar rose and markets lifted the odds of a December Fed hike to about 77% to 80%.",
+      "tags": [
+        "macro",
+        "rates",
+        "fx"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-93-berkshire-preview",
+      "date": "2026-11-06",
+      "type": "research",
+      "title": "The Fortress in a Falling Market: Berkshire Reports With $365 Billion and a Record Stock",
+      "summary": "Berkshire reports on 7 November after the worst day for US stocks since April 2025, with its shares near a record. What to watch, why the stock acts as a haven and how Greg Abel has started spending the cash.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 8
+    },
+    {
+      "slug": "2026-92-six-minutes-2-trillion",
+      "date": "2026-11-05",
+      "type": "research",
+      "title": "Six Minutes, $2 Trillion: The Day the AI Trade Cracked",
+      "summary": "Long-form research. The S&P 500 lost more than $2 trillion and the chip index more than 10% in a day. The sell-off reconstructed, the three forces behind it, the historical context and what comes next.",
+      "tags": [
+        "equities",
+        "rates"
+      ],
+      "pages": 15
+    },
+    {
+      "slug": "2026-91-data-centre-backlash",
+      "date": "2026-11-05",
+      "type": "research",
+      "title": "The Data-Centre Backlash: How the Midterms Hit the AI Build-Out",
+      "summary": "Long-form research. 38 of 39 counted local ballot measures restricted data centres, and power stocks fell up to 23% the next day. The backlash, the electricity bills behind it and what it means for the AI trade.",
+      "tags": [
+        "equities",
+        "macro"
+      ],
+      "pages": 8
+    },
+    {
+      "slug": "2026-90-jobs-preview",
+      "date": "2026-11-05",
+      "type": "research",
+      "title": "Jobs Friday Preview: What October’s Payrolls Mean for the Fed",
+      "summary": "The last jobs report before the Fed’s 9 December meeting. Consensus expects about 65,000 jobs and 4.2% unemployment. The trend, the revisions, the forecasts and how markets could react to each outcome.",
+      "tags": [
+        "macro",
+        "rates"
+      ],
+      "pages": 6
+    },
+    {
       "slug": "2026-87-palantir-q3",
       "date": "2026-11-03",
       "type": "research",
