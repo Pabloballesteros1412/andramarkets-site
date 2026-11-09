@@ -151,7 +151,7 @@
     {"group": "On Andra Markets", "items": [
       {"name": "Markets Interview Prep", "what": "This week's markets in interview language and a question bank with model answers.", "href": "interview-prep/"},
       {"name": "Daily close note", "what": "Read one a day to follow markets.", "href": "reports/"},
-      {"name": "Fed & Rates", "what": "The policy rate, the curve and what markets price next.", "href": "dashboards/fed-rates/"}
+      {"name": "Fed & Rates", "what": "The policy rate, the curve and what markets price next.", "href": "fed-rates/"}
     ]},
     {"group": "Books", "items": [
       {"name": "Investment Banking: Valuation, LBOs, M&A and IPOs (Wiley)", "what": "Valuation, leveraged buyouts and the M&A process."},
