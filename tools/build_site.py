@@ -49,7 +49,7 @@ from zoneinfo import ZoneInfo
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import nyse  # noqa: E402
 from calendar_data import MOVES as CAL_MOVES, SOURCES as CAL_SOURCES  # noqa: E402
-from legal_content import LEGAL, LEGAL_UPDATED, PRIVACY, PRIVACY_UPDATED  # noqa: E402
+from legal_content import LEGAL, LEGAL_UPDATED, PRIVACY, PRIVACY_ANALYTICS, PRIVACY_UPDATED  # noqa: E402
 from world_data import AXES as WORLD_AXES, MARKETS as WORLD_MARKETS  # noqa: E402
 import page_chart_of_the_day  # noqa: E402
 import page_central_banks  # noqa: E402
@@ -95,6 +95,21 @@ SITE_URL = os.environ.get("SITE_URL", "").strip().rstrip("/")
 # never here. The repository variable PROFILE_API overrides it at deploy time.
 PROFILE_API = (os.environ.get("PROFILE_API", "").strip()
                or "https://andra-profile-api.pabloballesteros141.workers.dev").rstrip("/")
+
+# Cloudflare Web Analytics (owner's choice, 9 Nov 2026): a count of visits that sets no
+# cookies and keeps nothing in the visitor's browser, so the site still needs no cookie
+# banner. The token is public (every page carries it). Set it with the repository variable
+# CF_ANALYTICS_TOKEN (Cloudflare: Analytics & Logs, Web Analytics, Add a site); the whole
+# snippet Cloudflare shows is accepted too. Without it no page carries the beacon and the
+# privacy policy says the site counts nothing (privacy_page()).
+_cf = os.environ.get("CF_ANALYTICS_TOKEN", "").strip()
+_snippet = re.search(r'"token"\s*:\s*"([^"]*)"', _cf)
+_cf = _snippet.group(1).strip() if _snippet else _cf
+if _cf and not re.fullmatch(r"[0-9A-Za-z]{16,64}", _cf):
+    sys.exit("CF_ANALYTICS_TOKEN is not a Cloudflare Web Analytics token (letters and digits only)")
+ANALYTICS_TOKEN = _cf
+BEACON_SRC = "https://static.cloudflareinsights.com/beacon.min.js"
+BEACON_REPORT = "https://cloudflareinsights.com"  # where the beacon sends the count (CSP connect-src)
 
 
 # Chart helpers ---------------------------------------------------------------
@@ -1519,6 +1534,12 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
     scene_head = (f'<script>{ARRIVE_BOOT}{MOVE_BOOT}</script>\n<style>{VIEW_TRANSITION}</style>\n'
                   f'<link rel="expect" href="#main" blocking="render">\n'
                   f'<link rel="preload" href="{base}assets/section-horse.png?v={ver("section-horse.png")}" as="image">\n') if scene else ""
+    # The visit count (ANALYTICS_TOKEN), last so it never holds up the page. Redirects are not
+    # counted: the page they send to is. "spa": false, because the filters rewrite the address
+    # with history.replaceState, and each change would otherwise count as another page view.
+    beacon = (f'\n<script defer src="{BEACON_SRC}" '
+              f'data-cf-beacon=\'{{"token": "{ANALYTICS_TOKEN}", "spa": false}}\'></script>'
+              if ANALYTICS_TOKEN and index else "")
     return f"""<!doctype html>
 <html lang="en" data-theme="dark">
 <head>
@@ -1554,7 +1575,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 
 {site_footer(home, base) if footer else ""}
 
-<script src="{base}assets/site.js?v={ver("site.js")}" defer></script>{"".join(f'<script src="{base}assets/{js}?v={ver(js)}" defer></script>' for js in scripts)}
+<script src="{base}assets/site.js?v={ver("site.js")}" defer></script>{"".join(f'<script src="{base}assets/{js}?v={ver(js)}" defer></script>' for js in scripts)}{beacon}
 </body>
 </html>
 """
@@ -2985,10 +3006,28 @@ def legal_page():
                      "The Andra Markets legal notice: not investment advice, past performance, data accuracy, intellectual property, and users in the US, UK and EU.")
 
 
+def privacy_sections():
+    """The privacy policy as the site runs: Cloudflare's visit count is described only when
+    the pages carry its beacon (ANALYTICS_TOKEN)."""
+    if not ANALYTICS_TOKEN:
+        return PRIVACY
+    out = []
+    for key, heading, text in PRIVACY:
+        if key in PRIVACY_ANALYTICS:
+            anchor, add = PRIVACY_ANALYTICS[key]
+            if text.count(anchor) != 1:
+                sys.exit(f"legal_content.PRIVACY_ANALYTICS: '{anchor}' is not once in the '{key}' section")
+            text = text.replace(anchor, anchor + add)
+        out.append((key, heading, text))
+    return out
+
+
 def privacy_page():
-    return legal_doc("privacy", "Privacy and cookies",
-                     "Andra Markets collects almost nothing: no accounts, no analytics, no advertising and no cookies of its own.",
-                     PRIVACY, PRIVACY_UPDATED,
+    lede = ("Andra Markets collects almost nothing: no accounts, no advertising, no cookies of its own, and only "
+            "a count of visits that does not identify you." if ANALYTICS_TOKEN else
+            "Andra Markets collects almost nothing: no accounts, no analytics, no advertising and no cookies of its own.")
+    return legal_doc("privacy", "Privacy and cookies", lede,
+                     privacy_sections(), PRIVACY_UPDATED,
                      "How Andra Markets handles personal data and cookies: what is stored, which providers serve the site, and your rights.")
 
 
@@ -6089,13 +6128,17 @@ def inline_hashes(page_html):
 def csp_policy(page_html):
     api = urlsplit(PROFILE_API)
     api_origin = f"{api.scheme}://{api.netloc}" if api.scheme in ("http", "https") and api.netloc else ""
+    # Cloudflare's visit count, only on a page that carries its beacon (shell()).
+    counted = f'src="{BEACON_SRC}"' in page_html
+    beacon_origin = urlsplit(BEACON_SRC)
     return "; ".join([
         "default-src 'self'",
-        " ".join(["script-src 'self'"] + inline_hashes(page_html)),
+        " ".join(["script-src 'self'"] + ([f"{beacon_origin.scheme}://{beacon_origin.netloc}"] if counted else [])
+                 + inline_hashes(page_html)),
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob:",
         "font-src 'self'",
-        "connect-src 'self'" + (f" {api_origin}" if api_origin else ""),
+        "connect-src 'self'" + (f" {api_origin}" if api_origin else "") + (f" {BEACON_REPORT}" if counted else ""),
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",

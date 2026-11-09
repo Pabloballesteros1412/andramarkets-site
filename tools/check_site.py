@@ -15,7 +15,10 @@ Checks:
   the live site is blocked and no unlisted one runs;
 - with SITE_URL set: sitemap.xml lists the homepage and every published close
   note and no redirect, robots.txt points to it, feed.xml is valid RSS with
-  the newest note; with SITE_URL unset, none of the three exists.
+  the newest note; with SITE_URL unset, none of the three exists;
+- with CF_ANALYTICS_TOKEN set: every page but the redirects carries Cloudflare's
+  visit count with that token, its policy lets the beacon load and report, and
+  the privacy policy describes it; unset, no page carries it.
 
     python3 tools/check_site.py
 """
@@ -136,11 +139,36 @@ def check_csp():
     return problems
 
 
+def check_analytics():
+    """Cloudflare's visit count: on every page but the redirects with the token, on none without."""
+    problems = []
+    beacon = f'src="{site.BEACON_SRC}"'
+    for f in site.generated_pages():
+        html = f.read_text(encoding="utf-8")
+        rel = f.relative_to(ROOT).as_posix()
+        counted = beacon in html
+        if not site.ANALYTICS_TOKEN or 'name="robots" content="noindex"' in html:
+            if counted:
+                problems.append(f"{rel}: carries the visit count" + ("" if site.ANALYTICS_TOKEN else " without CF_ANALYTICS_TOKEN"))
+            continue
+        if not counted or f'"token": "{site.ANALYTICS_TOKEN}"' not in html:
+            problems.append(f"{rel}: lacks the visit count")
+            continue
+        m = re.search(r'<meta http-equiv="Content-Security-Policy" content="([^"]*)">', html)
+        if m and not ("https://static.cloudflareinsights.com" in m.group(1) and site.BEACON_REPORT in m.group(1)):
+            problems.append(f"{rel}: the Content Security Policy blocks the visit count")
+    privacy = ROOT / "privacy" / "index.html"
+    if site.ANALYTICS_TOKEN and privacy.exists() and "Cloudflare Web Analytics" not in privacy.read_text(encoding="utf-8"):
+        problems.append("privacy/index.html: does not describe the visit count")
+    return problems
+
+
 def main():
     n, problems, warnings = check_notes()
     problems += check_csp()
     problems += check_home()
     problems += check_discovery()
+    problems += check_analytics()
     for w in warnings[:20]:
         print(f"::warning::{w}")
     if problems:
@@ -150,7 +178,8 @@ def main():
             print(f"::error::... and {len(problems) - 40} more")
         sys.exit(1)
     print(f"site check passed: {n} close note pages, homepage index, Content Security Policy"
-          + (", sitemap, robots.txt and feed" if site.SITE_URL else ""))
+          + (", sitemap, robots.txt and feed" if site.SITE_URL else "")
+          + (", visit count" if site.ANALYTICS_TOKEN else ""))
 
 
 if __name__ == "__main__":

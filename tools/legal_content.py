@@ -8,7 +8,7 @@ Both should be reviewed by a qualified lawyer before the paid tier opens.
 """
 
 LEGAL_UPDATED = "2026-11-02"
-PRIVACY_UPDATED = "2026-11-02"
+PRIVACY_UPDATED = "2026-11-09"
 
 LEGAL = [
     ("publisher", "Who publishes this site",
@@ -127,8 +127,8 @@ PRIVACY = [
      "personal data (see below).</p>"),
 
     ("collect", "What we collect",
-     "<p>Very little. The site has no accounts, no analytics, no advertising and no tracking pixels, and "
-     "Andra Markets sets no cookies.</p>"
+     "<p>Very little. The site has no accounts, no advertising and no tracking pixels, and Andra Markets "
+     "sets no cookies.</p>"
      "<p>The site does not collect email addresses. If a newsletter launches, this policy will name the "
      "newsletter platform and explain how your address is used before any address is collected.</p>"),
 
@@ -170,10 +170,10 @@ PRIVACY = [
      "Modeling Prep to fetch its figures; no personal data is sent to them. Cloudflare processes your IP "
      "address to deliver the response and protect the service.</li>"
      "</ul>"
-     "<p>The site's fonts, scripts and images are served from the site itself, not from third-party "
-     "networks, and no third-party player, feed or widget is embedded. Links to LinkedIn and TikTok are "
-     "plain links: nothing loads from those services unless you follow one, and then their own policies "
-     "apply.</p>"),
+     "<p>Apart from the services named here, nothing loads from third-party networks: the site's fonts, "
+     "scripts and images are served from the site itself, and no third-party player, feed or widget is "
+     "embedded. Links to LinkedIn and TikTok are plain links: nothing loads from those services unless you "
+     "follow one, and then their own policies apply.</p>"),
 
     ("basis", "Legal basis, retention and transfers",
      "<p>Server data is processed for the legitimate interest of delivering a secure website (Article "
@@ -202,3 +202,28 @@ PRIVACY = [
      "<p>This policy will change when the site does, for example when the newsletter launches. The date of "
      "the latest version is shown below.</p>"),
 ]
+
+
+# Cloudflare Web Analytics, described only when the pages carry its beacon (build_site.py,
+# ANALYTICS_TOKEN): section id -> (the text it goes right after, the text). The rest of the
+# policy must stay true with and without it; the build stops if an anchor is gone.
+PRIVACY_ANALYTICS = {
+    "collect": (
+        "sets no cookies.</p>",
+        "<p>The site counts its visits with Cloudflare Web Analytics, which sets no cookies and keeps "
+        "nothing in your browser, so it cannot tell that two visits came from the same person. We see only "
+        "totals, such as how many times a page was viewed, which site visitors came from and from which "
+        "countries, never who you are.</p>"),
+    "hosting": (
+        "deliver the response and protect the service.</li>",
+        "<li><b>Cloudflare Web Analytics</b> (Cloudflare, Inc., United States) counts the site's visits. When "
+        "a page opens, a small script from Cloudflare sends it the page's address, the address of the page "
+        "you came from, your browser and device type and how long the page took to load. Cloudflare uses "
+        "your IP address to receive this and to tell which country the visit came from; it states that it "
+        "does not use cookies, your IP address or any other identifier to recognise you or follow you "
+        "across visits or sites.</li>"),
+    "basis": (
+        "for the periods their own policies set.",
+        " The count of visits rests on the same basis: the legitimate interest of knowing, in totals, how "
+        "many people read the site and which pages."),
+}
