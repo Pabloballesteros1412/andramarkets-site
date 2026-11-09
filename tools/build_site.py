@@ -2910,7 +2910,7 @@ DATA_SOURCES = [
      "interbank rates.",
      "World markets, FX", "At every deploy; each figure shows its own date"),
     ("Financial Modeling Prep", "https://site.financialmodelingprep.com/",
-     "Company profiles, financial statements and ratios, up to ten years.",
+     "Company profiles, financial statements and ratios, the last five years.",
      "Company pages", "When a page is opened, cached for 24 hours"),
     ("Finnhub", "https://finnhub.io/",
      "Quotes, company news, peers, analyst recommendation trends and company metrics.",
@@ -5760,7 +5760,7 @@ def live_page(companies):
 </main>"""
     return shell(
         title="Companies: Andra Markets",
-        desc="Any US-listed company: the live price, up to ten years of results, margins, multiples, peers and news.",
+        desc="Any US-listed company: the live price, five years of results, margins, multiples, peers and news.",
         body=body, home="../../", base="../../", path="companies/live/", scripts=("profile.js",))
 
 

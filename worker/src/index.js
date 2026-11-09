@@ -15,8 +15,9 @@
      /news?t=AAPL         Finnhub company news, last 7 days
      /analysts?t=AAPL     Finnhub recommendation trends
      /peers?t=AAPL        Finnhub peers, each with its profile and metrics
-     /fundamentals?t=AAPL FMP profile, statements and ratios (up to 10
-                          years) with the company's Finnhub metrics
+     /fundamentals?t=AAPL FMP profile, statements and ratios (the last 5
+                          years: the free plan's limit) with the company's
+                          Finnhub metrics
 
    Errors are JSON { error: { code, message, retryAfter? } } with code
    bad_request, not_found, busy (rate limit: retry later), plan (not in the
@@ -27,6 +28,12 @@ const FMP = "https://financialmodelingprep.com/stable";
 const TTL = { search: 86400, quote: 60, news: 900, analysts: 86400, peers: 86400, fundamentals: 86400 };
 const TICKER = /^[A-Z][A-Z0-9.-]{0,9}$/;
 const MAX_PEERS = 5;
+// FMP's free plan answers 402 to any statement asked with a limit above 5, so
+// asking for 10 left every live profile without statements (Nov 2026).
+const YEARS = 5;
+// Edge-cache keys carry a version: bump it when answers change shape or
+// content, so a day of cached answers from the old code is not served.
+const CACHE_VERSION = "v2";
 
 export default {
   async fetch(request, env, ctx) {
@@ -58,7 +65,7 @@ export default {
     const name = route.slice(1);
     const key = `${name}:${arg}`;
     const cache = typeof caches !== "undefined" ? caches.default : null;
-    const cacheReq = new Request(`https://profile-api.cache/${name}?k=${encodeURIComponent(arg)}`);
+    const cacheReq = new Request(`https://profile-api.cache/${CACHE_VERSION}/${name}?k=${encodeURIComponent(arg)}`);
     if (cache) {
       const hit = await cache.match(cacheReq);
       if (hit) return withHeaders(hit, { ...cors, "X-Cache": "HIT" });
@@ -146,7 +153,7 @@ async function peers(t, env) {
   const others = (Array.isArray(list) ? list : []).filter((p) => p !== t && TICKER.test(p) && !p.includes(".")).slice(0, MAX_PEERS);
   const rows = await Promise.all([t, ...others].map(async (p) => {
     try {
-      const [prof, met] = await Promise.all([finnhub("/stock/profile2", { symbol: p }, env), finnhub("/stock/metric", { symbol: p, metric: "all" }, env)]);
+      const [prof, met] = await Promise.all([finnhub("/stock/profile2", { symbol: p }, env), finnhubMetric(p, env)]);
       return { t: p, name: prof && prof.name ? prof.name : p, ...peerMetrics(met && met.metric) };
     } catch (e) {
       if (e instanceof ApiError && e.code === "busy") throw e;
@@ -160,11 +167,11 @@ async function fundamentals(t, env) {
   const fmpCall = (path, extra) => fmp(path, { symbol: t, ...extra }, env).catch((e) => e);
   const [profile, income, balance, cash, ratios, metric] = await Promise.all([
     fmpCall("/profile"),
-    fmpCall("/income-statement", { period: "annual", limit: 10 }),
-    fmpCall("/balance-sheet-statement", { period: "annual", limit: 10 }),
-    fmpCall("/cash-flow-statement", { period: "annual", limit: 10 }),
-    fmpCall("/ratios", { period: "annual", limit: 10 }),
-    finnhub("/stock/metric", { symbol: t, metric: "all" }, env).catch((e) => e),
+    fmpCall("/income-statement", { period: "annual", limit: YEARS }),
+    fmpCall("/balance-sheet-statement", { period: "annual", limit: YEARS }),
+    fmpCall("/cash-flow-statement", { period: "annual", limit: YEARS }),
+    fmpCall("/ratios", { period: "annual", limit: YEARS }),
+    finnhubMetric(t, env).catch((e) => e),
   ]);
   const p = Array.isArray(profile) ? profile[0] : null;
   if (!p) {
@@ -275,9 +282,31 @@ function selfMetrics(m) {
 
 /* ---- Vendors ---- */
 
-async function finnhub(path, params, env) {
+async function finnhub(path, params, env, parse) {
   if (!env.FINNHUB_API_KEY) throw new ApiError(500, "config", "The price service is not configured.");
-  return vendor(`${FINNHUB}${path}?${qs(params)}`, { "X-Finnhub-Token": env.FINNHUB_API_KEY });
+  return vendor(`${FINNHUB}${path}?${qs(params)}`, { "X-Finnhub-Token": env.FINNHUB_API_KEY }, parse);
+}
+
+// Finnhub's metric=all answer is 50 to 250 KB, nearly all of it the "series"
+// history no page draws. Parsing it whole took about 9 ms of CPU for the six
+// on a peers request, against the free plan's 10 ms a request: past that,
+// Cloudflare cuts the Worker off with its own error page, which has no CORS
+// header, so the page could only say "the connection failed" (MSTR, Nov 2026).
+// The flat "metric" object comes first and is about 3.5 KB: parse only that.
+async function finnhubMetric(symbol, env) {
+  return finnhub("/stock/metric", { symbol, metric: "all" }, env, metricOnly);
+}
+
+function metricOnly(text) {
+  const start = text.indexOf('"metric":{');
+  if (start !== -1) {
+    // The object holds numbers and dates only, so its first "}" closes it.
+    // Anything else fails to parse and falls back to the whole answer.
+    try {
+      return { metric: JSON.parse(text.slice(start + 9, text.indexOf("}", start) + 1)) };
+    } catch (e) { /* fall through */ }
+  }
+  return JSON.parse(text);
 }
 
 async function fmp(path, params, env) {
@@ -286,13 +315,15 @@ async function fmp(path, params, env) {
   // FMP reports plan limits and bad keys as a 200 with an error message.
   if (d && !Array.isArray(d) && (d["Error Message"] || d.error || d.message)) {
     const msg = String(d["Error Message"] || d.error || d.message);
-    if (/limit/i.test(msg)) throw new ApiError(503, "busy", "Today's free data allowance is used up. Try again tomorrow.", 3600);
+    // "Limit Reach": the day's calls are spent. (Its plan errors also name
+    // "limit", as in "the values for 'limit' must be between 0 and 5".)
+    if (/limit reach/i.test(msg)) throw new ApiError(503, "busy", "Today's free data allowance is used up. Try again tomorrow.", 3600);
     throw new ApiError(502, "plan", "This figure is not in the current data plan.");
   }
   return d;
 }
 
-async function vendor(url, headers) {
+async function vendor(url, headers, parse = JSON.parse) {
   let res;
   try {
     res = await fetch(url, { headers: { Accept: "application/json", ...headers }, cf: { cacheTtl: 0 } });
@@ -304,7 +335,7 @@ async function vendor(url, headers) {
   if (res.status === 404) throw new ApiError(404, "not_found", "Not found.");
   if (!res.ok) throw new ApiError(502, "upstream", "The data source did not answer.");
   try {
-    return await res.json();
+    return parse(await res.text());
   } catch (e) {
     throw new ApiError(502, "upstream", "The data source sent an unreadable answer.");
   }
@@ -385,4 +416,4 @@ function firstSentences(text, n) {
   return parts.slice(0, n).join("").trim();
 }
 
-export const _test = { mergeYears, peerMetrics, selfMetrics, cleanTicker, cleanQuery, titleCase, firstSentences, corsHeaders, TTL };
+export const _test = { mergeYears, peerMetrics, selfMetrics, metricOnly, cleanTicker, cleanQuery, titleCase, firstSentences, corsHeaders, TTL, YEARS };
