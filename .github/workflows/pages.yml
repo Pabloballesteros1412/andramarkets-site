@@ -348,5 +348,10 @@ jobs:
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: _site
+      # Pages can take more than its default 10 minutes to sync the site now
+      # that the Research Library carries its PDFs (run 151 timed out while
+      # "syncing_files"), so wait up to 30.
       - id: deployment
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+        with:
+          timeout: 1800000
