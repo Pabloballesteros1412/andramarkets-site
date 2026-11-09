@@ -494,6 +494,17 @@
       "status": "held",
       "v": 2
     },
+    "13714980854": {
+      "created_at": "2026-11-09T22:03:51Z",
+      "date": "2026-11-09",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/134",
+      "reasons": [
+        "Prints from another session: be10y, be5y, fwd5y5y, merval, real10y, skew, usdbrl, usdcad, usdchf, usdjpy, usdmxn, usdtry, ust10y, ust1m, ust1y, ust20y, ust2y, ust30y, ust3m, ust3y, ust5y, ust6m, ust7y are not dated 2026-11-09, so the note would mix dates."
+      ],
+      "run_id": 42707503363,
+      "status": "held",
+      "v": 2
+    },
     "9427841672": {
       "created_at": "2026-08-20T23:06:56Z",
       "date": "2026-08-20",
