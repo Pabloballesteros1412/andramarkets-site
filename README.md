@@ -549,6 +549,33 @@ Pages → Custom domain**, set `SITE_URL`, and add the domain to
 then run **Deploy profile API** once. Submit `https://<domain>/sitemap.xml`
 in Google Search Console and Bing Webmaster Tools.
 
+## Visit count (Cloudflare Web Analytics)
+
+The site counts its visits with Cloudflare Web Analytics (owner's choice, 9 Nov
+2026): no cookies and nothing kept in the visitor's browser, so the site still
+needs no cookie banner. It turns on with the repository variable
+`CF_ANALYTICS_TOKEN` (**Settings → Secrets and variables → Actions →
+Variables**). To get the token, go to Cloudflare, **Analytics & Logs → Web
+Analytics → Add a site**, enter `andramarkets.com`, and copy the token from
+the snippet it shows (the whole snippet works too). The token is public:
+every page carries it.
+
+With the variable set, every deploy:
+
+- adds Cloudflare's beacon at the end of every page except the redirects,
+  with `"spa": false` (the filters rewrite the address with `replaceState`,
+  which would otherwise count as page views);
+- lets it through each page's Content Security Policy
+  (`static.cloudflareinsights.com` to load it, `cloudflareinsights.com` to
+  report);
+- describes it in the privacy policy (`PRIVACY_ANALYTICS` in
+  `tools/legal_content.py`). Without the variable, the policy keeps saying
+  the site counts nothing.
+
+`tools/check_site.py` fails the deploy if a page lacks the beacon or its
+policy blocks it while the variable is set, or if any page carries it while
+the variable is unset. The figures are in Cloudflare, under **Web Analytics**.
+
 ## Licenses
 
 - Schibsted Grotesk: SIL Open Font License 1.1 (`assets/fonts/OFL.txt`).
