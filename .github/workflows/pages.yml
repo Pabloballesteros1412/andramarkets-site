@@ -7,6 +7,9 @@ on:
       - "assets/**"
       - "data/notes/**"
       - "data/reports/**"
+      # A PDF dropped in the inbox is published by publish-reports.yml, which
+      # then calls this workflow; the upload alone has nothing to deploy.
+      - "!data/reports/inbox/**"
       - "data/interview_prep.json"
       - "data/path_to_wall_street.json"
       - "data/recruiting_calendar.json"
@@ -53,8 +56,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           persist-credentials: false
-          # When called after an import, build the commit it just pushed.
-          ref: ${{ github.event_name == 'push' && github.sha || 'main' }}
+          # When called after an import, build the commit it just pushed. A
+          # caller started by a push (publish-reports.yml, on a PDF dropped in
+          # the inbox) shares that push's sha, which predates the import.
+          ref: ${{ github.event_name == 'push' && github.workflow == 'Deploy site to GitHub Pages' && github.sha || 'main' }}
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
