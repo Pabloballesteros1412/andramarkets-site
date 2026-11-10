@@ -1,6 +1,18 @@
 {
   "reports": [
     {
+      "slug": "2026-108-claude-fable-5-2",
+      "date": "2026-11-09",
+      "type": "research",
+      "title": "Claude Fable 5.2: The Benchmarks, the Price Cut and What It Means for the AI Trade",
+      "summary": "Anthropic released Claude Fable 5.2 and Claude Mythos 5.2 on 9 November, the same underlying model with and without its strongest cyber and biology safeguards.",
+      "tags": [
+        "equities",
+        "macro"
+      ],
+      "pages": 10
+    },
+    {
       "slug": "2026-105-nvidia-ceo-investigation",
       "date": "2026-11-08",
       "type": "research",
