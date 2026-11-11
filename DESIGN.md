@@ -1,6 +1,6 @@
 ---
 name: Andra Markets
-description: A markets research platform on the record. Engraved horse, one grotesque, hairline rules, square corners, red and green only for rises and falls.
+description: A markets research platform on the record. Black ground, light Geist type, words and hairlines instead of boxes, a horizon of light and the engraved horse, red and green only for rises and falls.
 colors:
   ground: "#ffffff"
   ground-2: "#e9eded"
@@ -271,6 +271,26 @@ components:
 # Design System: Andra Markets
 
 Source of truth: `assets/site.css`, `assets/site.js` and `tools/build_site.py`, as built and approved by the owner as final. Every value below was read from those files. Keys ending `-dark` are the dark-theme values of the same CSS custom property (for example `ground-dark` is `--ground` under `[data-theme="dark"]`); keys ending `-plate` are the Lab plate overrides. Unsuffixed keys are the light theme, which is the default.
+
+## The new look (owner-approved, 11 Nov 2026)
+
+This section is the current design. Where a section further down says otherwise (the two themes, Schibsted Grotesk, the section backdrop, the one-screen homepage, boxed buttons, chips and tiles, the footer, page transitions from the homepage), this section wins; those sections are kept for the parts that still hold (grids, measures, tables, charts, the Rise and Fall Rule, placeholders, copy rules) and are to be rewritten page by page.
+
+Source of truth: `assets/theme.css` (loaded after `assets/site.css` on every inner page), `assets/home.css` and `assets/home.js` (the homepage), and `tools/build_site.py`.
+
+- **One theme: dark.** Ground `#000000`, ink `#f2f3f3`, ink-2 `#a3a8aa`, ink-3 `#74797c`, rule `rgba(242,243,243,.10)`, strong rule `rgba(242,243,243,.26)`. There is no light theme and no theme switch. Up `#1fd27a`, down `#ff4b52`, only on a rise or a fall and always with its sign (unchanged).
+- **One typeface: Geist** (variable, self-hosted at `assets/fonts/geist-latin.woff2`, SIL OFL 1.1, licence beside it), stacks ending in `sans-serif`. Body 350; titles 300 with -0.035em to -0.038em tracking; section headings, list titles, labels and figures 400; bold is 500 and rare. The brand name is 0.8125rem, 400, uppercase, 0.3em tracking.
+- **No boxes.** Actions are words in small uppercase (0.8125rem, 0.14em) followed by a long thin arrow, with no border or fill. Filters and range switches are words; the chosen one is ink and underlined. Fields are a single line to write on. Tiles and cards carry one hairline above and nothing around. Tags are plain small text. The search trigger has no border. The one framed thing is the search palette, because it floats over the page.
+- **Light.** Inner pages have a faint light at the head of the page (a radial wash, 7% ink) and nothing else behind the text: the particle sphere (`assets/section-scene.js`) is no longer loaded.
+- **Homepage** (`page()` in `tools/build_site.py`): a fixed WebGL scene (`assets/home.js`) with full-screen sections scrolling over it.
+  1. The phrase "Markets, on the record." above a curved horizon: a thin line of white light with a soft flare at its centre. Nothing else.
+  2. The statement "What moved, and why. Every trading day, after the New York close.", lit word by word, while particles lift off the horizon, swarm, and settle into the horse; once formed it is shown as the engraving itself (`assets/horse-particles.webp`, from `andra-horse.png`), not as particles.
+  3. One screen per group of the menu, text on the left and its picture on the right, drawn in fine lines of particles: Markets a globe with a ring and its financial centres; Tools a curved mesh; Research the S&P 500 at the close of every published note, with a column under each close; Careers a row of buildings rising. Each lists its six sections as plain links.
+  4. A closing screen: the horizon again, "On the record, every trading day." and Contact us.
+  Moving between non-adjacent groups (from the menu) takes the particles straight from one picture to the other. The particle count adapts down on slow devices. Reduced motion draws still frames. On phones the header shows "Menu", which opens a full-screen list of the groups.
+- **Menus.** On wide screens each group's menu has that group's picture, as a still line drawing, alone in the middle, with the sections around it. On phones the menu is the list alone.
+- **Footer.** Five columns: Markets, Tools, Research, Careers and Andra Markets (methodology, sources, legal, privacy), with the brand, Contact us and the social links on the left.
+- **Moving between pages.** Leaving the homepage, the text fades and the scene scales up and goes dark (about 0.6s), then the page changes; the next page rises out of the dark (`html.arrive`). Coming back, the homepage fades in. Between inner pages the existing cross-page view transition applies. None of it under reduced motion.
 
 ## Overview
 

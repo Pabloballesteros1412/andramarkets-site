@@ -1,0 +1,102 @@
+@font-face{font-family:"Geist";src:url("fonts/geist-latin.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+/* Andra Markets, new look: black ground, light Geist, type and hairlines only. Loaded after site.css. */
+:root,:root[data-theme="light"],:root[data-theme="dark"]{color-scheme:dark;
+ --font:"Geist","Helvetica Neue",Arial,sans-serif;
+ --ground:#000;--ground-2:#0c0d0e;--ink:#f2f3f3;--ink-2:#a3a8aa;--ink-3:#74797c;
+ --rule:rgba(242,243,243,.1);--rule-strong:rgba(242,243,243,.26);
+ --btn-bg:#f2f3f3;--btn-fg:#000;--btn-hover:#fff;
+ --plate:#0b0c0d;--plate-2:#121415;--plate-hover:#1a1c1e;--plate-ink:#f2f3f3;--plate-ink-2:#a3a8aa;--plate-rule:rgba(242,243,243,.12);
+ --chart-line:#f2f3f3;--chart-grid:rgba(242,243,243,.08);--chart-fill:rgba(242,243,243,.07);
+ --up:#1fd27a;--down:#ff4b52;--up-text:#1fd27a;--down-text:#ff4b52;--up-tint:rgba(31,210,122,.2);--down-tint:rgba(255,75,82,.2);
+ --select:rgba(242,243,243,.22);--focus:#f2f3f3;--scrim:rgba(0,0,0,.7)}
+html,body{background:#000}
+body{font-weight:350;letter-spacing:.003em}
+.scene{display:none!important}
+/* a faint light at the head of every page, the cover's horizon seen from far off */
+body::before{content:"";position:fixed;inset:0 0 auto;height:46vh;pointer-events:none;z-index:-1;background:radial-gradient(60% 100% at 50% 0%,rgba(242,243,243,.07),transparent 70%)}
+h1,h2,h3,h4{font-weight:300}
+.page__title,.report__title,.section-title{font-weight:300!important;letter-spacing:-.038em!important}
+.page__body h2,.page h2{font-weight:400;letter-spacing:-.02em}
+.lede{font-weight:300;color:var(--ink-2)}
+strong,b{font-weight:500}
+/* header */
+.brand__name{font-size:.8125rem!important;font-weight:400!important;letter-spacing:.3em!important;text-transform:uppercase}
+.nav__btn{font-size:.8125rem;font-weight:400;letter-spacing:.02em;color:var(--ink-2)}
+.nav__btn:hover,.nav__btn[aria-expanded="true"]{color:var(--ink)}
+.brand__toggle{pointer-events:none}
+/* actions: words and a long arrow, no boxes */
+.btn,.btn--ghost,.btn--sm{height:auto;min-height:44px;padding:0;border:0!important;background:none!important;color:var(--ink)!important;font-size:.8125rem;font-weight:400;letter-spacing:.14em;text-transform:uppercase;box-shadow:none}
+.btn::after{content:"";flex:none;width:44px;height:9px;margin-left:16px;background:linear-gradient(currentColor,currentColor) left center/100% 1px no-repeat;-webkit-mask:none;clip-path:polygon(0 0,calc(100% - 5px) 0,100% 50%,calc(100% - 5px) 100%,0 100%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.btn:hover::after{transform:translateX(8px)}
+.btn .icon,.btn svg{display:none}
+/* numbers */
+.kpi__level,.mv{font-weight:400}
+.kpi__name,.note__meta,.report__src{font-weight:350}
+/* no boxes */
+.search-btn{border:0!important;background:none!important;padding-inline:0}
+.kpi__item:nth-child(even){border-left:0}
+.has-scene .site-header::before,.site-header::before{background:linear-gradient(#000 0%,#000 66%,transparent)}
+/* filters and range switches: words, the chosen one underlined */
+.filters{gap:2px 26px}
+.chip{height:auto;min-height:44px;padding:0;border:0!important;background:none!important;color:var(--ink-3);font-weight:400;box-shadow:none}
+.chip:hover{color:var(--ink)}
+.chip .chip__n{color:var(--ink-3)!important;font-weight:400}
+.chip[aria-pressed="true"],.chip[aria-selected="true"],.chip[aria-current]{color:var(--ink)!important;background:linear-gradient(var(--ink),var(--ink)) left calc(100% - 9px)/100% 1px no-repeat!important}
+/* tiles: a hairline above, nothing around */
+.dash-tile{border:0!important;border-top:1px solid var(--rule)!important;background:none!important}
+.dash-grid{gap:clamp(20px,3vw,44px);border:0!important}
+.dash-tile:hover{background:none!important}
+/* fields: a line to write on */
+input[type="search"],input[type="text"],input[type="email"],input[type="number"],select,textarea,.pf-field{border:0!important;border-bottom:1px solid var(--rule-strong)!important;background:none!important;border-radius:0;box-shadow:none!important;font-weight:350}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:0!important;border-bottom-color:var(--ink)!important}
+/* titles in lists: light, like everything else */
+h3,h4,.note-list__title,.learn-list__title,.lib-res__t,.archive__month,.report__side-title,.acc__btn,.dash-tile h3,.pw-row__t,.cl__glabel,.lib-sec__head h2,dt,th{font-weight:400!important}
+.note-list__title,.learn-list__title,.lib-res__t{letter-spacing:-.012em}
+.filters__glide{display:none!important}
+.chip[aria-pressed="true"] .chip__n{opacity:1}
+label,.field__label,legend{font-weight:400!important}
+/* leftovers found by the sweep */
+.tag{padding:0!important;border:0!important;background:none!important;color:var(--ink-3)}
+.co-reset,.lt-reset,.tq-nav,.cotd__step{border:0!important;background:none!important;padding-inline:0;font-weight:400!important;color:var(--ink-2)}
+.co-reset:hover,.lt-reset:hover,.tq-nav:hover,a.cotd__step:hover{color:var(--ink)}
+.tq-card,.cotd__fig{border:0!important;border-top:1px solid var(--rule)!important;background:none!important}
+.cv{border-color:var(--rule)!important}
+.lib-res__topic,.ip-q__cat,.mh-tl__name,.pw-ext,.pw-lab,.tq-ex__n,.rc-when,.rc-what,.link,.ip-topic__n,.rw-name,.fr__big,.cb-bank,.rc-soon,.contact__name,.isim__time,.cv__name,.tq-ex__title,.page time,.page span,.page a,.page td,.page li{font-weight:inherit}
+.lib-res__topic,.ip-q__cat,.mh-tl__name,.pw-ext,.pw-lab,.tq-ex__n,.rc-when,.rc-what,.link,.ip-topic__n,.rw-name,.fr__big,.cb-bank,.rc-soon,.contact__name,.isim__time,.cv__name,.tq-ex__title{font-weight:400!important}
+.sim-title{font-weight:300!important;letter-spacing:-.038em}
+.page b,.page strong{font-weight:500!important}
+.page h2{font-weight:400!important}
+
+/* footer: the menu's four groups and the house pages, side by side */
+.site-footer{border-top:1px solid var(--rule);padding-block:64px 40px}
+.foot__brand{grid-column:1 / span 3!important}
+.foot__nav--groups{grid-column:4 / -1!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:32px clamp(16px,2vw,32px)!important}
+.foot__group{display:grid;align-content:start}
+.foot__gt{margin:0 0 10px;font-size:.8125rem;color:var(--ink);letter-spacing:.02em}
+.foot__nav--groups a{min-height:32px!important;font-size:.875rem;color:var(--ink-3)}
+.foot__nav--groups a:hover{color:var(--ink)}
+.foot__social{grid-column:1 / span 3!important;grid-row:2;display:flex!important;gap:22px}
+.foot__legal{border-top:0!important}
+@media(max-width:960px){.foot__brand,.foot__social{grid-column:1 / -1!important;grid-row:auto}.foot__nav--groups{grid-column:1 / -1!important;grid-template-columns:1fr 1fr!important}}
+
+/* menus: the group's picture in the middle, light names, no box round the open button */
+.nav__art{display:block;width:min(300px,100%);height:auto;margin:0 auto 14px;fill:none;stroke:var(--ink);stroke-width:1;stroke-linejoin:round;overflow:visible}
+.nav__art path{vector-effect:non-scaling-stroke}
+.nav__art .bk{opacity:.16}
+.nav__title{font-weight:300!important;font-size:1.75rem!important;letter-spacing:-.03em!important}
+.nav__label{font-weight:400!important}
+.nav__btn,.nav__btn:focus,.nav__btn:focus-visible,.nav__btn[aria-expanded="true"]{outline:0!important;border:0!important;box-shadow:none!important;background:none!important}
+.nav__btn:focus-visible{text-decoration:underline;text-underline-offset:6px}
+@media(min-width:961px){html.js .nav__intro{width:min(340px,30%)!important}}
+@media(max-width:960px){.nav__art{width:150px;margin:0 0 8px}}
+/* arriving from the homepage: the page comes up out of the dark a little sooner */
+@media(prefers-reduced-motion:no-preference){html.arrive main{animation:arrive-rise 800ms var(--ease-out) 120ms backwards}html.arrive .site-header,html.arrive .site-footer{animation:arrive-fade 700ms var(--ease-out) 120ms backwards}}
+/* wide screens: the picture alone in the middle of the menu */
+@media(min-width:961px){html.js .nav__intro .nav__title,html.js .nav__intro .nav__desc{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}.nav__art{margin-bottom:0;width:min(340px,100%)}}
+
+/* phones too: no name or line under the picture */
+.nav__intro .nav__title,.nav__intro .nav__desc{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media(max-width:960px){.nav__art{margin:4px auto 14px}}
+
+/* phones: the menu is the list alone, no picture and no title */
+@media(max-width:960px){.nav__intro{display:none!important}}
