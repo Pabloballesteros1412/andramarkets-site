@@ -1178,7 +1178,7 @@ def page(notes, cal):
         desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
         body=f"""<canvas id="scene" aria-hidden="true"></canvas>
 <header class="bar"><a class="brand" href="#top" aria-label="Andra Markets, home"><img src="assets/andra-mark-dark.png" alt="" width="140" height="160"><span>Andra Markets</span></a>
-<nav class="nav" aria-label="Sections">{menu}</nav><button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="sheet">Menu</button></header>
+<nav class="nav" aria-label="Sections">{menu}<a href="contact/">Contact</a></nav><button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="sheet">Menu</button></header>
 <nav class="sheet" id="sheet" aria-label="Menu">{menu}<a href="contact/">Contact us</a></nav>
 <nav class="rail" aria-label="Page sections"><a href="#top" aria-label="Top"></a><a href="#record" aria-label="The record"></a>{"".join(f'<a href="#{key}" aria-label="{name}"></a>' for key, name, _, _ in NAV_GROUPS)}<a href="#contact" aria-label="Contact"></a></nav>
 <main id="main">
@@ -1463,9 +1463,11 @@ def site_header(home, base, nav=True):
     legal = "" if nav else (f'<p class="site-header__legal"><a href="{base}legal/"><span>For information only.</span> '
                             f'<span>Not investment advice.</span></a>'
                             f'<a href="{base}privacy/">Privacy and cookies</a></p>')
-    # Search is the last thing in the bar, at its right end. Contact us and the shortcut hint
-    # beside it were taken out (owner, 11 Nov 2026): Contact us is in the footer and, on the
-    # homepage, on the closing screen; the shortcut still works.
+    # Contact us (owner, 8 Nov 2026): at the right end of the bar, after the search or the legal
+    # line, as plain words: no line beside it, and no shortcut hint beside the search (owner,
+    # 11 Nov 2026). Phones (520px and below) hide it with every header button: there it sits
+    # at the foot instead: in the footer and, on the homepage, on the closing screen.
+    contact = f'<a class="btn btn--sm btn--ghost contact-btn" href="{base}contact/">Contact us</a>'
     # The mark beside the name; the name is the link home. (The mark was the theme switch
     # until the site became one dark theme, 11 Nov 2026.)
     return f"""<header class="site-header{'' if nav else ' site-header--home'}">
@@ -1477,6 +1479,7 @@ def site_header(home, base, nav=True):
     {menu}
     {search}
     {legal}
+    {contact}
     {menu_btn}
   </div>
 </header>"""
