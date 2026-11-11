@@ -31,8 +31,7 @@
 }
 
 /* Light: pure white paper, ink type, the horse printed as an engraving. */
-:root,
-:root[data-theme="light"] {
+:root {
   color-scheme: light;
   --ground: #ffffff;
   --ground-2: #e9eded;
@@ -179,9 +178,6 @@ ul {
   color: var(--ink-3);
 }
 
-.ph--ink {
-  color: var(--ink);
-}
 
 .visually-hidden {
   position: absolute;
@@ -319,37 +315,6 @@ ul {
     border-color 240ms ease;
 }
 
-/* Section pages: the black sphere and the backlit horse behind everything (assets/section-scene.js,
-   owner-approved 31 Oct 2026). Fixed behind the page, under the header too. Dark: pure black.
-   Light: the same scene inverted, white with dark particles. */
-.scene {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 600ms ease;
-}
-
-.scene.is-live {
-  opacity: 1;
-}
-
-/* arriving from the homepage, or from another section: the sphere is there at once (it opens
-   out of the point, or carries on from the page before) */
-.scene.is-now {
-  transition: none;
-}
-
-.scene__canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-:root:not([data-theme="dark"]) .scene__canvas {
-  filter: invert(1);
-}
 
 /* the body's own ground would cover the scene; the page's ground stays on html */
 body.has-scene {
@@ -447,20 +412,6 @@ html:not(.js) .has-scene .nav__panel {
   text-decoration: none;
 }
 
-/* The header's mark is the theme switch (owner, 1 Nov 2026; it replaced the sun and moon
-   button). It looks exactly like the mark: the padding, taken back by the negative margin,
-   only widens what a finger or pointer can hit (at least 44px tall) without moving anything. */
-.brand__toggle {
-  box-sizing: content-box;
-  margin: -9px -5px -9px -10px;
-  padding: 9px 5px 9px 10px;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
 
 /* Transparent marks (tools/make_mark.py), one per theme: no box, no blend.
    As tall as the wordmark's line box, so the two centre on one axis. */
@@ -477,8 +428,7 @@ html:not(.js) .has-scene .nav__panel {
   height: 100%;
 }
 
-:root[data-theme="dark"] .brand__mark--light,
-:root:not([data-theme="dark"]) .brand__mark--dark {
+:root[data-theme="dark"] .brand__mark--light {
   display: none;
 }
 
@@ -491,9 +441,6 @@ html:not(.js) .has-scene .nav__panel {
   gap: clamp(20px, 2.6vw, 40px);
 }
 
-.nav__subscribe {
-  display: none;
-}
 
 .nav__btn {
   display: inline-flex;
@@ -810,14 +757,6 @@ html.js .nav__group.is-open .nav__intro > :nth-child(2) {
   animation-delay: 80ms;
 }
 
-/* section pages: the scene dims while the menu is open, so its sections read over it */
-.has-scene .scene {
-  transition: opacity 300ms ease;
-}
-
-.has-scene:has(.site-header.is-open) .scene {
-  opacity: 0.4;
-}
 
 @keyframes nav-draw {
   to {
@@ -874,83 +813,6 @@ html.js .nav__group.is-open .nav__intro > :nth-child(2) {
   }
 }
 
-/* The homepage's legal line (it has no footer), at the top right of the header. */
-.site-header--home .brand {
-  margin-right: clamp(8px, 2vw, 32px);
-}
-
-.site-header__legal {
-  margin: 0 0 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 0 20px;
-  font-size: 0.8125rem;
-  color: var(--ink-3);
-}
-
-.site-header__legal a {
-  color: inherit;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color 160ms ease;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .site-header__legal a:hover {
-    color: var(--ink);
-  }
-}
-
-/* Phones: in the header row's right corner (owner, 31 Oct 2026), on
-   two right-aligned lines: "Not investment advice." then Privacy and cookies. "For information
-   only." is left out here (owner, 31 Oct 2026): with it the disclaimer only fits one line at
-   about 7px. 15px lines, 2px apart (the approved mock). Measured in
-   Chromium: at 0.6875rem "Not investment advice." is 117px wide; with the 44px theme button
-   that stood beside it until 1 Nov 2026 it fitted from 370px, and from 360px with 4px header
-   gaps, so there is room to spare now. */
-@media (min-width: 360px) and (max-width: 600px) {
-  .site-header--home .brand {
-    margin-right: 0;
-  }
-
-  .site-header__legal {
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
-    font-size: 0.6875rem;
-    line-height: 15px;
-    text-align: right;
-  }
-
-  .site-header__legal a > span:first-child {
-    display: none;
-  }
-}
-
-@media (min-width: 360px) and (max-width: 369px) {
-  .site-header.site-header--home .wrap {
-    gap: 4px;
-  }
-}
-
-/* Very narrow phones (below 360px): no room in the row, so it sits just under it, still top right. */
-@media (max-width: 359px) {
-  .site-header__legal {
-    position: absolute;
-    top: 100%;
-    right: var(--gutter);
-    max-width: calc(100% - 2 * var(--gutter));
-    margin: 0;
-    gap: 0 14px;
-    font-size: 0.75rem;
-    line-height: 20px;
-  }
-
-  .home .hero h1 {
-    padding-top: calc(var(--nav-h) + 56px);
-  }
-}
 
 .menu-btn {
   display: inline-flex;
@@ -1241,79 +1103,11 @@ html.js .nav__group.is-open .nav__intro > :nth-child(2) {
   flex: none;
 }
 
-/* 960px and below the header's gap is 8px: the homepage's legal line keeps 16px to the button. */
-@media (max-width: 960px) {
-  .site-header--home .contact-btn {
-    margin-left: 8px;
-  }
-}
 
 .foot__contact {
   margin-top: 20px;
 }
 
-.hero__contact {
-  display: none;
-}
-
-@media (max-width: 520px) {
-  .hero__contact {
-    display: inline-flex;
-    position: relative;
-    z-index: 1;
-    align-self: center;
-    order: 4;
-    margin-bottom: max(24px, env(safe-area-inset-bottom));
-  }
-
-  /* An open group's sections show over the empty room below the names: the button gives
-     way to them while one is open. */
-  .hero__copy:has(.hero__group[open]) .hero__contact {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
-/* On the homepage both forms take the header's and the index's way in and out: clear while
-   the particles form the text, then in as it settles; gone at once as the hero leaves. */
-.site-header--home .contact-btn,
-.hero__contact {
-  transition:
-    opacity 450ms ease,
-    visibility 450ms,
-    background-color 160ms ease,
-    border-color 160ms ease,
-    color 160ms ease,
-    transform 120ms var(--ease-out);
-}
-
-html.hero-forming .site-header--home:not(.crisp-hd) .contact-btn,
-html.hero-forming .hero:not(.crisp-ix) .hero__contact,
-html.hero-leaving .site-header--home .contact-btn,
-html.hero-leaving .hero__contact {
-  opacity: 0;
-}
-
-html.hero-leaving .site-header--home .contact-btn,
-html.hero-leaving .hero__contact {
-  transition: none;
-}
-
-/* Hero */
-
-.hero {
-  position: relative;
-  view-timeline-name: --hero;
-}
-
-.hero__stage {
-  position: relative;
-  /* The homepage is this one screen (owner, 31 Oct 2026): nothing follows it. */
-  min-height: 100svh;
-  overflow: hidden;
-  display: flex;
-  align-items: stretch;
-}
 
 .hero__sentinel {
   position: absolute;
@@ -1323,69 +1117,6 @@ html.hero-leaving .hero__contact {
   height: 8px;
 }
 
-.hero__art {
-  position: absolute;
-  left: var(--horse-x);
-  top: var(--horse-y);
-  width: var(--horse-size);
-  height: var(--horse-size);
-  transform: translate(-49%, -50.5%);
-  filter: var(--horse-filter);
-  mix-blend-mode: var(--horse-blend);
-  pointer-events: none;
-}
-
-.horse {
-  width: 100%;
-  height: 100%;
-  opacity: var(--horse-opacity);
-}
-
-/* The particle horse (assets/hero-horse.js, owner-approved 31 Oct 2026). It replaces the
-   still engraving once WebGL is running; until then, and without it, the engraving shows.
-   The canvas draws light dots on a clear ground; the light theme inverts it, so the dots
-   print in soft black (0.8 opacity keeps the deepest ink near #333). */
-.hero__canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: none;
-  pointer-events: none;
-}
-
-.hero.is-live .hero__canvas {
-  display: block;
-}
-
-.hero.is-live .hero__art {
-  visibility: hidden;
-  animation: none;
-}
-
-:root:not([data-theme="dark"]) .hero__canvas {
-  filter: invert(1);
-  opacity: 0.8;
-}
-
-/* Under the chart the horse turns into while the hero scrolls. */
-.hero__stamp {
-  position: absolute;
-  z-index: 1;
-  margin: 0;
-  font-size: 0.8125rem;
-  color: var(--ink-2);
-  opacity: 0;
-  pointer-events: none;
-}
-
-.hero__stage::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(to top, var(--ground) 0%, transparent 40%);
-}
 
 /* Dark theme: the homepage is flat, matte black (owner, 31 Oct 2026): no vignette, no fade,
    and no glow around the particles (assets/hero-horse.js). */
@@ -1393,321 +1124,25 @@ html.hero-leaving .hero__contact {
   --ground: #000000;
 }
 
-:root[data-theme="dark"] .hero__stage {
-  background: #000000;
-}
-
-:root[data-theme="dark"] .hero__stage::after {
-  background: none;
-}
-
-/* The phrase, small and centred above the horse (owner-approved, 1 Nov 2026). */
-.hero h1 {
-  font-size: clamp(1.25rem, 1.9vw, 1.625rem);
-  font-weight: 560;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  text-align: center;
-  text-wrap: balance;
-}
-
-/* The phrase on top, the horse in the middle, the four groups of the header menu around it,
-   all symmetric (owner-approved, 1 Nov 2026). */
-.hero__copy {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: calc(var(--nav-h) + clamp(24px, 6vh, 72px));
-  padding-bottom: clamp(32px, 6vh, 64px);
-}
-
-/* Two groups each side of the horse, mirrored around it at the height of its centre and
-   aligned towards it, 64px clear of its silhouette's box (0.444 of --horse-size wide). */
-.hero__index {
-  position: absolute;
-  left: 50%;
-  top: var(--horse-y);
-  transform: translate(-50%, -50%);
-  width: min(100% - 2 * var(--gutter), calc(0.444 * var(--horse-size) + 2 * (180px + 64px)));
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.hero__side {
-  display: grid;
-  gap: 22px;
-  width: 180px;
-}
-
-.hero__side--l {
-  text-align: right;
-}
-
-.hero__group summary {
-  display: block;
-  list-style: none;
-  cursor: pointer;
-  color: var(--ink);
-  font-size: 1rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  transition: color 450ms ease;
-}
-
-.hero__group summary::-webkit-details-marker {
-  display: none;
-}
-
-.hero__group ul {
-  list-style: none;
-  margin: 0;
-  padding: 6px 0 0;
-}
-
-.hero__group a {
-  display: block;
-  padding: 3px 0;
-  color: var(--ink-2);
-  font-size: 0.875rem;
-  text-decoration: underline 1px transparent;
-  text-underline-offset: 0.22em;
-  transition: color 160ms ease, text-decoration-color 160ms ease;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .hero__group a:hover {
-    color: var(--ink);
-    text-decoration-color: var(--rule-strong);
-  }
-}
-
-/* The still engraving (no WebGL or JavaScript) in the mark's look, as the particles draw it:
-   light on black, ink on white. */
-:root[data-theme="dark"] .home .hero__art {
-  filter: none;
-}
-
-:root:not([data-theme="dark"]) .home .hero__art {
-  filter: invert(1) grayscale(1);
-}
-
-.home .hero__art .horse {
-  opacity: 1;
-}
-
-.hero h1 {
-  transition: color 450ms ease;
-}
-
-/* While particles form them (assets/hero-horse.js), the headline and the index are in
-   place but clear; each turns to ink once its particles have settled. */
-/* The still engraving is only a fallback: while the particles are about to form the horse it
-   stays hidden, so it never shows for a moment before the cloud starts. */
-html.hero-forming .hero__art {
-  visibility: hidden;
-}
-
-html.hero-forming .hero:not(.crisp-h1) h1,
-html.hero-forming .hero:not(.crisp-ix) .hero__index summary {
-  color: transparent;
-}
-
-html.hero-forming .hero__copy > *,
-html.hero-formed .hero__copy > * {
-  animation: none;
-}
-
-/* The homepage header forms from the same particles (owner, 31 Oct 2026): the mark (the
-   theme switch), the name and the legal line are in place but clear until they settle. */
-html.hero-forming .site-header--home .brand__name,
-html.hero-forming .site-header--home .site-header__legal a {
-  transition: color 450ms ease;
-}
-
-html.hero-forming .site-header--home .brand__mark {
-  transition: opacity 450ms ease;
-}
-
-html.hero-forming .site-header--home:not(.crisp-hd) .brand__name,
-html.hero-forming .site-header--home:not(.crisp-hd) .site-header__legal a {
-  color: transparent;
-}
-
-html.hero-forming .site-header--home:not(.crisp-hd) .brand__mark {
-  opacity: 0;
-}
-
-/* Leaving for a section (owner-approved, 1 Nov 2026; assets/hero-horse.js): the particles take
-   the phrase, the group names and the header back into the point, so the real text clears at
-   once and an open group's sections fade out. Shown again from the back/forward cache, it all comes back out
-   of the point and the real text takes over as it did when it first formed. */
-html.hero-leaving .hero h1,
-html.hero-leaving .hero__index summary,
-html.hero-leaving .site-header--home .brand__name,
-html.hero-leaving .site-header--home .site-header__legal a {
-  color: transparent;
-  text-decoration-color: transparent;
-  transition: none;
-}
-
-html.hero-leaving .site-header--home .brand__mark {
-  opacity: 0;
-  transition: none;
-}
-
-html.hero-leaving .hero__group ul {
-  opacity: 0;
-  transition: opacity 240ms ease;
-}
-
-html.hero-returning .site-header--home .brand__name,
-html.hero-returning .site-header--home .site-header__legal a {
-  transition: color 450ms ease;
-}
-
-html.hero-returning .site-header--home .brand__mark {
-  transition: opacity 450ms ease;
-}
 
 /* Short screens (laptops, phones on their side): everything still fits one screen. */
 @media (orientation: landscape) and (max-height: 720px) {
-  .hero__copy {
-    gap: 20px;
-    padding-top: calc(var(--nav-h) + 16px);
-    padding-bottom: 20px;
-  }
+  
 
   :root {
     --horse-y: calc(50% + 51px);
   }
 }
 
-/* Phones and small tablets held upright: one column, all centred (owner-approved, 1 Nov 2026):
-   the phrase on top, the horse, then the four group names in two rows of two. The horse and
-   the names sit as one block halfway between the phrase and the foot of the screen; an open
-   group's sections show centred under the names, over the empty room below, so opening one
-   moves nothing (the particles were drawn where the horse stood). The still engraving sits
-   in the horse's slot too. On their side phones use the wide layout above, with the
-   short-screen sizes. */
-@media (max-width: 860px) and (orientation: portrait) {
-  .hero__stage {
-    flex-direction: column;
-  }
-
-  .hero__copy {
-    display: contents;
-  }
-
-  .hero h1,
-  .hero__index {
-    position: relative;
-    z-index: 1;
-    padding-inline: var(--gutter);
-  }
-
-  .hero h1 {
-    order: 1;
-    padding-top: calc(var(--nav-h) + 20px);
-    font-size: 1.25rem;
-  }
-
-  .hero__stage .hero__art {
-    order: 2;
-    position: relative;
-    left: auto;
-    top: auto;
-    width: auto;
-    height: min(42svh, 80vw);
-    flex: 0 0 auto;
-    margin-block: auto 16px;
-    transform: none;
-    animation: none;
-    container-type: size;
-  }
-
-  .hero__art .horse {
-    position: absolute;
-    /* the horse is 516 of the engraving's 1024px; the centre of its silhouette, x 513 of
-       1024, on the centre line */
-    width: 198.4cqh;
-    max-width: none;
-    height: 198.4cqh;
-    left: calc(50% - 99.4cqh);
-    top: calc(50% - 100cqh);
-  }
-
-  .hero__index {
-    order: 3;
-    left: auto;
-    top: auto;
-    transform: none;
-    width: auto;
-    margin-bottom: auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    justify-items: center;
-    align-items: start;
-    gap: 12px 0;
-  }
-
-  .hero__side {
-    display: contents;
-  }
-
-  .hero__side--l {
-    text-align: center;
-  }
-
-  .hero__group summary {
-    text-align: center;
-  }
-
-  .hero__group ul {
-    position: absolute;
-    left: var(--gutter);
-    right: var(--gutter);
-    top: calc(100% + 14px);
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 2px 18px;
-    padding: 0;
-  }
-
-  .hero__group a {
-    padding: 4px 0;
-  }
-}
-
-/* Small phones held upright (760px tall and less): the phrase a little closer to the header
-   (below 360px wide the legal line sits under the header row and keeps its room). */
-@media (min-width: 360px) and (max-width: 860px) and (orientation: portrait) and (max-height: 760px) {
-  .home .hero h1 {
-    padding-top: calc(var(--nav-h) + 14px);
-  }
-}
 
 /* Laptop screens 721 to 899px tall: the hero's top room follows the height, and the horse
    with it, so the space above and below the horse stays equal. */
 @media (orientation: landscape) and (min-height: 721px) and (max-height: 899px) {
-  .home .hero__copy {
-    padding-top: calc(var(--nav-h) + 3svh);
-    padding-bottom: 3svh;
-  }
+  
 
   :root {
     --horse-y: calc(50% + 32px + 1.5svh + 11px);
   }
-}
-
-.hero__actions {
-  margin-top: 40px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
 }
 
 
@@ -1721,48 +1156,6 @@ html.hero-returning .site-header--home .brand__mark {
   background: var(--ground);
 }
 
-.tape__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px 24px;
-  padding-top: 8px;
-  font-size: 0.875rem;
-  color: var(--ink-2);
-}
-
-.tape__head h2 {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.tape__note {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 44px;
-  color: var(--ink);
-  font-weight: 550;
-  text-decoration: none;
-}
-
-.tape__note .icon {
-  transition: transform 200ms var(--ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .tape__note:hover .icon {
-    transform: translateX(3px);
-  }
-}
-
-.tape__src {
-  padding-bottom: 16px;
-  font-size: 0.8125rem;
-  color: var(--ink-3);
-}
 
 .tape__list {
   /* The containing block for the rolling figures' screen-reader copies
@@ -1826,21 +1219,6 @@ html.hero-returning .site-header--home .brand__mark {
   text-wrap: balance;
 }
 
-.section-head {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 16px 32px;
-  margin-bottom: clamp(32px, 5vw, 56px);
-}
-
-.section-head .lede {
-  max-width: 44ch;
-}
-
-.section-head > div .lede {
-  margin-top: 12px;
-}
 
 .lede {
   font-size: clamp(1rem, 1.25vw, 1.125rem);
@@ -2209,11 +1587,6 @@ html.hero-returning .site-header--home .brand__mark {
   --down-tint: var(--plate-down-tint);
 }
 
-.lab-grid {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: clamp(12px, 1.6vw, 20px);
-}
 
 .tool {
   grid-column: span 5;
@@ -2226,28 +1599,6 @@ html.hero-returning .site-header--home .brand__mark {
   transition: background-color 200ms ease;
 }
 
-.tool--wide {
-  grid-column: span 7;
-}
-
-.tool--next {
-  grid-column: 1 / -1;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 32px;
-  background: transparent;
-  border: 1px solid var(--plate-rule);
-}
-
-.tool--next p {
-  color: var(--plate-ink-2);
-  flex: 1 1 32ch;
-}
-
-.tool__text {
-  margin-top: 24px;
-}
 
 .tool h3 {
   font-size: clamp(1.375rem, 2vw, 1.75rem);
@@ -2256,25 +1607,6 @@ html.hero-returning .site-header--home .brand__mark {
   line-height: 1.1;
 }
 
-.tool--next h3 {
-  font-size: 1.25rem;
-}
-
-.tool__text p {
-  margin-top: 8px;
-  color: var(--plate-ink-2);
-  max-width: 48ch;
-}
-
-.tool__params,
-.tool__src {
-  font-size: 0.875rem;
-}
-
-.tool__text .tool__src {
-  margin-top: 4px;
-  color: var(--plate-ink-2);
-}
 
 .tool > .link {
   margin-top: auto;
@@ -2579,9 +1911,6 @@ html.hero-returning .site-header--home .brand__mark {
   row-gap: 48px;
 }
 
-.note__latest {
-  grid-column: 1 / span 6;
-}
 
 .note__meta {
   margin-top: 12px;
@@ -2599,26 +1928,6 @@ html.hero-returning .site-header--home .brand__mark {
   letter-spacing: -0.022em;
 }
 
-.note__summary {
-  margin-top: 12px;
-  max-width: 46ch;
-}
-
-.note__latest .btn {
-  margin-top: 28px;
-}
-
-.note__archive {
-  grid-column: 8 / -1;
-  align-self: end;
-}
-
-.note__label {
-  font-size: 0.875rem;
-  color: var(--ink-2);
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--rule-strong);
-}
 
 .note-list a {
   display: grid;
@@ -2641,9 +1950,6 @@ html.hero-returning .site-header--home .brand__mark {
   transition: transform 200ms var(--ease-out);
 }
 
-.note__archive > .link {
-  margin-top: 12px;
-}
 
 @media (hover: hover) and (pointer: fine) {
   .note-list a:hover .note-list__title {
@@ -3582,14 +2888,6 @@ html.hero-returning .site-header--home .brand__mark {
   row-gap: 40px;
 }
 
-.about__statement {
-  grid-column: 1 / span 8;
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
-  font-weight: 480;
-  line-height: 1.18;
-  letter-spacing: -0.026em;
-  text-wrap: pretty;
-}
 
 .about dl {
   grid-column: 9 / -1;
@@ -3626,18 +2924,6 @@ html.hero-returning .site-header--home .brand__mark {
   z-index: 1;
 }
 
-.signup__art {
-  position: absolute;
-  left: 50%;
-  top: 46%;
-  width: min(150svh, 190vw);
-  height: min(150svh, 190vw);
-  transform: translate(-49%, -50.5%);
-  filter: var(--horse-filter);
-  mix-blend-mode: var(--horse-blend);
-  opacity: 0.32;
-  pointer-events: none;
-}
 
 .signup .grid {
   row-gap: 40px;
@@ -3662,10 +2948,6 @@ html.hero-returning .site-header--home .brand__mark {
   margin-bottom: 8px;
 }
 
-.field__row {
-  display: flex;
-  gap: 8px;
-}
 
 .field input {
   flex: 1;
@@ -3700,11 +2982,6 @@ html.hero-returning .site-header--home .brand__mark {
   min-height: 52px;
 }
 
-.field__help {
-  margin-top: 10px;
-  font-size: 0.875rem;
-  color: var(--ink-2);
-}
 
 .field__status {
   margin-top: 10px;
@@ -3716,22 +2993,11 @@ html.hero-returning .site-header--home .brand__mark {
   font-weight: 550;
 }
 
-.field__icon {
-  display: none;
-  font-size: 1.25rem;
-}
 
 .field__status.is-error {
   font-weight: 650;
 }
 
-.field__status.is-error .field__icon {
-  display: inline-flex;
-}
-
-.signup.is-done .field__row {
-  opacity: 0.5;
-}
 
 /* Footer */
 
@@ -3811,10 +3077,8 @@ html.hero-returning .site-header--home .brand__mark {
 }
 
 @media (max-width: 960px) {
-  .note__latest,
-  .note__archive,
+  
   .learn-list,
-  .about__statement,
   .about dl,
   .signup .section-title,
   .signup form,
@@ -3827,8 +3091,7 @@ html.hero-returning .site-header--home .brand__mark {
   .foot__social {
     grid-column: 7 / span 6;
   }
-  .tool,
-  .tool--wide {
+  .tool {
     grid-column: 1 / -1;
   }
 }
@@ -3840,10 +3103,7 @@ html.hero-returning .site-header--home .brand__mark {
   body {
     font-size: 1rem;
   }
-  .section-head {
-    flex-direction: column;
-    align-items: start;
-  }
+  
   .tape__list {
     grid-template-columns: repeat(10, 40vw);
   }
@@ -3992,12 +3252,8 @@ html.hero-returning .site-header--home .brand__mark {
     grid-column: 2;
     grid-row: 1 / span 2;
   }
-  .field__row {
-    flex-direction: column;
-  }
-  .hero__actions .btn {
-    flex: 1 1 auto;
-  }
+  
+  
   .key__note {
     margin-left: 0;
   }
@@ -4010,18 +3266,11 @@ html.hero-returning .site-header--home .brand__mark {
 /* Motion. Content is visible by default; motion runs only when allowed. */
 
 @media (prefers-reduced-motion: no-preference) {
-  .horse {
-    animation: horse-in 1600ms var(--ease-out) both;
-  }
+  
 
-  .signup__art .horse {
-    animation: none;
-  }
+  
 
-  .hero__copy > * {
-    animation: rise 900ms var(--ease-out) both;
-    animation-delay: calc(240ms + var(--i, 0) * 80ms);
-  }
+  
 
   @keyframes horse-in {
     from {
@@ -4059,11 +3308,7 @@ html.hero-returning .site-header--home .brand__mark {
 
   /* Signature: the horse recedes as the page scrolls away from it. */
   @supports (animation-timeline: view()) {
-    .hero__art {
-      animation: recede linear both;
-      animation-timeline: --hero;
-      animation-range: exit 0% exit 100%;
-    }
+    
     @keyframes recede {
       to {
         transform: translate(-49%, -44%) scale(0.94);
@@ -4072,12 +3317,7 @@ html.hero-returning .site-header--home .brand__mark {
     }
   }
 
-  /* Theme switch: the new theme opens as a circle from the button (site.js). */
-  html.theme-reveal::view-transition-old(root),
-  html.theme-reveal::view-transition-new(root) {
-    animation: none;
-    mix-blend-mode: normal;
-  }
+  
 
   /* Between section pages (owner-approved, 1 Nov 2026): every page but the homepage opts in to
      a view transition across pages (VIEW_TRANSITION and MOVE_BOOT in tools/build_site.py; the
@@ -4478,7 +3718,7 @@ html.hero-returning .site-header--home .brand__mark {
   touch-action: pan-y;
 }
 
-.dd__plot--perf,
+
 .dd__plot--matrix {
   height: auto;
   min-height: 120px;
@@ -4603,7 +3843,6 @@ html.hero-returning .site-header--home .brand__mark {
 .chart .s1,
 .chart .s2,
 .chart .s3,
-.chart .s4,
 .chart .s5 {
   fill: none;
   stroke-linejoin: round;
@@ -4634,11 +3873,6 @@ html.hero-returning .site-header--home .brand__mark {
   stroke-dasharray: 9 4;
 }
 
-.chart .s4 {
-  stroke: var(--ink-3);
-  stroke-width: 1.3;
-  stroke-dasharray: 7 3 1 3;
-}
 
 .chart .s5 {
   stroke: var(--ink-3);
@@ -5720,9 +4954,6 @@ html.js .acc__item:not(.is-open) .acc__panel p {
   filter: invert(1) hue-rotate(180deg);
 }
 
-:root:not([data-theme="dark"]) .co-logo--mono-light img {
-  filter: brightness(0);
-}
 
 @media (max-width: 760px) {
   .co-head--logo > *:not(.dd__crumbs):not(.page__title):not(.co-logo) {
@@ -6520,35 +5751,6 @@ html:not(.js) .ip-filters {
   margin-top: 28px;
 }
 
-.lib-lead__toc {
-  grid-column: 9 / -1;
-}
-
-.lib-lead__toc h3 {
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--rule-strong);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.lib-lead__toc li {
-  display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr);
-  padding: 12px 0;
-  border-bottom: 1px solid var(--rule);
-  font-size: 0.9375rem;
-  color: var(--ink-2);
-}
-
-.lib-lead__toc li span {
-  color: var(--ink-3);
-  font-variant-numeric: tabular-nums;
-}
-
-.lib-lead--empty {
-  display: block;
-  max-width: 44rem;
-}
 
 .lib__none {
   padding: 20px 0;
@@ -6764,13 +5966,10 @@ html:not(.js) .ip-filters {
 }
 
 @media (max-width: 960px) {
-  .lib-lead__main,
-  .lib-lead__toc {
+  .lib-lead__main {
     grid-column: 1 / -1;
   }
-  .lib-lead__toc {
-    margin-top: 40px;
-  }
+  
   .lib-issues {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -6802,28 +6001,6 @@ html:not(.js) .ip-filters {
   }
 }
 
-/* The PDF download, locked until the paid tier opens: it says so when pressed. */
-.lib-pdf[aria-disabled="true"] {
-  color: var(--ink-2);
-  cursor: not-allowed;
-}
-
-.lib-pdf[aria-disabled="true"]:active {
-  transform: none;
-}
-
-.lib-pdf__tag {
-  padding-left: 10px;
-  border-left: 1px solid var(--rule);
-  font-size: 0.8125rem;
-  font-weight: 450;
-  color: var(--ink-3);
-}
-
-.page__body p.lib-src {
-  font-size: 0.8125rem;
-  color: var(--ink-3);
-}
 
 /* Markets Interview Prep (DESIGN.md: Interview Prep) */
 .ip .page__body .note__meta {
@@ -8355,7 +7532,7 @@ html.js .tq-nojs, html:not(.js) .tq-js { display: none; }
 .rc-when--ex { font-weight: 500; color: var(--ink-2); }
 .rc-soon { display: block; margin-top: 2px; font-size: 0.8125rem; font-weight: 600; color: var(--ink); }
 .rc-what { font-size: 0.875rem; font-weight: 600; }
-.rc-what--close { font-weight: 600; }
+
 .rc-sub { display: block; margin-top: 2px; font-size: 0.875rem; font-weight: 400; color: var(--ink-2); }
 .rc-apply { display: inline-flex; align-items: center; gap: 4px; font-size: 0.875rem; font-weight: 550; color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; white-space: nowrap; }
 .rc-firmtab { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
