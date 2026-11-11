@@ -271,7 +271,9 @@ never committed here, apart from the Research Library's report PDFs; they stay i
 - Subscriber polls to choose the next company to analyse.
 - Extras: the full report archive, PDF downloads, the data downloads behind
   the dashboards (including the verified facts file), early access to Lab tools.
-- **Never:** model portfolios or buy and sell lists (regulatory risk).
+- **Never:** model portfolios or buy and sell lists (regulatory risk). Your
+  fund (`simulators/your-fund/`, 11 Nov 2026) is not one: it is the reader's own
+  paper fund, kept in their browser, and the site suggests no trade in it.
 
 Delivery and payments run on a newsletter platform (Substack, Beehiiv or
 Ghost, not chosen yet), linked from the site. No custom accounts, logins or

@@ -43,6 +43,10 @@ BUDGET = float(os.environ.get("LAB_BUDGET", "420"))
 RISK_BENCH = {"000300.SS": ("000001.SS", "Shanghai Composite")}
 # Prices Yahoo quotes in a hundredth of the currency: the returns are the same.
 MINOR = {"GBp": "GBP", "GBX": "GBP", "ZAc": "ZAR", "ILA": "ILS"}
+# Indices no company is measured against but a tool draws: the MSCI World, in US dollars,
+# beside the S&P 500 on the paper fund's chart (simulators/your-fund/).
+WORLD = "^990100-USD-STRD"
+EXTRA = (WORLD,)
 
 
 def fx_symbol(cur):
@@ -112,6 +116,8 @@ def main():
             for sym in (c["symbol"], bench_of(c)[0]):
                 if sym not in wanted:
                     wanted.append(sym)
+    if wanted:
+        wanted += [s for s in EXTRA if s not in wanted]
     if not wanted:
         log("lab: no earnings universe in the calendar cache yet; the risk tool keeps its last closes", "warning")
         return
