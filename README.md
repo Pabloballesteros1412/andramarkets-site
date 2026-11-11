@@ -12,7 +12,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/check_site.py`: run after the build, at every deploy. It fails the deploy if a close note page came out without a section its note has, or the homepage index lacks a section of the menu, so the live site keeps its last good version.
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
 - `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
-- `tools/company_data.py`: fetches the figures behind the company pages (the calendar's 600: the 200 largest in the S&P 500, the STOXX Europe 600 and the six Asian markets) at deploy time, into `.cache/companies/`.
+- `tools/company_data.py`: fetches the figures behind the company pages (the calendar's 1,200: the 400 largest in the S&P 500, the STOXX Europe 600 and the six Asian markets) at deploy time, into `.cache/companies/`.
 - `tools/calendar_data.py`: fetches the calendar at deploy time (below).
 - `tools/world_data.py`: fetches the World markets figures at deploy time (below).
 - `assets/world.js`: the World markets comparison radar.
@@ -289,7 +289,7 @@ the calendar fetch and keeps about three years of dividend-adjusted daily
 closes for each company and benchmark from Yahoo Finance's chart endpoint in
 `.cache/lab/closes.json` (Actions cache, never committed or published). Each
 run fetches only the symbols not fetched that day, oldest first, 0.35 seconds
-apart, within a time budget (`LAB_BUDGET`, 240 seconds by default); the rest
+apart, within a time budget (`LAB_BUDGET`, 420 seconds by default); the rest
 keep their last closes and go first next run. `tools/build_site.py` turns the
 closes into daily log returns in basis points, one `assets/lab-risk-<market>.js`
 per market (US, Europe, Asia), which the page loads only when a company from
@@ -392,11 +392,11 @@ caches every answer (fundamentals, peers, analysts and search 24 hours, news
 15 minutes, the price 60 seconds). `assets/profile.js` uses it in three
 places:
 
-- `/companies/`: the search field filters the 600 and lists any other
+- `/companies/`: the search field filters the 1,200 and lists any other
   US-listed company that matches.
 - `/companies/<ticker>/` for US companies: the live price, news and analyst
   recommendations on top of the static page.
-- `/companies/live/?t=TICK`: the full profile of a US company outside the 600
+- `/companies/live/?t=TICK`: the full profile of a US company outside the 1,200
   (results, margins, statements, multiples, peers, news, analysts).
 
 `/profile/` (the section's first home) forwards old links there.
@@ -484,9 +484,9 @@ the close notes link there) and the homepage section.
 | Loan prime rates | PBoC: the 20th, 9:00 am Beijing, next working day | |
 | NYSE holidays and early closes, options expiry, quad witching, S&P 500 rebalance | `tools/nyse.py` and the exchanges' published rules | |
 | One-off events | `ONE_OFF` in `tools/calendar_data.py`, each with its official source | |
-| Earnings, US: top 200 of the S&P 500 | SPY holdings (State Street) for membership; Yahoo Finance for market cap, dates and diluted EPS | Yahoo Finance |
-| Earnings, Europe: top 200 of the STOXX Europe 600 | iShares STOXX Europe 600 ETF holdings for membership, each mapped to the company's main listing on Yahoo (`MAIN_LISTING`; the most traded class where the file holds two); Yahoo Finance for market cap (in dollars), dates and EPS | Yahoo Finance |
-| Earnings, Asia: top 200 across Japan, Taiwan, South Korea, Hong Kong, mainland China, India | Yahoo Finance screener, one listing per company (mainland A-share for dual listings; Hong Kong for New York-primary Chinese companies; NSE in India; London-primary companies quoted in Hong Kong left out) | Yahoo Finance |
+| Earnings, US: top 400 of the S&P 500 | SPY holdings (State Street) for membership; Yahoo Finance for market cap, dates and diluted EPS | Yahoo Finance |
+| Earnings, Europe: top 400 of the STOXX Europe 600 | iShares STOXX Europe 600 ETF holdings for membership, each mapped to the company's main listing on Yahoo (`MAIN_LISTING`; the most traded class where the file holds two); Yahoo Finance for market cap (in dollars), dates and EPS | Yahoo Finance |
+| Earnings, Asia: top 400 across Japan, Taiwan, South Korea, Hong Kong, mainland China, India | Yahoo Finance screener, one listing per company (mainland A-share for dual listings; Hong Kong for New York-primary Chinese companies; NSE in India; London-primary companies quoted in Hong Kong left out) | Yahoo Finance |
 | First-session move, every earnings row | Yahoo Finance daily closes: the stock and its benchmark (S&P 500, STOXX Europe 600, Nikkei 225, TAIEX, KOSPI, Hang Seng, CSI 300, Nifty 50) | |
 
 When a source fails, its events stay as last read and the Sources list on the
@@ -498,18 +498,19 @@ or a later estimate never stands in for it. Add one-off events (OPEC+
 meetings, Jackson Hole, debt-ceiling deadlines, elections) to `ONE_OFF` as
 they are announced, with their source.
 
-Each market follows its 200 largest companies (`UNIVERSE` in
+Each market follows its 400 largest companies (`UNIVERSE` in
 `tools/calendar_data.py`); the rows marked High stay the largest 25 (US), 12
 (Europe) and 5 (Asia), as before. Membership and market caps take a few batched
-calls per market (50 symbols a call; Asia screens 220 listings per market).
+calls per market (50 symbols a call; Asia screens 250 listings per market).
 The per-company calls, year-ago and reported EPS and the first-session moves,
 are paced 0.3 seconds apart and share a time budget (`CAL_YAHOO_BUDGET`, 180
 seconds by default): reports already out come first, a report still ahead is
 not asked again once it has its year-ago figure, and whatever the budget does
-not reach is fetched on the next run. With the Lab's 240-second budget for its
-closes, the Yahoo work of a deploy stays under ten minutes even on the first
-run with the larger lists, and falls to a minute or two once the caches are
-warm.
+not reach is fetched on the next run. The Lab's closes have their own budget
+(420 seconds) and the company pages theirs (`COMPANY_BUDGET`, 1,200 seconds),
+so the first runs after the lists grow are the slow ones: each fills what its
+budget allows and the next run carries on, and the Yahoo work falls to a few
+minutes once the caches are warm.
 
 The **Calendar check** workflow runs the fetcher against the live sources on
 every pull request that touches it and prints what each source returned, with

@@ -1,6 +1,6 @@
 /* Andra Markets companies, live: the search on /companies/, the profile of
-   any US company outside the 600 (/companies/live/?t=) and the live price,
-   news and analysts on the US pages of the 600, filled from the profile API (worker/, a Cloudflare Worker
+   any US company outside the 1,200 (/companies/live/?t=) and the live price,
+   news and analysts on the US pages of the 1,200, filled from the profile API (worker/, a Cloudflare Worker
    that holds the vendors' keys; its address is in data-api on <main>). Each
    part of the page loads on its own: a skeleton of its shape, then the
    content, or an error that says what failed with a way to try again. Vendor
@@ -156,9 +156,9 @@
   }
 
   /* ---- Modes ----
-     index:   /companies/, the search over the 600 and any other US ticker
-     live:    /companies/live/?t=TICK, the profile of a company outside the 600
-     company: /companies/<ticker>/, a US company of the 600: the live price,
+     index:   /companies/, the search over the 1,200 and any other US ticker
+     live:    /companies/live/?t=TICK, the profile of a company outside the 1,200
+     company: /companies/<ticker>/, a US company of the 1,200: the live price,
               news and analysts on top of its static page */
   var MODE = main.getAttribute("data-mode");
   var params = new URLSearchParams(location.search);
@@ -225,7 +225,7 @@
       if (active >= 0 && items[active]) return go(items[active].t);
       var v = q.value.trim();
       var row = filter(v.toLowerCase())[0];
-      // An exact ticker among the 600 opens its page; else the first match, then the first other company.
+      // An exact ticker among the 1,200 opens its page; else the first match, then the first other company.
       var exact = document.querySelector('.co-tab tbody tr[data-t="' + v.toUpperCase().replace(/[^A-Z0-9.-]/g, "") + '"] a');
       if (exact) return (location.href = exact.getAttribute("href"));
       if (row) return (location.href = row.querySelector("a").getAttribute("href"));
@@ -259,7 +259,7 @@
   } else {
     T = (params.get("t") || "").trim().toUpperCase();
     if (!TICKER.test(T)) { location.replace("../" + (T ? "?q=" + encodeURIComponent(T.toLowerCase()) : "")); return; }
-    // One of the 600 has its own page.
+    // One of the 1,200 has its own page.
     var KNOWN = {};
     try { KNOWN = JSON.parse(main.getAttribute("data-known") || "{}"); } catch (e) { /* none */ }
     if (KNOWN[T]) { location.replace("../" + KNOWN[T] + "/"); return; }

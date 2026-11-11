@@ -1358,6 +1358,10 @@ def nav_art(key):
     return _NAV_ART[key]
 
 
+# Companies followed in each market (UNIVERSE in tools/calendar_data.py) and in all three.
+PER_MARKET = 400
+CO_TOTAL = f"{3 * PER_MARKET:,}"
+
 NAV_GROUPS = (
     ("markets", "Markets", "Prices, rates and what is coming, with each figure's source and date.", (
         ("Dashboards", "dashboards/", "Nine views across rates, equities, macro and cross-asset."),
@@ -1365,7 +1369,7 @@ NAV_GROUPS = (
         ("Calendar", "calendar/", "Releases, central banks and earnings, five weeks ahead."),
         ("World", "world/", "Twenty-five markets compared on the same scale."),
         ("FX", "fx/", "The dollar, the G10 majors and emerging-market currencies."),
-        ("Companies", "companies/", "Earnings and figures for 600 companies."))),
+        ("Companies", "companies/", f"Earnings and figures for {CO_TOTAL} companies."))),
     ("tools", "Tools", "Fourteen tools and simulators that run in your browser.", (
         ("Options", "lab/options/", "The payoff at expiry and Black-Scholes with its Greeks."),
         ("Bonds", "lab/bonds/", "Price, duration and convexity; yield to maturity."),
@@ -4021,9 +4025,9 @@ def cal_sources_section(cal):
             f"release. Previous is the last published figure; Actual is the first print, taken within a week of the "
             f"release. No consensus forecasts: no free source is reliable enough. When a source fails, its last good "
             f"copy stays, with its date.</p>"
-            f"<p>Earnings are the next report of the 200 largest S&amp;P 500 companies (members from State Street's SPY "
-            f"holdings), the 200 largest in the STOXX Europe 600 (members from iShares' holdings of its STOXX Europe 600 "
-            f"ETF) and the 200 largest listed in Japan, Taiwan, South Korea, Hong Kong, mainland China and India, one "
+            f"<p>Earnings are the next report of the {PER_MARKET} largest S&amp;P 500 companies (members from State Street's SPY "
+            f"holdings), the {PER_MARKET} largest in the STOXX Europe 600 (members from iShares' holdings of its STOXX Europe 600 "
+            f"ETF) and the {PER_MARKET} largest listed in Japan, Taiwan, South Korea, Hong Kong, mainland China and India, one "
             f"listing each, ranked by market cap in dollars. Market caps, dates and diluted EPS from Yahoo Finance; EPS "
             f"in the company's reporting currency, only when Yahoo has it. An estimated date is always marked as "
             f"estimated, and a report time Yahoo does not give, or gives exactly on the market close, is never guessed. "
@@ -4158,10 +4162,10 @@ def calendar_link(cal, d):
 
 
 # Company pages ----------------------------------------------------------------
-# One page per company in the calendar's earnings universe (the 200 largest in
+# One page per company in the calendar's earnings universe (the 400 largest in
 # the S&P 500, the STOXX Europe 600 and the six Asian markets), from
 # .cache/companies/companies.json (tools/company_data.py). Owner-approved
-# design, 22 Oct 2026; 600 companies since 28 Oct 2026. assets/company.js draws the charts from the figures
+# design, 22 Oct 2026; 600 companies since 28 Oct 2026, 1,200 since 11 Nov 2026. assets/company.js draws the charts from the figures
 # embedded in each page.
 
 CO_DATA = ROOT / ".cache" / "companies" / "companies.json"
@@ -4589,10 +4593,10 @@ def company_page(t, data, cal):
     if len(peers_all) >= 4:
         peers = peers_all
         peers_lede = (f"{name} (filled) against the other {len(peers) - 1} {SHORT_SECTOR.get(sector, sector).lower()} "
-                      f"companies among the 200 largest in {where}. Tap or hover a dot to read it.")
+                      f"companies among the {PER_MARKET} largest in {where}. Tap or hover a dot to read it.")
     else:
         peers = [x for x in data["order"] if data["co"][x]["market"] == market]
-        peers_lede = (f"{name} (filled) against the 200 largest companies in {where}; too few in its sector "
+        peers_lede = (f"{name} (filled) against the {PER_MARKET} largest companies in {where}; too few in its sector "
                       f"to compare on their own. Tap or hover a dot to read it.")
     flow = co_flow(rec)
     cagr, _ = co_cagr(rec)
@@ -4738,7 +4742,7 @@ def company_page(t, data, cal):
                '<p class="co-src">Month-end closes and annual reports, via Yahoo Finance.</p>') if pe_hist else ""
     s_ret = sec("ret", "Share price returns",
                 f'<p>Price change over each period to the close of {day_med(d)}, without dividends.</p>{returns_table(rets)}'
-                f'<p class="co-src">Yahoo Finance daily closes, in {CUR_NAME.get(cur, cur)}. The sector average is the simple average of its companies among the 200 largest in {where}.</p>')
+                f'<p class="co-src">Yahoo Finance daily closes, in {CUR_NAME.get(cur, cur)}. The sector average is the simple average of its companies among the {PER_MARKET} largest in {where}.</p>')
     s_risk = ""
     if risk:
         beta = f'{risk["beta"]:.2f}' if risk["beta"] is not None else "n/a"
@@ -4880,7 +4884,7 @@ def companies_index(data):
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Companies</h1>
-      <p class="lede">The 200 largest companies in the S&amp;P 500, in the STOXX Europe 600 and across the six Asian markets, the companies the earnings calendar follows, ranked by market value in dollars. Each has a page with its valuation, its peers, where its revenue goes and how the shares have done against the market. Search finds any other US-listed company too.</p>
+      <p class="lede">The {PER_MARKET} largest companies in the S&amp;P 500, in the STOXX Europe 600 and across the six Asian markets, the companies the earnings calendar follows, ranked by market value in dollars. Each has a page with its valuation, its peers, where its revenue goes and how the shares have done against the market. Search finds any other US-listed company too.</p>
     </header>
     <form class="pf-field co-index__search" role="search" id="pf-form" hidden>
       {icon("magnifying-glass")}
@@ -4905,7 +4909,7 @@ def companies_index(data):
   </div>
 </main>"""
     return shell(title="Companies: Andra Markets",
-                 desc="The 200 largest companies in the US, Europe and Asia, each with valuation, peers and results.",
+                 desc=f"The {PER_MARKET} largest companies in the US, Europe and Asia, each with valuation, peers and results.",
                  body=body, home="../", base="../", path="companies/", scripts=("profile.js",))
 
 
@@ -5867,12 +5871,12 @@ def pf_news_analysts(name_html):
 
 
 def live_page(companies):
-    """/companies/live/?t=TICK: the profile of a US company outside the 600.
+    """/companies/live/?t=TICK: the profile of a US company outside the 1,200.
 
     One static page. assets/profile.js reads ?t= and fills it from the profile
     API (PROFILE_API, the Cloudflare Worker in worker/), section by section:
     each starts as a skeleton of its final shape and ends as content, or as an
-    error that says what failed and offers to try again. A ticker among the 600
+    error that says what failed and offers to try again. A ticker among the 1,200
     goes to its own page (data-known); one that does not trade goes to the
     search on the Companies index."""
     sk, sec = pf_sk, pf_sec
@@ -6004,7 +6008,7 @@ def profile_redirect():
 
 
 def fin_ticker(t):
-    """Finnhub's form of a US ticker of the 600: BRK-B is BRK.B."""
+    """Finnhub's form of a US ticker of the 1,200: BRK-B is BRK.B."""
     return t.replace("-", ".")
 
 
