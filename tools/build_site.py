@@ -1199,7 +1199,13 @@ def page(notes, cal):
         bare=("home.css",),
         ld={"@context": "https://schema.org", "@graph": [
             ld_org(), dict({"@type": "WebSite", "name": "Andra Markets"}, **({"url": abs_url()} if SITE_URL else {}))]},
-        head=f'\n<link rel="preload" href="assets/horse-particles.webp?v={ver("horse-particles.webp")}" as="image" type="image/webp">',
+        # The opening (assets/home.css, assets/home.js): marked before the first paint so the phrase
+        # and the header start hidden; the full sequence once per visit, a short one after that.
+        # If the scene never starts they are shown after four seconds.
+        head=(f'\n<link rel="preload" href="assets/horse-particles.webp?v={ver("horse-particles.webp")}" as="image" type="image/webp">'
+              '\n<script>(function(){var d=document.documentElement;if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;'
+              'd.classList.add("opening");try{if(sessionStorage.getItem("andra-opened"))d.classList.add("opening--quick")}catch(e){}'
+              'setTimeout(function(){d.classList.add("is-live")},4000)})();</script>'),
     )
 
 

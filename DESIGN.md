@@ -290,6 +290,7 @@ Source of truth: `assets/theme.css` (loaded after `assets/site.css` on every inn
   Moving between non-adjacent groups (from the menu) takes the particles straight from one picture to the other. The particle count adapts down on slow devices. Reduced motion draws still frames. On phones the header shows "Menu", which opens a full-screen list of the groups.
 - **Menus.** On wide screens each group's menu has that group's picture, as a still line drawing, alone in the middle, with the sections around it. On phones the menu is the list alone.
 - **Footer.** Five columns: Markets, Tools, Research, Careers and Andra Markets (methodology, sources, legal, privacy), with the brand, Contact us and the social links on the left.
+- **Opening the site.** The homepage starts dark. A point of light comes up at the centre, the horizon spreads from it to both sides (about 2.6s), the phrase rises out of a blur at 1.35s and the header fades in at 2.3s. Once per visit; after that a short version (about 1.1s). The phrase and header are shown anyway after four seconds if the scene never starts, at once without WebGL, and there is no opening under reduced motion.
 - **Moving between pages.** Leaving the homepage, the text fades and the scene scales up and goes dark (about 0.6s), then the page changes; the next page rises out of the dark (`html.arrive`). Coming back, the homepage fades in. Between inner pages the existing cross-page view transition applies. None of it under reduced motion.
 
 ## Overview

@@ -2,8 +2,10 @@
 (function(){var b=document.getElementById('menu-btn'),s=document.getElementById('sheet');if(!b||!s)return;function set(o){s.classList.toggle('open',o);b.setAttribute('aria-expanded',o);b.textContent=o?'Close':'Menu';}b.addEventListener('click',function(){set(!s.classList.contains('open'));});s.addEventListener('click',function(e){if(e.target.closest('a'))set(false);});document.addEventListener('keydown',function(e){if(e.key==='Escape')set(false);});})();
 (function () {
   var cv = document.getElementById("scene"), gl = cv.getContext("webgl", { antialias: false, alpha: false, premultipliedAlpha: false });
+  var OPENING = document.documentElement.classList.contains("opening"), OPEN_S = document.documentElement.classList.contains("opening--quick") ? 1.1 : 2.6;
+  try { sessionStorage.setItem("andra-opened", "1"); } catch (e) { /* private mode */ }
   var DATA = JSON.parse(document.getElementById("home-data").textContent), reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!gl) { document.documentElement.classList.add("no-gl"); return; }
+  if (!gl) { document.documentElement.classList.add("no-gl", "is-live"); return; }
   var VS = [
     "attribute vec3 a1,a2,a3,a4; attribute vec2 aFa,aFb; attribute vec4 aR;",
     "uniform float uImg,uHV,uFt,uGain,uA,uB,uT,uTime,uAspect,uDpr,uIntro,uObj,uPx,uVis; uniform vec2 uRot[6]; uniform vec3 uOff[6]; uniform vec2 uPtr,uHc; uniform float uRr,uNight,uHS;",
@@ -52,17 +54,18 @@
   var U = {}; ["uHS", "uNight", "uHc", "uRr", "uImg", "uHV", "uFt", "uGain", "uA", "uB", "uT", "uTime", "uAspect", "uDpr", "uIntro", "uObj", "uPx", "uRot", "uOff", "uPtr", "uVis", "uCol"].forEach(function (n) { U[n] = gl.getUniformLocation(pr, n); });
 
   var BG_FS = ["precision highp float;",
-    "uniform vec2 uRes,uC,uH; uniform float uTime,uHor,uGlobe,uGR,uAspect,uR;",
+    "uniform vec2 uRes,uC,uH; uniform float uTime,uHor,uGlobe,uGR,uAspect,uR,uOpen;",
     "float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }",
     "void main(){",
     "  vec2 uv=gl_FragCoord.xy/uRes*2.0-1.0; vec2 p=vec2(uv.x*uAspect,uv.y);",
     "  vec3 col=vec3(0.016)*exp(-length(vec2((uv.x-uC.x)*uAspect*0.6,(uv.y-uC.y)*0.9))*1.9);",
     "  if(uHor>0.001){ vec2 c=vec2(uH.x*uAspect,uH.y-uR); float dist=length(p-c)-uR; float ax=abs(p.x-uH.x*uAspect);",
+    "    float reach=uOpen*uOpen*(uAspect*1.25+0.4); float lit=1.0-smoothstep(reach*0.72,reach+0.001,ax); float spark=smoothstep(0.0,0.3,uOpen)*(1.0+1.5*exp(-pow((uOpen-0.3)/0.14,2.0)));",
     "    float fall=exp(-ax*0.85); float line=exp(-abs(dist)*260.0)*(0.16+0.62*fall)+exp(-abs(dist)*60.0)*0.10*fall;",
     "    float atm=dist>0.0?exp(-dist*6.5)*0.17*fall:exp(dist*13.0)*0.085*fall;",
     "    float core=exp(-length(vec2(ax*4.2,(p.y-uH.y)*8.0)))*0.42; float streak=exp(-ax*55.0)*exp(-abs(p.y-uH.y)*2.4)*0.16;",
     "    if(dist<0.0) col*=mix(1.0,0.12,uHor);",
-    "    col+=vec3(1.0)*(line+atm+core+streak)*uHor; }",
+    "    col+=vec3(1.0)*((line+atm)*lit+(core+streak)*spark)*uHor; }",
     "  if(uGlobe>0.001){ vec2 q=(p-vec2(uC.x*uAspect,uC.y))/uGR; float r2=dot(q,q);",
     "    if(r2<1.0){ vec3 n=vec3(q,sqrt(1.0-r2)); vec3 L=normalize(vec3(-0.80,0.38,0.42)); float lam=max(0.0,dot(n,L));",
     "      vec3 body=vec3(0.006)+vec3(0.15)*pow(lam,1.5); float fr=pow(1.0-n.z,3.5); body+=vec3(0.75)*fr*(0.04+lam*lam); col=mix(col,body,uGlobe); }",
@@ -75,7 +78,7 @@
   function prog2(v, f) { var p = gl.createProgram(); gl.attachShader(p, sh(gl.VERTEX_SHADER, v)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, f)); gl.linkProgram(p); return p; }
   var PB = prog2(Q_VS, BG_FS), PS = prog2(Q_VS, SIL_FS), qb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, qb); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]), gl.STATIC_DRAW);
   function UL(p, names) { var o = {}; names.forEach(function (n) { o[n] = gl.getUniformLocation(p, n); }); return o; }
-  var UB = UL(PB, ["uBox", "uRes", "uC", "uTime", "uHor", "uH", "uR", "uGlobe", "uGR", "uAspect"]), US = UL(PS, ["uBox", "uTex", "uAlpha", "uFlip"]);
+  var UB = UL(PB, ["uBox", "uRes", "uC", "uTime", "uHor", "uH", "uR", "uGlobe", "uGR", "uAspect", "uOpen"]), US = UL(PS, ["uBox", "uTex", "uAlpha", "uFlip"]);
   var silTex = null, silH = 0, srcImg = null, IMG_ASP = 0.88, bufs = [], rbuf = null;
   gl.useProgram(pr);
   var small = Math.min(innerWidth, innerHeight) < 700, N = small ? 500000 : 1600000, AMB = Math.round(N * 0.003), drawN = N, ftAcc = 0, ftN = 0, lastNow = 0;
@@ -199,7 +202,7 @@
     for (var d0 = 0; d0 < 7; d0++) gl.disableVertexAttribArray(d0);
     gl.useProgram(PB); gl.bindBuffer(gl.ARRAY_BUFFER, qb); var la = gl.getAttribLocation(PB, "aQ"); gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
     gl.uniform4f(UB.uBox, 0, 0, 1, 1); gl.uniform2f(UB.uRes, cv.width, cv.height); gl.uniform2f(UB.uC, cx, cy); gl.uniform1f(UB.uTime, tt);
-    gl.uniform1f(UB.uHor, hor); gl.uniform2f(UB.uH, 0, feet); gl.uniform1f(UB.uR, port ? 2.2 : 3.4);
+    var op = reduce || !OPENING ? 1 : Math.min(1, Math.max(0, (t - 0.2) / OPEN_S)); gl.uniform1f(UB.uOpen, 1 - Math.pow(1 - op, 2.2)); gl.uniform1f(UB.uHor, hor); gl.uniform2f(UB.uH, 0, feet); gl.uniform1f(UB.uR, port ? 2.2 : 3.4);
     gl.uniform1f(UB.uGlobe, Math.max(0, wt(1) * 1.6 - 0.6)); gl.uniform1f(UB.uGR, 0.82 * obj * 2.75 / 3.4); gl.uniform1f(UB.uAspect, asp);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     var wH = wt(0) + wt(5), it0 = reduce ? 1 : Math.min(1, t / 3.4), imgA = Math.max(0, Math.min(1, (wH - 0.86) / 0.14)) * Math.max(0, Math.min(1, (it0 - 0.8) / 0.2));
