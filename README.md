@@ -34,8 +34,9 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/legal_content.py`: the legal notice (`legal/`) and the privacy and cookies policy (`privacy/`).
 - `assets/lab.js`: ten of the eleven Lab tools (`lab/`), which run entirely in the browser. The inputs that differ from a tool's defaults are kept in the URL fragment (`#yld=5&freq=1`), never sent to the server, so a link shares a setup.
 - `assets/portfolio.js`: the eleventh, the portfolio analyser (`lab/portfolio-analyser/`): holdings entered as weights or dollar amounts, measured in US dollars in the browser. A setup that differs from the opening one is kept in the URL fragment (`#p=AAPL~18,MSFT~16&m=a`).
+- `assets/fund.js`: the fifth simulator, Your fund (`simulators/your-fund/`): a paper long-short fund the reader runs, kept only in the browser (`localStorage`, `andra-fund`), marked from the Lab's daily returns (below, Lab data).
 - `tools/lab_data.py`: fetches the daily closes and dollar rates behind the Lab's portfolio analyser and risk and correlation tool at deploy time (below).
-- `assets/sim.js`, `assets/fed-game.js`, `assets/portfolio-game.js`, `tools/sim_data.py`, `tools/sim_content.py`: the four Simulators (`simulators/`), their history fetched at deploy time and the historical episodes they reveal (below).
+- `assets/sim.js`, `assets/fed-game.js`, `assets/portfolio-game.js`, `tools/sim_data.py`, `tools/sim_content.py`: four of the five Simulators (`simulators/`), their history fetched at deploy time and the historical episodes they reveal (below).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `assets/profile.js`, `worker/`: the live company data on the Companies pages (search, live price, news, analysts, other US companies) and the Cloudflare Worker it reads from (below).
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
@@ -309,6 +310,20 @@ first). Sectors come from `.cache/companies/companies.json`; a company the
 company pages have no sector for counts as "Not classified". The analyser's
 opening portfolio (`PF_START`) and the S&P 500's falls in its three past
 episodes (`PF_FALLS`, closing high and closing low) are in `tools/build_site.py`.
+
+Your fund (`simulators/your-fund/`) reads the same files. Its ledger lives in
+the reader's browser: cash, each position at its last marked value, pending
+orders, the trade log and the fund's value on every day. On each visit
+`assets/fund.js` rolls it forward a day at a time, to the last day every
+series the fund needs has closed (a company whose prices stopped more than
+seven sessions ago does not hold it back). An order is filled at the first
+close of its company after the last one known when it was placed, so a move
+already seen cannot be bought. Because the ledger stores values, not prices,
+a revised close or a shorter history in a later build does not rewrite a
+fund's record. The chart's second benchmark, the MSCI World in US dollars
+(`WORLD` in `tools/lab_data.py`, Yahoo's `^990100-USD-STRD`), is fetched with
+the closes and rides in `assets/lab-risk-us.js`. The starting capital and the
+limit on gross exposure are `FUND_START` and `FUND_GROSS` in the build.
 
 ## World markets data
 
