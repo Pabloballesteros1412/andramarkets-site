@@ -732,9 +732,6 @@
   var searchBtn = document.querySelector(".search-btn");
   if (searchBtn) {
     var base = document.body.getAttribute("data-base") || "";
-    var mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
-    var kbd = searchBtn.querySelector("kbd");
-    if (kbd && !mac) kbd.textContent = "Ctrl K";
     searchBtn.hidden = false;
 
     var pal = document.createElement("div");

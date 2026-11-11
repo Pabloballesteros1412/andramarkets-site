@@ -1178,7 +1178,7 @@ def page(notes, cal):
         desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
         body=f"""<canvas id="scene" aria-hidden="true"></canvas>
 <header class="bar"><a class="brand" href="#top" aria-label="Andra Markets, home"><img src="assets/andra-mark-dark.png" alt="" width="140" height="160"><span>Andra Markets</span></a>
-<nav class="nav" aria-label="Sections">{menu}<a href="contact/">Contact</a></nav><button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="sheet">Menu</button></header>
+<nav class="nav" aria-label="Sections">{menu}</nav><button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="sheet">Menu</button></header>
 <nav class="sheet" id="sheet" aria-label="Menu">{menu}<a href="contact/">Contact us</a></nav>
 <nav class="rail" aria-label="Page sections"><a href="#top" aria-label="Top"></a><a href="#record" aria-label="The record"></a>{"".join(f'<a href="#{key}" aria-label="{name}"></a>' for key, name, _, _ in NAV_GROUPS)}<a href="#contact" aria-label="Contact"></a></nav>
 <main id="main">
@@ -1458,15 +1458,14 @@ def site_header(home, base, nav=True):
     # The homepage (nav=False): no search, and the legal line at the top right, as it has no footer.
     # Phones leave out the first span: the disclaimer then fits on two lines (site.css).
     search = """<button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
-      <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
+      <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span>
     </button>""" if nav else ""
     legal = "" if nav else (f'<p class="site-header__legal"><a href="{base}legal/"><span>For information only.</span> '
                             f'<span>Not investment advice.</span></a>'
                             f'<a href="{base}privacy/">Privacy and cookies</a></p>')
-    # Contact us (owner, 8 Nov 2026): at the right end of the bar, after the search or the legal
-    # line. Phones (520px and below) hide it with every header button: there it sits at the
-    # foot instead: in the footer and, on the homepage, under the four groups (.hero__contact).
-    contact = f'<a class="btn btn--sm btn--ghost contact-btn" href="{base}contact/">Contact us</a>'
+    # Search is the last thing in the bar, at its right end. Contact us and the shortcut hint
+    # beside it were taken out (owner, 11 Nov 2026): Contact us is in the footer and, on the
+    # homepage, on the closing screen; the shortcut still works.
     # The mark beside the name; the name is the link home. (The mark was the theme switch
     # until the site became one dark theme, 11 Nov 2026.)
     return f"""<header class="site-header{'' if nav else ' site-header--home'}">
@@ -1478,7 +1477,6 @@ def site_header(home, base, nav=True):
     {menu}
     {search}
     {legal}
-    {contact}
     {menu_btn}
   </div>
 </header>"""
