@@ -1,6 +1,7 @@
 """Make the particle map for the homepage hero from andra-horse.png.
 
-The hero draws the horse with one particle per inked pixel (assets/hero-horse.js).
+The homepage forms the horse from particles placed by this map, then shows the map itself
+as the finished engraving (assets/home.js).
 Since 1 Nov 2026 the drawing they settle into is the horse as the header's mark shows
 it (owner: "the small horse beside Andra Markets", tools/make_mark.py): the engraving's
 own light becomes ink, so the horse prints in ink on white and in light on black. The
@@ -9,7 +10,7 @@ particles add up where they overlap and a light wash of them reads as haze. Unti
 it was the light theme's pencil look (invert, grayscale, contrast 3). The source is
 upsampled 1.5x so the strokes stay crisp at hero size.
 
-    assets/horse-particles.png   (and a lossless .webp copy)
+    assets/horse-particles.webp  (lossless)
                                  R: ink density of each pixel (0 = none)
                                  G: 255 on the outline (inked pixels within 11px
                                     of the ground outside the horse), so the
@@ -26,7 +27,7 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "andra-horse.png"
-OUT = ROOT / "assets" / "horse-particles.png"
+OUT = ROOT / "assets" / "horse-particles.webp"
 BOX = (278, 258, 732, 774)    # the horse in the 1024px source, with a small margin
 SCALE = 1.5
 EDGE = 11                     # px at 1.5x; the light theme leaves the dark outline blank
@@ -59,10 +60,7 @@ def main():
     r = np.round(ink * 255).astype(np.uint8)
     edge = ((r > 10) & near).astype(np.uint8) * 255
     out = np.dstack([r, edge, np.zeros_like(r)])
-    Image.fromarray(out, "RGB").save(OUT, optimize=True)
-    # The hero loads the lossless WebP copy (same pixels, about a third lighter) and falls
-    # back to the PNG where WebP does not decode.
-    Image.fromarray(out, "RGB").save(OUT.with_suffix(".webp"), lossless=True, quality=100, method=6)
+    Image.fromarray(out, "RGB").save(OUT, lossless=True, quality=100, method=6)
     print(f"{OUT.relative_to(ROOT)}: {out.shape[1]}x{out.shape[0]}, "
           f"{int((r > 10).sum())} particles, {int((edge > 0).sum())} on the outline")
 
