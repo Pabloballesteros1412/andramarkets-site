@@ -1529,10 +1529,10 @@ def stoxx600_members():
     raise last or ValueError("no holdings file")
 
 
-# How many companies each market's earnings rows follow: the 200 largest in
+# How many companies each market's earnings rows follow: the 400 largest in
 # the S&P 500, in the STOXX Europe 600 and across the six Asian markets
-# (owner's request, 26 Oct 2026; it was 100, 50 and 20).
-UNIVERSE = 200
+# (owner's request, 11 Nov 2026; it was 200 each since 26 Oct 2026).
+UNIVERSE = 400
 
 # Asia: Yahoo Finance's screener ranks each market by market cap; the top
 # companies across the six markets, one listing each.
@@ -1565,8 +1565,10 @@ def pick_listing(group):
 
 # Each market's largest listings screened before the top companies across the
 # six are picked: enough that dual listings and preferred lines dropped below
-# never leave the list short (Yahoo's screener answers up to 250 a call).
-ASIA_SCREEN = 220
+# never leave the list short (Yahoo's screener answers up to 250 a call; on
+# 11 Nov 2026 the 400th company was worth $17bn and every market's 250th less
+# than $11bn, so one call a market still reaches past the cut).
+ASIA_SCREEN = 250
 
 
 def asia_universe(yahoo, n=UNIVERSE):
@@ -1837,7 +1839,7 @@ def report_type(qobs, aobs, end):
 
 
 # Per-company Yahoo requests (EPS and first-session moves) are paced and stop
-# at a time budget, so a deploy with 600 companies stays well inside its
+# at a time budget, so a deploy with 1,200 companies stays well inside its
 # 15 minutes; whatever is left is fetched first next run.
 PACE = 0.3
 YAHOO_BUDGET = float(os.environ.get("CAL_YAHOO_BUDGET", "180"))

@@ -3,7 +3,7 @@
 
 Run by .github/workflows/pages.yml after tools/calendar_data.py, before
 tools/build_site.py. Writes one file, .cache/companies/companies.json: the
-600 companies of the calendar's earnings universe (the 200 largest in the
+1,200 companies of the calendar's earnings universe (the 400 largest in the
 S&P 500, in the STOXX Europe 600 and across the six Asian markets, read from
 .cache/calendar/calendar.json) and, for each, the figures its page draws.
 build_site.py reads it; with no file there are no company pages.
@@ -54,7 +54,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / ".cache" / "companies" / "companies.json"
 CAL = ROOT / ".cache" / "calendar" / "calendar.json"
 MARKETS = ("us", "europe", "asia")
-PER_MARKET = 200  # the calendar's universe: 200 per market
+PER_MARKET = 400  # the calendar's universe: 400 per market
 BUDGET = float(os.environ.get("COMPANY_BUDGET", "1200"))
 FUND_DAYS = 5  # the fundamentals and month-end closes are refetched after this many days
 FRESH = 2 * 3600  # closes fetched less than this long ago are not fetched again

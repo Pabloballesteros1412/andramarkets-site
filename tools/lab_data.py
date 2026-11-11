@@ -14,7 +14,7 @@ pages load in the browser.
 
 Yahoo rate-limits a burst of requests, so each run fetches only the symbols
 not yet fetched today, oldest first, a fixed pause apart, and stops when its
-time budget runs out (LAB_BUDGET seconds, default 300). A symbol not reached,
+time budget runs out (LAB_BUDGET seconds, default 420). A symbol not reached,
 or one that fails, keeps its last good closes (restored by the workflow's
 cache) and is fetched first next run. Nothing here is published: the cache
 stays on the runner.
@@ -38,7 +38,7 @@ CACHE = ROOT / ".cache" / "lab" / "closes.json"
 UA = "Mozilla/5.0"  # Yahoo answers 429 to a full browser string from a script
 YEARS = 3
 PAUSE = 0.35  # seconds between requests
-BUDGET = float(os.environ.get("LAB_BUDGET", "240"))
+BUDGET = float(os.environ.get("LAB_BUDGET", "420"))
 # Benchmarks Yahoo keeps no history for, and the index used for beta instead.
 RISK_BENCH = {"000300.SS": ("000001.SS", "Shanghai Composite")}
 # Prices Yahoo quotes in a hundredth of the currency: the returns are the same.
