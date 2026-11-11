@@ -1092,11 +1092,9 @@ def finite(v):
 # Page ------------------------------------------------------------------------
 
 THEME_BOOT = (
-    "(function(){var t='dark';try{var q=new URLSearchParams(location.search).get('theme');"
-    "if(q==='light'||q==='dark'){t=q;localStorage.setItem('andra-theme',q)}"
-    "else{var s=localStorage.getItem('andra-theme');if(s==='light'||s==='dark')t=s}}catch(e){}"
+    "(function(){var t='dark';"
     "document.documentElement.setAttribute('data-theme',t);"
-    "var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0a0c0d':'#ffffff'})();"
+    "var m=document.querySelector('meta[name=theme-color]');if(m)m.content='#000000'})();"
 )
 
 # Moving between pages (owner-approved, 1 Nov 2026). From the homepage, its hero goes back
@@ -1146,45 +1144,62 @@ SPECULATION = ('<script type="speculationrules">'
                '</script>')
 
 
+HOME_COPY = {"markets": "Prices, rates and what is coming.", "tools": "Fourteen tools that run in your browser.",
+             "research": "What happened and why, after every close.", "careers": "For students breaking into markets."}
+# The financial centres marked on the homepage's globe (latitude, longitude).
+HOME_CITIES = ((40.7, -74), (51.5, -0.1), (35.7, 139.7), (22.3, 114.2), (31.2, 121.5), (48.9, 2.3), (50.1, 8.7),
+               (47.4, 8.5), (19.1, 72.9), (-23.5, -46.6), (43.7, -79.4), (-33.9, 151.2), (1.35, 103.8), (37.6, 127),
+               (25.0, 121.5), (52.4, 4.9), (40.4, -3.7), (45.5, 9.2), (59.3, 18.1), (19.4, -99.1), (-26.2, 28),
+               (24.7, 46.7), (-6.2, 106.8), (41.0, 29), (55.7, 12.6))
+HOME_ARROW = ('<svg class="arr" viewBox="0 0 64 10" aria-hidden="true"><path d="M0 5h62M57 1l5 4-5 4" fill="none" '
+              'stroke="currentColor" stroke-width="1"/></svg>')
+
+
 def page(notes, cal):
-    """The homepage: one screen, the phrase on top, the horse in the middle and the four
-    groups of the header menu around it (owner-approved, 1 Nov 2026; it was the headline,
-    the latest close note and an index of every section). No header menu and no footer:
-    the groups are the way in."""
+    """The homepage: a horizon of light, the horse forming from its dust beside the statement,
+    then one screen for each group of the menu and a closing screen (assets/home.css,
+    assets/home.js). The Research chart is the S&P 500 at the close of every published note."""
+    import math
+    spx = [n["closes"]["spx"]["last"] for n in sorted(notes, key=lambda n: n["date"])
+           if (n.get("closes") or {}).get("spx", {}).get("last")]
+    data = {"spx": spx or [0, 0],
+            "nodes": [[round(math.radians(a), 3), round(math.radians(o), 3)] for a, o in HOME_CITIES],
+            "horse": f'assets/horse-particles.webp?v={ver("horse-particles.webp")}'}
+    groups = "".join(
+        f'<section class="sec sec--l" id="{key}" data-shape="{i + 1}"><div class="sec__in"><h2>{name}</h2>'
+        f'<p class="copy">{HOME_COPY[key]}</p><ul class="links">'
+        + "".join(f'<li><a href="{href}">{label}</a></li>' for label, href, _ in links) + "</ul></div></section>\n"
+        for i, (key, name, _, links) in enumerate(NAV_GROUPS))
+    menu = "".join(f'<a href="#{key}">{name}</a>' for key, name, _, _ in NAV_GROUPS)
+    words = " ".join(f'<span class="w">{w}</span>' for w in
+                     "What moved, and why. Every trading day, after the New York close.".split())
+    year = dt.datetime.now(dt.timezone.utc).year
     return shell(
         title="Andra Markets: markets research platform",
         desc="Andra Markets is a markets research platform: dashboards, quant tools, an economic calendar, a daily close note, research and a guide to breaking into Wall Street.",
-        body=f"""<main id="main" class="home">
-  <section class="hero" id="top" aria-labelledby="hero-title">
-    <div class="hero__stage">
-      <span class="hero__sentinel" aria-hidden="true"></span>
-      <div class="hero__art" aria-hidden="true">
-        <img class="horse" data-src="assets/andra-horse.png" alt="" width="1024" height="1024" decoding="async">
-        <script>if(!window.__heroMap)__heroStill()</script>
-        <noscript><img class="horse" src="assets/andra-horse.png" alt="" width="1024" height="1024" decoding="async"></noscript>
-      </div>
-      <canvas class="hero__canvas" data-src="assets/horse-particles.png?v={ver("horse-particles.png")}" data-next="assets/section-horse.png?v={ver("section-horse.png")}" aria-hidden="true"></canvas>
-      <div class="wrap hero__copy">
-        <h1 id="hero-title" style="--i:0">Markets, on&nbsp;the&nbsp;record.</h1>
-        <nav class="hero__index" aria-label="All sections" style="--i:2">{hero_groups()}</nav>
-        <a class="btn btn--sm btn--ghost hero__contact" href="contact/" style="--i:3">Contact us</a>
-      </div>
-    </div>
-  </section>
-</main>""",
+        body=f"""<canvas id="scene" aria-hidden="true"></canvas>
+<header class="bar"><a class="brand" href="#top" aria-label="Andra Markets, home"><img src="assets/andra-mark-dark.png" alt="" width="140" height="160"><span>Andra Markets</span></a>
+<nav class="nav" aria-label="Sections">{menu}<a href="contact/">Contact</a></nav><button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="sheet">Menu</button></header>
+<nav class="sheet" id="sheet" aria-label="Menu">{menu}<a href="contact/">Contact us</a></nav>
+<nav class="rail" aria-label="Page sections"><a href="#top" aria-label="Top"></a><a href="#record" aria-label="The record"></a>{"".join(f'<a href="#{key}" aria-label="{name}"></a>' for key, name, _, _ in NAV_GROUPS)}<a href="#contact" aria-label="Contact"></a></nav>
+<main id="main">
+<section class="sec sec--hero" id="top" data-shape="0"><div class="sec__in"><h1>Markets, on the record.</h1></div></section>
+<section class="sec statement" id="record" data-shape="0"><p class="state">{words}</p></section>
+{groups}<section class="sec sec--end" id="contact" data-shape="5"><div class="sec__in"><h2>On the record, every trading day.</h2>
+<a class="go" href="contact/">Contact us{HOME_ARROW}</a></div>
+<footer class="foot"><span>&copy; {year} Andra Markets</span><span><a href="legal/">For information only. Not investment advice.</a> &middot; <a href="privacy/">Privacy and cookies</a></span></footer></section>
+</main>
+<script type="application/json" id="home-data">{json.dumps(data, separators=(",", ":"))}</script>""",
         home="",
         base="",
-        scripts=("hero-horse.js",),
+        scripts=("home.js",),
         nav=False,
         footer=False,
+        scene=False,
+        bare=("home.css",),
         ld={"@context": "https://schema.org", "@graph": [
             ld_org(), dict({"@type": "WebSite", "name": "Andra Markets"}, **({"url": abs_url()} if SITE_URL else {}))]},
-        # the particle map is what the hero waits for: fetch it before anything else (the
-        # WebP copy; a browser that cannot decode WebP skips this and HERO_BOOT loads the PNG).
-        # HERO_BOOT runs in the head, so the header, which forms from the particles too, is
-        # clear before it is parsed.
-        head=(f'\n<link rel="preload" href="assets/horse-particles.webp?v={ver("horse-particles.webp")}" as="image" type="image/webp" fetchpriority="high">'
-              f'\n<script>{hero_boot()}</script>'),
+        head=f'\n<link rel="preload" href="assets/horse-particles.webp?v={ver("horse-particles.webp")}" as="image" type="image/webp">',
     )
 
 
@@ -1288,6 +1303,94 @@ def hero_boot():
 # Simulators in six themes. Each theme is a page of its own (owner, 4 Nov 2026: a link
 # into the Lab page halfway down did not feel like a section), as in the other groups:
 # TOOL_THEMES builds them.
+# The picture of each group, drawn in lines in the middle of its menu: the same four scenes
+# as the homepage (assets/home.js), as still drawings. The Research one is the S&P 500 at the
+# close of every published note.
+def _proj(p, yaw, pitch):
+    x, y, z = p
+    c, sn = math.cos(yaw), math.sin(yaw)
+    x, z = c * x + sn * z, -sn * x + c * z
+    c, sn = math.cos(pitch), math.sin(pitch)
+    y, z = c * y - sn * z, sn * y + c * z
+    k = 3.4 / (3.4 - z)
+    return x * k, -y * k, z
+
+
+def _paths(lines, yaw, pitch, hide_back=False):
+    front, back = [], []
+    for pts in lines:
+        run, was_back = [], None
+        for q in pts:
+            X, Y, Z = _proj(q, yaw, pitch)
+            is_back = hide_back and Z < 0
+            if was_back is not None and is_back != was_back and run:
+                (back if was_back else front).append(run + [(X, Y)])
+                run = []
+            run.append((X, Y))
+            was_back = is_back
+        if len(run) > 1:
+            (back if was_back else front).append(run)
+    d = lambda runs: "".join("M" + "L".join(f"{x:.3f},{y:.3f}" for x, y in r) for r in runs)
+    return (f'<path class="bk" d="{d(back)}"/>' if back else "") + f'<path d="{d(front)}"/>'
+
+
+_NAV_ART = {}
+
+
+def nav_art(key):
+    if key in _NAV_ART:
+        return _NAV_ART[key]
+    lin = lambda a, b, n: [a + (b - a) * i / n for i in range(n + 1)]
+    if key == "markets":
+        r, lines = 0.82, []
+        for lat in (-1.05, -0.7, -0.35, 0, 0.35, 0.7, 1.05):
+            lines.append([(r * math.cos(lat) * math.cos(t), r * math.sin(lat), r * math.cos(lat) * math.sin(t)) for t in lin(0, math.tau, 96)])
+        for k in range(12):
+            lon = k / 12 * math.tau
+            lines.append([(r * math.cos(t) * math.cos(lon), r * math.sin(t), r * math.cos(t) * math.sin(lon)) for t in lin(-1.5708, 1.5708, 48)])
+        body = _paths(lines, 0.5, 0.28, hide_back=True)
+        body += _paths([[(math.cos(t) * 1.16, math.sin(t) * 1.16 * 0.32, math.sin(t) * 1.16 * 0.95) for t in lin(0, math.tau, 120)]], 0.5, 0.28)
+    elif key == "tools":
+        def f(x, z):
+            tm = (z + 1) / 2
+            return (x * 0.98, (-0.42 + 0.62 * x * x * (1.25 - 0.75 * tm) + 0.2 * math.exp(-2.2 * tm) - 0.1 * x * (1 - tm)) * 0.9, z * 0.8)
+        lines = [[f((k - 6) / 6, z) for z in lin(-1, 1, 40)] for k in range(13)] + [[f(x, (k - 5) / 5) for x in lin(-1, 1, 40)] for k in range(11)]
+        body = _paths(lines, -0.5, 0.42)
+    elif key == "research":
+        vals = []
+        for fp in sorted((ROOT / "data" / "notes").glob("*.json")):
+            try:
+                rec = json.loads(fp.read_text(encoding="utf-8"))
+                v = (rec.get("closes") or {}).get("spx", {}).get("last")
+                if v and rec.get("published", True):
+                    vals.append(v)
+            except Exception:
+                pass
+        vals = vals or [1, 1]
+        lo, hi = min(vals), max(vals)
+        sy = lambda v: (-0.5 + (v - lo) / ((hi - lo) or 1) * 1.05) * 0.85
+        xs = [-0.92 + j / max(1, len(vals) - 1) * 1.84 for j in range(len(vals))]
+        lines = [[(x, sy(v), 0) for x, v in zip(xs, vals)]] + [[(x, -0.62 * 0.85, 0), (x, sy(v), 0)] for x, v in zip(xs, vals)]
+        body = _paths(lines, 0, 0)
+    else:
+        hs, lines = (0.28, 0.44, 0.36, 0.64, 0.56, 0.86, 0.78, 1.08, 1.3), []
+        cx = ((len(hs) - 1) * 0.215 + 0.15) / 2
+        for j, h in enumerate(hs):
+            x0, zc = j * 0.215, (j % 3 - 1) * 0.08
+            P = lambda x, y, z: ((x0 + x * 0.15 - cx) * 0.78, (-0.62 + y * h) * 0.92 + 0.02, (zc + (z - 0.5) * 0.15) * 0.9)
+            for y in (0, 1):
+                lines.append([P(0, y, 0), P(1, y, 0), P(1, y, 1), P(0, y, 1), P(0, y, 0)])
+            for x, z in ((0, 0), (1, 0), (1, 1), (0, 1)):
+                lines.append([P(x, 0, z), P(x, 1, z)])
+            rows = max(2, round(h / 0.1))
+            for rr in range(rows):
+                y = (rr + 0.5) / rows
+                lines.append([P(0, y, 1), P(1, y, 1), P(1, y, 0)])
+        body = _paths(lines, -0.45, 0.16)
+    _NAV_ART[key] = f'<svg class="nav__art" viewBox="-1.4 -1.05 2.8 2.1" aria-hidden="true">{body}</svg>'
+    return _NAV_ART[key]
+
+
 NAV_GROUPS = (
     ("markets", "Markets", "Prices, rates and what is coming, with each figure's source and date.", (
         ("Dashboards", "dashboards/", "Nine views across rates, equities, macro and cross-asset."),
@@ -1367,7 +1470,7 @@ def nav_menu(base):
         <button class="nav__btn" type="button" aria-expanded="false" aria-controls="nav-{key}">{name}<svg class="icon nav__caret" aria-hidden="true"><use href="#i-caret-down"/></svg></button>
         <div class="nav__panel" id="nav-{key}">
           <div class="nav__inner">
-            <div class="nav__intro"><p class="nav__title">{name}</p><p class="nav__desc">{intro}</p></div>
+            <div class="nav__intro">{nav_art(key)}<p class="nav__title">{name}</p><p class="nav__desc">{intro}</p></div>
             <ul class="nav__links{' nav__links--two' if len(links) > 2 else ''}">{items}</ul>
           </div>
         </div>
@@ -1425,31 +1528,12 @@ def site_footer(home, base):
       <p>Research on US and global markets.</p>
       <a class="btn btn--sm btn--ghost foot__contact" href="{base}contact/">Contact us</a>
     </div>
-    <nav class="foot__nav" aria-label="Footer">
-      <a href="{base}dashboards/">Dashboards</a>
-      <a href="{base}fed-rates/">Fed &amp; Rates</a>
-      <a href="{base}companies/">Companies</a>
-      <a href="{base}lab/">Lab</a>
-      <a href="{base}simulators/">Simulators</a>
-      <a href="{base}calendar/">Calendar</a>
-      <a href="{base}world/">World markets</a>
-      <a href="{base}fx/">FX</a>
-      <a href="{base}research/">Research Library</a>
-      <a href="{base}reports/">Daily note</a>
-      <a href="{base}chart-of-the-day/">Chart of the day</a>
-      <a href="{base}central-banks/">Central banks</a>
-      <a href="{base}recession-watch/">Recession watch</a>
-      <a href="{base}market-history/">Market history</a>
-      <a href="{base}interview-prep/">Interview prep</a>
-      <a href="{base}interview-simulator/">Interview simulator</a>
-      <a href="{base}break-into-wall-street/">Break into Wall Street</a>
-      <a href="{base}recruiting-calendar/">Recruiting calendar</a>
-      <a href="{base}firms/">Firms</a>
-      <a href="{base}application-tracker/">Application tracker</a>
-      <a href="{base}methodology/">Methodology</a>
-      <a href="{base}sources/">Data sources</a>
-      <a href="{base}legal/">Legal notice</a>
-      <a href="{base}privacy/">Privacy and cookies</a>
+    <nav class="foot__nav foot__nav--groups" aria-label="Footer">
+      <div class="foot__group"><p class="foot__gt">Markets</p><a href="{base}dashboards/">Dashboards</a><a href="{base}fed-rates/">Fed &amp; Rates</a><a href="{base}calendar/">Calendar</a><a href="{base}world/">World markets</a><a href="{base}fx/">FX</a><a href="{base}companies/">Companies</a></div>
+      <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}lab/">Lab</a><a href="{base}simulators/">Simulators</a></div>
+      <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}reports/">Daily note</a><a href="{base}research/">Research Library</a><a href="{base}chart-of-the-day/">Chart of the day</a><a href="{base}central-banks/">Central banks</a><a href="{base}recession-watch/">Recession watch</a><a href="{base}market-history/">Market history</a></div>
+      <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}interview-prep/">Interview prep</a><a href="{base}interview-simulator/">Interview simulator</a><a href="{base}break-into-wall-street/">Break into Wall Street</a><a href="{base}recruiting-calendar/">Recruiting calendar</a><a href="{base}firms/">Firms</a><a href="{base}application-tracker/">Application tracker</a></div>
+      <div class="foot__group"><p class="foot__gt">Andra Markets</p><a href="{base}methodology/">Methodology</a><a href="{base}sources/">Data sources</a><a href="{base}legal/">Legal notice</a><a href="{base}privacy/">Privacy and cookies</a></div>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
 {social_links}
@@ -1501,7 +1585,7 @@ def ld_org():
 
 
 def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=True, head="", scene=None,
-          index=True, ld=None, published=None, og=None):
+          index=True, ld=None, published=None, og=None, bare=None):
     """One page. index=False (redirects) keeps it out of search engines and the sitemap;
     ld is the page's schema.org structured data; published (ISO) marks an article.
     og: (image path from the site root, alt text) for a page with a share image of its
@@ -1526,9 +1610,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
     # Every section page sits inside the black sphere with the backlit horse (assets/section-scene.js,
     # owner-approved 31 Oct 2026); the homepage has its own hero, redirects need nothing.
     scene = nav if scene is None else scene
-    scripts = (*scripts, "section-scene.js") if scene else scripts
-    scene_html = (f'<div class="scene" aria-hidden="true"><canvas class="scene__canvas" '
-                  f'data-src="{base}assets/section-horse.png?v={ver("section-horse.png")}"></canvas></div>\n') if scene else ""
+    scene_html = ""
     # The sphere's horse texture is asked for with the page, not once its script has run, so it
     # is in before the first frame: put on the GPU then, not in the middle of the sphere opening.
     scene_head = (f'<script>{ARRIVE_BOOT}{MOVE_BOOT}</script>\n<style>{VIEW_TRANSITION}</style>\n'
@@ -1547,7 +1629,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
-<meta name="theme-color" content="#0a0c0d">
+<meta name="theme-color" content="#000000">
 <script>{THEME_BOOT}</script>
 {scene_head}<link rel="icon" href="{base}assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="{base}assets/favicon-48.png" sizes="48x48" type="image/png">
@@ -1561,21 +1643,21 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{og_alt}">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preload" href="{base}assets/fonts/schibsted-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="{base}assets/site.css?v={ver("site.css")}">{head}
+<link rel="preload" href="{base}assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+{"".join(f'<link rel="stylesheet" href="{base}assets/{c}?v={ver(c)}">' for c in (bare or ("site.css", "theme.css")))}{head}
 {SPECULATION}
 </head>
 <body data-base="{base}"{' class="has-scene"' if scene else ""}>
-{scene_html}{sprite()}
+{scene_html}{"" if bare else sprite()}
 <a class="skip" href="#main">Skip to content</a>
 
-{site_header(home, base, nav)}
+{"" if bare else site_header(home, base, nav)}
 
 {body}
 
 {site_footer(home, base) if footer else ""}
 
-<script src="{base}assets/site.js?v={ver("site.js")}" defer></script>{"".join(f'<script src="{base}assets/{js}?v={ver(js)}" defer></script>' for js in scripts)}{beacon}
+{"" if bare else f'<script src="{base}assets/site.js?v={ver("site.js")}" defer></script>'}{"".join(f'<script src="{base}assets/{js}?v={ver(js)}" defer></script>' for js in scripts)}{beacon}
 </body>
 </html>
 """

@@ -3,7 +3,11 @@
 The Andra Markets website: a markets research platform with dashboards, quant
 tools, an economic calendar, a daily close note, a research library, interview prep and explainers.
 
-- `assets/`: stylesheet, script, self-hosted font, brand mark.
+- `assets/`: stylesheets, scripts, self-hosted font, brand mark.
+- `assets/theme.css`: the new look (11 Nov 2026), loaded after `site.css` on every inner page: one dark theme, Geist, no boxes (DESIGN.md, The new look).
+- `assets/home.css`, `assets/home.js`: the homepage, which loads neither `site.css` nor `site.js`: a WebGL scene of light with full-screen sections over it.
+- `assets/fonts/geist-latin.woff2`: Geist (SIL OFL 1.1, `OFL-Geist.txt`).
+- `docs/gallop-frames/`: five engraved gallop poses supplied by the owner for a homepage idea that was not used.
 - `tools/build_site.py`: generates every page from one shell. Edit markup here, except for the section pages added on 1 Nov 2026, which each live in their own module, `tools/page_<name>.py` (`pages(site)` returns their HTML; `site` is build_site itself, for its shell and helpers). It also writes `assets/search-index.js` (the header search index, not committed).
 - `tools/check_site.py`: run after the build, at every deploy. It fails the deploy if a close note page came out without a section its note has, or the homepage index lacks a section of the menu, so the live site keeps its last good version.
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
@@ -34,8 +38,8 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `assets/profile.js`, `worker/`: the live company data on the Companies pages (search, live price, news, analysts, other US companies) and the Cloudflare Worker it reads from (below).
 - `tools/make_mark.py`: makes the transparent header and footer marks from `andra-horse.png`.
-- `assets/hero-horse.js`, `tools/make_horse_particles.py`: the homepage hero's particle horse and the particle map it is drawn from (`assets/horse-particles.png`, made from `andra-horse.png`). A click on a link to another page takes the hero back into the point it formed from before the page opens (DESIGN.md, Page transitions).
-- `assets/section-scene.js`, `tools/make_section_horse.py`: the section pages' backdrop (a black sphere of floating particles with the horse lit from behind) and the horse texture it uses (`assets/section-horse.png`, made from `andra-horse.png`). Arriving from the homepage the sphere opens out of that point; from one section to the next it carries on while the page changes (the next one rises into place; from the menu, the section's name flies into its title: DESIGN.md, Page transitions).
+- (No longer loaded since the new look of 11 Nov 2026; kept for reference. The homepage still uses `assets/horse-particles.webp`, which `tools/make_horse_particles.py` makes.) `assets/hero-horse.js`, `tools/make_horse_particles.py`: the homepage hero's particle horse and the particle map it is drawn from (`assets/horse-particles.png`, made from `andra-horse.png`). A click on a link to another page takes the hero back into the point it formed from before the page opens (DESIGN.md, Page transitions).
+- (No longer loaded since the new look of 11 Nov 2026; kept for reference.) `assets/section-scene.js`, `tools/make_section_horse.py`: the section pages' backdrop (a black sphere of floating particles with the horse lit from behind) and the horse texture it uses (`assets/section-horse.png`, made from `andra-horse.png`). Arriving from the homepage the sphere opens out of that point; from one section to the next it carries on while the page changes (the next one rises into place; from the menu, the section's name flies into its title: DESIGN.md, Page transitions).
 - `data/notes/<date>.json`: one record per close note: its text and the ten
   closing levels for the tape. No PDF or facts file is ever stored here.
 - `DESIGN.md`: the design system. Every page follows it.

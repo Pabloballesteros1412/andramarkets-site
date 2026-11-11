@@ -71,7 +71,7 @@ def check_home():
     """The homepage index is the homepage's only menu: it must list every section the
     inner pages' menu lists."""
     home = nav_links((ROOT / "index.html").read_text(encoding="utf-8"),
-                     r'<nav class="hero__index"[^>]*>(.*?)</nav>')
+                     r'<main id="main">(.*?)</main>')
     menu = nav_links((site.REPORTS / "index.html").read_text(encoding="utf-8"),
                      r'<nav class="nav"[^>]*>(.*?)</nav>')
     if not home:
