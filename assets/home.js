@@ -24,7 +24,7 @@
     "  vec3 arcW=vec3((vec2(uHc.x,uHc.y-uRr)+(uRr+lift)*vec2(sin(th),cos(th)))*(3.4/2.75),0.0);",
     "  float hvB=0.75*mix(1.0,0.12,clamp(lift*2.2,0.0,1.0))*(0.1+0.9*exp(-abs(sin(th))*uRr*1.5));",
     "  float nt=clamp((uNight-aR.x*0.3)/0.7,0.0,1.0); nt=nt*nt*(3.0-2.0*nt);",
-    "  vec3 hp=h0*uObj*uHS+uOff[0]+nz(h0*3.0+aR.y*7.0+uTime*0.2)*0.2*sin(3.14159*nt);",
+    "  vec3 hp=h0*uObj*uHS+uOff[0]+nz(h0*3.0+aR.y*7.0+uTime*0.2)*0.13*sin(3.14159*nt);",
     "  float w; w=(1.0-ft)*step(abs(uA-0.0),0.5)+ft*step(abs(uB-0.0),0.5); float w0=w; p+=w*mix(mix(arcW,hp,nt),rot(h0,uRot[0]),amb); wh+=w;",
     "  w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); float w1=w*(1.0-amb); float bf=mix(1.0,mix(0.07,1.0,smoothstep(-0.06,0.06,g1.z)),step(dot(a1,a1),0.9)); p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb));",
     "  w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); p+=w*(rot(a2+vec3(0.0,0.05*sin(a2.x*3.0+a2.z*2.0+uTime*0.9),0.0)*(1.0-amb),uRot[2])*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb));",
@@ -44,8 +44,8 @@
     "  float hk=wh*(1.0-amb); size=mix(size,max(1.0,1.15*uDpr/max(1.0,uDpr*0.8)),hk*(1.0-burst));",
     "  float sub=min(1.0,size*size); gl_PointSize=clamp(size,1.0,40.0*uDpr);",
     "  float br=mix(0.62,clamp(aR.w,0.0,1.0),0.0); br=mix(br,0.5,amb);",
-    "  float g=br*sub*uIntro/(1.0+coc*coc*18.0*amb)*(1.0-0.4*burst)*mix(uVis*0.34*uGain,0.3,amb)*mix(1.0,bf,w1);",
-    "  float hv=step(aR.x,uHV)*uIntro*clamp(pow(aR.w,1.2)*0.96,0.0,1.0)*nt*step(0.001,w0);",
+    "  float g=br*sub*uIntro/(1.0+coc*coc*18.0*amb)*(1.0-0.78*burst)*mix(uVis*0.34*uGain,0.3,amb)*mix(1.0,bf,w1);",
+    "  float hv=step(aR.x,uHV)*uIntro*clamp(pow(aR.w,1.2)*0.96,0.0,1.0)*nt*mix(0.22,1.0,smoothstep(0.72,1.0,nt))*step(0.001,w0);",
     "  vA=mix(g,hv*(1.0-uImg),hk);",
     "}"].join("\n");
   var FS = "precision mediump float; varying float vA; uniform vec3 uCol; void main(){ vec2 d=gl_PointCoord-0.5; float r=dot(d,d)*4.0; float a=(1.0-smoothstep(0.0,1.0,r))*vA; gl_FragColor=vec4(uCol*a,1.0); }";
@@ -222,7 +222,7 @@
     var cyc = 0, f0 = Math.floor(cyc * NF) % NF, f1 = (f0 + 1) % NF, la0 = gl.getAttribLocation(pr, "aFa"), la1 = gl.getAttribLocation(pr, "aFb");
     gl.bindBuffer(gl.ARRAY_BUFFER, FB[f0]); gl.enableVertexAttribArray(la0); gl.vertexAttribPointer(la0, 2, gl.SHORT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, FB[f1]); gl.enableVertexAttribArray(la1); gl.vertexAttribPointer(la1, 2, gl.SHORT, false, 0, 0);
-    gl.uniform1f(U.uImg, imgA); gl.uniform1f(U.uFt, 0); gl.uniform1f(U.uHV, Math.min(1, Math.max(0.01, 0.62 * (hh * H * DPR) * (hh * H * DPR * FW / FH) / N))); gl.uniform1f(U.uNight, night); gl.uniform1f(U.uHS, hs); gl.uniform2f(U.uHc, 0, feet); gl.uniform1f(U.uRr, port ? 2.2 : 3.4);
+    gl.uniform1f(U.uImg, imgA); gl.uniform1f(U.uFt, 0); gl.uniform1f(U.uHV, Math.min(1, Math.max(0.01, (small ? 0.2 : 0.4) * (hh * H * DPR) * (hh * H * DPR * FW / FH) / N))); gl.uniform1f(U.uNight, night); gl.uniform1f(U.uHS, hs); gl.uniform2f(U.uHc, 0, feet); gl.uniform1f(U.uRr, port ? 2.2 : 3.4);
     var rl = gl.getAttribLocation(pr, "aR"); gl.bindBuffer(gl.ARRAY_BUFFER, rbuf); gl.enableVertexAttribArray(rl); gl.vertexAttribPointer(rl, 4, gl.FLOAT, false, 0, 0);
     gl.uniform1f(U.uA, A); gl.uniform1f(U.uB, B); gl.uniform1f(U.uT, Tm); gl.uniform1f(U.uTime, tt); gl.uniform1f(U.uAspect, asp); gl.uniform1f(U.uDpr, DPR); var it = reduce ? 1 : Math.min(1, t / 3.4); gl.uniform1f(U.uIntro, 1 - Math.pow(1 - it, 3));
     gl.uniform1f(U.uObj, obj); gl.uniform1f(U.uPx, DPR * H / 900 * (small ? 1.15 : 1)); gl.uniform1f(U.uVis, 1);
@@ -230,7 +230,7 @@
     gl.uniform2fv(U.uRot, new Float32Array(rot)); gl.uniform3fv(U.uOff, new Float32Array(off)); gl.uniform2f(U.uPtr, ptr[0], ptr[1]);
     // keep it smooth: if frames run long, draw fewer of the (randomly ordered) particles, each a little brighter
     if (lastNow) { ftAcc += now - lastNow; ftN++; if (ftN >= 45) { var avg = ftAcc / ftN; ftAcc = ftN = 0; if (avg > 30 && drawN > 250000) drawN = Math.max(250000, Math.round(drawN * 0.72)); else if (avg < 15 && drawN < N) drawN = Math.min(N, Math.round(drawN * 1.12)); } } lastNow = now;
-    gl.uniform1f(U.uGain, Math.min(3, 0.3 * 1600000 / drawN) * (small ? 0.5 : 1));
+    gl.uniform1f(U.uGain, Math.min(3, 0.3 * 1600000 / drawN) * (small ? 0.2 : 1));
     gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); gl.drawArrays(gl.POINTS, 0, drawN);
     // text
     var y = window.scrollY || 0, vh = innerHeight, act = 0, bd = 1e9;
