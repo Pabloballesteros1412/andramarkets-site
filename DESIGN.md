@@ -2,190 +2,113 @@
 name: Andra Markets
 description: A markets research platform on the record. Black ground, light Geist type, words and hairlines instead of boxes, a horizon of light and the engraved horse, red and green only for rises and falls.
 colors:
-  ground: "#ffffff"
-  ground-2: "#e9eded"
-  ink: "#0e1215"
-  ink-2: "#424a50"
-  ink-3: "#5a6268"
-  rule: "rgba(14, 18, 21, 0.15)"
-  rule-strong: "rgba(14, 18, 21, 0.78)"
-  btn-bg: "#0e1215"
-  btn-fg: "#ffffff"
-  btn-hover: "#2a3036"
-  plate: "#0e1215"
-  plate-2: "#191f23"
-  plate-hover: "#232a2f"
-  plate-ink: "#eef1f1"
-  plate-ink-2: "#b4bbbf"
-  plate-rule: "rgba(238, 241, 241, 0.16)"
-  chart-line: "#0e1215"
-  chart-grid: "rgba(14, 18, 21, 0.1)"
-  chart-fill: "rgba(14, 18, 21, 0.08)"
-  up: "#00a050"
-  down: "#e0202a"
-  up-text: "#00773b"
-  down-text: "#d01c25"
-  up-tint: "rgba(0, 160, 80, 0.24)"
-  down-tint: "rgba(224, 32, 42, 0.22)"
-  select: "rgba(14, 18, 21, 0.14)"
-  focus: "#0e1215"
-  ground-dark: "#0a0c0d"
-  ground-2-dark: "#14181b"
-  ink-dark: "#e9eceb"
-  ink-2-dark: "#a8b0b4"
-  ink-3-dark: "#899196"
-  rule-dark: "rgba(233, 236, 235, 0.13)"
-  rule-strong-dark: "rgba(233, 236, 235, 0.7)"
-  btn-bg-dark: "#e9eceb"
-  btn-fg-dark: "#0a0c0d"
-  btn-hover-dark: "#ffffff"
-  plate-dark: "#1a2024"
-  plate-2-dark: "#252c31"
-  plate-hover-dark: "#2d353a"
-  plate-ink-dark: "#e9eceb"
-  plate-ink-2-dark: "#a8b0b4"
-  plate-rule-dark: "rgba(233, 236, 235, 0.14)"
-  chart-line-dark: "#e9eceb"
-  chart-grid-dark: "rgba(233, 236, 235, 0.09)"
-  chart-fill-dark: "rgba(233, 236, 235, 0.08)"
-  up-dark: "#1fd27a"
-  down-dark: "#ff4b52"
-  up-text-dark: "#1fd27a"
-  down-text-dark: "#ff4b52"
-  up-tint-dark: "rgba(31, 210, 122, 0.2)"
-  down-tint-dark: "rgba(255, 75, 82, 0.2)"
-  select-dark: "rgba(233, 236, 235, 0.22)"
-  focus-dark: "#e9eceb"
-  up-plate: "#1fd27a"
-  down-plate: "#ff4b52"
-  up-tint-plate: "rgba(31, 210, 122, 0.3)"
-  down-tint-plate: "rgba(255, 75, 82, 0.3)"
-  hero-vignette-dark: "rgba(10, 12, 13, 0.75)"
+  ground: "#000000"
+  ground-2: "#0c0d0e"
+  ink: "#f2f3f3"
+  ink-2: "#a3a8aa"
+  ink-3: "#74797c"
+  rule: "rgba(242, 243, 243, 0.10)"
+  rule-strong: "rgba(242, 243, 243, 0.26)"
+  btn-bg: "#f2f3f3"
+  btn-fg: "#000000"
+  btn-hover: "#ffffff"
+  plate: "#0b0c0d"
+  plate-2: "#121415"
+  plate-hover: "#1a1c1e"
+  plate-ink: "#f2f3f3"
+  plate-ink-2: "#a3a8aa"
+  plate-rule: "rgba(242, 243, 243, 0.12)"
+  chart-line: "#f2f3f3"
+  chart-grid: "rgba(242, 243, 243, 0.08)"
+  chart-fill: "rgba(242, 243, 243, 0.07)"
+  up: "#1fd27a"
+  down: "#ff4b52"
+  up-text: "#1fd27a"
+  down-text: "#ff4b52"
+  up-tint: "rgba(31, 210, 122, 0.2)"
+  down-tint: "rgba(255, 75, 82, 0.2)"
+  select: "rgba(242, 243, 243, 0.22)"
+  focus: "#f2f3f3"
+  scrim: "rgba(0, 0, 0, 0.7)"
 typography:
   display:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(3rem, 8vw, 6rem)"
-    fontWeight: 560
-    lineHeight: 0.98
-    letterSpacing: "-0.04em"
-  closing-title:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(2.5rem, 5.6vw, 4.75rem)"
-    fontWeight: 540
-    lineHeight: 0.98
-    letterSpacing: "-0.04em"
-  page-title:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(2.5rem, 6vw, 4.5rem)"
-    fontWeight: 560
-    lineHeight: 1
-    letterSpacing: "-0.04em"
-  section-title:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(2rem, 4.2vw, 3.5rem)"
-    fontWeight: 540
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
+    fontSize: "clamp(2.5rem, 5.8vw, 5.5rem)"
+    fontWeight: 300
     lineHeight: 1.02
     letterSpacing: "-0.035em"
-  statement:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(1.5rem, 3vw, 2.5rem)"
-    fontWeight: 480
-    lineHeight: 1.18
-    letterSpacing: "-0.026em"
-  feature-title:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(1.5rem, 2.4vw, 2rem)"
-    fontWeight: 540
-    lineHeight: 1.1
-    letterSpacing: "-0.028em"
-  note-title:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(1.375rem, 2.2vw, 1.875rem)"
-    fontWeight: 520
-    lineHeight: 1.15
-    letterSpacing: "-0.022em"
-  tool-title:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(1.375rem, 2vw, 1.75rem)"
-    fontWeight: 540
-    lineHeight: 1.1
-    letterSpacing: "-0.025em"
+  page-title:
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
+    fontSize: "clamp(2.5rem, 6vw, 4.5rem)"
+    fontWeight: 300
+    lineHeight: 1
+    letterSpacing: "-0.038em"
+  section-title:
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
+    fontSize: "clamp(2rem, 4.2vw, 3.5rem)"
+    fontWeight: 300
+    lineHeight: 1.02
+    letterSpacing: "-0.038em"
   page-section-title:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
     fontSize: "1.375rem"
-    fontWeight: 540
+    fontWeight: 400
     lineHeight: 1.55
-    letterSpacing: "-0.02em"
-  tile-title:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(1.1875rem, 1.5vw, 1.375rem)"
-    fontWeight: 540
-    lineHeight: 1.15
     letterSpacing: "-0.02em"
   list-title:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
     fontSize: "1.1875rem"
-    fontWeight: 540
+    fontWeight: 400
     lineHeight: 1.55
-    letterSpacing: "-0.015em"
-  hero-sub:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "clamp(1.0625rem, 1.4vw, 1.25rem)"
-    fontWeight: 400
-    lineHeight: 1.45
-    letterSpacing: "normal"
+    letterSpacing: "-0.012em"
   lede:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
     fontSize: "clamp(1rem, 1.25vw, 1.125rem)"
-    fontWeight: 400
+    fontWeight: 300
     lineHeight: 1.55
     letterSpacing: "normal"
   body:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
     fontSize: "1.0625rem"
-    fontWeight: 400
+    fontWeight: 350
     lineHeight: 1.55
-    letterSpacing: "normal"
+    letterSpacing: "0.003em"
   body-mobile:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
     fontSize: "1rem"
-    fontWeight: 400
+    fontWeight: 350
     lineHeight: 1.55
-    letterSpacing: "normal"
+    letterSpacing: "0.003em"
   brand:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "1.0625rem"
-    fontWeight: 650
-    lineHeight: 1.55
-    letterSpacing: "-0.02em"
-  nav-sheet:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "1.25rem"
-    fontWeight: 500
-    lineHeight: 1.55
-    letterSpacing: "-0.02em"
-  ui:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "0.9375rem"
-    fontWeight: 550
-    lineHeight: 1.55
-    letterSpacing: "normal"
-  small:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 400
-    lineHeight: 1.55
-    letterSpacing: "normal"
-  meta:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
     fontSize: "0.8125rem"
     fontWeight: 400
     lineHeight: 1.55
+    letterSpacing: "0.3em"
+    textTransform: "uppercase"
+  action:
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
+    fontSize: "0.8125rem"
+    fontWeight: 400
+    lineHeight: 1.55
+    letterSpacing: "0.14em"
+    textTransform: "uppercase"
+  small:
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
+    fontSize: "0.875rem"
+    fontWeight: 350
+    lineHeight: 1.55
     letterSpacing: "normal"
-  tape-figure:
-    fontFamily: "Schibsted Grotesk, Helvetica Neue, Arial, sans-serif"
+  meta:
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
+    fontSize: "0.8125rem"
+    fontWeight: 350
+    lineHeight: 1.55
+    letterSpacing: "normal"
+  figure:
+    fontFamily: "Geist, Helvetica Neue, Arial, sans-serif"
     fontSize: "1.1875rem"
-    fontWeight: 500
+    fontWeight: 400
     lineHeight: 1.55
     letterSpacing: "normal"
     fontFeature: "tnum"
@@ -198,226 +121,126 @@ spacing:
   section: "clamp(88px, 12vh, 152px)"
   section-mobile: "72px"
   grid-gap: "clamp(16px, 2vw, 32px)"
-  plate-gap: "clamp(12px, 1.6vw, 20px)"
   section-head-gap: "clamp(32px, 5vw, 56px)"
   tile-padding: "clamp(18px, 2vw, 28px)"
   card-padding: "clamp(20px, 2.4vw, 32px)"
 components:
-  button-primary:
-    backgroundColor: "{colors.btn-bg}"
-    textColor: "{colors.btn-fg}"
-    typography: "{typography.ui}"
-    rounded: "{rounded.none}"
-    padding: "0 22px"
-    height: "48px"
-  button-primary-hover:
-    backgroundColor: "{colors.btn-hover}"
-  button-ghost:
+  action:
     backgroundColor: "transparent"
     textColor: "{colors.ink}"
-    typography: "{typography.ui}"
+    typography: "{typography.action}"
     rounded: "{rounded.none}"
-    padding: "0 22px"
-    height: "48px"
-  button-ghost-hover:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.ground}"
-  button-sm:
-    padding: "0 16px"
-    height: "40px"
-    rounded: "{rounded.none}"
-  header-solid:
-    backgroundColor: "{colors.ground}"
+    padding: "0"
+    height: "44px"
+  header:
     textColor: "{colors.ink}"
     height: "{spacing.nav-height}"
   chip:
     backgroundColor: "transparent"
-    textColor: "{colors.ink-2}"
+    textColor: "{colors.ink-3}"
     rounded: "{rounded.none}"
-    padding: "0 16px"
+    padding: "0"
     height: "44px"
   chip-pressed:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.ground}"
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
   input:
-    backgroundColor: "{colors.ground}"
+    backgroundColor: "transparent"
     textColor: "{colors.ink}"
     rounded: "{rounded.none}"
-    padding: "0 16px"
-    height: "52px"
   dash-tile:
+    backgroundColor: "transparent"
     textColor: "{colors.ink}"
     padding: "{spacing.tile-padding}"
     rounded: "{rounded.none}"
-  dash-tile-hover:
-    backgroundColor: "{colors.ground-2}"
-  lab-plate:
-    backgroundColor: "{colors.plate}"
-    textColor: "{colors.plate-ink}"
-  lab-tool:
-    backgroundColor: "{colors.plate-2}"
-    textColor: "{colors.plate-ink}"
-    padding: "{spacing.card-padding}"
-    rounded: "{rounded.none}"
-  lab-tool-hover:
-    backgroundColor: "{colors.plate-hover}"
   tag:
-    textColor: "{colors.ink-2}"
+    backgroundColor: "transparent"
+    textColor: "{colors.ink-3}"
     typography: "{typography.meta}"
-    padding: "2px 8px"
+    padding: "0"
     rounded: "{rounded.none}"
 ---
 
 # Design System: Andra Markets
 
-Source of truth: `assets/site.css`, `assets/site.js` and `tools/build_site.py`, as built and approved by the owner as final. Every value below was read from those files. Keys ending `-dark` are the dark-theme values of the same CSS custom property (for example `ground-dark` is `--ground` under `[data-theme="dark"]`); keys ending `-plate` are the Lab plate overrides. Unsuffixed keys are the light theme, which is the default.
-
-## The new look (owner-approved, 11 Nov 2026)
-
-This section is the current design. Where a section further down says otherwise (the two themes, Schibsted Grotesk, the section backdrop, the one-screen homepage, boxed buttons, chips and tiles, the footer, page transitions from the homepage), this section wins; those sections are kept for the parts that still hold (grids, measures, tables, charts, the Rise and Fall Rule, placeholders, copy rules) and are to be rewritten page by page.
-
-Source of truth: `assets/theme.css` (loaded after `assets/site.css` on every inner page), `assets/home.css` and `assets/home.js` (the homepage), and `tools/build_site.py`.
-
-- **One theme: dark.** Ground `#000000`, ink `#f2f3f3`, ink-2 `#a3a8aa`, ink-3 `#74797c`, rule `rgba(242,243,243,.10)`, strong rule `rgba(242,243,243,.26)`. There is no light theme and no theme switch. Up `#1fd27a`, down `#ff4b52`, only on a rise or a fall and always with its sign (unchanged).
-- **One typeface: Geist** (variable, self-hosted at `assets/fonts/geist-latin.woff2`, SIL OFL 1.1, licence beside it), stacks ending in `sans-serif`. Body 350; titles 300 with -0.035em to -0.038em tracking; section headings, list titles, labels and figures 400; bold is 500 and rare. The brand name is 0.8125rem, 400, uppercase, 0.3em tracking.
-- **No boxes.** Actions are words in small uppercase (0.8125rem, 0.14em) followed by a long thin arrow, with no border or fill. Filters and range switches are words; the chosen one is ink and underlined. Fields are a single line to write on. Tiles and cards carry one hairline above and nothing around. Tags are plain small text. The search trigger has no border. The one framed thing is the search palette, because it floats over the page.
-- **Light.** Inner pages have a faint light at the head of the page (a radial wash, 7% ink) and nothing else behind the text. The particle sphere, the old one-screen hero and the theme switch were removed with their files on 11 Nov 2026 (`assets/section-scene.js`, `assets/hero-horse.js`, `assets/section-horse.png`, `assets/horse-particles.png`, `tools/make_section_horse.py`); the sections below that describe them are history.
-- **Homepage** (`page()` in `tools/build_site.py`): a fixed WebGL scene (`assets/home.js`) with full-screen sections scrolling over it.
-  1. The phrase "Markets, on the record." above a curved horizon: a thin line of white light with a soft flare at its centre. Nothing else.
-  2. The statement "What moved, and why. Every trading day, after the New York close.", lit word by word, while particles lift off the horizon, swarm, and settle into the horse; once formed it is shown as the engraving itself (`assets/horse-particles.webp`, from `andra-horse.png`), not as particles.
-  3. One screen per group of the menu, text on the left and its picture on the right, drawn in fine lines of particles: Markets a globe with a ring and its financial centres; Tools a curved mesh; Research the S&P 500 at the close of every published note, with a column under each close; Careers a row of buildings rising. Each lists its six sections as plain links.
-  4. A closing screen: the horizon again, "On the record, every trading day." and Contact us.
-  Moving between non-adjacent groups (from the menu) takes the particles straight from one picture to the other. The particle count adapts down on slow devices. Reduced motion draws still frames. On phones the header shows "Menu", which opens a full-screen list of the groups.
-- **Menus.** On wide screens each group's menu has that group's picture, as a still line drawing, alone in the middle, with the sections around it. On phones the menu is the list alone.
-- **Footer.** Five columns: Markets, Tools, Research, Careers and Andra Markets (methodology, sources, legal, privacy), with the brand, Contact us and the social links on the left.
-- **Opening the site.** The homepage starts dark. A point of light comes up at the centre, the horizon spreads from it to both sides (about 2.6s), the phrase rises out of a blur at 1.35s and the header fades in at 2.3s. Once per visit; after that a short version (about 1.1s). The phrase and header are shown anyway after four seconds if the scene never starts, at once without WebGL, and there is no opening under reduced motion.
-- **Moving between pages.** Leaving the homepage, the text fades and the scene scales up and goes dark (about 0.6s), then the page changes; the next page rises out of the dark (`html.arrive`). Coming back, the homepage fades in. Between inner pages the existing cross-page view transition applies. None of it under reduced motion.
+Source of truth: `assets/site.css` with `assets/theme.css` loaded after it (every inner page), `assets/home.css` and `assets/home.js` (the homepage), `assets/site.js` and `tools/build_site.py`. The owner approved this look on 11 Nov 2026. Where a value is set in both stylesheets, `theme.css` wins and is the one recorded here. The front matter holds the tokens.
 
 ## Overview
 
-**Creative North Star: "The Engraving on the Record"**
+**Creative North Star: "Light on the Record"**
 
-One engraved, rearing horse and a single grotesque carry the whole identity. In the light theme the page is pure white paper with ink type and the horse printed onto it as an engraving; in the dark theme the page is near-black and the horse is a dim, cinematic presence. Everything else is catalogue: full-bleed plates and ruled lists, one idea per screen, hairlines instead of boxes, square corners, no shadows.
+A black page, white light and one typeface in light weights. The homepage is a horizon of light with the engraved horse forming out of its dust; every other page is type on black with a faint light at its head. Nothing is boxed: actions are words with a long arrow, filters are words, fields are a line, lists and tiles are separated by hairlines.
 
-Colour is withheld on purpose. The UI is monochrome ink on ground in both themes; vivid red and green carry one meaning only, a rise or a fall: inside charts, and on every figure that shows a move (see The Rise and Fall Rule). Seriousness comes from restraint, tabular figures, dated and sourced numbers, and bracketed placeholders wherever a real number does not yet exist.
-
-The system refuses the fintech template: no gradient hero, no metric tiles, no three equal feature cards, no accent colour in UI.
+Colour is withheld on purpose. The site is ink on black; vivid red and green carry one meaning only, a rise or a fall, in charts and on every figure that shows a move (see The Rise and Fall Rule). Seriousness comes from restraint, dated and sourced numbers, and bracketed placeholders wherever a real number does not yet exist.
 
 **Key Characteristics:**
-- Two themes, dark by default (owner, 31 Oct 2026), toggled and remembered per visitor.
-- One family: Schibsted Grotesk, variable 400 to 900, every stack ending in `sans-serif`.
-- Hairline rules (1px) and tonal layering instead of shadows or cards.
-- Square corners everywhere.
-- The horse is the only image, shown whole and untouched on every page, treated only with CSS filter and blend. The exceptions are the owner-approved favicon and touch icon, and the homepage hero, where the same horse is drawn by particles (see Horse placements and Brand assets).
+- One theme: dark. There is no light theme and no theme switch.
+- One family: Geist, variable, in light weights, every stack ending in `sans-serif`.
+- No boxes: words, lines to write on and 1px hairlines. No shadows, square corners.
+- The horse is the only image: the brand mark in the header and footer, and the engraving on the homepage. Each group of the menu also has a picture drawn in fine lines (a globe, a mesh, a chart, buildings).
 - Red and green only for rises and falls (charts, and figures with a sign); errors are ink only.
-- Motion is quiet and gated: content visible by default, reduced motion respected.
+- Motion belongs to the homepage and to moving between pages; inner pages are still. Reduced motion is respected everywhere.
 
 ## Colors
 
-A monochrome ink-and-ground palette in two themes, with one darker "plate" surface and a chart-only red/green pair.
+Ink on black, one slightly raised tone, and a red and green pair for rises and falls.
 
-**Theme mechanics.** Dark is the default (owner, 31 Oct 2026; it was light): the HTML ships `data-theme="dark"`, with `theme-color` `#0a0c0d` and the theme switch (the header's mark) labelled "Switch to light theme". The CSS applies the light set to `:root` and `:root[data-theme="light"]` and the dark set to `:root[data-theme="dark"]`; every page carries the attribute. An inline boot script in `<head>` runs before paint and resolves the theme in this order: a `?theme=light` or `?theme=dark` URL parameter (which is also written to storage), then the `andra-theme` value in `localStorage`, then `dark`. A visitor who chose light keeps it. The operating system colour scheme is not consulted. It sets `data-theme` on `<html>` and sets `<meta name="theme-color">` to the theme's ground (`#ffffff` light, `#0a0c0d` dark). The header's mark is the toggle (owner, 1 Nov 2026): it flips `data-theme`, writes `andra-theme`, updates `theme-color` and the mark's `aria-label` and `title` ("Switch to dark theme" / "Switch to light theme"), and wraps the swap in `document.startViewTransition` when available, the new theme opening as a circle from the mark. Each theme sets `color-scheme` to match.
+**Theme mechanics.** Every page ships `data-theme="dark"` and `theme-color` `#000000`. `assets/site.css` still defines its tokens for `:root` and for `[data-theme="dark"]`; `assets/theme.css` sets the values below for all of them, so nothing depends on the attribute. The homepage defines its own tokens in `assets/home.css` with the same values.
 
-### Primary
-- **Ink** (light `#0e1215`, dark `#e9eceb`): all headings and body copy, the primary button fill, pressed chips, focus rings, chart lines and dots. It is the only "accent" the UI has.
-- **Button hover** (light `#2a3036`, dark `#ffffff`): primary button background on hover only.
-- **Button text** (light `#ffffff`, dark `#0a0c0d`): label on the primary button; equals the theme ground.
+| Token | Value | Role |
+|---|---|---|
+| `--ground` | `#000000` | The page. |
+| `--ground-2` | `#0c0d0e` | A raised tone, used sparingly (the practice progress track). |
+| `--ink` | `#f2f3f3` | Headings, body copy, the chosen filter, focus rings, chart lines and dots. The only emphasis the UI has. |
+| `--ink-2` | `#a3a8aa` | Secondary text: ledes, descriptions, menu names at rest, meta. |
+| `--ink-3` | `#74797c` | Tertiary text: placeholders (`.ph`), source lines, legal line, filters at rest, tags, the dashed comparison line in charts. |
+| `--rule` | `rgba(242, 243, 243, 0.10)` | Hairlines: section and list dividers, the line above a tile. |
+| `--rule-strong` | `rgba(242, 243, 243, 0.26)` | Stronger rules: list heads, the page head rule, the line of a field, chart reference lines, link underlines. |
+| `--select` | `rgba(242, 243, 243, 0.22)` | Text selection. |
+| `--focus` | `#f2f3f3` | 2px focus outline. |
+| `--scrim` | `rgba(0, 0, 0, 0.7)` | Behind the search palette. |
 
-### Neutral
-| Token | Light | Dark | Role |
-|---|---|---|---|
-| `--ground` | `#ffffff` | `#0a0c0d` | Page background, solid header, mobile nav sheet, input fill, hero bottom fade. |
-| `--ground-2` | `#e9eded` | `#14181b` | Raised tone: dashboard tile hover, the practice progress track. |
-| `--ink-2` | `#424a50` | `#a8b0b4` | Secondary text: ledes, hero sub, nav links at rest, descriptions, key labels, meta. |
-| `--ink-3` | `#5a6268` | `#899196` | Tertiary text: placeholders (`.ph`), source lines, legal line, comparison (dashed) chart line, input placeholder. |
-| `--rule` | `rgba(14, 18, 21, 0.15)` | `rgba(233, 236, 235, 0.13)` | Hairlines: section and list dividers, tile lattice, chip and tag borders, solid-header bottom border. |
-| `--rule-strong` | `rgba(14, 18, 21, 0.78)` | `rgba(233, 236, 235, 0.7)` | Emphatic rules: calendar top and day rules, list heads, page head rule, ghost button border, input border, chart reference lines, link underline colour. |
-| `--select` | `rgba(14, 18, 21, 0.14)` | `rgba(233, 236, 235, 0.22)` | Text selection background. |
-| `--focus` | `#0e1215` | `#e9eceb` | 2px focus outline. |
-
-### Plate (Lab)
-The Lab section is the one dark plate on the page, in both themes. It re-maps the ink tokens locally so every component inside it inverts automatically.
-
-| Token | Light | Dark | Role |
-|---|---|---|---|
-| `--plate` | `#0e1215` | `#1a2024` | Plate background; also the primary button label on the plate. |
-| `--plate-2` | `#191f23` | `#252c31` | Tool card fill. |
-| `--plate-hover` | `#232a2f` | `#2d353a` | Tool card hover fill. |
-| `--plate-ink` | `#eef1f1` | `#e9eceb` | Plate text, chart lines, primary button fill, focus ring. |
-| `--plate-ink-2` | `#b4bbbf` | `#a8b0b4` | Plate secondary text; also stands in for `--ink-3` and `--rule-strong` on the plate. |
-| `--plate-rule` | `rgba(238, 241, 241, 0.16)` | `rgba(233, 236, 235, 0.14)` | Plate hairlines and chart grid; the "Next in the Lab" outline. |
-
-Inside `.lab`: `--ink` becomes `--plate-ink`, `--ink-2` and `--ink-3` become `--plate-ink-2`, `--rule` becomes `--plate-rule`, `--rule-strong` becomes `--plate-ink-2`, `--chart-line` becomes `--plate-ink`, `--chart-grid` becomes `--plate-rule`, `--btn-bg` becomes `--plate-ink`, `--btn-fg` becomes `--plate`, `--focus` becomes `--plate-ink`. Chart colours on the plate are fixed in both themes: up `#1fd27a`, down `#ff4b52`, up-tint `rgba(31, 210, 122, 0.3)`, down-tint `rgba(255, 75, 82, 0.3)`.
+**The plate.** The Lab and the simulators keep their own tokens (`--plate` `#0b0c0d`, `--plate-2` `#121415`, `--plate-hover` `#1a1c1e`, `--plate-ink`, `--plate-ink-2`, `--plate-rule`), now almost the page's own, so a tool no longer reads as a separate dark slab.
 
 ### Chart colours
-| Token | Light | Dark | Plate (both themes) | Role |
-|---|---|---|---|---|
-| `--chart-line` | `#0e1215` | `#e9eceb` | `--plate-ink` | Primary series (solid) and dots. |
-| `--chart-grid` | `rgba(14, 18, 21, 0.1)` | `rgba(233, 236, 235, 0.09)` | `--plate-rule` | Horizontal grid lines. |
-| `--chart-fill` | `rgba(14, 18, 21, 0.08)` | `rgba(233, 236, 235, 0.08)` | (inherits theme) | Area fill under a series. |
-| `--up` | `#00a050` | `#1fd27a` | `#1fd27a` | Rise, positive, beats, advancers, stronger. |
-| `--down` | `#e0202a` | `#ff4b52` | `#ff4b52` | Fall, negative, misses, decliners, weaker. |
-| `--up-tint` | `rgba(0, 160, 80, 0.24)` | `rgba(31, 210, 122, 0.2)` | `rgba(31, 210, 122, 0.3)` | Positive regime bands. |
-| `--down-tint` | `rgba(224, 32, 42, 0.22)` | `rgba(255, 75, 82, 0.2)` | `rgba(255, 75, 82, 0.3)` | Negative regime bands. |
-| `--up-text` | `#00773b` | `#1fd27a` | `#1fd27a` | A rise as text. Light: 5.23:1 on ground, 4.81:1 on ground-2; dark: 9.86:1 and 8.98:1. |
-| `--down-text` | `#d01c25` | `#ff4b52` | `#ff4b52` | A fall as text. Light: 5.00:1 on ground, 4.59:1 on ground-2; dark: 5.96:1 and 5.42:1. |
+| Token | Value | Role |
+|---|---|---|
+| `--chart-line` | `#f2f3f3` | Primary series (solid) and dots. |
+| `--chart-grid` | `rgba(242, 243, 243, 0.08)` | Horizontal grid lines. |
+| `--chart-fill` | `rgba(242, 243, 243, 0.07)` | Area fill under a series. |
+| `--up` / `--up-text` | `#1fd27a` | Rise, positive, beats, advancers, stronger; and a rise as text. |
+| `--down` / `--down-text` | `#ff4b52` | Fall, negative, misses, decliners, weaker; and a fall as text. |
+| `--up-tint` | `rgba(31, 210, 122, 0.2)` | Positive regime bands. |
+| `--down-tint` | `rgba(255, 75, 82, 0.2)` | Negative regime bands. |
 
-The chart pair is too light for small text in the light theme (`#00a050` is 3.15:1 on ground), so figures use the darker text pair, which passes WCAG AA (4.5:1) on ground and ground-2 in both themes. Bars, cells and keys keep the chart pair.
-
-### Horse and mark treatment
-| Token | Light | Dark | Role |
-|---|---|---|---|
-| `--horse-filter` | `invert(1) grayscale(1) brightness(0.85) contrast(3)` | `none` | Filter on the hero and closing-plate horse. |
-| `--horse-blend` | `multiply` | `screen` | Blend mode for every horse instance (not the brand mark, which is transparent). |
-| `--horse-opacity` | `0.92` | `0.5` | Opacity of the hero horse image. |
-
-The homepage hero draws the horse with particles (Horse placements) in the header mark's look (owner-approved, 1 Nov 2026; it was the pencil look). The canvas is drawn light on a clear ground; in the light theme it takes `filter: invert(1)` at 0.8 opacity, so the dots print in soft black (deepest ink near `#333`). In the dark theme the dust, the chart and the settled horse are ink (`#e9eceb`), so the horse is light on black like the dark mark (it was dark grey, about `#5c5f63`). Without WebGL the homepage's still engraving takes the same look: no filter in the dark theme and `invert(1) grayscale(1)` in the light theme, at full opacity; `--horse-filter` and `--horse-opacity` still apply everywhere else.
-
-In light, the inverted file turns the black ground white and multiply makes it vanish into the paper, leaving the engraving as ink. In dark, the untouched file screens onto near-black, so its black ground vanishes and the white engraving glows dimly. The PNG itself is never edited.
-
-### Fixed (theme-invariant) values
-- **Plate chart colours** `--plate-up` `#1fd27a`, `--plate-down` `#ff4b52`, `--plate-up-tint` / `--plate-down-tint` at 0.3 alpha: defined once on `:root` because the Lab plate is dark in both themes; `.lab` maps `--up`, `--down` and the tints to them.
-- **Dark hero vignette** (`rgba(10, 12, 13, 0.75)`): outer stop of the dark theme's radial vignette.
+On black, `#1fd27a` and `#ff4b52` pass WCAG AA as text, so the figure and chart pairs are the same.
 
 ### Named Rules
 **The Rise and Fall Rule** (owner's change, 22 Oct 2026; it replaces the charts-only rule). Red and green mean a rise or a fall, and nothing else. They colour chart marks and keys, and every figure on the site that shows a rise or a fall: price moves and percentage changes, the tape, the close-note panel, chart value labels, dashboard "Latest" panels and readouts, calendar changes (m/m, q/q, monthly changes) and earnings first-session moves. The figure always keeps its + or − sign, so colour is never the only cue; a figure that rounds to zero has no sign and stays in ink. Labels, prose, headings, units and words beside the figure ("on the day", "since 3 Oct", "q/q") stay in ink. Levels stay in ink even when signed: yields, rates, inflation rates, spreads, correlations, scores, EPS. Never in buttons, links, tags, status messages, errors, success messages or decoration. As text the figure uses `--up-text` / `--down-text` (`.mv--up`, `.mv--down`; SVG labels take the same classes), except on a dashboard heat cell, where it is white on the cell's own red or green (see Dashboard tile); `build_site.py` reads the class from the printed sign (`mv()`, `move_class()`), and the rolling figures colour a signed word when their element carries `data-moves`.
 
-**The One Plate Rule.** The Lab is the one dark plate on the page. It inverts by re-mapping tokens, never by hand-picking colours per component.
-
 ## Typography
 
-**Display Font:** Schibsted Grotesk (with Helvetica Neue, Arial, sans-serif)
-**Body Font:** Schibsted Grotesk (with Helvetica Neue, Arial, sans-serif)
+**Font:** Geist (with Helvetica Neue, Arial, sans-serif), for everything.
 
-**Character:** One grotesque does everything. Hierarchy comes from size, tight negative tracking at display sizes and fine-grained variable weights (400 to 650), never from a second family.
+**Character:** One face in light weights. Hierarchy comes from size and tight negative tracking at display sizes; weight changes little (300 to 400, 500 for the rare bold).
 
-Self-hosted variable font: `assets/fonts/schibsted-grotesk-latin.woff2`, `font-weight: 400 900`, `font-display: swap`, preloaded in every page head. The single stack is `--font: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif`. No serif face exists anywhere, including fallbacks.
+Self-hosted variable font: `assets/fonts/geist-latin.woff2` (SIL OFL 1.1, `assets/fonts/OFL-Geist.txt`), `font-weight: 100 900`, `font-display: swap`, preloaded in every page head. The single stack is `--font: "Geist", "Helvetica Neue", Arial, sans-serif`. No serif face exists anywhere, including fallbacks. Schibsted Grotesk, the previous face, is kept only because the share images (`tools/og_note.py`, `assets/og-image.png`) are still set in it.
 
 ### Hierarchy
-- **Display** (560, `clamp(3rem, 8vw, 6rem)`, 0.98, -0.04em): the hero h1 only. Max 12ch, `text-wrap: balance`.
-- **Closing title** (540, `clamp(2.5rem, 5.6vw, 4.75rem)`, 0.98, -0.04em): the signup plate headline (a section title enlarged).
-- **Page title** (560, `clamp(2.5rem, 6vw, 4.5rem)`, 1, -0.04em): inner page h1.
-- **Section title** (540, `clamp(2rem, 4.2vw, 3.5rem)`, 1.02, -0.035em): every homepage section h2. `text-wrap: balance`.
-- **Statement** (480, `clamp(1.5rem, 3vw, 2.5rem)`, 1.18, -0.026em): the About statement. `text-wrap: pretty`.
-- **h3 levels:**
-  - Note title (520, `clamp(1.375rem, 2.2vw, 1.875rem)`, 1.15, -0.022em).
-  - Lab tool (540, `clamp(1.375rem, 2vw, 1.75rem)`, 1.1, -0.025em); "Next in the Lab" at 1.25rem.
-  - Inner page section h2 (540, 1.375rem, -0.02em).
-  - Dashboard tile (540, `clamp(1.1875rem, 1.5vw, 1.375rem)`, 1.15, -0.02em; 1rem at 640px and below).
-  - Link list title, the Lab and Simulators indexes (540, 1.1875rem, -0.015em).
-  - Calendar event (540, 1.0625rem; 1rem on mobile).
-  - Note list title (500, 1.0625rem).
-- **Hero sub**: removed. The hero is the phrase, the horse and the four groups of the header menu.
-- **Hero index** (550, 1.0625rem, -0.01em; 0.875rem below 861px): the twelve section names in ink, two columns, no rules, no arrows; a 1px `--rule-strong` underline appears on hover.
-- **Lede** (400, `clamp(1rem, 1.25vw, 1.125rem)`, 1.55): ink-2, max 52ch; max 44ch inside a section head.
-- **Body** (400, 1.0625rem, 1.55; 1rem at 640px and below): long text max 65ch (inner pages), 46 to 48ch in cards.
-- **Brand** (650, 1.0625rem, -0.02em): the "Andra Markets" wordmark next to the mark.
-- **UI** (550, 0.9375rem): buttons, text links, menu group buttons, theme and menu buttons. Small button 0.875rem. Menu panel link names 540, 1.1875rem, -0.015em, with a 0.875rem ink-2 line under each; menu sheet links 500, 1.25rem, -0.02em, under group names at 0.875rem/600.
-- **Small** (0.875rem): chips (550), field labels (550), help text, filter status, note meta, tape head, tape change, calendar day headings (600), tool parameters.
-- **Meta** (0.8125rem): chart keys, tape names, source lines, calendar column heads (500), tags, About terms, read times, legal line. 0.75rem only for dashboard tile source and key at 640px and below, and the homepage legal line on phones (0.6875rem from 360px to 600px; see Hero legal line).
-- **Tape figure** (500, 1.1875rem, tabular figures): tape levels.
+- **Homepage phrase and closing line** (300, `clamp(2.5rem, 5.8vw, 5.5rem)`, 1.02, -0.035em), centred. **Homepage group title** (300, `clamp(2.5rem, 5.2vw, 4.75rem)`). **Homepage statement** (300, `clamp(1.75rem, 3.1vw, 2.875rem)`, 1.1).
+- **Page title** (300, `clamp(2.5rem, 6vw, 4.5rem)`, 1, -0.038em): inner page h1. A close note's headline uses the section title scale (300, `clamp(2rem, 4.2vw, 3.5rem)`, 1.02).
+- **Section heading on an inner page** (400, 1.375rem, -0.02em).
+- **Titles in lists and tiles** (400): note list, tool and report titles, dashboard tile, calendar event, accordion questions. Sizes as recorded in each page's section.
+- **Lede** (300, `clamp(1rem, 1.25vw, 1.125rem)`, 1.55): ink-2, max 52ch.
+- **Body** (350, 1.0625rem, 1.55; 1rem at 640px and below): long text max 65ch.
+- **Brand** (400, 0.8125rem, uppercase, 0.3em): the "Andra Markets" wordmark next to the mark.
+- **Actions** (400, 0.8125rem, uppercase, 0.14em): every button, followed by its arrow.
+- **Menu and filters** (400, 0.8125rem to 0.875rem): menu group names, filters, range switches, labels of fields.
+- **Small** (0.875rem) and **meta** (0.8125rem), 350: help text, statuses, note meta, chart keys, source lines, tags, legal line.
+- **Figures** (400, tabular): levels and changes in panels and tables.
+- **Bold** inside text is 500.
 
-No uppercase, no letter-spaced labels, no italics are used.
+Uppercase with letter-spacing is used for the brand and for actions, nowhere else. No italics.
 
 ### Named Rules
 **The Tabular Numbers Rule.** `font-variant-numeric: tabular-nums` is applied only to elements that hold numbers: tape levels and changes and chip counts. Never on prose or punctuation-bearing text: the calendar's times and figures stay proportional, because tabular colons and points open wide gaps in this face ("10 : 00").
@@ -426,13 +249,11 @@ No uppercase, no letter-spaced labels, no italics are used.
 
 ## Layout
 
-**The homepage is one screen** (owner, 31 Oct 2026). It holds the hero only (owner-approved, 1 Nov 2026): the phrase on top, the horse in the middle and the four groups of the header menu around it, which are the homepage's only way into the site. The latest close note and its closes are no longer on it. Nothing follows it, so it does not scroll at any size; the header there has no nav, no menu button and no search (brand and theme only, owner 31 Oct 2026) and there is no footer, so the legal line sits at the top right of the header. In the dark theme the homepage is flat, matte black (`#000000`): no vignette, no fade and no glow around the particles. The homepage modules recorded below (the tape, the dashboards section, Simulators, the Lab plate, the calendar section, the daily note module and About) are no longer on it: the dashboards grid is its own page, `dashboards/`, and "Daily note" opens the archive of every close note, newest first (`reports/`). Inner pages keep the header nav and the footer.
+**The homepage** is a fixed scene with full-screen sections scrolling over it (see Homepage). It has its own header and no site footer.
 
 **Container.** `.wrap`: full width, max `1440px`, centred, side padding `--gutter` = `clamp(16px, 4vw, 56px)`. Full-bleed sections (hero, tape, Lab plate, signup) paint edge to edge and put a `.wrap` inside.
 
 **Grid.** `.grid`: 12 columns `repeat(12, minmax(0, 1fr))`, column gap `clamp(16px, 2vw, 32px)`. Row gaps per section: note 48px, About 40px, signup 40px, footer 32px. The Lab uses its own 12 columns with gap `clamp(12px, 1.6vw, 20px)` (wide tool spans 7, tool spans 5, "next" spans all). Dashboards use a 3-column lattice.
-
-Two-part section splits: content in columns 1 to 6 (or 1 to 8 for the About statement), companion in columns 8 to 12 (9 to 12 for the About list). Footer: brand 1 to 4, nav 6 to 8 (two sub-columns), social 9 to 12, legal full width.
 
 **Vertical rhythm.** Section padding `--section` = `clamp(88px, 12vh, 152px)` top and bottom; `72px` at 640px and below. Section head bottom margin `clamp(32px, 5vw, 56px)`. Hero copy top padding `nav-h + 48px`, bottom `clamp(56px, 11vh, 120px)`. Inner page top padding `nav-h + clamp(48px, 9vh, 112px)`. Footer padding 48px top, 40px bottom.
 
@@ -442,72 +263,91 @@ Two-part section splits: content in columns 1 to 6 (or 1 to 8 for the About stat
 - **1100px:** dashboard grid 3 to 2 columns; the calendar drops its Type column.
 - **1100px:** the search button turns into its 44px icon (it was 1799px with twelve nav links; the four menu groups leave room for its label above 1100px, owner-approved 31 Oct 2026).
 - **960px:** the menu becomes the sheet (it was 1300px with twelve links; four groups fit the bar down to 961px, owner-approved 31 Oct 2026; the sheet shows one group at a time in the panel's cards since 2 Nov 2026); the menu button appears; header gap tightens 24px to 8px. The same width also takes the note, About, signup columns and the footer brand to full width; footer nav and social split 6/6; Lab tools go full width.
-- **860px:** the hero becomes one column: headline, horse, index (see Horse placements).
+- **860px:** the homepage puts each group's picture above its text, hides its header links behind "Menu" and its section marks.
 - **640px:** section padding 72px; body 1rem; section heads stack; tape columns become `40vw` each; dashboard tiles go to one column (18px 16px padding, reading figure 1.25rem); calendar becomes stacked rows and its filter labels sit above their chips (see Components); note archive stacks date over title; signup input and button stack; hero buttons stretch; footer links grow to 44px.
 - **520px:** every header button hidden (the Subscribe, paused, and Contact us, which sits at the foot instead: see Contact us); menu button shows its icon only.
 
-Tap targets are at least 44px (chips, links, theme and menu buttons, tape note link, footer links on mobile); buttons are 48px (40px small, 52px in the signup row).
+Tap targets are at least 44px (actions, filters, links, the menu button, footer links on phones).
 
 ## Elevation & Depth
 
-The system is flat. There are no drop shadows. Depth comes from tonal layering (ground, ground-2, plate, plate-2, plate-hover), 1px hairlines and the horse's blend into the ground. Hover states change tone (tile to ground-2, tool card to plate-hover), never lift.
+The system is flat. There are no drop shadows and no cards. A surface is set apart by a hairline, never by height, and a hover changes colour, not tone or position.
 
-The single `box-shadow` in the build is `inset 0 0 0 1px var(--ink)` on an invalid input: it doubles the border weight to 2px ink. It is a border treatment, not elevation.
-
-The only gradient is the light hero's fade, `linear-gradient(to top, ground 0%, transparent 40%)`. The dark hero has none (owner, 31 Oct 2026: matte black); its old vignette was a `radial-gradient(120% 90% at 63% 45%, transparent 40%, rgba(10, 12, 13, 0.75) 100%)` over a `linear-gradient(to top, ground 0%, transparent 38%)`.
+Light is the one exception to flatness, and it is drawn, not cast: the homepage's horizon and its flare (`assets/home.js`), and on inner pages a faint wash at the head of the page (`body::before`, a radial gradient of ink at 7% fading out by 46vh). The fixed header on inner pages has a black fade behind it once the page scrolls, so text does not run under the menu.
 
 ### Named Rules
-**The Flat Record Rule.** Nothing casts a shadow. A surface is distinguished by tone or by a hairline, and a hover changes tone, not height.
+**The Flat Record Rule.** Nothing casts a shadow or sits in a box. A surface is distinguished by a hairline, and a hover changes colour, not height.
 
 ## Shapes
 
-Square corners everywhere: buttons, chips, tags, inputs (`border-radius: 0` explicitly resets UA rounding), tiles, cards. The only curves are data marks (2.5px chart dots) and the icons.
+Square corners everywhere (`border-radius: 0` resets UA rounding on inputs). The only curves are data marks (2.5px chart dots), the icons, the horizon and the pictures of the groups.
 
-Borders are 1px hairlines in `--rule` or `--rule-strong`. The dashboard lattice draws a single hairline grid by giving the container top and left borders and each tile right and bottom borders. Lists are ruled rows (bottom border per item, a strong rule on top), not boxes.
+Borders are 1px hairlines in `--rule` or `--rule-strong`, and they are lines, not frames: a rule above a tile or a card, a rule under each row of a list, a rule under a field. The one framed thing is the search palette, because it floats over the page; the sample CV in Break into Wall Street keeps a faint outline because it is a picture of a document.
 
 Icons are Phosphor-style 256-unit SVG paths in an inline sprite (`warning-circle`, `arrow-right`, `arrow-up-right`, `list`, `x`, `envelope-simple` (Contact us), plus the logo of each social channel that has a URL: `linkedin-logo`, `tiktok-logo`, and `youtube-logo` once YouTube is live), drawn at `1em` in `currentColor`.
 
 ## Components
 
-### Buttons
-Ink slabs with square corners; quiet, confident, no colour.
-- **Shape:** square (0px), 1px border in the fill colour.
-- **Primary:** `--btn-bg` fill, `--btn-fg` label, min height 48px, padding 0 22px, 0.9375rem at 550, gap 10px to an optional trailing arrow icon at 1.05em.
-- **Ghost:** transparent, ink label, `--rule-strong` border. Hover fills with ink and turns the label to ground.
-- **Small (`--sm`):** min height 40px, padding 0 16px, 0.875rem. Used for the header Subscribe.
-- **Hover (fine pointers only):** primary to `--btn-hover`; the trailing icon nudges `translateX(3px)` over 200ms.
-- **Active:** `scale(0.98)` over 120ms.
-- **On the plate:** primary inverts automatically (plate-ink fill, plate label).
+### Homepage
+`page()` in `tools/build_site.py`, `assets/home.css`, `assets/home.js`. The page does not load `site.css` or `site.js`. A fixed WebGL canvas fills the screen and full-screen sections scroll over it.
+
+1. **Top.** "Markets, on the record." centred above a curved horizon: a thin line of white light with a soft flare at its centre. Nothing else.
+2. **Statement.** "What moved, and why. Every trading day, after the New York close.", lit word by word as it scrolls, on the left. Particles lift off the horizon, swarm (dim until they have nearly settled) and form the horse on the right; once formed it is shown as the engraving itself (`assets/horse-particles.webp`, from `andra-horse.png`), not as particles. On phones the horse is above the statement.
+3. **One screen per group of the menu.** Title, one line and the group's six sections as plain links on the left; its picture on the right, in fine lines of particles: Markets a globe with a ring and its financial centres; Tools a curved mesh; Research the S&P 500 at the close of every published note, with a column under each close; Careers a row of buildings rising. On phones the picture is above the text.
+4. **Closing.** The horizon again, "On the record, every trading day." and Contact us, with the copyright, the legal line and Privacy and cookies at the foot.
+
+- **Header:** the mark and name on the left; Markets, Tools, Research, Careers and Contact on the right, which scroll to their screens. At 860px and below, "Menu" opens a full-screen black list of the same. A column of short marks at the right edge shows the current screen (wide screens).
+- **Particles:** up to 1.6 million on wide screens and 500,000 on small ones; the count drops by itself when frames run long, and the rest brighten to compensate. Scrolling takes them from one picture to the next; a jump between screens that are not neighbours (from the header) takes them straight from one picture to the other. Particles in transit are dimmed, and on phones every particle is less than half as bright, so the cloud never covers the text.
+- **Opening the site.** The page starts dark. A point of light comes up at the centre, the horizon spreads from it to both sides (about 2.6s), the phrase rises out of a blur at 1.35s and the header fades in at 2.3s. Once per visit; after that a short version (about 1.1s). If the scene never starts the phrase and header are shown after four seconds, and at once without WebGL.
+- **Fallbacks:** reduced motion draws still frames, with no opening and no leaving move. Without WebGL the text stands on black.
+
+### Actions (buttons)
+Words, not slabs. Every `.btn` (primary, ghost and small alike) is its label in small uppercase (0.8125rem, 400, 0.14em) in ink, with no border and no fill, min height 44px, followed by a thin arrow 44px long that moves 8px on hover. Icons inside buttons are not shown. Small controls inside tools (reset, previous and next) are plain ink-2 words that turn to ink on hover.
 
 ### Links
-- **Text link (`.link`):** 0.9375rem at 550, underlined (1px, offset 0.22em) in `--rule-strong`, min height 44px, trailing arrow. On hover the icon moves `translate(2px, -2px)`.
+- **Text link (`.link`):** 0.9375rem at 400, underlined (1px, offset 0.22em) in `--rule-strong`, min height 44px, trailing arrow. On hover the icon moves `translate(2px, -2px)`.
 - **Inline links** inherit colour with a 1px underline at 0.22em offset.
 - **Focus:** every focusable element gets a 2px `--focus` outline at 3px offset (chips at -4px offset; inputs at 0).
 
-### Section backdrop (`.scene`, owner-approved 31 Oct 2026)
-Every page but the homepage (and the redirect pages) sits inside a black sphere: `assets/section-scene.js` draws a fixed, full-screen WebGL canvas behind the page and under the header (`z-index: -1`; the body's own ground is cleared so it shows, the page ground stays on `html`).
-- **Sphere:** no lines; it reads as a sphere through 9,000 particles (4,500 on small screens), 72% on its wall and the rest inside, seen from near the middle looking at the far pole. They drift slowly round the line of view (0.003 to 0.007 rad/s) and float a little; near ones are larger and soft, far ones small and sharp; those near the light behind the horse are a little brighter.
-- **Horse:** at the far pole, in the middle of the screen, the horse's height 18.5% of the screen's (16.5% below 961px). It is black and hides the particles behind it; particles nearer the viewer pass in front. It is lit from behind, a little to the right and above: a 1.2px edge of light only where the outline faces the light, a 4px spill just outside, a faint glow behind the neck (7.5%) and the engraving's shading barely there (4.5%). Silhouette from `assets/section-horse.png` (Brand assets).
-- **Motion:** the light comes up over about two seconds on load (from the homepage, the sphere opens out of the point instead, and from another section it carries on: see Page transitions). The pointer turns the view a little (0.12 rad across the screen, eased); scrolling the first 80% of a screen carries the camera towards the horse and dims the scene to 32%, so the page reads over it.
-- **Themes:** dark is pure black (`--ground: #000000` on section pages); light is the same canvas inverted (`filter: invert(1)`): white, with black particles (owner, 31 Oct 2026). The light theme is the dark theme's scene as it is (sizes, the near ones' blur, motion), reversed: its particles are drawn white at two and a half times their strength (clamped), so what glows on black prints in black (owner-approved, 31 Oct 2026: "like the black version but the other way round"). The dark theme is unchanged. The homepage hero is not affected.
-- **Header:** clear over the scene at the top. Once the page scrolls (more than 8px), a shade of the ground fades in behind it (`::before`, ground to transparent over the bar and 28px below), so the menu reads over the content and the scene still shows through.
-- **Fallbacks:** reduced motion draws one still frame (and again on resize and scroll). Without WebGL the page keeps its plain ground. The canvas is capped at 1.5x device pixels and stops while the tab is hidden.
-- Page layouts, type and components are unchanged (owner: "only the background").
-
 ### Header and nav
-- **Structure:** fixed, 64px, z-index 20. Left to right: brand (the mark, which is the theme toggle, and the wordmark, the link home), the four menu groups, search button, Contact us button, menu button (960px and below). Above 960px the groups sit beside the brand (gap `clamp(20px, 2.6vw, 40px)`); the search button and Contact us sit at the right end.
-- **Transparent to solid:** over the hero the header is transparent with a transparent bottom border. An IntersectionObserver watches an 8px sentinel at the top of the hero; once it leaves the viewport the header gains `is-solid` (ground fill, `--rule` bottom border, 240ms transition). Pages without a hero sentinel (inner pages) are solid from the first paint. The header is also solid while the menu is open.
-- **Homepage** (`.site-header--home`): no nav, no menu button and no search; the hero's four groups take their place (owner, 31 Oct 2026; groups since 1 Nov 2026). The brand keeps its margin (`clamp(8px, 2vw, 32px)`, 0 from 360px to 600px) and the legal line sits at the right end (see Horse placements, Hero legal line), followed by Contact us above 520px. Every inner page keeps the nav, the menu button and the search.
+- **Structure:** fixed, 64px. Left to right: the mark and the wordmark (the link home), the four menu groups, search, Contact us, and the menu button at 960px and below. The mark is a plain element; it was the theme switch until 11 Nov 2026.
+- **Over the page:** clear at the top; once the page scrolls a black fade sits behind the bar.
 - **Menu groups** (owner-approved, 31 Oct 2026; they replace the twelve flat links; six sections in every group, owner-approved 1 Nov 2026): Markets (Dashboards, Fed & Rates, Calendar, World, FX, Companies), Tools (Options, Bonds, Risk & portfolio, Valuation & growth, Market replays, Strategy games: the fourteen Lab tools and Simulators in six themes, each a page of its own, `lab/options/`, `lab/bonds/`, `lab/risk-and-portfolio/`, `lab/valuation-and-growth/`, `simulators/market-replays/` and `simulators/strategy-games/` (owner, 4 Nov 2026: until then each opened its group halfway down the Lab or Simulators page, `lab/#options` to `simulators/#games`, unlike the sections of the other groups; see Tools theme pages)), Research (Daily note, Research Library, Chart of the day, Central banks, Recession watch, Market history), Careers (Interview prep, Interview simulator, Break into Wall Street, Recruiting calendar, Firms, Application tracker), from `NAV_GROUPS` in `tools/build_site.py`. Each group is a button (0.9375rem/550, ink-2, ink on hover) with a caret-down icon at 0.75em; open, it reads in ink with a 1px ink underline at 0.5em and the caret turns over (200ms). A click opens its panel and closes any other; a second click, a click outside, Escape (focus back on the button) or a link closes it, except a plain click on a section where the browser moves between pages with a view transition: there the panel stays open until the next page shows, as the section's name flies into its title (see Page transitions). Without JavaScript a panel opens on hover and focus.
-- **Menu panel** (above 960px; owner-approved, 1 Nov 2026, after the owner found the panel stopping halfway down the screen): fixed under the header and down to the foot of the screen, clear over the section backdrop (see Menu over the sphere), which dims to 0.4 while a group is open; opens with opacity and `translateY(-8px)` to rest over 200ms ease-out. The group's name (`clamp(1.75rem, 2.4vw, 2.5rem)`/540) and its line (0.9375rem ink-2) sit in the middle of the panel, centred (`min(36ch, 26%)` wide), and come out of an 8px blur and 0.92 scale over 700ms. Its sections orbit them (`assets/site.js`): each a card (`min(380px, 27%)` wide, `clamp(104px, 17svh, 136px)` tall, `--rule-strong` top and `--rule` bottom rules) with a small chart on its left (112x64; 80x46 at 1180px and below), its name (1.1875rem/540) and trailing arrow, and its line under it (0.875rem ink-2). The cards sit on an ellipse the size of the panel, the first at the top (the script still places a group of two top left and bottom right, though every group now has six), and come out of the title over 1.1s (ease-out cubic) as the group opens; the ellipse then turns once every 120s. It stops while the pointer or the focus is on a card, every opening starts from the same places, and it runs only while the group is open. Checked in Chromium over a whole turn: no card overlaps another or the title at 1920x1080, 1440x900, 1366x768, 1280x720, 1100x800 or 962x700; with six sections in every group (1 Nov 2026) all four groups were checked again at those sizes: no overlap, no card clipped or off screen. The charts (`NAV_CHARTS` in `tools/build_site.py`) are line drawings in ink-2 (axes `--rule-strong`, guides dashed ink-3, end dots ink) that say what each section is, with no figures and no red or green, so they never read as data: a rising line (Dashboards), rate steps with a dotted path on (Fed & Rates), a line of events (Calendar), a radar (World), two crossing lines (FX), bars (Companies), a bell curve (Lab), a session ending on its close (Daily note), lines of text (Research Library), a tick and two lines (Interview prep) and a staircase (Break into Wall Street); since 1 Nov 2026 also a payoff at expiry with its strike (Options), a convex price-yield curve with its duration tangent (Bonds), an efficient frontier (Risk & portfolio), shrinking discounted cash flows and a terminal value (Valuation & growth), a fall below the last high and its recovery (Market replays), one branch taken of three (Strategy games), a line in a frame (Chart of the day), two policy-rate step lines (Central banks), a line dipping below zero between two dashed recession guides (Recession watch), a long rise with its falls (Market history), a clock face (Interview simulator), a calendar page with a marked day (Recruiting calendar), three buildings (Firms) and three columns of cards (Application tracker). The bell curve (Lab) and the price path (Simulators) went with those two sections. Each draws itself over 1.1s from 0.42s, 80ms after the one before, then its dot or guide fades in. Reduced motion: the cards stand still in their places and the charts are drawn. Without JavaScript the panel keeps the earlier layout under the header, on its ground: the name and line in columns 1 to 3 and the links three to a row in columns 4 to 12, each a ruled row.
-- **Menu sheet (960px and below):** with JavaScript (owner-approved, 2 Nov 2026, after the owner asked for the phone menu to look like the computer's; it was the four groups one under another, their links in two columns with no charts or lines, and Careers fell below the screen on an iPhone), the sheet is the open group of the panel, laid out for a phone. It is fixed under the header and down to the foot of the screen, clear over the section backdrop (see Menu over the sphere), which dims to 0.4 while it is open. The four group names sit in a row at the top, spread across it, as in the header bar (0.9375rem/550, ink-2; the open one in ink with its underline and the caret turned over; 48px tall; 0.875rem below 360px). Under them is one group at a time: its name (1.75rem/540, 1.1) and its line (0.875rem ink-2) centred, then its six sections one under another, each the panel's card: `--rule-strong` top and `--rule` bottom rules, its chart on the left (80x46), its name (1.0625rem/540) and trailing arrow, its line under it (0.8125rem ink-2). The spacing tightens on shorter screens (the cards' padding `clamp(7px, 1.35svh, 11px)`, 2px to 6px between them; the group's top padding and the space under its line too), so a whole group fits from about 390x800; on a shorter screen the group scrolls under the row of names. On tablets the row and the group keep a phone's column, 600px wide, centred. Tapping a name opens its group; tapping the open one leaves it open, so the sheet always shows a group. The sheet opens on the group of the page it is opened on (the group with the longest link whose top folder the address is in, so that Tools' themes under `lab/` and `simulators/` stand for all of both: the Lab, the Simulators, their themes and their tools open Tools, a close note Research; Markets on pages outside the menu), and the first section of that group takes focus. As the group opens its name and line come out of the blur as in the panel, its sections come down out of them one after another (480ms ease-out, 8px, 40ms apart from 80ms) and their charts draw themselves as in the panel. Opens with opacity and `translateY(-8px)` to rest over 200ms ease-out. The menu button reads "Menu" with a list icon, then "Close" with an x icon; `aria-expanded` tracks state; Escape closes and returns focus to it; the group closes once the sheet has faded (220ms), so it never empties while it goes; crossing 960px closes the sheet and any panel. A link click closes it, except a plain click on a section where the browser moves between pages with a view transition, which keeps the sheet open until the next page shows (see Page transitions). Reduced motion: the sections, name and charts are in place at once. Without JavaScript the menu button does nothing, and the sheet's markup keeps the earlier layout (the four groups one under another, each name a heading, 0.875rem/600, over its links at 1.25rem/500 in two columns of 48px ruled rows).
-- **Menu over the sphere** (owner, 31 Oct 2026: "the sphere must still show"): on section pages the open menu has no fill. The header stays clear (no ground, no shade behind it), the panel and the sheet are transparent over the scene, and the page itself (`main` and the footer) fades to 0 over 200ms ease-out while the menu is open and takes no clicks, so the links read over the particles and the backlit horse. Closing the menu brings the page back.
-- **Subscribe placement:** a small primary button in the header above 520px; at 520px and below the header button is hidden.
-- **Contact us** (owner, 8 Nov 2026): see Contact us.
+- **Menu panel (above 960px):** fixed under the header to the foot of the screen, on black. The group's picture, a still line drawing of the homepage's scene for that group (`nav_art()` in `tools/build_site.py`; the Research one is drawn from the published notes' closes), sits alone in the middle with the six sections around it, each with its small chart, name, line and arrow. No title or line of text in the middle. Switching groups, the closing group's links are hidden at once so they never pile up while its panel fades.
+- **Menu sheet (960px and below):** the group names in a row, the open one underlined, and its six sections in a list under them. No picture and no title.
+- **Open group button:** ink and underlined; no outline or box round it.
+- **Search:** a magnifying glass, "Search" and the shortcut, with no border; an icon at 1100px and below.
+- **Contact us:** an action (words and arrow); see Contact us.
 
-### Theme toggle
-The header's mark is the theme toggle (owner, 1 Nov 2026; it replaced the 44px sun and moon button): a `<button class="brand__mark brand__toggle">` holding the two transparent marks, followed by the wordmark as its own link home (`.brand` is a `<div>` in the header; the footer's brand stays one link). It looks exactly like the mark, with no hover change: padding of 9px above and below, 10px left and 5px right, taken back by a negative margin, widens the hit area to 38 by 44px without moving anything. Pointer cursor, the `title` names the action, and the focus ring is the site's `:focus-visible` outline. Behaviour and persistence are described under Colors.
-- **Reveal (owner-approved, 22 Oct 2026):** the new theme opens as a circle from the button's centre until it covers the page (View Transition, `clip-path` circle, 560ms `--ease-in-out`), instead of the cross-fade. Instant under reduced motion or where View Transitions are missing.
+### Filters and range switches
+- **Chip:** a word, min height 44px, no border, no fill, ink-3 at 400; its count in ink-3.
+- **Chosen (`aria-pressed="true"`):** ink, with a 1px ink underline. Exactly one is chosen. The sliding fill of the previous look is not used.
+- **Hover (fine pointers):** ink.
+- **Row:** 26px between chips; horizontal scroll with hidden scrollbar, bleeding to the gutter.
+- **Status:** a polite live region below the chips at 0.875rem ink-2: "Showing all 9 dashboards" or "Showing n of 9 dashboards: [category]". Matching tiles fade in and rise 6px over 320ms on filter, staggered 35ms.
+
+### Fields
+Text, search, number and email inputs, selects and text areas are a single line to write on: no border but a 1px `--rule-strong` line underneath, no fill, square. On focus the line turns to ink; there is no outline. Labels are 400.
+
+### Tiles, cards and tags
+Dashboard tiles, question cards and the chart of the day's figure carry one `--rule` hairline above and nothing around; they do not change tone on hover. Tags are plain small text in ink-3 with no border.
+
+### Footer
+`--rule` top border, 64px above and 40px below. On the left the mark and wordmark, a one-line description, Contact us and the social links. On the right five columns of links, each under its name in ink: Markets (Dashboards, Fed & Rates, Calendar, World markets, FX, Companies), Tools (Lab, Simulators), Research (Daily note, Research Library, Chart of the day, Central banks, Recession watch, Market history), Careers (Interview prep, Interview simulator, Break into Wall Street, Recruiting calendar, Firms, Application tracker) and Andra Markets (Methodology, Data sources, Legal notice, Privacy and cookies). Links 0.875rem in ink-3, ink on hover. Then the copyright and the legal line. At 960px and below the columns become two and the brand block sits above them. The homepage has no site footer; its closing screen carries the legal line.
+
+### Moving between pages
+- **Leaving the homepage:** a click on a link to another page fades the text and scales the scene up into the dark (about 0.6s), then the page changes (`assets/home.js`). It leaves `andra-arrive` in `sessionStorage`.
+- **Arriving in a section:** the page's head reads that note before the first paint (`ARRIVE_BOOT` in `tools/build_site.py`, ignored after 8s) and marks `html.arrive`: the page rises out of the dark and the header and footer fade in.
+- **Back to the homepage:** it opens again with the short opening.
+- **From one section to another:** a view transition across pages (`VIEW_TRANSITION`, type `section`; Chrome, Edge and Safari, others change page as before). The header keeps its place, the page going fades and the next one rises into place; from the open menu, the section's name flies into the new page's title. `assets/site.js` leaves `andra-move` in `sessionStorage` for it.
+- **Fallbacks:** reduced motion, a link opened in a new tab or window, and a PDF all go straight to the page.
+
+### The horse
+- **Brand mark:** the transparent mark (`assets/andra-mark-dark.png`) beside the wordmark in the header and the footer, and on the homepage's header. Height one line of the wordmark, width auto.
+- **Homepage:** the engraving, formed from particles and then shown as itself, beside the statement (see Homepage). It is the only place the horse is shown large.
+- **Favicon and touch icon:** the owner-approved head-and-neck crop; see Brand assets.
+
+The page sections that follow were written for the previous look and are kept as the record of each page's structure, content, measures and behaviour, which have not changed. Where they give a border, a fill, a font weight above 400 or a boxed button, chip or tile, the rules above apply instead.
 
 ### Tape
 Not on the homepage since 31 Oct 2026 (the homepage is one screen); kept here as built.
@@ -518,14 +358,6 @@ A full-width band below the hero, ground fill, `--rule` top and bottom.
 - **Source line:** "Last and daily change. Source [data vendor]" at 0.8125rem ink-3.
 - **Market strip (between notes):** refreshed every 15 minutes in US hours and after the European and Asian closes (`tools/strip_data.py`, see README, Market strip). The head reads "Markets 22 Oct 2026, as of 2:45 pm ET"; each item adds a fourth line, `.tape__when` (0.8125rem ink-3): its own time ("2:45 pm ET") while its market trades, "Close, 22 Oct" once it has shut. Changes are on the previous session's close, coloured as rises and falls. The link still goes to the newest published note. Source line: "Last price and change on the previous close, each with its time or close date. Sources: Yahoo Finance, FRED for the US 10Y yield. Futures and FX may be delayed." Shown only when newer than the latest note's close.
 - **With a published note:** the head reads "Markets 9 Oct 2026, 4:00 pm ET" (1:00 pm on NYSE early closes) and links to that note's page. Levels are the note's official closes (stored in its note record), with thousands separators and each instrument's decimals; changes carry a sign and a true minus (U+2212), percent to two decimals, the 10-year yield in whole basis points. Changes are coloured as rises and falls (The Rise and Fall Rule); levels and names stay in ink. A series with no print for the session shows its level and "Prior close" as the change; a missing value reads "n/a". Source line: "Close and daily change. Sources: Yahoo Finance, FRED for the US 10Y yield.", plus "Prior close: no print yet for the session." when it applies.
-
-### Filter chips and status
-- **Chip:** 44px tall, padding 0 16px, `--rule` border, transparent, ink-2 label at 0.875rem/550, count in tabular figures at 450 in ink-3.
-- **Pressed (`aria-pressed="true"`):** ink fill, ground label, count at 0.7 opacity. Exactly one chip is pressed.
-- **Glide (owner-approved, 22 Oct 2026):** with JS, one ink fill per chip group slides and resizes to the pressed chip (420ms ease-out) while labels change colour over 260ms. Applies to every `.filters` group: the home dashboard filters and the dashboard page range chips. Without JS or under reduced motion the fill jumps.
-- **Hover (unpressed, fine pointers):** border to `--rule-strong`, label to ink.
-- **Row:** horizontal scroll with hidden scrollbar, bleeding to the gutter.
-- **Status:** a polite live region below the chips at 0.875rem ink-2: "Showing all 9 dashboards" or "Showing n of 9 dashboards: [category]". Matching tiles fade in and rise 6px over 320ms on filter, staggered 35ms.
 
 ### Dashboards page (`dashboards/`, 31 Oct 2026)
 The dashboards section that was on the homepage, as an inner page: the page head ("Dashboards", the lede "Interactive views across rates, equities, macro and cross-asset. Open any one for its full history." and, under it, "Figures to the close of [Friday 30 Oct 2026]. Each tile names its own source and date." at 0.875rem ink-2, the newest session among the daily tiles, left out while no tile has figures), then the filter chips, the status line and the tile lattice: three columns, two at 1100px and below, one at 640px and below. The head's rule sits `clamp(32px, 5vw, 56px)` above the chips. Each dashboard page's crumbs ("Dashboards / [Category]") link back here.
@@ -597,12 +429,12 @@ An inner page from `data/path_to_wall_street.json`; "Break into Wall Street" in 
 - **Visas:** three columns (US, UK, EU) split by `--rule` hairlines, one column at 960px and below; each route a link to the official page with one line in ink-2. A note that rules change.
 - **Content rules:** a date only when the firm has published it and someone has checked it on the firm's page (read from the firm's own site; a row not yet re-checked by hand carries a "Not yet re-checked" tag and the head counts the re-checked rows); an expected window says what it rests on; no salaries; no personal names (books by title and publisher); every visa and certification links to its official source.
 
-
 ### Firms (`firms/`, owner-approved sketch, 1 Nov 2026)
 A directory of the firms in the Recruiting calendar, from `data/recruiting_calendar.json` only (`tools/page_firms.py`, `assets/firms.js`). Calendar page head (title, lede linking the calendar, meta: firm and programme counts and the calendar's checked line). Type chips (the calendar's groups, firm counts in tabular figures) and Division chips (IB, S&T, AM, Quant) with a status line, hidden without JavaScript. The list is max 64rem. Each firm sits under a `--rule-strong` rule: its name (1.375rem/540) and type (0.875rem/550 ink) on one line; its divisions (" · ", 0.9375rem ink-2) and US offices (0.875rem ink-2) under them. The right column lines up with the programmes' dates. Programmes are `--rule` rows in three columns (main, 17rem dates, 6.5rem apply): name (1rem/540), cycle and locations (0.875rem ink-2), the calendar's tags and expected-window basis; Opens and Closes as a definition list in the calendar's words, with "Closes in n days"; the calendar's Apply link with a 44px target. Each firm ends with "See in the Recruiting calendar" to `recruiting-calendar/#f-<slug>`, which opens the calendar's By firm view at that firm's first row. Rows stack at 640px. No description, ranking, pay or headcount.
 
 ### Application tracker (`application-tracker/`, owner-approved sketch, 1 Nov 2026)
 The reader's applications, in `localStorage` (`andra-tracker`) only, never sent (`tools/page_application_tracker.py`, `assets/tracker.js`; the calendar's programmes are a JSON data block in the page). A primary "Add from the Recruiting calendar" button (a CSS plus sign) opens a dialog: a type-to-narrow combobox over a ruled list (the Lab picker's rows, `--ground-2` on the active row), then "Or add your own" (firm, role, optional deadline). The board has four columns (To apply, Applied, Interview, Offer), each headed 0.9375rem/600 with its count in ink-3 over a `--rule-strong` rule; two columns at 1100px, one at 640px. Cards have a 1px `--rule` border: firm (1.0625rem/540), role (ink-2), a date list (Closes with "Closes in n days" and "From the Recruiting calendar" in ink-3; Applied; Next with "In n days"), a contacts and notes count, then a Status select (44px, square, caret icon) and a Details button. Nearest date first. Dialogs follow the search palette: the dialog is the scrim, the panel `--ground` with a `--rule-strong` border, opening with opacity and `translateY(-8px) scale(0.985)` (instant under reduced motion). Fields follow the Lab's (52px, `--rule-strong`, invalid as the signup error). Under the board: "Saved only in this browser. Nothing you enter is sent." with Export a copy, Import a copy and Delete all (each confirmed in a small dialog, focus on the safe choice). A `--rule-strong` notice with the warning icon appears when storage is blocked. Without JavaScript a sentence links the calendar.
+
 ### World markets (`world/`)
 Twenty-five markets on eight measures, from `tools/world_data.py` (see README, World markets data); `assets/world.js` draws the comparison. The dashboard page grid.
 - **Head:** page title "World markets", lede, "Yahoo Finance, OECD, World Bank, IMF. Updated [date, time] ET." in the note meta style. No crumbs.
@@ -727,28 +559,6 @@ An inner page, one per note.
 - **Pager:** text links below the body, 32px above, 24px apart: "Previous note, [date]", "Next note, [date]", "All notes", "Get the note by email" (to the signup plate).
 - **No downloads.** The site is the free tier: no PDF, facts file or data download is linked or published anywhere (see PRODUCT.md, Business Model). The deploy fails if a PDF, JSON, CSV or XLSX file reaches the published site.
 
-### Learn (removed, 30 Oct 2026)
-The homepage Learn section, the Learn index and its six explainers were removed at the owner's request. Each `learn/<slug>/` sends readers to the section that shows its subject (Fed & Rates, the volatility, inflation and credit dashboards, the calendar); `learn/` goes to the home page.
-
-### Watch (removed, 30 Oct 2026)
-The homepage Watch section, the Watch page and their TikTok embeds were removed at the owner's request so the site loads nothing from TikTok and sets no third-party cookies. `watch/` now sends old links to the home page. Social channels appear only as plain footer links.
-
-### About
-Not on the homepage since 31 Oct 2026, and with it the footer's and the search's "About" links.
-A statement paragraph (statement style, columns 1 to 8) beside a definition list (columns 9 to 12, bottom-aligned). Each `dt`/`dd` pair sits in a row with a `--rule` top border and 14px padding; terms are 0.8125rem ink-2. The section heading is visually hidden. The section has a `--rule` top border.
-
-### Signup form (closing plate)
-
-> **Paused.** The owner removed every subscribe entry point for now: the hero buttons (Explore dashboards, Subscribe), the header and sheet Subscribe, the signup plate, the "Get the note by email" pager links, the company "Subscribe for the memo" buttons and the close notes' locked "Download PDF, Subscribers only" button. The specs below are kept for when the newsletter launches.
-- **Plate:** `min-height: 88svh`, content bottom-aligned, `--rule` top border, horse behind (see Horse placements). Title in columns 1 to 6, form in columns 8 to 12.
-- **Field:** label 0.875rem/550; input and Subscribe button in a row with an 8px gap (stacked at 640px and below); input 52px tall, padding 0 16px, `--rule-strong` border, ground fill, 1rem, ink-3 placeholder; focus is a 2px `--focus` outline at 0 offset. Help line 0.875rem ink-2.
-- **Error:** ink only. Input gets `aria-invalid="true"`, ink border plus an inset 1px ink ring (2px total). The status line turns 650 weight and shows the `warning-circle` icon at 1.25rem beside the message. Messages: "Enter your email address to subscribe." or "That email address looks incomplete. Check it and try again." Focus returns to the input, and typing clears the error.
-- **Success:** the status line (550) reads "The newsletter launches soon. Your address was not saved: sign up here again once it opens." and the input row dims to 0.5 opacity. No colour, no icon. This holds until the newsletter platform exists (PRODUCT.md, Business Model); the address is never sent or stored. Once it launches, the message becomes "Subscribed. The next close note goes to [address]."
-- **Status** is a polite live region, wired to the input with `aria-describedby`.
-
-### Footer
-`--rule` top border, padding 48px/40px, 0.9375rem. Brand (mark plus wordmark) with a one-line description in ink-2, then the Contact us button 20px under it (see Contact us); a two-column nav of section links (the Lab and Simulators by name, and since 1 Nov 2026 the new Research and Careers sections: Chart of the day, Central banks, Recession watch, Market history, Interview simulator, Recruiting calendar, Firms, Application tracker), then Methodology, Data sources, Legal notice and Privacy and cookies; social links built from `SOCIALS` in `tools/build_site.py`, one per channel with a URL (currently LinkedIn and TikTok; YouTube returns when `YOUTUBE_URL` is set), 1.25rem icons and `rel="me"`. Links are ink-2, turn ink on hover, min height 40px (44px on mobile). Legal row: `--rule` top border, 0.8125rem ink-3: "© [year] Andra Markets" and "For information only. Not investment advice.", the second linking to the legal notice (no underline, ink on hover).
-
 ### Inner page (`.page`)
 For methodology and future sub-pages, sharing the same header and footer. Top padding `nav-h + clamp(48px, 9vh, 112px)`, bottom `--section`. The head is max 44rem: page title and lede (16px gap) over a `--rule-strong` bottom rule, with `clamp(32px, 5vw, 56px)` padding. The body is max 44rem: sections padded 28px with `--rule` bottom borders, h2 at 1.375rem/540, paragraphs ink-2 max 65ch. The header is solid from the first paint.
 
@@ -776,37 +586,11 @@ The Company profile section was merged into Companies (owner's request, 30 Oct 2
 - **Loading and errors:** each part loads on its own. Loading: blocks in `--ground-2` with the shape of the content, fading between full and half opacity over 1.6s (still under reduced motion). Error: a `--rule-strong` box with the warning icon, a sentence in ink saying what did not load, a note in ink-2 on why and what happens next, and a ghost "Try again" button; when the source is busy it retries on its own. Errors are never red. A saved copy served during an outage carries its date in the source line.
 
 ### Asset versions
-Every page links `site.css`, `site.js` and page scripts with `?v=` and a short hash of the file (`ver()` in `build_site.py`), so a browser fetches them again whenever they change instead of showing a new page with an old stylesheet.
-
-### Page transitions (owner-approved, 1 Nov 2026)
-The owner found the jump from the homepage to a section abrupt and approved this proposal ("Vuelta al punto", plus the cross-fade between sections). They then asked for a real move from one section to another without going through the homepage, and approved "the name becomes the title" (1 Nov 2026), which replaced the cross-fade. The way back to the homepage is unchanged: it forms from the point as on a first visit.
-- **Homepage to a section ("back into the point"):** a click on any link to another page (the index, the close note, the legal line) takes the whole hero back into the point at its centre that it formed from, the way in reversed (`assets/hero-horse.js`): the text and the horse's shading set off over the first 0.1s and the outline over the next 0.1s, each particle on the same slightly curved path it came out on, slow away from its place and fast into the point (ease-in cubic, 0.42s), fading to dust as it goes. The headline, the index and the header turn back into particles where they stand (they are sampled again from the page), the real text clears at once (`html.hero-leaving`) and the close note fades out (240ms). The point fades over the last 0.12s and the section opens at 0.64s. Its HTML is fetched as the hero leaves (`rel="prefetch"`; the speculation rules may already have it).
-- **Arriving in the section:** the hero leaves a note in `sessionStorage` (`andra-arrive`); the section page's head reads it before the first paint (`ARRIVE_BOOT` in `tools/build_site.py`, ignored after 8s) and marks `html.arrive`. The sphere (`assets/section-scene.js`) opens out of the same point at the centre of the screen: each particle flies out of it to its place, quick out of the point and slowing in (ease-out cubic), released over the first 37% of 1.3s, drawn small (35% to full size) and up to 3.5 times as bright while in flight so the opening reads against the black; its light starts 40% up. The horse grows out of the point from 20% of the opening and lights as it grows. The header and the footer fade in (600ms `--ease-out` after 360ms) and `main` fades and rises 12px (700ms after 300ms). Both clocks move at most 1/20s a frame, so a frame held up while the page loads pauses them instead of skipping them.
-- **From one section to another** (owner-approved, 1 Nov 2026: "the name becomes the title"): every page but the homepage opts in to a view transition across pages (`VIEW_TRANSITION` in `tools/build_site.py`, type `section`; Chrome, Edge and Safari, others change page as before). The header keeps its place (`view-transition-name: site-header` during that transition only) and the sphere carries on behind: on leaving, the scene keeps its clock, light and turn in `sessionStorage` (`andra-scene`), and the next page, if it opens within 8s, starts from there instead of lighting up from dark. A transition towards the homepage is called off (`assets/site.js`). About 0.53s in all, against about 1.9s from the homepage, as it is made many times a visit.
-  - **Any link** (the search, the footer, links inside a page): the page going fades on its own (`main` as `page-out`, 160ms ease-in, marked `leave` in `pageswap`, `assets/site.js`) and the next one rises 14px into place (`main` as `page`, opacity and `translateY`, 420ms `--ease-out` from 110ms, marked `enter` in `pagereveal`). The rest of the old page, the sphere and the footer, fades off the new one over 260ms; the old header over 200ms. Going back in history the next page comes down 14px from above instead (`back`). Each `main` has a name of its own, so a page left scrolled down fades where it stood instead of sliding.
-  - **From a section in the open menu** (the orbit above 960px, the sheet below): the menu stays open after the click, so it is what fades (200ms, with the header), and the section's name flies across the screen and grows into the new page's title: the `.nav__label` is named `page-title` as the page goes, the new page's `.page__title` when it arrives (type `menu`, `width: fit-content` for that moment only), 520ms `--ease-in-out`, both pictures scaled by height and held to the left so the words keep their shape. They cross-fade over the first 140ms, while the name has barely moved, so a name shorter than its title ("World", "World markets"; "Interview prep", "Markets Interview Prep") turns into it in place. The label is one em tall (`line-height: 1`, in a name row held at `1lh`, so the card does not change), the same shape as a title, which is `line-height: 1` too. A title that wraps (a long one on a phone) would land as another shape, so there the name only fades where it is and the page rises as for any link. So does a link to a part of a page (one with a `#`; the menu has none since Tools' themes became pages, 4 Nov 2026), which would land scrolled to that part, away from the title; a link to a part of the page already open moves nothing and closes the menu as before. The page going leaves a note (`andra-move` in `sessionStorage`: from the menu or not, back or not, ignored after 8s); the new page reads it in its head (`MOVE_BOOT`, before its first frame, with `<link rel="expect" href="#main" blocking="render">` so the title is parsed by then). Back from the back/forward cache, the page closes the menu it was left with.
-- **Back to the homepage from the back/forward cache:** a homepage left this way and shown again comes back out of the point (the way in reversed again, 0.5s); the real text then takes over as its particles fade (450ms), as when it first formed.
-- **Fallbacks:** reduced motion, a link opened in a new tab or window (modifier keys, `target`, `download`), a PDF, and a hero whose particles are not drawing yet all go straight to the page. Without `sessionStorage` the section opens as on a direct visit, and between sections the name does not fly (the page still rises). Under reduced motion there is no way out, no opening and no move between sections, and a click in the menu closes it as before; so does a click with a modifier key.
+Every page links its stylesheets (`site.css` and `theme.css`, or `home.css` on the homepage), its scripts and the particle map with `?v=` and a short hash of the file (`ver()` in `build_site.py`), so a browser fetches them again whenever they change instead of showing a new page with an old stylesheet.
 
 ### Motion components and licence
 The rolling figures, chip glide, theme reveal, search palette, share swap and questions accordion were adapted from beUI (owner-approved proposal, 22 Oct 2026), rewritten in plain JS and CSS with these tokens: square, flat, ink only, no bounce. beUI is MIT licensed; its notice is kept in `assets/LICENSE-beui.txt` and cited at the top of `assets/site.js` and the components block of `assets/site.css`.
-
-### Horse placements
-- **Hero legal line** (`.site-header__legal`, the homepage has no footer; owner moved it to the top right, 31 Oct 2026): "For information only. Not investment advice." (to `legal/`) and "Privacy and cookies" (to `privacy/`), 0.8125rem `--ink-3`, ink on hover, 20px apart, at the right end of the header row. From 360px to 600px it sits in the header row's right corner (owner, 31 Oct 2026), on two right-aligned lines, "Not investment advice." (to `legal/`) and "Privacy and cookies", 0.6875rem on 15px lines 2px apart, and the brand's right margin drops to 0. "For information only." is left out on phones (owner, 31 Oct 2026): with it the disclaimer only fits one line there at about 7px. "Not investment advice." is 117px wide, which fits from 370px, and from 360px with 4px header gaps. Below 360px there is no room in the row: the full line sits just under it, right-aligned (0.75rem, 20px lines), and the headline starts `nav-h + 56px` from the top.
-- **Hero layout** (owner-approved, 1 Nov 2026; it was the headline top left, the close note and an index of twelve sections bottom left, the horse on the right): everything symmetric about the page's centre line. The phrase "Markets, on the record." on top, centred (560, `clamp(1.25rem, 1.9vw, 1.625rem)`, 1.1, -0.02em; `nav-h` plus `clamp(24px, 6vh, 72px)` from the top). The horse in the middle: the centre of its silhouette (x 513 of the engraving's 1024px; the box's anchor is 502) on the centre line, `--horse-x: calc(50% - 0.0107 x --horse-size)`, at `--horse-size: min(116svh, 96vw)`, and halfway between the phrase and the foot of the screen (`--horse-y` follows the hero's top room: `50% + 32px + clamp(12px, 3vh, 36px) + 11px`, `50% + 32px + 1.5svh + 11px` on screens 721 to 899px tall, `50% + 51px` at 720px and less). Measured in Chromium: 130px above and 131px below at 1440x900, 110 and 110 at 1280x720.
-- **Hero, the four groups** (`hero_groups()` in `tools/build_site.py`; owner-approved, 1 Nov 2026): the header menu's groups as `details` named `hero-group` (one open at a time), Markets and Tools left of the horse, Research and Careers right of it, at the height of its centre. The two sides mirror each other: 180px wide, aligned towards the horse (left side right-aligned), 64px clear of the silhouette's box (0.444 of `--horse-size` wide), 22px between the two names. Names 1rem/600 ink, no arrow or marker; an open group shows its sections under its name (0.875rem `--ink-2`, 3px above and below each, ink and a `--rule-strong` underline on hover). Every section of the menu is in it, so the homepage still reaches them all (`tools/check_site.py`). Opening and closing are smooth (owner, 1 Nov 2026: they were abrupt; `assets/site.js`): the list grows to its height and fades in over 280ms (ease-out `cubic-bezier(0.23, 1, 0.32, 1)`), its sections following one another 25ms apart from 40ms (each 240ms, 4px down to place), and folds away over 180ms (ease-in). One group is open at a time: the open one folds first, then the next opens, so two lists never share the space. The list is clipped only while it moves, so a focused section's outline is never cut. Reduced motion, or no script: they open and close at once (the `name` attribute keeps one open without the script).
-- **Hero, phones held upright** (860px and less, portrait): one centred column. The phrase at 1.25rem (`nav-h` plus 20px from the top, 14px when 760px tall or less, 56px below 360px wide), the horse's slot `min(42svh, 80vw)` tall with the engraving sized from it (`198.4cqh`, the silhouette's centre on the centre line), 16px, then the four names in two rows of two, each centred in its half (12px between rows). The horse and the names sit as one block halfway between the phrase and the foot of the screen. An open group's sections show centred under the names, wrapping (18px apart), over the empty room below, so opening one moves nothing: the particles were drawn where the horse stood.
-- **Hero, one screen:** the stage is `min-height: 100svh`; the hero never scrolls. Checked in Chromium without scrolling, with no name over the horse and the phrase clear of it and of the legal line, at 1920x1080, 1680x900, 1536x864, 1440x900, 1366x768, 1280x720, 1280x680, 1024x768, 932x430, 844x390, 820x1180, 768x1024, 414x736, 390x844, 375x667, 360x640 and 320x568.
-- **Hero, still horse:** `.hero__art` absolutely placed at `--horse-x`, `--horse-y`, `--horse-size` square, `translate(-49%, -50.5%)`, in the mark's look (Horse and mark treatment). The particle horse follows it. On phones held upright it is the slot between the phrase and the names.
-- **Hero, particle horse** (owner-approved, 31 Oct 2026; the mark's look since 1 Nov 2026; `assets/hero-horse.js`): with WebGL the still engraving is hidden (it keeps its box) and a canvas over the stage draws the horse in exactly that box, one particle per inked pixel of `assets/horse-particles.png` (109,446). On load every particle starts at one point at the exact centre of the hero, a few pixels across (owner, 31 Oct 2026), and flies out of it to its place in the horse on a slightly curved path, quick out of the point and slowing into place (ease-out cubic, 2.3s each): the outline from 0.5s, then the shading from the head down until 3.3s, so the point empties as the drawing fills; everything has settled at 6s. These are hero seconds: the hero's clock runs 1.4x real time (owner, 1 Nov 2026: "a little faster"), so in real time the outline starts at about 0.36s, the phrase, the groups and the header turn crisp at about 2.1s (2.3s measured in Chromium, 3.1s before) and the horse has settled at about 4.3s; the band of light keeps its real-time pace. It settles as the header's mark shows the horse: ink on white, light on black. The pointer parts the dots within 95px (70px at 860px and below) and they close again behind it; a slow band of light passes over the settled drawing about every 22s. In the light theme a faint halo pass (a third of the particles, 4.5x size, 0.05 alpha) sits under the dots; the dark theme has none, so the black stays matte.
-- **Hero, phrase and groups in particles** (owner-approved, 31 Oct 2026; the four group names since 1 Nov 2026): they fly out of the same point at the centre of the hero, so the whole hero forms from it. Each character is drawn in its own font, size and weight exactly where the page sets it and sampled at 1.25 particles per CSS pixel. The phrase forms first (0.15s to about 3s), then the group names one by one (from 0.95s, 0.09s apart). Once a group has settled its particles fade over 0.45s and the real text, crisp and working, takes over (its colour transitions from transparent over 450ms). Until then the text is in place but clear: a script in the homepage head (`HERO_BOOT` in `tools/build_site.py`) marks `html.hero-forming` when WebGL is there and motion is allowed, and lifts it if the hero is not running within 3s; `hero-horse.js` lifts it whenever it cannot run, and if the font is not ready within 1.5s the text simply shows. A group's sections are folded away while the hero forms; clicking one in an open group takes the hero back into the point before the page opens, and the open list fades (240ms).
-- **Hero, header in particles** (owner, 31 Oct 2026): the homepage header forms from the same point too. The mark (its transparent PNG, sampled by its alpha; it is also the theme toggle), the name and the legal line are each drawn where the page shows them and sampled at 1.25 particles per CSS pixel, and fly out with the headline, left to right across the header row (from 0.3s, settled by 3s). The legal line settles in its lighter tone (`--ink-3` against the ground, as a share of `--ink`). Then, as with the headline, its particles fade over 0.45s and the real header takes over (`.crisp-hd`: colour and the mark's opacity transition over 450ms). While `html.hero-forming` is set they are in place but clear, so the toggle and the links keep their boxes; reduced motion, no WebGL, no JavaScript and the 3s fallback show the header as it is. Every inner page's header is unchanged.
-- **Hero, scroll into the chart** (off since 31 Oct 2026: the homepage keeps the horse. `MORPH = false` in `hero-horse.js` turns it off outright, so the horse never becomes the chart even where the hero is taller than the screen; the engine keeps it for a hero that should have one): with motion allowed, the hero was a `230svh` track and the stage sticky (`100svh`). Over the first 130svh of scroll the horse comes apart into dust, left side first, and settles into an illustrative price chart drawn like an engraving (seeded series, double-stroke line with a ring on the last point, 45 degree hatching under it that fades with depth, crosshatch close under the line, dotted grid at a quarter, half and three quarters, baseline with 13 ticks), stamped "Illustrative, not market data" (0.8125rem, `--ink-2`) below it. The headline and the index stay. The chart takes the horse's place: from 861px the right 48% of the page width inside the gutters, from 20% of the stage height to 70% (at least 150px above the bottom); below that, the horse's slot between the headline and the index. The header stays transparent while the stage holds and turns solid after it; then the tape follows.
-- **Hero, start-up** (31 Oct 2026, after the owner saw the still horse flash and a stall on load): the homepage head preloads `assets/horse-particles.png` at high priority and `hero_boot()` (inline in the head, so it runs before the header and the hero are parsed) picks the image up, so the map is in hand when the script runs. While `html.hero-forming` is set the still engraving is hidden, so it never shows before the particles; it loads at low priority as the fallback. Each particle's random numbers come from a hash of its own pixel in the shader, so the script builds only four floats per particle (position, ink, outline), and the headline and index particles are built after the horse's first frame. Measured on a 4x CPU-throttled 390x844 phone on a slow connection: first particle frame at about 0.9s (it was 2.9s), longest main-thread block about 0.2s (it was 1.1s), the still engraving never painted.
-- **Hero, fallbacks:** reduced motion shows the settled drawing still and the text crisp from the start, with no track, no morph, no pointer and no band of light. Without WebGL or JavaScript the still engraving shows in the same layout and the text is crisp from the start.
-- **Closing plate:** `.signup__art` at `50% / 46%`, `min(150svh, 190vw)`, same filter and blend, container opacity 0.32, no entrance animation.
-- **Brand mark:** the transparent marks (see Brand assets), `assets/andra-mark-light.png` in the light theme and `assets/andra-mark-dark.png` in the dark theme, swapped by `data-theme` in CSS like the theme icons. Height `1lh` (fallback `1.55em`): the wordmark's line box, 26px at the brand's 1.0625rem, at every width; width auto, vertically centred with the wordmark by the brand's flex row, 10px gap. No box, background, border, filter or blend. The same marks are used in the footer.
-- **Favicon and touch icon:** the owner-approved head-and-neck crop; see Brand assets.
+The theme reveal and the chip glide are no longer in use.
 
 ### Placeholder tokens
 Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, `[n]`, `[handle]`, `[Company]`...). The generator wraps every `[...]` in `.ph`, which renders in `--ink-3` (plate-ink-2 on the plate). `.ph--ink` renders in full ink and is used where the placeholder stands in for a headline or title (note headlines, video titles, the tape's headline).
@@ -823,9 +607,8 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 
 ### Brand assets
 - **Favicon and touch icon** (`assets/favicon-32.png`, `assets/favicon-48.png`, `assets/apple-touch-icon.png` at 180px): a head-and-neck crop of `andra-horse.png` (source box x462 to 646, y252 to 436) on its own black ground, pixels otherwise unaltered, resized with Lanczos. The owner asked for "a favicon (head and neck crop of the horse)" and approved the proposal as shown. This is the only approved crop of the mark.
-- **Header and footer marks** (`assets/andra-mark-light.png`, `assets/andra-mark-dark.png`, 140x160): made by `tools/make_mark.py` from `andra-horse.png`. The black ground is removed (alpha from luminance: 6 and below is transparent, 160 and above opaque, so the engraving's grey shading stays as partial transparency), the empty margin is trimmed to a 6px pad, and the horse is set in each theme's ink (`#0e1215` light, `#e9eceb` dark). The whole horse is kept, shapes untouched. Owner-requested to remove the box the old blend technique showed on mobile. Regenerate with `python3 tools/make_mark.py`; never edit by hand.
-- **Hero particle map** (`assets/horse-particles.png`, 681x774): made by `tools/make_horse_particles.py` from `andra-horse.png`. The horse's box (source x278 to 732, y258 to 774) is upsampled 1.5x with Lanczos; each pixel's red channel is its ink in the header mark's look (owner-approved, 1 Nov 2026: "the small horse beside Andra Markets"; `tools/make_mark.py` turns the engraving's light into ink): luminance from 28 starts ink and from 165 is full ink, on a 1.35 curve, so the faintest shading, which particles would add up into haze, drops out. Green marks the outline (inked pixels within 11px of the ground outside the silhouette, which is flooded in from the corner of the original). Nothing is redrawn. Until 1 Nov 2026 the map was the light theme's pencil look (`--horse-filter` and `--horse-opacity`, 85,154 particles); the owner first asked for the horse as "a cloud of white dots that moves until it forms a horse like the current one" and for every particle to fly out of one point at the centre of the hero (31 Oct 2026). Regenerate with `python3 tools/make_horse_particles.py`; never edit by hand.
-- **Section backdrop horse** (`assets/section-horse.png`, 512x512): made by `tools/make_section_horse.py` from `andra-horse.png` (needs OpenCV; run it locally, the deploy uses the committed file). The horse's box (source x250 to 760, y236 to 796) is worked at 2x: the engraving's strokes are closed and filled from the outside in, the body's core is kept and its fine attached parts (ears, mane tips, tail) grown back without the loose speed lines, and the outline is smoothed. Channels: R distance inside the outline, G the body, B the engraving's softened shading, A distance outside; each channel resized on its own to a power of two so the scene can mipmap it. The owner asked for a black horse lit from behind with only its edges lit, half the earlier size, in the middle, and approved it on 31 Oct 2026. Regenerate with `python3 tools/make_section_horse.py`; never edit by hand.
+- **Header and footer marks** (`assets/andra-mark-dark.png`, 140x160; `assets/andra-mark-light.png` is still made and shipped but no longer shown): made by `tools/make_mark.py` from `andra-horse.png`. The black ground is removed (alpha from luminance: 6 and below is transparent, 160 and above opaque, so the engraving's grey shading stays as partial transparency), the empty margin is trimmed to a 6px pad, and the horse is set in each theme's ink (`#0e1215` light, `#e9eceb` dark). The whole horse is kept, shapes untouched. Owner-requested to remove the box the old blend technique showed on mobile. Regenerate with `python3 tools/make_mark.py`; never edit by hand.
+- **Homepage particle map** (`assets/horse-particles.webp`, 681x774, lossless): made by `tools/make_horse_particles.py` from `andra-horse.png`. The horse's box (source x278 to 732, y258 to 774) is upsampled 1.5x with Lanczos; each pixel's red channel is its ink in the header mark's look, with the faintest shading dropped and a gentle curve; the green channel marks the outline. The homepage places its particles by this map and then shows the red channel as the finished engraving. Nothing is redrawn: every value comes from the original engraving.
 - **Social share image** (`assets/og-image.png`, 1200x630): the full, uncropped horse screen-blended on `#0a0c0d` at 0.62 opacity with a radial vignette, the wordmark (1.625rem/650) and the hero line set in Schibsted Grotesk (84px/560, -0.04em), sub in `#a8b0b4`. Owner-approved as shown. Every page's head carries icon links, Open Graph and Twitter card tags; canonical and `og:url` are emitted only once `SITE_URL` is set in `tools/build_site.py`. Close notes say `og:type` article with their publication time; redirects carry `noindex`. Structured data, the sitemap and the feed are invisible: see README, Search engines, link previews and the feed.
 - **Close note share image** (`reports/<date>/og.jpg`, 1200x630, owner-approved 31 Oct 2026): drawn at build time by `tools/og_note.py` (Pillow; the deploy installs it) on the social share image's ground: `andra-horse.png` whole, untouched, screen-blended at 0.62 on `#0a0c0d` at the right with the radial vignette; the dark transparent mark (34px) and "Andra Markets" (26px/650) at 72px from the left and 64px from the top; "Close note, Friday 30 Oct 2026" (22px/400, `#a8b0b4`); the note's headline (54px/560, -0.035em, 1.04, balanced over at most three lines within 700px; 48, 42 or 38px when it needs more); and, on a hairline rule, four daily changes (S&P 500, Nasdaq 100, VIX, Gold; a stale one gives way to Euro Stoxx 50, then WTI) with their names (19px, `#a8b0b4`) over the change (30px/520 tabular, signed, `#1fd27a` up, `#ff4b52` down), separated by hairlines. JPEG at quality 90 without chroma subsampling. The note page's `og:image` and its Article structured data's `image` point to it, with the alt "The Andra Markets close note for [date]: [headline]"; every other page, and a note whose image could not be drawn, shares `assets/og-image.png`.
 - New derivatives (other sizes, a manifest icon, alternative share cards) need owner approval before they ship.
@@ -833,32 +616,34 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep dark as the default theme, resolve it as `?theme=` param, then `andra-theme` in localStorage, then dark, and keep `theme-color` in step (`#ffffff` / `#0a0c0d`).
-- **Do** set every colour through the theme custom properties so both themes and the Lab plate work without per-component overrides.
-- **Do** use the one `--font` stack ending in `sans-serif`, with variable weights between 400 and 650 as recorded in Typography.
+- **Do** keep the site one dark theme: black ground, `theme-color` `#000000`, no switch.
+- **Do** set every colour through the custom properties, and new values in `assets/theme.css` (inner pages) or `assets/home.css` (homepage).
+- **Do** use the one `--font` stack ending in `sans-serif`, in light weights: 300 for titles and ledes, 350 for text, 400 for headings in lists, labels and figures, 500 for the rare bold.
+- **Do** make actions words with an arrow, filters words with an underline for the chosen one, and fields a line to write on.
 - **Do** apply tabular figures only to elements that hold numbers.
 - **Do** give every chart a key and a source and date line. Lab charts carry an "Illustrative" stamp until real data exists; dashboard tiles never do.
-- **Do** write unknown values as bracketed placeholders in `.ph` (or `.ph--ink` for a headline).
-- **Do** separate with 1px hairlines (`--rule`, `--rule-strong`) and tonal steps rather than boxes.
+- **Do** write unknown values as bracketed placeholders in `.ph`.
+- **Do** separate with 1px hairlines (`--rule`, `--rule-strong`), as lines above or below, never as frames.
 - **Do** gate every hover effect behind `@media (hover: hover) and (pointer: fine)`.
-- **Do** keep content visible by default: hide for a reveal only under `html.js` (and never without JS).
-- **Do** use the shared motion tokens: `--ease-out` `cubic-bezier(0.23, 1, 0.32, 1)` for entrances, hovers and the sheet, and `--ease-in-out` `cubic-bezier(0.77, 0, 0.175, 1)` for the chart draw. Durations: 120ms press, 160ms colour, 200ms nudges and fills, 240ms header, 260ms tile fade and theme cross-fade, 300ms theme icon, 900ms rise and reveal, 1400ms chart draw (150ms delay), 1600ms horse entrance (the still engraving), 6s particle horse (out of the centre point from 0.5s, settled at 6s, ease-out cubic over 2.3s per particle, outline first), 640ms the hero's way back into the point (ease-in cubic, 420ms per particle), 1.3s the sphere opening out of it, 260ms the cross-fade between section pages.
-- **Do** stagger the hero entrance at `240ms + i x 80ms` (rise from 14px) and scroll reveals at `i x 70ms` (rise from 18px, once, IntersectionObserver with a -12% bottom margin and 0.05 threshold; dashboard tiles stagger by column, `i mod 3`).
-- **Do** draw charts in with `clip-path: inset(0 100% 0 0)` to `none`, and let the still hero horse recede on scroll (`animation-timeline` on the hero's view timeline, exit 0% to 100%, to `translate(-49%, -44%) scale(0.94)` at 0.25 opacity) only where `animation-timeline: view()` is supported. The particle horse does not recede: it comes apart into the hero chart instead.
-- **Do** reveal theme changes as a circle from the toggle with View Transitions (560ms), and switch instantly under reduced motion.
-- **Do** under `prefers-reduced-motion: reduce` keep only gentle fades: reveals fade in place (opacity, 300ms, no movement); drop the horse entrance, the particle horse's flight, pointer and band of light (it shows settled), the hero scroll track and chart morph, hero rise, chart draw, recede, filter tile fade, smooth scroll and view-transition animation, and the page transitions (the hero's way out, the sphere's opening, the page fading up and the move between sections).
-- **Do** show the horse whole and change it only through `--horse-filter`, `--horse-blend`, opacity and placement (the brand mark uses its approved transparent derivatives; the homepage hero draws it with its approved particle map).
+- **Do** keep content visible by default: hide for an entrance only when a script has marked the page (`html.js`, `html.opening`), and show it anyway if that script never finishes.
+- **Do** use the shared eases: `cubic-bezier(0.23, 1, 0.32, 1)` (`--ease-out`) on inner pages and `cubic-bezier(.2, .8, .2, 1)` on the homepage for entrances and arrows.
+- **Do** under `prefers-reduced-motion: reduce` drop the opening, the leaving move, the particles' flight and every rise; draw the homepage's scene as still frames.
+- **Do** test the homepage on a phone: particles pile up on a small screen, so anything in transit must stay dim enough to read text over.
+- **Do** show the horse whole, from `andra-horse.png` and its approved derivatives only.
 - **Do** publish only as "Andra Markets".
 
 ### Don't:
 - **Don't** round any corner; everything is square (0px).
-- **Don't** add shadows. The inset ring on an invalid input is the one border treatment allowed.
-- **Don't** use gradients anywhere except the hero vignettes.
+- **Don't** add shadows, cards or boxes. The search palette is the one framed panel.
+- **Don't** add a light theme or a second theme.
+- **Don't** use gradients except for light: the homepage's horizon and flare, the wash at the head of inner pages and the fade behind the fixed header.
 - **Don't** use red or green for anything but a rise or a fall: not for errors, success, tags, links, labels or prose, and never on a figure without its sign.
 - **Don't** put an eyebrow, kicker or category label above a heading.
 - **Don't** use em dashes or en dashes in copy; use commas, colons or full stops.
 - **Don't** put a personal name anywhere on the site. The one exception is the privacy policy, which names the owner as the data controller (GDPR art. 13; owner, 2 Nov 2026).
-- **Don't** crop, redraw, recolour (in the file), replace or regenerate `andra-horse.png`; don't add a second image or illustration style. The approved derivatives are the favicon set, the transparent header marks and the hero particle map (Brand assets); any other derivative needs owner approval first.
+- **Don't** crop, redraw, recolour (in the file), replace or regenerate `andra-horse.png`. The approved derivatives are the favicon set, the transparent marks and the homepage particle map (Brand assets); any other derivative needs owner approval first.
+- **Don't** add a second illustration style. The pictures of the four groups are line drawings made of the same light as the rest; anything new needs owner approval.
 - **Don't** use a serif face or a fallback stack that ends in `serif`, and don't add a second family.
+- **Don't** set text heavier than 500, or in uppercase except the brand and actions.
 - **Don't** invent numbers, prices, counts or dates; use a bracketed placeholder.
 - **Don't** introduce an accent colour in the UI; ink is the only emphasis.

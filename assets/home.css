@@ -1,7 +1,7 @@
 @font-face{font-family:"Geist";src:url("fonts/geist-latin.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
 .skip{position:absolute;left:-9999px}.skip:focus{left:16px;top:16px;z-index:30;color:#fff}
 /* Layout: one fixed scene of light on black; full-screen sections scroll over it. Type only: no boxes, no rules. */
-:root{color-scheme:dark;--bg:#000;--ink:#f2f3f3;--ink-2:#a3a8aa;--ink-3:#6f7477;
+:root{color-scheme:dark;--bg:#000;--ink:#f2f3f3;--ink-2:#a3a8aa;--ink-3:#74797c;
  --display:"Geist","Helvetica Neue",Arial,sans-serif;--gut:clamp(20px,5vw,72px)}
 *{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 var(--display);-webkit-font-smoothing:antialiased;overflow-x:hidden}

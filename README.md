@@ -4,7 +4,7 @@ The Andra Markets website: a markets research platform with dashboards, quant
 tools, an economic calendar, a daily close note, a research library, interview prep and explainers.
 
 - `assets/`: stylesheets, scripts, self-hosted font, brand mark.
-- `assets/theme.css`: the new look (11 Nov 2026), loaded after `site.css` on every inner page: one dark theme, Geist, no boxes (DESIGN.md, The new look).
+- `assets/theme.css`: the new look (11 Nov 2026), loaded after `site.css` on every inner page: one dark theme, Geist, no boxes (DESIGN.md).
 - `assets/home.css`, `assets/home.js`: the homepage, which loads neither `site.css` nor `site.js`: a WebGL scene of light with full-screen sections over it.
 - `assets/fonts/geist-latin.woff2`: Geist (SIL OFL 1.1, `OFL-Geist.txt`).
 - `docs/gallop-frames/`: five engraved gallop poses supplied by the owner for a homepage idea that was not used.
