@@ -100,3 +100,6 @@ label,.field__label,legend{font-weight:400!important}
 
 /* phones: the menu is the list alone, no picture and no title */
 @media(max-width:960px){.nav__intro{display:none!important}}
+
+/* switching groups: the closing group's links lose their places at once, so they must not show while its panel fades */
+html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
