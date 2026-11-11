@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Fetch the daily closes behind the Lab's risk and correlation tool, at deploy time.
+"""Fetch the daily closes behind the Lab's risk tool and portfolio analyser, at deploy time.
 
 Run by .github/workflows/pages.yml after tools/calendar_data.py, before
 tools/build_site.py. Reads the calendar's earnings universe (every company the
 calendar follows, with its benchmark) from .cache/calendar/calendar.json and
 writes .cache/lab/closes.json: about three years of dividend-adjusted daily
 closes for each company and each benchmark, from Yahoo Finance's chart
-endpoint. build_site.py turns them into daily returns baked into
-assets/lab-risk-<market>.js, which the tool page loads in the browser.
+endpoint, each with the currency it is quoted in, and the dollar rate of
+every such currency over the same years (the portfolio analyser measures a
+portfolio in US dollars). build_site.py turns them into daily returns baked
+into assets/lab-risk-<market>.js and assets/lab-risk-fx.js, which the tool
+pages load in the browser.
 
 Yahoo rate-limits a burst of requests, so each run fetches only the symbols
 not yet fetched today, oldest first, a fixed pause apart, and stops when its
@@ -38,6 +41,14 @@ PAUSE = 0.35  # seconds between requests
 BUDGET = float(os.environ.get("LAB_BUDGET", "240"))
 # Benchmarks Yahoo keeps no history for, and the index used for beta instead.
 RISK_BENCH = {"000300.SS": ("000001.SS", "Shanghai Composite")}
+# Prices Yahoo quotes in a hundredth of the currency: the returns are the same.
+MINOR = {"GBp": "GBP", "GBX": "GBP", "ZAc": "ZAR", "ILA": "ILS"}
+
+
+def fx_symbol(cur):
+    """Yahoo's daily rate for a currency, quoted as units per dollar (it rounds
+    the inverse: KRWUSD reads 0.0008)."""
+    return f"USD{cur}=X"
 
 
 def bench_of(c):
@@ -63,8 +74,9 @@ def get_json(url):
 
 
 def closes(symbol, start):
-    """[(session date, adjusted close)], dates in the exchange's zone, sessions
-    still trading left out (their close would be an intraday price)."""
+    """([(session date, adjusted close)], currency): dates in the exchange's
+    zone, sessions still trading left out (their close would be an intraday
+    price); the currency the prices are quoted in, in its major unit."""
     q = urllib.parse.urlencode({"period1": int(dt.datetime.combine(start, dt.time()).timestamp()),
                                 "period2": int(time.time()) + 86400, "interval": "1d", "events": "div,split"})
     res = get_json(f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(symbol)}?{q}")["chart"]["result"][0]
@@ -81,7 +93,8 @@ def closes(symbol, start):
         out.pop(dt.datetime.fromtimestamp(end + offset, dt.timezone.utc).date().isoformat(), None)
     if len(out) < 40:
         raise ValueError(f"{symbol}: only {len(out)} closes")
-    return sorted(out.items())
+    cur = meta.get("currency")
+    return sorted(out.items()), MINOR.get(cur, cur)
 
 
 def main():
@@ -104,23 +117,36 @@ def main():
         return
     today = dt.date.today()
     start = today - dt.timedelta(days=365 * YEARS + 40)
-    stale = [s for s in wanted if (cache.get(s) or {}).get("fetched", "")[:10] != today.isoformat()]
+    # A record written before the currency was kept counts as not fetched.
+    stale = [s for s in wanted if (cache.get(s) or {}).get("fetched", "")[:10] != today.isoformat()
+             or "cur" not in cache[s]]
     stale.sort(key=lambda s: (cache.get(s) or {}).get("fetched", ""))  # never fetched first, then oldest
     began, done, failed = time.monotonic(), 0, []
-    for sym in stale:
-        if time.monotonic() - began > BUDGET:
-            break
+
+    def fetch(sym):
+        nonlocal done
         try:
+            rows, cur = closes(sym, start)
             cache[sym] = {"fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-                          "closes": closes(sym, start)}
+                          "closes": rows, "cur": cur}
             done += 1
         except Exception as e:  # noqa: BLE001  one symbol failing keeps its last closes
             failed.append(f"{sym} ({type(e).__name__}: {e})"[:120])
         time.sleep(PAUSE)
+
+    for sym in stale:
+        if time.monotonic() - began > BUDGET:
+            break
+        fetch(sym)
     left = len(stale) - done - len(failed)
+    # The dollar rate of every currency a company is quoted in: a handful, so outside the budget.
+    curs = sorted({cache[s].get("cur") for s in wanted if s in cache} - {None, "", "USD"})
+    for sym in map(fx_symbol, curs):
+        if (cache.get(sym) or {}).get("fetched", "")[:10] != today.isoformat():
+            fetch(sym)
     CACHE.parent.mkdir(parents=True, exist_ok=True)
     CACHE.write_text(json.dumps(cache, separators=(",", ":")), encoding="utf-8")
-    print(f"lab: {len(wanted)} symbols, {done} fetched in {time.monotonic() - began:.0f}s, "
+    print(f"lab: {len(wanted)} symbols and {len(curs)} currencies, {done} fetched in {time.monotonic() - began:.0f}s, "
           f"{len(failed)} failed, {left} left for the next run")
     for f in failed[:20]:
         log(f"lab: {f}; keeping the last closes", "warning")
