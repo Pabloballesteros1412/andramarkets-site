@@ -8,7 +8,7 @@ Both should be reviewed by a qualified lawyer before the paid tier opens.
 """
 
 LEGAL_UPDATED = "2026-11-02"
-PRIVACY_UPDATED = "2026-11-09"
+PRIVACY_UPDATED = "2026-11-11"
 
 LEGAL = [
     ("publisher", "Who publishes this site",
@@ -138,8 +138,6 @@ PRIVACY = [
      "only for the feature you are using. Only the Application tracker can hold personal details, and only "
      "those you type into it:</p>"
      "<ul class=\"ruled\">"
-     "<li><b>andra-theme</b> (local storage): the light or dark theme you chose, so the site opens in the "
-     "same theme next time.</li>"
      "<li><b>andra-tq-</b> and <b>andra-md-</b> followed by the topic (local storage): your progress on the "
      "practice cards and your best score in the mental maths drill on the technical training pages.</li>"
      "<li><b>andra-sim-games</b>, <b>andra-panic-games</b> and <b>andra-fed-games</b> (local storage): your "
@@ -149,9 +147,9 @@ PRIVACY = [
      "<li><b>andra-tracker</b> (local storage): the applications you add to the Application tracker, with "
      "their dates, status, next steps, notes and any contacts you type in. You can export them to a file, "
      "import that file again, or delete them in the tracker or in your browser.</li>"
-     "<li><b>andra-arrive</b>, <b>andra-move</b> and <b>andra-scene</b> (session storage): how you moved to "
-     "another page and where the background animation was, so it carries on smoothly. They are deleted when "
-     "you close the tab.</li>"
+     "<li><b>andra-arrive</b>, <b>andra-move</b> and <b>andra-opened</b> (session storage): how you moved to "
+     "another page and whether the homepage's opening has already played, so pages follow one another "
+     "smoothly and the opening is not repeated in full. They are deleted when you close the tab.</li>"
      "</ul>"
      "<p>Storage that is strictly necessary for a service you request is exempt from consent under Article "
      "22.2 of the LSSI, so the site shows no cookie banner. You can clear it in your browser settings at "

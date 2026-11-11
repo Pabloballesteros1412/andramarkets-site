@@ -1097,11 +1097,11 @@ THEME_BOOT = (
     "var m=document.querySelector('meta[name=theme-color]');if(m)m.content='#000000'})();"
 )
 
-# Moving between pages (owner-approved, 1 Nov 2026). From the homepage, its hero goes back
-# into the point at the centre (assets/hero-horse.js) and leaves a note in sessionStorage;
-# the section page's head picks it up before the first paint and marks html.arrive, so the
-# sphere opens out of that point and the page fades up over it (assets/section-scene.js,
-# site.css). Not under reduced motion; a note older than 8s is ignored.
+# Moving between pages. Leaving the homepage, its scene scales up and goes dark
+# (assets/home.js, assets/home.css) and it leaves a note in sessionStorage; the section
+# page's head picks it up before the first paint and marks html.arrive, so the page rises
+# out of the dark (site.css, theme.css). Not under reduced motion; a note older than 8s is
+# ignored.
 ARRIVE_BOOT = (
     "(function(){try{var a=+sessionStorage.getItem('andra-arrive');sessionStorage.removeItem('andra-arrive');"
     "if(a&&Date.now()-a<8000&&!matchMedia('(prefers-reduced-motion: reduce)').matches)"
@@ -1110,9 +1110,8 @@ ARRIVE_BOOT = (
 
 # From one section page to another: a view transition across pages (Chrome, Edge, Safari;
 # others change page as before). Every page but the homepage opts in, so the homepage keeps
-# its own way out and the way back to it is unchanged. The header stays put, the sphere
-# carries on behind (assets/section-scene.js), the page before fades and the next one rises
-# into place; from the menu, the section's name flies into the new page's title (owner-
+# its own way out and the way back to it is unchanged. The header stays put, the page
+# before fades and the next one rises into place; from the menu, the section's name flies into the new page's title (owner-
 # approved, 1 Nov 2026; site.css has the motion).
 VIEW_TRANSITION = "@media (prefers-reduced-motion: no-preference){@view-transition{navigation:auto;types:section}}"
 
@@ -1262,44 +1261,6 @@ def dashboards_index():
     return shell(title="Dashboards: Andra Markets",
                  desc="Interactive views across rates, equities, macro and cross-asset, each with its source and date.",
                  body=body, home="../", base="../", path="dashboards/")
-
-def hero_groups():
-    """The homepage index: the header menu's four groups (owner-approved, 1 Nov 2026), two
-    each side of the horse (Markets and Tools left, Research and Careers right; two rows of
-    two on phones). Each name opens to its sections, one group at a time (details name)."""
-    def group(name, links):
-        items = "".join(f'<li><a href="{href}">{label}</a></li>' for label, href, _ in links)
-        return f'<details class="hero__group" name="hero-group"><summary>{name}</summary><ul>{items}</ul></details>'
-    groups = [group(name, links) for _, name, _, links in NAV_GROUPS]
-    half = len(groups) // 2
-    return (f'<div class="hero__side hero__side--l">{"".join(groups[:half])}</div>'
-            f'<div class="hero__side hero__side--r">{"".join(groups[half:])}</div>')
-
-
-def hero_boot():
-    """Runs in the homepage head, before the header and the hero are parsed. With WebGL it
-    starts the particle map's download at once (assets/hero-horse.js picks it up; the WebP
-    copy, else the PNG), and, when motion is allowed, marks the page so the still engraving,
-    the headline, the index and the header start hidden: the particles form them. If the
-    hero has not gone live within 3s (script blocked, slow network), they show.
-
-    The still engraving is only a fallback, so it is fetched only when it may show:
-    __heroStill() gives it its src without WebGL (right after the img), at the 3s mark,
-    and when hero-horse.js cannot run. Where the particles draw the horse, its 433 KB
-    are never downloaded."""
-    png = f"assets/horse-particles.png?v={ver('horse-particles.png')}"
-    webp = f"assets/horse-particles.webp?v={ver('horse-particles.webp')}"
-    return ("window.__heroStill=function(){var i=document.querySelector('.hero__art .horse');"
-            "if(i&&!i.getAttribute('src'))i.src=i.getAttribute('data-src')};"
-            "if(window.WebGLRenderingContext){"
-            "var m=new Image();m.fetchPriority='high';m.decoding='async';"
-            f"m.onerror=function(){{m.onerror=null;m.src='{png}'}};"
-            f"m.src='{webp}';window.__heroMap=m;"
-            "var r=document.documentElement;"
-            "if(!matchMedia('(prefers-reduced-motion: reduce)').matches)r.classList.add('hero-forming');"
-            "setTimeout(function(){var h=document.querySelector('.hero');"
-            "if(!h||!h.classList.contains('is-live')){r.classList.remove('hero-forming');__heroStill()}},3000)}")
-
 
 # The header menu in four groups (owner-approved, 31 Oct 2026): each opens a panel the
 # width of the page, its links with a line each. On phones and tablets the same markup
@@ -1502,12 +1463,12 @@ def site_header(home, base, nav=True):
     # line. Phones (520px and below) hide it with every header button: there it sits at the
     # foot instead: in the footer and, on the homepage, under the four groups (.hero__contact).
     contact = f'<a class="btn btn--sm btn--ghost contact-btn" href="{base}contact/">Contact us</a>'
-    # The mark is the theme switch (owner, 1 Nov 2026): it replaced the sun and moon button.
-    # The name beside it stays the link home.
+    # The mark beside the name; the name is the link home. (The mark was the theme switch
+    # until the site became one dark theme, 11 Nov 2026.)
     return f"""<header class="site-header{'' if nav else ' site-header--home'}">
   <div class="wrap">
     <div class="brand">
-      <button class="brand__mark brand__toggle" type="button" aria-label="Switch to light theme" title="Switch to light theme"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></button>
+      <span class="brand__mark"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></span>
       <a class="brand__name" href="{home or '#top'}" aria-label="Andra Markets, home">Andra Markets</a>
     </div>
     {menu}
@@ -1613,15 +1574,16 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
         head += f'\n<link rel="alternate" type="application/rss+xml" title="Andra Markets" href="{abs_url("feed.xml")}">'
     if ld:
         head += ld_json(ld)
-    # Every section page sits inside the black sphere with the backlit horse (assets/section-scene.js,
-    # owner-approved 31 Oct 2026); the homepage has its own hero, redirects need nothing.
+    # "scene" marks the section pages: they carry the has-scene class and the scripts and
+    # styles of the moves between pages. (It named the particle sphere behind them, removed
+    # with the new look of 11 Nov 2026.) The homepage and redirects need none of it.
     scene = nav if scene is None else scene
     scene_html = ""
     # The sphere's horse texture is asked for with the page, not once its script has run, so it
     # is in before the first frame: put on the GPU then, not in the middle of the sphere opening.
     scene_head = (f'<script>{ARRIVE_BOOT}{MOVE_BOOT}</script>\n<style>{VIEW_TRANSITION}</style>\n'
                   f'<link rel="expect" href="#main" blocking="render">\n'
-                  f'<link rel="preload" href="{base}assets/section-horse.png?v={ver("section-horse.png")}" as="image">\n') if scene else ""
+                  ) if scene else ""
     # The visit count (ANALYTICS_TOKEN), last so it never holds up the page. Redirects are not
     # counted: the page they send to is. "spa": false, because the filters rewrite the address
     # with history.replaceState, and each change would otherwise count as another page view.

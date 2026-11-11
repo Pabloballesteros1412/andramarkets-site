@@ -23,7 +23,6 @@ strong,b{font-weight:500}
 .brand__name{font-size:.8125rem!important;font-weight:400!important;letter-spacing:.3em!important;text-transform:uppercase}
 .nav__btn{font-size:.8125rem;font-weight:400;letter-spacing:.02em;color:var(--ink-2)}
 .nav__btn:hover,.nav__btn[aria-expanded="true"]{color:var(--ink)}
-.brand__toggle{pointer-events:none}
 /* actions: words and a long arrow, no boxes */
 .btn,.btn--ghost,.btn--sm{height:auto;min-height:44px;padding:0;border:0!important;background:none!important;color:var(--ink)!important;font-size:.8125rem;font-weight:400;letter-spacing:.14em;text-transform:uppercase;box-shadow:none}
 .btn::after{content:"";flex:none;width:44px;height:9px;margin-left:16px;background:linear-gradient(currentColor,currentColor) left center/100% 1px no-repeat;-webkit-mask:none;clip-path:polygon(0 0,calc(100% - 5px) 0,100% 50%,calc(100% - 5px) 100%,0 100%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
