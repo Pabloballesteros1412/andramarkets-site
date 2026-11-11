@@ -177,3 +177,46 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .pa__text{max-width:46rem}
 @media(max-width:960px){.pa__grid{grid-template-columns:1fr}.pa-kpis{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.pa-two{grid-template-columns:1fr;gap:20px}.pa-row--bar{grid-template-columns:minmax(0,7rem) minmax(0,1fr) 3.4rem}.pa-holds--a li{grid-template-columns:minmax(0,1fr) 6rem 44px}.pa-holds--a .pa-hold__w{display:none}}
+
+/* Wide screens: inner pages use the whole width (owner, 11 Nov 2026). The page title sits in
+   the middle; each section puts its heading at the left and its content across the rest.
+   Phones and tablets keep the single column. A close note keeps its own grid. */
+@media(min-width:961px){
+.page__head{max-width:none;text-align:center}
+.page__head .lede{margin-inline:auto}
+.page__head .note__meta,.page__head .dd__crumbs{justify-content:center;margin-inline:auto}
+.report__grid>.page__head{text-align:left}
+.report__grid>.page__head .lede,.report__grid>.page__head .note__meta{margin-inline:0;justify-content:flex-start}
+.page__body,.archive,.pw-toc,.lab-groups,.lab-groups .learn-list{max-width:none}
+.page__body>section,.archive__month{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,9fr);column-gap:clamp(32px,5vw,96px);align-items:start}
+.page__body>section>*,.archive__month>*{grid-column:2;min-width:0}
+.page__body>section>h2,.archive__month>h2{grid-column:1;grid-row:1/span 40;margin-top:0;border:0}
+.archive__month{border-top:1px solid var(--rule-strong)}
+.archive__month>h2{font-size:1.375rem;letter-spacing:-.02em;color:var(--ink)}
+.report__grid>.page__body>section,.dd__grid:has(.dd__side) .dd__text>section{display:block}
+.pw-toc ol{columns:4}
+/* data pages with no side panel: the tables and charts run the full width */
+.dd__grid:not(:has(.dd__side))>.dd__main,.dd__grid:not(:has(.dd__side))>.dd__text{grid-column:1/-1}
+/* chart of the day: the chart at the left, what it shows at the right */
+.cotd__day{max-width:none;display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:clamp(32px,5vw,96px);align-items:start}
+.cotd__day>*{grid-column:2;min-width:0}
+.cotd__day>.cotd__bar{grid-column:1/-1}
+.cotd__day>.cotd__fig{grid-column:1;grid-row:2/span 20}
+.fx-archive,.fx-archive .archive{max-width:none}
+.fx-archive .archive__month>h3{grid-column:1;grid-row:1/span 40;margin:0;padding-top:14px;border:0;font-size:1.0625rem}
+/* the interview simulator: its controls and card in the middle, under the title */
+.isim__sim{max-width:52rem;margin-inline:auto}
+.isim__sim .isim__ctl{justify-content:center}
+/* the two long Careers guides: everything on the page's axis, under the centred title */
+.pw .page__body,.ip .page__body,.pw .pw-toc{max-width:54rem;margin-inline:auto}
+.pw .page__body>section,.ip .page__body>section{display:block}
+.pw .page__body>section>h2,.ip .page__body>section>h2{text-align:center;font-size:1.75rem;margin-bottom:10px}
+.pw .page__body>section>h2+p,.ip .page__body>section>h2+p,.ip .page__body>section>h2+.note__meta{text-align:center;margin-inline:auto;justify-content:center}
+.ip .page__body>section>.note__meta+p{text-align:center;margin-inline:auto}
+.pw .page__body p,.ip .page__body p{max-width:none}
+.pw .pw-toc{text-align:center}
+.pw .pw-toc ol{columns:auto;display:flex;flex-wrap:wrap;justify-content:center;gap:0 28px}
+.pw .pw-cv,.pw .cv{margin-inline:auto}
+.pw .pw-cv figcaption{text-align:center}
+.ip .ip-filters{display:flex;flex-direction:column;align-items:center}
+}
