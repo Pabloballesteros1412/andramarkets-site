@@ -1266,7 +1266,7 @@ def dashboards_index():
 # width of the page, its links with a line each. On phones and tablets the same markup
 # is the menu sheet: the group names in a row and one group under them, its sections in
 # the panel's cards one under another (owner-approved, 2 Nov 2026). Six sections in
-# every group (owner-approved, 1 Nov 2026): Tools holds the fourteen Lab tools and
+# every group (owner-approved, 1 Nov 2026): Tools holds the fifteen Lab tools and
 # Simulators in six themes. Each theme is a page of its own (owner, 4 Nov 2026: a link
 # into the Lab page halfway down did not feel like a section), as in the other groups:
 # TOOL_THEMES builds them.
@@ -1655,7 +1655,8 @@ TOOL_THEMES = (
      "maturity from its price.", ("bond-calculator", "yield-to-maturity")),
     ("risk", "lab/risk-and-portfolio/", "Risk &amp; portfolio",
      "How companies move together, how two assets mix into a frontier of risk and return, and how large a position "
-     "can be for the loss you accept.", ("risk-correlation", "efficient-frontier", "position-sizing")),
+     "can be for the loss you accept, and what a whole portfolio adds up to.",
+     ("portfolio-analyser", "risk-correlation", "efficient-frontier", "position-sizing")),
     ("valuation", "lab/valuation-and-growth/", "Valuation &amp; growth",
      "A business valued from its cash flows, a sum compounding at a steady return, and what a return is worth after "
      "inflation and tax.", ("dcf", "compound-growth", "real-return")),
@@ -1744,6 +1745,25 @@ LAB_TOOLS = [
      "afternoon until the next day. Prices in each company's own currency, so currency moves are not included. Weights are "
      "held constant (rebalanced daily). Mainland Chinese companies are measured against the Shanghai Composite, because "
      "Yahoo Finance keeps no history for the CSI 300."),
+    ("portfolio-analyser", "pf", "Portfolio analyser",
+     "Enter what you hold and see what it adds up to: its return and risk, where the risk comes from, what it is "
+     "exposed to and how it might have fared in past falls.",
+     "Every holding is turned into US dollars: its dividend-adjusted close times that day's dollar rate of the currency "
+     "it trades in. Returns are weekly, Friday to Friday, so that markets which close hours apart are compared over the "
+     "same week. The portfolio's return each week is the weighted sum of its holdings' returns, with the weights you set "
+     "held constant. The return a year is the compound rate over the period; volatility is the standard deviation of the "
+     "weekly returns, annualised by the square root of 52; the deepest fall is the largest drop from a high to a later "
+     "low, on weekly closes; beta is the portfolio's sensitivity to the S&amp;P 500, a beta of 1.2 meaning it has moved "
+     "1.2% for each 1% of the index, on average. A holding's share of risk is its weight times how closely it has moved "
+     "with the whole portfolio, as a part of the portfolio's variance: the shares add up to 100%, and a holding whose "
+     "share is above its weight adds more risk than its size suggests. The estimate for a past fall is the S&amp;P 500's "
+     "drop in that episode, from closing high to closing low, times the portfolio's beta.",
+     "Past returns over the period, which say nothing certain about the next one. The period is the longest every "
+     "holding has traded, up to three years, so a company listed recently shortens it for the whole portfolio. Weights "
+     "are held constant (rebalanced every week), with no fees, taxes or dealing costs. Amounts are read as US dollars. "
+     "The estimates for past falls assume the portfolio's beta would have held in those episodes: portfolios often fall "
+     "by more or less than their beta implies, and a beta measured in calm years understates a crisis. The index is the "
+     "S&amp;P 500 without dividends, the holdings with them. It measures a portfolio; it does not say what to buy or sell."),
     ("black-scholes", "bs", "Black-Scholes pricer",
      "Price a European call or put and read its Greeks: how its value moves with the price, time, volatility and rates.",
      "The Black-Scholes model values the option as the expected payoff at expiry under a lognormal price, discounted at the "
@@ -1945,7 +1965,7 @@ def risk_data():
             prev = c
         return ",".join(out).rstrip(",")
 
-    companies, files = [], {}
+    companies, files, curs = [], {}, {}
     for market, label in RISK_MARKETS:
         series = {}
         for c in universe.get(market) or []:
@@ -1956,6 +1976,8 @@ def risk_data():
                 if sym not in series:
                     series[sym] = encode(sym)
             companies.append({"s": c["symbol"], "n": c["name"], "c": c["country"], "m": market, "b": b, "bn": bname})
+            if closes[c["symbol"]].get("cur"):
+                curs[c["symbol"]] = closes[c["symbol"]]["cur"]
         if series:
             name = f"lab-risk-{market}.js"
             payload = json.dumps({"start": axis[0], "series": series}, separators=(",", ":"))
@@ -1965,7 +1987,122 @@ def risk_data():
             files[market] = f"{name}?v={ver(name)}"
     if len(companies) < 2:
         return None
-    return {"companies": companies, "files": files, "asof": last}
+    # The dollar rate of each currency a company trades in, for the portfolio analyser.
+    from lab_data import fx_symbol
+    fx = {cur: encode(fx_symbol(cur)) for cur in sorted(set(curs.values()) - {"USD"}) if fx_symbol(cur) in usable}
+    if fx:
+        payload = json.dumps({"start": axis[0], "series": fx}, separators=(",", ":"))
+        (OUT / "assets" / "lab-risk-fx.js").write_text(
+            f"// Generated by tools/build_site.py. Do not edit.\n(window.ANDRA_RISK=window.ANDRA_RISK||{{}})"
+            f'["fx"]={payload};\n', encoding="utf-8")
+    return {"companies": companies, "files": files, "asof": last,
+            "_cur": {s: c for s, c in curs.items() if c == "USD" or c in fx}}
+
+
+# The portfolio the analyser opens with: (symbol, weight in %). Those not in the data are left out.
+PF_START = (("AAPL", 18), ("MSFT", 16), ("NVDA", 14), ("JPM", 12), ("JNJ", 10), ("ASML.AS", 10), ("XOM", 8),
+            ("NESN.SW", 6), ("7203.T", 6))
+PF_BENCH = "^GSPC"
+# The S&P 500's fall in each episode, closing high to closing low.
+PF_FALLS = (("Global financial crisis", "9 Oct 2007 to 9 Mar 2009", 1565.15, 676.53),
+            ("Covid crash", "19 Feb to 23 Mar 2020", 3386.15, 2237.40),
+            ("2022 bear market", "3 Jan to 12 Oct 2022", 4796.56, 3577.03))
+
+
+def pf_data(risk):
+    """What the portfolio analyser needs on its page: every company with a
+    currency and a dollar rate, its sector where the company pages know it, and
+    the files holding the returns. None until the closes exist."""
+    if not risk or "us" not in risk["files"]:
+        return None
+    try:
+        co = json.loads(CO_DATA.read_text(encoding="utf-8")).get("companies") or {}
+    except (OSError, ValueError):
+        co = {}
+    cur = risk["_cur"]
+    companies = []
+    for c in risk["companies"]:
+        if c["s"] not in cur:
+            continue
+        sector = (co.get(c["s"]) or {}).get("sector") or ""
+        companies.append({"s": c["s"], "n": c["n"], "c": c["c"], "m": c["m"], "u": cur[c["s"]],
+                          "k": "" if sector == "Other" else SHORT_SECTOR.get(sector, sector)})
+    have = {c["s"] for c in companies}
+    start = [[s, w] for s, w in PF_START if s in have]
+    if len(start) < 3:
+        start = [[c["s"], 20] for c in companies if c["m"] == "us"][:5]
+    if len(start) < 2:
+        return None
+    files = dict(risk["files"])
+    if any(c["u"] != "USD" for c in companies):
+        files["fx"] = f'lab-risk-fx.js?v={ver("lab-risk-fx.js")}'
+    return {"companies": companies, "files": files, "asof": risk["asof"], "bench": PF_BENCH, "start": start,
+            "falls": [[n, d, round(lo / hi - 1, 4)] for n, d, hi, lo in PF_FALLS]}
+
+
+def pf_page(i, risk):
+    slug, kind, title, desc, how, limits = LAB_TOOLS[i]
+    data = pf_data(risk)
+    others = "".join(f'<a class="link" href="../{t[0]}/">{t[2]} {icon("arrow-right")}</a>' for j, t in enumerate(LAB_TOOLS) if j != i)
+    if data:
+        payload = json.dumps(data, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+        asof = day_med(dt.date.fromisoformat(data["asof"]))
+        tool = f"""<div class="pa__grid" hidden>
+      <section class="pa__in" aria-labelledby="pa-h-in">
+        <h2 class="pa__h" id="pa-h-in">Holdings<small>Up to fifteen, from the {len(data["companies"])} companies the site covers.</small></h2>
+        {lab_chips("mode", "Enter", [("w", "Weights"), ("a", "Amounts in $")], "w")}
+        {lab_chips("win", "Period", [("1Y", "1 year"), ("3Y", "3 years")], "3Y")}
+        <div class="lt-pick"><label for="pa-find">Add a holding</label>
+          <input id="pa-find" type="search" autocomplete="off" spellcheck="false" placeholder="Name or ticker" role="combobox" aria-expanded="false" aria-controls="pa-opts" aria-autocomplete="list">
+          <ul class="lt-opts" id="pa-opts" role="listbox" aria-label="Matching companies" hidden></ul></div>
+        <ul class="pa-holds" aria-label="Holdings"></ul>
+        <p class="pa-total"><span>Total</span><b></b></p>
+        <p class="lt-status pa-status" role="status" aria-live="polite"></p>
+        <div class="pa-acts"><button class="co-reset" type="button" data-pa="equal">Equal weights</button><button class="co-reset" type="button" data-pa="reset">Reset</button></div>
+      </section>
+      <div class="pa__out">
+        <section class="pa-sec" aria-labelledby="pa-h-read"><h2 class="pa__h" id="pa-h-read">The portfolio<small class="pa-period"></small></h2>
+          <ul class="pa-kpis" aria-live="polite"></ul></section>
+        <section class="pa-sec" aria-labelledby="pa-h-chart"><h2 class="pa__h" id="pa-h-chart">Growth of 100<small>In US dollars, against the S&amp;P 500.</small></h2>
+          <figure class="pa-fig"><div class="pa-plot" role="img" tabindex="0" aria-label="Growth of 100. Use the arrow keys to read each week."></div>
+            <figcaption><p class="key"><span><i class="k-solid"></i>Portfolio</span><span><i class="k-dash"></i>S&amp;P 500</span></p><p class="dd__read pa-read" aria-live="polite"></p></figcaption></figure></section>
+        <section class="pa-sec" aria-labelledby="pa-h-risk"><h2 class="pa__h" id="pa-h-risk">Where the risk comes from<small>Each holding's weight beside its share of the portfolio's risk.</small></h2>
+          <div class="pa-rows pa-risk"></div>
+          <p class="key"><span><i class="pa-sw pa-sw--w"></i>Weight</span><span><i class="pa-sw"></i>Share of risk</span></p></section>
+        <section class="pa-sec" aria-labelledby="pa-h-exp"><h2 class="pa__h" id="pa-h-exp">What it is exposed to</h2>
+          <div class="pa-two"><div><h3>By sector</h3><div class="pa-rows pa-sector"></div></div><div><h3>By country</h3><div class="pa-rows pa-country"></div></div><div><h3>By currency</h3><div class="pa-rows pa-cur"></div></div></div></section>
+        <section class="pa-sec" aria-labelledby="pa-h-cor"><h2 class="pa__h" id="pa-h-cor">How the holdings move together<small>Correlation of weekly returns in dollars. 1.00 moves as one; 0 has no relation.</small></h2>
+          <div class="pa-mx"></div></section>
+        <section class="pa-sec" aria-labelledby="pa-h-str"><h2 class="pa__h" id="pa-h-str">In past falls<small>An estimate: the S&amp;P 500's fall in each episode times the portfolio's beta.</small></h2>
+          <table class="pa-stress"><thead><tr><th scope="col">Episode</th><th scope="col">S&amp;P 500</th><th scope="col">This portfolio, estimated</th></tr></thead><tbody></tbody></table></section>
+        <p class="report__src">Yahoo Finance daily closes and dollar rates to {asof}, calculated in your browser. An Andra Markets tool, not a recommendation.</p>
+      </div>
+      <script type="application/json" id="pa-data">{payload}</script>
+    </div>
+    <noscript><p class="dd__pending">This tool runs in your browser and needs JavaScript.</p></noscript>"""
+        meta = (f"Closes from Yahoo Finance to {asof}, refreshed at each deploy. Runs in your browser: nothing you enter is "
+                "sent or stored.")
+    else:
+        tool = '<div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div>'
+        meta = "Closes from Yahoo Finance. Data pending."
+    body = f"""<main id="main" class="page pa" data-tool="{kind}">
+  <div class="wrap">
+    <header class="page__head">
+      <p class="dd__crumbs"><a href="{TOOL_THEME_OF[slug][0]}">{TOOL_THEME_OF[slug][1]}</a> <span aria-hidden="true">/</span> Calculator</p>
+      <h1 class="page__title">{title}</h1>
+      <p class="lede">{desc}</p>
+      <p class="note__meta">{meta}</p>
+    </header>
+    {tool}
+    <div class="page__body dd__text pa__text">
+      <section aria-labelledby="lt-how"><h2 id="lt-how">How it works</h2><p>{how}</p></section>
+      <section aria-labelledby="lt-lim"><h2 id="lt-lim">Assumptions</h2><p>{limits}</p><p>For information and education only. Not investment advice.</p></section>
+      <nav class="report__pager" aria-label="More Lab tools">{others}<a class="link" href="../">All Lab tools {icon("arrow-right")}</a></nav>
+    </div>
+  </div>
+</main>"""
+    return shell(title=f"{title}: Andra Markets Lab", desc=desc, body=body, home="../../", base="../../",
+                 path=f"lab/{slug}/", scripts=("portfolio.js",) if data else ())
 
 
 def risk_inputs(data):
@@ -1994,6 +2131,8 @@ LAB_KEYS = {"options": [("k-solid", "Profit or loss today"), ("k-dash", "At expi
 
 def lab_page(i, risk=None):
     slug, kind, title, desc, how, limits = LAB_TOOLS[i]
+    if kind == "pf":
+        return pf_page(i, risk)
     key = "".join(f'<span><i class="{c}"></i>{t}</span>' for c, t in LAB_KEYS[kind])
     if kind == "risk":
         return risk_page(i, risk, key)
@@ -2033,7 +2172,7 @@ def risk_page(i, data, key):
     slug, kind, title, desc, how, limits = LAB_TOOLS[i]
     others = "".join(f'<a class="link" href="../{t[0]}/">{t[2]} {icon("arrow-right")}</a>' for j, t in enumerate(LAB_TOOLS) if j != i)
     if data:
-        payload = json.dumps(data, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+        payload = json.dumps({k: v for k, v in data.items() if k[0] != "_"}, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
         tool = f"""<section class="dd__main lt-tool" aria-label="Calculator" hidden>
       <div class="lt-inputs">{risk_inputs(data)}<button class="co-reset lt-reset" type="button">Reset</button>
         <p class="lt-status" role="status" aria-live="polite"></p></div>
@@ -2081,7 +2220,7 @@ def risk_page(i, data, key):
 def lab_row(slug, to=""):
     """A Lab tool's row in a ruled list; to is the way from the page to lab/."""
     _, kind, title, desc = next(t for t in LAB_TOOLS if t[0] == slug)[:4]
-    meta = "Yahoo Finance closes, calculated in your browser" if kind == "risk" else "Calculator, runs in your browser"
+    meta = "Yahoo Finance closes, calculated in your browser" if kind in ("risk", "pf") else "Calculator, runs in your browser"
     return (f'<li><a href="{to}{slug}/"><span class="learn-list__title">{title}</span>'
             f'<span class="learn-list__desc">{desc}</span><span class="learn-list__time">{meta}</span></a></li>')
 
@@ -2098,7 +2237,7 @@ def lab_index():
     <p class="lab-index__next">A momentum regime backtest is in development. New tools are announced in the daily note.</p>
   </div>
 </main>"""
-    return shell(title="Lab: Andra Markets", desc="Ten interactive quant tools that run in your browser: risk and correlation, options payoff and Black-Scholes Greeks, bond price, yield to maturity, efficient frontier, DCF, value at risk, real return, compound growth.",
+    return shell(title="Lab: Andra Markets", desc="Eleven interactive quant tools that run in your browser: a portfolio analyser, risk and correlation, options payoff and Black-Scholes Greeks, bond price, yield to maturity, efficient frontier, DCF, value at risk, real return, compound growth.",
                  body=body, home="../", base="../", path="lab/")
 
 

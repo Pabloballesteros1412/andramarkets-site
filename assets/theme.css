@@ -102,3 +102,78 @@ label,.field__label,legend{font-weight:400!important}
 
 /* switching groups: the closing group's links lose their places at once, so they must not show while its panel fades */
 html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
+
+/* Portfolio analyser (lab/portfolio-analyser/): holdings as lines to write on at the left,
+   what they add up to at the right. No boxes; red and green only on a signed rise or fall. */
+.pa__grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,5vw,88px);border-top:1px solid var(--rule-strong);padding:8px 0 72px}
+.pa__grid[hidden]{display:none}
+.pa__grid>*{min-width:0}
+.pa__h{margin:0;padding:28px 0 14px;font-weight:400;font-size:1.375rem;letter-spacing:-.02em}
+.pa__h small{display:block;margin-top:2px;font-size:.8125rem;font-weight:350;letter-spacing:0;color:var(--ink-3)}
+.pa__in .lt-group{display:flex;flex-wrap:wrap;align-items:center;gap:0 24px;margin:0}
+.pa__in .lt-group .cl__glabel{min-width:3.5rem;margin:0}
+.pa__in .lt-pick{margin:12px 0 20px}
+.pa-sec+.pa-sec{border-top:1px solid var(--rule);margin-top:28px}
+.pa__out.is-empty>*{display:none}
+.pa-holds{list-style:none;margin:0;padding:0}
+.pa-holds li{display:grid;grid-template-columns:minmax(0,1fr) 5.5rem 44px;gap:0 12px;align-items:center;min-height:56px;padding-block:8px;border-top:1px solid var(--rule)}
+.pa-holds--a li{grid-template-columns:minmax(0,1fr) 7rem 3.2rem 44px}
+.pa-hold__n b{display:block;font-weight:400}
+.pa-hold__n span{display:block;font-size:.8125rem;color:var(--ink-3)}
+.pa-hold__f{display:flex;align-items:baseline;gap:4px;border-bottom:1px solid var(--rule-strong);color:var(--ink-3);font-size:.875rem}
+.pa-hold__f:focus-within{border-bottom-color:var(--ink)}
+.pa-hold__f input{width:100%;min-width:0;padding:0;border:0;background:none;color:var(--ink);font:inherit;font-size:1.0625rem;line-height:1.9;font-variant-numeric:tabular-nums;text-align:right;outline:0;-moz-appearance:textfield;appearance:textfield}
+.pa-hold__f input::-webkit-outer-spin-button,.pa-hold__f input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.pa-hold__w{font-size:.8125rem;color:var(--ink-3);text-align:right;font-variant-numeric:tabular-nums}
+.pa-hold__x{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;background:none;color:var(--ink-3);cursor:pointer}
+.pa-hold__x:hover{color:var(--ink)}
+.pa-hold__x .icon{width:16px;height:16px}
+.pa-total{display:flex;justify-content:space-between;margin:0;padding:12px 56px 0 0;border-top:1px solid var(--rule-strong);font-size:.875rem;color:var(--ink-2)}
+.pa-total b{font-weight:400;color:var(--ink);font-variant-numeric:tabular-nums}
+.pa-status{min-height:1.5em;margin:8px 0 0;font-size:.8125rem;font-weight:350;color:var(--ink-2)}
+.pa-acts{display:flex;flex-wrap:wrap;gap:0 32px;margin-top:8px}
+.pa-acts .co-reset{min-height:44px}
+.pa-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 24px;list-style:none;margin:0;padding:0}
+.pa-kpis li>span{display:block;font-size:.8125rem;color:var(--ink-2)}
+.pa-kpis b{display:block;font-weight:300;font-size:clamp(1.625rem,2.6vw,2.375rem);letter-spacing:-.03em;line-height:1.2;font-variant-numeric:tabular-nums}
+.pa-kpis b .mv{font:inherit;display:inline}
+.pa-kpis i{display:block;font-style:normal;font-size:.8125rem;color:var(--ink-3)}
+.pa-fig{margin:0}
+.pa-plot{touch-action:pan-y;cursor:crosshair}
+.pa-plot svg{display:block;overflow:visible}
+.pa-plot .g{stroke:var(--chart-grid,var(--rule))}
+.pa-plot .t{fill:var(--ink-3);font-size:11px}
+.pa-plot .b{fill:none;stroke:var(--ink-3);stroke-width:1.3;stroke-dasharray:4 4}
+.pa-plot .p{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linejoin:round}
+.pa-plot .h{stroke:var(--rule-strong)}
+.pa-plot .d{fill:var(--ink)}
+.pa .key{margin:10px 0 0}
+.pa-sw{display:inline-block;width:10px;height:10px;margin-right:8px;background:var(--ink)}
+.pa-sw--w{background:var(--ink-3)}
+.pa-row{display:grid;grid-template-columns:minmax(0,1fr) 3.4rem;gap:0 14px;align-items:center;min-height:34px;font-size:.875rem;border-top:1px solid var(--rule)}
+.pa-row--bar{grid-template-columns:minmax(0,9.5rem) minmax(0,1fr) 3.4rem}
+.pa-row em{font-style:normal;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pa-row b{font-weight:400;text-align:right;font-variant-numeric:tabular-nums}
+.pa-bar{position:relative;height:14px}
+.pa-bar i{position:absolute;left:0;top:8px;height:5px;background:var(--ink)}
+.pa-bar i.pa-bar__w{top:1px;background:var(--ink-3)}
+.pa-two{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 clamp(24px,3vw,48px)}
+.pa-two h3{margin:0 0 6px;font-weight:400;font-size:.8125rem;color:var(--ink-2)}
+.pa-mx{overflow-x:auto}
+.pa-mx table{border-collapse:collapse;min-width:100%;font-size:.75rem;font-variant-numeric:tabular-nums}
+.pa-mx th{padding:0 6px 6px;font-weight:350;color:var(--ink-2);text-align:center;white-space:nowrap}
+.pa-mx th[scope=row]{padding:0 12px 0 0;text-align:left}
+.pa-mx abbr{text-decoration:none}
+.pa-mx td{min-width:38px;height:32px;text-align:center;color:var(--ink);background:rgba(242,243,243,calc(var(--v,0)*.42))}
+.pa-mx thead td,.pa-mx td.pa-mx__self{background:none;color:var(--ink-3)}
+.pa-none{margin:0;font-size:.875rem;color:var(--ink-3)}
+.pa-stress{width:100%;border-collapse:collapse;font-size:.9375rem}
+.pa-stress thead th{padding:0 0 8px;font-weight:350;font-size:.8125rem;color:var(--ink-2);text-align:right}
+.pa-stress thead th:first-child{text-align:left}
+.pa-stress tbody th,.pa-stress td{padding:10px 0;border-top:1px solid var(--rule);font-weight:400;text-align:right;font-variant-numeric:tabular-nums}
+.pa-stress tbody th{text-align:left}
+.pa-stress tbody th span{display:block;font-size:.8125rem;color:var(--ink-3)}
+.pa__out .report__src{margin-top:16px}
+.pa__text{max-width:46rem}
+@media(max-width:960px){.pa__grid{grid-template-columns:1fr}.pa-kpis{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.pa-two{grid-template-columns:1fr;gap:20px}.pa-row--bar{grid-template-columns:minmax(0,7rem) minmax(0,1fr) 3.4rem}.pa-holds--a li{grid-template-columns:minmax(0,1fr) 6rem 44px}.pa-holds--a .pa-hold__w{display:none}}

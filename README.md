@@ -32,8 +32,9 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/page_market_history.py`, `assets/market-history.js`, `tools/history_data.py`: Market history (`market-history/`), its S&P 500 history fetched at deploy (below).
 - `data/interview_simulator.json`, `assets/interview-sim.js`, `tools/page_interview_simulator.py`: the Interview simulator (`interview-simulator/`): tracks and their topics, lengths, same-question groups and the key points of each model answer, kept by hand. The build drops any key point whose words or figures are not in its answer and prints it, as it does key points for a question whose wording changed.
 - `tools/legal_content.py`: the legal notice (`legal/`) and the privacy and cookies policy (`privacy/`).
-- `assets/lab.js`: the ten Lab tools (`lab/`), which run entirely in the browser. The inputs that differ from a tool's defaults are kept in the URL fragment (`#yld=5&freq=1`), never sent to the server, so a link shares a setup.
-- `tools/lab_data.py`: fetches the daily closes behind the Lab's risk and correlation tool at deploy time (below).
+- `assets/lab.js`: ten of the eleven Lab tools (`lab/`), which run entirely in the browser. The inputs that differ from a tool's defaults are kept in the URL fragment (`#yld=5&freq=1`), never sent to the server, so a link shares a setup.
+- `assets/portfolio.js`: the eleventh, the portfolio analyser (`lab/portfolio-analyser/`): holdings entered as weights or dollar amounts, measured in US dollars in the browser. A setup that differs from the opening one is kept in the URL fragment (`#p=AAPL~18,MSFT~16&m=a`).
+- `tools/lab_data.py`: fetches the daily closes and dollar rates behind the Lab's portfolio analyser and risk and correlation tool at deploy time (below).
 - `assets/sim.js`, `assets/fed-game.js`, `assets/portfolio-game.js`, `tools/sim_data.py`, `tools/sim_content.py`: the four Simulators (`simulators/`), their history fetched at deploy time and the historical episodes they reveal (below).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.
 - `assets/profile.js`, `worker/`: the live company data on the Companies pages (search, live price, news, analysts, other US companies) and the Cloudflare Worker it reads from (below).
@@ -279,8 +280,9 @@ pages show "Data pending".
 
 ## Lab data
 
-Nine of the ten Lab tools are calculators with no data. The tenth, risk and
-correlation (`lab/risk-correlation/`), offers every company in the calendar's
+Nine of the eleven Lab tools are calculators with no data. The other two, the
+portfolio analyser (`lab/portfolio-analyser/`) and risk and correlation
+(`lab/risk-correlation/`), offer every company in the calendar's
 earnings universe (`universe` in `.cache/calendar/calendar.json`, written by
 `tools/calendar_data.py`) with its benchmark. `tools/lab_data.py` runs after
 the calendar fetch and keeps about three years of dividend-adjusted daily
@@ -294,6 +296,19 @@ per market (US, Europe, Asia), which the page loads only when a company from
 that market is picked. Mainland Chinese companies use the Shanghai Composite
 for beta: Yahoo keeps no CSI 300 history. With no universe or closes yet the
 page says "Data pending".
+
+The portfolio analyser measures everything in US dollars. `tools/lab_data.py`
+keeps, with each company's closes, the currency Yahoo quotes it in (pence and
+other hundredths as their major unit), and fetches the daily dollar rate of
+every such currency (`USD<CUR>=X`) over the same years, outside the time
+budget since they are a handful. The build writes them to
+`assets/lab-risk-fx.js`, loaded only when a holding trades in another currency.
+A company with no currency or no dollar rate yet is not offered by the
+analyser (a record written before the currency was kept is fetched again
+first). Sectors come from `.cache/companies/companies.json`; a company the
+company pages have no sector for counts as "Not classified". The analyser's
+opening portfolio (`PF_START`) and the S&P 500's falls in its three past
+episodes (`PF_FALLS`, closing high and closing low) are in `tools/build_site.py`.
 
 ## World markets data
 
