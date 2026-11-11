@@ -1458,14 +1458,15 @@ def site_header(home, base, nav=True):
     # The homepage (nav=False): no search, and the legal line at the top right, as it has no footer.
     # Phones leave out the first span: the disclaimer then fits on two lines (site.css).
     search = """<button class="search-btn" type="button" aria-haspopup="dialog" aria-label="Search Andra Markets" hidden>
-      <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span><kbd>⌘K</kbd>
+      <svg class="icon" aria-hidden="true"><use href="#i-magnifying-glass"/></svg><span>Search</span>
     </button>""" if nav else ""
     legal = "" if nav else (f'<p class="site-header__legal"><a href="{base}legal/"><span>For information only.</span> '
                             f'<span>Not investment advice.</span></a>'
                             f'<a href="{base}privacy/">Privacy and cookies</a></p>')
     # Contact us (owner, 8 Nov 2026): at the right end of the bar, after the search or the legal
-    # line. Phones (520px and below) hide it with every header button: there it sits at the
-    # foot instead: in the footer and, on the homepage, under the four groups (.hero__contact).
+    # line, as plain words: no line beside it, and no shortcut hint beside the search (owner,
+    # 11 Nov 2026). Phones (520px and below) hide it with every header button: there it sits
+    # at the foot instead: in the footer and, on the homepage, on the closing screen.
     contact = f'<a class="btn btn--sm btn--ghost contact-btn" href="{base}contact/">Contact us</a>'
     # The mark beside the name; the name is the link home. (The mark was the theme switch
     # until the site became one dark theme, 11 Nov 2026.)
