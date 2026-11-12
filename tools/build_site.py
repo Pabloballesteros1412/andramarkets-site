@@ -1145,11 +1145,6 @@ SPECULATION = ('<script type="speculationrules">'
 
 HOME_COPY = {"markets": "Prices, rates and what is coming.", "tools": "Fourteen tools that run in your browser.",
              "research": "What happened and why, after every close.", "careers": "For students breaking into markets."}
-# The financial centres marked on the homepage's globe (latitude, longitude).
-HOME_CITIES = ((40.7, -74), (51.5, -0.1), (35.7, 139.7), (22.3, 114.2), (31.2, 121.5), (48.9, 2.3), (50.1, 8.7),
-               (47.4, 8.5), (19.1, 72.9), (-23.5, -46.6), (43.7, -79.4), (-33.9, 151.2), (1.35, 103.8), (37.6, 127),
-               (25.0, 121.5), (52.4, 4.9), (40.4, -3.7), (45.5, 9.2), (59.3, 18.1), (19.4, -99.1), (-26.2, 28),
-               (24.7, 46.7), (-6.2, 106.8), (41.0, 29), (55.7, 12.6))
 HOME_ARROW = ('<svg class="arr" viewBox="0 0 64 10" aria-hidden="true"><path d="M0 5h62M57 1l5 4-5 4" fill="none" '
               'stroke="currentColor" stroke-width="1"/></svg>')
 
@@ -1158,11 +1153,9 @@ def page(notes, cal):
     """The homepage: a horizon of light, the horse forming from its dust beside the statement,
     then one screen for each group of the menu and a closing screen (assets/home.css,
     assets/home.js). The Research chart is the S&P 500 at the close of every published note."""
-    import math
     spx = [n["closes"]["spx"]["last"] for n in sorted(notes, key=lambda n: n["date"])
            if (n.get("closes") or {}).get("spx", {}).get("last")]
     data = {"spx": spx or [0, 0],
-            "nodes": [[round(math.radians(a), 3), round(math.radians(o), 3)] for a, o in HOME_CITIES],
             "horse": f'assets/horse-particles.webp?v={ver("horse-particles.webp")}'}
     groups = "".join(
         f'<section class="sec sec--l" id="{key}" data-shape="{i + 1}"><div class="sec__in"><h2>{name}</h2>'
