@@ -8,6 +8,7 @@
   var glc = stage.querySelector(".fr-night__gl"), top = stage.querySelector(".fr-night__top"), read = stage.querySelector(".fr-night__read"), TEX;
   try { TEX = JSON.parse(stage.querySelector('script[type="application/json"]').textContent); } catch (e) { return; }
   var gl = glc.getContext("webgl", { antialias: false, alpha: true, premultipliedAlpha: true }), cx = top.getContext("2d"); if (!gl || !cx) return;
+  stage.hidden = false; // the room is taken at once, so nothing below jumps when the view arrives
   var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], nextDay = "";
   if (TEX.next) { var nd = new Date(TEX.next); if (!isNaN(nd) && nd > new Date()) { var pt = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "numeric", day: "numeric" }).formatToParts(nd), mo = 0, dy = 0; pt.forEach(function (x) { if (x.type === "month") mo = +x.value; if (x.type === "day") dy = +x.value; }); nextDay = dy + " " + MON[mo - 1].toUpperCase(); } }
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -59,15 +60,20 @@
   var ready = 0;
   function tex(unit, name, src) {
     var t = gl.createTexture(), im = new Image();
-    im.onload = function () { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, im);
+    function up() { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.LUMINANCE, gl.LUMINANCE, gl.UNSIGNED_BYTE, im);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.uniform1i(U(name), unit); ready++; if (ready === 2) { stage.hidden = false; size(); } once(); };
-    im.src = src;
+      gl.uniform1i(U(name), unit); ready++; if (ready === 2) { t0 = 0; size(); stage.classList.add("is-on"); } once(); }
+    im.src = src; // decoded off the main thread where the browser can
+    if (im.decode) im.decode().then(up, function () { if (im.complete && im.naturalWidth) up(); }); else im.onload = up;
   }
-  tex(0, "night", TEX.night); tex(1, "day", TEX.day);
+  // The pictures load, and the view starts, once the page's own transition has finished: starting during it made the arrival stutter.
+  var begun = false; function begin() { if (begun) return; begun = true; tex(0, "night", TEX.night); tex(1, "day", TEX.day); }
+  window.addEventListener("pagereveal", function (e) { if (e.viewTransition && e.viewTransition.finished) e.viewTransition.finished.then(begin, begin); else begin(); });
+  window.setTimeout(begin, "onpagereveal" in window ? 1400 : 120);
 
-  var W = 0, H = 0, dpr = 1, phone = false, eye, fw, rt, up, tanF, asp, t0 = 0, drift = 0, driftT = 0, hover = -1, px = 0, py = 0, drag = false, fly = still ? 1 : 0;
-  function size() { W = glc.clientWidth; H = glc.clientHeight; dpr = Math.min(window.devicePixelRatio || 1, 2); phone = W < 640; [glc, top].forEach(function (c) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); }); gl.viewport(0, 0, glc.width, glc.height); asp = W / H; }
+  var W = 0, H = 0, dpr = 1, phone = false, eye, fw, rt, up, tanF, asp, t0 = 0, drift = 0, driftT = 0, hover = -1, px = 0, py = 0, drag = false, fly = still ? 1 : 0, q = 1, slow = 0, nfr = 0, last = 0;
+  function size() { W = glc.clientWidth; H = glc.clientHeight; dpr = Math.min(window.devicePixelRatio || 1, 2); phone = W < 640; var g = Math.min(dpr, 1.5) * q; if (W * H * g * g > 1.7e6) g = Math.sqrt(1.7e6 / (W * H));
+    glc.width = Math.round(W * g); glc.height = Math.round(H * g); top.width = Math.round(W * dpr); top.height = Math.round(H * dpr); gl.viewport(0, 0, glc.width, glc.height); asp = W / H; }
   function cam(time) {
     var k = still ? 1 : Math.min(1, (time - t0) / 7000); k = 1 - Math.pow(1 - k, 3); fly = k;
     drift += (driftT - drift) * 0.08;
@@ -122,10 +128,12 @@
   var run = 0, visible = true;
   function frame(time) {
     run = 0; if (!t0) t0 = time; cam(time);
+    // a machine that cannot keep up gets a coarser picture, not a slower one
+    if (ready === 2 && last) { slow += time - last; if (++nfr === 30) { if (slow / 30 > 26 && q > 0.5) { q *= 0.78; size(); } slow = 0; nfr = 0; } } last = time;
     if (ready === 2) { gl.uniform3fv(uEye, eye); gl.uniform3fv(uFw, fw); gl.uniform3fv(uRt, rt); gl.uniform3fv(uUp, up); gl.uniform2f(uTf, tanF * asp, tanF); gl.uniform1f(uLit, fly); gl.clear(gl.COLOR_BUFFER_BIT); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); over(time); }
     if (visible && !still) run = requestAnimationFrame(frame);
   }
-  function once() { if (!run) run = requestAnimationFrame(frame); }
+  function once() { if (!run) { last = 0; run = requestAnimationFrame(frame); } }
   function near(x, y) { var best = -1, bd = (phone ? 30 : 24); P.forEach(function (c, i) { if (!c.q) return; var d = Math.hypot(c.q[0] - x, c.q[1] - y); if (d < bd) { bd = d; best = i; } }); return best; }
   function say() { read.textContent = hover >= 0 ? lines(P[hover]).join(". ") + "." : ""; top.style.cursor = hover >= 0 ? "pointer" : "grab"; }
   var sx = 0, sd = 0, moved = 0, held = -1;

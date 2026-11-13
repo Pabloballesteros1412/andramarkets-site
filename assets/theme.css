@@ -348,7 +348,8 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 /* Fed & Rates: the United States at night, from orbit, behind the page head */
 .fr-night{position:relative;z-index:0;height:min(92vh,880px);min-height:520px;margin:-9rem calc(50% - 50vw) 0;overflow:hidden;touch-action:pan-y}
 .fr-night[hidden]{display:none}
-.fr-night canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.fr-night canvas{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;transition:opacity 1.1s ease}
+.fr-night.is-on canvas{opacity:1}
 .fr-night__top{cursor:grab}
 .fr .dd__head>:not(.fr-night){position:relative;z-index:1}
 @media (max-width:640px){.fr-night{height:78vh;margin-top:1rem}}
