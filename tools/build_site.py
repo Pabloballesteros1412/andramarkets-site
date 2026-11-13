@@ -1691,6 +1691,31 @@ TOOL_MAP_LEDE = {
 }
 
 
+def tools_map_page():
+    """Every Tools section and its tools on one map (assets/tools-map.js lays this nested list out
+    over a canvas; without the script it is the list)."""
+    def tool(page, slug):
+        if page.startswith("lab/"):
+            title = next(t for t in LAB_TOOLS if t[0] == slug)[2]
+            return f'<li><a href="../lab/{slug}/">{title}</a></li>'
+        return f'<li><a href="../simulators/{slug}/">{next(x for x in SIMULATORS if x[0] == slug)[1]}</a></li>'
+    groups = "".join(f'<li><span class="tools-map__name">{name}</span><ol>{"".join(tool(page, x) for x in slugs)}</ol></li>'
+                     for _, page, name, _, slugs in TOOL_THEMES)
+    total = sum(len(t[4]) for t in TOOL_THEMES)
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Tools</h1>
+      <p class="lede">{total} tools and simulators that run in your browser.<span class="tool-map__hint"> Drag a section where you like.</span></p>
+    </header>
+    <nav class="tools-map" aria-label="Tools"><ol>{groups}</ol></nav>
+  </div>
+</main>"""
+    return shell(title="Tools: Andra Markets", desc=f"{total} interactive tools and simulators that run in your browser: options, bonds, "
+                 "risk and portfolio, valuation and growth, market replays and strategy games. By Andra Markets.",
+                 body=body, home="../", base="../", path="tools-map/", scripts=("tools-map.js",))
+
+
 def tool_theme_page(page, name, lede, slugs):
     """One theme of the Tools menu, a section page of its own: its title, a line, and its
     tools in the Lab index's ruled list, each row as on the Lab or Simulators index."""
@@ -6543,6 +6568,8 @@ def main():
         (OUT / path / "index.html").write_text(moved_redirect(path, to, title, text))
     (OUT / "lab").mkdir(exist_ok=True)
     (OUT / "lab" / "index.html").write_text(lab_index())
+    (OUT / "tools-map").mkdir(exist_ok=True)
+    (OUT / "tools-map" / "index.html").write_text(tools_map_page())
     for _, theme, name, lede, slugs in TOOL_THEMES:
         (OUT / theme).mkdir(parents=True, exist_ok=True)
         (OUT / theme / "index.html").write_text(tool_theme_page(theme, name, lede, slugs))

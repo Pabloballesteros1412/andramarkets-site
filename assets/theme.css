@@ -379,3 +379,19 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .tool-map.is-live{margin-top:-36px}
 @media (hover:none){.tool-map__hint{display:none}}
 @media (max-width:720px){.tool-map.is-live{height:660px;margin-top:0}.tool-map.is-n3{height:540px}.tool-map.is-n2{height:400px}.tool-map.is-live li>a{width:auto}.tool-map.is-live .learn-list__title{font-size:1rem}.tool-map.is-live li>a.is-hub .learn-list__title{font-size:1.125rem}}
+
+/* Tools: every section and its tools on one map (assets/tools-map.js). Until the script runs it is a nested list. */
+.tools-map ol{list-style:none;margin:0;padding:0}
+.tools-map>ol>li{padding:14px 0;border-top:1px solid var(--rule)}
+.tools-map__name{display:block;font-size:1.0625rem;color:var(--ink)}
+.tools-map ol ol a{display:inline-block;padding:6px 0;color:var(--ink-2);text-decoration:none}
+.tools-map.is-live{position:relative;height:940px;margin:-28px calc(50% - 50vw) 0;overflow:hidden}
+.tools-map.is-live canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;-webkit-mask-image:linear-gradient(transparent,#000 7%,#000 94%,transparent);mask-image:linear-gradient(transparent,#000 7%,#000 94%,transparent)}
+.tools-map.is-live>ol>li{position:static;padding:0;border:0}
+.tools-map.is-live .tools-map__name,.tools-map.is-live ol ol a{position:absolute;white-space:nowrap;line-height:1.2;transition:opacity .3s,color .3s}
+.tools-map.is-live .tools-map__name{font-size:1.125rem;font-weight:300;letter-spacing:-.005em;color:var(--ink);pointer-events:auto;cursor:default}
+.tools-map.is-live ol ol a{padding:4px 6px;margin:-4px -6px;font-size:.8125rem;color:var(--ink-2);text-decoration:none!important}
+.tools-map.is-live ol ol a:hover,.tools-map.is-live ol ol a:focus-visible,.tools-map.has-pick ol ol a.is-on{color:var(--ink)}
+.tools-map.is-live ol ol a:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+.tools-map.has-pick .tools-map__name:not(.is-on),.tools-map.has-pick ol ol a:not(.is-on){opacity:.35}
+@media (max-width:899px){.tools-map.is-live{margin-top:0}.tools-map.is-live .tools-map__name{font-size:1.0625rem}.tools-map.is-live ol ol a{font-size:.9375rem;white-space:normal;right:16px}}
