@@ -5648,12 +5648,21 @@ def fedrates_page(d):
             f'<p class="report__src">Each figure with its own date. Sources in each panel.</p></aside>') if latest else ""
     updated = f'Updated {et_stamp(d["updated"])}' if d.get("updated") else "Data pending"
     payload = json.dumps(fr_payload(d), separators=(",", ":")).replace("</", "<\\/")
+    night = json.dumps({"night": f'../assets/us-night.jpg?v={ver("us-night.jpg")}', "day": f'../assets/earth-day.jpg?v={ver("earth-day.jpg")}',
+                        "box": [-172, -28, -2, 80], "next": upcoming[0]["decision"] if upcoming else None, "goto": "fr-policy"},
+                       separators=(",", ":")).replace("</", "<\\/")
     body = f"""<main id="main" class="page dd fr">
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
       <h1 class="page__title">Fed &amp; Rates</h1>
       <p class="lede">The policy rate, the Treasury curve and what markets price for the next meetings.</p>
       <p class="note__meta"><span>Federal Reserve, US Treasury, FRED, CBOT futures</span><span>{updated}</span><span>Refreshed every 15 minutes while the NYSE is open</span></p>
+      <div class="fr-night" hidden>
+        <canvas class="fr-night__gl" aria-hidden="true"></canvas>
+        <canvas class="fr-night__top" role="img" aria-label="The United States at night from orbit, with the Board in Washington and the twelve Federal Reserve Banks lit and joined by arcs of light. Banks that vote on the FOMC this year are brighter."></canvas>
+        <p class="visually-hidden fr-night__read" aria-live="polite"></p>
+        <script type="application/json">{night}</script>
+      </div>
     </header>
     <div class="dd__main fr__main">
       <div class="fr__range dd__ctl"><div class="dd__cgroup"><span class="cl__glabel" id="fr-range-l">Range, for the charts over time</span>
@@ -5663,7 +5672,7 @@ def fedrates_page(d):
     {side}
     <div class="page__body dd__text">
       <section aria-labelledby="fr-how"><h2 id="fr-how">How to read it</h2><p>The FOMC sets a target range for the overnight rate eight times a year. Fed funds futures settle on the average effective rate in their month, so the change from one month to the next shows what the market expects each meeting to do. A curve whose short end sits above its long end is inverted: both spreads above turned negative before most US recessions since the 1970s, with long and variable lags. The real yield is what a Treasury pays after inflation; the breakeven is the inflation rate at which inflation-protected and ordinary Treasuries pay the same.</p></section>
-      <section aria-labelledby="fr-src"><h2 id="fr-src">Sources and method</h2><p>Treasury par yields and real yields from the US Treasury, with FRED as backup; FRED posts the curve a day later, so the Treasury's figures come first. Spreads, the fed funds rate, inflation, unemployment and breakevens from FRED. The target range from the Federal Reserve via FRED and the FOMC calendar from the Federal Reserve. Meeting probabilities are an Andra Markets calculation from CBOT 30-day fed funds futures, following the method CME Group publishes: each contract settles on its month's average effective rate, so the rate after a meeting is the month's implied rate with the days before the decision taken out. Futures carry a risk premium, so they are a guide to expectations, not a forecast. The futures and the intraday yield points refresh every 15 minutes while the NYSE is open; the rest once a day. Series older than two years are shown one point a week.</p><p>For information only. Not investment advice.</p></section>
+      <section aria-labelledby="fr-src"><h2 id="fr-src">Sources and method</h2><p>Treasury par yields and real yields from the US Treasury, with FRED as backup; FRED posts the curve a day later, so the Treasury's figures come first. Spreads, the fed funds rate, inflation, unemployment and breakevens from FRED. The target range from the Federal Reserve via FRED and the FOMC calendar from the Federal Reserve. Meeting probabilities are an Andra Markets calculation from CBOT 30-day fed funds futures, following the method CME Group publishes: each contract settles on its month's average effective rate, so the rate after a meeting is the month's implied rate with the days before the decision taken out. Futures carry a risk premium, so they are a guide to expectations, not a forecast. The futures and the intraday yield points refresh every 15 minutes while the NYSE is open; the rest once a day. Series older than two years are shown one point a week.</p><p>The night view at the top: night lights from Solar System Scope (CC BY 4.0), made from NASA imagery; the ground from NASA's Blue Marble. FOMC votes follow the committee's yearly rotation among the Reserve Banks.</p><p>For information only. Not investment advice.</p></section>
     </div>
   </div>
 </main>
@@ -5671,7 +5680,7 @@ def fedrates_page(d):
     return shell(title="Fed &amp; Rates: Andra Markets",
                  desc="The Fed's policy rate and FOMC dates, meeting probabilities from fed funds futures, the Treasury curve, "
                       "2s10s and 3m10y spreads, inflation, unemployment and real rates. By Andra Markets.",
-                 body=body, home="../", base="../", path="fed-rates/", scripts=("fedrates.js",))
+                 body=body, home="../", base="../", path="fed-rates/", scripts=("fedrates.js", "fed-night.js"))
 
 
 def moved_redirect(path, to, title, text):

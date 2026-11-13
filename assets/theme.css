@@ -344,3 +344,11 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .wm-globe__gl{position:absolute;inset:0;height:100%}
 .wm-globe__top{position:relative;cursor:grab}
 .fx-tab tr.is-found>*{background:rgba(242,243,243,.16);transition:background .4s}
+
+/* Fed & Rates: the United States at night, from orbit, behind the page head */
+.fr-night{position:relative;z-index:0;height:min(92vh,880px);min-height:520px;margin:-9rem calc(50% - 50vw) 0;overflow:hidden;touch-action:pan-y}
+.fr-night[hidden]{display:none}
+.fr-night canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.fr-night__top{cursor:grab}
+.fr .dd__head>:not(.fr-night){position:relative;z-index:1}
+@media (max-width:640px){.fr-night{height:78vh;margin-top:1rem}}

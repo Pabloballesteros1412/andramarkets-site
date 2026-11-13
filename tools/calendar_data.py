@@ -445,7 +445,7 @@ def fomc_meetings():
         if not y:
             continue
         year = int(y.group(1))
-        for block in re.split(r'(?i)<div class="(?:row )?fomc-meeting(?:"| )', panel)[1:]:
+        for block in re.split(r'(?i)<div class="(?:[\w-]+ )*fomc-meeting(?:"| )', panel)[1:]:
             t = strip(block[:3000])
             m = re.search(r"([A-Z][a-z]+)(?:/([A-Z][a-z]+))?\s+(\d{1,2})(?:-(\d{1,2}))?", t)
             if not m or not month_num(m.group(1)):
