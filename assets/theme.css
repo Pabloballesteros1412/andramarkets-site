@@ -336,3 +336,10 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .co-globe .lens-read a{color:var(--ink);text-underline-offset:4px}
 .co-globe .lens-stats{margin:0}
 .co-globe canvas{margin-top:6px;touch-action:pan-y}
+
+/* The Earth on the World markets page (assets/earth.js): a WebGL canvas for the surface, a 2D one over it. */
+.wm-globe{position:relative;margin-top:clamp(16px,2.5vw,32px)}
+.wm-globe[hidden]{display:none}
+.wm-globe canvas{display:block;width:100%;touch-action:pan-y}
+.wm-globe__gl{position:absolute;inset:0;height:100%}
+.wm-globe__top{position:relative;cursor:grab}
