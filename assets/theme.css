@@ -353,3 +353,11 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .fr-night__top{cursor:grab}
 .fr .dd__head>:not(.fr-night){position:relative;z-index:1}
 @media (max-width:640px){.fr-night{height:78vh;margin-top:1rem}}
+
+/* The ring of holdings in the portfolio analyser (assets/lens.js) */
+.pa-sec .lens-stats{margin-bottom:16px}
+.pa-sec .lens-read{min-height:1.6em;margin-top:10px}
+.lens-figs{margin-top:14px}
+.lens-figs summary{display:inline-flex;align-items:center;min-height:44px;font-size:.8125rem;color:var(--ink-2);cursor:pointer}
+.lens-figs summary:hover{color:var(--ink)}
+.lens-figs[open] summary{margin-bottom:6px}
