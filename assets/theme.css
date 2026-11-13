@@ -1,4 +1,5 @@
 @font-face{font-family:"Geist";src:url("fonts/geist-latin.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Geist Mono";src:url("fonts/geist-mono-latin.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
 /* Andra Markets, new look: black ground, light Geist, type and hairlines only. Loaded after site.css. */
 :root,:root[data-theme="light"],:root[data-theme="dark"]{color-scheme:dark;
  --font:"Geist","Helvetica Neue",Arial,sans-serif;
@@ -190,6 +191,9 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .page__head .note__meta,.page__head .dd__crumbs{justify-content:center;margin-inline:auto}
 .report__grid>.page__head{text-align:left}
 .report__grid>.page__head .lede,.report__grid>.page__head .note__meta{margin-inline:0;justify-content:flex-start}
+/* a company's page: its name at the left over its price, its logo at the right */
+.co>.wrap>.page__head{text-align:left}
+.co>.wrap>.page__head .lede,.co>.wrap>.page__head .note__meta,.co>.wrap>.page__head .dd__crumbs{margin-inline:0;justify-content:flex-start}
 .page__body,.archive,.pw-toc,.lab-groups,.lab-groups .learn-list{max-width:none}
 .page__body>section,.archive__month{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,9fr);column-gap:clamp(32px,5vw,96px);align-items:start}
 .page__body>section>*,.archive__month>*{grid-column:2;min-width:0}
@@ -304,3 +308,21 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .fdp .pa__text{margin-top:8px}
 @media(max-width:960px){.fd-cols{grid-template-columns:1fr}.fd-cols>*+*{border-top:1px solid var(--rule);margin-top:30px}.fd-kpis{grid-template-columns:1fr 1fr}.fd-cells{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.fd-wide{display:none}.fd-tab td.fd-x{width:auto}}
+
+/* Read-outs in small monospaced capitals, over the Companies globe (assets/globe.js). */
+.lens{display:block;width:100%;touch-action:pan-y}
+.lens-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:0 24px}
+.lens-stats,.lens-read{margin:0;font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:.6875rem;line-height:1.6;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.lens-stats{text-align:right}
+.lens-read b{font-weight:400;color:var(--ink)}
+.lens-read .mv{font:inherit}
+@media(max-width:720px){.lens-stats{text-align:left}}
+
+/* The globe on the Companies index (assets/globe.js): its read-out at the left over it, its counts at the right. */
+.co-globe{margin:clamp(20px,3vw,36px) 0 clamp(28px,4vw,48px)}
+.co-globe[hidden]{display:none}
+.co-globe .lens-h{align-items:baseline;min-height:2.4em}
+.co-globe .lens-read{margin:0;min-height:0}
+.co-globe .lens-read a{color:var(--ink);text-underline-offset:4px}
+.co-globe .lens-stats{margin:0}
+.co-globe canvas{margin-top:6px;touch-action:pan-y}
