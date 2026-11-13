@@ -309,31 +309,7 @@
     q(".fd-key-w").hidden = !P.world;
     view = { at: -1 };
     chart();
-    fan(V);
     estimate();
-  }
-
-  /* Where it could go: the book as it stands, on each of the past year's days (assets/lens.js) */
-
-  function fan(V) {
-    var band = q(".fd-fan"), Lens = window.AndraLens;
-    var lots = F.lots.filter(function (l) { return by[l.s]; });
-    var end = axisIndex(F.d), from = Math.max(1, end - 251), ret = [];
-    if (Lens && lots.length && data.us) {
-      for (var k = from; k <= end; k++) {
-        var r = 0;
-        for (var i = 0; i < lots.length; i++) r += lots[i].v / V * (Math.exp(usd(by[lots[i].s], k) / 1e4) - 1);
-        ret.push(r);
-      }
-    }
-    band.hidden = ret.length < 120;
-    if (band.hidden) return;
-    var cv = q(".fd-fan-cv"), f = Lens.weave(cv, { returns: ret, steps: 252, block: 5, ticks: ["Today", "3 months", "6 months", "9 months", "1 year"] });
-    q(".fd-fan-stats").textContent = num(f.paths, 0) + " strands \u00b7 252 sessions \u00b7 blocks of 5 \u00b7 from " + ret.length + " past days";
-    q(".fd-fan-read").innerHTML = "Middle " + mv(pct(f.p50, 0, true)) + " \u00b7 1 in 20 above " + mv(pct(f.p95, 0, true)) + " \u00b7 1 in 20 below " + mv(pct(f.p5, 0, true)) +
-      " \u00b7 ends lower in <b>" + pct(f.lower, 0) + "</b> of them";
-    cv.setAttribute("aria-label", "A fan of " + f.paths + " possible one-year paths of the fund as it is positioned now, each starting at 100. The middle path ends " + pct(f.p50, 0, true) +
-      "; one in twenty ends above " + pct(f.p95, 0, true) + " and one in twenty below " + pct(f.p5, 0, true) + ". " + pct(f.lower, 0) + " of them end lower than they began.");
   }
 
   /* The chart: the fund, the S&P 500 and the MSCI World, each from 100 -------- */

@@ -1762,9 +1762,7 @@ LAB_TOOLS = [
      "1.2% for each 1% of the index, on average. A holding's share of risk is its weight times how closely it has moved "
      "with the whole portfolio, as a part of the portfolio's variance: the shares add up to 100%, and a holding whose "
      "share is above its weight adds more risk than its size suggests. The estimate for a past fall is the S&amp;P 500's "
-     "drop in that episode, from closing high to closing low, times the portfolio's beta. Where it could go draws "
-     "1,600 possible years: each takes the portfolio's own past weeks at random, four in a row at a time, and "
-     "compounds a year of them; the middle path and the paths one in twenty end above or below are marked.",
+     "drop in that episode, from closing high to closing low, times the portfolio's beta.",
      "Past returns over the period, which say nothing certain about the next one. The period is the longest every "
      "holding has traded, up to three years, so a company listed recently shortens it for the whole portfolio. Weights "
      "are held constant (rebalanced every week), with no fees, taxes or dealing costs. Amounts are read as US dollars. "
@@ -2079,19 +2077,13 @@ def pf_page(i, risk):
         <section class="pa-sec" aria-labelledby="pa-h-chart"><h2 class="pa__h" id="pa-h-chart">Growth of 100<small>In US dollars, against the S&amp;P 500.</small></h2>
           <figure class="pa-fig"><div class="pa-plot" role="img" tabindex="0" aria-label="Growth of 100. Use the arrow keys to read each week."></div>
             <figcaption><p class="key"><span><i class="k-solid"></i>Portfolio</span><span><i class="k-dash"></i>S&amp;P 500</span></p><p class="dd__read pa-read" aria-live="polite"></p></figcaption></figure></section>
-        <section class="pa-sec" aria-labelledby="pa-h-fan"><div class="lens-h"><h2 class="pa__h" id="pa-h-fan">Where it could go<small>1,600 possible years, each drawn from the portfolio's own past weeks.</small></h2><p class="lens-stats pa-fan-stats"></p></div>
-          <canvas class="lens pa-fan" role="img" aria-label="A fan of possible one-year paths of the portfolio."></canvas>
-          <p class="lens-read pa-fan-read" aria-live="polite"></p>
-          <p class="lens-note">An estimate, not a forecast: the portfolio's past weeks reshuffled in blocks of four. A calm past draws a narrow fan.</p></section>
         <section class="pa-sec" aria-labelledby="pa-h-risk"><h2 class="pa__h" id="pa-h-risk">Where the risk comes from<small>Each holding's weight beside its share of the portfolio's risk.</small></h2>
           <div class="pa-rows pa-risk"></div>
           <p class="key"><span><i class="pa-sw pa-sw--w"></i>Weight</span><span><i class="pa-sw"></i>Share of risk</span></p></section>
         <section class="pa-sec" aria-labelledby="pa-h-exp"><h2 class="pa__h" id="pa-h-exp">What it is exposed to</h2>
           <div class="pa-two"><div><h3>By sector</h3><div class="pa-rows pa-sector"></div></div><div><h3>By country</h3><div class="pa-rows pa-country"></div></div><div><h3>By currency</h3><div class="pa-rows pa-cur"></div></div></div></section>
-        <section class="pa-sec" aria-labelledby="pa-h-cor"><div class="lens-h"><h2 class="pa__h" id="pa-h-cor">How the holdings move together<small>The thicker the band of strands between two holdings, the closer they move. Weekly returns in dollars.</small></h2><p class="lens-stats pa-ring-stats"></p></div>
-          <canvas class="lens pa-ring" role="img" aria-label="A ring of the holdings joined by bands of strands as thick as each pair's correlation."></canvas>
-          <p class="lens-read pa-ring-read" aria-live="polite"></p>
-          <details class="lens-figs"><summary>The figures</summary><div class="pa-mx"></div></details></section>
+        <section class="pa-sec" aria-labelledby="pa-h-cor"><h2 class="pa__h" id="pa-h-cor">How the holdings move together<small>Correlation of weekly returns in dollars. 1.00 moves as one; 0 has no relation.</small></h2>
+          <div class="pa-mx"></div></section>
         <section class="pa-sec" aria-labelledby="pa-h-str"><h2 class="pa__h" id="pa-h-str">In past falls<small>An estimate: the S&amp;P 500's fall in each episode times the portfolio's beta.</small></h2>
           <table class="pa-stress"><thead><tr><th scope="col">Episode</th><th scope="col">S&amp;P 500</th><th scope="col">This portfolio, estimated</th></tr></thead><tbody></tbody></table></section>
         <p class="report__src">Yahoo Finance daily closes and dollar rates to {asof}, calculated in your browser. An Andra Markets tool, not a recommendation.</p>
@@ -2121,7 +2113,7 @@ def pf_page(i, risk):
   </div>
 </main>"""
     return shell(title=f"{title}: Andra Markets Lab", desc=desc, body=body, home="../../", base="../../",
-                 path=f"lab/{slug}/", scripts=("lens.js", "portfolio.js") if data else ())
+                 path=f"lab/{slug}/", scripts=("portfolio.js",) if data else ())
 
 
 def risk_inputs(data):
@@ -2251,9 +2243,7 @@ FUND_HOW = (
     "root of 252; the Sharpe ratio is the average daily return over that deviation, annualised, with no risk-free "
     "rate taken off; the deepest fall is the largest drop from a high to a later low; beta is the fund's sensitivity "
     "to the S&amp;P 500. Those four need twenty sessions before they are shown. Long and short exposure are the "
-    "positions' values as a share of the fund; net is one less the other, gross the two together. Where it could go "
-    "takes the book as it stands today, works out what it would have returned on each of the past year's days, and "
-    "draws 1,600 possible years from those days, five in a row at a time.",
+    "positions' values as a share of the fund; net is one less the other, gross the two together.",
 )
 FUND_LIMITS = (
     "No dealing costs, no cost of borrowing the shares you short, no interest on cash and no margin calls. Gross "
@@ -2297,12 +2287,6 @@ def fund_page(risk):
             <p class="key"><span><i class="k-solid"></i>Your fund</span><span><i class="k-dash"></i>S&amp;P 500</span><span class="fd-key-w"><i class="fd-k-dot"></i>MSCI World</span></p></div>
           <figure class="pa-fig"><div class="pa-plot fd-plot" role="img" tabindex="0" aria-label="Value of the fund. Use the arrow keys to read each day."></div>
             <figcaption><p class="dd__read fd-read" aria-live="polite"></p></figcaption></figure>
-        </section>
-        <section class="fd-band fd-fan" aria-labelledby="fd-h-fan" hidden>
-          <div class="lens-h"><h2 class="pa__h" id="fd-h-fan">Where it could go<small>1,600 possible years for the book as it stands, each drawn from its positions' own past days.</small></h2><p class="lens-stats fd-fan-stats"></p></div>
-          <canvas class="lens fd-fan-cv" role="img" aria-label="A fan of possible one-year paths of the fund as it is positioned now."></canvas>
-          <p class="lens-read fd-fan-read" aria-live="polite"></p>
-          <p class="lens-note">An estimate, not a forecast: the past year's days reshuffled in blocks of five, with today's positions held as they are.</p>
         </section>
         <div class="fd-cols fd-band">
           <section aria-labelledby="fd-h-trade">
@@ -2370,7 +2354,7 @@ def fund_page(risk):
   </div>
 </main>"""
     return shell(title=f"{name}: Andra Markets", desc=desc, body=body, home="../../", base="../../",
-                 path=f"simulators/{slug}/", scripts=("lens.js", "fund.js") if data else ())
+                 path=f"simulators/{slug}/", scripts=("fund.js",) if data else ())
 
 
 def lab_row(slug, to=""):

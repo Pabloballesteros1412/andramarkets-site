@@ -36,7 +36,6 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `assets/portfolio.js`: the eleventh, the portfolio analyser (`lab/portfolio-analyser/`): holdings entered as weights or dollar amounts, measured in US dollars in the browser. A setup that differs from the opening one is kept in the URL fragment (`#p=AAPL~18,MSFT~16&m=a`).
 - `assets/fund.js`: the fifth simulator, Your fund (`simulators/your-fund/`): a paper long-short fund the reader runs, kept only in the browser (`localStorage`, `andra-fund`), marked from the Lab's daily returns (below, Lab data).
 - `assets/globe.js`: the globe on the Companies index: every company as a point on a turning sphere, joined to the companies it moves with; a click opens the company's page. Its ties are measured at build time (`globe_data` in `tools/build_site.py`) from the Lab's closes, weekly over 104 weeks.
-- `assets/lens.js`: the lenses, figures drawn as fields of fine lines on a canvas (the fan of possible years and the ring of holdings), used by the portfolio analyser and Your fund. See DESIGN.md, Lenses.
 - `tools/lab_data.py`: fetches the daily closes and dollar rates behind the Lab's portfolio analyser and risk and correlation tool at deploy time (below).
 - `assets/sim.js`, `assets/fed-game.js`, `assets/portfolio-game.js`, `tools/sim_data.py`, `tools/sim_content.py`: four of the five Simulators (`simulators/`), their history fetched at deploy time and the historical episodes they reveal (below).
 - `assets/calendar.js`: the calendar's week tabs, filters and today mark.

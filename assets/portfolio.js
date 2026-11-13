@@ -306,45 +306,6 @@
 
     view = { port: S.path, bench: SB.path, dates: idx.map(axisDate), at: -1 };
     chart();
-    lenses(cs, w, R, rp);
-  }
-
-  /* The lenses: the fan of possible years and the ring of holdings (assets/lens.js) ------- */
-
-  function lenses(cs, w, R, rp) {
-    var Lens = window.AndraLens;
-    if (!Lens) return;
-    var fan = q(".pa-fan"), f = Lens.weave(fan, { returns: rp, steps: 52, block: 4, ticks: ["Today", "3 months", "6 months", "9 months", "1 year"] });
-    q(".pa-fan-stats").textContent = num(f.paths, 0) + " strands \u00b7 52 weeks \u00b7 blocks of 4 \u00b7 from " + rp.length + " past weeks";
-    q(".pa-fan-read").innerHTML = "Middle " + mv(pct(f.p50, 0, true)) + " \u00b7 1 in 20 above " + mv(pct(f.p95, 0, true)) + " \u00b7 1 in 20 below " + mv(pct(f.p5, 0, true)) +
-      " \u00b7 ends lower in <b>" + pct(f.lower, 0) + "</b> of them";
-    fan.setAttribute("aria-label", "A fan of " + f.paths + " possible one-year paths of the portfolio, each starting at 100. The middle path ends " + pct(f.p50, 0, true) +
-      "; one in twenty ends above " + pct(f.p95, 0, true) + " and one in twenty below " + pct(f.p5, 0, true) + ". " + pct(f.lower, 0) + " of them end lower than they began.");
-
-    var on = cs.map(function (_, k) { return k; }).filter(function (k) { return w[k] > 0; });
-    var cv = q(".pa-ring"), read = q(".pa-ring-read"), stats = q(".pa-ring-stats");
-    cv.hidden = on.length < 2;
-    if (on.length < 2) { stats.textContent = ""; read.textContent = "Add a second holding to see how they move together."; return; }
-    var sd = R.map(function (r) { return Math.sqrt(cov(r, r)); });
-    var M = on.map(function (a) { return on.map(function (b) { return a === b ? 1 : cov(R[a], R[b]) / (sd[a] * sd[b]); }); });
-    var names = on.map(function (k) { return cs[k].s.split(".")[0]; });
-    function r2(v) { return (v < -0.004 ? MINUS : "") + num(Math.abs(v), 2); }
-    var ring = Lens.ring(cv, { names: names, notes: on.map(function (k) { return pct(w[k], 0); }), matrix: M, onHover: say });
-    var pairs = ring.pairs, avg = mean(pairs.map(function (p) { return p[2]; }));
-    stats.textContent = on.length + " holdings \u00b7 " + pairs.length + (pairs.length === 1 ? " pair" : " pairs") + " \u00b7 mean correlation " + r2(avg);
-    function say(k) {
-      if (k < 0) {
-        var a = pairs[0], z = pairs[pairs.length - 1];
-        read.innerHTML = "Closest <b>" + esc(names[a[0]]) + " \u00b7 " + esc(names[a[1]]) + "</b> " + r2(a[2]) +
-          (pairs.length > 1 ? " \u00b7 furthest <b>" + esc(names[z[0]]) + " \u00b7 " + esc(names[z[1]]) + "</b> " + r2(z[2]) : "");
-        return;
-      }
-      var mine = pairs.filter(function (p) { return p[0] === k || p[1] === k; });
-      read.innerHTML = "<b>" + esc(cs[on[k]].n) + "</b> \u00b7 " + mine.map(function (p) { return esc(names[p[0] === k ? p[1] : p[0]]) + " " + r2(p[2]); }).join(" \u00b7 ");
-    }
-    say(-1);
-    cv.setAttribute("aria-label", "A ring of " + on.length + " holdings joined by bands of strands as thick as each pair's correlation. The closest pair is " +
-      cs[on[pairs[0][0]]].n + " and " + cs[on[pairs[0][1]]].n + ", " + r2(pairs[0][2]) + ". Every figure is in the table under it.");
   }
 
   /* Growth of 100 ----------------------------------------------------------- */
