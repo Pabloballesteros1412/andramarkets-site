@@ -6677,7 +6677,7 @@ GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", 
              "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
              "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
              "chart-of-the-day", "central-banks", "recession-watch", "market-history",
-             "interview-simulator", "firms", "application-tracker", "contact")
+             "interview-simulator", "firms", "application-tracker", "contact", "tools-map")
 INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
 # Data blocks the browser never runs: the policy does not apply to them.
 DATA_SCRIPTS = ("application/json", "application/ld+json")
