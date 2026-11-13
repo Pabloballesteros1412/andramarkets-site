@@ -3,8 +3,9 @@ and fine stars (owner's request, 13 Nov 2026).
 
 The cloud's shapes come from tools/space_cloud.png, a small map of the cloud in the owner's
 reference (brightness times four). This script enlarges it, gives it back the edges and
-fine structure the small map cannot hold, and scatters the stars. Run by hand; the result
-is committed.
+fine structure the small map cannot hold, and scatters the stars. It also writes the same
+space in three depths (space-cloud.webp, space-stars-far.webp, space-stars-near.webp), which
+assets/site.js moves a little against each other. Run by hand; the results are committed.
 
     python3 tools/make_space.py
 """
@@ -94,3 +95,39 @@ img *= 1 - 0.35 * smooth(np.hypot((xx - W / 2) / (W / 2), (yy - H / 2) / (H / 2)
 out = np.clip(img, 0, 255).astype(np.uint8)
 Image.merge("RGB", [Image.fromarray(out)] * 3).save(OUT, "WEBP", quality=80, method=6)
 print(OUT, OUT.stat().st_size // 1024, "KB")
+
+
+# --- the same space in three depths (assets/site.js moves them a little) -------------------
+# Far: the cloud alone. Middle and near: stars on a clear ground, in squares that repeat
+# without a seam, so they can slide as far as a page scrolls.
+vig = 1 - 0.35 * smooth(np.hypot((xx - W / 2) / (W / 2), (yy - H / 2) / (H / 2)), 0.75, 1.35)
+far = np.clip(c * 48.0 * vig, 0, 255).astype(np.uint8)
+p = OUT.with_name("space-cloud.webp")
+Image.merge("RGB", [Image.fromarray(far)] * 3).save(p, "WEBP", quality=76, method=6)
+print(p, p.stat().st_size // 1024, "KB")
+
+T = 1600
+
+
+def tile(name, groups):
+    a = np.zeros((T, T), np.float32)
+    for n, sigma, lo, hi, halo in groups:
+        k = int(max(2, np.ceil(sigma * 3 if not halo else 16)))
+        ax = np.arange(-k, k + 1, dtype=np.float32)
+        d2 = ax[:, None] ** 2 + ax[None, :] ** 2
+        kern = np.exp(-d2 / (2 * sigma * sigma)) + halo * np.exp(-d2 / (2 * 5.0 ** 2))
+        ys, xs = rng.integers(0, T, n), rng.integers(0, T, n)
+        v = lo + (hi - lo) * rng.random(n) ** 2.2
+        for y, x, b in zip(ys, xs, v):
+            iy = (np.arange(y - k, y + k + 1) % T)[:, None]
+            ix = (np.arange(x - k, x + k + 1) % T)[None, :]
+            a[iy, ix] = np.maximum(a[iy, ix], kern * b)
+    alpha = Image.fromarray(np.clip(a, 0, 255).astype(np.uint8))
+    white = Image.new("L", (T, T), 255)
+    q = OUT.with_name(name)
+    Image.merge("RGBA", [white, white, white, alpha]).save(q, "WEBP", quality=82, alpha_quality=90, method=6, exact=True)
+    print(q, q.stat().st_size // 1024, "KB")
+
+
+tile("space-stars-far.webp", [(11000, 0.6, 26, 120, 0), (2300, 0.85, 80, 205, 0)])
+tile("space-stars-near.webp", [(700, 0.95, 90, 215, 0), (380, 1.35, 150, 255, 0), (46, 1.9, 230, 255, 0.10)])

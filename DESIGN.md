@@ -169,7 +169,7 @@ Source of truth: `assets/site.css` with `assets/theme.css` loaded after it (ever
 
 **Creative North Star: "Light on the Record"**
 
-A black page, white light and one typeface in light weights. The homepage is a horizon of light with the engraved horse forming out of its dust; every other page is type on black space: faint grey cloud and fine stars, still. Nothing is boxed: actions are words with a long arrow, filters are words, fields are a line, lists and tiles are separated by hairlines.
+A black page, white light and one typeface in light weights. The homepage is a horizon of light with the engraved horse forming out of its dust; every other page is type on black space: a faint grey cloud and fine stars, in three depths that slide a little against each other. Nothing is boxed: actions are words with a long arrow, filters are words, fields are a line, lists and tiles are separated by hairlines.
 
 Colour is withheld on purpose. The site is ink on black; vivid red and green carry one meaning only, a rise or a fall, in charts and on every figure that shows a move (see The Rise and Fall Rule). Seriousness comes from restraint, dated and sourced numbers, and bracketed placeholders wherever a real number does not yet exist.
 
@@ -179,7 +179,7 @@ Colour is withheld on purpose. The site is ink on black; vivid red and green car
 - No boxes: words, lines to write on and 1px hairlines. No shadows, square corners.
 - The horse is the only image: the brand mark in the header and footer, and the engraving on the homepage. Each group of the menu also has a picture drawn in fine lines (a globe, a mesh, a chart, buildings).
 - Red and green only for rises and falls (charts, and figures with a sign); errors are ink only.
-- Motion belongs to the homepage and to moving between pages; inner pages are still. Reduced motion is respected everywhere.
+- Motion belongs to the homepage and to moving between pages; on inner pages only the space behind the type moves, a little, with the pointer and the scroll. Reduced motion is respected everywhere.
 
 ## Colors
 
@@ -275,7 +275,7 @@ Tap targets are at least 44px (actions, filters, links, the menu button, footer 
 
 The system is flat. There are no drop shadows and no cards. A surface is set apart by a hairline, never by height, and a hover changes colour, not tone or position.
 
-Light is the one exception to flatness, and it is drawn, not cast: the homepage's horizon and its flare (`assets/home.js`), and on inner pages the space behind the type (`body::before`, fixed: `assets/space.webp`, black with a speckled grey cloud (about 18% grey at its brightest) and fine white stars, drawn by `tools/make_space.py` from `tools/space_cloud.png`, the cloud of the owner's reference; owner's request, 13 Nov 2026). It is a still picture, it never moves, and the homepage does not have it. The fixed header on inner pages has a black fade behind it once the page scrolls, so text does not run under the menu.
+Light is the one exception to flatness, and it is drawn, not cast: the homepage's horizon and its flare (`assets/home.js`), and on inner pages the space behind the type (`body::before`, fixed: `assets/space.webp`, black with a speckled grey cloud (about 18% grey at its brightest) and fine white stars, drawn by `tools/make_space.py` from `tools/space_cloud.png`, the cloud of the owner's reference; owner's request, 13 Nov 2026). With JavaScript and motion allowed the same space is in three depths (owner's request, 13 Nov 2026; `.space` in `theme.css`, the last block of `assets/site.js`): the cloud far off (`space-cloud.webp`), far stars and near stars (`space-stars-far.webp`, `space-stars-near.webp`, squares that repeat without a seam). The pointer shifts them by up to 12, 24 and 46px and the scroll by 2%, 5% and 11% of the distance scrolled, so the near stars pass in front of the far ones; nothing moves by itself. Under reduced motion or without JavaScript the still picture stays. The homepage does not have it. The fixed header on inner pages has a black fade behind it once the page scrolls, so text does not run under the menu.
 
 ### Named Rules
 **The Flat Record Rule.** Nothing casts a shadow or sits in a box. A surface is distinguished by a hairline, and a hover changes colour, not height.
