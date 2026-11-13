@@ -5165,6 +5165,45 @@ def world_fig(axis, rec):
     return mv(txt) if move else txt
 
 
+# Where each market's exchange is, [longitude, latitude]: its ring and its arcs start there.
+WORLD_CITY = {"USA": (-74.0, 40.7), "CAN": (-79.4, 43.7), "MEX": (-99.1, 19.4), "BRA": (-46.6, -23.6), "ARG": (-58.4, -34.6),
+              "GBR": (-0.1, 51.5), "DEU": (8.7, 50.1), "FRA": (2.35, 48.86), "ITA": (9.19, 45.46), "ESP": (-3.7, 40.4),
+              "NLD": (4.9, 52.4), "CHE": (8.54, 47.37), "SWE": (18.07, 59.33), "TUR": (28.98, 41.01), "ISR": (34.78, 32.08),
+              "ZAF": (28.05, -26.2), "IND": (72.88, 19.08), "CHN": (121.47, 31.23), "HKG": (114.17, 22.32),
+              "JPN": (139.69, 35.69), "KOR": (126.98, 37.57), "TWN": (121.56, 25.03), "IDN": (106.85, -6.21),
+              "SGP": (103.82, 1.35), "AUS": (151.21, -33.87)}
+WORLD_TIE = 0.45  # the least correlation of weekly returns that draws an arc between two markets
+
+
+def world_globe(figs):
+    """The Earth on the World page (assets/earth.js): each market with its exchange's place,
+    its last session and its month and year, and the arcs between the markets whose weekly
+    returns over a year move together (each market's three closest at WORLD_TIE or more)."""
+    markets, z = [], {}
+    for iso, name, _, index, *_ in WORLD_MARKETS:
+        f = figs.get(iso, {})
+        lon, lat = WORLD_CITY[iso]
+        markets.append({"iso": iso, "name": name, "index": index, "lon": lon, "lat": lat,
+                        "d1": (f.get("d1") or {}).get("v"), "m1": (f.get("ret1m") or {}).get("v"),
+                        "ytd": (f.get("ytd") or {}).get("v")})
+        r = (f.get("wk") or {}).get("r")
+        if r and len(r) == 52:
+            mean = sum(r) / len(r)
+            sd = math.sqrt(sum((x - mean) ** 2 for x in r))
+            if sd:
+                z[iso] = [(x - mean) / sd for x in r]
+    order = [m["iso"] for m in markets]
+    links = {}
+    for a in z:
+        near = sorted(((sum(x * y for x, y in zip(z[a], z[b])), b) for b in z if b != a), reverse=True)
+        for c, b in near[:3]:
+            if c >= WORLD_TIE:
+                links[tuple(sorted((order.index(a), order.index(b))))] = round(c * 100)
+    dates = [f["d1"]["date"] for f in figs.values() if "d1" in f]
+    return {"markets": markets, "links": sorted([a, b, c] for (a, b), c in links.items()), "asof": max(dates) if dates else "",
+            "tex": {k: f"{n}?v={ver(n)}" for k, n in (("day", "earth-day.jpg"), ("night", "earth-night.jpg"), ("topo", "earth-relief.jpg"))}}
+
+
 def world_scale(figs):
     """Each axis's lowest and highest figure across the markets: the radar's shared scale."""
     out = {}
@@ -5262,12 +5301,19 @@ def world_page(w):
         if a == "fx" and "United States" in missing:
             gap = gap.replace("United States", "the United States (its currency is the dollar)")
         src_rows.append(f'<li><span>{WORLD_AXIS[a][0]}. {WORLD_AXIS[a][4]} {parts}.{gap}</span></li>')
+    globe = json.dumps(world_globe(figs), separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
     body = f"""<main id="main" class="page dd wm" data-world>
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
       <h1 class="page__title">World markets</h1>
       <p class="lede">Twenty-five markets on the same eight measures: how their stock markets and currencies have done, how volatile they are, what their governments pay to borrow, and how their economies are growing, pricing and hiring.</p>
       <p class="note__meta">Yahoo Finance, OECD, World Bank, IMF. Updated {updated.day} {updated:%b %Y}, {updated:%-I:%M} {updated.strftime('%p').lower()} ET.</p>
+      <div class="wm-globe" hidden>
+        <canvas class="wm-globe__gl" aria-hidden="true"></canvas>
+        <canvas class="wm-globe__top" role="img" aria-label="The Earth, turning, with the twenty-five markets' countries coloured for their last session. Every figure is in the tables below."></canvas>
+        <p class="visually-hidden wm-globe__read" aria-live="polite"></p><p class="visually-hidden wm-globe__stats"></p>
+        <script type="application/json" id="wg-data">{globe}</script>
+      </div>
     </header>
     <section class="dd__main wm-main" aria-label="Compare markets">
       <div class="dd__cgroup"><span class="cl__glabel" id="wm-pick-l">Compare up to three</span>
@@ -5294,14 +5340,14 @@ def world_page(w):
       <section aria-labelledby="wm-how"><h2 id="wm-how">How to read it</h2>
         <p>Each spoke is one measure, scaled from the lowest figure among the 25 markets (near the centre) to the highest (at the edge), so every market is placed against the same range. Outward means a higher figure, not a better one: higher volatility, inflation or unemployment points outward too. A gap in a market's outline is a measure with no figure: none is estimated.</p>
         <p>Stock market and currency figures are daily. The economic figures come out monthly or yearly and are published with a lag, so each one carries its own date in the comparison table, and markets can be compared on different months or years.</p></section>
-      <section aria-labelledby="wm-src"><h2 id="wm-src">Sources</h2><ul class="ruled wm-src">{"".join(src_rows)}</ul>
+      <section aria-labelledby="wm-src"><h2 id="wm-src">Sources</h2><ul class="ruled wm-src">{"".join(src_rows)}<li><span>The globe. The Earth's surface and night lights are NASA's Blue Marble and Black Marble imagery (NASA Earth Observatory, Visible Earth), shown in grey; country outlines are from Natural Earth. Each country is coloured for its index's last session, and an arc joins two markets whose weekly returns over the past year have a correlation of {WORLD_TIE:.2f} or more. Rings mark exchanges inside their regular trading hours; public holidays are not taken into account.</span></li></ul>
         <p>For information only. Not investment advice.</p></section>
     </div>
   </div>
 </main>"""
     return shell(title="World markets: Andra Markets",
                  desc="Twenty-five markets compared on one radar: index returns, volatility, bond yields, currency, growth, inflation and unemployment, each with its official source and date.",
-                 body=body, home="../", base="../", path="world/", scripts=("world.js",))
+                 body=body, home="../", base="../", path="world/", scripts=("world.js", "earth-geo.js", "earth.js"))
 
 
 # Fed & Rates (fed-rates/) ---------------------------------------------------------

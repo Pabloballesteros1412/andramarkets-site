@@ -164,6 +164,14 @@ def market_figures(m):
                 break
             best = x
         return best
+    # The last session's move and a year of weekly returns: for the globe on the page
+    # (assets/earth.js), not axes of the radar.
+    if len(closes) > 1:
+        out["d1"] = {"v": round((last / closes[-2][1] - 1) * 100, 2), "date": last_d.isoformat(), "from": closes[-2][0].isoformat()}
+    friday = last_d - dt.timedelta(days=(last_d.weekday() - 4) % 7)
+    weeks = [by.get(on_or_before(friday - dt.timedelta(weeks=k))) for k in range(52, -1, -1)]
+    if all(weeks):
+        out["wk"] = {"v": 0, "date": friday.isoformat(), "r": [round(math.log(b / a), 5) for a, b in zip(weeks, weeks[1:])]}
     m1 = on_or_before(last_d - dt.timedelta(days=30))
     ye = on_or_before(dt.date(last_d.year - 1, 12, 31))
     if m1:
@@ -194,7 +202,8 @@ def market_figures(m):
     return out
 
 
-SOURCE = {"ret1m": "Yahoo Finance", "ytd": "Yahoo Finance", "vol3m": "Yahoo Finance", "fx": "Yahoo Finance"}
+SOURCE = {"ret1m": "Yahoo Finance", "ytd": "Yahoo Finance", "vol3m": "Yahoo Finance", "fx": "Yahoo Finance",
+          "d1": "Yahoo Finance", "wk": "Yahoo Finance"}
 
 
 def main():
