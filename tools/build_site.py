@@ -1679,6 +1679,18 @@ def tool_groups(groups, row):
         for key, name, slugs in groups) + "</div>"
 
 
+# The one line under each Tools section's title; the tools' own descriptions stay in the page for
+# screen readers and for the list without the script.
+TOOL_MAP_LEDE = {
+    "options": "Two options calculators.",
+    "bonds": "Two bond calculators.",
+    "risk-and-portfolio": "Four tools that feed one another.",
+    "valuation-and-growth": "Three tools for value, growth and what a return is worth.",
+    "market-replays": "Two replays of real market history.",
+    "strategy-games": "Three games on real market history.",
+}
+
+
 def tool_theme_page(page, name, lede, slugs):
     """One theme of the Tools menu, a section page of its own: its title, a line, and its
     tools in the Lab index's ruled list, each row as on the Lab or Simulators index."""
@@ -1686,13 +1698,11 @@ def tool_theme_page(page, name, lede, slugs):
     rows = "".join((lab_row if lab else sim_row)(slug, "../") for slug in slugs)
     note = ("Every tool runs in your browser: nothing you enter is sent or stored." if lab
             else "Every simulator runs in your browser; your results stay on your device.")
-    # Risk & portfolio shows its four tools as a map (owner-approved, 13 Nov 2026): assets/risk-map.js
+    # Every Tools section shows its tools as a map (owner-approved, 13 Nov 2026): assets/tool-map.js
     # lays this same list out over a canvas; without the script it stays the ruled list.
-    is_map = page == "lab/risk-and-portfolio/"
-    listing = (f'<nav class="tool-map" aria-label="{name} tools"><ol class="learn-list lab-index">{rows}</ol></nav>' if is_map
-               else f'<ol class="learn-list lab-index">{rows}</ol>')
-    head_lede = ('Four tools that feed one another.<span class="tool-map__hint"> Drag them where you like.</span>' if is_map
-                 else f"{lede} {note}")
+    slug = page.rstrip("/").split("/")[-1]
+    listing = f'<nav class="tool-map" data-page="{slug}" aria-label="{name} tools"><ol class="learn-list lab-index">{rows}</ol></nav>'
+    head_lede = f'{TOOL_MAP_LEDE[slug]}<span class="tool-map__hint"> Drag them where you like.</span>'
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
@@ -1703,7 +1713,7 @@ def tool_theme_page(page, name, lede, slugs):
   </div>
 </main>"""
     return shell(title=f"{name}: Andra Markets", desc=f"{lede} {note}", body=body,
-                 home="../../", base="../../", path=page, scripts=("risk-map.js",) if is_map else ())
+                 home="../../", base="../../", path=page, scripts=("tool-map.js",))
 
 
 LAB_TOOLS = [
