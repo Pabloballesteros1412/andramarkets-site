@@ -1,5 +1,5 @@
 """Draws the space behind every inner page (owner's requests, 13 Nov 2026): a grey nebula
-and stars on black, in three depths that assets/site.js slides against each other.
+and stars on black, in three depths that assets/space.js slides against each other.
 
     assets/space-cloud.webp        the nebula, far off (with the faintest star dust in it)
     assets/space-stars-far.webp    far stars, a clear square that repeats without a seam

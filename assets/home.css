@@ -4,8 +4,20 @@
 :root{color-scheme:dark;--bg:#000;--ink:#f2f3f3;--ink-2:#a3a8aa;--ink-3:#74797c;
  --display:"Geist","Helvetica Neue",Arial,sans-serif;--gut:clamp(20px,5vw,72px)}
 *{box-sizing:border-box}html{background:var(--bg);scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 var(--display);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{margin:0;background:transparent;color:var(--ink);font:400 1rem/1.5 var(--display);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
+/* the space of the inner pages behind the scene (owner, 13 Nov 2026): the same three depths
+   (assets/space.js; the rules mirror theme.css) or, still, one picture. The scene is light on
+   black: its canvas writes colour and no alpha (home.js), so the browser adds it to the space
+   with no blend mode, which would cost a pass over the whole screen every frame. */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:#000 url("space.webp") center/cover no-repeat}
+.space{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#000;contain:strict;--t-far:1100px;--t-near:1500px}
+.space i{position:absolute;display:block;will-change:transform;backface-visibility:hidden}
+.space__cloud{inset:-56px;background:url("space-cloud.webp") center/cover no-repeat}
+.space__far{left:-56px;right:-56px;top:calc(-1*var(--t-far));height:calc(100% + var(--t-far));background:url("space-stars-far.webp") 0 0/var(--t-far) var(--t-far) repeat}
+.space__near{left:-56px;right:-56px;top:calc(-1*var(--t-near));height:calc(100% + var(--t-near));background:url("space-stars-near.webp") 0 0/var(--t-near) var(--t-near) repeat}
+@media (max-width:760px){.space{--t-far:720px;--t-near:980px}}
+html.has-space body::before{display:none}
 #scene{position:fixed;inset:0;width:100%;height:100%;display:block}
 .no-gl #scene{display:none}
 main{position:relative}
@@ -79,6 +91,10 @@ h2{font-size:clamp(2.5rem,5.2vw,4.75rem)}
  @keyframes open-title{from{opacity:0;transform:translateY(24px);filter:blur(10px)}to{opacity:1;transform:none;filter:blur(0)}}
  html.opening.is-live .sec--hero h1{animation:open-title 1.5s cubic-bezier(.2,.8,.2,1) 1.35s both}
  html.opening.is-live .bar,html.opening.is-live .rail{animation:home-in 1.2s ease 2.3s both}
+ /* the space comes up with the light, not before it */
+ html.opening .space{opacity:0}
+ html.opening.is-live .space{animation:home-in 2.6s ease .5s both}
+ html.opening--quick.is-live .space{animation-duration:1.2s;animation-delay:.2s}
  html.opening--quick.is-live .sec--hero h1{animation-duration:.9s;animation-delay:.45s}
  html.opening--quick.is-live .bar,html.opening--quick.is-live .rail{animation-duration:.7s;animation-delay:.8s}
  #scene{transition:opacity .62s ease-in,transform .7s cubic-bezier(.55,0,.85,.25);transform-origin:50% 55%}
