@@ -62,7 +62,7 @@
   var LW = 1;
   function glow(x, y, r, a) { var g = cx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "rgba(255,255,255," + a + ")"); g.addColorStop(0.25, "rgba(215,230,255," + a * 0.45 + ")"); g.addColorStop(1, "rgba(180,210,255,0)"); cx.fillStyle = g; cx.fillRect(x - r, y - r, r * 2, r * 2); }
   function push(x, y) { if (px < 0) return [x, y]; var dx = x - px, dy = y - py, d = Math.hypot(dx, dy) || 1, f = Math.max(0, 1 - d / 170); f = f * f * 40; return [x + dx / d * f, y + dy / d * f]; }
-  function lit(n) { return !pick || n === pick || n.g === pick || (pick.g && pick.g === n) ; }
+  function lit(n) { return !pick || n === pick || n.g === pick || (!!pick.g && pick.g === n); }
   // a rope from A to B bending through c: strands that cross over between its thirds, turning, with light along it
   function rope(A, B, c, st, wide, base, t, e0, pulses, key) {
     var dx = B.vx - A.vx, dy = B.vy - A.vy, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
@@ -135,4 +135,7 @@
   window.addEventListener("resize", function () { size(); once(); });
   if ("IntersectionObserver" in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) once(); }).observe(map);
   size(); once();
+  // arriving at a section's old address, or from the menu: that section is lit for a moment
+  var want = location.hash.slice(1), at0 = -1; groups.forEach(function (li, i) { if (want && li.getAttribute("data-key") === want) at0 = i; });
+  if (at0 >= 0) { set(G[at0]); window.setTimeout(function () { if (pick === G[at0]) set(null); }, 3200); }
 })();
