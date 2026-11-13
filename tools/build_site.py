@@ -3737,7 +3737,7 @@ def fx_table(rows, caption, policy=False):
                 pol_cell = (f'<td class="num" data-label="Policy rate">{pol["rate"]:.2f}%'
                             f'<span>{esc(pol["short"])}, {signed(pol["vs_fed_bp"], 0, "bp")} vs Fed</span></td>'
                             if pol and pol.get("vs_fed_bp") is not None else '<td class="num" data-label="Policy rate"><span class="wm-na">n/a</span></td>')
-            body += (f'<tr><th scope="row">{esc(r["name"])}<span>{esc(r.get("quote") or "")}</span></th>'
+            body += (f'<tr id="fx-row-{esc(r.get("key") or "")}"><th scope="row">{esc(r["name"])}<span>{esc(r.get("quote") or "")}</span></th>'
                      f'<td class="num" data-label="Last">{fx_level(r.get("last"), r.get("dec", 4))}</td>'
                      f'<td class="num" data-label="Day">{fx_move(r.get("d1"))}</td>'
                      f'<td class="num" data-label="Week">{fx_move(r.get("w1"))}</td>'
@@ -3749,6 +3749,49 @@ def fx_table(rows, caption, policy=False):
             + ('<th scope="col" class="num">Policy rate</th>' if policy else "") + "</tr></thead>")
     return (f'<div class="fx-tab__wrap"><table class="fx-tab"><caption class="visually-hidden">{caption}</caption>'
             f"{head}{body}</table></div>")
+
+
+# The Earth on the FX page (assets/earth.js): each pair's currency with the countries that use it,
+# where its code is written [longitude, latitude], and whether the pair is quoted as dollars per
+# unit (+1: a rise is a stronger currency) or units per dollar (-1).
+EURO_ISO = ["DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "AUT", "IRL", "PRT", "GRC", "FIN", "EST", "LVA", "LTU", "LUX", "SVK",
+            "SVN", "HRV", "CYP", "MLT", "BGR"]
+FX_EARTH = {
+    "eurusd": ("EUR", "Euro", EURO_ISO, (10, 49), 1), "usdjpy": ("JPY", "Japanese yen", ["JPN"], (138, 36), -1),
+    "gbpusd": ("GBP", "Pound sterling", ["GBR"], (-2, 53), 1), "usdchf": ("CHF", "Swiss franc", ["CHE"], (8.2, 46.8), -1),
+    "usdcad": ("CAD", "Canadian dollar", ["CAN"], (-100, 56), -1), "audusd": ("AUD", "Australian dollar", ["AUS"], (134, -25), 1),
+    "nzdusd": ("NZD", "New Zealand dollar", ["NZL"], (172, -42), 1), "usdcny": ("CNY", "Chinese yuan", ["CHN"], (104, 35), -1),
+    "usdmxn": ("MXN", "Mexican peso", ["MEX"], (-102, 23), -1), "usdbrl": ("BRL", "Brazilian real", ["BRA"], (-52, -10), -1),
+    "usdinr": ("INR", "Indian rupee", ["IND"], (79, 22), -1), "usdkrw": ("KRW", "South Korean won", ["KOR"], (127.8, 36.3), -1),
+    "usdzar": ("ZAR", "South African rand", ["ZAF"], (24, -29), -1), "usdtry": ("TRY", "Turkish lira", ["TUR"], (35, 39), -1),
+}
+
+
+def fx_globe(rows):
+    """What the Earth on the FX page shows: each currency's move against the dollar (above zero,
+    the currency gained), whichever way its pair is quoted; the United States as the reference,
+    in ink, with the dollar index's moves."""
+    def vs(v, sign):
+        if v is None:
+            return None
+        return round(v if sign > 0 else (1 / (1 + v / 100) - 1) * 100, 2)
+    by = {r.get("key"): r for r in rows}
+    out = []
+    for key, (code, name, geo, (lon, lat), sign) in FX_EARTH.items():
+        r = by.get(key)
+        if not r:
+            continue
+        out.append({"iso": key, "tag": code, "name": name, "geo": geo, "lon": lon, "lat": lat,
+                    "index": f'{r["name"]} {fx_level(r.get("last"), r.get("dec", 4))}', "d1": vs(r.get("d1"), sign),
+                    "rows": [["Day", vs(r.get("d1"), sign), 2], ["Week", vs(r.get("w1"), sign), 2],
+                             ["Month", vs(r.get("m1"), sign), 1], ["Year", vs(r.get("ytd"), sign), 1]]})
+    d = by.get("dxy")
+    if d:
+        out.append({"iso": "dxy", "tag": "USD", "name": "US dollar", "geo": ["USA"], "lon": -98, "lat": 39, "ref": True,
+                    "index": f'Dollar index {fx_level(d.get("last"), d.get("dec", 2))}', "d1": d.get("d1"),
+                    "rows": [["Day", d.get("d1"), 2], ["Week", d.get("w1"), 2], ["Month", d.get("m1"), 1], ["Year", d.get("ytd"), 1]]})
+    return {"markets": out, "links": [], "goto": "fx-row-{id}", "hint": "Point at a country; a click goes to its pair in the table below.",
+            "tex": {k: f"{n}?v={ver(n)}" for k, n in (("day", "earth-day.jpg"), ("night", "earth-night.jpg"), ("topo", "earth-relief.jpg"))}}
 
 
 def fx_minutes(a):
@@ -3908,7 +3951,7 @@ def fx_charts(fx):
 
 
 def fx_index(fx):
-    rows = list(((fx or {}).get("market") or {}).values())
+    rows = [dict(v, key=k) for k, v in ((fx or {}).get("market") or {}).items()]
     items = sorted(((fx or {}).get("analyses") or {}).values(), key=lambda a: a["date"], reverse=True)
     latest = ""
     if items:
@@ -3941,6 +3984,15 @@ def fx_index(fx):
                                 f'<span class="note-list__title">{esc(a["headline"])}</span>{icon("arrow-right")}</a></li>' for a in rs)
                             + "</ol></section>" for (y, m), rs in months.items())
                         + "</div></section>")
+    earth = ""
+    if rows:
+        globe = json.dumps(fx_globe(rows), separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+        earth = f"""<div class="wm-globe" hidden>
+        <canvas class="wm-globe__gl" aria-hidden="true"></canvas>
+        <canvas class="wm-globe__top" role="img" aria-label="The Earth, turning, with each country coloured for its currency's last session against the dollar. Every figure is in the table below."></canvas>
+        <p class="visually-hidden wm-globe__read" aria-live="polite"></p><p class="visually-hidden wm-globe__stats"></p>
+        <script type="application/json">{globe}</script>
+      </div>"""
     lede = ("The dollar, the G10 majors and the main emerging-market currencies: a daily analysis after the US close, "
             "with every figure checked, and the latest moves." if items else
             "The dollar, the G10 majors and the main emerging-market currencies, with their latest moves.")
@@ -3949,6 +4001,7 @@ def fx_index(fx):
     <header class="page__head">
       <h1 class="page__title">FX</h1>
       <p class="lede">{lede}</p>
+      {earth}
     </header>
     {latest}
     {market or '<p class="dd__pending">Data pending</p>'}
@@ -3957,7 +4010,7 @@ def fx_index(fx):
   </div>
 </main>"""
     return shell(title="FX: Andra Markets", desc=lede, body=body, home="../", base="../", path="fx/",
-                 scripts=("fx.js",) if fx and fx.get("hist") else ())
+                 scripts=(("fx.js",) if fx and fx.get("hist") else ()) + (("earth-geo.js", "earth.js") if rows else ()))
 
 
 # Calendar ---------------------------------------------------------------------
@@ -5206,6 +5259,7 @@ def world_globe(figs):
                 links[tuple(sorted((order.index(a), order.index(b))))] = round(c * 100)
     dates = [f["d1"]["date"] for f in figs.values() if "d1" in f]
     return {"markets": markets, "links": sorted([a, b, c] for (a, b), c in links.items()), "asof": max(dates) if dates else "",
+            "hours": True, "pick": '.wm-pick [data-m="{id}"]', "hint": "Point at a country; a click adds it to the comparison below.",
             "tex": {k: f"{n}?v={ver(n)}" for k, n in (("day", "earth-day.jpg"), ("night", "earth-night.jpg"), ("topo", "earth-relief.jpg"))}}
 
 
