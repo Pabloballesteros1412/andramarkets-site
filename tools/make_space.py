@@ -2,8 +2,9 @@
 and fine stars (owner's request, 13 Nov 2026).
 
 The cloud's shapes come from tools/space_cloud.png, a small map of the cloud in the owner's
-reference (brightness times four). This script enlarges it, gives it back the fine grain
-the small map cannot hold, and scatters the stars. Run by hand; the result is committed.
+reference (brightness times four). This script enlarges it, gives it back the edges and
+fine structure the small map cannot hold, and scatters the stars. Run by hand; the result
+is committed.
 
     python3 tools/make_space.py
 """
@@ -31,31 +32,65 @@ def noise(cell, octaves=4, fall=0.55):
     return total / norm
 
 
-src = Image.open(HERE / "space_cloud.png").convert("L")
-cloud = np.asarray(src.resize((W, H), Image.BICUBIC).filter(ImageFilter.GaussianBlur(2)), np.float32) / 4
-# the fine structure the map is too small to hold: mottling, then the speckle of the cloud
-cloud *= 0.72 + 0.56 * noise(26, 3)
-cloud *= 0.55 + 0.9 * rng.random((H, W), dtype=np.float32)
-img = cloud * 1.7
-
-stars = np.zeros((H, W), np.float32)
+def smooth(x, lo, hi):
+    t = np.clip((x - lo) / (hi - lo), 0, 1)
+    return t * t * (3 - 2 * t)
 
 
-def scatter(n, lo, hi):
-    ys, xs = rng.integers(0, H, n), rng.integers(0, W, n)
-    np.maximum.at(stars, (ys, xs), rng.uniform(lo, hi, n).astype(np.float32))
-    return ys, xs
+def blur(a, r):
+    return np.asarray(Image.fromarray(np.clip(a, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(r)), np.float32)
 
 
-scatter(5200, 30, 90)            # dust
-scatter(1300, 90, 170)           # small stars
-ys, xs = scatter(240, 170, 245)  # bright stars
-soft = np.asarray(Image.fromarray(stars.astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.8)), np.float32)
-big = np.zeros((H, W), np.float32)
-big[ys, xs] = 255
-halo = np.asarray(Image.fromarray(big.astype(np.uint8)).filter(ImageFilter.GaussianBlur(2.0)), np.float32)
-img = np.maximum(img, np.maximum(stars * 0.7, soft * 2.2)) + halo * 7.0
+# --- cloud -------------------------------------------------------------------------------
+src = Image.open(HERE / "space_cloud.png").convert("L").resize((W, H), Image.BICUBIC)
+sharp = blur(np.asarray(src, np.float32), 3)
+soft = blur(sharp, 60)
+# towards the edges the map is only the rim of the cloud: let it dissolve there
+yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+rad = np.hypot((xx - W * 0.5) / (W * 0.5), (yy - H * 0.52) / (H * 0.5)) + (noise(300, 3) - 0.5) * 0.5
+edge = smooth(rad, 0.70, 1.05)
+cloud = (sharp * (1 - edge) + soft * edge * 0.8) / 4
+
+# crisper holes: push the mid greys apart, then eat the edges with fine noise
+c = cloud / 27.0
+c = np.clip(c + (noise(34, 4) - 0.5) * 0.30 * smooth(c, 0.05, 0.5), 0, 1.2)
+c = 0.35 * c + 0.65 * smooth(c, 0.16, 0.74) * np.maximum(c, 0.35)
+# wisps inside the cloud, and a fine speckle (blurred, so it is powder and not static)
+c *= 0.78 + 0.44 * noise(90, 5)
+speck = blur(rng.random((H, W), dtype=np.float32) * 255, 0.7) / 255
+c *= 0.80 + 0.40 * (speck - 0.5) * 2.4 + 0.20
+img = c * 48.0
+
+# --- stars -------------------------------------------------------------------------------
+dens = 0.35 + 0.65 * smooth(noise(420, 3), 0.3, 0.75)
+dens *= 0.75 + 0.5 * np.clip(c, 0, 1)
+stars = np.zeros((H + 40, W + 40), np.float32)
+
+
+def stamp(n, sigma, lo, hi, halo=0.0):
+    k = int(max(2, np.ceil(sigma * 3 if not halo else 16)))
+    ax = np.arange(-k, k + 1, dtype=np.float32)
+    d2 = ax[:, None] ** 2 + ax[None, :] ** 2
+    kern = np.exp(-d2 / (2 * sigma * sigma)) + halo * np.exp(-d2 / (2 * 5.0 ** 2))
+    ys, xs = rng.integers(0, H, n * 3), rng.integers(0, W, n * 3)
+    keep = rng.random(n * 3) < dens[ys, xs]
+    ys, xs = ys[keep][:n], xs[keep][:n]
+    # most stars are dim, a few are bright
+    v = lo + (hi - lo) * rng.random(len(ys)) ** 2.2
+    for y, x, b in zip(ys, xs, v):
+        patch = stars[y + 20 - k:y + 21 + k, x + 20 - k:x + 21 + k]
+        np.maximum(patch, kern * b, out=patch)
+
+
+stamp(15000, 0.55, 26, 120)        # dust
+stamp(3600, 0.80, 80, 215)         # small stars
+stamp(520, 1.15, 150, 255)         # stars
+stamp(70, 1.6, 230, 255, 0.10)     # the few bright ones, with a breath of light
+img = np.maximum(img, stars[20:-20, 20:-20])
+
+# a little darker towards the corners, so the page's edges and the header sit on black
+img *= 1 - 0.35 * smooth(np.hypot((xx - W / 2) / (W / 2), (yy - H / 2) / (H / 2)), 0.75, 1.35)
 
 out = np.clip(img, 0, 255).astype(np.uint8)
-Image.merge("RGB", [Image.fromarray(out)] * 3).save(OUT, "WEBP", quality=74, method=6)
+Image.merge("RGB", [Image.fromarray(out)] * 3).save(OUT, "WEBP", quality=80, method=6)
 print(OUT, OUT.stat().st_size // 1024, "KB")
