@@ -1686,17 +1686,24 @@ def tool_theme_page(page, name, lede, slugs):
     rows = "".join((lab_row if lab else sim_row)(slug, "../") for slug in slugs)
     note = ("Every tool runs in your browser: nothing you enter is sent or stored." if lab
             else "Every simulator runs in your browser; your results stay on your device.")
+    # Risk & portfolio shows its four tools as a map (owner-approved, 13 Nov 2026): assets/risk-map.js
+    # lays this same list out over a canvas; without the script it stays the ruled list.
+    is_map = page == "lab/risk-and-portfolio/"
+    listing = (f'<nav class="tool-map" aria-label="{name} tools"><ol class="learn-list lab-index">{rows}</ol></nav>' if is_map
+               else f'<ol class="learn-list lab-index">{rows}</ol>')
+    head_lede = ('Four tools that feed one another.<span class="tool-map__hint"> Drag them where you like.</span>' if is_map
+                 else f"{lede} {note}")
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">{name}</h1>
-      <p class="lede">{lede} {note}</p>
+      <p class="lede">{head_lede}</p>
     </header>
-    <ol class="learn-list lab-index">{rows}</ol>
+    {listing}
   </div>
 </main>"""
     return shell(title=f"{name}: Andra Markets", desc=f"{lede} {note}", body=body,
-                 home="../../", base="../../", path=page)
+                 home="../../", base="../../", path=page, scripts=("risk-map.js",) if is_map else ())
 
 
 LAB_TOOLS = [
