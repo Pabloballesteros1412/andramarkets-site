@@ -1,7 +1,7 @@
 /* Andra Markets homepage: the phone menu and the scene of light (WebGL). */
 (function(){var b=document.getElementById('menu-btn'),s=document.getElementById('sheet');if(!b||!s)return;function set(o){s.classList.toggle('open',o);b.setAttribute('aria-expanded',o);b.textContent=o?'Close':'Menu';}b.addEventListener('click',function(){set(!s.classList.contains('open'));});s.addEventListener('click',function(e){if(e.target.closest('a'))set(false);});document.addEventListener('keydown',function(e){if(e.key==='Escape')set(false);});})();
 (function () {
-  var cv = document.getElementById("scene"), gl = cv.getContext("webgl", { antialias: false, alpha: false, premultipliedAlpha: false });
+  var cv = document.getElementById("scene"), gl = cv.getContext("webgl", { antialias: false, alpha: true, premultipliedAlpha: true }); /* colour only, alpha stays 0: the browser adds the scene to the space behind it (assets/space.js) */ if (gl) gl.colorMask(true, true, true, false);
   var OPENING = document.documentElement.classList.contains("opening"), OPEN_S = document.documentElement.classList.contains("opening--quick") ? 1.1 : 2.6;
   try { sessionStorage.setItem("andra-opened", "1"); } catch (e) { /* private mode */ }
   var DATA = JSON.parse(document.getElementById("home-data").textContent), reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;

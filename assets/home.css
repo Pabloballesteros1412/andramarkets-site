@@ -7,17 +7,18 @@
 body{margin:0;background:transparent;color:var(--ink);font:400 1rem/1.5 var(--display);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 /* the space of the inner pages behind the scene (owner, 13 Nov 2026): the same three depths
-   (assets/space.js; the rules mirror theme.css) or, still, one picture. The scene is drawn on
-   black, so it is laid over the space as light (screen). */
+   (assets/space.js; the rules mirror theme.css) or, still, one picture. The scene is light on
+   black: its canvas writes colour and no alpha (home.js), so the browser adds it to the space
+   with no blend mode, which would cost a pass over the whole screen every frame. */
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:#000 url("space.webp") center/cover no-repeat}
-.space{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#000;--t-far:1100px;--t-near:1500px}
+.space{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#000;contain:strict;--t-far:1100px;--t-near:1500px}
 .space i{position:absolute;display:block;will-change:transform;backface-visibility:hidden}
 .space__cloud{inset:-56px;background:url("space-cloud.webp") center/cover no-repeat}
 .space__far{left:-56px;right:-56px;top:calc(-1*var(--t-far));height:calc(100% + var(--t-far));background:url("space-stars-far.webp") 0 0/var(--t-far) var(--t-far) repeat}
 .space__near{left:-56px;right:-56px;top:calc(-1*var(--t-near));height:calc(100% + var(--t-near));background:url("space-stars-near.webp") 0 0/var(--t-near) var(--t-near) repeat}
 @media (max-width:760px){.space{--t-far:720px;--t-near:980px}}
 html.has-space body::before{display:none}
-#scene{position:fixed;inset:0;width:100%;height:100%;display:block;mix-blend-mode:screen}
+#scene{position:fixed;inset:0;width:100%;height:100%;display:block}
 .no-gl #scene{display:none}
 main{position:relative}
 .bar{position:fixed;inset:0 0 auto;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:32px;height:84px;padding-top:env(safe-area-inset-top,0px);padding-left:max(var(--gut),env(safe-area-inset-left,0px));padding-right:max(var(--gut),env(safe-area-inset-right,0px))}
