@@ -1686,17 +1686,24 @@ def tool_theme_page(page, name, lede, slugs):
     rows = "".join((lab_row if lab else sim_row)(slug, "../") for slug in slugs)
     note = ("Every tool runs in your browser: nothing you enter is sent or stored." if lab
             else "Every simulator runs in your browser; your results stay on your device.")
+    # Risk & portfolio shows its four tools as a map (owner-approved, 13 Nov 2026): assets/risk-map.js
+    # lays this same list out over a canvas; without the script it stays the ruled list.
+    is_map = page == "lab/risk-and-portfolio/"
+    listing = (f'<nav class="tool-map" aria-label="{name} tools"><ol class="learn-list lab-index">{rows}</ol></nav>' if is_map
+               else f'<ol class="learn-list lab-index">{rows}</ol>')
+    head_lede = ('Four tools that feed one another.<span class="tool-map__hint"> Drag them where you like.</span>' if is_map
+                 else f"{lede} {note}")
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">{name}</h1>
-      <p class="lede">{lede} {note}</p>
+      <p class="lede">{head_lede}</p>
     </header>
-    <ol class="learn-list lab-index">{rows}</ol>
+    {listing}
   </div>
 </main>"""
     return shell(title=f"{name}: Andra Markets", desc=f"{lede} {note}", body=body,
-                 home="../../", base="../../", path=page)
+                 home="../../", base="../../", path=page, scripts=("risk-map.js",) if is_map else ())
 
 
 LAB_TOOLS = [
@@ -2075,8 +2082,10 @@ def pf_page(i, risk):
           <p class="key"><span><i class="pa-sw pa-sw--w"></i>Weight</span><span><i class="pa-sw"></i>Share of risk</span></p></section>
         <section class="pa-sec" aria-labelledby="pa-h-exp"><h2 class="pa__h" id="pa-h-exp">What it is exposed to</h2>
           <div class="pa-two"><div><h3>By sector</h3><div class="pa-rows pa-sector"></div></div><div><h3>By country</h3><div class="pa-rows pa-country"></div></div><div><h3>By currency</h3><div class="pa-rows pa-cur"></div></div></div></section>
-        <section class="pa-sec" aria-labelledby="pa-h-cor"><h2 class="pa__h" id="pa-h-cor">How the holdings move together<small>Correlation of weekly returns in dollars. 1.00 moves as one; 0 has no relation.</small></h2>
-          <div class="pa-mx"></div></section>
+        <section class="pa-sec" aria-labelledby="pa-h-cor"><div class="lens-h"><h2 class="pa__h" id="pa-h-cor">How the holdings move together<small>The thicker the band of strands between two holdings, the closer they move. Weekly returns in dollars.</small></h2><p class="lens-stats pa-ring-stats"></p></div>
+          <canvas class="lens pa-ring" role="img" aria-label="A ring of the holdings joined by bands of strands as thick as each pair's correlation."></canvas>
+          <p class="lens-read pa-ring-read" aria-live="polite"></p>
+          <details class="lens-figs"><summary>The figures</summary><div class="pa-mx"></div></details></section>
         <section class="pa-sec" aria-labelledby="pa-h-str"><h2 class="pa__h" id="pa-h-str">In past falls<small>An estimate: the S&amp;P 500's fall in each episode times the portfolio's beta.</small></h2>
           <table class="pa-stress"><thead><tr><th scope="col">Episode</th><th scope="col">S&amp;P 500</th><th scope="col">This portfolio, estimated</th></tr></thead><tbody></tbody></table></section>
         <p class="report__src">Yahoo Finance daily closes and dollar rates to {asof}, calculated in your browser. An Andra Markets tool, not a recommendation.</p>
@@ -2106,7 +2115,7 @@ def pf_page(i, risk):
   </div>
 </main>"""
     return shell(title=f"{title}: Andra Markets Lab", desc=desc, body=body, home="../../", base="../../",
-                 path=f"lab/{slug}/", scripts=("portfolio.js",) if data else ())
+                 path=f"lab/{slug}/", scripts=("lens.js", "portfolio.js") if data else ())
 
 
 def risk_inputs(data):
