@@ -5063,7 +5063,7 @@ def globe_data(data, ranked, ms):
             links[(min(i, j), max(i, j))] = round(c * 100)
     return {"co": co, "sectors": [SHORT_SECTOR.get(x, x) for x in sectors], "slugs": [slug_s(x) for x in sectors],
             "links": sorted([a, b, c] for (a, b), c in sorted(links.items(), key=lambda x: -x[1])[:GLOBE_MOST]),
-            "weeks": GLOBE_WEEKS}
+            "weeks": GLOBE_WEEKS, "asof": str(max(ms[t]["date"] for t in ranked))[:10]}
 
 
 def companies_index(data):
