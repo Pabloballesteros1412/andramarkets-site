@@ -2,7 +2,7 @@
    The real Earth, turning slowly: its surface from NASA's Blue Marble and night lights (in grey,
    shaded by relief, lit where it is day right now, with a thin atmosphere at the edge), drawn in
    WebGL. Over it, painted on a flat map and wrapped round the globe, every border as a hairline
-   and the 25 markets' countries filled green or red for their last session. A ring goes out from
+   and the markets' countries filled green or red for their last session. A ring goes out from
    an exchange that is trading now (regular hours; holidays are not known). Arcs join the markets
    whose weekly returns move together (tools/build_site.py, world_globe). Pointing at a country
    lights it and shows its index and its day, month and year; clicking it adds it to the
@@ -21,14 +21,19 @@
   var MONO = '"Geist Mono", ui-monospace, Menlo, monospace';
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   // regular trading hours in UTC, [open, close] in minutes; a lunch break is ignored
-  var HOURS = { USA: [870, 1260], CAN: [870, 1260], MEX: [870, 1260], BRA: [780, 1200], ARG: [840, 1200], GBR: [480, 990], DEU: [480, 990], FRA: [480, 990], ITA: [480, 990], ESP: [480, 990], NLD: [480, 990], CHE: [480, 990], SWE: [480, 990], TUR: [420, 900], ISR: [479, 925], ZAF: [420, 900], IND: [225, 600], CHN: [90, 420], HKG: [90, 480], JPN: [0, 390], KOR: [0, 390], TWN: [60, 330], IDN: [120, 540], SGP: [60, 540], AUS: [1380, 1800] };
+  var HOURS = { USA: [870, 1260], CAN: [870, 1260], MEX: [870, 1260], BRA: [780, 1200], ARG: [840, 1200], GBR: [480, 990], DEU: [480, 990], FRA: [480, 990], ITA: [480, 990], ESP: [480, 990], NLD: [480, 990], CHE: [480, 990], SWE: [480, 990], TUR: [420, 900], ISR: [479, 925], ZAF: [420, 900], IND: [225, 600], CHN: [90, 420], HKG: [90, 480], JPN: [0, 390], KOR: [0, 390], TWN: [60, 330], IDN: [120, 540], SGP: [60, 540], AUS: [1380, 1800],
+    NOR: [480, 925], DNK: [480, 960], FIN: [480, 990], BEL: [480, 990], AUT: [480, 990], IRL: [480, 990], PRT: [480, 990], GRC: [510, 920], EST: [480, 840], LVA: [480, 840], LTU: [480, 840], MYS: [60, 540], NZL: [1260, 1665], POL: [480, 965], ROU: [465, 885], COL: [870, 1260], THA: [180, 570], VNM: [120, 465], SAU: [420, 720], ARE: [360, 660], QAT: [390, 615], KWT: [360, 580], PHL: [90, 420], CHL: [750, 1200], PER: [870, 1260] };
+  // Sunday to Thursday in Israel and the Gulf
+  var SUNDAY = { ISR: 1, SAU: 1, QAT: 1, KWT: 1 };
   function pct(v, d) { if (v == null) return "n/a"; var r = Number(v.toFixed(d)); return (r > 0 ? "+" : r < 0 ? MINUS : "") + Math.abs(r).toFixed(d) + "%"; }
   function cls(v) { return v > 0 ? "up" : v < 0 ? "dn" : ""; }
   function vec(lon, lat, h) { var c = Math.cos(lat * RAD) * (h || 1); return [c * Math.sin(lon * RAD), Math.sin(lat * RAD) * (h || 1), c * Math.cos(lon * RAD)]; }
   function isOpen(iso, now) {
-    var h = HOURS[iso], m = now.getUTCHours() * 60 + now.getUTCMinutes(), day = now.getUTCDay();
-    if (h[1] > 1440) { var late = m >= h[0], early = m < h[1] - 1440, d = late ? (day + 1) % 7 : day; return (late || early) && d >= 1 && d <= 5; }  // Sydney opens on the UTC evening before
-    if (iso === "ISR") return day >= 0 && day <= 4 && m >= h[0] && m < h[1];
+    var h = HOURS[iso]; if (!h) return false;
+    var m = now.getUTCHours() * 60 + now.getUTCMinutes(), day = now.getUTCDay();
+    // Sydney and Wellington open on the UTC evening before their own day
+    if (h[1] > 1440) { var late = m >= h[0], early = m < h[1] - 1440, d = late ? (day + 1) % 7 : day; return (late || early) && d >= 1 && d <= 5; }
+    if (SUNDAY[iso]) return day >= 0 && day <= 4 && m >= h[0] && m < h[1];
     return day >= 1 && day <= 5 && m >= h[0] && m < h[1];
   }
   var P = MK.map(function (m) { return vec(m.lon, m.lat); });
@@ -91,7 +96,7 @@
     tex(0, TEX.day); tex(1, TEX.night); tex(2, TEX.topo);
   })();
   /* The countries, painted on a flat map and laid over the surface: every border as a hairline,
-     the 25 markets filled green or red for their last session, the one in focus brighter. */
+     the markets' countries filled green or red for their last session, the one in focus brighter. */
   var map = document.createElement("canvas"); map.width = 4096; map.height = 2048;
   function trace(c, r) { var W = map.width, H = map.height, px = null; for (var i = 0; i < r.length; i += 2) { var x = (r[i] + 180) / 360 * W, y = (90 - r[i + 1]) / 180 * H; if (px === null || Math.abs(x - px) > W / 2) c.moveTo(x, y); else c.lineTo(x, y); px = x; } }
   function paint() {

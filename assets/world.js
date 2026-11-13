@@ -1,5 +1,5 @@
 /* Andra Markets World markets page: up to three markets on one radar, every
-   axis on the same scale (the lowest figure among the 25 markets near the
+   axis on the same scale (the lowest figure among the 50 markets near the
    centre, the highest at the edge), a table of the figures compared with their
    dates and sources, and a readout for the axis under the pointer or the arrow
    keys. Tokens and rules: DESIGN.md (World markets). */

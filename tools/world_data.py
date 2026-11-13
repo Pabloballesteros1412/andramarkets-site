@@ -2,7 +2,7 @@
 """Fetch the figures behind the World markets page, at deploy time.
 
 Run by .github/workflows/pages.yml before tools/build_site.py. Writes
-.cache/world/world.json: for each of 25 markets, eight figures, each with its
+.cache/world/world.json: for each of 50 markets, eight figures, each with its
 own source and date. build_site.py draws world/ from it. Nothing is guessed:
 a figure no free official source gives stays empty, and the page says so.
 
@@ -73,6 +73,36 @@ MARKETS = [
     ("IDN", "Indonesia", "^JKSE", "IDX Composite", "IDR=X", "local"),
     ("SGP", "Singapore", "^STI", "Straits Times", "SGD=X", "local"),
     ("AUS", "Australia", "^AXJO", "S&P/ASX 200", "AUDUSD=X", "usd"),
+    # Twenty-five more (owner, 13 Nov 2026: fifty economies). Yahoo keeps a history for the
+    # main index of the first thirteen. For the next five it keeps none, so a fund listed at
+    # home that tracks the index stands in, in the local currency. For the last seven it has
+    # neither, and the iShares MSCI fund of the country, listed in New York and priced in US
+    # dollars, stands in: its returns include the currency's move, and its name says so.
+    ("NOR", "Norway", "OSEBX.OL", "Oslo Børs Benchmark", "NOK=X", "local"),
+    ("DNK", "Denmark", "^OMXC25", "OMX Copenhagen 25", "DKK=X", "local"),
+    ("FIN", "Finland", "^OMXH25", "OMX Helsinki 25", "EURUSD=X", "usd"),
+    ("BEL", "Belgium", "^BFX", "BEL 20", "EURUSD=X", "usd"),
+    ("AUT", "Austria", "^ATX", "ATX", "EURUSD=X", "usd"),
+    ("IRL", "Ireland", "^ISEQ", "ISEQ All Share", "EURUSD=X", "usd"),
+    ("PRT", "Portugal", "PSI20.LS", "PSI", "EURUSD=X", "usd"),
+    ("GRC", "Greece", "GD.AT", "Athens General", "EURUSD=X", "usd"),
+    ("EST", "Estonia", "^OMXTGI", "OMX Tallinn", "EURUSD=X", "usd"),
+    ("LVA", "Latvia", "^OMXRGI", "OMX Riga", "EURUSD=X", "usd"),
+    ("LTU", "Lithuania", "^OMXVGI", "OMX Vilnius", "EURUSD=X", "usd"),
+    ("MYS", "Malaysia", "^KLSE", "FTSE Bursa Malaysia KLCI", "MYR=X", "local"),
+    ("NZL", "New Zealand", "^NZ50", "S&P/NZX 50", "NZDUSD=X", "usd"),
+    ("POL", "Poland", "ETFBW20TR.WA", "WIG20 TR (Beta ETF)", "PLN=X", "local"),
+    ("ROU", "Romania", "TVBETETF.RO", "BET (ETF BET Tradeville)", "RON=X", "local"),
+    ("COL", "Colombia", "ICOLCAP.CL", "MSCI COLCAP (iShares fund)", "COP=X", "local"),
+    ("THA", "Thailand", "TDEX.BK", "SET50 (ThaiDEX fund)", "THB=X", "local"),
+    ("VNM", "Vietnam", "E1VFVN30.VN", "VN30 (DCVFM fund)", "VND=X", "local"),
+    ("SAU", "Saudi Arabia", "KSA", "MSCI Saudi Arabia fund, in dollars", "SAR=X", "local"),
+    ("ARE", "United Arab Emirates", "UAE", "MSCI UAE fund, in dollars", "AED=X", "local"),
+    ("QAT", "Qatar", "QAT", "MSCI Qatar fund, in dollars", "QAR=X", "local"),
+    ("KWT", "Kuwait", "KWT", "MSCI Kuwait fund, in dollars", "KWD=X", "local"),
+    ("PHL", "Philippines", "EPHE", "MSCI Philippines fund, in dollars", "PHP=X", "local"),
+    ("CHL", "Chile", "ECH", "MSCI Chile fund, in dollars", "CLP=X", "local"),
+    ("PER", "Peru", "EPU", "MSCI Peru fund, in dollars", "PEN=X", "local"),
 ]
 AXES = ["ret1m", "ytd", "vol3m", "fx", "y10", "gdp", "cpi", "unemp"]
 FRESH = 183  # days: a monthly OECD figure older than this gives way to the annual one

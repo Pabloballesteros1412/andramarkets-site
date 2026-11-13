@@ -1360,7 +1360,7 @@ NAV_GROUPS = (
         ("Dashboards", "dashboards/", "Nine views across rates, equities, macro and cross-asset."),
         ("Fed &amp; Rates", "fed-rates/", "Policy rate, FOMC odds and countdown, the Treasury curve."),
         ("Calendar", "calendar/", "Releases, central banks and earnings, five weeks ahead."),
-        ("World", "world/", "Twenty-five markets compared on the same scale."),
+        ("World", "world/", "Fifty markets compared on the same scale."),
         ("FX", "fx/", "The dollar, the G10 majors and emerging-market currencies."),
         ("Companies", "companies/", f"Earnings and figures for {CO_TOTAL} companies."))),
     ("tools", "Tools", "Fourteen tools and simulators that run in your browser.", (
@@ -5126,8 +5126,8 @@ def companies_index(data):
 WORLD_DATA = ROOT / ".cache" / "world" / "world.json"
 # Axis key -> (label, short label for the radar, unit, is a move (red/green), note).
 WORLD_AXIS = {
-    "ret1m": ("Index return, 1 month", "1M return", "%", True, "The main index's price change over the last month, in local currency."),
-    "ytd": ("Index return, year to date", "YTD return", "%", True, "The main index's price change since the last close of last year, in local currency."),
+    "ret1m": ("Index return, 1 month", "1M return", "%", True, "The main index's price change over the last month, in local currency. Where the index has no free history a fund that tracks the market stands in, named in its place: at home in local currency for Poland, Romania, Colombia, Thailand and Vietnam; in New York in US dollars, so including the currency's move, for Saudi Arabia, the UAE, Qatar, Kuwait, the Philippines, Chile and Peru."),
+    "ytd": ("Index return, year to date", "YTD return", "%", True, "The main index's price change since the last close of last year, in local currency, with the same stand-ins."),
     "vol3m": ("Volatility, 3 months", "Volatility", "%", False, "Annualised standard deviation of the index's daily returns over three months."),
     "fx": ("Currency against the dollar", "Currency", "%", True, "Change in the dollar value of the local currency since the end of last year: above zero, the currency gained."),
     "y10": ("10-year government bond yield", "10Y yield", "%", False, "Long-term government bond yield, monthly average."),
@@ -5171,7 +5171,12 @@ WORLD_CITY = {"USA": (-74.0, 40.7), "CAN": (-79.4, 43.7), "MEX": (-99.1, 19.4), 
               "NLD": (4.9, 52.4), "CHE": (8.54, 47.37), "SWE": (18.07, 59.33), "TUR": (28.98, 41.01), "ISR": (34.78, 32.08),
               "ZAF": (28.05, -26.2), "IND": (72.88, 19.08), "CHN": (121.47, 31.23), "HKG": (114.17, 22.32),
               "JPN": (139.69, 35.69), "KOR": (126.98, 37.57), "TWN": (121.56, 25.03), "IDN": (106.85, -6.21),
-              "SGP": (103.82, 1.35), "AUS": (151.21, -33.87)}
+              "SGP": (103.82, 1.35), "AUS": (151.21, -33.87),
+              "NOR": (10.75, 59.91), "DNK": (12.57, 55.68), "FIN": (24.94, 60.17), "BEL": (4.35, 50.85), "AUT": (16.37, 48.21),
+              "IRL": (-6.26, 53.35), "PRT": (-9.14, 38.72), "GRC": (23.73, 37.98), "EST": (24.75, 59.44), "LVA": (24.11, 56.95),
+              "LTU": (25.28, 54.69), "MYS": (101.69, 3.14), "NZL": (174.78, -41.29), "POL": (21.01, 52.23), "ROU": (26.1, 44.43),
+              "COL": (-74.07, 4.71), "THA": (100.5, 13.75), "VNM": (106.63, 10.82), "SAU": (46.68, 24.71), "ARE": (55.27, 25.2),
+              "QAT": (51.53, 25.29), "KWT": (47.98, 29.38), "PHL": (120.98, 14.6), "CHL": (-70.65, -33.45), "PER": (-77.04, -12.05)}
 WORLD_TIE = 0.45  # the least correlation of weekly returns that draws an arc between two markets
 
 
@@ -5253,11 +5258,11 @@ def world_page(w):
         body = """<main id="main" class="page dd">
   <div class="wrap dd__grid">
     <header class="page__head dd__head"><h1 class="page__title">World markets</h1>
-      <p class="lede">Twenty-five markets compared on the same scale.</p><p class="note__meta">Data pending.</p></header>
+      <p class="lede">Fifty markets compared on the same scale.</p><p class="note__meta">Data pending.</p></header>
     <section class="dd__main"><div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div></section>
   </div>
 </main>"""
-        return shell(title="World markets: Andra Markets", desc="Twenty-five markets compared on the same scale.",
+        return shell(title="World markets: Andra Markets", desc="Fifty markets compared on the same scale.",
                      body=body, home="../", base="../", path="world/")
     scale = world_scale(figs)
     updated = dt.datetime.fromisoformat(w["updated"]).astimezone(NY)
@@ -5306,11 +5311,11 @@ def world_page(w):
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
       <h1 class="page__title">World markets</h1>
-      <p class="lede">Twenty-five markets on the same eight measures: how their stock markets and currencies have done, how volatile they are, what their governments pay to borrow, and how their economies are growing, pricing and hiring.</p>
+      <p class="lede">Fifty markets on the same eight measures: how their stock markets and currencies have done, how volatile they are, what their governments pay to borrow, and how their economies are growing, pricing and hiring.</p>
       <p class="note__meta">Yahoo Finance, OECD, World Bank, IMF. Updated {updated.day} {updated:%b %Y}, {updated:%-I:%M} {updated.strftime('%p').lower()} ET.</p>
       <div class="wm-globe" hidden>
         <canvas class="wm-globe__gl" aria-hidden="true"></canvas>
-        <canvas class="wm-globe__top" role="img" aria-label="The Earth, turning, with the twenty-five markets' countries coloured for their last session. Every figure is in the tables below."></canvas>
+        <canvas class="wm-globe__top" role="img" aria-label="The Earth, turning, with the fifty markets' countries coloured for their last session. Every figure is in the tables below."></canvas>
         <p class="visually-hidden wm-globe__read" aria-live="polite"></p><p class="visually-hidden wm-globe__stats"></p>
         <script type="application/json" id="wg-data">{globe}</script>
       </div>
@@ -5329,16 +5334,16 @@ def world_page(w):
     <aside class="report__side dd__side" aria-labelledby="side-title">
       <h2 class="report__side-title" id="side-title">The scale</h2>
       <ul class="kpi wm-scale">{ranges}</ul>
-      <p class="report__src">Each axis runs from the lowest figure among the 25 markets, near the centre, to the highest, at the edge.</p>
+      <p class="report__src">Each axis runs from the lowest figure among the 50 markets, near the centre, to the highest, at the edge.</p>
     </aside>
     <div class="page__body dd__text wm-text">
       <section aria-labelledby="wm-each"><h2 id="wm-each">Each market</h2>
         <ul class="wm-minis">{minis}</ul></section>
       <section aria-labelledby="wm-all"><h2 id="wm-all">Every figure</h2>
-        <div class="wm-tab__wrap" tabindex="0"><table class="wm-tab"><caption class="visually-hidden">Eight measures for 25 markets</caption>
+        <div class="wm-tab__wrap" tabindex="0"><table class="wm-tab"><caption class="visually-hidden">Eight measures for 50 markets</caption>
           <thead><tr><th scope="col">Market</th>{head}</tr></thead><tbody>{rows}</tbody></table></div></section>
       <section aria-labelledby="wm-how"><h2 id="wm-how">How to read it</h2>
-        <p>Each spoke is one measure, scaled from the lowest figure among the 25 markets (near the centre) to the highest (at the edge), so every market is placed against the same range. Outward means a higher figure, not a better one: higher volatility, inflation or unemployment points outward too. A gap in a market's outline is a measure with no figure: none is estimated.</p>
+        <p>Each spoke is one measure, scaled from the lowest figure among the 50 markets (near the centre) to the highest (at the edge), so every market is placed against the same range. Outward means a higher figure, not a better one: higher volatility, inflation or unemployment points outward too. A gap in a market's outline is a measure with no figure: none is estimated.</p>
         <p>Stock market and currency figures are daily. The economic figures come out monthly or yearly and are published with a lag, so each one carries its own date in the comparison table, and markets can be compared on different months or years.</p></section>
       <section aria-labelledby="wm-src"><h2 id="wm-src">Sources</h2><ul class="ruled wm-src">{"".join(src_rows)}<li><span>The globe. The Earth's surface and night lights are NASA's Blue Marble and Black Marble imagery (NASA Earth Observatory, Visible Earth), shown in grey; country outlines are from Natural Earth. Each country is coloured for its index's last session, and an arc joins two markets whose weekly returns over the past year have a correlation of {WORLD_TIE:.2f} or more. Rings mark exchanges inside their regular trading hours; public holidays are not taken into account.</span></li></ul>
         <p>For information only. Not investment advice.</p></section>
@@ -5346,7 +5351,7 @@ def world_page(w):
   </div>
 </main>"""
     return shell(title="World markets: Andra Markets",
-                 desc="Twenty-five markets compared on one radar: index returns, volatility, bond yields, currency, growth, inflation and unemployment, each with its official source and date.",
+                 desc="Fifty markets compared on one radar: index returns, volatility, bond yields, currency, growth, inflation and unemployment, each with its official source and date.",
                  body=body, home="../", base="../", path="world/", scripts=("world.js", "earth-geo.js", "earth.js"))
 
 

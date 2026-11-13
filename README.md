@@ -36,7 +36,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `assets/lab.js`: ten of the eleven Lab tools (`lab/`), which run entirely in the browser. The inputs that differ from a tool's defaults are kept in the URL fragment (`#yld=5&freq=1`), never sent to the server, so a link shares a setup.
 - `assets/portfolio.js`: the eleventh, the portfolio analyser (`lab/portfolio-analyser/`): holdings entered as weights or dollar amounts, measured in US dollars in the browser. A setup that differs from the opening one is kept in the URL fragment (`#p=AAPL~18,MSFT~16&m=a`).
 - `assets/fund.js`: the fifth simulator, Your fund (`simulators/your-fund/`): a paper long-short fund the reader runs, kept only in the browser (`localStorage`, `andra-fund`), marked from the Lab's daily returns (below, Lab data).
-- `assets/earth.js`, `assets/earth-geo.js`, `assets/earth-day.jpg`, `assets/earth-night.jpg`, `assets/earth-relief.jpg`: the Earth on the World markets page. A WebGL sphere textured with NASA's Blue Marble and Black Marble imagery (public domain; greyscale, 2048 by 1024) and a relief map, lit where it is day; the 25 markets' countries (Natural Earth outlines, public domain) are painted over it, coloured for their last session. A click on a country adds it to the comparison. Its data (`world_globe` in `tools/build_site.py`) comes from `tools/world_data.py`, which keeps each index's last move (`d1`) and a year of weekly returns (`wk`) beside the radar's figures. With no WebGL the section stays hidden.
+- `assets/earth.js`, `assets/earth-geo.js`, `assets/earth-day.jpg`, `assets/earth-night.jpg`, `assets/earth-relief.jpg`: the Earth on the World markets page. A WebGL sphere textured with NASA's Blue Marble and Black Marble imagery (public domain; greyscale, 2048 by 1024) and a relief map, lit where it is day; the 50 markets' countries (Natural Earth outlines, public domain) are painted over it, coloured for their last session. A click on a country adds it to the comparison. Its data (`world_globe` in `tools/build_site.py`) comes from `tools/world_data.py`, which keeps each index's last move (`d1`) and a year of weekly returns (`wk`) beside the radar's figures. With no WebGL the section stays hidden.
 - `assets/globe.js`: the globe on the Companies index: every company as a point on a turning sphere, joined to the companies it moves with; a click opens the company's page. Its ties are measured at build time (`globe_data` in `tools/build_site.py`) from the Lab's closes, weekly over 104 weeks.
 - `tools/lab_data.py`: fetches the daily closes and dollar rates behind the Lab's portfolio analyser and risk and correlation tool at deploy time (below).
 - `assets/sim.js`, `assets/fed-game.js`, `assets/portfolio-game.js`, `tools/sim_data.py`, `tools/sim_content.py`: four of the five Simulators (`simulators/`), their history fetched at deploy time and the historical episodes they reveal (below).
@@ -331,13 +331,13 @@ limit on gross exposure are `FUND_START` and `FUND_GROSS` in the build.
 ## World markets data
 
 `tools/world_data.py` runs before each build and writes
-`.cache/world/world.json` (Actions cache, never committed or published): 25
+`.cache/world/world.json` (Actions cache, never committed or published): 50
 markets, eight figures each, every one with its own source and date. Each
 figure keeps its last good value when a source fails.
 
 | Axis | Source |
 |---|---|
-| 1M and YTD index return, 3M volatility | Yahoo Finance, each market's main index (local currency) |
+| 1M and YTD index return, 3M volatility | Yahoo Finance, each market's main index (local currency). Yahoo keeps no history for the main index of twelve of the markets added on 13 Nov 2026: for Poland, Romania, Colombia, Thailand and Vietnam a fund listed at home that tracks the index stands in (local currency); for Saudi Arabia, the UAE, Qatar, Kuwait, the Philippines, Chile and Peru the country's iShares MSCI fund listed in New York does, in US dollars, so its returns include the currency's move. Each such market's index name on the page says so |
 | Currency against the dollar | Yahoo Finance, change since the end of last year in the dollar value of the local currency |
 | 10Y government bond yield | OECD long-term interest rates (monthly), one SDMX request for all countries |
 | GDP growth | World Bank real GDP growth, latest year; IMF World Economic Outlook for Taiwan (last completed year only, never a projection) |
