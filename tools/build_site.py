@@ -5006,7 +5006,8 @@ def company_page(t, data, cal):
 GLOBE_WEEKS = 104     # weekly returns the globe's ties are measured on
 GLOBE_TIE = 0.5       # the least correlation that counts as a tie
 GLOBE_PER = 3         # ties drawn from each company: its closest
-GLOBE_MOST = 2400     # and no more than this many in all, the strongest first
+GLOBE_FAR = 0.4       # and its closest in another sector, if they are at least this close: the long arcs
+GLOBE_MOST = 3000     # and no more than this many in all, the strongest first
 
 
 def globe_data(data, ranked, ms):
@@ -5054,13 +5055,19 @@ def globe_data(data, ranked, ms):
         zi = z[i]
         for j in idx[a + 1:]:
             c = sum(map(mul, zi, z[j]))
-            if c >= GLOBE_TIE:
+            if c >= GLOBE_FAR:
                 best[i].append((c, j))
                 best[j].append((c, i))
     links = {}
     for i, near in best.items():
-        for c, j in sorted(near, reverse=True)[:GLOBE_PER]:
+        near.sort(reverse=True)
+        for c, j in [x for x in near if x[0] >= GLOBE_TIE][:GLOBE_PER]:
             links[(min(i, j), max(i, j))] = round(c * 100)
+        # one tie out of its own sector, so the globe shows what crosses sectors too
+        for c, j in near:
+            if co[j][3] != co[i][3]:
+                links[(min(i, j), max(i, j))] = round(c * 100)
+                break
     return {"co": co, "sectors": [SHORT_SECTOR.get(x, x) for x in sectors], "slugs": [slug_s(x) for x in sectors],
             "links": sorted([a, b, c] for (a, b), c in sorted(links.items(), key=lambda x: -x[1])[:GLOBE_MOST]),
             "weeks": GLOBE_WEEKS, "asof": str(max(ms[t]["date"] for t in ranked))[:10]}
