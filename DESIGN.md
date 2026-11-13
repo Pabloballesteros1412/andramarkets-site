@@ -275,7 +275,7 @@ Tap targets are at least 44px (actions, filters, links, the menu button, footer 
 
 The system is flat. There are no drop shadows and no cards. A surface is set apart by a hairline, never by height, and a hover changes colour, not tone or position.
 
-Light is the one exception to flatness, and it is drawn, not cast: the homepage's horizon and its flare (`assets/home.js`), and on inner pages the space behind the type (`body::before`, fixed: `assets/space.webp`, black with grey cloud no brighter than about 13% and fine white stars, drawn by `tools/make_space.py`; owner's request, 13 Nov 2026). It is a still picture, it never moves, and the homepage does not have it. The fixed header on inner pages has a black fade behind it once the page scrolls, so text does not run under the menu.
+Light is the one exception to flatness, and it is drawn, not cast: the homepage's horizon and its flare (`assets/home.js`), and on inner pages the space behind the type (`body::before`, fixed: `assets/space.webp`, black with a speckled grey cloud (about 18% grey at its brightest) and fine white stars, drawn by `tools/make_space.py` from `tools/space_cloud.png`, the cloud of the owner's reference; owner's request, 13 Nov 2026). It is a still picture, it never moves, and the homepage does not have it. The fixed header on inner pages has a black fade behind it once the page scrolls, so text does not run under the menu.
 
 ### Named Rules
 **The Flat Record Rule.** Nothing casts a shadow or sits in a box. A surface is distinguished by a hairline, and a hover changes colour, not height.
