@@ -169,7 +169,7 @@ Source of truth: `assets/site.css` with `assets/theme.css` loaded after it (ever
 
 **Creative North Star: "Light on the Record"**
 
-A black page, white light and one typeface in light weights. The homepage is a horizon of light with the engraved horse forming out of its dust; every other page is type on black with a faint light at its head. Nothing is boxed: actions are words with a long arrow, filters are words, fields are a line, lists and tiles are separated by hairlines.
+A black page, white light and one typeface in light weights. The homepage is a horizon of light with the engraved horse forming out of its dust; every other page is type on black space: faint grey cloud and fine stars, still. Nothing is boxed: actions are words with a long arrow, filters are words, fields are a line, lists and tiles are separated by hairlines.
 
 Colour is withheld on purpose. The site is ink on black; vivid red and green carry one meaning only, a rise or a fall, in charts and on every figure that shows a move (see The Rise and Fall Rule). Seriousness comes from restraint, dated and sourced numbers, and bracketed placeholders wherever a real number does not yet exist.
 
@@ -275,7 +275,7 @@ Tap targets are at least 44px (actions, filters, links, the menu button, footer 
 
 The system is flat. There are no drop shadows and no cards. A surface is set apart by a hairline, never by height, and a hover changes colour, not tone or position.
 
-Light is the one exception to flatness, and it is drawn, not cast: the homepage's horizon and its flare (`assets/home.js`), and on inner pages a faint wash at the head of the page (`body::before`, a radial gradient of ink at 7% fading out by 46vh). The fixed header on inner pages has a black fade behind it once the page scrolls, so text does not run under the menu.
+Light is the one exception to flatness, and it is drawn, not cast: the homepage's horizon and its flare (`assets/home.js`), and on inner pages the space behind the type (`body::before`, fixed: `assets/space.webp`, black with a speckled grey cloud (about 18% grey at its brightest) and fine white stars, drawn by `tools/make_space.py` from `tools/space_cloud.png`, the cloud of the owner's reference; owner's request, 13 Nov 2026). It is a still picture, it never moves, and the homepage does not have it. The fixed header on inner pages has a black fade behind it once the page scrolls, so text does not run under the menu.
 
 ### Named Rules
 **The Flat Record Rule.** Nothing casts a shadow or sits in a box. A surface is distinguished by a hairline, and a hover changes colour, not height.
@@ -640,7 +640,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Don't** round any corner; everything is square (0px).
 - **Don't** add shadows, cards or boxes. The search palette is the one framed panel.
 - **Don't** add a light theme or a second theme.
-- **Don't** use gradients except for light: the homepage's horizon and flare, the wash at the head of inner pages and the fade behind the fixed header.
+- **Don't** use gradients except for light: the homepage's horizon and flare, the space behind inner pages and the fade behind the fixed header.
 - **Don't** use red or green for anything but a rise or a fall: not for errors, success, tags, links, labels or prose, and never on a figure without its sign.
 - **Don't** put an eyebrow, kicker or category label above a heading.
 - **Don't** use em dashes or en dashes in copy; use commas, colons or full stops.

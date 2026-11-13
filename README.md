@@ -5,6 +5,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 
 - `assets/`: stylesheets, scripts, self-hosted font, brand mark.
 - `assets/theme.css`: the new look (11 Nov 2026), loaded after `site.css` on every inner page: one dark theme, Geist, no boxes (DESIGN.md).
+- `assets/space.webp`, `tools/make_space.py`: the ground of every inner page (black space, faint cloud, stars; 13 Nov 2026), set in `theme.css`. The script draws the picture; run it by hand and commit the result.
 - `assets/home.css`, `assets/home.js`: the homepage, which loads neither `site.css` nor `site.js`: a WebGL scene of light with full-screen sections over it.
 - `assets/fonts/geist-latin.woff2`: Geist (SIL OFL 1.1, `OFL-Geist.txt`).
 - `docs/gallop-frames/`: five engraved gallop poses supplied by the owner for a homepage idea that was not used.
