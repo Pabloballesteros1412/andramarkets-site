@@ -371,6 +371,7 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .tool-map.is-live .learn-list__title{display:block;font-size:1.0625rem;font-weight:300;line-height:1.2;letter-spacing:-.005em;color:var(--ink)}
 .tool-map.is-live li>a.is-hub .learn-list__title{font-size:1.3125rem}
 .tool-map.is-live .learn-list__desc,.tool-map.is-live .learn-list__time{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.tool-map.is-live li>a,.tool-map.is-live li>a:hover,.tool-map.is-live li>a .learn-list__title,.tool-map.is-live li>a:hover .learn-list__title{text-decoration:none!important;border-bottom:0}
 .tool-map.is-live li>a:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
 .tool-map.has-pick li>a:not(.is-on){opacity:.4}
 .tool-map.is-live{margin-top:-36px}
