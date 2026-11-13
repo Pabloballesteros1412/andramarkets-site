@@ -1361,7 +1361,7 @@ NAV_GROUPS = (
         ("Fed &amp; Rates", "fed-rates/", "Policy rate, FOMC odds and countdown, the Treasury curve."),
         ("Calendar", "calendar/", "Releases, central banks and earnings, five weeks ahead."),
         ("World", "world/", "Fifty markets compared on the same scale."),
-        ("FX", "fx/", "The dollar, the G10 majors and emerging-market currencies."),
+        ("FX", "fx/", "The dollar and thirty-nine currencies against it."),
         ("Companies", "companies/", f"Earnings and figures for {CO_TOTAL} companies."))),
     ("tools", "Tools", "Fourteen tools and simulators that run in your browser.", (
         ("Options", "lab/options/", "The payoff at expiry and Black-Scholes with its Greeks."),
@@ -3700,7 +3700,8 @@ OG_WARNED = False
 # agent's daily FX analyses that pass every check, and the market table.
 
 FX_DATA = ROOT / ".cache" / "fx" / "fx.json"
-FX_GROUPS = [("dollar", "The dollar"), ("major", "G10 majors"), ("em", "Emerging markets")]
+FX_GROUPS = [("dollar", "The dollar"), ("major", "G10 majors"), ("emea", "Europe, the Middle East and Africa"),
+             ("asia", "Asia"), ("latam", "Latin America"), ("em", "Emerging markets")]
 
 
 def load_fx():
@@ -3722,7 +3723,7 @@ def fx_move(v):
 
 
 def fx_table(rows, caption, policy=False):
-    """Pairs grouped as the dollar, G10 majors and emerging markets: level and
+    """Pairs grouped as the dollar, the G10 majors and three regions: level and
     moves as each pair is quoted, signed and coloured as rises and falls."""
     body = ""
     for g, title in FX_GROUPS:
@@ -3737,7 +3738,7 @@ def fx_table(rows, caption, policy=False):
                 pol_cell = (f'<td class="num" data-label="Policy rate">{pol["rate"]:.2f}%'
                             f'<span>{esc(pol["short"])}, {signed(pol["vs_fed_bp"], 0, "bp")} vs Fed</span></td>'
                             if pol and pol.get("vs_fed_bp") is not None else '<td class="num" data-label="Policy rate"><span class="wm-na">n/a</span></td>')
-            body += (f'<tr><th scope="row">{esc(r["name"])}<span>{esc(r.get("quote") or "")}</span></th>'
+            body += (f'<tr id="fx-row-{esc(r.get("key") or "")}"><th scope="row">{esc(r["name"])}<span>{esc(r.get("quote") or "")}</span></th>'
                      f'<td class="num" data-label="Last">{fx_level(r.get("last"), r.get("dec", 4))}</td>'
                      f'<td class="num" data-label="Day">{fx_move(r.get("d1"))}</td>'
                      f'<td class="num" data-label="Week">{fx_move(r.get("w1"))}</td>'
@@ -3749,6 +3750,62 @@ def fx_table(rows, caption, policy=False):
             + ('<th scope="col" class="num">Policy rate</th>' if policy else "") + "</tr></thead>")
     return (f'<div class="fx-tab__wrap"><table class="fx-tab"><caption class="visually-hidden">{caption}</caption>'
             f"{head}{body}</table></div>")
+
+
+# The Earth on the FX page (assets/earth.js): each pair's currency with the countries that use it,
+# where its code is written [longitude, latitude], and whether the pair is quoted as dollars per
+# unit (+1: a rise is a stronger currency) or units per dollar (-1).
+EURO_ISO = ["DEU", "FRA", "ITA", "ESP", "NLD", "BEL", "AUT", "IRL", "PRT", "GRC", "FIN", "EST", "LVA", "LTU", "LUX", "SVK",
+            "SVN", "HRV", "CYP", "MLT", "BGR"]
+FX_EARTH = {
+    "eurusd": ("EUR", "Euro", EURO_ISO, (10, 49), 1), "usdjpy": ("JPY", "Japanese yen", ["JPN"], (138, 36), -1),
+    "gbpusd": ("GBP", "Pound sterling", ["GBR"], (-2, 53), 1), "usdchf": ("CHF", "Swiss franc", ["CHE"], (8.2, 46.8), -1),
+    "usdcad": ("CAD", "Canadian dollar", ["CAN"], (-100, 56), -1), "audusd": ("AUD", "Australian dollar", ["AUS"], (134, -25), 1),
+    "nzdusd": ("NZD", "New Zealand dollar", ["NZL"], (172, -42), 1), "usdcny": ("CNY", "Chinese yuan", ["CHN"], (104, 35), -1),
+    "usdmxn": ("MXN", "Mexican peso", ["MEX"], (-102, 23), -1), "usdbrl": ("BRL", "Brazilian real", ["BRA"], (-52, -10), -1),
+    "usdinr": ("INR", "Indian rupee", ["IND"], (79, 22), -1), "usdkrw": ("KRW", "South Korean won", ["KOR"], (127.8, 36.3), -1),
+    "usdzar": ("ZAR", "South African rand", ["ZAF"], (24, -29), -1), "usdtry": ("TRY", "Turkish lira", ["TUR"], (35, 39), -1),
+    "usdsek": ("SEK", "Swedish krona", ["SWE"], (16, 62), -1), "usdnok": ("NOK", "Norwegian krone", ["NOR"], (9, 61), -1),
+    "usddkk": ("DKK", "Danish krone", ["DNK"], (9.5, 56), -1), "usdpln": ("PLN", "Polish zloty", ["POL"], (19.5, 52), -1),
+    "usdczk": ("CZK", "Czech koruna", ["CZE"], (15.5, 49.8), -1), "usdhuf": ("HUF", "Hungarian forint", ["HUN"], (19.5, 47), -1),
+    "usdron": ("RON", "Romanian leu", ["ROU"], (25, 46), -1), "usdils": ("ILS", "Israeli shekel", ["ISR"], (35, 31.3), -1),
+    "usdegp": ("EGP", "Egyptian pound", ["EGY"], (30, 27), -1), "usdsar": ("SAR", "Saudi riyal", ["SAU"], (45, 24), -1),
+    "usdaed": ("AED", "UAE dirham", ["ARE"], (54, 23.8), -1), "usdqar": ("QAR", "Qatari riyal", ["QAT"], (51.2, 25.3), -1),
+    "usdkwd": ("KWD", "Kuwaiti dinar", ["KWT"], (47.6, 29.3), -1), "usdhkd": ("HKD", "Hong Kong dollar", ["HKG"], (114.2, 22.3), -1),
+    "usdsgd": ("SGD", "Singapore dollar", ["SGP"], (103.8, 1.35), -1), "usdtwd": ("TWD", "New Taiwan dollar", ["TWN"], (121, 23.7), -1),
+    "usdidr": ("IDR", "Indonesian rupiah", ["IDN"], (114, -1), -1), "usdmyr": ("MYR", "Malaysian ringgit", ["MYS"], (102, 4), -1),
+    "usdthb": ("THB", "Thai baht", ["THA"], (101, 15.5), -1), "usdphp": ("PHP", "Philippine peso", ["PHL"], (122, 13), -1),
+    "usdvnd": ("VND", "Vietnamese dong", ["VNM"], (106, 16), -1), "usdars": ("ARS", "Argentine peso", ["ARG"], (-65, -35), -1),
+    "usdclp": ("CLP", "Chilean peso", ["CHL"], (-71, -33), -1), "usdcop": ("COP", "Colombian peso", ["COL"], (-73, 4), -1),
+    "usdpen": ("PEN", "Peruvian sol", ["PER"], (-75, -10), -1),
+}
+
+
+def fx_globe(rows):
+    """What the Earth on the FX page shows: each currency's move against the dollar (above zero,
+    the currency gained), whichever way its pair is quoted; the United States as the reference,
+    in ink, with the dollar index's moves."""
+    def vs(v, sign):
+        if v is None:
+            return None
+        return round(v if sign > 0 else (1 / (1 + v / 100) - 1) * 100, 2)
+    by = {r.get("key"): r for r in rows}
+    out = []
+    for key, (code, name, geo, (lon, lat), sign) in FX_EARTH.items():
+        r = by.get(key)
+        if not r:
+            continue
+        out.append({"iso": key, "tag": code, "name": name, "geo": geo, "lon": lon, "lat": lat,
+                    "index": f'{r["name"]} {fx_level(r.get("last"), r.get("dec", 4))}', "d1": vs(r.get("d1"), sign),
+                    "rows": [["Day", vs(r.get("d1"), sign), 2], ["Week", vs(r.get("w1"), sign), 2],
+                             ["Month", vs(r.get("m1"), sign), 1], ["Year", vs(r.get("ytd"), sign), 1]]})
+    d = by.get("dxy")
+    if d:
+        out.append({"iso": "dxy", "tag": "USD", "name": "US dollar", "geo": ["USA"], "lon": -98, "lat": 39, "ref": True,
+                    "index": f'Dollar index {fx_level(d.get("last"), d.get("dec", 2))}', "d1": d.get("d1"),
+                    "rows": [["Day", d.get("d1"), 2], ["Week", d.get("w1"), 2], ["Month", d.get("m1"), 1], ["Year", d.get("ytd"), 1]]})
+    return {"markets": out, "links": [], "goto": "fx-row-{id}", "hint": "Point at a country; a click goes to its pair in the table below.",
+            "tex": {k: f"{n}?v={ver(n)}" for k, n in (("day", "earth-day.jpg"), ("night", "earth-night.jpg"), ("topo", "earth-relief.jpg"))}}
 
 
 def fx_minutes(a):
@@ -3908,7 +3965,7 @@ def fx_charts(fx):
 
 
 def fx_index(fx):
-    rows = list(((fx or {}).get("market") or {}).values())
+    rows = [dict(v, key=k) for k, v in ((fx or {}).get("market") or {}).items()]
     items = sorted(((fx or {}).get("analyses") or {}).values(), key=lambda a: a["date"], reverse=True)
     latest = ""
     if items:
@@ -3922,8 +3979,8 @@ def fx_index(fx):
     if rows:
         dates = sorted({r["date"] for r in rows})
         when = day_med(dt.date.fromisoformat(dates[-1]))
-        market = (f'<section class="fx-market" aria-labelledby="fx-market-t"><h2 id="fx-market-t">Majors and emerging markets</h2>'
-                  f'{fx_table(rows, "The dollar index, the G10 majors and the main emerging-market pairs")}'
+        market = (f'<section class="fx-market" aria-labelledby="fx-market-t"><h2 id="fx-market-t">Thirty-nine currencies against the dollar</h2>'
+                  f'{fx_table(rows, "The dollar index, the G10 majors and thirty more pairs, by region")}'
                   f'<p class="fx-src">Last close and moves as each pair is quoted (a rise in USD/JPY is a stronger dollar, a rise '
                   f'in EUR/USD a stronger euro), latest close {when}; a pair whose market was shut shows its own last close. '
                   f'Yahoo Finance, refreshed at each deploy.</p>'
@@ -3941,14 +3998,24 @@ def fx_index(fx):
                                 f'<span class="note-list__title">{esc(a["headline"])}</span>{icon("arrow-right")}</a></li>' for a in rs)
                             + "</ol></section>" for (y, m), rs in months.items())
                         + "</div></section>")
-    lede = ("The dollar, the G10 majors and the main emerging-market currencies: a daily analysis after the US close, "
+    earth = ""
+    if rows:
+        globe = json.dumps(fx_globe(rows), separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+        earth = f"""<div class="wm-globe" hidden>
+        <canvas class="wm-globe__gl" aria-hidden="true"></canvas>
+        <canvas class="wm-globe__top" role="img" aria-label="The Earth, turning, with each country coloured for its currency's last session against the dollar. Every figure is in the table below."></canvas>
+        <p class="visually-hidden wm-globe__read" aria-live="polite"></p><p class="visually-hidden wm-globe__stats"></p>
+        <script type="application/json">{globe}</script>
+      </div>"""
+    lede = ("The dollar, the G10 majors and thirty more currencies: a daily analysis after the US close, "
             "with every figure checked, and the latest moves." if items else
-            "The dollar, the G10 majors and the main emerging-market currencies, with their latest moves.")
+            "The dollar, the G10 majors and thirty more currencies, with their latest moves.")
     body = f"""<main id="main" class="page fx-index">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">FX</h1>
       <p class="lede">{lede}</p>
+      {earth}
     </header>
     {latest}
     {market or '<p class="dd__pending">Data pending</p>'}
@@ -3957,7 +4024,7 @@ def fx_index(fx):
   </div>
 </main>"""
     return shell(title="FX: Andra Markets", desc=lede, body=body, home="../", base="../", path="fx/",
-                 scripts=("fx.js",) if fx and fx.get("hist") else ())
+                 scripts=(("fx.js",) if fx and fx.get("hist") else ()) + (("earth-geo.js", "earth.js") if rows else ()))
 
 
 # Calendar ---------------------------------------------------------------------
@@ -5206,6 +5273,7 @@ def world_globe(figs):
                 links[tuple(sorted((order.index(a), order.index(b))))] = round(c * 100)
     dates = [f["d1"]["date"] for f in figs.values() if "d1" in f]
     return {"markets": markets, "links": sorted([a, b, c] for (a, b), c in links.items()), "asof": max(dates) if dates else "",
+            "hours": True, "pick": '.wm-pick [data-m="{id}"]', "hint": "Point at a country; a click adds it to the comparison below.",
             "tex": {k: f"{n}?v={ver(n)}" for k, n in (("day", "earth-day.jpg"), ("night", "earth-night.jpg"), ("topo", "earth-relief.jpg"))}}
 
 

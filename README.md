@@ -352,7 +352,8 @@ requests per run, three seconds apart (it limits bursts).
 ## FX section
 
 `fx/` shows the agent's daily FX analysis (agent repo, PR 14) and a table of
-the dollar index, the G10 majors and the main emerging-market pairs.
+the dollar index, the G10 majors and thirty more pairs, by region
+(thirty-nine currencies; the Earth at the top of the page colours each country by its currency's move against the dollar).
 `tools/fx_data.py` runs before each build and writes `.cache/fx/fx.json`
 (Actions cache, never committed or published):
 

@@ -343,3 +343,4 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .wm-globe canvas{display:block;width:100%;touch-action:pan-y}
 .wm-globe__gl{position:absolute;inset:0;height:100%}
 .wm-globe__top{position:relative;cursor:grab}
+.fx-tab tr.is-found>*{background:rgba(242,243,243,.16);transition:background .4s}

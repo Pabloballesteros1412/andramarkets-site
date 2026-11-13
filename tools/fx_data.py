@@ -9,8 +9,8 @@ Run by .github/workflows/pages.yml before tools/build_site.py. Writes
                fx_YYYYMMDD_r<run>.json in each archive-YYYY-MM-DD release,
                schema "andra.fx/1". Only files with that exact name, in an
                archive-* release, are read (the agent's rule).
-    market     the dollar index, the G10 majors and the main emerging-market
-               pairs from Yahoo Finance: last close and the moves over a day,
+    market     the dollar index, the G10 majors and thirty more currencies, by
+               region, from Yahoo Finance: last close and the moves over a day,
                a week, a month and the year so far, as each pair is quoted,
                and two years of daily closes for the page's charts.
     rates      each currency's 3-month interbank rate and the US's, from the
@@ -67,13 +67,38 @@ PAIRS = [
     ("usdcad", "USD/CAD", "CAD=X", "major", "CAD per USD", 4),
     ("audusd", "AUD/USD", "AUDUSD=X", "major", "USD per AUD", 4),
     ("nzdusd", "NZD/USD", "NZDUSD=X", "major", "USD per NZD", 4),
-    ("usdcny", "USD/CNY", "CNY=X", "em", "CNY per USD", 4),
-    ("usdmxn", "USD/MXN", "MXN=X", "em", "MXN per USD", 4),
-    ("usdbrl", "USD/BRL", "BRL=X", "em", "BRL per USD", 4),
-    ("usdinr", "USD/INR", "INR=X", "em", "INR per USD", 2),
-    ("usdkrw", "USD/KRW", "KRW=X", "em", "KRW per USD", 1),
-    ("usdzar", "USD/ZAR", "ZAR=X", "em", "ZAR per USD", 4),
-    ("usdtry", "USD/TRY", "TRY=X", "em", "TRY per USD", 4),
+    ("usdsek", "USD/SEK", "SEK=X", "major", "SEK per USD", 4),
+    ("usdnok", "USD/NOK", "NOK=X", "major", "NOK per USD", 4),
+    ("usddkk", "USD/DKK", "DKK=X", "emea", "DKK per USD", 4),
+    ("usdpln", "USD/PLN", "PLN=X", "emea", "PLN per USD", 4),
+    ("usdczk", "USD/CZK", "CZK=X", "emea", "CZK per USD", 3),
+    ("usdhuf", "USD/HUF", "HUF=X", "emea", "HUF per USD", 2),
+    ("usdron", "USD/RON", "RON=X", "emea", "RON per USD", 4),
+    ("usdtry", "USD/TRY", "TRY=X", "emea", "TRY per USD", 4),
+    ("usdils", "USD/ILS", "ILS=X", "emea", "ILS per USD", 4),
+    ("usdzar", "USD/ZAR", "ZAR=X", "emea", "ZAR per USD", 4),
+    ("usdegp", "USD/EGP", "EGP=X", "emea", "EGP per USD", 2),
+    ("usdsar", "USD/SAR", "SAR=X", "emea", "SAR per USD", 4),
+    ("usdaed", "USD/AED", "AED=X", "emea", "AED per USD", 4),
+    ("usdqar", "USD/QAR", "QAR=X", "emea", "QAR per USD", 4),
+    ("usdkwd", "USD/KWD", "KWD=X", "emea", "KWD per USD", 4),
+    ("usdcny", "USD/CNY", "CNY=X", "asia", "CNY per USD", 4),
+    ("usdinr", "USD/INR", "INR=X", "asia", "INR per USD", 2),
+    ("usdkrw", "USD/KRW", "KRW=X", "asia", "KRW per USD", 1),
+    ("usdhkd", "USD/HKD", "HKD=X", "asia", "HKD per USD", 4),
+    ("usdsgd", "USD/SGD", "SGD=X", "asia", "SGD per USD", 4),
+    ("usdtwd", "USD/TWD", "TWD=X", "asia", "TWD per USD", 2),
+    ("usdidr", "USD/IDR", "IDR=X", "asia", "IDR per USD", 0),
+    ("usdmyr", "USD/MYR", "MYR=X", "asia", "MYR per USD", 4),
+    ("usdthb", "USD/THB", "THB=X", "asia", "THB per USD", 2),
+    ("usdphp", "USD/PHP", "PHP=X", "asia", "PHP per USD", 2),
+    ("usdvnd", "USD/VND", "VND=X", "asia", "VND per USD", 0),
+    ("usdmxn", "USD/MXN", "MXN=X", "latam", "MXN per USD", 4),
+    ("usdbrl", "USD/BRL", "BRL=X", "latam", "BRL per USD", 4),
+    ("usdars", "USD/ARS", "ARS=X", "latam", "ARS per USD", 1),
+    ("usdclp", "USD/CLP", "CLP=X", "latam", "CLP per USD", 1),
+    ("usdcop", "USD/COP", "COP=X", "latam", "COP per USD", 0),
+    ("usdpen", "USD/PEN", "PEN=X", "latam", "PEN per USD", 4),
 ]
 
 
@@ -272,6 +297,8 @@ OECD_IR3 = ("https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_FI
 # The OECD area behind each currency (the euro area for the euro).
 RATE_AREA = {"EUR": "EA20", "JPY": "JPN", "GBP": "GBR", "CHF": "CHE", "CAD": "CAN", "AUD": "AUS", "NZD": "NZL",
              "CNY": "CHN", "MXN": "MEX", "BRL": "BRA", "INR": "IND", "KRW": "KOR", "ZAR": "ZAF", "TRY": "TUR",
+             "SEK": "SWE", "NOK": "NOR", "DKK": "DNK", "PLN": "POL", "CZK": "CZE", "HUF": "HUN", "ILS": "ISR",
+             "IDR": "IDN", "CLP": "CHL", "COP": "COL",
              "USD": "USA"}
 FRESH_RATE = 183  # days: an older monthly figure is left off rather than plotted as current
 

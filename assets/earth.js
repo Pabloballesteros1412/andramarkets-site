@@ -11,7 +11,7 @@
    on screen and not at all under reduced motion. */
 (function () {
   "use strict";
-  var box = document.querySelector(".wm-globe"), src = document.getElementById("wg-data"), GEO = window.ANDRA_GEO;
+  var box = document.querySelector(".wm-globe"), src = box && box.querySelector("script[type=\"application/json\"]"), GEO = window.ANDRA_GEO;
   if (!box || !src || !GEO) return;
   var D = JSON.parse(src.textContent), MK = D.markets, N = MK.length, LINKS = D.links;
   var base = (document.body.getAttribute("data-base") || "") + "assets/";
@@ -48,7 +48,7 @@
   function clockwork() {
     now = new Date();
     var doy = Math.floor((now - Date.UTC(now.getUTCFullYear(), 0, 0)) / 864e5), decl = -23.44 * Math.cos(TAU * (doy + 10) / 365), lon = -((now.getUTCHours() + now.getUTCMinutes() / 60) - 12) * 15;
-    SUN = vec(lon, decl); OPEN = MK.map(function (m) { return isOpen(m.iso, now); });
+    SUN = vec(lon, decl); OPEN = MK.map(function (m) { return !!D.hours && isOpen(m.iso, now); });
     stats.textContent = N + " markets · " + OPEN.filter(Boolean).length + " trading now · " + ("0" + now.getUTCHours()).slice(-2) + ":" + ("0" + now.getUTCMinutes()).slice(-2) + " UTC · closes to " + D.asof;
   }
   function proj(p) { var x = p[0] * cosY + p[2] * sinY, z = -p[0] * sinY + p[2] * cosY, y = p[1] * cosX - z * sinX, zz = p[1] * sinX + z * cosX, f = 1 / (1 + PERSP - zz * PERSP); return [S.cx + x * S.rad * f, S.cy - y * S.rad * f, zz, f]; }
@@ -98,6 +98,7 @@
   /* The countries, painted on a flat map and laid over the surface: every border as a hairline,
      the markets' countries filled green or red for their last session, the one in focus brighter. */
   var map = document.createElement("canvas"); map.width = 4096; map.height = 2048;
+  function shape(m) { if (!m._s) { m._s = []; (m.geo || [m.iso]).forEach(function (k) { (GEO.c[k] || []).forEach(function (r) { m._s.push(r); }); }); } return m._s; }
   function trace(c, r) { var W = map.width, H = map.height, px = null; for (var i = 0; i < r.length; i += 2) { var x = (r[i] + 180) / 360 * W, y = (90 - r[i + 1]) / 180 * H; if (px === null || Math.abs(x - px) > W / 2) c.moveTo(x, y); else c.lineTo(x, y); px = x; } }
   function paint() {
     if (!gl || !overTex) return;
@@ -105,10 +106,10 @@
     c.clearRect(0, 0, map.width, map.height);
     c.beginPath(); GEO.b.forEach(function (r) { trace(c, r); }); c.strokeStyle = "rgba(242,243,243,.22)"; c.lineWidth = 1.4; c.stroke();
     MK.forEach(function (m, i) {
-      var rings = GEO.c[m.iso]; if (!rings) return;
+      var rings = shape(m); if (!rings.length) return;
       var v = m.d1 || 0, a = (0.42 + Math.min(0.4, Math.abs(v) * 0.28)) * (f >= 0 && f !== i ? 0.55 : 1) + (f === i ? 0.18 : 0);
       c.beginPath(); rings.forEach(function (r) { trace(c, r); c.closePath(); });
-      var tone = m.d1 == null ? INK : v >= 0 ? UP : DN;  // no figure yet: no colour
+      var tone = m.d1 == null || m.ref ? INK : v >= 0 ? UP : DN;  // no figure yet, or the reference: no colour
       c.fillStyle = "rgba(" + tone + "," + Math.min(0.95, m.d1 == null ? a * 0.5 : a).toFixed(2) + ")"; c.fill("evenodd");
       c.strokeStyle = f === i ? "rgba(242,243,243,.95)" : "rgba(" + tone + ",.9)"; c.lineWidth = f === i ? 3 : 1.6; c.stroke();
     });
@@ -121,7 +122,7 @@
     var qx = (x - S.cx) / S.rad, qy = -(y - S.cy) / S.rad, r2 = qx * qx + qy * qy; if (r2 > 1) return -1;
     var z = Math.sqrt(1 - r2), p1 = qy * cosX + z * sinX, z1 = -qy * sinX + z * cosX, p0 = qx * cosY - z1 * sinY, p2 = qx * sinY + z1 * cosY;
     var lon = Math.atan2(p0, p2) / RAD, lat = Math.asin(Math.max(-1, Math.min(1, p1))) / RAD;
-    for (var i = 0; i < N; i++) { var rings = GEO.c[MK[i].iso] || [], inside = false; for (var k = 0; k < rings.length; k++) { var r = rings[k]; for (var a = 0, b = r.length - 2; a < r.length; b = a, a += 2) { if ((r[a + 1] > lat) !== (r[b + 1] > lat) && lon < (r[b] - r[a]) * (lat - r[a + 1]) / (r[b + 1] - r[a + 1]) + r[a]) inside = !inside; } } if (inside) return i; }
+    for (var i = 0; i < N; i++) { var rings = shape(MK[i]), inside = false; for (var k = 0; k < rings.length; k++) { var r = rings[k]; for (var a = 0, b = r.length - 2; a < r.length; b = a, a += 2) { if ((r[a + 1] > lat) !== (r[b + 1] > lat) && lon < (r[b] - r[a]) * (lat - r[a + 1]) / (r[b + 1] - r[a + 1]) + r[a]) inside = !inside; } } if (inside) return i; }
     return -1;
   }
   function surface() {
@@ -166,7 +167,7 @@
       var tiedTo = focus >= 0 && mine[focus].some(function (n) { return LINKS[n][0] === i || LINKS[n][1] === i; });
       if (focus >= 0 && !tiedTo) continue;
       if (placed.some(function (q) { return Math.abs(q[0] - s[0]) < 44 && Math.abs(q[1] - s[1]) < 12; })) continue;
-      placed.push(s); label(MK[i].iso, s[0], s[1] + 3, "center", "rgba(242,243,243," + Math.min(0.95, (s[2] - 0.3) * 2).toFixed(2) + ")", 9);
+      placed.push(s); label(MK[i].tag || MK[i].iso, s[0], s[1] + 3, "center", "rgba(242,243,243," + Math.min(0.95, (s[2] - 0.3) * 2).toFixed(2) + ")", 9);
     }
     if (focus >= 0 && Q[focus][2] > 0) {
       var f2 = Q[focus], mk = MK[focus], right = f2[0] > S.w - 260;
@@ -174,16 +175,19 @@
       c.shadowColor = "#000"; c.shadowBlur = 8; c.fillText(mk.name, f2[0] + (right ? -20 : 20), f2[1] - 2);
 var ax = f2[0] + (right ? -20 : 20), al = right ? "right" : "left";
       label(mk.index + (OPEN[focus] ? " \u00b7 trading now" : ""), ax, f2[1] + 15, al, "rgba(200,204,206,.95)", 10);
-      label("Day " + pct(mk.d1, 2), ax, f2[1] + 30, al, "rgb(" + (mk.d1 >= 0 ? UP : DN) + ")", 10);
-      label("Month " + pct(mk.m1, 1), ax, f2[1] + 44, al, "rgb(" + (mk.m1 >= 0 ? UP : DN) + ")", 10);
-      label("Year " + pct(mk.ytd, 1), ax, f2[1] + 58, al, "rgb(" + (mk.ytd >= 0 ? UP : DN) + ")", 10); c.shadowBlur = 0;
+      // its figures: day, month and year, or whatever rows the page gives it
+      (mk.rows || [["Day", mk.d1, 2], ["Month", mk.m1, 1], ["Year", mk.ytd, 1]]).forEach(function (r, n) {
+        if (r[1] == null) return;
+        label(r[0] + " " + pct(r[1], r[2]), ax, f2[1] + 30 + n * 14, al, "rgb(" + (r[1] >= 0 ? UP : DN) + ")", 10);
+      });
+      c.shadowBlur = 0;
     }
   }
   function say() {
     var f = hover >= 0 ? hover : held;
-    if (f < 0) { var ups = MK.filter(function (m) { return m.d1 > 0; }).length; read.innerHTML = "Last session · <b>" + ups + "</b> rose · <b>" + (N - ups) + "</b> fell · point at a country, click to compare it"; return; }
-    var m = MK[f], ties = mine[f].map(function (n) { var l = LINKS[n]; return [l[0] === f ? l[1] : l[0], l[2]]; }).sort(function (a, b) { return b[1] - a[1]; });
-    read.innerHTML = "<b>" + m.name + "</b> · " + m.index + ' · <span class="' + cls(m.d1) + '">' + pct(m.d1, 2) + '</span> · 1 month <span class="' + cls(m.m1) + '">' + pct(m.m1, 1) + '</span> · this year <span class="' + cls(m.ytd) + '">' + pct(m.ytd, 1) + "</span>" + (ties.length ? " · moves with " + ties.slice(0, 3).map(function (x) { return MK[x[0]].iso + " " + (x[1] / 100).toFixed(2); }).join(", ") : "");
+    if (f < 0) { var ups = MK.filter(function (m) { return m.d1 > 0; }).length, downs = MK.filter(function (m) { return m.d1 < 0; }).length; read.textContent = "Last session: " + ups + " rose, " + downs + " fell. " + (D.hint || ""); return; }
+    var m = MK[f];
+    read.textContent = m.name + ", " + m.index + ": " + (m.rows || [["day", m.d1, 2], ["month", m.m1, 1], ["year", m.ytd, 1]]).filter(function (r) { return r[1] != null; }).map(function (r) { return r[0].toLowerCase() + " " + pct(r[1], r[2]); }).join(", ") + ".";
   }
   var t0 = performance.now(), clock = 0, on = false, tick = 0;
   function frame(nowMs) { if (!on) return; clock = (nowMs - t0) / 1000; if (!drag && hover < 0 && held < 0 && !still) rotY -= 0.0011; if (++tick % 600 === 0) clockwork(); draw(clock); if (!still) requestAnimationFrame(frame); }
@@ -197,7 +201,10 @@ var ax = f2[0] + (right ? -20 : 20), al = right ? "right" : "left";
   cv.addEventListener("pointerup", function (e) { var moved = drag && drag.moved; drag = null; if (moved) return;
     var h = pick(e);
     // a finger names the market first; the second tap, or any click, puts it in the comparison below
-    if (h >= 0 && (e.pointerType === "mouse" || held === h)) { var chip = document.querySelector('.wm-pick [data-m="' + MK[h].iso + '"]'); if (chip) chip.click(); }
+    if (h >= 0 && (e.pointerType === "mouse" || held === h)) { var chip = D.pick ? document.querySelector(D.pick.replace("{id}", MK[h].iso)) : null, row = D.goto ? document.getElementById(D.goto.replace("{id}", MK[h].iso)) : null;
+      if (chip) chip.click();
+      // or it takes the reader to the market's row further down, and marks it for a moment
+      if (row) { row.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "center" }); row.classList.add("is-found"); window.setTimeout(function () { row.classList.remove("is-found"); }, 3600); } }
     held = e.pointerType === "mouse" ? -1 : h; paint(); say(); once(); });
   cv.addEventListener("pointerleave", function () { if (hover >= 0) { hover = -1; paint(); say(); once(); } });
   var lw = 0; window.addEventListener("resize", function () { if (cv.clientWidth !== lw) { lw = cv.clientWidth; size(); once(); } });
