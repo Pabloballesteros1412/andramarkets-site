@@ -384,3 +384,19 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .tools-map__touch{display:none}
 @media (hover:none){.tools-map__touch{display:inline}}
 @media (max-width:899px){.tools-map.is-live{margin-top:0}.tools-map.is-live .tools-map__name{font-size:1.3125rem}.tools-map.is-live ol ol a{font-size:1.125rem}}
+
+/* Research Library: the reports as a map of light (assets/library-map.js), over the list it is drawn from. */
+.lib-map{position:relative;height:880px;margin:-20px calc(50% - 50vw) 8px;overflow:hidden}
+.lib-map[hidden]{display:none}
+.lib-map canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;-webkit-mask-image:linear-gradient(transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(transparent,#000 6%,#000 94%,transparent)}
+.lib-map__names{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none}
+.lib-map__name{position:absolute;white-space:nowrap;font-size:1.125rem;font-weight:300;line-height:1.2;color:var(--ink);transition:opacity .3s}
+.lib-map__name i{margin-left:.5em;font-style:normal;font-size:.75rem;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.lib-map__name.is-dim{opacity:.35}
+.lib-map__card{position:absolute;display:block;padding:10px 12px;margin:-10px -12px;border-radius:12px;color:var(--ink);text-decoration:none!important;opacity:0;pointer-events:none;transition:opacity .2s;background:radial-gradient(closest-side,rgba(0,0,0,.88) 60%,rgba(0,0,0,0))}
+.lib-map__card.is-on{opacity:1;pointer-events:auto}
+.lib-map__card b{display:block;font-weight:400;font-size:1.0625rem;line-height:1.25;letter-spacing:-.01em}
+.lib-map__card span{display:block;margin-top:6px;font-size:.8125rem;color:var(--ink-2)}
+.lib-map__card em{display:block;margin-top:8px;font-style:normal;font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)}
+.lib-map.is-zoom,.lib-map.is-zoom *{touch-action:none}
+@media (max-width:899px){.lib-map{margin-top:0}.lib-map__name{font-size:2rem}.lib-map__card b{font-size:1rem}}
