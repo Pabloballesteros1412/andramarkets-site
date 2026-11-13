@@ -169,7 +169,7 @@ Source of truth: `assets/site.css` with `assets/theme.css` loaded after it (ever
 
 **Creative North Star: "Light on the Record"**
 
-A black page, white light and one typeface in light weights. The homepage is a horizon of light with the engraved horse forming out of its dust; every other page is type on black with a faint light at its head. Nothing is boxed: actions are words with a long arrow, filters are words, fields are a line, lists and tiles are separated by hairlines.
+A black page, white light and one typeface in light weights. The homepage is a horizon of light with the engraved horse forming out of its dust; every other page is type on black space: faint grey cloud and fine stars, still. Nothing is boxed: actions are words with a long arrow, filters are words, fields are a line, lists and tiles are separated by hairlines.
 
 Colour is withheld on purpose. The site is ink on black; vivid red and green carry one meaning only, a rise or a fall, in charts and on every figure that shows a move (see The Rise and Fall Rule). Seriousness comes from restraint, dated and sourced numbers, and bracketed placeholders wherever a real number does not yet exist.
 
@@ -275,7 +275,7 @@ Tap targets are at least 44px (actions, filters, links, the menu button, footer 
 
 The system is flat. There are no drop shadows and no cards. A surface is set apart by a hairline, never by height, and a hover changes colour, not tone or position.
 
-Light is the one exception to flatness, and it is drawn, not cast: the homepage's horizon and its flare (`assets/home.js`), and on inner pages a faint wash at the head of the page (`body::before`, a radial gradient of ink at 7% fading out by 46vh). The fixed header on inner pages has a black fade behind it once the page scrolls, so text does not run under the menu.
+Light is the one exception to flatness, and it is drawn, not cast: the homepage's horizon and its flare (`assets/home.js`), and on inner pages the space behind the type (`body::before`, fixed: `assets/space.webp`, black with a speckled grey cloud (about 18% grey at its brightest) and fine white stars, drawn by `tools/make_space.py` from `tools/space_cloud.png`, the cloud of the owner's reference; owner's request, 13 Nov 2026). It is a still picture, it never moves, and the homepage does not have it. The fixed header on inner pages has a black fade behind it once the page scrolls, so text does not run under the menu.
 
 ### Named Rules
 **The Flat Record Rule.** Nothing casts a shadow or sits in a box. A surface is distinguished by a hairline, and a hover changes colour, not height.
@@ -295,11 +295,11 @@ Icons are Phosphor-style 256-unit SVG paths in an inline sprite (`warning-circle
 
 1. **Top.** "Markets, on the record." centred above a curved horizon: a thin line of white light with a soft flare at its centre. Nothing else.
 2. **Statement.** "What moved, and why. Every trading day, after the New York close.", lit word by word as it scrolls, on the left. Particles lift off the horizon, swarm (dim until they have nearly settled) and form the horse on the right; once formed it is shown as the engraving itself (`assets/horse-particles.webp`, from `andra-horse.png`), not as particles. On phones the horse is above the statement.
-3. **One screen per group of the menu.** Title, one line and the group's six sections as plain links on the left; its picture on the right, in fine lines of particles: Markets a globe with a ring and its financial centres; Tools a curved mesh; Research the S&P 500 at the close of every published note, with a column under each close; Careers a row of buildings rising. On phones the picture is above the text.
+3. **One screen per group of the menu.** Title, one line and the group's six sections as plain links on the left; its picture on the right, in fine lines of particles: Markets a globe with a ring (lines only, no dots on it); Tools a curved mesh; Research the S&P 500 at the close of every published note, with a column under each close; Careers a row of buildings rising. On phones the picture is above the text.
 4. **Closing.** The horizon again, "On the record, every trading day." and Contact us, with the copyright, the legal line and Privacy and cookies at the foot.
 
 - **Header:** the mark and name on the left; Markets, Tools, Research, Careers and Contact on the right, which scroll to their screens. At 860px and below, "Menu" opens a full-screen black list of the same. A column of short marks at the right edge shows the current screen (wide screens).
-- **Particles:** up to 1.6 million on wide screens and 500,000 on small ones; the count drops by itself when frames run long, and the rest brighten to compensate. Scrolling takes them from one picture to the next; a jump between screens that are not neighbours (from the header) takes them straight from one picture to the other. Particles in transit are dimmed, and on phones every particle is less than half as bright, so the cloud never covers the text.
+- **Particles:** up to 800,000 on wide screens and 400,000 on small ones; the count drops by itself when frames run long, and the rest brighten to compensate (then, if still needed, the canvas gets smaller). The canvas never holds more than 3.2 million pixels. None are drawn while the horizon alone or the finished horse is the picture, only the dust in the air. Scrolling takes them from one picture to the next; a jump between screens that are not neighbours (from the header) takes them straight from one picture to the other. Particles in transit are dimmed, and on phones every particle is less than half as bright, so the cloud never covers the text.
 - **Opening the site.** The page starts dark. A point of light comes up at the centre, the horizon spreads from it to both sides (about 2.6s), the phrase rises out of a blur at 1.35s and the header fades in at 2.3s. Once per visit; after that a short version (about 1.1s). If the scene never starts the phrase and header are shown after four seconds, and at once without WebGL.
 - **Fallbacks:** reduced motion draws still frames, with no opening and no leaving move. Without WebGL the text stands on black.
 
@@ -641,7 +641,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 - **Don't** round any corner; everything is square (0px).
 - **Don't** add shadows, cards or boxes. The search palette is the one framed panel.
 - **Don't** add a light theme or a second theme.
-- **Don't** use gradients except for light: the homepage's horizon and flare, the wash at the head of inner pages and the fade behind the fixed header.
+- **Don't** use gradients except for light: the homepage's horizon and flare, the space behind inner pages and the fade behind the fixed header.
 - **Don't** use red or green for anything but a rise or a fall: not for errors, success, tags, links, labels or prose, and never on a figure without its sign.
 - **Don't** put an eyebrow, kicker or category label above a heading.
 - **Don't** use em dashes or en dashes in copy; use commas, colons or full stops.

@@ -8,7 +8,7 @@
   if (!gl) { document.documentElement.classList.add("no-gl", "is-live"); return; }
   var VS = [
     "attribute vec3 a1,a2,a3,a4; attribute vec2 aFa,aFb; attribute vec4 aR;",
-    "uniform float uImg,uHV,uFt,uGain,uA,uB,uT,uTime,uAspect,uDpr,uIntro,uObj,uPx,uVis; uniform vec2 uRot[6]; uniform vec3 uOff[6]; uniform vec2 uPtr,uHc; uniform float uRr,uNight,uHS;",
+    "uniform float uImg,uHV,uFt,uGain,uA,uB,uT,uTime,uAspect,uDpr,uIntro,uObj,uPx,uVis,uOn[6]; uniform vec2 uRot[6]; uniform vec3 uOff[6]; uniform vec2 uPtr,uHc; uniform float uRr,uNight,uHS;",
     "varying float vA;",
     "vec3 rot(vec3 p, vec2 r){ float c=cos(r.x),s=sin(r.x); p=vec3(c*p.x+s*p.z,p.y,-s*p.x+c*p.z); c=cos(r.y); s=sin(r.y); return vec3(p.x,c*p.y-s*p.z,s*p.y+c*p.z); }",
     "vec3 nz(vec3 p){ return vec3(sin(p.y*2.1+p.z*1.3)+sin(p.z*3.7+p.x*1.9), sin(p.z*2.3+p.x*1.7)+sin(p.x*3.1+p.y*2.9), sin(p.x*2.7+p.y*1.1)+sin(p.y*3.3+p.z*2.2)); }",
@@ -24,18 +24,20 @@
     "  vec3 arcW=vec3((vec2(uHc.x,uHc.y-uRr)+(uRr+lift)*vec2(sin(th),cos(th)))*(3.4/2.75),0.0);",
     "  float hvB=0.75*mix(1.0,0.12,clamp(lift*2.2,0.0,1.0))*(0.1+0.9*exp(-abs(sin(th))*uRr*1.5));",
     "  float nt=clamp((uNight-aR.x*0.3)/0.7,0.0,1.0); nt=nt*nt*(3.0-2.0*nt);",
-    "  vec3 hp=h0*uObj*uHS+uOff[0]+nz(h0*3.0+aR.y*7.0+uTime*0.2)*0.13*sin(3.14159*nt);",
-    "  float w; w=(1.0-ft)*step(abs(uA-0.0),0.5)+ft*step(abs(uB-0.0),0.5); float w0=w; p+=w*mix(mix(arcW,hp,nt),rot(h0,uRot[0]),amb); wh+=w;",
-    "  w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); float w1=w*(1.0-amb); float bf=mix(1.0,mix(0.07,1.0,smoothstep(-0.06,0.06,g1.z)),step(dot(a1,a1),0.9)); p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb));",
-    "  w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); p+=w*(rot(a2+vec3(0.0,0.05*sin(a2.x*3.0+a2.z*2.0+uTime*0.9),0.0)*(1.0-amb),uRot[2])*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb));",
-    "  w=(1.0-ft)*step(abs(uA-3.0),0.5)+ft*step(abs(uB-3.0),0.5); p+=w*(rot(a3,uRot[3])*mix(uObj,1.0,amb)+uOff[3]*(1.0-amb));",
-    "  w=(1.0-ft)*step(abs(uA-4.0),0.5)+ft*step(abs(uB-4.0),0.5); p+=w*(rot(a4,uRot[4])*mix(uObj,1.0,amb)+uOff[4]*(1.0-amb));",
-    "  w=(1.0-ft)*step(abs(uA-5.0),0.5)+ft*step(abs(uB-5.0),0.5); p+=w*mix(arcW,rot(h0,uRot[5]),amb); wh+=w;",
+    // uOn marks the two shapes in play: the other four are not worked out for any particle
+    "  float w=0.0,w0=0.0,w1=0.0,bf=1.0;",
+    "  if(uOn[0]>0.5){ float sn=sin(3.14159*nt); vec3 hp=h0*uObj*uHS+uOff[0]; if(sn>0.0005) hp+=nz(h0*3.0+aR.y*7.0+uTime*0.2)*0.13*sn;",
+    "    w=(1.0-ft)*step(abs(uA-0.0),0.5)+ft*step(abs(uB-0.0),0.5); w0=w; p+=w*mix(mix(arcW,hp,nt),rot(h0,uRot[0]),amb); wh+=w; }",
+    "  if(uOn[1]>0.5){ w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); w1=w*(1.0-amb); bf=mix(1.0,mix(0.07,1.0,smoothstep(-0.06,0.06,g1.z)),step(dot(a1,a1),0.9)); p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb)); }",
+    "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); p+=w*(rot(a2+vec3(0.0,0.05*sin(a2.x*3.0+a2.z*2.0+uTime*0.9),0.0)*(1.0-amb),uRot[2])*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
+    "  if(uOn[3]>0.5){ w=(1.0-ft)*step(abs(uA-3.0),0.5)+ft*step(abs(uB-3.0),0.5); p+=w*(rot(a3,uRot[3])*mix(uObj,1.0,amb)+uOff[3]*(1.0-amb)); }",
+    "  if(uOn[4]>0.5){ w=(1.0-ft)*step(abs(uA-4.0),0.5)+ft*step(abs(uB-4.0),0.5); p+=w*(rot(a4,uRot[4])*mix(uObj,1.0,amb)+uOff[4]*(1.0-amb)); }",
+    "  if(uOn[5]>0.5){ w=(1.0-ft)*step(abs(uA-5.0),0.5)+ft*step(abs(uB-5.0),0.5); p+=w*mix(arcW,rot(h0,uRot[5]),amb); wh+=w; }",
     "  float burst=sin(3.14159*ft)*(1.0-amb); p.x=mix(p.x, mod(p.x-uTime*0.2+3.2,6.4)-3.2, amb);",
-    "  vec3 n=nz(p*1.3+uTime*0.22+aR.y*6.0);",
-    "  p+=n*(0.2*burst+0.05*amb);",
+    "  float drift=0.2*burst+0.05*amb;",                                // the noise costs the most: only where a particle moves by it
+    "  if(drift>0.0005) p+=nz(p*1.3+uTime*0.22+aR.y*6.0)*drift;",
     "  p.x-=burst*0.25*aR.y;",                                          // the wind carries the dust back
-    "  vec3 n2=nz(p*0.6+aR.x*9.0); p+=n2*(1.0-uIntro)*(1.0-uIntro)*1.6*(1.0-amb); p.x+=(1.0-uIntro)*(1.0-uIntro)*2.2*(1.0-amb);",
+    "  float un=(1.0-uIntro)*(1.0-uIntro)*(1.0-amb); if(un>0.0005){ p+=nz(p*0.6+aR.x*9.0)*un*1.6; p.x+=un*2.2; }",
     "  p.xy+=uPtr*0.06*(p.z+0.6)*(1.0-wh*(1.0-amb));",
     "  float z=3.4-p.z; vec2 s=p.xy/z*2.75;",
     "  gl_Position=vec4(s.x/uAspect,s.y,0.0,1.0);",
@@ -51,7 +53,7 @@
   var FS = "precision mediump float; varying float vA; uniform vec3 uCol; void main(){ vec2 d=gl_PointCoord-0.5; float r=dot(d,d)*4.0; float a=(1.0-smoothstep(0.0,1.0,r))*vA; gl_FragColor=vec4(uCol*a,1.0); }";
   function sh(t, s) { var o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(o)); return o; }
   var pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr); gl.useProgram(pr);
-  var U = {}; ["uHS", "uNight", "uHc", "uRr", "uImg", "uHV", "uFt", "uGain", "uA", "uB", "uT", "uTime", "uAspect", "uDpr", "uIntro", "uObj", "uPx", "uRot", "uOff", "uPtr", "uVis", "uCol"].forEach(function (n) { U[n] = gl.getUniformLocation(pr, n); });
+  var U = {}; ["uHS", "uNight", "uHc", "uRr", "uImg", "uHV", "uFt", "uGain", "uA", "uB", "uT", "uTime", "uAspect", "uDpr", "uIntro", "uObj", "uPx", "uRot", "uOff", "uPtr", "uVis", "uCol", "uOn"].forEach(function (n) { U[n] = gl.getUniformLocation(pr, n); });
 
   var BG_FS = ["precision highp float;",
     "uniform vec2 uRes,uC,uH; uniform float uTime,uHor,uGlobe,uGR,uAspect,uR,uOpen;",
@@ -81,7 +83,7 @@
   var UB = UL(PB, ["uBox", "uRes", "uC", "uTime", "uHor", "uH", "uR", "uGlobe", "uGR", "uAspect", "uOpen"]), US = UL(PS, ["uBox", "uTex", "uAlpha", "uFlip"]);
   var silTex = null, silH = 0, srcImg = null, IMG_ASP = 0.88, bufs = [], rbuf = null;
   gl.useProgram(pr);
-  var small = Math.min(innerWidth, innerHeight) < 700, N = small ? 500000 : 1600000, AMB = Math.round(N * 0.003), drawN = N, ftAcc = 0, ftN = 0, lastNow = 0;
+  var small = Math.min(innerWidth, innerHeight) < 700, N = small ? 400000 : 800000, AMB = small ? 1500 : 4800, MINN = small ? 120000 : 200000, drawN = N, capN = N, res = 1, skip = 2, ftAcc = 0, ftN = 0, lastNow = 0;
   var T = [null]; for (var k = 1; k < 5; k++) T.push(new Float32Array(N * 3)); var FB = [], NF = 1, FW = 681, FH = 774, HHW = 1.2, UU = new Float32Array(N), VV = new Float32Array(N);
   var R = new Float32Array(N * 4), rnd = Math.random;
   // ---- shapes -------------------------------------------------------------------------
@@ -97,8 +99,7 @@
     if (c < 0.1) { var an = b * 6.2832, rr = 1.14; x = Math.cos(an) * rr; z = Math.sin(an) * rr; y = z * 0.32; z = z * 0.95; }
     else {
       if (c < 0.4) { var LK = [-1.05, -0.7, -0.35, 0, 0.35, 0.7, 1.05], LW = [0.07, 0.19, 0.33, 0.5, 0.67, 0.81, 0.93], k = 0; while (k < 6 && a > LW[k]) k++; lat = LK[k]; lon = b * 6.2832; }
-      else if (c < 0.93) { lon = Math.floor(a * 12) / 12 * 6.2832; lat = (b * 2 - 1) * 1.5; }
-      else { var m = DATA.nodes[Math.floor(a * DATA.nodes.length)], ga = n * 2.39996, gr = 0.013 * Math.sqrt(b); lat = m[0] + Math.sin(ga) * gr; lon = m[1] + Math.cos(ga) * gr / Math.max(0.3, Math.cos(m[0])); r = 0.826; }
+      else { lon = Math.floor(a * 12) / 12 * 6.2832; lat = (b * 2 - 1) * 1.5; }
       x = r * Math.cos(lat) * Math.cos(lon); y = r * Math.sin(lat); z = r * Math.cos(lat) * Math.sin(lon);
     }
     o[i] = x; o[i + 1] = y; o[i + 2] = z;
@@ -157,17 +158,25 @@
     one();
   }
   var W = 0, H = 0, DPR = 1, t0 = 0, prog = 0, ptr = [0, 0], pt = [0, 0], secs = [].slice.call(document.querySelectorAll(".sec")), dots = [].slice.call(document.querySelectorAll(".rail a"));
-  function size() { DPR = Math.min(small ? 2 : 1.75, window.devicePixelRatio || 1); W = cv.clientWidth; H = cv.clientHeight; cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); gl.viewport(0, 0, cv.width, cv.height); }
-  size(); addEventListener("resize", size);
-  addEventListener("pointermove", function (e) { pt[0] = (e.clientX / innerWidth) * 2 - 1; pt[1] = -((e.clientY / innerHeight) * 2 - 1); });
+  // The canvas never holds more than MAXPX pixels (a large or dense screen would fill several times that for the same picture).
+  var MAXPX = 3200000, M = [], VH = 0, stTop = 0, stH = 0;
+  function size() { W = cv.clientWidth; H = cv.clientHeight; DPR = Math.max(1, Math.min(small ? 2 : 1.75, window.devicePixelRatio || 1, Math.sqrt(MAXPX / Math.max(1, W * H)))) * res; cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR); gl.viewport(0, 0, cv.width, cv.height); measure(); }
+  // where each section sits: read when the layout changes, not on every frame
+  function measure() { VH = innerHeight; for (var i = 0; i < secs.length; i++) M[i] = [secs[i].offsetTop, secs[i].offsetHeight, +secs[i].getAttribute("data-shape")]; if (st) { stTop = st.offsetTop; stH = st.offsetHeight; } }
+  addEventListener("resize", size); addEventListener("load", measure); document.addEventListener("visibilitychange", function () { skip = 3; ftAcc = ftN = 0; });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+  if (window.ResizeObserver) new ResizeObserver(measure).observe(document.getElementById("main") || document.body);
+  addEventListener("pointermove", function (e) { pt[0] = (e.clientX / innerWidth) * 2 - 1; pt[1] = -((e.clientY / innerHeight) * 2 - 1); }, { passive: true });
 
   var jump = null, night = 0, st = document.querySelector(".statement"), words = [].slice.call(document.querySelectorAll(".statement .w"));
+  var onNow = [], litN = -1, actNow = -1, ids = secs.map(function (s) { return "#" + s.id; }), rotA = new Float32Array(12), offA = new Float32Array(18), onA = new Float32Array(6), LOC = null;
+  size();
   var TINTS = [[0.05, 0.06, 0.08], [0.04, 0.07, 0.13], [0.03, 0.09, 0.10], [0.11, 0.07, 0.035], [0.13, 0.06, 0.03], [0.06, 0.065, 0.08]], tint = [0.05, 0.06, 0.08];
   function target() {
-    var y = window.scrollY || document.documentElement.scrollTop, vh = innerHeight, p = 0, ng = 0;
-    for (var i = 0; i < secs.length; i++) {
-      var top = secs[i].offsetTop, h = secs[i].offsetHeight; if (y + 1 < top) break;
-      var a = +secs[i].getAttribute("data-shape"), nx = secs[i + 1] ? +secs[i + 1].getAttribute("data-shape") : a;
+    var y = window.scrollY || document.documentElement.scrollTop, vh = VH, p = 0, ng = 0;
+    for (var i = 0; i < M.length; i++) {
+      var top = M[i][0], h = M[i][1]; if (y + 1 < top) break;
+      var a = M[i][2], nx = M[i + 1] ? M[i + 1][2] : a;
       var f = Math.min(1, Math.max(0, (y - top - (h - vh)) / vh));   // the last screen of a section hands over to the next
       p = a + (nx - a) * f; ng = i === 0 ? Math.min(1, (y - top) / (vh * 0.8)) : 1;
     }
@@ -200,7 +209,8 @@
     var w5 = wt(5), hor = Math.max((1 - night) * wt(0), Math.max(0, (w5 - 0.3) / 0.7)), feet = (port ? -0.12 : -0.3) - (w5 > 0 ? 0 : night * 0.55);
     gl.disable(gl.BLEND);
     for (var d0 = 0; d0 < 7; d0++) gl.disableVertexAttribArray(d0);
-    gl.useProgram(PB); gl.bindBuffer(gl.ARRAY_BUFFER, qb); var la = gl.getAttribLocation(PB, "aQ"); gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
+    if (!LOC) LOC = { bq: gl.getAttribLocation(PB, "aQ"), sq: gl.getAttribLocation(PS, "aQ"), fa: gl.getAttribLocation(pr, "aFa"), fb: gl.getAttribLocation(pr, "aFb"), r: gl.getAttribLocation(pr, "aR") };
+    gl.useProgram(PB); gl.bindBuffer(gl.ARRAY_BUFFER, qb); var la = LOC.bq; gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
     gl.uniform4f(UB.uBox, 0, 0, 1, 1); gl.uniform2f(UB.uRes, cv.width, cv.height); gl.uniform2f(UB.uC, cx, cy); gl.uniform1f(UB.uTime, tt);
     var op = reduce || !OPENING ? 1 : Math.min(1, Math.max(0, (t - 0.2) / OPEN_S)); gl.uniform1f(UB.uOpen, 1 - Math.pow(1 - op, 2.2)); gl.uniform1f(UB.uHor, hor); gl.uniform2f(UB.uH, 0, feet); gl.uniform1f(UB.uR, port ? 2.2 : 3.4);
     gl.uniform1f(UB.uGlobe, Math.max(0, wt(1) * 1.6 - 0.6)); gl.uniform1f(UB.uGR, 0.82 * obj * 2.75 / 3.4); gl.uniform1f(UB.uAspect, asp);
@@ -212,33 +222,44 @@
         if (!silTex) silTex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, silTex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tc);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE); } }
     if (imgA > 0.003 && silTex) {
-      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); gl.useProgram(PS); var ls = gl.getAttribLocation(PS, "aQ"); gl.enableVertexAttribArray(ls); gl.vertexAttribPointer(ls, 2, gl.FLOAT, false, 0, 0);
+      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); gl.useProgram(PS); gl.bindBuffer(gl.ARRAY_BUFFER, qb); var ls = LOC.sq; gl.enableVertexAttribArray(ls); gl.vertexAttribPointer(ls, 2, gl.FLOAT, false, 0, 0);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, silTex); gl.uniform1i(US.uTex, 0); gl.uniform1f(US.uAlpha, imgA); gl.uniform1f(US.uFlip, 0);
       var qx = cx, qy = cy, qh = silH / (H * DPR), qw = qh * IMG_ASP / asp;
       qx = Math.round((qx * 0.5 + 0.5) * cv.width - qw * cv.width / 2) / cv.width * 2 - 1 + qw; qy = Math.round((qy * 0.5 + 0.5) * cv.height - qh * cv.height / 2) / cv.height * 2 - 1 + qh;
       gl.uniform4f(US.uBox, qx, qy, qw, qh); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
     gl.useProgram(pr); for (var bi = 0; bi < bufs.length; bi++) { gl.bindBuffer(gl.ARRAY_BUFFER, bufs[bi][0]); gl.enableVertexAttribArray(bufs[bi][1]); gl.vertexAttribPointer(bufs[bi][1], 3, gl.FLOAT, false, 0, 0); }
-    var cyc = 0, f0 = Math.floor(cyc * NF) % NF, f1 = (f0 + 1) % NF, la0 = gl.getAttribLocation(pr, "aFa"), la1 = gl.getAttribLocation(pr, "aFb");
+    var cyc = 0, f0 = Math.floor(cyc * NF) % NF, f1 = (f0 + 1) % NF, la0 = LOC.fa, la1 = LOC.fb;
     gl.bindBuffer(gl.ARRAY_BUFFER, FB[f0]); gl.enableVertexAttribArray(la0); gl.vertexAttribPointer(la0, 2, gl.SHORT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, FB[f1]); gl.enableVertexAttribArray(la1); gl.vertexAttribPointer(la1, 2, gl.SHORT, false, 0, 0);
     gl.uniform1f(U.uImg, imgA); gl.uniform1f(U.uFt, 0); gl.uniform1f(U.uHV, Math.min(1, Math.max(0.01, (small ? 0.2 : 0.4) * (hh * H * DPR) * (hh * H * DPR * FW / FH) / N))); gl.uniform1f(U.uNight, night); gl.uniform1f(U.uHS, hs); gl.uniform2f(U.uHc, 0, feet); gl.uniform1f(U.uRr, port ? 2.2 : 3.4);
-    var rl = gl.getAttribLocation(pr, "aR"); gl.bindBuffer(gl.ARRAY_BUFFER, rbuf); gl.enableVertexAttribArray(rl); gl.vertexAttribPointer(rl, 4, gl.FLOAT, false, 0, 0);
+    var rl = LOC.r; gl.bindBuffer(gl.ARRAY_BUFFER, rbuf); gl.enableVertexAttribArray(rl); gl.vertexAttribPointer(rl, 4, gl.FLOAT, false, 0, 0);
     gl.uniform1f(U.uA, A); gl.uniform1f(U.uB, B); gl.uniform1f(U.uT, Tm); gl.uniform1f(U.uTime, tt); gl.uniform1f(U.uAspect, asp); gl.uniform1f(U.uDpr, DPR); var it = reduce ? 1 : Math.min(1, t / 3.4); gl.uniform1f(U.uIntro, 1 - Math.pow(1 - it, 3));
     gl.uniform1f(U.uObj, obj); gl.uniform1f(U.uPx, DPR * H / 900 * (small ? 1.15 : 1)); gl.uniform1f(U.uVis, 1);
     gl.uniform3f(U.uCol, 1, 1, 1);
-    gl.uniform2fv(U.uRot, new Float32Array(rot)); gl.uniform3fv(U.uOff, new Float32Array(off)); gl.uniform2f(U.uPtr, ptr[0], ptr[1]);
-    // keep it smooth: if frames run long, draw fewer of the (randomly ordered) particles, each a little brighter
-    if (lastNow) { ftAcc += now - lastNow; ftN++; if (ftN >= 45) { var avg = ftAcc / ftN; ftAcc = ftN = 0; if (avg > 30 && drawN > 250000) drawN = Math.max(250000, Math.round(drawN * 0.72)); else if (avg < 15 && drawN < N) drawN = Math.min(N, Math.round(drawN * 1.12)); } } lastNow = now;
+    rotA.set(rot); offA.set(off); for (var o6 = 0; o6 < 6; o6++) onA[o6] = (A === o6 && Tm < 1) || (B === o6 && Tm > 0) ? 1 : 0;
+    gl.uniform2fv(U.uRot, rotA); gl.uniform3fv(U.uOff, offA); gl.uniform1fv(U.uOn, onA); gl.uniform2f(U.uPtr, ptr[0], ptr[1]);
+    // the lines of particles: none are drawn while the horizon alone, or the finished drawing of the horse, is the picture
+    var hidden = (A === 0 && (Tm === 0 || B === 0) && (night < 0.002 || imgA > 0.998)) || (B === 5 && Tm === 1);
+    // keep it smooth: if frames run long, draw fewer of the (randomly ordered) particles, each a little brighter; if that is
+    // not enough and they run past 40 ms, a smaller canvas (a browser holding 30 a second to save battery keeps its canvas whole).
+    // A level that ran long is not gone back to.
+    // Frames are timed only while the particles are drawn, and not across a spell with the tab hidden.
+    var dtf = now - lastNow; lastNow = now; skip--; if (hidden) ftAcc = ftN = 0;
+    if (!hidden && skip <= 0 && dtf > 0 && window.__clock == null) { ftAcc += Math.min(dtf, 500); ftN++; if (ftN >= 30) { var avg = ftAcc / ftN; ftAcc = ftN = 0;
+      if (avg > 21) { if (drawN > MINN) { capN = Math.round(drawN * 0.9); drawN = Math.max(MINN, Math.round(drawN * 0.7)); } else if (avg > 40 && res > 0.62) { res *= 0.85; size(); } }
+      else if (avg < 17.4 && drawN < capN) drawN = Math.min(capN, Math.round(drawN * 1.1)); } }
     gl.uniform1f(U.uGain, Math.min(3, 0.3 * 1600000 / drawN) * (small ? 0.2 : 1));
-    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); gl.drawArrays(gl.POINTS, 0, drawN);
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); if (!hidden) gl.drawArrays(gl.POINTS, 0, drawN);
+    if (hidden || drawN < N - AMB) gl.drawArrays(gl.POINTS, N - AMB, AMB);   // the dust in the air is always there
     // text
-    var y = window.scrollY || 0, vh = innerHeight, act = 0, bd = 1e9;
-    for (var s2 = 0; s2 < secs.length; s2++) { var mid = secs[s2].offsetTop + secs[s2].offsetHeight - vh / 2, dd = Math.abs(y + vh / 2 - mid) / vh; if (secs[s2].offsetHeight > vh * 1.2) dd = Math.max(0, (y < secs[s2].offsetTop ? (secs[s2].offsetTop - y) : (y + vh - secs[s2].offsetTop - secs[s2].offsetHeight)) / vh);
-      secs[s2].style.setProperty("--on", Math.max(0, 1 - dd * 2.4).toFixed(3)); if (dd < bd) { bd = dd; act = s2; } }
-    for (var r2 = 0; r2 < dots.length; r2++) dots[r2].classList.toggle("on", dots[r2].getAttribute("href") === "#" + secs[act].id);
-    if (st) { var sp = (y - st.offsetTop + vh * 0.55) / (st.offsetHeight - vh * 0.35), nW = words.length; for (var w0 = 0; w0 < nW; w0++) words[w0].classList.toggle("lit", sp * (nW + 2) > w0 + 1); }
-    document.documentElement.style.setProperty("--night", night.toFixed(3));
+    // (the page is written to only when a value changes, so a still screen costs no style work)
+    var y = window.scrollY || 0, vh = VH, act = 0, bd = 1e9;
+    for (var s2 = 0; s2 < M.length; s2++) { var sT = M[s2][0], sH = M[s2][1], mid = sT + sH - vh / 2, dd = Math.abs(y + vh / 2 - mid) / vh; if (sH > vh * 1.2) dd = Math.max(0, (y < sT ? (sT - y) : (y + vh - sT - sH)) / vh);
+      var on = Math.max(0, 1 - dd * 2.4).toFixed(3); if (on !== onNow[s2]) { onNow[s2] = on; secs[s2].style.setProperty("--on", on); } if (dd < bd) { bd = dd; act = s2; } }
+    if (act !== actNow) { actNow = act; for (var r2 = 0; r2 < dots.length; r2++) dots[r2].classList.toggle("on", dots[r2].getAttribute("href") === ids[act]); }
+    if (st) { var sp = (y - stTop + vh * 0.55) / (stH - vh * 0.35), nW = words.length, lit = Math.max(0, Math.min(nW, Math.ceil(sp * (nW + 2) - 1)));
+      if (lit !== litN) { litN = lit; for (var w0 = 0; w0 < nW; w0++) words[w0].classList.toggle("lit", w0 < lit); } }
     requestAnimationFrame(frame);
   }
   document.addEventListener("click", function (e) { var a = e.target.closest && e.target.closest('a[href^="#"]'); if (!a || reduce) return; var sec = document.getElementById(a.getAttribute("href").slice(1)); if (!sec || !sec.hasAttribute("data-shape")) return;
