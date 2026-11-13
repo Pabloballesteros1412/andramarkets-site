@@ -5003,6 +5003,69 @@ def company_page(t, data, cal):
     )
 
 
+GLOBE_WEEKS = 104     # weekly returns the globe's ties are measured on
+GLOBE_TIE = 0.5       # the least correlation that counts as a tie
+GLOBE_PER = 3         # ties drawn from each company: its closest
+GLOBE_MOST = 2400     # and no more than this many in all, the strongest first
+
+
+def globe_data(data, ranked, ms):
+    """The Companies index's globe (assets/globe.js): each company in rank order as
+    [folder, name, ticker, sector, market, last move in basis points], and the ties
+    between companies whose weekly returns move together, [a, b, correlation x 100].
+    Weekly, Friday to Friday, so markets that close hours apart are compared over the
+    same week; measured here, not in the browser, from the Lab's closes. With no closes
+    the globe has its companies and no ties."""
+    from operator import mul
+    sectors = []
+    for t in ranked:
+        sec = data["co"][t]["sector"]
+        if sec not in sectors:
+            sectors.append(sec)
+    co = [[co_slug(t), html.unescape(co_name(data["co"][t])), t, sectors.index(data["co"][t]["sector"]), data["co"][t]["market"],
+           round((ms[t]["chg_pct"] or 0) * 100)] for t in ranked]
+    try:
+        closes = json.loads(LAB_CLOSES.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        closes = {}
+    last = max((v["closes"][-1][0] for v in closes.values() if v.get("closes")), default=None)
+    z = {}
+    if last:
+        end = dt.date.fromisoformat(last)
+        end -= dt.timedelta(days=(end.weekday() - 4) % 7)  # the last Friday
+        fridays = [(end - dt.timedelta(weeks=k)).isoformat() for k in range(GLOBE_WEEKS, -1, -1)]
+        for i, t in enumerate(ranked):
+            rows = (closes.get(t) or {}).get("closes") or []
+            if len(rows) < 60 or rows[0][0] > fridays[0]:
+                continue
+            levels, k = [], 0
+            for f in fridays:  # the last close on or before each Friday
+                while k + 1 < len(rows) and rows[k + 1][0] <= f:
+                    k += 1
+                levels.append(rows[k][1])
+            r = [math.log(b / a) for a, b in zip(levels, levels[1:])]
+            mean = sum(r) / len(r)
+            sd = math.sqrt(sum((x - mean) ** 2 for x in r))
+            if sd > 0:
+                z[i] = [(x - mean) / sd for x in r]
+    idx = sorted(z)
+    best = {i: [] for i in idx}
+    for a, i in enumerate(idx):
+        zi = z[i]
+        for j in idx[a + 1:]:
+            c = sum(map(mul, zi, z[j]))
+            if c >= GLOBE_TIE:
+                best[i].append((c, j))
+                best[j].append((c, i))
+    links = {}
+    for i, near in best.items():
+        for c, j in sorted(near, reverse=True)[:GLOBE_PER]:
+            links[(min(i, j), max(i, j))] = round(c * 100)
+    return {"co": co, "sectors": [SHORT_SECTOR.get(x, x) for x in sectors], "slugs": [slug_s(x) for x in sectors],
+            "links": sorted([a, b, c] for (a, b), c in sorted(links.items(), key=lambda x: -x[1])[:GLOBE_MOST]),
+            "weeks": GLOBE_WEEKS}
+
+
 def companies_index(data):
     sectors, markets = {}, {}
     for t in data["order"]:
@@ -5035,12 +5098,18 @@ def companies_index(data):
             f'<td class="num" data-label="Day">{mv(signed(m["chg_pct"], 2, "%"))}</td>'
             f'<td class="num" data-label="Value">{money(usd)}</td>'
             f'<td class="num" data-label="P/E">{pe_txt}</td></tr>')
+    globe = json.dumps(globe_data(data, ranked, ms), separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
     body = f"""<main id="main" class="page co-index" data-mode="index" data-api="{esc(PROFILE_API)}">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Companies</h1>
       <p class="lede">The {PER_MARKET} largest companies in the S&amp;P 500, in the STOXX Europe 600 and across the six Asian markets, the companies the earnings calendar follows, ranked by market value in dollars. Each has a page with its valuation, its peers, where its revenue goes and how the shares have done against the market. Search finds any other US-listed company too.</p>
     </header>
+    <section class="co-globe" aria-labelledby="co-globe-h" hidden>
+      <div class="lens-h"><h2 class="visually-hidden" id="co-globe-h">The companies as a globe</h2><p class="lens-read" aria-live="polite"></p><p class="lens-stats"></p></div>
+      <canvas class="lens" role="img" aria-label="A turning globe of the companies below, grouped by sector."></canvas>
+      <script type="application/json" id="globe-data">{globe}</script>
+    </section>
     <form class="pf-field co-index__search" role="search" id="pf-form" hidden>
       {icon("magnifying-glass")}
       <input type="search" id="pf-q" name="q" aria-label="Search companies by ticker or name" placeholder="Search by ticker or name, any US-listed company" role="combobox" aria-expanded="false" aria-controls="pf-res" aria-autocomplete="list" autocomplete="off" spellcheck="false">
@@ -5065,7 +5134,7 @@ def companies_index(data):
 </main>"""
     return shell(title="Companies: Andra Markets",
                  desc=f"The {PER_MARKET} largest companies in the US, Europe and Asia, each with valuation, peers and results.",
-                 body=body, home="../", base="../", path="companies/", scripts=("profile.js",))
+                 body=body, home="../", base="../", path="companies/", scripts=("profile.js", "globe.js"))
 
 
 # World markets ------------------------------------------------------------------

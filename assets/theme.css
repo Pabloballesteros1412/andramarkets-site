@@ -321,3 +321,12 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .lens-figs[open] summary{margin-bottom:6px}
 .fd-fan[hidden]{display:none}
 @media(max-width:720px){.lens-stats{text-align:left}}
+
+/* The globe on the Companies index (assets/globe.js): its read-out at the left over it, its counts at the right. */
+.co-globe{margin:clamp(20px,3vw,36px) 0 clamp(28px,4vw,48px)}
+.co-globe[hidden]{display:none}
+.co-globe .lens-h{align-items:baseline;min-height:2.4em}
+.co-globe .lens-read{margin:0;min-height:0}
+.co-globe .lens-read a{color:var(--ink);text-underline-offset:4px}
+.co-globe .lens-stats{margin:0}
+.co-globe canvas{margin-top:6px;touch-action:pan-y}
