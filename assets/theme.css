@@ -190,6 +190,9 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .page__head .note__meta,.page__head .dd__crumbs{justify-content:center;margin-inline:auto}
 .report__grid>.page__head{text-align:left}
 .report__grid>.page__head .lede,.report__grid>.page__head .note__meta{margin-inline:0;justify-content:flex-start}
+/* a company's page: its name at the left over its price, its logo at the right */
+.co>.wrap>.page__head{text-align:left}
+.co>.wrap>.page__head .lede,.co>.wrap>.page__head .note__meta,.co>.wrap>.page__head .dd__crumbs{margin-inline:0;justify-content:flex-start}
 .page__body,.archive,.pw-toc,.lab-groups,.lab-groups .learn-list{max-width:none}
 .page__body>section,.archive__month{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,9fr);column-gap:clamp(32px,5vw,96px);align-items:start}
 .page__body>section>*,.archive__month>*{grid-column:2;min-width:0}
