@@ -16,6 +16,16 @@ body{font-weight:350;letter-spacing:.003em}
 /* every inner page stands in space: black, faint grey cloud and fine stars, still
    (owner, 13 Nov 2026; drawn by tools/make_space.py). Not on the homepage. */
 body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:#000 url("space.webp") center/cover no-repeat}
+/* with JavaScript and motion allowed, the same space in three depths (cloud, far stars, near
+   stars) that slide a little against each other with the pointer and the scroll (owner,
+   13 Nov 2026; assets/site.js). The still picture above is what is left otherwise. */
+.space{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:#000;--t-far:1100px;--t-near:1500px}
+.space i{position:absolute;display:block;will-change:transform;backface-visibility:hidden}
+.space__cloud{inset:-56px;background:url("space-cloud.webp") center/cover no-repeat}
+.space__far{left:-56px;right:-56px;top:calc(-1*var(--t-far));height:calc(100% + var(--t-far));background:url("space-stars-far.webp") 0 0/var(--t-far) var(--t-far) repeat}
+.space__near{left:-56px;right:-56px;top:calc(-1*var(--t-near));height:calc(100% + var(--t-near));background:url("space-stars-near.webp") 0 0/var(--t-near) var(--t-near) repeat}
+@media (max-width:760px){.space{--t-far:720px;--t-near:980px}}
+html.has-space body::before{display:none}
 h1,h2,h3,h4{font-weight:300}
 .page__title,.report__title,.section-title{font-weight:300!important;letter-spacing:-.038em!important}
 .page__body h2,.page h2{font-weight:400;letter-spacing:-.02em}
