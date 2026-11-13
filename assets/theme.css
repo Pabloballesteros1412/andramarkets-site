@@ -12,8 +12,9 @@
 html,body{background:#000}
 body{font-weight:350;letter-spacing:.003em}
 .scene{display:none!important}
-/* a faint light at the head of every page, the cover's horizon seen from far off */
-body::before{content:"";position:fixed;inset:0 0 auto;height:46vh;pointer-events:none;z-index:-1;background:radial-gradient(60% 100% at 50% 0%,rgba(242,243,243,.07),transparent 70%)}
+/* every inner page stands in space: black, faint grey cloud and fine stars, still
+   (owner, 13 Nov 2026; drawn by tools/make_space.py). Not on the homepage. */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:#000 url("space.webp") center/cover no-repeat}
 h1,h2,h3,h4{font-weight:300}
 .page__title,.report__title,.section-title{font-weight:300!important;letter-spacing:-.038em!important}
 .page__body h2,.page h2{font-weight:400;letter-spacing:-.02em}
