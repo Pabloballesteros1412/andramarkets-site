@@ -1184,7 +1184,7 @@ def page(notes, cal):
 <script type="application/json" id="home-data">{json.dumps(data, separators=(",", ":"))}</script>""",
         home="",
         base="",
-        scripts=("home.js",),
+        scripts=("space.js", "home.js"),
         nav=False,
         footer=False,
         scene=False,
@@ -1623,7 +1623,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 
 {site_footer(home, base) if footer else ""}
 
-{"" if bare else f'<script src="{base}assets/site.js?v={ver("site.js")}" defer></script>'}{"".join(f'<script src="{base}assets/{js}?v={ver(js)}" defer></script>' for js in scripts)}{beacon}
+{"" if bare else f'<script src="{base}assets/site.js?v={ver("site.js")}" defer></script><script src="{base}assets/space.js?v={ver("space.js")}" defer></script>'}{"".join(f'<script src="{base}assets/{js}?v={ver(js)}" defer></script>' for js in scripts)}{beacon}
 </body>
 </html>
 """
