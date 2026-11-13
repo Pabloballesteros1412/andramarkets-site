@@ -1361,7 +1361,7 @@ NAV_GROUPS = (
         ("Fed &amp; Rates", "fed-rates/", "Policy rate, FOMC odds and countdown, the Treasury curve."),
         ("Calendar", "calendar/", "Releases, central banks and earnings, five weeks ahead."),
         ("World", "world/", "Fifty markets compared on the same scale."),
-        ("FX", "fx/", "The dollar, the G10 majors and emerging-market currencies."),
+        ("FX", "fx/", "The dollar and thirty-nine currencies against it."),
         ("Companies", "companies/", f"Earnings and figures for {CO_TOTAL} companies."))),
     ("tools", "Tools", "Fourteen tools and simulators that run in your browser.", (
         ("Options", "lab/options/", "The payoff at expiry and Black-Scholes with its Greeks."),
@@ -3700,7 +3700,8 @@ OG_WARNED = False
 # agent's daily FX analyses that pass every check, and the market table.
 
 FX_DATA = ROOT / ".cache" / "fx" / "fx.json"
-FX_GROUPS = [("dollar", "The dollar"), ("major", "G10 majors"), ("em", "Emerging markets")]
+FX_GROUPS = [("dollar", "The dollar"), ("major", "G10 majors"), ("emea", "Europe, the Middle East and Africa"),
+             ("asia", "Asia"), ("latam", "Latin America"), ("em", "Emerging markets")]
 
 
 def load_fx():
@@ -3722,7 +3723,7 @@ def fx_move(v):
 
 
 def fx_table(rows, caption, policy=False):
-    """Pairs grouped as the dollar, G10 majors and emerging markets: level and
+    """Pairs grouped as the dollar, the G10 majors and three regions: level and
     moves as each pair is quoted, signed and coloured as rises and falls."""
     body = ""
     for g, title in FX_GROUPS:
@@ -3764,6 +3765,19 @@ FX_EARTH = {
     "usdmxn": ("MXN", "Mexican peso", ["MEX"], (-102, 23), -1), "usdbrl": ("BRL", "Brazilian real", ["BRA"], (-52, -10), -1),
     "usdinr": ("INR", "Indian rupee", ["IND"], (79, 22), -1), "usdkrw": ("KRW", "South Korean won", ["KOR"], (127.8, 36.3), -1),
     "usdzar": ("ZAR", "South African rand", ["ZAF"], (24, -29), -1), "usdtry": ("TRY", "Turkish lira", ["TUR"], (35, 39), -1),
+    "usdsek": ("SEK", "Swedish krona", ["SWE"], (16, 62), -1), "usdnok": ("NOK", "Norwegian krone", ["NOR"], (9, 61), -1),
+    "usddkk": ("DKK", "Danish krone", ["DNK"], (9.5, 56), -1), "usdpln": ("PLN", "Polish zloty", ["POL"], (19.5, 52), -1),
+    "usdczk": ("CZK", "Czech koruna", ["CZE"], (15.5, 49.8), -1), "usdhuf": ("HUF", "Hungarian forint", ["HUN"], (19.5, 47), -1),
+    "usdron": ("RON", "Romanian leu", ["ROU"], (25, 46), -1), "usdils": ("ILS", "Israeli shekel", ["ISR"], (35, 31.3), -1),
+    "usdegp": ("EGP", "Egyptian pound", ["EGY"], (30, 27), -1), "usdsar": ("SAR", "Saudi riyal", ["SAU"], (45, 24), -1),
+    "usdaed": ("AED", "UAE dirham", ["ARE"], (54, 23.8), -1), "usdqar": ("QAR", "Qatari riyal", ["QAT"], (51.2, 25.3), -1),
+    "usdkwd": ("KWD", "Kuwaiti dinar", ["KWT"], (47.6, 29.3), -1), "usdhkd": ("HKD", "Hong Kong dollar", ["HKG"], (114.2, 22.3), -1),
+    "usdsgd": ("SGD", "Singapore dollar", ["SGP"], (103.8, 1.35), -1), "usdtwd": ("TWD", "New Taiwan dollar", ["TWN"], (121, 23.7), -1),
+    "usdidr": ("IDR", "Indonesian rupiah", ["IDN"], (114, -1), -1), "usdmyr": ("MYR", "Malaysian ringgit", ["MYS"], (102, 4), -1),
+    "usdthb": ("THB", "Thai baht", ["THA"], (101, 15.5), -1), "usdphp": ("PHP", "Philippine peso", ["PHL"], (122, 13), -1),
+    "usdvnd": ("VND", "Vietnamese dong", ["VNM"], (106, 16), -1), "usdars": ("ARS", "Argentine peso", ["ARG"], (-65, -35), -1),
+    "usdclp": ("CLP", "Chilean peso", ["CHL"], (-71, -33), -1), "usdcop": ("COP", "Colombian peso", ["COL"], (-73, 4), -1),
+    "usdpen": ("PEN", "Peruvian sol", ["PER"], (-75, -10), -1),
 }
 
 
@@ -3965,8 +3979,8 @@ def fx_index(fx):
     if rows:
         dates = sorted({r["date"] for r in rows})
         when = day_med(dt.date.fromisoformat(dates[-1]))
-        market = (f'<section class="fx-market" aria-labelledby="fx-market-t"><h2 id="fx-market-t">Majors and emerging markets</h2>'
-                  f'{fx_table(rows, "The dollar index, the G10 majors and the main emerging-market pairs")}'
+        market = (f'<section class="fx-market" aria-labelledby="fx-market-t"><h2 id="fx-market-t">Thirty-nine currencies against the dollar</h2>'
+                  f'{fx_table(rows, "The dollar index, the G10 majors and thirty more pairs, by region")}'
                   f'<p class="fx-src">Last close and moves as each pair is quoted (a rise in USD/JPY is a stronger dollar, a rise '
                   f'in EUR/USD a stronger euro), latest close {when}; a pair whose market was shut shows its own last close. '
                   f'Yahoo Finance, refreshed at each deploy.</p>'
@@ -3993,9 +4007,9 @@ def fx_index(fx):
         <p class="visually-hidden wm-globe__read" aria-live="polite"></p><p class="visually-hidden wm-globe__stats"></p>
         <script type="application/json">{globe}</script>
       </div>"""
-    lede = ("The dollar, the G10 majors and the main emerging-market currencies: a daily analysis after the US close, "
+    lede = ("The dollar, the G10 majors and thirty more currencies: a daily analysis after the US close, "
             "with every figure checked, and the latest moves." if items else
-            "The dollar, the G10 majors and the main emerging-market currencies, with their latest moves.")
+            "The dollar, the G10 majors and thirty more currencies, with their latest moves.")
     body = f"""<main id="main" class="page fx-index">
   <div class="wrap">
     <header class="page__head">
