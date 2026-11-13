@@ -144,7 +144,7 @@ PRIVACY = [
      "last results in the simulators, so you can compare your games.</li>"
      "<li><b>andra-isim</b> (local storage): your progress and results in the Interview simulator, so you "
      "can resume an interview and see how you did by topic.</li>"
-     "<li><b>andra-risk-map</b> (local storage): where you left the four tools on the Risk &amp; portfolio map, if you "
+     "<li><b>andra-tool-map</b> (local storage): where you left the sections on the Tools map, if you "
      "moved them. A double click on the map removes it.</li>"
      "<li><b>andra-fund</b> (local storage): the paper fund you run in Your fund: its name, cash, positions, "
      "pending orders, trades and daily values. You can export it to a file, import that file again, or delete "

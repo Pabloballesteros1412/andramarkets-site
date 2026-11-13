@@ -1495,7 +1495,7 @@ def site_footer(home, base):
     </div>
     <nav class="foot__nav foot__nav--groups" aria-label="Footer">
       <div class="foot__group"><p class="foot__gt">Markets</p><a href="{base}dashboards/">Dashboards</a><a href="{base}fed-rates/">Fed &amp; Rates</a><a href="{base}calendar/">Calendar</a><a href="{base}world/">World markets</a><a href="{base}fx/">FX</a><a href="{base}companies/">Companies</a></div>
-      <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}lab/">Lab</a><a href="{base}simulators/">Simulators</a></div>
+      <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a><a href="{base}lab/">Lab</a><a href="{base}simulators/">Simulators</a></div>
       <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}reports/">Daily note</a><a href="{base}research/">Research Library</a><a href="{base}chart-of-the-day/">Chart of the day</a><a href="{base}central-banks/">Central banks</a><a href="{base}recession-watch/">Recession watch</a><a href="{base}market-history/">Market history</a></div>
       <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}interview-prep/">Interview prep</a><a href="{base}interview-simulator/">Interview simulator</a><a href="{base}break-into-wall-street/">Break into Wall Street</a><a href="{base}recruiting-calendar/">Recruiting calendar</a><a href="{base}firms/">Firms</a><a href="{base}application-tracker/">Application tracker</a></div>
       <div class="foot__group"><p class="foot__gt">Andra Markets</p><a href="{base}methodology/">Methodology</a><a href="{base}sources/">Data sources</a><a href="{base}legal/">Legal notice</a><a href="{base}privacy/">Privacy and cookies</a></div>
@@ -1588,7 +1588,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
     beacon = (f'\n<script defer src="{BEACON_SRC}" '
               f'data-cf-beacon=\'{{"token": "{ANALYTICS_TOKEN}", "spa": false}}\'></script>'
               if ANALYTICS_TOKEN and index else "")
-    return f"""<!doctype html>
+    page = f"""<!doctype html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
@@ -1627,6 +1627,10 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 </body>
 </html>
 """
+    # The six Tools sections are one map now: every link to a section goes to it, at that section.
+    for _, theme, *_ in TOOL_THEMES:
+        page = page.replace(f'href="{base}{theme}"', f'href="{base}tools-map/#{theme.rstrip("/").split("/")[-1]}"')
+    return page
 
 
 def watch_redirect():
@@ -1668,7 +1672,7 @@ TOOL_THEMES = (
 LAB_GROUPS = tuple((key, name, slugs) for key, page, name, _, slugs in TOOL_THEMES if page.startswith("lab/"))
 SIM_GROUPS = tuple((key, name, slugs) for key, page, name, _, slugs in TOOL_THEMES if page.startswith("simulators/"))
 # Each tool's theme page, from its own folder (lab/<slug>/ or simulators/<slug>/): (link, name).
-TOOL_THEME_OF = {slug: ("../" + page.split("/", 1)[1], name) for _, page, name, _, slugs in TOOL_THEMES for slug in slugs}
+TOOL_THEME_OF = {slug: ("../../tools-map/#" + page.rstrip("/").split("/")[-1], name) for _, page, name, _, slugs in TOOL_THEMES for slug in slugs}
 
 
 def tool_groups(groups, row):
@@ -1679,31 +1683,29 @@ def tool_groups(groups, row):
         for key, name, slugs in groups) + "</div>"
 
 
-def tool_theme_page(page, name, lede, slugs):
-    """One theme of the Tools menu, a section page of its own: its title, a line, and its
-    tools in the Lab index's ruled list, each row as on the Lab or Simulators index."""
-    lab = page.startswith("lab/")
-    rows = "".join((lab_row if lab else sim_row)(slug, "../") for slug in slugs)
-    note = ("Every tool runs in your browser: nothing you enter is sent or stored." if lab
-            else "Every simulator runs in your browser; your results stay on your device.")
-    # Risk & portfolio shows its four tools as a map (owner-approved, 13 Nov 2026): assets/risk-map.js
-    # lays this same list out over a canvas; without the script it stays the ruled list.
-    is_map = page == "lab/risk-and-portfolio/"
-    listing = (f'<nav class="tool-map" aria-label="{name} tools"><ol class="learn-list lab-index">{rows}</ol></nav>' if is_map
-               else f'<ol class="learn-list lab-index">{rows}</ol>')
-    head_lede = ('Four tools that feed one another.<span class="tool-map__hint"> Drag them where you like.</span>' if is_map
-                 else f"{lede} {note}")
+def tools_map_page():
+    """Every Tools section and its tools on one map (assets/tools-map.js lays this nested list out
+    over a canvas; without the script it is the list)."""
+    def tool(page, slug):
+        if page.startswith("lab/"):
+            title = next(t for t in LAB_TOOLS if t[0] == slug)[2]
+            return f'<li><a href="../lab/{slug}/">{title}</a></li>'
+        return f'<li><a href="../simulators/{slug}/">{next(x for x in SIMULATORS if x[0] == slug)[1]}</a></li>'
+    groups = "".join(f'<li data-key="{page.rstrip("/").split("/")[-1]}"><span class="tools-map__name">{name}</span><ol>{"".join(tool(page, x) for x in slugs)}</ol></li>'
+                     for _, page, name, _, slugs in TOOL_THEMES)
+    total = sum(len(t[4]) for t in TOOL_THEMES)
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
-      <h1 class="page__title">{name}</h1>
-      <p class="lede">{head_lede}</p>
+      <h1 class="page__title">Tools</h1>
+      <p class="lede">{total} tools and simulators that run in your browser.<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
     </header>
-    {listing}
+    <nav class="tools-map" aria-label="Tools"><ol>{groups}</ol></nav>
   </div>
 </main>"""
-    return shell(title=f"{name}: Andra Markets", desc=f"{lede} {note}", body=body,
-                 home="../../", base="../../", path=page, scripts=("risk-map.js",) if is_map else ())
+    return shell(title="Tools: Andra Markets", desc=f"{total} interactive tools and simulators that run in your browser: options, bonds, "
+                 "risk and portfolio, valuation and growth, market replays and strategy games. By Andra Markets.",
+                 body=body, home="../", base="../", path="tools-map/", scripts=("tools-map.js",))
 
 
 LAB_TOOLS = [
@@ -6533,9 +6535,12 @@ def main():
         (OUT / path / "index.html").write_text(moved_redirect(path, to, title, text))
     (OUT / "lab").mkdir(exist_ok=True)
     (OUT / "lab" / "index.html").write_text(lab_index())
-    for _, theme, name, lede, slugs in TOOL_THEMES:
+    (OUT / "tools-map").mkdir(exist_ok=True)
+    (OUT / "tools-map" / "index.html").write_text(tools_map_page())
+    for _, theme, name, lede, slugs in TOOL_THEMES:  # the old section addresses send readers to the map
         (OUT / theme).mkdir(parents=True, exist_ok=True)
-        (OUT / theme / "index.html").write_text(tool_theme_page(theme, name, lede, slugs))
+        (OUT / theme / "index.html").write_text(moved_redirect(
+            theme, "tools-map/#" + theme.rstrip("/").split("/")[-1], "the Tools map", f"{name} is now part of"))
     risk = risk_data()
     for i, t in enumerate(LAB_TOOLS):
         (OUT / "lab" / t[0]).mkdir(exist_ok=True)
@@ -6640,7 +6645,7 @@ GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", 
              "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
              "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
              "chart-of-the-day", "central-banks", "recession-watch", "market-history",
-             "interview-simulator", "firms", "application-tracker", "contact")
+             "interview-simulator", "firms", "application-tracker", "contact", "tools-map")
 INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
 # Data blocks the browser never runs: the policy does not apply to them.
 DATA_SCRIPTS = ("application/json", "application/ld+json")

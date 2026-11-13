@@ -362,18 +362,25 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .lens-figs summary:hover{color:var(--ink)}
 .lens-figs[open] summary{margin-bottom:6px}
 
-/* Risk & portfolio: its four tools as a map (assets/risk-map.js). Until the script runs, the list is the plain ruled one. */
-.tool-map.is-live{position:relative;display:block;height:820px;margin:0 calc(50% - 50vw);overflow:hidden}
-.tool-map.is-live canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;-webkit-mask-image:linear-gradient(transparent,#000 9%,#000 92%,transparent);mask-image:linear-gradient(transparent,#000 9%,#000 92%,transparent)}
-.tool-map.is-live ol{position:static;margin:0;padding:0;border:0;list-style:none;display:block;max-width:none}
-.tool-map.is-live li{position:static;border:0;margin:0;padding:0}
-.tool-map.is-live li>a{position:absolute;display:block;width:220px;min-height:0;padding:10px 12px;margin:-10px -12px;border:0;border-radius:12px;color:var(--ink);text-decoration:none;background:radial-gradient(closest-side,rgba(0,0,0,.9) 55%,rgba(0,0,0,0));transition:opacity .3s}
-.tool-map.is-live .learn-list__title{display:block;font-size:1.0625rem;font-weight:300;line-height:1.2;letter-spacing:-.005em;color:var(--ink)}
-.tool-map.is-live li>a.is-hub .learn-list__title{font-size:1.3125rem}
-.tool-map.is-live .learn-list__desc,.tool-map.is-live .learn-list__time{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-.tool-map.is-live li>a,.tool-map.is-live li>a:hover,.tool-map.is-live li>a .learn-list__title,.tool-map.is-live li>a:hover .learn-list__title{text-decoration:none!important;border-bottom:0}
-.tool-map.is-live li>a:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
-.tool-map.has-pick li>a:not(.is-on){opacity:.4}
-.tool-map.is-live{margin-top:-36px}
 @media (hover:none){.tool-map__hint{display:none}}
-@media (max-width:720px){.tool-map.is-live{height:660px;margin-top:0}.tool-map.is-live li>a{width:auto}.tool-map.is-live .learn-list__title{font-size:1rem}.tool-map.is-live li>a.is-hub .learn-list__title{font-size:1.125rem}}
+
+/* Tools: every section and its tools on one map (assets/tools-map.js). Until the script runs it is a nested list. */
+.tools-map ol{list-style:none;margin:0;padding:0}
+.tools-map>ol>li{padding:14px 0;border-top:1px solid var(--rule)}
+.tools-map__name{display:block;font-size:1.0625rem;color:var(--ink)}
+.tools-map ol ol a{display:inline-block;padding:6px 0;color:var(--ink-2);text-decoration:none}
+.tools-map.is-live{position:relative;height:940px;margin:-28px calc(50% - 50vw) 0;overflow:hidden}
+.tools-map.is-live canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;-webkit-mask-image:linear-gradient(transparent,#000 7%,#000 94%,transparent);mask-image:linear-gradient(transparent,#000 7%,#000 94%,transparent)}
+.tools-map.is-live>ol>li{position:static;padding:0;border:0}
+.tools-map.is-live .tools-map__name,.tools-map.is-live ol ol a{position:absolute;white-space:nowrap;line-height:1.2;transition:opacity .3s,color .3s}
+.tools-map.is-live .tools-map__name{font-size:1.125rem;font-weight:300;letter-spacing:-.005em;color:var(--ink);pointer-events:auto;cursor:default}
+.tools-map.is-live ol ol a{padding:4px 6px;margin:-4px -6px;font-size:.8125rem;color:var(--ink-2);text-decoration:none!important}
+.tools-map.is-live ol ol a:hover,.tools-map.is-live ol ol a:focus-visible,.tools-map.has-pick ol ol a.is-on{color:var(--ink)}
+.tools-map.is-live ol ol a:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+.tools-map.has-pick .tools-map__name:not(.is-on),.tools-map.has-pick ol ol a:not(.is-on){opacity:.35}
+.tools-map.is-live>ol{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none}
+.tools-map.is-live ol ol a{pointer-events:auto}
+.tools-map.is-zoom,.tools-map.is-zoom *{touch-action:none}
+.tools-map__touch{display:none}
+@media (hover:none){.tools-map__touch{display:inline}}
+@media (max-width:899px){.tools-map.is-live{margin-top:0}.tools-map.is-live .tools-map__name{font-size:1.3125rem}.tools-map.is-live ol ol a{font-size:1.125rem}}
