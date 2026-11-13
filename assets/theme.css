@@ -1,4 +1,5 @@
 @font-face{font-family:"Geist";src:url("fonts/geist-latin.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+@font-face{font-family:"Geist Mono";src:url("fonts/geist-mono-latin.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
 /* Andra Markets, new look: black ground, light Geist, type and hairlines only. Loaded after site.css. */
 :root,:root[data-theme="light"],:root[data-theme="dark"]{color-scheme:dark;
  --font:"Geist","Helvetica Neue",Arial,sans-serif;
@@ -303,3 +304,20 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .fdp .pa__text{margin-top:8px}
 @media(max-width:960px){.fd-cols{grid-template-columns:1fr}.fd-cols>*+*{border-top:1px solid var(--rule);margin-top:30px}.fd-kpis{grid-template-columns:1fr 1fr}.fd-cells{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.fd-wide{display:none}.fd-tab td.fd-x{width:auto}}
+
+/* Lenses: a tool's figure drawn as a field of fine lines (assets/lens.js), with small
+   monospaced read-outs. The monospaced face is for those read-outs only. */
+.lens{display:block;width:100%;touch-action:pan-y}
+.lens-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:0 24px}
+.lens-stats,.lens-read{margin:0;font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:.6875rem;line-height:1.6;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.lens-stats{margin-bottom:16px;text-align:right}
+.lens-read{min-height:1.6em;margin-top:10px}
+.lens-read b{font-weight:400;color:var(--ink)}
+.lens-read .mv{font:inherit}
+.lens-note{margin:10px 0 0;font-size:.8125rem;color:var(--ink-3);max-width:70ch}
+.lens-figs{margin-top:14px}
+.lens-figs summary{display:inline-flex;align-items:center;min-height:44px;font-size:.8125rem;color:var(--ink-2);cursor:pointer}
+.lens-figs summary:hover{color:var(--ink)}
+.lens-figs[open] summary{margin-bottom:6px}
+.fd-fan[hidden]{display:none}
+@media(max-width:720px){.lens-stats{text-align:left}}
