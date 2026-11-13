@@ -1706,7 +1706,7 @@ def tools_map_page():
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Tools</h1>
-      <p class="lede">{total} tools and simulators that run in your browser.<span class="tool-map__hint"> Drag a section where you like.</span></p>
+      <p class="lede">{total} tools and simulators that run in your browser.<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
     </header>
     <nav class="tools-map" aria-label="Tools"><ol>{groups}</ol></nav>
   </div>

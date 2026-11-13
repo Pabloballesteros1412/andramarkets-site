@@ -394,4 +394,9 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .tools-map.is-live ol ol a:hover,.tools-map.is-live ol ol a:focus-visible,.tools-map.has-pick ol ol a.is-on{color:var(--ink)}
 .tools-map.is-live ol ol a:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
 .tools-map.has-pick .tools-map__name:not(.is-on),.tools-map.has-pick ol ol a:not(.is-on){opacity:.35}
-@media (max-width:899px){.tools-map.is-live{margin-top:0}.tools-map.is-live .tools-map__name{font-size:1.0625rem}.tools-map.is-live ol ol a{font-size:.9375rem;white-space:normal;right:16px}}
+.tools-map.is-live>ol{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none}
+.tools-map.is-live ol ol a{pointer-events:auto}
+.tools-map.is-zoom,.tools-map.is-zoom *{touch-action:none}
+.tools-map__touch{display:none}
+@media (hover:none){.tools-map__touch{display:inline}}
+@media (max-width:899px){.tools-map.is-live{margin-top:0}.tools-map.is-live .tools-map__name{font-size:1.3125rem}.tools-map.is-live ol ol a{font-size:1.125rem}}
