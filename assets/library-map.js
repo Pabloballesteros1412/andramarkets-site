@@ -1,5 +1,5 @@
 /* Research Library: the reports as a map of light. The six topics are stars in a ring; each report
-   is a smaller star, brighter the newer it is, tied by a rope of fine strands to every topic it
+   is a smaller star, brighter the newer it is (the only points of light on the map are reports), tied by a rope of fine strands to every topic it
    is about, so a report on two topics sits between them. The page's own list is the source: this
    script reads its rows (title, date, topics, link) and draws them, and the list stays below for
    search and for readers without the picture. Pointing at a report shows what it is; a press opens
@@ -29,7 +29,6 @@
     if (tg.length === 1) tg[0].singles.push(r); return r;
   }).filter(function (r) { return r.tg.length && r.a; });
   T.forEach(function (t) { t.cnt.textContent = t.n; });
-  var DUST = []; for (var d0 = 0; d0 < 220; d0++) DUST.push({ x: rnd(), y: rnd(), s: 0.4 + rnd() * 1.2, a: 0.07 + rnd() * 0.26, v: 0.004 + rnd() * 0.01, ph: rnd() * 6.28 });
   var W = 0, H = 0, CW = 0, CH = 0, Z = 1, Z0 = 1, OX = 0, OY = 0, VW = 1000, VH = 1000, dpr = 1, narrow = false, LW = 1;
   var pick = null, hot = null, held = null, px = -1, py = -1, t0 = 0, intro = still ? 1 : 0;
   function view() {
@@ -41,9 +40,9 @@
     narrow = map.clientWidth < 900; if (narrow) { Z0 = map.clientWidth / VW; map.style.height = Math.round(VH * Z0) + "px"; } else map.style.height = "";
     CW = map.clientWidth; CH = map.clientHeight; dpr = Math.min(window.devicePixelRatio || 1, 2); cv.width = Math.round(CW * dpr); cv.height = Math.round(CH * dpr);
     if (narrow) { W = VW; H = VH; Z = Z0; } else { W = CW; H = CH; Z = 1; } OX = OY = 0;
-    var rx = Math.min(W * 0.37, 520), ry = H * 0.36, cx0 = W / 2, cy0 = H / 2;
+    var rx = Math.min(W * 0.37, 520), ry = narrow ? H * 0.36 : Math.min(H * 0.27, 300), cx0 = W / 2, cy0 = narrow ? H / 2 : H * 0.6; // on a wide screen the title sits over the top of the picture
     T.forEach(function (t) { t.x = cx0 + Math.cos(t.a) * rx; t.y = cy0 + Math.sin(t.a) * ry; t.r = (narrow ? 15 : 11) + Math.sqrt(t.n) * 0.9;
-      var s = t.el.style, c = Math.cos(t.a), sn = Math.sin(t.a); s.left = (t.x + c * 56) + "px"; s.top = (t.y + sn * 40) + "px"; s.transform = "translate(" + (c > 0.3 ? "0" : c < -0.3 ? "-100%" : "-50%") + ",-50%)";
+      var s = t.el.style, c = Math.cos(t.a), sn = Math.sin(t.a); var mid = Math.abs(c) < 0.3; s.left = (t.x + (mid ? 34 : c * 56)) + "px"; s.top = (t.y + (mid ? sn * 10 : sn * 40)) + "px"; s.transform = "translate(" + (c < -0.3 ? "-100%" : "0") + ",-50%)";
       // a topic's own reports: a spiral round it, leaning toward the middle of the map
       t.singles.forEach(function (r, k) { var d = 54 + 25 * Math.sqrt(k + 0.4), a = k * 2.39996 + t.ph; r.x = t.x - c * 46 + Math.cos(a) * d * 1.15; r.y = t.y - sn * 46 + Math.sin(a) * d * 0.9; }); });
     // a report on several topics sits between them
@@ -62,7 +61,6 @@
   function draw(time) {
     if (!t0) t0 = time; var t = (time - t0) / 1000; if (intro < 1) intro = Math.min(1, t / 2.6); var e0 = 1 - Math.pow(1 - intro, 3);
     cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height); cx.setTransform(dpr * Z, 0, 0, dpr * Z, OX * dpr, OY * dpr); LW = Math.min(2.4, 1 / Z); cx.globalCompositeOperation = "lighter";
-    DUST.forEach(function (d) { var y = ((d.y - t * d.v) % 1 + 1) % 1; cx.fillStyle = "rgba(225,234,250," + (d.a * (0.6 + 0.4 * Math.sin(t + d.ph)) * e0).toFixed(3) + ")"; cx.fillRect(d.x * W, y * H, d.s * LW, d.s * LW); });
     // each report leaves its first topic and settles where it belongs
     R.forEach(function (r) { var fl = still ? 0 : 1, k = Math.max(0, Math.min(1, e0 * 1.5 - r.age * 0.5)), o = r.tg[0]; k = k * k * (3 - 2 * k);
       r.vx = o.x + (r.x - o.x) * k + Math.sin(t * 0.4 + r.ph) * 3 * fl; r.vy = o.y + (r.y - o.y) * k + Math.cos(t * 0.34 + r.ph * 1.6) * 3 * fl; r.k = k; });
@@ -74,15 +72,15 @@
         cx.lineWidth = 0.5 * LW;
         r.st[k].forEach(function (s) { var th = s.ph + (still ? 0 : t * s.sp * 0.5), o1 = wide * s.r * Math.sin(th), o2 = wide * s.r * Math.sin(th + 2.6 + s.tw);
           cx.strokeStyle = "rgba(226,236,252," + (base * (0.35 + 0.65 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; cx.beginPath(); cx.moveTo(tp.x, tp.y); cx.bezierCurveTo(p1[0] + nx * o1, p1[1] + ny * o1, p2[0] + nx * o2, p2[1] + ny * o2, r.vx, r.vy); cx.stroke(); });
-        if (still || !lit || intro < 1 || !(me || (ri + k) % 4 === 0)) return;
+        if (still || intro < 1 || !me) return;
         function at(f) { var u = 1 - f; return [u * u * u * tp.x + 3 * u * u * f * p1[0] + 3 * u * f * f * p2[0] + f * f * f * r.vx, u * u * u * tp.y + 3 * u * u * f * p1[1] + 3 * u * f * f * p2[1] + f * f * f * r.vy]; }
         var f = (t * (me ? 0.5 : 0.16) + r.ph + k * 0.4) % 1; cx.lineCap = "round";
         for (var q = 0; q < 10; q++) { var f0 = f - q * 0.014, f1 = f - (q + 1) * 0.014; if (f1 < 0) break; var a0 = at(f0), a1 = at(f1); cx.strokeStyle = "rgba(240,246,255," + ((1 - q / 10) * (me ? 0.9 : 0.55)).toFixed(3) + ")"; cx.lineWidth = (me ? 1.6 : 1.1) * LW * (1 - q / 12); cx.beginPath(); cx.moveTo(a0[0], a0[1]); cx.lineTo(a1[0], a1[1]); cx.stroke(); }
-        var hd = at(f); glow(hd[0], hd[1], me ? 10 : 6, me ? 0.95 : 0.7);
+        
       });
     });
     T.forEach(function (tp) { var a = ((!pick || pick === tp) && (!hot || hot.tg.indexOf(tp) >= 0) ? 1 : 0.35) * e0, beat = still ? 0.5 : 0.5 + 0.5 * Math.sin(t * 1.3 + tp.ph * 3), hotT = pick === tp ? 1.35 : 1, X = tp.x, Y = tp.y, R0 = tp.r;
-      glow(X, Y, R0 * (4.4 + 0.6 * beat) * hotT, 0.26 * a); glow(X, Y, R0 * 1.1, 0.9 * a); glow(X, Y, R0 * 0.42, a); flare(X, Y, R0 * (1 + 0.2 * beat) * hotT, a, 6, (still ? 0.3 : t * 0.07) + tp.ph, 1);
+      glow(X, Y, R0 * (3.6 + 0.5 * beat) * hotT, 0.13 * a); cx.strokeStyle = "rgba(242,243,243," + (0.75 * a).toFixed(3) + ")"; cx.lineWidth = 1 * LW; cx.beginPath(); cx.arc(X, Y, R0 * 0.8 * hotT, 0, 6.2832); cx.stroke();
       cx.lineWidth = 0.5 * LW; tp.kn.forEach(function (z) { var a0 = still ? z.ph : t * z.sp + z.ph, ct = Math.cos(z.tilt), sn = Math.sin(z.tilt), RR = R0 * (0.9 + z.r);
         cx.strokeStyle = "rgba(225,234,250," + (0.34 * a * (0.4 + 0.6 * Math.abs(Math.sin(z.ph + t * 0.3)))).toFixed(3) + ")"; cx.beginPath();
         for (var w = 0; w <= 16; w++) { var qq = a0 + w / 16 * z.len, ox = Math.cos(qq) * RR, oy = Math.sin(qq) * RR * z.sq, x2 = X + ox * ct - oy * sn, y2 = Y + ox * sn + oy * ct; if (w) cx.lineTo(x2, y2); else cx.moveTo(x2, y2); } cx.stroke(); }); });
@@ -131,4 +129,5 @@
   window.addEventListener("resize", function () { size(); once(); });
   if ("IntersectionObserver" in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) once(); }).observe(map);
   map.hidden = false; size(); sync();
+
 })();

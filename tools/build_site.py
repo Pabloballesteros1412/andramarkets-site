@@ -3090,15 +3090,16 @@ def library_page(library):
       <canvas role="img" aria-label="The reports as stars, each tied to the topics it is about. Every report is in the list below."></canvas>
       <div class="lib-map__names" aria-hidden="true"></div>
       <a class="lib-map__card" target="_blank" rel="noopener" type="application/pdf" tabindex="-1" aria-hidden="true"><b></b><span></span><em>Open the PDF</em></a>
+      <a class="lib-map__down" href="#lib-list">All reports, to search and filter</a>
     </div>""" if len(library) >= 3 else "")
-    body = f"""<main id="main" class="page lib">
+    body = f"""<main id="main" class="page lib{" has-map" if lib_map else ""}">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Research Library</h1>
-      <p class="lede">Weekly market reviews and research from Andra Markets: longer than the daily note, written to be kept. Each report opens as its PDF.</p>
+      <p class="lede">{"Every point of light is a report. Press one to open its PDF." if lib_map else "Weekly market reviews and research from Andra Markets: longer than the daily note, written to be kept. Each report opens as its PDF."}</p>
     </header>
     {lib_map}
-    <p class="lib-count">{"".join(f"<span>{c}</span>" for c in counts) if library else ""}<span>Looking for the daily note? <a href="../reports/">All close notes</a></span></p>
+    <p class="lib-count" id="lib-list">{"".join(f"<span>{c}</span>" for c in counts) if library else ""}<span>Looking for the daily note? <a href="../reports/">All close notes</a></span></p>
     {lead_html}
     {tools}
     {weekly_sec}
