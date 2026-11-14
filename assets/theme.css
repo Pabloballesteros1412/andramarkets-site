@@ -386,7 +386,7 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 @media (max-width:899px){.tools-map.is-live{margin-top:0}.tools-map.is-live .tools-map__name{font-size:1.3125rem}.tools-map.is-live ol ol a{font-size:1.125rem}}
 
 /* Research Library: the reports as a map of light (assets/library-map.js), over the list it is drawn from. */
-.lib-map{position:relative;height:100vh;min-height:720px;max-height:1100px;margin:0 calc(50% - 50vw) 8px;overflow:hidden;background:linear-gradient(rgba(0,0,0,0),#000 26%,#000 90%,rgba(0,0,0,0))}
+.lib-map{position:relative;height:100vh;min-height:720px;max-height:1100px;margin:0 calc(50% - 50vw) 8px;overflow:hidden}
 .lib.has-map .page__head{position:relative;z-index:1;border-bottom:0;padding-bottom:0;pointer-events:none}
 .lib.has-map .lib-map{margin-top:-15.5rem}
 .lib-map__down{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:1;display:inline-flex;align-items:center;gap:.5em;padding:10px 14px;font-size:.8125rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);text-decoration:none!important;transition:color .2s}
