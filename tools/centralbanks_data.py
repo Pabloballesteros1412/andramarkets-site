@@ -64,8 +64,9 @@ BOE_URL = ("https://www.bankofengland.co.uk/boeapps/database/_iadb-fromshowcolum
                                      "CSVF": "TN", "UsingCodes": "Y", "VPD": "Y", "VFD": "N"}))
 # The BIS data API (SDMX), then its bulk file. The API answers SDMX-CSV or
 # SDMX-ML; sdmx_series() reads either, so the request asks for CSV first.
-# Areas: US, XM (euro area), GB, JP; the page uses GB (as backup) and JP.
-BIS_API = ("https://stats.bis.org/api/v1/data/WS_CBPOL/D.US+XM+GB+JP/all?"
+# Every area the BIS publishes (about forty): the page uses GB (as backup) and JP for its four
+# banks, and all of them for the world map and table.
+BIS_API = ("https://stats.bis.org/api/v1/data/WS_CBPOL/D./all?"
            + urllib.parse.urlencode({"startPeriod": START.isoformat(), "detail": "dataonly"}))
 BIS_URLS = [BIS_API + "&format=csv", BIS_API, "https://data.bis.org/static/bulk/WS_CBPOL_csv_flat.zip"]
 BIS_ACCEPT = ("application/vnd.sdmx.data+csv;version=1.0.0, text/csv;q=0.9, "
@@ -234,6 +235,44 @@ def record(rows, source, asof, extra=None):
     return rec
 
 
+# Every central bank the BIS follows: area code -> (economy, region). A series the BIS has stopped
+# updating (Croatia, in the euro since 2023; Argentina while its figure is stale) is left out by
+# its date, not by name.
+WORLD = {
+    "US": ("United States", "americas"), "CA": ("Canada", "americas"), "MX": ("Mexico", "americas"),
+    "BR": ("Brazil", "americas"), "AR": ("Argentina", "americas"), "CL": ("Chile", "americas"),
+    "CO": ("Colombia", "americas"), "PE": ("Peru", "americas"),
+    "XM": ("Euro area", "europe"), "GB": ("United Kingdom", "europe"), "CH": ("Switzerland", "europe"),
+    "SE": ("Sweden", "europe"), "NO": ("Norway", "europe"), "DK": ("Denmark", "europe"), "IS": ("Iceland", "europe"),
+    "PL": ("Poland", "europe"), "CZ": ("Czechia", "europe"), "HU": ("Hungary", "europe"), "RO": ("Romania", "europe"),
+    "RS": ("Serbia", "europe"), "MK": ("North Macedonia", "europe"), "HR": ("Croatia", "europe"),
+    "RU": ("Russia", "europe"), "TR": ("Turkey", "europe"),
+    "JP": ("Japan", "asia"), "CN": ("China", "asia"), "HK": ("Hong Kong", "asia"), "KR": ("South Korea", "asia"),
+    "IN": ("India", "asia"), "ID": ("Indonesia", "asia"), "MY": ("Malaysia", "asia"), "TH": ("Thailand", "asia"),
+    "PH": ("Philippines", "asia"), "AU": ("Australia", "asia"), "NZ": ("New Zealand", "asia"),
+    "IL": ("Israel", "mea"), "SA": ("Saudi Arabia", "mea"), "KW": ("Kuwait", "mea"), "MA": ("Morocco", "mea"),
+    "ZA": ("South Africa", "mea"),
+}
+WORLD_FRESH = 120  # days: an older last figure is a series the BIS no longer keeps
+
+
+def r_world():
+    """Every bank's level, last move and count of rises and cuts since 2015, from the BIS."""
+    data, today, out = bis(), today_ny(), {}
+    for code, (name, region) in WORLD.items():
+        rows = data.get(code) or []
+        if len(rows) < 2 or (today - rows[-1][0]).days > WORLD_FRESH:
+            continue
+        st = steps(rows)
+        ups = sum(1 for a, b in zip(st, st[1:]) if b[1] > a[1])
+        out[code] = {"name": name, "region": region, "level": round(rows[-1][1], 4), "last_move": last_move(rows),
+                     "ups": ups, "cuts": len(st) - 1 - ups, "asof": iso(rows[-1][0])}
+    if len(out) < 20:
+        raise ValueError(f"only {len(out)} banks with a recent figure")
+    return {"banks": out, "source": "BIS central bank policy rates (WS_CBPOL)", "asof": max(b["asof"] for b in out.values()),
+            "fetched": now_utc().isoformat(timespec="seconds")}
+
+
 # Banks ----------------------------------------------------------------------------
 
 def r_fed():
@@ -277,7 +316,7 @@ BIS_CACHE = {}
 
 
 def bis():
-    """{area: [(date, value)]} for the four areas, read once per run."""
+    """{area: [(date, value)]} for every area the BIS publishes, read once per run."""
     if "data" in BIS_CACHE:
         return BIS_CACHE["data"]
     if "error" in BIS_CACHE:
@@ -384,6 +423,8 @@ def main():
             return {"dates": fn(), "source": src["name"], "url": src["url"], "fetched": now_utc().isoformat(timespec="seconds")}
         if run(meetings, "meetings", key, block):
             print(f"meetings {key}: {len(meetings[key]['dates'])} from {meetings[key]['source']}")
+    if run(data, "world", "world", r_world):
+        print(f"world: {len(data['world']['banks'])} banks as of {data['world']['asof']}")
     data["updated"] = now_utc().isoformat(timespec="seconds")
     CACHE.parent.mkdir(parents=True, exist_ok=True)
     CACHE.write_text(json.dumps(data, separators=(",", ":")), encoding="utf-8")
