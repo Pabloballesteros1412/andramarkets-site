@@ -282,7 +282,7 @@
 
   // The menu's groups (owner-approved, 31 Oct 2026): above 960px each button opens its
   // panel under the header, one at a time. A click outside, Escape or a link closes it.
-  var groupBtns = document.querySelectorAll(".nav__btn");
+  var groupBtns = document.querySelectorAll("button.nav__btn"); // Tools is a plain link to its map, not a group
   function closeGroups(except) {
     var any = false;
     groupBtns.forEach(function (b) {

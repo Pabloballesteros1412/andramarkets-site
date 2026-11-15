@@ -1160,7 +1160,8 @@ def page(notes, cal):
     groups = "".join(
         f'<section class="sec sec--l" id="{key}" data-shape="{i + 1}"><div class="sec__in"><h2>{name}</h2>'
         f'<p class="copy">{HOME_COPY[key]}</p><ul class="links">'
-        + "".join(f'<li><a href="{href}">{label}</a></li>' for label, href, _ in links) + "</ul></div></section>\n"
+        + "".join(f'<li><a href="{href}">{label}</a></li>' for label, href, _ in
+                  ((("All tools, on one map", "tools-map/", ""),) if key == "tools" else links)) + "</ul></div></section>\n"
         for i, (key, name, _, links) in enumerate(NAV_GROUPS))
     menu = "".join(f'<a href="#{key}">{name}</a>' for key, name, _, _ in NAV_GROUPS)
     words = " ".join(f'<span class="w">{w}</span>' for w in
@@ -1427,6 +1428,10 @@ def nav_chart(href):
 def nav_menu(base):
     groups = []
     for key, name, intro, links in NAV_GROUPS:
+        if key == "tools":
+            # Tools has no panel: its sections and tools are all on the Tools map (owner, 15 Nov 2026).
+            groups.append(f'<div class="nav__group"><a class="nav__btn" href="{base}tools-map/">{name}</a></div>')
+            continue
         items = "".join(
             f'<li style="--k:{k}"><a href="{base}{href}">{nav_chart(href)}<span class="nav__name"><span class="nav__label">{label}</span>{icon("arrow-right")}</span>'
             f'<span class="nav__sub">{sub}</span></a></li>' for k, (label, href, sub) in enumerate(links))

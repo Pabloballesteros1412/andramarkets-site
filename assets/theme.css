@@ -431,3 +431,6 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .cb-map.is-zoom,.cb-map.is-zoom *{touch-action:none}
 .cb-tab tr.is-found>*{background:rgba(242,243,243,.16);transition:background .4s}
 @media (max-width:899px){.cb-map{height:auto;min-height:0;max-height:none;margin-top:8px}.cb.has-map .dd__head>:not(.cb-map){pointer-events:auto}.cb-map .lib-map__down{display:none}.cb-map__bank b{font-size:1rem}.cb-map__bank i{font-size:.8125rem}.cb-map__region{font-size:1rem}}
+
+/* Tools in the header is a link to the Tools map, with no panel of its own. */
+a.nav__btn{display:inline-flex}
