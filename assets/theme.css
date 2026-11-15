@@ -434,3 +434,10 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 
 /* Tools in the header is a link to the Tools map, with no panel of its own. */
 a.nav__btn{display:inline-flex}
+
+/* Market history: its episodes on the same rim map as Central banks. */
+.mh.has-map .page__head{border-bottom:0;padding-bottom:0}
+.mh.has-map .page__head>:not(.cb-map){position:relative;z-index:1;pointer-events:none}
+.mh.has-map .page__head .lede,.mh.has-map .page__head .note__meta{display:none}
+.mh-map .cb-map__card{font-size:.8125rem;color:var(--ink)}
+@media (max-width:899px){.mh.has-map .page__head>:not(.cb-map){pointer-events:auto}}
