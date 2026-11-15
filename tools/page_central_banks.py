@@ -62,6 +62,9 @@ def from_chart(st):
     return [[CHART_FROM, at]] + [p for p in st if p[0] > CHART_FROM]
 
 
+WORLD_REGIONS = [("americas", "Americas"), ("europe", "Europe"), ("asia", "Asia and Pacific"), ("mea", "Middle East and Africa")]
+
+
 def chart_payload(rates):
     banks = []
     for key, short, *_ in BANKS:
@@ -121,6 +124,44 @@ def pages(site):
     now_p = site.fr_panel("cb-now", "Policy rates now",
                           "Each bank's policy rate, its last change and the day of its next decision.",
                           table, now_src, save=False)
+    # Every bank the BIS follows: a table, and the map of light drawn from it (assets/banks-map.js).
+    world = (data.get("world") or {}).get("banks") or {}
+    world_p = cb_map = ""
+    if len(world) >= 8:
+        wrows = ""
+        for g, gname in WORLD_REGIONS:
+            part = sorted(((c, b) for c, b in world.items() if b["region"] == g), key=lambda x: x[1]["name"])
+            if not part:
+                continue
+            wrows += f'<tr class="fx-tab__group"><th scope="rowgroup" colspan="4">{gname}</th></tr>'
+            for code, b in part:
+                # the BIS gives the Fed's rate as the middle of its target range
+                level = (f'{b["level"] - 0.125:.2f} to {b["level"] + 0.125:.2f}%' if code == "US" else f'{b["level"]:.2f}%')
+                lm, asof = b.get("last_move"), dt.date.fromisoformat(b["asof"])
+                when = dt.date.fromisoformat(lm["date"]) if lm else None
+                note = (f'{b["ups"]} rise{"" if b["ups"] == 1 else "s"} and {b["cuts"]} cut{"" if b["cuts"] == 1 else "s"} since 2015. '
+                        f'As of {site.day_med(asof)}.')
+                attrs = (f'data-cb="{code}" data-region="{g}" data-name="{site.esc(b["name"])}" data-level="{level}" '
+                         f'data-note="{site.esc(note)}"'
+                         + (f' data-bp="{lm["bp"]:g}" data-when="{lm["date"]}" data-month="{when:%b %Y}"' if lm else ""))
+                mv_ = (f'{move_text(site, lm["bp"])}<span class="cb-sub">{site.day_med(when)}</span>' if lm else pending)
+                wrows += (f'<tr id="cb-w-{code.lower()}" {attrs}><th scope="row">{site.esc(b["name"])}</th>'
+                          f'<td data-l="Policy rate">{level}</td><td data-l="Last move">{mv_}</td>'
+                          f'<td data-l="Since 2015">{b["ups"]} up, {b["cuts"]} down</td></tr>')
+        wsrc = data["world"]
+        wtable = ('<div class="cb-wrap"><table class="cb-tab cb-tab--world"><caption class="visually-hidden">Policy rate and last move of every central bank the BIS follows</caption>'
+                  '<thead><tr><th scope="col">Economy</th><th scope="col">Policy rate</th><th scope="col">Last move</th>'
+                  f'<th scope="col">Since 2015</th></tr></thead><tbody>{wrows}</tbody></table></div>')
+        world_p = site.fr_panel("cb-world", f"{len(world)} central banks",
+                                "Every central bank the BIS follows: its policy rate, its last change, and how often it has raised and cut since 2015.",
+                                wtable, f'{site.esc(wsrc["source"])}, as of {site.day_med(dt.date.fromisoformat(wsrc["asof"]))}. '
+                                "The Fed's rate is shown as its target range; the BIS records the middle of it.", save=False)
+        cb_map = f"""<div class="cb-map" hidden>
+      <canvas role="img" aria-label="A map of {len(world)} central banks, each tied to its region, with its policy rate and last move. Every figure is in the table below."></canvas>
+      <div class="cb-map__names" aria-hidden="true"></div>
+      <p class="cb-map__card" aria-hidden="true"></p>
+      <a class="lib-map__down" href="#cb-now">The rates, the chart and every bank</a>
+    </div>"""
     payload = chart_payload(rates)
     if payload["banks"]:
         asof = max(b["asof"] for b in payload["banks"])
@@ -136,15 +177,16 @@ def pages(site):
     stamps = [x["fetched"] for grp in ("rates", "meetings") for x in (data.get(grp) or {}).values() if x.get("fetched")]
     updated = f"Updated {site.et_stamp(max(stamps))}" if stamps else "Data pending"
     blob = json.dumps(payload, separators=(",", ":")).replace("</", "<\\/")
-    body = f"""<main id="main" class="page dd fr cb">
+    body = f"""<main id="main" class="page dd fr cb{" has-map" if cb_map else ""}">
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
       <h1 class="page__title">Central banks</h1>
-      <p class="lede">The Fed, the ECB, the Bank of England and the Bank of Japan: each policy rate, its last move and the next decision, and the four rates since 2019.</p>
+      <p class="lede">{f"{len(world)} central banks: each policy rate and its last move." if cb_map else "The Fed, the ECB, the Bank of England and the Bank of Japan: each policy rate, its last move and the next decision, and the four rates since 2019."}</p>
       <p class="note__meta"><span>Federal Reserve, ECB, Bank of England, BIS, FRED</span><span>{updated}</span><span>Refreshed each weekday</span></p>
+      {cb_map}
     </header>
     <div class="dd__main fr__main">
-      {now_p}{chart_p}
+      {now_p}{chart_p}{world_p}
     </div>
     <div class="page__body dd__text">
       <section aria-labelledby="cb-how"><h2 id="cb-how">How to read it</h2><p>Each bank sets one rate that steers what banks pay to borrow overnight. The Fed sets a target range for the federal funds rate. The ECB steers through its deposit facility rate, the rate it pays on banks' overnight deposits. The Bank of England sets Bank Rate. The Bank of Japan has targeted the overnight call rate since March 2024; from 2016 until then it charged −0.1% on part of the balances banks hold with it.</p><p>A move is the change from the level before, in basis points: one basis point is 0.01 percentage point. Its date is the day the new rate took effect, as each series records it: the day after the decision for the Fed, usually the following Wednesday for the ECB, the day of the decision for the Bank of England.</p></section>
@@ -157,4 +199,4 @@ def pages(site):
         title="Central banks: Andra Markets",
         desc="The policy rates of the Fed, the ECB, the Bank of England and the Bank of Japan: the latest level, the last "
              "move, the next meeting and the four rates since 2019. By Andra Markets.",
-        body=body, home="../", base="../", path="central-banks/", scripts=("centralbanks.js",))}
+        body=body, home="../", base="../", path="central-banks/", scripts=("centralbanks.js",) + (("banks-map.js",) if cb_map else ()))}
