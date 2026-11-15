@@ -33,9 +33,6 @@ MEASURE = {
 }
 MEASURED_AS = ("the Great Depression from the 1929 peak, Sputnik and the 1957 recession from the 1956 high, "
                "and the Volcker squeeze to the low of August 1982")
-# The map's four eras: (key, name, first year, last year).
-ERAS = [("e1", "1928 to 1949", 1928, 1949), ("e2", "1950 to 1979", 1950, 1979), ("e3", "1980 to 1999", 1980, 1999),
-        ("e4", "2000 to today", 2000, 9999)]
 CHART_POINTS = 640      # closes sent to the browser per episode chart (extremes always kept)
 OVERVIEW_POINTS = 1400  # for the chart of the whole history
 
@@ -250,28 +247,14 @@ def index_page(site, eps, rows, ms):
                    f'<span class="mh-tl__fall">{pct(site, m["fall"])}</span>')
         else:
             fig = '<span class="mh-tl__bar" aria-hidden="true"></span><span class="mh-tl__fall mh-tl__fall--pending">Data pending</span>'
-        era = next(k for k, _, a, b in ERAS if a <= int(e["start"][:4]) <= b)
-        rim = (f' data-mh-ep data-region="{era}" data-name="{e["years"]}" data-href="{e["slug"]}/" '
-               f'data-note="{site.esc(e["title"])}"'
-               + (f' data-fall="{site.signed(m["fall"] * 100, 1, "%")}" data-hot="{(m["fall"] / deepest if deepest < 0 else 0):.3f}"' if m else ' data-hot="0.1"'))
-        items += (f'<li{rim}><a href="{e["slug"]}/"><span class="mh-tl__years">{e["years"]}</span>'
+        items += (f'<li><a href="{e["slug"]}/"><span class="mh-tl__years">{e["years"]}</span>'
                   f'<span class="mh-tl__name">{site.esc(e["title"])}</span>{fig}{site.icon("arrow-right")}</a></li>')
-    # The episodes as a map of light (assets/banks-map.js, with this page's sides and rows): four
-    # eras in the middle, each episode on the rim with its years and its fall, deeper falls larger.
-    sides = [[k, name, ang, half] for (k, name, _, _), (ang, half) in zip(ERAS, ((-90, 34), (0, 50), (90, 34), (180, 48)))]
-    mh_map = (f"""<div class="cb-map mh-map" hidden data-rows="li[data-mh-ep]" data-sides='{json.dumps(sides)}'>
-      <canvas role="img" aria-label="A map of the {n} episodes since 1928, each tied to its era, with its years and its fall from peak to low. Every episode is in the list below."></canvas>
-      <div class="cb-map__names" aria-hidden="true"></div>
-      <p class="cb-map__card" aria-hidden="true"></p>
-      <a class="lib-map__down" href="#mh-over-t">The chart and every episode</a>
-    </div>""" if rows else "")
-    body = f"""<main id="main" class="page mh{" has-map" if mh_map else ""}">
+    body = f"""<main id="main" class="page mh">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Market history</h1>
       <p class="lede">What happened in each stage of the S&amp;P 500 since 1928: {n} episodes, each with its fall from peak to low, the months to the low and back to the peak, and what happened.</p>
       <p class="note__meta">{meta}</p>
-      {mh_map}
     </header>
     <section class="mh-over" aria-labelledby="mh-over-t">
       <h2 class="mh__h2" id="mh-over-t">The S&amp;P 500 since 1928</h2>
@@ -291,7 +274,7 @@ def index_page(site, eps, rows, ms):
                       desc=f"What happened in each stage of the S&amp;P 500 since 1928: {n} episodes from the great crash "
                            "to today, each with its fall from peak to low and the time it took to recover.",
                       body=body, home="../", base="../", path="market-history/",
-                      scripts=("market-history.js", "banks-map.js") if rows else ())
+                      scripts=("market-history.js",) if rows else ())
 
 
 def sim_start(ep):

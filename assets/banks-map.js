@@ -1,6 +1,4 @@
-/* A map of light with its items on the rim, used by Central banks and by Market history (which
-   passes its own sides, rows and labels through data attributes on the map's element).
-   Central banks: every bank the page lists, on one map of light. Four regions are knots in the
+/* Central banks: every bank the page lists, on one map of light. Four regions are knots in the
    middle, joined by ropes of fine strands; each central bank is a smaller knot on the rim, tied to
    its region, with its economy, its policy rate and its last move written beside it. A bank that
    moved lately burns brighter. The page's own tables are the source: this script reads their rows
@@ -9,7 +7,7 @@
    the map is drawn whole, two fingers enlarge it and one finger moves it once enlarged. */
 (function () {
   var map = document.querySelector(".cb-map"); if (!map) return;
-  var rows = [].slice.call(document.querySelectorAll(map.getAttribute("data-rows") || "tr[data-cb]")); if (rows.length < 8) return;
+  var rows = [].slice.call(document.querySelectorAll("tr[data-cb]")); if (rows.length < 8) return;
   var cv = map.querySelector("canvas"), cx = cv.getContext("2d"), layer = map.querySelector(".cb-map__names"), card = map.querySelector(".cb-map__card"); if (!cx) return;
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var seed = 8; function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
@@ -17,8 +15,6 @@
   function orbits(n) { var a = []; for (var i = 0; i < n; i++) a.push({ tilt: rnd() * 3.14, sq: 0.25 + rnd() * 0.75, r: 0.6 + rnd() * 0.7, sp: (rnd() < 0.5 ? -1 : 1) * (0.2 + rnd() * 0.5), ph: rnd() * 6.28, len: 2.2 + rnd() * 3.2 }); return a; }
   // the four sides of the map: which region sits on which, the arc its banks take, and its knot
   var SIDES = [["americas", "Americas", -90, 25], ["europe", "Europe", 0, 55], ["mea", "Middle East and Africa", 90, 24], ["asia", "Asia and Pacific", 180, 50]];
-  try { if (map.getAttribute("data-sides")) SIDES = JSON.parse(map.getAttribute("data-sides")); } catch (err) {}
-  var ROWS3 = map.getAttribute("data-stagger") === "3";
   var G = [], byK = {};
   SIDES.forEach(function (s) { var el = document.createElement("span"); el.className = "cb-map__region"; el.textContent = s[1]; layer.appendChild(el);
     var g = { k: s[0], el: el, mid: s[2] * Math.PI / 180, half: s[3] * Math.PI / 180, r: 13, ph: rnd() * 6.28, kn: orbits(8), banks: [] }; G.push(g); byK[s[0]] = g; });
@@ -26,11 +22,10 @@
   var B = rows.map(function (tr) { var g = byK[tr.getAttribute("data-region")]; if (!g) return null;
     var bp = parseFloat(tr.getAttribute("data-bp")), when = tr.getAttribute("data-when"), age = when ? (NOW - Date.parse(when)) / 864e5 : 999;
     var el = document.createElement("span"); el.className = "cb-map__bank";
-    el.innerHTML = "<b></b><i></i>"; el.firstChild.textContent = (tr.getAttribute("data-name") + " " + (tr.getAttribute("data-level") || "")).trim();
-    var fall = tr.getAttribute("data-fall"); if (fall) { var fm = document.createElement("em"); fm.className = "mv mv--" + (fall.charAt(0) === "+" ? "up" : "down"); fm.textContent = fall; el.lastChild.appendChild(fm); }
+    el.innerHTML = "<b></b><i></i>"; el.firstChild.textContent = tr.getAttribute("data-name") + " " + tr.getAttribute("data-level");
     if (!isNaN(bp)) { var m = document.createElement("em"); m.className = "mv mv--" + (bp >= 0 ? "up" : "down"); m.textContent = (bp >= 0 ? "+" : "−") + Math.abs(bp) + " bp"; el.lastChild.appendChild(m); var mo = document.createElement("u"); mo.textContent = " " + tr.getAttribute("data-month"); el.lastChild.appendChild(mo); }
     layer.appendChild(el);
-    var b = { g: g, tr: tr, el: el, name: tr.getAttribute("data-name"), hot: tr.hasAttribute("data-hot") ? +tr.getAttribute("data-hot") : Math.max(0, 1 - age / 240), r: 5, ph: rnd() * 6.28, kn: orbits(3), st: strands(22) }; g.banks.push(b); return b; }).filter(Boolean);
+    var b = { g: g, tr: tr, el: el, name: tr.getAttribute("data-name"), hot: Math.max(0, 1 - age / 240), r: 5, ph: rnd() * 6.28, kn: orbits(3), st: strands(22) }; g.banks.push(b); return b; }).filter(Boolean);
   G = G.filter(function (g) { return g.banks.length; }); var NG = G.length; if (NG < 2) return;
   var RING = G.map(function (g, i) { return { a: g, b: G[(i + 1) % NG], st: strands(70) }; });
   var ALL = G.concat(B);
@@ -51,8 +46,8 @@
       var gs = g.el.style; gs.left = (g.x - c * 30) + "px"; gs.top = (g.y - s * 34 - (s ? 0 : 30)) + "px"; gs.transform = "translate(-50%,-50%)";
       g.banks.forEach(function (k, j) {
         var th = g.mid + (n > 1 ? (j / (n - 1) - 0.5) * 2 : 0) * g.half * (Math.abs(s) > 0.5 ? 1 : 1), kc = Math.cos(th), ks = Math.sin(th);
-        k.x = x0 + kc * a; k.y = y0 + ks * b; k.r = (narrow ? 7 : 5) * (tr0(k) ? 0.7 + 0.9 * k.hot : 1);
-        var st = k.el.style, side = Math.abs(c) > 0.5, up = s < -0.5, off = side || n < 5 ? 0 : ROWS3 ? (j % 3) * 30 : (j % 2 ? 34 : 0); k.el.classList.toggle("is-side", side);
+        k.x = x0 + kc * a; k.y = y0 + ks * b; k.r = narrow ? 7 : 5;
+        var st = k.el.style, side = Math.abs(c) > 0.5, up = s < -0.5, off = side || n < 5 ? 0 : (j % 2 ? 34 : 0); k.el.classList.toggle("is-side", side);
         if (side) { st.left = (k.x + c * 16) + "px"; st.top = k.y + "px"; st.transform = "translate(" + (c > 0 ? "0" : "-100%") + ",-50%)"; st.textAlign = c > 0 ? "left" : "right"; }
         else { st.left = k.x + "px"; st.top = (k.y + (up ? -1 : 1) * (26 + off)) + "px"; st.transform = "translate(-50%,-50%)"; st.textAlign = "center"; }
         k.c = [(g.x + k.x) / 2 + (k.y - g.y) * 0.1 * (j % 2 ? 1 : -1), (g.y + k.y) / 2 - (k.x - g.x) * 0.1 * (j % 2 ? 1 : -1)];
@@ -61,7 +56,6 @@
     RING.forEach(function (e) { var mx = (e.a.x + e.b.x) / 2, my = (e.a.y + e.b.y) / 2; e.c = [mx + (x0 - mx) * 0.35, my + (y0 - my) * 0.35]; });
     view();
   }
-  function tr0(k) { return k.tr.hasAttribute("data-hot"); }
   function glow(x, y, r, a) { var g = cx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "rgba(255,255,255," + a + ")"); g.addColorStop(0.25, "rgba(215,230,255," + a * 0.45 + ")"); g.addColorStop(1, "rgba(180,210,255,0)"); cx.fillStyle = g; cx.fillRect(x - r, y - r, r * 2, r * 2); }
   function push(x, y) { if (px < 0) return [x, y]; var dx = x - px, dy = y - py, d = Math.hypot(dx, dy) || 1, f = Math.max(0, 1 - d / 160); f = f * f * 34; return [x + dx / d * f, y + dy / d * f]; }
   function lit(n) { return !pick || n === pick || n.g === pick || (!!pick.g && pick.g === n); }
@@ -108,7 +102,7 @@
   function set(n) { if (n === pick) return; pick = n; map.classList.toggle("has-pick", !!n); ALL.forEach(function (m) { m.el.classList.toggle("is-on", !n || lit(m)); }); fill(); once(); }
   function near(x, y) { var b = null, k = narrow ? Math.max(1, 0.7 / Z) : 1, bd = 22 * k; B.forEach(function (q) { var d = Math.hypot(q.x - x, q.y - y); if (d < bd) { bd = d; b = q; } }); if (b) return b; G.forEach(function (q) { if (Math.hypot(q.x - x, q.y - y) < 36 * k) b = q; }); return b; }
   function at(e) { var b = map.getBoundingClientRect(); return [(e.clientX - b.left - OX) / Z, (e.clientY - b.top - OY) / Z, e.clientX - b.left, e.clientY - b.top]; }
-  function go(k) { var tr = k.tr; if (tr.getAttribute("data-href")) { window.location.href = tr.getAttribute("data-href"); return; } tr.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "center" }); tr.classList.add("is-found"); window.setTimeout(function () { tr.classList.remove("is-found"); }, 3600); }
+  function go(k) { var tr = k.tr; tr.scrollIntoView({ behavior: still ? "auto" : "smooth", block: "center" }); tr.classList.add("is-found"); window.setTimeout(function () { tr.classList.remove("is-found"); }, 3600); }
   var TP = {}, pin = null, moved = 0;
   function fingers() { var a = []; for (var k in TP) a.push(TP[k]); return a; }
   map.addEventListener("pointerdown", function (e) { if (e.pointerType !== "touch") return; var p = at(e); TP[e.pointerId] = { x: p[2], y: p[3], x0: p[2], y0: p[3] }; var f = fingers(); moved = 0;
