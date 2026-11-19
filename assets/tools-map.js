@@ -14,6 +14,9 @@
   var cv = document.createElement("canvas"), cx = cv.getContext("2d"); if (!cx) return;
   cv.setAttribute("aria-hidden", "true"); map.insertBefore(cv, map.firstChild); map.classList.add("is-live");
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // the light's colour: cool white unless the page names its own (data-tint: the strands, the glow, its edge)
+  var C1 = "226,236,252", C2 = "215,230,255", C3 = "190,215,255";
+  try { var tint = JSON.parse(map.getAttribute("data-tint") || "null"); if (tint && tint.length === 3) { C1 = tint[0]; C2 = tint[1]; C3 = tint[2]; } } catch (err) {}
   var seed = 9; function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
   function strands(n) { var a = []; for (var i = 0; i < n; i++) a.push({ r: Math.sqrt(rnd()), tw: (rnd() - 0.5) * 1.4, ph: rnd() * 6.28, sp: 0.5 + rnd() * 0.7 }); return a; }
   function orbits(n) { var a = []; for (var i = 0; i < n; i++) a.push({ tilt: rnd() * 3.14, sq: 0.25 + rnd() * 0.75, r: 0.55 + rnd() * 0.6, sp: (rnd() < 0.5 ? -1 : 1) * (0.2 + rnd() * 0.6), ph: rnd() * 6.28, len: 2.2 + rnd() * 3.4 }); return a; }
@@ -62,7 +65,7 @@
       e.c = [mx - ox / ol * l * 0.16, my - oy / ol * l * 0.16]; });
   }
   var LW = 1;
-  function glow(x, y, r, a) { var g = cx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "rgba(255,255,255," + a + ")"); g.addColorStop(0.25, "rgba(215,230,255," + a * 0.45 + ")"); g.addColorStop(1, "rgba(180,210,255,0)"); cx.fillStyle = g; cx.fillRect(x - r, y - r, r * 2, r * 2); }
+  function glow(x, y, r, a) { var g = cx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "rgba(255,255,255," + a + ")"); g.addColorStop(0.25, "rgba(" + C2 + "," + a * 0.45 + ")"); g.addColorStop(1, "rgba(" + C3 + ",0)"); cx.fillStyle = g; cx.fillRect(x - r, y - r, r * 2, r * 2); }
   function push(x, y) { if (px < 0) return [x, y]; var dx = x - px, dy = y - py, d = Math.hypot(dx, dy) || 1, f = Math.max(0, 1 - d / 170); f = f * f * 40; return [x + dx / d * f, y + dy / d * f]; }
   function lit(n) { return !pick || n === pick || n.g === pick || (!!pick.g && pick.g === n); }
   // a rope from A to B bending through c: strands that cross over between its thirds, turning, with light along it
@@ -71,12 +74,12 @@
     var p1 = push(A.vx + (c[0] - A.x) * 2 / 3, A.vy + (c[1] - A.y) * 2 / 3), p2 = push(B.vx + (c[0] - B.x) * 2 / 3, B.vy + (c[1] - B.y) * 2 / 3);
     cx.lineWidth = 0.55 * LW;
     for (var q = 0; q < st.length * e0; q++) { var s = st[q], th = s.ph + (still ? 0 : t * s.sp * 0.5), o1 = wide * s.r * Math.sin(th), o2 = wide * s.r * Math.sin(th + 2.6 + s.tw);
-      cx.strokeStyle = "rgba(226,236,252," + (base * (0.3 + 0.7 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; cx.beginPath(); cx.moveTo(A.vx, A.vy); cx.bezierCurveTo(p1[0] + nx * o1, p1[1] + ny * o1, p2[0] + nx * o2, p2[1] + ny * o2, B.vx, B.vy); cx.stroke(); }
+      cx.strokeStyle = "rgba(" + C1 + "," + (base * (0.3 + 0.7 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; cx.beginPath(); cx.moveTo(A.vx, A.vy); cx.bezierCurveTo(p1[0] + nx * o1, p1[1] + ny * o1, p2[0] + nx * o2, p2[1] + ny * o2, B.vx, B.vy); cx.stroke(); }
     if (still || intro < 1 || !pulses) return;
     function at(f) { var u = 1 - f; return [u * u * u * A.vx + 3 * u * u * f * p1[0] + 3 * u * f * f * p2[0] + f * f * f * B.vx, u * u * u * A.vy + 3 * u * u * f * p1[1] + 3 * u * f * f * p2[1] + f * f * f * B.vy]; }
     cx.lineCap = "round";
     for (var u = 0; u < pulses; u++) { var f = (t * (0.1 + u * 0.03) + key * 0.37 + u * 0.41) % 1, back = u % 2;
-      for (var k = 0; k < 12; k++) { var f0 = f - k * 0.011, f1 = f - (k + 1) * 0.011; if (f1 < 0) break; var a0 = at(back ? 1 - f0 : f0), a1 = at(back ? 1 - f1 : f1); cx.strokeStyle = "rgba(240,246,255," + ((1 - k / 12) * 0.8 * Math.min(1, base * 5)).toFixed(3) + ")"; cx.lineWidth = (wide > 30 ? 1.8 : 1.2) * LW * (1 - k / 14); cx.beginPath(); cx.moveTo(a0[0], a0[1]); cx.lineTo(a1[0], a1[1]); cx.stroke(); }
+      for (var k = 0; k < 12; k++) { var f0 = f - k * 0.011, f1 = f - (k + 1) * 0.011; if (f1 < 0) break; var a0 = at(back ? 1 - f0 : f0), a1 = at(back ? 1 - f1 : f1); cx.strokeStyle = "rgba(" + C1 + "," + ((1 - k / 12) * 0.8 * Math.min(1, base * 5)).toFixed(3) + ")"; cx.lineWidth = (wide > 30 ? 1.8 : 1.2) * LW * (1 - k / 14); cx.beginPath(); cx.moveTo(a0[0], a0[1]); cx.lineTo(a1[0], a1[1]); cx.stroke(); }
       var hd = at(back ? 1 - f : f); glow(hd[0], hd[1], wide > 30 ? 13 : 8, Math.min(0.95, base * 5)); }
   }
   function knot(n, t, a) {
@@ -84,16 +87,16 @@
     glow(X, Y, R * (4.2 + 0.6 * beat) * hot, (big ? 0.26 : 0.2) * a); glow(X, Y, R * 1.1, 0.9 * a); glow(X, Y, R * 0.42, a);
     var rot = still ? 0.3 : t * 0.07 + n.ph, rays = big ? 6 : 4;
     for (var r0 = 0; r0 < rays; r0++) { var ang = rot + r0 * 6.2832 / rays, len = R * ((big ? r0 % 3 === 0 : r0 % 2 === 0) ? 4.4 + 1.2 * beat : 2.1 + 0.5 * beat) * hot, ex = X + Math.cos(ang) * len, ey = Y + Math.sin(ang) * len, g = cx.createLinearGradient(X, Y, ex, ey);
-      g.addColorStop(0, "rgba(255,255,255," + (0.85 * a).toFixed(3) + ")"); g.addColorStop(0.3, "rgba(215,230,255," + (0.3 * a).toFixed(3) + ")"); g.addColorStop(1, "rgba(200,220,255,0)"); cx.strokeStyle = g; cx.lineWidth = (big ? 1 : 0.7) * LW; cx.beginPath(); cx.moveTo(X, Y); cx.lineTo(ex, ey); cx.stroke(); }
+      g.addColorStop(0, "rgba(255,255,255," + (0.85 * a).toFixed(3) + ")"); g.addColorStop(0.3, "rgba(" + C2 + "," + (0.3 * a).toFixed(3) + ")"); g.addColorStop(1, "rgba(" + C3 + ",0)"); cx.strokeStyle = g; cx.lineWidth = (big ? 1 : 0.7) * LW; cx.beginPath(); cx.moveTo(X, Y); cx.lineTo(ex, ey); cx.stroke(); }
     cx.lineWidth = 0.5 * LW;
     n.kn.forEach(function (z) { var a0 = still ? z.ph : t * z.sp + z.ph, ct = Math.cos(z.tilt), sn = Math.sin(z.tilt), RR = R * (0.9 + z.r);
-      cx.strokeStyle = "rgba(225,234,250," + (0.34 * a * hot * (0.4 + 0.6 * Math.abs(Math.sin(z.ph + t * 0.3)))).toFixed(3) + ")"; cx.beginPath();
+      cx.strokeStyle = "rgba(" + C1 + "," + (0.34 * a * hot * (0.4 + 0.6 * Math.abs(Math.sin(z.ph + t * 0.3)))).toFixed(3) + ")"; cx.beginPath();
       for (var w = 0; w <= 16; w++) { var qq = a0 + w / 16 * z.len, ox = Math.cos(qq) * RR, oy = Math.sin(qq) * RR * z.sq, x2 = X + ox * ct - oy * sn, y2 = Y + ox * sn + oy * ct; if (w) cx.lineTo(x2, y2); else cx.moveTo(x2, y2); } cx.stroke(); });
   }
   function draw(time) {
     if (!t0) t0 = time; var t = (time - t0) / 1000; if (intro < 1) intro = Math.min(1, t / 2); var e0 = 1 - Math.pow(1 - intro, 3);
     cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height); cx.setTransform(dpr * Z, 0, 0, dpr * Z, OX * dpr, OY * dpr); LW = Math.min(2.4, 1 / Z); cx.globalCompositeOperation = "lighter";
-    DUST.forEach(function (d) { var y = ((d.y - t * d.v) % 1 + 1) % 1; cx.fillStyle = "rgba(225,234,250," + (d.a * (0.6 + 0.4 * Math.sin(t + d.ph)) * e0).toFixed(3) + ")"; cx.fillRect(d.x * W, y * H, d.s, d.s); });
+    DUST.forEach(function (d) { var y = ((d.y - t * d.v) % 1 + 1) % 1; cx.fillStyle = "rgba(" + C1 + "," + (d.a * (0.6 + 0.4 * Math.sin(t + d.ph)) * e0).toFixed(3) + ")"; cx.fillRect(d.x * W, y * H, d.s, d.s); });
     ALL.forEach(function (n) { var fl = still || n === grab || (n.g && n.g === grab) ? 0 : 1, k = n.g ? 3 : 5; n.vx = n.x + Math.sin(t * 0.42 + n.ph) * k * fl; n.vy = n.y + Math.cos(t * 0.36 + n.ph * 1.7) * k * fl; });
     RING.forEach(function (e, i) { var on = !pick || e.a === pick || e.b === pick || (pick.g && (pick.g === e.a || pick.g === e.b)); rope(e.a, e.b, e.c, e.st, Math.min(46, Math.hypot(e.b.x - e.a.x, e.b.y - e.a.y) * 0.1), (on ? (pick ? 0.3 : 0.19) : 0.04) * e0, t, e0, on ? 3 : 0, i); });
     G.forEach(function (g) { g.tools.forEach(function (tl, j) { var on = !pick || pick === g || pick === tl; rope(g, tl, tl.c, tl.st, 13, (on ? (pick ? 0.42 : 0.24) : 0.05) * e0, t, e0, on ? 1 : 0, g.i * 4 + j + 7); }); });

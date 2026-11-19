@@ -1750,7 +1750,7 @@ def careers_map_page():
       <h1 class="page__title">Careers</h1>
       <p class="lede">For students breaking into markets.<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
     </header>
-    <nav class="tools-map" data-page="careers" aria-label="Careers"><ol>{groups}</ol></nav>
+    <nav class="tools-map tools-map--blue" data-page="careers" data-tint='["120,185,255","60,140,255","30,100,255"]' aria-label="Careers"><ol>{groups}</ol></nav>
   </div>
 </main>"""
     return shell(title="Careers: Andra Markets", desc="For students breaking into markets: interview prep, a mock interview, the guide "
