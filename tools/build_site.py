@@ -1161,7 +1161,8 @@ def page(notes, cal):
         f'<section class="sec sec--l" id="{key}" data-shape="{i + 1}"><div class="sec__in"><h2>{name}</h2>'
         f'<p class="copy">{HOME_COPY[key]}</p><ul class="links">'
         + "".join(f'<li><a href="{href}">{label}</a></li>' for label, href, _ in
-                  ((("All tools, on one map", "tools-map/", ""),) if key == "tools" else links)) + "</ul></div></section>\n"
+                  ((("All tools, on one map", "tools-map/", ""),) if key == "tools"
+                   else (("Everything for a career in markets, on one map", "careers/", ""),) if key == "careers" else links)) + "</ul></div></section>\n"
         for i, (key, name, _, links) in enumerate(NAV_GROUPS))
     menu = "".join(f'<a href="#{key}">{name}</a>' for key, name, _, _ in NAV_GROUPS)
     words = " ".join(f'<span class="w">{w}</span>' for w in
@@ -1428,9 +1429,9 @@ def nav_chart(href):
 def nav_menu(base):
     groups = []
     for key, name, intro, links in NAV_GROUPS:
-        if key == "tools":
-            # Tools has no panel: its sections and tools are all on the Tools map (owner, 15 Nov 2026).
-            groups.append(f'<div class="nav__group"><a class="nav__btn" href="{base}tools-map/">{name}</a></div>')
+        if key in ("tools", "careers"):
+            # Tools and Careers have no panel: their sections are all on their map (owner, 15 and 19 Nov 2026).
+            groups.append(f'<div class="nav__group"><a class="nav__btn" href="{base}{"tools-map/" if key == "tools" else "careers/"}">{name}</a></div>')
             continue
         items = "".join(
             f'<li style="--k:{k}"><a href="{base}{href}">{nav_chart(href)}<span class="nav__name"><span class="nav__label">{label}</span>{icon("arrow-right")}</span>'
@@ -1711,6 +1712,50 @@ def tools_map_page():
     return shell(title="Tools: Andra Markets", desc=f"{total} interactive tools and simulators that run in your browser: options, bonds, "
                  "risk and portfolio, valuation and growth, market replays and strategy games. By Andra Markets.",
                  body=body, home="../", base="../", path="tools-map/", scripts=("tools-map.js",))
+
+
+# The Careers map (owner, 19 Nov 2026: "the same as Tools"): each section and the parts of it a
+# reader goes to, as (name, address from the site root). A part with a # that names a filter
+# arrives with that filter chosen (site.js).
+CAREERS_MAP = (
+    ("interview-prep", "Interview prep", "interview-prep/",
+     (("This week", "interview-prep/#ip-week"), ("Question bank", "interview-prep/#ip-bank"))),
+    ("interview-simulator", "Interview simulator", "interview-simulator/",
+     (("Mock interview", "interview-simulator/#isim"), ("What each track covers", "interview-simulator/#isim-cov"))),
+    ("break-into-wall-street", "Break into Wall Street", "break-into-wall-street/",
+     (("The roles", "break-into-wall-street/#pw-roles"), ("A one-page CV", "break-into-wall-street/#pw-cv"),
+      ("Networking", "break-into-wall-street/#pw-net"), ("Technical preparation", "break-into-wall-street/#pw-tech"),
+      ("Visas", "break-into-wall-street/#pw-visa"))),
+    ("recruiting-calendar", "Recruiting calendar", "recruiting-calendar/",
+     (("Summer internships", "recruiting-calendar/#summer-internship"), ("Early insight", "recruiting-calendar/#early-insight"),
+      ("Full-time", "recruiting-calendar/#full-time"), ("Off-cycle", "recruiting-calendar/#off-cycle"))),
+    ("firms", "Firms", "firms/",
+     (("Banks", "firms/#banks"), ("Boutiques", "firms/#boutiques"), ("Asset managers", "firms/#asset-managers"),
+      ("Hedge funds", "firms/#hedge-funds"), ("Trading and quant", "firms/#trading-and-quant"))),
+    ("application-tracker", "Application tracker", "application-tracker/",
+     (("To apply", "application-tracker/#at-h-toapply"), ("Applied", "application-tracker/#at-h-applied"),
+      ("Interview", "application-tracker/#at-h-interview"), ("Offer", "application-tracker/#at-h-offer"))),
+)
+
+
+def careers_map_page():
+    """Every Careers section and its parts on one map, drawn by the Tools map's script."""
+    groups = "".join(
+        f'<li data-key="{key}"><a class="tools-map__name" href="../{href}">{name}</a><ol>'
+        + "".join(f'<li><a href="../{h}">{label}</a></li>' for label, h in parts) + "</ol></li>"
+        for key, name, href, parts in CAREERS_MAP)
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Careers</h1>
+      <p class="lede">For students breaking into markets.<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
+    </header>
+    <nav class="tools-map" data-page="careers" aria-label="Careers"><ol>{groups}</ol></nav>
+  </div>
+</main>"""
+    return shell(title="Careers: Andra Markets", desc="For students breaking into markets: interview prep, a mock interview, the guide "
+                 "to breaking into Wall Street, the recruiting calendar, the firms that hire and an application tracker. By Andra Markets.",
+                 body=body, home="../", base="../", path="careers/", scripts=("tools-map.js",))
 
 
 LAB_TOOLS = [
@@ -5732,7 +5777,6 @@ MOVED = {
     "learn/earnings-season/": ("calendar/", "the economic calendar", _LEARNT),
     "learn/cpi-vs-pce/": ("dashboards/inflation-and-labour/", "Inflation and labour", _LEARNT),
     "learn/credit-spreads/": ("dashboards/credit-spreads/", "Credit spreads", _LEARNT),
-    "careers/": ("break-into-wall-street/", "Break into Wall Street", "This guide is now"),
     "break-into-wall-street/recruiting-calendar/": ("recruiting-calendar/", "the recruiting calendar", "This page moved to"),
 }
 
@@ -6550,6 +6594,8 @@ def main():
         (OUT / path / "index.html").write_text(moved_redirect(path, to, title, text))
     (OUT / "lab").mkdir(exist_ok=True)
     (OUT / "lab" / "index.html").write_text(lab_index())
+    (OUT / "careers").mkdir(exist_ok=True)
+    (OUT / "careers" / "index.html").write_text(careers_map_page())
     (OUT / "tools-map").mkdir(exist_ok=True)
     (OUT / "tools-map" / "index.html").write_text(tools_map_page())
     for _, theme, name, lede, slugs in TOOL_THEMES:  # the old section addresses send readers to the map

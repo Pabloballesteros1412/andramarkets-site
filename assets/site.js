@@ -943,4 +943,17 @@
       }
     });
   }
+
+})();
+
+// A link can arrive with a filter already chosen: firms/#boutiques presses the chip of that name.
+(function () {
+  function go() {
+    var want = decodeURIComponent(location.hash.slice(1)); if (!want || document.getElementById(want)) return;
+    function slug(t) { return t.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+    var chips = document.querySelectorAll("main .chip");
+    for (var i = 0; i < chips.length; i++) { var c = chips[i], t = c.firstChild && c.firstChild.nodeType === 3 ? c.firstChild.textContent : c.textContent; if (slug(t) === want) { c.click(); break; } }
+  }
+  // after every page script has wired its filters
+  window.addEventListener("load", function () { window.setTimeout(go, 0); });
 })();

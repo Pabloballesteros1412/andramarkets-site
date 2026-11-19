@@ -1,4 +1,6 @@
-/* Tools: every section and its tools on one map. A section is a knot of light; the six are joined
+/* Tools and Careers: every section and its parts on one map (each page passes its own nested list;
+   where a section's name is a link, a press on its knot opens it).
+   Tools: every section and its tools on one map. A section is a knot of light; the six are joined
    in a ring by ropes of fine strands, and each section's tools hang off it as smaller knots on
    shorter ropes, with light travelling along all of them. The nested list of links is the page's
    own markup: this script lays it out over a canvas, and without it the list stays a list. A
@@ -18,14 +20,14 @@
   // the knots: sections, and each section's tools
   var G = groups.map(function (li, i) {
     var g = { i: i, el: li.querySelector(":scope > .tools-map__name"), r: 13, ph: rnd() * 6.28, kn: orbits(8), tools: [] };
-    [].forEach.call(li.querySelectorAll("ol > li > a"), function (a, j) { g.tools.push({ g: g, j: j, el: a, r: 6.5, ph: rnd() * 6.28, kn: orbits(4), st: strands(26) }); });
+    [].forEach.call(li.querySelectorAll(":scope > ol > li > a"), function (a, j) { g.tools.push({ g: g, j: j, el: a, r: 6.5, ph: rnd() * 6.28, kn: orbits(4), st: strands(26) }); });
     return g;
   });
   var NG = G.length, RING = G.map(function (g, i) { return { a: g, b: G[(i + 1) % NG], st: strands(84) }; });
   var ALL = []; G.forEach(function (g) { ALL.push(g); g.tools.forEach(function (t) { ALL.push(t); }); });
   var DUST = []; for (var d0 = 0; d0 < 280; d0++) DUST.push({ x: rnd(), y: rnd(), s: 0.4 + rnd() * 1.3, a: 0.08 + rnd() * 0.3, v: 0.004 + rnd() * 0.012, ph: rnd() * 6.28 });
   var W = 0, H = 0, CW = 0, CH = 0, Z = 1, Z0 = 1, OX = 0, OY = 0, VW = 1040, VH = 1100, list = map.querySelector(":scope > ol"), dpr = 1, narrow = false, pick = null, grab = null, px = -1, py = -1, t0 = 0, intro = still ? 1 : 0;
-  var KEY = "andra-tool-map", saved = null; try { saved = (JSON.parse(localStorage.getItem(KEY) || "{}") || {}).all || null; } catch (err) {}
+  var KEY = "andra-tool-map", PAGE = map.getAttribute("data-page") || "all", saved = null; try { saved = (JSON.parse(localStorage.getItem(KEY) || "{}") || {})[PAGE] || null; } catch (err) {}
   function view() { // the list of names is moved and scaled with the picture
     if (narrow) { Z = Math.max(Z0, Math.min(Z0 * 4.5, Z)); OX = Math.min(0, Math.max(CW - VW * Z, OX)); OY = Math.min(0, Math.max(CH - VH * Z, OY)); }
     list.style.width = W + "px"; list.style.height = H + "px"; list.style.transform = narrow ? "translate(" + OX + "px," + OY + "px) scale(" + Z + ")" : "none";
@@ -122,16 +124,16 @@
     if (e.target !== cv) return; var n = hit(p[0], p[1]); cv.style.cursor = n ? (n.g ? "pointer" : "grab") : "default"; set(n); });
   function lift(e) {
     if (e.pointerType === "touch") { var me = TP[e.pointerId], was = fingers().length; delete TP[e.pointerId]; pin = null;
-      if (me && was === 1 && moved < 8 && me.t === cv && e.type === "pointerup") { var p = at(e), n = hit(p[0], p[1]); if (n && n.g) n.el.click(); }
+      if (me && was === 1 && moved < 8 && me.t === cv && e.type === "pointerup") { var p = at(e), n = hit(p[0], p[1]); if (n && (n.g || n.el.href)) n.el.click(); }
       fingers().forEach(function (o) { o.x0 = o.x; o.y0 = o.y; }); return; }
     if (!grab) return; var g0 = grab; grab = null; cv.style.cursor = "default";
-    if (moved <= 5) { if (g0.g) g0.el.click(); return; }
+    if (moved <= 5) { if (g0.g || g0.el.href) g0.el.click(); return; } // a press without a drag opens a tool, or a section that is a page of its own
     if (g0.g) return;
-    try { var all = JSON.parse(localStorage.getItem(KEY) || "{}") || {}, mine = all.all || {}, mode = narrow ? "n" : "w"; mine[mode] = G.map(function (g) { return [+g.fx.toFixed(4), +g.fy.toFixed(4)]; }); all.all = mine; localStorage.setItem(KEY, JSON.stringify(all)); saved = mine; } catch (err) {} once(); }
+    try { var all = JSON.parse(localStorage.getItem(KEY) || "{}") || {}, mine = all[PAGE] || {}, mode = narrow ? "n" : "w"; mine[mode] = G.map(function (g) { return [+g.fx.toFixed(4), +g.fy.toFixed(4)]; }); all[PAGE] = mine; localStorage.setItem(KEY, JSON.stringify(all)); saved = mine; } catch (err) {} once(); }
   map.addEventListener("pointerup", lift); map.addEventListener("pointercancel", lift);
   map.addEventListener("click", function (e) { if (moved >= 8 && e.target !== cv) e.preventDefault(); }, true); // a finger that moved the map does not open a tool
   cv.addEventListener("pointerleave", function () { px = py = -1; if (!grab) set(null); });
-  cv.addEventListener("dblclick", function () { try { var all = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; delete all.all; localStorage.setItem(KEY, JSON.stringify(all)); } catch (err) {} saved = null; size(); once(); });
+  cv.addEventListener("dblclick", function () { try { var all = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; delete all[PAGE]; localStorage.setItem(KEY, JSON.stringify(all)); } catch (err) {} saved = null; size(); once(); });
   window.addEventListener("resize", function () { size(); once(); });
   if ("IntersectionObserver" in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; if (visible) once(); }).observe(map);
   size(); once();
