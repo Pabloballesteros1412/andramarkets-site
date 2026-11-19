@@ -439,3 +439,4 @@ a.nav__btn{display:inline-flex}
 .tools-map.is-live a.tools-map__name{cursor:pointer;text-decoration:none!important}
 .tools-map:not(.is-live) a.tools-map__name{text-decoration:none}
 .tools-map--blue.is-live ol ol a:hover,.tools-map--blue.is-live ol ol a:focus-visible,.tools-map--blue.has-pick ol ol a.is-on{color:#bcdcff}
+.tools-map--gold.is-live ol ol a:hover,.tools-map--gold.is-live ol ol a:focus-visible,.tools-map--gold.has-pick ol ol a.is-on{color:#ffe1b0}
