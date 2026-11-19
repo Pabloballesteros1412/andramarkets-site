@@ -1421,7 +1421,8 @@ NAV_CHARTS = {
 
 
 # The menu's groups that are one map each: group key -> (the map's address, its link on the homepage).
-GROUP_MAPS = {"tools": ("tools-map/", "All tools, on one map"),
+GROUP_MAPS = {"markets": ("markets/", "All markets, on one map"),
+              "tools": ("tools-map/", "All tools, on one map"),
               "research": ("research-map/", "All research, on one map"),
               "careers": ("careers/", "Everything for a career in markets, on one map")}
 
@@ -1505,7 +1506,7 @@ def site_footer(home, base):
       <a class="btn btn--sm btn--ghost foot__contact" href="{base}contact/">Contact us</a>
     </div>
     <nav class="foot__nav foot__nav--groups" aria-label="Footer">
-      <div class="foot__group"><p class="foot__gt">Markets</p><a href="{base}dashboards/">Dashboards</a><a href="{base}fed-rates/">Fed &amp; Rates</a><a href="{base}calendar/">Calendar</a><a href="{base}world/">World markets</a><a href="{base}fx/">FX</a><a href="{base}companies/">Companies</a></div>
+      <div class="foot__group"><p class="foot__gt">Markets</p><a href="{base}markets/">All markets</a></div>
       <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a></div>
       <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}research-map/">All research</a></div>
       <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}careers/">All of Careers</a></div>
@@ -1741,6 +1742,43 @@ CAREERS_MAP = (
      (("To apply", "application-tracker/#at-h-toapply"), ("Applied", "application-tracker/#at-h-applied"),
       ("Interview", "application-tracker/#at-h-interview"), ("Offer", "application-tracker/#at-h-offer"))),
 )
+
+
+def markets_map_page():
+    """Every Markets section and its parts on one map, drawn by the Tools map's script in violet."""
+    groups_ = (
+        ("dashboards", "Dashboards", "dashboards/",
+         (("Rates", "dashboards/#rates"), ("Macro", "dashboards/#macro"), ("Equities", "dashboards/#equities"),
+          ("Cross-asset", "dashboards/#cross-asset"))),
+        ("fed-rates", "Fed &amp; Rates", "fed-rates/",
+         (("Policy rate", "fed-rates/#fr-policy"), ("What markets price", "fed-rates/#fr-odds"),
+          ("Yield curve", "fed-rates/#fr-curve"), ("Real rates", "fed-rates/#fr-real"))),
+        ("calendar", "Calendar", "calendar/",
+         (("This week", "calendar/"), ("Macro", "calendar/#macro"), ("Earnings", "calendar/#earnings"))),
+        ("world", "World", "world/",
+         (("The Earth", "world/"), ("Each market", "world/#wm-each"), ("Every figure", "world/#wm-all"))),
+        ("fx", "FX", "fx/",
+         (("The Earth", "fx/"), ("Every pair", "fx/#fx-market-t"), ("Charts", "fx/#fx-ch-t"))),
+        ("companies", "Companies", "companies/",
+         (("The globe", "companies/#co-globe-h"), ("Technology", "companies/#technology"),
+          ("Financials", "companies/#financials"), ("Health care", "companies/#health-care"), ("Energy", "companies/#energy"))),
+    )
+    groups = "".join(
+        f'<li data-key="{key}"><a class="tools-map__name" href="../{href}">{name}</a><ol>'
+        + "".join(f'<li><a href="../{h}">{label}</a></li>' for label, h in parts) + "</ol></li>"
+        for key, name, href, parts in groups_)
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Markets</h1>
+      <p class="lede">Prices, rates and what is coming.<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
+    </header>
+    <nav class="tools-map tools-map--violet" data-page="markets" data-tint='["208,190,255","172,144,255","132,104,255"]' aria-label="Markets"><ol>{groups}</ol></nav>
+  </div>
+</main>"""
+    return shell(title="Markets: Andra Markets", desc="Prices, rates and what is coming: dashboards, the Fed and rates, the calendar, "
+                 "fifty world markets, thirty-nine currencies and 1,200 companies. By Andra Markets.",
+                 body=body, home="../", base="../", path="markets/", scripts=("tools-map.js",))
 
 
 def research_map_page(notes):
@@ -6641,6 +6679,8 @@ def main():
     (OUT / "lab" / "index.html").write_text(lab_index())
     (OUT / "careers").mkdir(exist_ok=True)
     (OUT / "careers" / "index.html").write_text(careers_map_page())
+    (OUT / "markets").mkdir(exist_ok=True)
+    (OUT / "markets" / "index.html").write_text(markets_map_page())
     (OUT / "research-map").mkdir(exist_ok=True)
     (OUT / "research-map" / "index.html").write_text(research_map_page(notes))
     (OUT / "tools-map").mkdir(exist_ok=True)
@@ -6753,7 +6793,7 @@ GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", 
              "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
              "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
              "chart-of-the-day", "central-banks", "recession-watch", "market-history",
-             "interview-simulator", "firms", "application-tracker", "contact", "tools-map", "research-map")
+             "interview-simulator", "firms", "application-tracker", "contact", "tools-map", "research-map", "markets")
 INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
 # Data blocks the browser never runs: the policy does not apply to them.
 DATA_SCRIPTS = ("application/json", "application/ld+json")
