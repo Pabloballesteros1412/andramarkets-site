@@ -1161,8 +1161,7 @@ def page(notes, cal):
         f'<section class="sec sec--l" id="{key}" data-shape="{i + 1}"><div class="sec__in"><h2>{name}</h2>'
         f'<p class="copy">{HOME_COPY[key]}</p><ul class="links">'
         + "".join(f'<li><a href="{href}">{label}</a></li>' for label, href, _ in
-                  ((("All tools, on one map", "tools-map/", ""),) if key == "tools"
-                   else (("Everything for a career in markets, on one map", "careers/", ""),) if key == "careers" else links)) + "</ul></div></section>\n"
+                  (((GROUP_MAPS[key][1], GROUP_MAPS[key][0], ""),) if key in GROUP_MAPS else links)) + "</ul></div></section>\n"
         for i, (key, name, _, links) in enumerate(NAV_GROUPS))
     menu = "".join(f'<a href="#{key}">{name}</a>' for key, name, _, _ in NAV_GROUPS)
     words = " ".join(f'<span class="w">{w}</span>' for w in
@@ -1421,6 +1420,12 @@ NAV_CHARTS = {
 }
 
 
+# The menu's groups that are one map each: group key -> (the map's address, its link on the homepage).
+GROUP_MAPS = {"tools": ("tools-map/", "All tools, on one map"),
+              "research": ("research-map/", "All research, on one map"),
+              "careers": ("careers/", "Everything for a career in markets, on one map")}
+
+
 def nav_chart(href):
     paths = NAV_CHARTS.get(href)
     return f'<svg class="nav-chart" viewBox="0 0 112 64" aria-hidden="true">{paths}</svg>' if paths else ""
@@ -1429,9 +1434,9 @@ def nav_chart(href):
 def nav_menu(base):
     groups = []
     for key, name, intro, links in NAV_GROUPS:
-        if key in ("tools", "careers"):
-            # Tools and Careers have no panel: their sections are all on their map (owner, 15 and 19 Nov 2026).
-            groups.append(f'<div class="nav__group"><a class="nav__btn" href="{base}{"tools-map/" if key == "tools" else "careers/"}">{name}</a></div>')
+        if key in GROUP_MAPS:
+            # These groups have no panel: their sections are all on their map (owner, 15 and 19 Nov 2026).
+            groups.append(f'<div class="nav__group"><a class="nav__btn" href="{base}{GROUP_MAPS[key][0]}">{name}</a></div>')
             continue
         items = "".join(
             f'<li style="--k:{k}"><a href="{base}{href}">{nav_chart(href)}<span class="nav__name"><span class="nav__label">{label}</span>{icon("arrow-right")}</span>'
@@ -1502,7 +1507,7 @@ def site_footer(home, base):
     <nav class="foot__nav foot__nav--groups" aria-label="Footer">
       <div class="foot__group"><p class="foot__gt">Markets</p><a href="{base}dashboards/">Dashboards</a><a href="{base}fed-rates/">Fed &amp; Rates</a><a href="{base}calendar/">Calendar</a><a href="{base}world/">World markets</a><a href="{base}fx/">FX</a><a href="{base}companies/">Companies</a></div>
       <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a></div>
-      <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}reports/">Daily note</a><a href="{base}research/">Research Library</a><a href="{base}chart-of-the-day/">Chart of the day</a><a href="{base}central-banks/">Central banks</a><a href="{base}recession-watch/">Recession watch</a><a href="{base}market-history/">Market history</a></div>
+      <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}research-map/">All research</a></div>
       <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}careers/">All of Careers</a></div>
       <div class="foot__group"><p class="foot__gt">Andra Markets</p><a href="{base}methodology/">Methodology</a><a href="{base}sources/">Data sources</a><a href="{base}legal/">Legal notice</a><a href="{base}privacy/">Privacy and cookies</a></div>
     </nav>
@@ -1736,6 +1741,46 @@ CAREERS_MAP = (
      (("To apply", "application-tracker/#at-h-toapply"), ("Applied", "application-tracker/#at-h-applied"),
       ("Interview", "application-tracker/#at-h-interview"), ("Offer", "application-tracker/#at-h-offer"))),
 )
+
+
+def research_map_page(notes):
+    """Every Research section and its parts on one map, drawn by the Tools map's script in warm gold."""
+    latest = max((n["date"] for n in notes), default=None)
+    month = f"reports/#m-{latest[:7]}" if latest else "reports/"
+    groups_ = (
+        ("reports", "Daily note", "reports/",
+         ((("Latest note", f"reports/{latest}/"),) if latest else ()) + (("This month", month), ("Every note", "reports/"))),
+        ("research", "Research Library", "research/",
+         (("Equities", "research/#equities"), ("Rates", "research/#rates"), ("FX", "research/#fx"),
+          ("Macro", "research/#macro"), ("Credit", "research/#credit"))),
+        ("chart-of-the-day", "Chart of the day", "chart-of-the-day/",
+         (("Today's chart", "chart-of-the-day/#cotd-title"), ("Every chart", "chart-of-the-day/#every"))),
+        ("central-banks", "Central banks", "central-banks/",
+         (("Policy rates now", "central-banks/#cb-now"), ("The four rates", "central-banks/#cb-rates"),
+          ("Every central bank", "central-banks/#cb-world"))),
+        ("recession-watch", "Recession watch", "recession-watch/",
+         (("Treasury curve", "recession-watch/#rw-curve"), ("Sahm rule", "recession-watch/#rw-sahm"),
+          ("Jobless claims", "recession-watch/#rw-claims"), ("Credit spread", "recession-watch/#rw-hy"),
+          ("Financial conditions", "recession-watch/#rw-nfci"))),
+        ("market-history", "Market history", "market-history/",
+         (("Since 1928", "market-history/#mh-over-t"), ("Every episode", "market-history/#mh-tl-t"))),
+    )
+    groups = "".join(
+        f'<li data-key="{key}"><a class="tools-map__name" href="../{href}">{name}</a><ol>'
+        + "".join(f'<li><a href="../{h}">{label}</a></li>' for label, h in parts) + "</ol></li>"
+        for key, name, href, parts in groups_)
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Research</h1>
+      <p class="lede">What happened and why, on the record.<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
+    </header>
+    <nav class="tools-map tools-map--gold" data-page="research" data-tint='["255,214,150","255,190,110","255,160,70"]' aria-label="Research"><ol>{groups}</ol></nav>
+  </div>
+</main>"""
+    return shell(title="Research: Andra Markets", desc="What happened and why, on the record: the daily note, the Research Library, the "
+                 "chart of the day, central banks, recession watch and market history. By Andra Markets.",
+                 body=body, home="../", base="../", path="research-map/", scripts=("tools-map.js",))
 
 
 def careers_map_page():
@@ -6596,6 +6641,8 @@ def main():
     (OUT / "lab" / "index.html").write_text(lab_index())
     (OUT / "careers").mkdir(exist_ok=True)
     (OUT / "careers" / "index.html").write_text(careers_map_page())
+    (OUT / "research-map").mkdir(exist_ok=True)
+    (OUT / "research-map" / "index.html").write_text(research_map_page(notes))
     (OUT / "tools-map").mkdir(exist_ok=True)
     (OUT / "tools-map" / "index.html").write_text(tools_map_page())
     for _, theme, name, lede, slugs in TOOL_THEMES:  # the old section addresses send readers to the map
@@ -6706,7 +6753,7 @@ GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", 
              "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
              "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
              "chart-of-the-day", "central-banks", "recession-watch", "market-history",
-             "interview-simulator", "firms", "application-tracker", "contact", "tools-map")
+             "interview-simulator", "firms", "application-tracker", "contact", "tools-map", "research-map")
 INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
 # Data blocks the browser never runs: the policy does not apply to them.
 DATA_SCRIPTS = ("application/json", "application/ld+json")
