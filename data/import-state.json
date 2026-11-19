@@ -571,6 +571,17 @@
       "status": "held",
       "v": 2
     },
+    "14490877141": {
+      "created_at": "2026-11-19T01:58:37Z",
+      "date": "2026-11-18",
+      "pr": "https://github.com/Pabloballesteros1412/andramarkets-site/pull/168",
+      "reasons": [
+        "Prints from another session: asx, btc, eth, hsi, kospi, nky, real10y, sol, twii, ust10y, ust1m, ust1y, ust20y, ust2y, ust30y, ust3m, ust3y, ust5y, ust6m, ust7y, xrp are not dated 2026-11-18, so the note would mix dates."
+      ],
+      "run_id": 44440546221,
+      "status": "held",
+      "v": 2
+    },
     "9427841672": {
       "created_at": "2026-08-20T23:06:56Z",
       "date": "2026-08-20",
