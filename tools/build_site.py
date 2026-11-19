@@ -1503,7 +1503,7 @@ def site_footer(home, base):
       <div class="foot__group"><p class="foot__gt">Markets</p><a href="{base}dashboards/">Dashboards</a><a href="{base}fed-rates/">Fed &amp; Rates</a><a href="{base}calendar/">Calendar</a><a href="{base}world/">World markets</a><a href="{base}fx/">FX</a><a href="{base}companies/">Companies</a></div>
       <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a></div>
       <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}reports/">Daily note</a><a href="{base}research/">Research Library</a><a href="{base}chart-of-the-day/">Chart of the day</a><a href="{base}central-banks/">Central banks</a><a href="{base}recession-watch/">Recession watch</a><a href="{base}market-history/">Market history</a></div>
-      <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}interview-prep/">Interview prep</a><a href="{base}interview-simulator/">Interview simulator</a><a href="{base}break-into-wall-street/">Break into Wall Street</a><a href="{base}recruiting-calendar/">Recruiting calendar</a><a href="{base}firms/">Firms</a><a href="{base}application-tracker/">Application tracker</a></div>
+      <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}careers/">All of Careers</a></div>
       <div class="foot__group"><p class="foot__gt">Andra Markets</p><a href="{base}methodology/">Methodology</a><a href="{base}sources/">Data sources</a><a href="{base}legal/">Legal notice</a><a href="{base}privacy/">Privacy and cookies</a></div>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
