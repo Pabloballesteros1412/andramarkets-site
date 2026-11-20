@@ -150,15 +150,23 @@
     for (k = 0; k < 8; k++) E.push([k, k + 8, 0, 0.45]);
     return { n: tilt(N0, 0.5, 0.62), e: E };
   }
+  function starsForm() { // sixteen stars, one for each tool, joined like a constellation on a sky chart
+    var N0 = [[-0.78, 0.52, 0.05, 1.0], [-0.42, 0.66, -0.1, 0.55], [-0.12, 0.42, 0.08, 0.8], [0.18, 0.72, -0.05, 0.5], [0.52, 0.58, 0.1, 1.1],
+      [0.82, 0.3, -0.08, 0.6], [0.26, 0.12, 0, 1.25], [-0.2, -0.02, -0.12, 0.6], [-0.6, 0.08, 0.1, 0.5], [-0.86, -0.3, 0, 0.75],
+      [-0.38, -0.42, 0.06, 0.9], [0.02, -0.6, -0.08, 0.5], [0.42, -0.36, 0.12, 0.7], [0.74, -0.58, 0, 1.0], [0.3, -0.86, -0.06, 0.55], [0.88, -0.12, 0.05, 0.45]];
+    var E = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [2, 6], [4, 6], [6, 7], [7, 8], [8, 0], [8, 9], [7, 10], [9, 10], [10, 11], [6, 12], [12, 13], [11, 14], [5, 15], [15, 13]]
+      .map(function (e) { return [e[0], e[1], 0, 0.3]; });
+    return { n: N0, e: E, smooth: 1 };
+  }
   function ready(F) { // how the particles are shared out: by each rope's length and width, and by each knot's size
     var tot = 0, k; F.el = F.e.map(function (e) { var a = F.n[e[0]], b = F.n[e[1]], l = Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); tot += l * (0.4 + e[3]); return tot; });
     for (k = 0; k < F.el.length; k++) F.el[k] /= tot; tot = 0; F.nl = F.n.map(function (n) { tot += n[3] * n[3]; return tot; }); for (k = 0; k < F.nl.length; k++) F.nl[k] /= tot; return F;
   }
-  var FORMS = [ready(globeForm()), ready(cubeForm()), ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))];
+  var FORMS = [ready(globeForm()), ready(starsForm()), ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))];
   function formShape(i, o, F) {
     var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), x, y, z, k = 0;
     if (c < 0.6) {                                   // a rope: a bundle of strands, widest at its middle
-      while (k < F.el.length - 1 && F.el[k] < a) k++; var E = F.e[k], A = F.n[E[0]], B2 = F.n[E[1]], u = 1 - b, dx = B2[0] - A[0], dy = B2[1] - A[1], dz = B2[2] - A[2], l = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1, wd = Math.sin(3.14159 * b) * 0.05 * E[3];
+      while (k < F.el.length - 1 && F.el[k] < a) k++; var E = F.e[k], A = F.n[E[0]], B2 = F.n[E[1]], u = 1 - b, dx = B2[0] - A[0], dy = B2[1] - A[1], dz = B2[2] - A[2], l = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1, wd = (F.smooth ? 0.45 : Math.sin(3.14159 * b)) * 0.05 * E[3];
       if (F.r) { x = A[0] * u + B2[0] * b; y = A[1] * u + B2[1] * b; z = A[2] * u + B2[2] * b; var len = Math.sqrt(x * x + y * y + z * z) || 1, lift = F.r * (1 + E[2] * Math.sin(3.14159 * b) * l) / len; x *= lift; y *= lift; z *= lift; x += (d - 0.5) * wd; y += (e - 0.5) * wd; z += (q0(n * 3.7) - 0.5) * wd; }
       else { var mx = (A[0] + B2[0]) / 2 - dy / l * E[2] * l * 2, my = (A[1] + B2[1]) / 2 + dx / l * E[2] * l * 2; x = u * u * A[0] + 2 * u * b * mx + b * b * B2[0]; y = u * u * A[1] + 2 * u * b * my + b * b * B2[1]; z = A[2] * u + B2[2] * b;
         x += -dy / l * (d - 0.5) * wd; y += dx / l * (d - 0.5) * wd; z += (e - 0.5) * wd; }
