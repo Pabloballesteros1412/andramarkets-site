@@ -28,8 +28,8 @@
     "  float w=0.0,w0=0.0,w1=0.0,bf=1.0;",
     "  if(uOn[0]>0.5){ float sn=sin(3.14159*nt); vec3 hp=h0*uObj*uHS+uOff[0]; if(sn>0.0005) hp+=nz(h0*3.0+aR.y*7.0+uTime*0.2)*0.13*sn;",
     "    w=(1.0-ft)*step(abs(uA-0.0),0.5)+ft*step(abs(uB-0.0),0.5); w0=w; p+=w*mix(mix(arcW,hp,nt),rot(h0,uRot[0]),amb); wh+=w; }",
-    "  if(uOn[1]>0.5){ w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); w1=w*(1.0-amb); bf=mix(1.0,mix(0.07,1.0,smoothstep(-0.06,0.06,g1.z)),step(dot(a1,a1),0.9)); p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb)); }",
-    "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); p+=w*(rot(a2+vec3(0.0,0.05*sin(a2.x*3.0+a2.z*2.0+uTime*0.9),0.0)*(1.0-amb),uRot[2])*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
+    "  if(uOn[1]>0.5){ w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); w1=w*(1.0-amb); bf=1.0; p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb)); }",
+    "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); p+=w*(rot(a2+vec3(0.0),uRot[2])*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
     "  if(uOn[3]>0.5){ w=(1.0-ft)*step(abs(uA-3.0),0.5)+ft*step(abs(uB-3.0),0.5); p+=w*(rot(a3,uRot[3])*mix(uObj,1.0,amb)+uOff[3]*(1.0-amb)); }",
     "  if(uOn[4]>0.5){ w=(1.0-ft)*step(abs(uA-4.0),0.5)+ft*step(abs(uB-4.0),0.5); p+=w*(rot(a4,uRot[4])*mix(uObj,1.0,amb)+uOff[4]*(1.0-amb)); }",
     "  if(uOn[5]>0.5){ w=(1.0-ft)*step(abs(uA-5.0),0.5)+ft*step(abs(uB-5.0),0.5); p+=w*mix(arcW,rot(h0,uRot[5]),amb); wh+=w; }",
@@ -92,47 +92,43 @@
   function q1(n) { var v = n * 0.7548776662466927; return v - Math.floor(v); }
   function q2(n) { var v = n * 0.5698402909980532; return v - Math.floor(v); }
   function q3(n) { var v = n * 0.8191725133961645; return v - Math.floor(v); }
-  var LATS = [], LATC = [0]; (function () { for (var k = -5; k <= 5; k++) { LATS.push(k * 0.2618); LATC.push(LATC[LATC.length - 1] + Math.cos(k * 0.2618)); } })();
-  // Minimal scenes: a few exact lines each.
-  function globe(i, o) {
-    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), x, y, z, r = 0.82, lat, lon;
-    if (c < 0.1) { var an = b * 6.2832, rr = 1.14; x = Math.cos(an) * rr; z = Math.sin(an) * rr; y = z * 0.32; z = z * 0.95; }
-    else {
-      if (c < 0.4) { var LK = [-1.05, -0.7, -0.35, 0, 0.35, 0.7, 1.05], LW = [0.07, 0.19, 0.33, 0.5, 0.67, 0.81, 0.93], k = 0; while (k < 6 && a > LW[k]) k++; lat = LK[k]; lon = b * 6.2832; }
-      else { lon = Math.floor(a * 12) / 12 * 6.2832; lat = (b * 2 - 1) * 1.5; }
-      x = r * Math.cos(lat) * Math.cos(lon); y = r * Math.sin(lat); z = r * Math.cos(lat) * Math.sin(lon);
+  // the light of each shape: the horse, Markets (violet), Tools (white), Research (gold), Careers (blue), the close
+  var COLS = [[1, 1, 1], [0.8, 0.7, 1], [1, 1, 1], [1, 0.82, 0.56], [0.5, 0.72, 1], [1, 1, 1]];
+  function q4(n) { var v = n * 0.4142135623730951; return v - Math.floor(v); }
+  // Each group's picture is its own map (owner, 20 Nov 2026): six sections in a ring joined by ropes of
+  // strands, each with its parts hanging off it. KIDS is how many parts each section has on the real map.
+  var KIDS = [[4, 4, 3, 3, 3, 5], [2, 2, 4, 3, 2, 3], [3, 5, 2, 3, 5, 2], [2, 2, 5, 4, 5, 4]];
+  var MAPS = KIDS.map(function (kids) {
+    var P = [], C = [], k, j2;
+    for (k = 0; k < 6; k++) { var an = -Math.PI / 2 + k / 6 * 6.2832; P.push([Math.cos(an) * 0.5, -Math.sin(an) * 0.5, an]); }
+    for (k = 0; k < 6; k++) for (j2 = 0; j2 < kids[k]; j2++) { var ca = P[k][2] + (j2 - (kids[k] - 1) / 2) * 0.36, dd = 0.4 + (kids[k] > 3 && j2 % 2 ? 0.07 : 0); C.push([P[k][0] + Math.cos(ca) * dd, P[k][1] - Math.sin(ca) * dd, k]); }
+    return { P: P, C: C };
+  });
+  function mapShape(i, o, M) {
+    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), x, y, z = 0, P = M.P, C = M.C, A, B2, mx, my, dx, dy, l, u, bow;
+    if (c < 0.3) {                                   // the ring: a rope from each section to the next, bowed towards the middle
+      var k = Math.min(5, Math.floor(a * 6)); A = P[k]; B2 = P[(k + 1) % 6]; u = 1 - b; mx = (A[0] + B2[0]) / 2 * 0.74; my = (A[1] + B2[1]) / 2 * 0.74;
+      x = u * u * A[0] + 2 * u * b * mx + b * b * B2[0]; y = u * u * A[1] + 2 * u * b * my + b * b * B2[1];
+      dx = B2[0] - A[0]; dy = B2[1] - A[1]; l = Math.sqrt(dx * dx + dy * dy); bow = Math.sin(3.14159 * b) * 0.05; x += -dy / l * (d - 0.5) * bow; y += dx / l * (d - 0.5) * bow; z = (e - 0.5) * bow;
+    } else if (c < 0.64) {                           // a thinner rope from a section out to each of its parts
+      var m = C[Math.min(C.length - 1, Math.floor(a * C.length))]; A = P[m[2]]; u = 1 - b; dx = m[0] - A[0]; dy = m[1] - A[1]; l = Math.sqrt(dx * dx + dy * dy);
+      mx = (A[0] + m[0]) / 2 - dy / l * 0.05; my = (A[1] + m[1]) / 2 + dx / l * 0.05;
+      x = u * u * A[0] + 2 * u * b * mx + b * b * m[0]; y = u * u * A[1] + 2 * u * b * my + b * b * m[1]; bow = Math.sin(3.14159 * b) * 0.026; x += -dy / l * (d - 0.5) * bow; y += dx / l * (d - 0.5) * bow; z = (e - 0.5) * bow;
+    } else if (c < 0.86) {                           // a section: a knot of light, with a flare of six rays
+      var k2 = Math.min(5, Math.floor(a * 6)), ang, r;
+      if (d < 0.45) { ang = Math.floor(b * 6) / 6 * 6.2832 + 0.3; r = e * e * 0.15; } else { ang = b * 6.2832; r = e * e * e * 0.07; }
+      x = P[k2][0] + Math.cos(ang) * r; y = P[k2][1] + Math.sin(ang) * r; z = (q0(n * 3.7) - 0.5) * r;
+    } else {                                         // a part: a smaller knot
+      var m2 = C[Math.min(C.length - 1, Math.floor(a * C.length))], an2, r2;
+      if (d < 0.4) { an2 = Math.floor(b * 4) / 4 * 6.2832 + 0.5; r2 = e * e * 0.07; } else { an2 = b * 6.2832; r2 = e * e * e * 0.035; }
+      x = m2[0] + Math.cos(an2) * r2; y = m2[1] + Math.sin(an2) * r2; z = (q0(n * 3.7) - 0.5) * r2;
     }
     o[i] = x; o[i + 1] = y; o[i + 2] = z;
-  }
-  function surface(i, o) {
-    var n = i / 3, x, z;
-    if (q0(n) < 0.55) { x = (Math.floor(q1(n) * 13) - 6) / 6; z = q2(n) * 2 - 1; } else { z = (Math.floor(q1(n) * 11) - 5) / 5; x = q2(n) * 2 - 1; }
-    var tm = (z + 1) / 2, y = -0.42 + 0.62 * x * x * (1.25 - 0.75 * tm) + 0.2 * Math.exp(-2.2 * tm) - 0.1 * x * (1 - tm);
-    o[i] = x * 0.98; o[i + 1] = y * 0.9; o[i + 2] = z * 0.8;
-  }
-  var S = DATA.spx, smin = Math.min.apply(0, S), smax = Math.max.apply(0, S);
-  function sy(v) { return -0.5 + (v - smin) / (smax - smin) * 1.05; }
-  function chart(i, o) {
-    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), m = S.length, x, y;
-    if (c < 0.46) { var f = b * (m - 1), j = Math.floor(f), t = f - j; x = f; y = sy(S[j] + (S[Math.min(m - 1, j + 1)] - S[j]) * t); }
-    else { var j2 = Math.floor(a * m); x = j2; y = -0.62 + (sy(S[j2]) + 0.62) * q3(n); }
-    o[i] = -0.92 + x / (m - 1) * 1.84; o[i + 1] = y * 0.85; o[i + 2] = 0;
-  }
-  var TW = [], TWH = [0.24, 0.38, 0.3, 0.52, 0.44, 0.68, 0.6, 0.86, 0.76, 1.04, 0.94, 1.26], TWA = [0];
-  (function () { var x = 0; for (var j = 0; j < TWH.length; j++) { TW.push([x, 0.13, TWH[j], 0.13, (j % 3 - 1) * 0.07]); x += 0.165; TWA.push(TWA[j] + TWH[j] + 0.5); } })();
-  var TWC = (TW[TW.length - 1][0] + 0.13) / 2;
-  function skyline(i, o) {
-    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), tt = a * TWA[TWA.length - 1], k = 0; while (k < TW.length - 1 && TWA[k + 1] <= tt) k++;
-    var t = TW[k], x, y, z, base = -0.62;
-    if (c < 0.4) { var e = Math.floor(d * 12);
-      if (e < 4) { x = (e & 1); z = (e >> 1); y = b; } else if (e < 8) { x = b; z = (e & 1); y = (e >> 2 === 1 ? (e >> 1) & 1 : 0); y = (e >> 1) & 1; } else { x = (e & 1); z = b; y = (e >> 1) & 1; } }
-    else { var rows = Math.max(3, Math.round(t[2] / 0.052)); y = (Math.floor(d * rows) + 0.5) / rows; if (c < 0.8) { x = b; z = 1; } else { x = 1; z = b; } }
-    o[i] = (t[0] + x * t[1] - TWC) * 0.78; o[i + 1] = (base + y * t[2]) * 0.92 + 0.02; o[i + 2] = (t[4] + (z - 0.5) * t[3]) * 0.9;
   }
   function build(img) {
     var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; var x = c.getContext("2d"); x.drawImage(img, 0, 0);
     var d = x.getImageData(0, 0, c.width, c.height).data, SW = c.width, i = 0; FW = c.width; FH = c.height; srcImg = img; IMG_ASP = FW / FH;
-    for (; i < N - AMB; i++) { var j = i * 3; globe(j, T[1]); surface(j, T[2]); chart(j, T[3]); skyline(j, T[4]);
+    for (; i < N - AMB; i++) { var j = i * 3; mapShape(j, T[1], MAPS[0]); mapShape(j, T[2], MAPS[1]); mapShape(j, T[3], MAPS[2]); mapShape(j, T[4], MAPS[3]);
       UU[i] = rnd(); VV[i] = rnd(); R[i * 4] = rnd(); R[i * 4 + 1] = rnd(); R[i * 4 + 2] = rnd() * rnd(); R[i * 4 + 3] = 0.55 + 0.45 * rnd(); }
     for (; i < N; i++) { var j3 = i * 3, ax = (rnd() - 0.5) * 6.4, ay = (rnd() - 0.5) * 3.4, az = -2.6 + rnd() * 4.6;
       for (var k = 1; k < 5; k++) { T[k][j3] = ax; T[k][j3 + 1] = ay; T[k][j3 + 2] = az; }
@@ -195,10 +191,10 @@
     ptr[0] += (pt[0] - ptr[0]) * 0.05; ptr[1] += (pt[1] - ptr[1]) * 0.05;
     var asp = W / H, port = asp < 0.85, tt = reduce ? 0 : t, nf = 1;
     var rot = [0, 0,
-      tt * 0.16 + ptr[0] * 0.3, 0.28 + ptr[1] * -0.1,
-      -0.5 + Math.sin(tt * 0.2) * 0.18 + ptr[0] * 0.25, 0.42 + ptr[1] * -0.1,
-      Math.sin(tt * 0.22) * 0.14 + ptr[0] * 0.2, 0.05 + ptr[1] * -0.08,
-      -0.45 + Math.sin(tt * 0.18) * 0.2 + ptr[0] * 0.25, 0.16 + ptr[1] * -0.08,
+      Math.sin(tt * 0.2) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
+      Math.sin(tt * 0.21 + 1) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
+      Math.sin(tt * 0.19 + 2) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
+      Math.sin(tt * 0.2 + 3) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
       0, 0];
     var hs = port ? 2.05 : 1, obj = port ? Math.min(0.42, asp * 0.9) : Math.min(1, asp * 0.62);
     var ox = port ? 0 : Math.min(0.8, asp * 0.43), oy = port ? 0.4 : 0.06, side = [1, 1, 1, 1, 1, 0];
@@ -213,7 +209,7 @@
     gl.useProgram(PB); gl.bindBuffer(gl.ARRAY_BUFFER, qb); var la = LOC.bq; gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
     gl.uniform4f(UB.uBox, 0, 0, 1, 1); gl.uniform2f(UB.uRes, cv.width, cv.height); gl.uniform2f(UB.uC, cx, cy); gl.uniform1f(UB.uTime, tt);
     var op = reduce || !OPENING ? 1 : Math.min(1, Math.max(0, (t - 0.2) / OPEN_S)); gl.uniform1f(UB.uOpen, 1 - Math.pow(1 - op, 2.2)); gl.uniform1f(UB.uHor, hor); gl.uniform2f(UB.uH, 0, feet); gl.uniform1f(UB.uR, port ? 2.2 : 3.4);
-    gl.uniform1f(UB.uGlobe, Math.max(0, wt(1) * 1.6 - 0.6)); gl.uniform1f(UB.uGR, 0.82 * obj * 2.75 / 3.4); gl.uniform1f(UB.uAspect, asp);
+    gl.uniform1f(UB.uGlobe, 0); gl.uniform1f(UB.uGR, 0.82 * obj * 2.75 / 3.4); gl.uniform1f(UB.uAspect, asp);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     var wH = wt(0) + wt(5), it0 = reduce ? 1 : Math.min(1, t / 3.4), imgA = Math.max(0, Math.min(1, (wH - 0.86) / 0.14)) * Math.max(0, Math.min(1, (it0 - 0.8) / 0.2));
     imgA = Math.max(0, Math.min(1, (wt(0) - 0.86) / 0.14)) * Math.max(0, Math.min(1, (night - 0.95) / 0.05)); imgA = imgA * imgA * (3 - 2 * imgA);
@@ -236,7 +232,7 @@
     var rl = LOC.r; gl.bindBuffer(gl.ARRAY_BUFFER, rbuf); gl.enableVertexAttribArray(rl); gl.vertexAttribPointer(rl, 4, gl.FLOAT, false, 0, 0);
     gl.uniform1f(U.uA, A); gl.uniform1f(U.uB, B); gl.uniform1f(U.uT, Tm); gl.uniform1f(U.uTime, tt); gl.uniform1f(U.uAspect, asp); gl.uniform1f(U.uDpr, DPR); var it = reduce ? 1 : Math.min(1, t / 3.4); gl.uniform1f(U.uIntro, 1 - Math.pow(1 - it, 3));
     gl.uniform1f(U.uObj, obj); gl.uniform1f(U.uPx, DPR * H / 900 * (small ? 1.15 : 1)); gl.uniform1f(U.uVis, 1);
-    gl.uniform3f(U.uCol, 1, 1, 1);
+    var ca0 = COLS[A], cb0 = COLS[B]; gl.uniform3f(U.uCol, ca0[0] + (cb0[0] - ca0[0]) * es, ca0[1] + (cb0[1] - ca0[1]) * es, ca0[2] + (cb0[2] - ca0[2]) * es); // each group in its map's colour
     rotA.set(rot); offA.set(off); for (var o6 = 0; o6 < 6; o6++) onA[o6] = (A === o6 && Tm < 1) || (B === o6 && Tm > 0) ? 1 : 0;
     gl.uniform2fv(U.uRot, rotA); gl.uniform3fv(U.uOff, offA); gl.uniform1fv(U.uOn, onA); gl.uniform2f(U.uPtr, ptr[0], ptr[1]);
     // the lines of particles: none are drawn while the horizon alone, or the finished drawing of the horse, is the picture

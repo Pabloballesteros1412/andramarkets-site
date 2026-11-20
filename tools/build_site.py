@@ -1143,7 +1143,7 @@ SPECULATION = ('<script type="speculationrules">'
                '</script>')
 
 
-HOME_COPY = {"markets": "Prices, rates and what is coming.", "tools": "Fourteen tools that run in your browser.",
+HOME_COPY = {"markets": "Prices, rates and what is coming.", "tools": "Sixteen tools that run in your browser.",
              "research": "What happened and why, after every close.", "careers": "For students breaking into markets."}
 HOME_ARROW = ('<svg class="arr" viewBox="0 0 64 10" aria-hidden="true"><path d="M0 5h62M57 1l5 4-5 4" fill="none" '
               'stroke="currentColor" stroke-width="1"/></svg>')
@@ -1364,7 +1364,7 @@ NAV_GROUPS = (
         ("World", "world/", "Fifty markets compared on the same scale."),
         ("FX", "fx/", "The dollar and thirty-nine currencies against it."),
         ("Companies", "companies/", f"Earnings and figures for {CO_TOTAL} companies."))),
-    ("tools", "Tools", "Fourteen tools and simulators that run in your browser.", (
+    ("tools", "Tools", "Sixteen tools and simulators that run in your browser.", (
         ("Options", "lab/options/", "The payoff at expiry and Black-Scholes with its Greeks."),
         ("Bonds", "lab/bonds/", "Price, duration and convexity; yield to maturity."),
         ("Risk &amp; portfolio", "lab/risk-and-portfolio/", "Correlation, the efficient frontier, position size and VaR."),
