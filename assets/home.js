@@ -128,11 +128,33 @@
       var kids = 2 + k % 2; for (j2 = 0; j2 < kids; j2++) { var ca = an + (j2 - (kids - 1) / 2) * 0.34, d2 = 0.36 + (j2 % 2) * 0.06; N0.push([N0[m][0] + Math.cos(ca) * d2, N0[m][1] + Math.sin(ca) * d2, N0[m][2] * 1.6, 0.45]); E.push([m, N0.length - 1, 0.05, 0.45]); } }
     return { n: N0, e: E };
   }
+  function tilt(N0, ax, ay) { // turn a form's knots so a solid reads in depth even face on
+    N0.forEach(function (n) { var y = n[1] * Math.cos(ax) - n[2] * Math.sin(ax), z = n[1] * Math.sin(ax) + n[2] * Math.cos(ax), x = n[0] * Math.cos(ay) + z * Math.sin(ay); z = -n[0] * Math.sin(ay) + z * Math.cos(ay); n[0] = x; n[1] = y; n[2] = z; }); return N0;
+  }
+  function gridForm() { // sixteen knots, four by four, laid like a floor
+    var N0 = [], E = [], r, c;
+    for (r = 0; r < 4; r++) for (c = 0; c < 4; c++) N0.push([(c - 1.5) * 0.44, (r - 1.5) * 0.44, 0, (r + c) % 3 ? 0.55 : 0.85]);
+    for (r = 0; r < 4; r++) for (c = 0; c < 4; c++) { var i2 = r * 4 + c; if (c < 3) E.push([i2, i2 + 1, 0, 0.6]); if (r < 3) E.push([i2, i2 + 4, 0, 0.6]); if (c < 3 && r < 3 && (r + c) % 2 === 0) E.push([i2, i2 + 5, 0.06, 0.35]); }
+    return { n: tilt(N0, 0.85, 0.12), e: E };
+  }
+  function helixForm() { // two strands coiled round each other, joined by rungs
+    var N0 = [], E = [], k;
+    for (k = 0; k < 8; k++) { var t = k / 7, an = t * 6.2832 * 1.25, y = (t - 0.5) * 1.6; N0.push([Math.cos(an) * 0.45, y, Math.sin(an) * 0.45, 0.6]); N0.push([Math.cos(an + 3.1416) * 0.45, y, Math.sin(an + 3.1416) * 0.45, 0.6]);
+      E.push([2 * k, 2 * k + 1, 0, 0.45]); if (k) { E.push([2 * k - 2, 2 * k, 0.12, 0.8]); E.push([2 * k - 1, 2 * k + 1, 0.12, 0.8]); } }
+    return { n: tilt(N0, 0.45, 0), e: E };
+  }
+  function cubeForm() { // a cube inside a cube, corner joined to corner
+    var N0 = [], E = [], k, j2;
+    [0.6, 0.27].forEach(function (h, w) { for (k = 0; k < 8; k++) N0.push([(k & 1 ? h : -h), (k & 2 ? h : -h), (k & 4 ? h : -h), w ? 0.5 : 0.85]); });
+    for (k = 0; k < 8; k++) for (j2 = 0; j2 < 3; j2++) { var o2 = k ^ (1 << j2); if (o2 > k) { E.push([k, o2, 0, 0.8]); E.push([k + 8, o2 + 8, 0, 0.5]); } }
+    for (k = 0; k < 8; k++) E.push([k, k + 8, 0, 0.45]);
+    return { n: tilt(N0, 0.5, 0.62), e: E };
+  }
   function ready(F) { // how the particles are shared out: by each rope's length and width, and by each knot's size
     var tot = 0, k; F.el = F.e.map(function (e) { var a = F.n[e[0]], b = F.n[e[1]], l = Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); tot += l * (0.4 + e[3]); return tot; });
     for (k = 0; k < F.el.length; k++) F.el[k] /= tot; tot = 0; F.nl = F.n.map(function (n) { tot += n[3] * n[3]; return tot; }); for (k = 0; k < F.nl.length; k++) F.nl[k] /= tot; return F;
   }
-  var FORMS = [ready(globeForm()), ready(wheelForm()), ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))];
+  var FORMS = [ready(globeForm()), ready(cubeForm()), ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))];
   function formShape(i, o, F) {
     var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), x, y, z, k = 0;
     if (c < 0.6) {                                   // a rope: a bundle of strands, widest at its middle
