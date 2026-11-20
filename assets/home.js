@@ -28,7 +28,7 @@
     "  float w=0.0,w0=0.0,w1=0.0,bf=1.0;",
     "  if(uOn[0]>0.5){ float sn=sin(3.14159*nt); vec3 hp=h0*uObj*uHS+uOff[0]; if(sn>0.0005) hp+=nz(h0*3.0+aR.y*7.0+uTime*0.2)*0.13*sn;",
     "    w=(1.0-ft)*step(abs(uA-0.0),0.5)+ft*step(abs(uB-0.0),0.5); w0=w; p+=w*mix(mix(arcW,hp,nt),rot(h0,uRot[0]),amb); wh+=w; }",
-    "  if(uOn[1]>0.5){ w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); w1=w*(1.0-amb); bf=1.0; p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb)); }",
+    "  if(uOn[1]>0.5){ w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); w1=w*(1.0-amb); bf=mix(0.2,1.0,smoothstep(-0.5,0.3,g1.z)); p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb)); }",
     "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); p+=w*(rot(a2+vec3(0.0),uRot[2])*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
     "  if(uOn[3]>0.5){ w=(1.0-ft)*step(abs(uA-3.0),0.5)+ft*step(abs(uB-3.0),0.5); p+=w*(rot(a3,uRot[3])*mix(uObj,1.0,amb)+uOff[3]*(1.0-amb)); }",
     "  if(uOn[4]>0.5){ w=(1.0-ft)*step(abs(uA-4.0),0.5)+ft*step(abs(uB-4.0),0.5); p+=w*(rot(a4,uRot[4])*mix(uObj,1.0,amb)+uOff[4]*(1.0-amb)); }",
@@ -95,40 +95,62 @@
   // the light of each shape: the horse, Markets (violet), Tools (white), Research (gold), Careers (blue), the close
   var COLS = [[1, 1, 1], [0.8, 0.7, 1], [1, 1, 1], [1, 0.82, 0.56], [0.5, 0.72, 1], [1, 1, 1]];
   function q4(n) { var v = n * 0.4142135623730951; return v - Math.floor(v); }
-  // Each group's picture is its own map (owner, 20 Nov 2026): six sections in a ring joined by ropes of
-  // strands, each with its parts hanging off it. KIDS is how many parts each section has on the real map.
-  var KIDS = [[4, 4, 3, 3, 3, 5], [2, 2, 4, 3, 2, 3], [3, 5, 2, 3, 5, 2], [2, 2, 5, 4, 5, 4]];
-  var MAPS = KIDS.map(function (kids) {
-    var P = [], C = [], k, j2;
-    for (k = 0; k < 6; k++) { var an = -Math.PI / 2 + k / 6 * 6.2832; P.push([Math.cos(an) * 0.5, -Math.sin(an) * 0.5, an]); }
-    for (k = 0; k < 6; k++) for (j2 = 0; j2 < kids[k]; j2++) { var ca = P[k][2] + (j2 - (kids[k] - 1) / 2) * 0.36, dd = 0.4 + (kids[k] > 3 && j2 % 2 ? 0.07 : 0); C.push([P[k][0] + Math.cos(ca) * dd, P[k][1] - Math.sin(ca) * dd, k]); }
-    return { P: P, C: C };
-  });
-  function mapShape(i, o, M) {
-    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), x, y, z = 0, P = M.P, C = M.C, A, B2, mx, my, dx, dy, l, u, bow;
-    if (c < 0.3) {                                   // the ring: a rope from each section to the next, bowed towards the middle
-      var k = Math.min(5, Math.floor(a * 6)); A = P[k]; B2 = P[(k + 1) % 6]; u = 1 - b; mx = (A[0] + B2[0]) / 2 * 0.74; my = (A[1] + B2[1]) / 2 * 0.74;
-      x = u * u * A[0] + 2 * u * b * mx + b * b * B2[0]; y = u * u * A[1] + 2 * u * b * my + b * b * B2[1];
-      dx = B2[0] - A[0]; dy = B2[1] - A[1]; l = Math.sqrt(dx * dx + dy * dy); bow = Math.sin(3.14159 * b) * 0.05; x += -dy / l * (d - 0.5) * bow; y += dx / l * (d - 0.5) * bow; z = (e - 0.5) * bow;
-    } else if (c < 0.64) {                           // a thinner rope from a section out to each of its parts
-      var m = C[Math.min(C.length - 1, Math.floor(a * C.length))]; A = P[m[2]]; u = 1 - b; dx = m[0] - A[0]; dy = m[1] - A[1]; l = Math.sqrt(dx * dx + dy * dy);
-      mx = (A[0] + m[0]) / 2 - dy / l * 0.05; my = (A[1] + m[1]) / 2 + dx / l * 0.05;
-      x = u * u * A[0] + 2 * u * b * mx + b * b * m[0]; y = u * u * A[1] + 2 * u * b * my + b * b * m[1]; bow = Math.sin(3.14159 * b) * 0.026; x += -dy / l * (d - 0.5) * bow; y += dx / l * (d - 0.5) * bow; z = (e - 0.5) * bow;
-    } else if (c < 0.86) {                           // a section: a knot of light, with a flare of six rays
-      var k2 = Math.min(5, Math.floor(a * 6)), ang, r;
-      if (d < 0.45) { ang = Math.floor(b * 6) / 6 * 6.2832 + 0.3; r = e * e * 0.15; } else { ang = b * 6.2832; r = e * e * e * 0.07; }
-      x = P[k2][0] + Math.cos(ang) * r; y = P[k2][1] + Math.sin(ang) * r; z = (q0(n * 3.7) - 0.5) * r;
-    } else {                                         // a part: a smaller knot
-      var m2 = C[Math.min(C.length - 1, Math.floor(a * C.length))], an2, r2;
-      if (d < 0.4) { an2 = Math.floor(b * 4) / 4 * 6.2832 + 0.5; r2 = e * e * 0.07; } else { an2 = b * 6.2832; r2 = e * e * e * 0.035; }
-      x = m2[0] + Math.cos(an2) * r2; y = m2[1] + Math.sin(an2) * r2; z = (q0(n * 3.7) - 0.5) * r2;
+  // Each group's picture is drawn in the maps' language, knots of light joined by ropes of strands, in
+  // its map's colour, and each has a form of its own (owner, 20 Nov 2026): Markets a globe of knots and
+  // arcs, Tools a wheel of two rings, Research a burst from one core, Careers the web of its map.
+  // A form is knots [x, y, z, size] and ropes [from, to, bow, width]; on a globe the ropes follow the sphere.
+  function webForm(kids) {
+    var N0 = [], E = [], k, j2;
+    for (k = 0; k < 6; k++) { var an = -Math.PI / 2 + k / 6 * 6.2832; N0.push([Math.cos(an) * 0.5, -Math.sin(an) * 0.5, 0, 1]); }
+    for (k = 0; k < 6; k++) E.push([k, (k + 1) % 6, -0.13, 1]);
+    for (k = 0; k < 6; k++) for (j2 = 0; j2 < kids[k]; j2++) { var a0 = -Math.PI / 2 + k / 6 * 6.2832, ca = a0 + (j2 - (kids[k] - 1) / 2) * 0.36, dd = 0.4 + (kids[k] > 3 && j2 % 2 ? 0.07 : 0);
+      N0.push([N0[k][0] + Math.cos(ca) * dd, N0[k][1] - Math.sin(ca) * dd, 0, 0.5]); E.push([k, N0.length - 1, 0.05, 0.5]); }
+    return { n: N0, e: E };
+  }
+  function globeForm() {
+    var N0 = [], E = [], M0 = 30, R = 0.8, i2, j2, seen = {};
+    for (i2 = 0; i2 < M0; i2++) { var yy = 1 - (i2 + 0.5) / M0 * 2, rr = Math.sqrt(1 - yy * yy), th = i2 * 2.39996; N0.push([Math.cos(th) * rr * R, yy * R, Math.sin(th) * rr * R, i2 % 5 === 0 ? 0.9 : 0.5]); }
+    for (i2 = 0; i2 < M0; i2++) { var near = []; for (j2 = 0; j2 < M0; j2++) if (j2 !== i2) near.push([Math.pow(N0[i2][0] - N0[j2][0], 2) + Math.pow(N0[i2][1] - N0[j2][1], 2) + Math.pow(N0[i2][2] - N0[j2][2], 2), j2]);
+      near.sort(function (a, b) { return a[0] - b[0]; }); [0, 1, 4].forEach(function (q) { var o2 = near[q][1], key = Math.min(i2, o2) + "-" + Math.max(i2, o2); if (!seen[key]) { seen[key] = 1; E.push([i2, o2, 0.1, q === 4 ? 0.45 : 0.6]); } }); }
+    return { n: N0, e: E, r: R };
+  }
+  function wheelForm() {
+    var N0 = [[0, 0, 0, 1.2]], E = [], k;
+    for (k = 0; k < 6; k++) { var a1 = k / 6 * 6.2832; N0.push([Math.cos(a1) * 0.42, Math.sin(a1) * 0.42, 0, 0.8]); E.push([0, k + 1, 0, 0.7]); }
+    for (k = 0; k < 6; k++) E.push([k + 1, (k + 1) % 6 + 1, 0.1, 0.8]);
+    for (k = 0; k < 12; k++) { var a2 = (k + 0.5) / 12 * 6.2832; N0.push([Math.cos(a2) * 0.9, Math.sin(a2) * 0.9, 0, 0.5]); E.push([Math.floor(k / 2) + 1, 7 + k, 0, 0.5]); if (k % 2 === 0) E.push([(Math.floor(k / 2) + 5) % 6 + 1, 7 + k, 0, 0.4]); }
+    for (k = 0; k < 12; k++) E.push([7 + k, 7 + (k + 1) % 12, 0.07, 0.6]);
+    return { n: N0, e: E };
+  }
+  function burstForm() {
+    var N0 = [[0, 0, 0, 1.5]], E = [], k, j2;
+    for (k = 0; k < 7; k++) { var an = k / 7 * 6.2832 + 0.3, d1 = 0.5 + (k % 2) * 0.1, m = N0.length; N0.push([Math.cos(an) * d1, Math.sin(an) * d1, (k % 3 - 1) * 0.12, 0.8]); E.push([0, m, k % 2 ? 0.08 : -0.08, 0.9]);
+      var kids = 2 + k % 2; for (j2 = 0; j2 < kids; j2++) { var ca = an + (j2 - (kids - 1) / 2) * 0.34, d2 = 0.36 + (j2 % 2) * 0.06; N0.push([N0[m][0] + Math.cos(ca) * d2, N0[m][1] + Math.sin(ca) * d2, N0[m][2] * 1.6, 0.45]); E.push([m, N0.length - 1, 0.05, 0.45]); } }
+    return { n: N0, e: E };
+  }
+  function ready(F) { // how the particles are shared out: by each rope's length and width, and by each knot's size
+    var tot = 0, k; F.el = F.e.map(function (e) { var a = F.n[e[0]], b = F.n[e[1]], l = Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); tot += l * (0.4 + e[3]); return tot; });
+    for (k = 0; k < F.el.length; k++) F.el[k] /= tot; tot = 0; F.nl = F.n.map(function (n) { tot += n[3] * n[3]; return tot; }); for (k = 0; k < F.nl.length; k++) F.nl[k] /= tot; return F;
+  }
+  var FORMS = [ready(globeForm()), ready(wheelForm()), ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))];
+  function formShape(i, o, F) {
+    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), x, y, z, k = 0;
+    if (c < 0.6) {                                   // a rope: a bundle of strands, widest at its middle
+      while (k < F.el.length - 1 && F.el[k] < a) k++; var E = F.e[k], A = F.n[E[0]], B2 = F.n[E[1]], u = 1 - b, dx = B2[0] - A[0], dy = B2[1] - A[1], dz = B2[2] - A[2], l = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1, wd = Math.sin(3.14159 * b) * 0.05 * E[3];
+      if (F.r) { x = A[0] * u + B2[0] * b; y = A[1] * u + B2[1] * b; z = A[2] * u + B2[2] * b; var len = Math.sqrt(x * x + y * y + z * z) || 1, lift = F.r * (1 + E[2] * Math.sin(3.14159 * b) * l) / len; x *= lift; y *= lift; z *= lift; x += (d - 0.5) * wd; y += (e - 0.5) * wd; z += (q0(n * 3.7) - 0.5) * wd; }
+      else { var mx = (A[0] + B2[0]) / 2 - dy / l * E[2] * l * 2, my = (A[1] + B2[1]) / 2 + dx / l * E[2] * l * 2; x = u * u * A[0] + 2 * u * b * mx + b * b * B2[0]; y = u * u * A[1] + 2 * u * b * my + b * b * B2[1]; z = A[2] * u + B2[2] * b;
+        x += -dy / l * (d - 0.5) * wd; y += dx / l * (d - 0.5) * wd; z += (e - 0.5) * wd; }
+    } else {                                         // a knot: a core of light and a flare of rays
+      while (k < F.nl.length - 1 && F.nl[k] < a) k++; var P = F.n[k], sz = P[3], ang, r;
+      if (d < 0.42) { var rays = sz > 0.6 ? 6 : 4; ang = Math.floor(b * rays) / rays * 6.2832 + 0.3; r = e * e * 0.16 * sz; } else { ang = b * 6.2832; r = e * e * e * 0.075 * sz; }
+      x = P[0] + Math.cos(ang) * r; y = P[1] + Math.sin(ang) * r; z = P[2] + (q0(n * 3.7) - 0.5) * r;
     }
     o[i] = x; o[i + 1] = y; o[i + 2] = z;
   }
   function build(img) {
     var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; var x = c.getContext("2d"); x.drawImage(img, 0, 0);
     var d = x.getImageData(0, 0, c.width, c.height).data, SW = c.width, i = 0; FW = c.width; FH = c.height; srcImg = img; IMG_ASP = FW / FH;
-    for (; i < N - AMB; i++) { var j = i * 3; mapShape(j, T[1], MAPS[0]); mapShape(j, T[2], MAPS[1]); mapShape(j, T[3], MAPS[2]); mapShape(j, T[4], MAPS[3]);
+    for (; i < N - AMB; i++) { var j = i * 3; formShape(j, T[1], FORMS[0]); formShape(j, T[2], FORMS[1]); formShape(j, T[3], FORMS[2]); formShape(j, T[4], FORMS[3]);
       UU[i] = rnd(); VV[i] = rnd(); R[i * 4] = rnd(); R[i * 4 + 1] = rnd(); R[i * 4 + 2] = rnd() * rnd(); R[i * 4 + 3] = 0.55 + 0.45 * rnd(); }
     for (; i < N; i++) { var j3 = i * 3, ax = (rnd() - 0.5) * 6.4, ay = (rnd() - 0.5) * 3.4, az = -2.6 + rnd() * 4.6;
       for (var k = 1; k < 5; k++) { T[k][j3] = ax; T[k][j3 + 1] = ay; T[k][j3 + 2] = az; }
@@ -191,7 +213,7 @@
     ptr[0] += (pt[0] - ptr[0]) * 0.05; ptr[1] += (pt[1] - ptr[1]) * 0.05;
     var asp = W / H, port = asp < 0.85, tt = reduce ? 0 : t, nf = 1;
     var rot = [0, 0,
-      Math.sin(tt * 0.2) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
+      tt * 0.14 + ptr[0] * 0.3, 0.3 + ptr[1] * -0.1,                                    // the globe turns
       Math.sin(tt * 0.21 + 1) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
       Math.sin(tt * 0.19 + 2) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
       Math.sin(tt * 0.2 + 3) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
