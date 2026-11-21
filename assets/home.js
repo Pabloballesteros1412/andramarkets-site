@@ -158,11 +158,17 @@
       .map(function (e) { return [e[0], e[1], 0, 0.3]; });
     return { n: N0, e: E, smooth: 1 };
   }
+  function roseForm() { // a rosette: eight petals of two bowed ropes from one core, and a scalloped rim of eight more knots
+    var N0 = [[0, 0, 0, 1.2]], E = [], k;
+    for (k = 0; k < 8; k++) { var an = k / 8 * 6.2832 + 0.39; N0.push([Math.cos(an) * 0.53, Math.sin(an) * 0.53, (k % 2 ? 0.1 : -0.1), 0.8]); E.push([0, k + 1, 0.13, 0.75]); E.push([0, k + 1, -0.13, 0.75]); }
+    for (k = 0; k < 8; k++) { var a2 = (k + 0.5) / 8 * 6.2832 + 0.39; N0.push([Math.cos(a2) * 0.84, Math.sin(a2) * 0.84, 0, 0.5]); E.push([k + 1, 9 + k, -0.1, 0.5]); E.push([(k + 1) % 8 + 1, 9 + k, 0.1, 0.5]); }
+    return { n: N0, e: E };
+  }
   function ready(F) { // how the particles are shared out: by each rope's length and width, and by each knot's size
     var tot = 0, k; F.el = F.e.map(function (e) { var a = F.n[e[0]], b = F.n[e[1]], l = Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); tot += l * (0.4 + e[3]); return tot; });
     for (k = 0; k < F.el.length; k++) F.el[k] /= tot; tot = 0; F.nl = F.n.map(function (n) { tot += n[3] * n[3]; return tot; }); for (k = 0; k < F.nl.length; k++) F.nl[k] /= tot; return F;
   }
-  var FORMS = [ready(globeForm()), ready(starsForm()), ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))];
+  var FORMS = [ready(globeForm()), ready(roseForm()), ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))];
   function formShape(i, o, F) {
     var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), x, y, z, k = 0;
     if (c < 0.6) {                                   // a rope: a bundle of strands, widest at its middle
