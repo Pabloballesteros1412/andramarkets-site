@@ -188,7 +188,7 @@
     var boughs = []; for (k = 0; k < 9; k++) boughs.push([-0.5 + Math.pow(k / 8, 0.8) * 1.6 + (rnd() - 0.5) * 0.1, (rnd() - 0.5) * 0.8]); // lean (from upright, towards the wind) and depth
     for (k = 0; k < NS; k++) { var bg = boughs[Math.floor(Math.pow(rnd(), 0.75) * 9)], twig = Math.floor(rnd() * 4), th1 = bg[0] + (twig - 1.5) * 0.11, th2 = th1 + (rnd() - 0.5) * 0.3, L = (0.8 + rnd() * 0.5) * (1 + Math.max(0, bg[0]) * 0.28), dz = bg[1] + (rnd() - 0.5) * 0.3, droop = 0.5 + rnd() * 0.8,
         x = (rnd() - 0.5) * 0.012, y = 0, z = (rnd() - 0.5) * 0.012, pts = [];
-      for (j2 = 0; j2 < NP; j2++) { var t = j2 / (NP - 1), th = 0.12 + (bg[0] - 0.12) * sm(0.1, 0.38, t) + (th1 - bg[0]) * sm(0.32, 0.6, t) + (th2 - th1) * sm(0.55, 0.92, t) + droop * t * t * t * (bg[0] > 0.1 ? 1 : -0.4) + Math.sin(t * 9 + k) * 0.04 * t;
+      for (j2 = 0; j2 < NP; j2++) { var t = j2 / (NP - 1), th = 0.12 + (bg[0] - 0.12) * sm(0.0, 0.22, t) + (th1 - bg[0]) * sm(0.18, 0.5, t) + (th2 - th1) * sm(0.45, 0.9, t) + droop * t * t * t * (bg[0] > 0.1 ? 1 : -0.4) + Math.sin(t * 9 + k) * 0.04 * t;
         pts.push([x, y, z]); x -= Math.sin(th) * L / NP; y += Math.cos(th) * L / NP; z += dz * sm(0.2, 0.7, t) * L / NP; if (Math.abs(x) > mx) mx = Math.abs(x); if (y > my) my = y; }
       S.push(pts); }
     var sc = Math.min(1.1 / mx, 0.95 / my);
