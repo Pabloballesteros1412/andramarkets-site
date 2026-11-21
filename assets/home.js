@@ -25,11 +25,11 @@
     "  float hvB=0.75*mix(1.0,0.12,clamp(lift*2.2,0.0,1.0))*(0.1+0.9*exp(-abs(sin(th))*uRr*1.5));",
     "  float nt=clamp((uNight-aR.x*0.3)/0.7,0.0,1.0); nt=nt*nt*(3.0-2.0*nt);",
     // uOn marks the two shapes in play: the other four are not worked out for any particle
-    "  float w=0.0,w0=0.0,w1=0.0,bf=1.0;",
+    "  float w=0.0,w0=0.0,w1=0.0,bf=1.0,w2=0.0,bf2=1.0;",
     "  if(uOn[0]>0.5){ float sn=sin(3.14159*nt); vec3 hp=h0*uObj*uHS+uOff[0]; if(sn>0.0005) hp+=nz(h0*3.0+aR.y*7.0+uTime*0.2)*0.13*sn;",
     "    w=(1.0-ft)*step(abs(uA-0.0),0.5)+ft*step(abs(uB-0.0),0.5); w0=w; p+=w*mix(mix(arcW,hp,nt),rot(h0,uRot[0]),amb); wh+=w; }",
     "  if(uOn[1]>0.5){ w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); w1=w*(1.0-amb); bf=mix(0.2,1.0,smoothstep(-0.5,0.3,g1.z)); p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb)); }",
-    "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); p+=w*(rot(a2+vec3(0.0),uRot[2])*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
+    "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); vec3 g2=rot(a2,uRot[2]); w2=w*(1.0-amb); bf2=mix(0.22,1.0,smoothstep(-0.6,0.4,g2.z)); p+=w*(g2*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
     "  if(uOn[3]>0.5){ w=(1.0-ft)*step(abs(uA-3.0),0.5)+ft*step(abs(uB-3.0),0.5); p+=w*(rot(a3,uRot[3])*mix(uObj,1.0,amb)+uOff[3]*(1.0-amb)); }",
     "  if(uOn[4]>0.5){ w=(1.0-ft)*step(abs(uA-4.0),0.5)+ft*step(abs(uB-4.0),0.5); p+=w*(rot(a4,uRot[4])*mix(uObj,1.0,amb)+uOff[4]*(1.0-amb)); }",
     "  if(uOn[5]>0.5){ w=(1.0-ft)*step(abs(uA-5.0),0.5)+ft*step(abs(uB-5.0),0.5); p+=w*mix(arcW,rot(h0,uRot[5]),amb); wh+=w; }",
@@ -46,7 +46,7 @@
     "  float hk=wh*(1.0-amb); size=mix(size,max(1.0,1.15*uDpr/max(1.0,uDpr*0.8)),hk*(1.0-burst));",
     "  float sub=min(1.0,size*size); gl_PointSize=clamp(size,1.0,40.0*uDpr);",
     "  float br=mix(0.62,clamp(aR.w,0.0,1.0),0.0); br=mix(br,0.5,amb);",
-    "  float g=br*sub*uIntro/(1.0+coc*coc*18.0*amb)*(1.0-0.78*burst)*mix(uVis*0.34*uGain,0.3,amb)*mix(1.0,bf,w1);",
+    "  float g=br*sub*uIntro/(1.0+coc*coc*18.0*amb)*(1.0-0.78*burst)*mix(uVis*0.34*uGain,0.3,amb)*mix(1.0,bf,w1)*mix(1.0,bf2*0.8,w2);",
     "  float hv=step(aR.x,uHV)*uIntro*clamp(pow(aR.w,1.2)*0.96,0.0,1.0)*nt*mix(0.22,1.0,smoothstep(0.72,1.0,nt))*step(0.001,w0);",
     "  vA=mix(g,hv*(1.0-uImg),hk);",
     "}"].join("\n");
@@ -164,6 +164,20 @@
     for (k = 0; k < 8; k++) { var a2 = (k + 0.5) / 8 * 6.2832 + 0.39; N0.push([Math.cos(a2) * 0.84, Math.sin(a2) * 0.84, 0, 0.5]); E.push([k + 1, 9 + k, -0.1, 0.5]); E.push([(k + 1) % 8 + 1, 9 + k, 0.1, 0.5]); }
     return { n: N0, e: E };
   }
+  // Tools: an armillary sphere, the old instrument of tilted rings. Hair-thin threads of light, three to a ring,
+  // sixteen small points of light riding them (one for each tool), a fine axis and a faint shell of dust.
+  var RINGS = [[0.74, 0.35, 0], [0.74, 1.25, 0.25], [0.74, 0.5, 1.05], [0.74, -0.8, -0.7], [0.84, 1.5708, 0]];
+  function ringPt(R, th, off, k) { var g = RINGS[k], x = Math.cos(th) * R, y = off, z = Math.sin(th) * R, y2 = y * Math.cos(g[1]) - z * Math.sin(g[1]), z2 = y * Math.sin(g[1]) + z * Math.cos(g[1]); return [x * Math.cos(g[2]) - y2 * Math.sin(g[2]), x * Math.sin(g[2]) + y2 * Math.cos(g[2]), z2]; }
+  function armShape(i, o) {
+    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), P, k;
+    if (c < 0.6) { k = Math.min(4, Math.floor(b * 5)); var th = a * 6.2832, t3 = Math.floor(d * 3) - 1; P = ringPt(RINGS[k][0] + t3 * 0.016 + (e - 0.5) * 0.003, th, (q0(n * 3.7) - 0.5) * 0.003, k); }
+    else if (c < 0.66) { P = [(d - 0.5) * 0.004, (a - 0.5) * 1.8, (e - 0.5) * 0.004]; }                       // the axis
+    else if (c < 0.76) { var u = a * 2 - 1, ph = b * 6.2832, rr = Math.sqrt(1 - u * u), R2 = 0.45 + d * 0.45; P = [Math.cos(ph) * rr * R2, u * R2, Math.sin(ph) * rr * R2]; } // dust
+    else { var m = Math.floor(a * 17), sz, ang, r; if (m === 16) { P = [0, 0, 0]; sz = 0.9; } else { P = ringPt(RINGS[m % 4][0], (Math.floor(m / 4) + (m % 4) * 0.31) * 1.5708 + 0.4, 0, m % 4); sz = m % 3 ? 0.42 : 0.6; }
+      ang = b * 6.2832; r = e * e * e * 0.07 * sz; var up = d * 2 - 1, fl = Math.sqrt(1 - up * up);                 // a small round glow
+      P = [P[0] + Math.cos(ang) * fl * r, P[1] + up * r, P[2] + Math.sin(ang) * fl * r]; }
+    o[i] = P[0]; o[i + 1] = P[1]; o[i + 2] = P[2];
+  }
   function ready(F) { // how the particles are shared out: by each rope's length and width, and by each knot's size
     var tot = 0, k; F.el = F.e.map(function (e) { var a = F.n[e[0]], b = F.n[e[1]], l = Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); tot += l * (0.4 + e[3]); return tot; });
     for (k = 0; k < F.el.length; k++) F.el[k] /= tot; tot = 0; F.nl = F.n.map(function (n) { tot += n[3] * n[3]; return tot; }); for (k = 0; k < F.nl.length; k++) F.nl[k] /= tot; return F;
@@ -186,7 +200,7 @@
   function build(img) {
     var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; var x = c.getContext("2d"); x.drawImage(img, 0, 0);
     var d = x.getImageData(0, 0, c.width, c.height).data, SW = c.width, i = 0; FW = c.width; FH = c.height; srcImg = img; IMG_ASP = FW / FH;
-    for (; i < N - AMB; i++) { var j = i * 3; formShape(j, T[1], FORMS[0]); formShape(j, T[2], FORMS[1]); formShape(j, T[3], FORMS[2]); formShape(j, T[4], FORMS[3]);
+    for (; i < N - AMB; i++) { var j = i * 3; formShape(j, T[1], FORMS[0]); armShape(j, T[2]); formShape(j, T[3], FORMS[2]); formShape(j, T[4], FORMS[3]);
       UU[i] = rnd(); VV[i] = rnd(); R[i * 4] = rnd(); R[i * 4 + 1] = rnd(); R[i * 4 + 2] = rnd() * rnd(); R[i * 4 + 3] = 0.55 + 0.45 * rnd(); }
     for (; i < N; i++) { var j3 = i * 3, ax = (rnd() - 0.5) * 6.4, ay = (rnd() - 0.5) * 3.4, az = -2.6 + rnd() * 4.6;
       for (var k = 1; k < 5; k++) { T[k][j3] = ax; T[k][j3 + 1] = ay; T[k][j3 + 2] = az; }
@@ -250,7 +264,7 @@
     var asp = W / H, port = asp < 0.85, tt = reduce ? 0 : t, nf = 1;
     var rot = [0, 0,
       tt * 0.14 + ptr[0] * 0.3, 0.3 + ptr[1] * -0.1,                                    // the globe turns
-      Math.sin(tt * 0.21 + 1) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
+      tt * 0.1 + ptr[0] * 0.3, 0.2 + ptr[1] * -0.1,                                     // the sphere turns
       Math.sin(tt * 0.19 + 2) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
       Math.sin(tt * 0.2 + 3) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
       0, 0];
