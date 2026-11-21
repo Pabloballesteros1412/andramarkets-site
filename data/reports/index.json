@@ -1,6 +1,188 @@
 {
   "reports": [
     {
+      "slug": "2026-131-gta-vis-2-billion-first-day",
+      "date": "2026-11-20",
+      "type": "research",
+      "title": "GTA VI’s $2 Billion First Day: The Biggest Launch in Entertainment History and What It Means for Take-Two",
+      "summary": "Grand Theft Auto VI launched on 19 November with a 99 Metacritic score and an estimated 24.6 million copies and $2.36 billion of sales through its first day, three times GTA V’s record.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-130-anthropics-day-one",
+      "date": "2026-11-19",
+      "type": "research",
+      "title": "Anthropic’s Day One: Up 34% at the Open, 17% at the Close, and a Market That Sold Everything Else",
+      "summary": "Anthropic opened on Nasdaq at $111.50, 34% above its $83 IPO price, touched $115.10 and a valuation near $2 trillion, then closed at $97.17, up 17.1%, worth about $1.76 trillion fully diluted and the seventh most…",
+      "tags": [
+        "equities"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-129-the-october-minutes",
+      "date": "2026-11-19",
+      "type": "research",
+      "title": "The October Minutes: Almost All See More Hikes, a Couple Float 50bp, and AI Debt Gets Its Own Warning",
+      "summary": "The minutes of the Fed’s 27-28 October meeting, published on 18 November, show a committee closer to tightening than its 10-2 vote to hold rates suggested: ‘some’ participants, more than the two dissenters, wanted to…",
+      "tags": [
+        "rates",
+        "macro",
+        "credit"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-128-anthropic-prices-at-83",
+      "date": "2026-11-18",
+      "type": "research",
+      "title": "Anthropic Prices at $83: Above the Range, Upsized and on Track for the Largest IPO Ever",
+      "summary": "Anthropic priced its IPO at $83 a share on Wednesday evening, above its $70-78 marketed range, and increased the size of the offering, according to Bloomberg and CNBC.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 6
+    },
+    {
+      "slug": "2026-126-the-capex-curve-bends",
+      "date": "2026-11-18",
+      "type": "research",
+      "title": "The Capex Curve Bends: SemiAnalysis Cuts 2028 AI Chip Spending by 28%, Nvidia Raises Its Outlook Anyway",
+      "summary": "Days before Nvidia’s results, SemiAnalysis, one of the most closely followed independent semiconductor research firms, cut its forecast for global AI accelerator spending in 2028 by 28% to $758 billion and in 2029-30…",
+      "tags": [
+        "equities"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-125-nvidias-answer-to-the-crisis",
+      "date": "2026-11-17",
+      "type": "research",
+      "title": "Nvidia’s Answer to the Crisis: $115.8 Billion, a $130 Billion Guide and the Numbers Behind the First Report Without Huang",
+      "summary": "Five days after its founder resigned, Nvidia reported fiscal third-quarter revenue of $115.8 billion, up 103% from a year earlier, $7.8 billion above the midpoint of its own guidance and about $6.7 billion above…",
+      "tags": [
+        "equities"
+      ],
+      "pages": 15
+    },
+    {
+      "slug": "2026-124-asias-chip-rout-and-nvidias-leadership",
+      "date": "2026-11-16",
+      "type": "research",
+      "title": "Asia’s Chip Rout and Nvidia’s Leadership Tug-of-War: Taiex −6% on the Eve of Results",
+      "summary": "Asian chip markets slumped on Monday as Taiwan’s Taiex lost 6.03%, its second-largest points fall on record, and Korea’s Kospi 3.59%, with $3.1 billion of foreign selling across the two.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-123-warshs-super-intelligence-speech",
+      "date": "2026-11-16",
+      "type": "research",
+      "title": "Warsh’s ‘Super Intelligence’ Speech: An Optimist Chair Leading a Committee Leaning Towards Hikes",
+      "summary": "In his first visit to a regional Fed bank as chair, Kevin Warsh opened the Fed’s productivity and jobs conference in San Francisco by casting AI, which he calls ‘super intelligence’, as possibly the most…",
+      "tags": [
+        "rates",
+        "macro"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-122-is-the-cuda-moat-cracking-anthropics",
+      "date": "2026-11-15",
+      "type": "research",
+      "title": "Is the CUDA Moat Cracking? Anthropic’s Three-Day AMD Port and the Battle for AI Compute",
+      "summary": "In its IPO roadshow, Anthropic said its Claude Mythos Preview model brought up one Claude model’s prompt processing on AMD MI355X chips in about three days, writing or porting almost all the kernels with little human…",
+      "tags": [
+        "equities"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-120-bitcoin-below-67-000",
+      "date": "2026-11-14",
+      "type": "research",
+      "title": "Bitcoin Below $67,000: ETF Outflows, a Hawkish Fed and Strategy’s Index Exit",
+      "summary": "Bitcoin fell below $67,000 on Saturday, its lowest since August, down about 12% this week and 47% below its October 2025 peak, even as US stocks had their best week since August.",
+      "tags": [
+        "rates",
+        "fx"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-119-back-above-5",
+      "date": "2026-11-14",
+      "type": "research",
+      "title": "Back Above 5%: Why the 10-Year Treasury Yield Is Rising Again and What It Means",
+      "summary": "The 10-year Treasury yield climbed back above 5% this week, reaching 5.17% on Friday, after the October CPI showed a third hot month for core inflation and Fed officials signalled more hikes.",
+      "tags": [
+        "rates"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-117-spacex-and-tesla-edge-towards-a",
+      "date": "2026-11-13",
+      "type": "research",
+      "title": "SpaceX and Tesla Edge Towards a $3.5 Trillion Merger: What the Largest Deal Ever Would Mean",
+      "summary": "Bloomberg reported on 12 November that SpaceX and Tesla are making progress in merger talks and could announce a deal as soon as December, or early 2027.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-115-the-end-of-the-jensen-era",
+      "date": "2026-11-12",
+      "type": "research",
+      "title": "The End of the Jensen Era: Huang Resigns, Kress Steps In and Nvidia Searches for Its Second CEO",
+      "summary": "Jensen Huang resigned on 12 November as president, chief executive and director of Nvidia, the company he co-founded in 1993 and led to become the centre of the AI economy.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-114-nvidia-without-jensen-a-second-affair",
+      "date": "2026-11-12",
+      "type": "research",
+      "title": "Nvidia Without Jensen? A Second Affair, a Board Ready to Act and the Succession Question",
+      "summary": "On 11 November The New York Times reported that Jensen Huang had a relationship with Kimberly Powell, an Nvidia vice-president who reports to him, days after he admitted an affair with a woman US intelligence suspects…",
+      "tags": [
+        "equities"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-113-coreweaves-breakout-quarter",
+      "date": "2026-11-10",
+      "type": "research",
+      "title": "CoreWeave’s Breakout Quarter: Revenue Up 168%, Backlog $132.5 Billion, Debt $47 Billion",
+      "summary": "CoreWeave, the largest specialised AI cloud, beat estimates and raised its 2026 guidance on 10 November: revenue rose 168% to $3.66 billion, its backlog reached $132.5 billion and adjusted operating margins turned…",
+      "tags": [
+        "equities",
+        "credit"
+      ],
+      "pages": 5
+    },
+    {
+      "slug": "2026-109-the-fed-discovers-the-ai-boom",
+      "date": "2026-11-09",
+      "type": "research",
+      "title": "The Fed Discovers the AI Boom: Why Data Centres Are Now an Inflation Problem",
+      "summary": "On 9 November Chicago Fed president Austan Goolsbee said the AI data-centre build-out is starting to look like ‘old-fashioned demand overheating’, the clearest statement yet from a Fed official that the AI investment…",
+      "tags": [
+        "rates",
+        "macro"
+      ],
+      "pages": 10
+    },
+    {
       "slug": "2026-108-claude-fable-5-2",
       "date": "2026-11-09",
       "type": "research",
