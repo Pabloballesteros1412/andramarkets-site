@@ -29,12 +29,12 @@
     "  if(uOn[0]>0.5){ float sn=sin(3.14159*nt); vec3 hp=h0*uObj*uHS+uOff[0]; if(sn>0.0005) hp+=nz(h0*3.0+aR.y*7.0+uTime*0.2)*0.13*sn;",
     "    w=(1.0-ft)*step(abs(uA-0.0),0.5)+ft*step(abs(uB-0.0),0.5); w0=w; p+=w*mix(mix(arcW,hp,nt),rot(h0,uRot[0]),amb); wh+=w; }",
     "  if(uOn[1]>0.5){ w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); w1=w*(1.0-amb); bf=mix(0.2,1.0,smoothstep(-0.5,0.3,g1.z)); p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb)); }",
-    "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); vec3 g2=rot(a2,uRot[2]); w2=w*(1.0-amb); bf2=mix(0.5,1.0,smoothstep(-0.5,0.3,g2.z)); p+=w*(g2*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
+    "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); vec3 g2=rot(a2,uRot[2]); w2=w*(1.0-amb); bf2=mix(0.3,1.25,smoothstep(-0.6,0.4,g2.z)); p+=w*(g2*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
     "  if(uOn[3]>0.5){ w=(1.0-ft)*step(abs(uA-3.0),0.5)+ft*step(abs(uB-3.0),0.5); p+=w*(rot(a3,uRot[3])*mix(uObj,1.0,amb)+uOff[3]*(1.0-amb)); }",
     "  if(uOn[4]>0.5){ w=(1.0-ft)*step(abs(uA-4.0),0.5)+ft*step(abs(uB-4.0),0.5); p+=w*(rot(a4,uRot[4])*mix(uObj,1.0,amb)+uOff[4]*(1.0-amb)); }",
     "  if(uOn[5]>0.5){ w=(1.0-ft)*step(abs(uA-5.0),0.5)+ft*step(abs(uB-5.0),0.5); p+=w*mix(arcW,rot(h0,uRot[5]),amb); wh+=w; }",
-    "  float burst=sin(3.14159*ft)*(1.0-amb); p.x=mix(p.x, mod(p.x-uTime*0.2+3.2,6.4)-3.2, amb);",
-    "  float drift=0.2*burst+0.05*amb;",                                // the noise costs the most: only where a particle moves by it
+    "  float burst=pow(sin(3.14159*ft),4.0)*(1.0-amb); p.x=mix(p.x, mod(p.x-uTime*0.2+3.2,6.4)-3.2, amb);",
+    "  float drift=0.05*amb;",                                // the noise costs the most: only where a particle moves by it
     "  if(drift>0.0005) p+=nz(p*1.3+uTime*0.22+aR.y*6.0)*drift;",
     "  p.x-=burst*0.25*aR.y;",                                          // the wind carries the dust back
     "  float un=(1.0-uIntro)*(1.0-uIntro)*(1.0-amb); if(un>0.0005){ p+=nz(p*0.6+aR.x*9.0)*un*1.6; p.x+=un*2.2; }",
@@ -42,11 +42,12 @@
     "  float z=3.4-p.z; vec2 s=p.xy/z*2.75;",
     "  gl_Position=vec4(s.x/uAspect,s.y,0.0,1.0);",
     "  float coc=abs(p.z)*mix(1.0,1.6,amb);",
-    "  float size=mix(1.5+aR.z*0.2,aR.z*0.6+0.42,amb)*uPx*(3.4/z); size*=1.0+coc*2.6*amb+burst*aR.x*1.6+amb*0.6;",
+    "  float size=mix(1.5+aR.z*0.2,aR.z*0.6+0.42,amb)*uPx*(3.4/z); size*=1.0+coc*2.6*amb+amb*0.6;",
     "  float hk=wh*(1.0-amb); size=mix(size,max(1.0,1.15*uDpr/max(1.0,uDpr*0.8)),hk*(1.0-burst));",
     "  float sub=min(1.0,size*size); gl_PointSize=clamp(size,1.0,40.0*uDpr);",
     "  float br=mix(0.62,clamp(aR.w,0.0,1.0),0.0); br=mix(br,0.5,amb);",
     "  float g=br*sub*uIntro/(1.0+coc*coc*18.0*amb)*(1.0-0.78*burst)*mix(uVis*0.34*uGain,0.3,amb)*mix(1.0,bf,w1)*mix(1.0,bf2*0.8,w2);",
+    "  float scan=exp(-pow((p.y-(fract(uTime*0.11)*2.6-1.3))*7.0,2.0)); g*=mix(1.0,0.5+0.7*scan,(1.0-amb)*(1.0-wh));",   // fine lines keep their colour; the scan lifts them as it passes
     "  float hv=step(aR.x,uHV)*uIntro*clamp(pow(aR.w,1.2)*0.96,0.0,1.0)*nt*mix(0.22,1.0,smoothstep(0.72,1.0,nt))*step(0.001,w0);",
     "  vA=mix(g,hv*(1.0-uImg),hk);",
     "}"].join("\n");
@@ -93,86 +94,63 @@
   function q2(n) { var v = n * 0.5698402909980532; return v - Math.floor(v); }
   function q3(n) { var v = n * 0.8191725133961645; return v - Math.floor(v); }
   // the light of each shape: the horse, Markets (violet), Tools (white), Research (gold), Careers (blue), the close
-  var COLS = [[1, 1, 1], [0.8, 0.7, 1], [1, 1, 1], [1, 0.82, 0.56], [0.5, 0.72, 1], [1, 1, 1]];
+  var COLS = [[1, 1, 1], [0.66, 0.5, 1], [0.82, 0.9, 1], [1, 0.72, 0.32], [0.32, 0.62, 1], [1, 1, 1]];
   function q4(n) { var v = n * 0.4142135623730951; return v - Math.floor(v); }
-  // Each group's picture has a form of its own, in its map's colour (owner, 20 and 21 Nov 2026): Markets a globe
-  // of knots and arcs, Tools the reel's tree on both sides of a bottleneck, Research a burst from one core,
-  // Careers the web of its map. The globe, burst and web are drawn in the maps' language, knots joined by ropes.
-  // A form is knots [x, y, z, size] and ropes [from, to, bow, width]; on a globe the ropes follow the sphere.
+  // Each group's picture is a hologram of lines in its map's colour (owner, 21 Nov 2026: "more technological", not
+  // drawn in pencil): hair-fine straight lines of light, a small ring at each node, and a scan that sweeps up it.
+  // Markets a globe of parallels and meridians, Tools a bottleneck ruled in straight lines (a hyperboloid),
+  // Research a radar burst from one core, Careers the web of its map. A form is nodes [x, y, z, size] and
+  // lines [from, to]; a node of size 0 only joins lines. On a globe the lines follow the sphere.
+  function ring(N0, E, R, y, m, size, ph) { var b0 = N0.length, k; for (k = 0; k < m; k++) { var an = k / m * 6.2832 + (ph || 0); N0.push([Math.cos(an) * R, y, Math.sin(an) * R, size ? size(k) : 0]); E.push([b0 + k, b0 + (k + 1) % m]); } return b0; }
+  function globeForm() {
+    var N0 = [], E = [], R = 0.82, LA = 7, LO = 14, a, o;
+    for (a = 1; a <= LA; a++) { var ph = -1.5708 + a / (LA + 1) * 3.1416; ring(N0, E, Math.cos(ph) * R, Math.sin(ph) * R, LO, function (k) { return (k * 5 + a * 3) % 11 === 0 ? 0.9 : (k + a) % 4 === 0 ? 0.45 : 0; }); }
+    N0.push([0, -R, 0, 0.5]); N0.push([0, R, 0, 0.5]);
+    for (o = 0; o < LO; o++) { E.push([N0.length - 2, o]); for (a = 0; a < LA - 1; a++) E.push([a * LO + o, (a + 1) * LO + o]); E.push([(LA - 1) * LO + o, N0.length - 1]); }
+    return { n: N0, e: E, r: R };
+  }
+  function neckForm() { // two families of sixteen straight lines between two rings: they cross and leave a narrow neck
+    var N0 = [], E = [], M0 = 16, R = 0.72, H = 0.8, tw = 5, k, top = ring(N0, E, R, H, M0, function (k2) { return k2 % 2 ? 0.45 : 0.8; }), bot = ring(N0, E, R, -H, M0, function (k2) { return k2 % 2 ? 0.8 : 0.45; });
+    for (k = 0; k < M0; k++) { E.push([bot + k, top + (k + tw) % M0]); E.push([bot + k, top + (k - tw + M0) % M0]); }
+    ring(N0, E, R * Math.cos(tw / M0 * 3.1416), 0, 32, null);
+    return { n: N0, e: E };
+  }
+  function burstForm() {
+    var N0 = [[0, 0, 0, 1.2]], E = [], k, j2, flat = [];
+    for (k = 0; k < 7; k++) { var an = k / 7 * 6.2832 + 0.3, d1 = 0.46, m = N0.length; N0.push([Math.cos(an) * d1, Math.sin(an) * d1, 0, 0.8]); E.push([0, m]);
+      var kids = 2 + k % 2; for (j2 = 0; j2 < kids; j2++) { var ca = an + (j2 - (kids - 1) / 2) * 0.3; N0.push([Math.cos(ca) * 0.9, Math.sin(ca) * 0.9, 0, 0.45]); E.push([m, N0.length - 1]); } }
+    [0.46, 0.9].forEach(function (R) { var b0 = N0.length, m2 = 64; for (k = 0; k < m2; k++) { var a2 = k / m2 * 6.2832; N0.push([Math.cos(a2) * R, Math.sin(a2) * R, 0, 0]); flat.push([b0 + k, b0 + (k + 1) % m2, 0.4]); } }); // range rings, fainter
+    return { n: N0, e: E.concat(flat) };
+  }
   function webForm(kids) {
     var N0 = [], E = [], k, j2;
     for (k = 0; k < 6; k++) { var an = -Math.PI / 2 + k / 6 * 6.2832; N0.push([Math.cos(an) * 0.5, -Math.sin(an) * 0.5, 0, 1]); }
-    for (k = 0; k < 6; k++) E.push([k, (k + 1) % 6, -0.13, 1]);
-    for (k = 0; k < 6; k++) for (j2 = 0; j2 < kids[k]; j2++) { var a0 = -Math.PI / 2 + k / 6 * 6.2832, ca = a0 + (j2 - (kids[k] - 1) / 2) * 0.36, dd = 0.4 + (kids[k] > 3 && j2 % 2 ? 0.07 : 0);
-      N0.push([N0[k][0] + Math.cos(ca) * dd, N0[k][1] - Math.sin(ca) * dd, 0, 0.5]); E.push([k, N0.length - 1, 0.05, 0.5]); }
+    for (k = 0; k < 6; k++) { E.push([k, (k + 1) % 6]); E.push([k, (k + 2) % 6, 0.35]); }
+    for (k = 0; k < 6; k++) for (j2 = 0; j2 < kids[k]; j2++) { var a0 = -Math.PI / 2 + k / 6 * 6.2832, ca = a0 + (j2 - (kids[k] - 1) / 2) * 0.36;
+      N0.push([N0[k][0] + Math.cos(ca) * 0.42, N0[k][1] - Math.sin(ca) * 0.42, 0, 0.5]); E.push([k, N0.length - 1]); }
     return { n: N0, e: E };
   }
-  function globeForm() {
-    var N0 = [], E = [], M0 = 30, R = 0.8, i2, j2, seen = {};
-    for (i2 = 0; i2 < M0; i2++) { var yy = 1 - (i2 + 0.5) / M0 * 2, rr = Math.sqrt(1 - yy * yy), th = i2 * 2.39996; N0.push([Math.cos(th) * rr * R, yy * R, Math.sin(th) * rr * R, i2 % 5 === 0 ? 0.9 : 0.5]); }
-    for (i2 = 0; i2 < M0; i2++) { var near = []; for (j2 = 0; j2 < M0; j2++) if (j2 !== i2) near.push([Math.pow(N0[i2][0] - N0[j2][0], 2) + Math.pow(N0[i2][1] - N0[j2][1], 2) + Math.pow(N0[i2][2] - N0[j2][2], 2), j2]);
-      near.sort(function (a, b) { return a[0] - b[0]; }); [0, 1, 4].forEach(function (q) { var o2 = near[q][1], key = Math.min(i2, o2) + "-" + Math.max(i2, o2); if (!seen[key]) { seen[key] = 1; E.push([i2, o2, 0.1, q === 4 ? 0.45 : 0.6]); } }); }
-    return { n: N0, e: E, r: R };
+  function ready(F) { // how the particles are shared out: by each line's length (and weight), and by each node's size
+    var tot = 0, k; F.el = F.e.map(function (e) { var a = F.n[e[0]], b = F.n[e[1]], l = Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); tot += l * (e[2] || 1); return tot; });
+    for (k = 0; k < F.el.length; k++) F.el[k] /= tot; tot = 0; F.nl = F.n.map(function (n) { tot += n[3]; return tot; }); for (k = 0; k < F.nl.length; k++) F.nl[k] /= tot; return F;
   }
-  function burstForm() {
-    var N0 = [[0, 0, 0, 1.5]], E = [], k, j2;
-    for (k = 0; k < 7; k++) { var an = k / 7 * 6.2832 + 0.3, d1 = 0.5 + (k % 2) * 0.1, m = N0.length; N0.push([Math.cos(an) * d1, Math.sin(an) * d1, (k % 3 - 1) * 0.12, 0.8]); E.push([0, m, k % 2 ? 0.08 : -0.08, 0.9]);
-      var kids = 2 + k % 2; for (j2 = 0; j2 < kids; j2++) { var ca = an + (j2 - (kids - 1) / 2) * 0.34, d2 = 0.36 + (j2 % 2) * 0.06; N0.push([N0[m][0] + Math.cos(ca) * d2, N0[m][1] + Math.sin(ca) * d2, N0[m][2] * 1.6, 0.45]); E.push([m, N0.length - 1, 0.05, 0.45]); } }
-    return { n: N0, e: E };
-  }
-  // Tools: the tree of the owner's reference reel, made on both sides of a bottleneck (owner, 21 Nov 2026).
-  // Hundreds of hair-thin strands gather from a wide wind-blown crown below, squeeze through one narrow neck and
-  // fan out into a second crown above; one path through the neck is lit, with a light at each turn.
-  var TREE = (function () {
-    var seed = 11, NS = 900, NP = 26, S = [], k, j2, mx = 0, my = 0;
-    function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
-    function sm(a, b, t) { t = Math.max(0, Math.min(1, (t - a) / (b - a))); return t * t * (3 - 2 * t); }
-    var boughs = []; for (k = 0; k < 9; k++) boughs.push([-0.5 + Math.pow(k / 8, 0.8) * 1.6 + (rnd() - 0.5) * 0.1, (rnd() - 0.5) * 0.8]); // lean (from upright, towards the wind) and depth
-    for (k = 0; k < NS; k++) { var bg = boughs[Math.floor(Math.pow(rnd(), 0.75) * 9)], twig = Math.floor(rnd() * 4), th1 = bg[0] + (twig - 1.5) * 0.11, th2 = th1 + (rnd() - 0.5) * 0.3, L = (0.8 + rnd() * 0.5) * (1 + Math.max(0, bg[0]) * 0.28), dz = bg[1] + (rnd() - 0.5) * 0.3, droop = 0.5 + rnd() * 0.8,
-        x = (rnd() - 0.5) * 0.012, y = 0, z = (rnd() - 0.5) * 0.012, pts = [];
-      for (j2 = 0; j2 < NP; j2++) { var t = j2 / (NP - 1), th = 0.12 + (bg[0] - 0.12) * sm(0.0, 0.22, t) + (th1 - bg[0]) * sm(0.18, 0.5, t) + (th2 - th1) * sm(0.45, 0.9, t) + droop * t * t * t * (bg[0] > 0.1 ? 1 : -0.4) + Math.sin(t * 9 + k) * 0.04 * t;
-        pts.push([x, y, z]); x -= Math.sin(th) * L / NP; y += Math.cos(th) * L / NP; z += dz * sm(0.2, 0.7, t) * L / NP; if (Math.abs(x) > mx) mx = Math.abs(x); if (y > my) my = y; }
-      S.push(pts); }
-    var sc = Math.min(1.1 / mx, 0.95 / my);
-    S.forEach(function (pts) { pts.forEach(function (q) { q[0] *= sc; q[1] *= sc; q[2] *= sc; }); });
-    var best = 0, bv = -9; S.forEach(function (pts, n2) { var e2 = pts[NP - 1], v = e2[1] - Math.abs(e2[0] + 0.3) * 0.8; if (v > bv) { bv = v; best = n2; } }); // the lit path ends high in each crown
-    return { s: S, np: NP, lit: best };
-  })();
-  function halfPt(pts, t) { var f = t * (TREE.np - 1), i2 = Math.min(TREE.np - 2, Math.floor(f)), u = f - i2, A = pts[i2], B = pts[i2 + 1]; return [A[0] + (B[0] - A[0]) * u, A[1] + (B[1] - A[1]) * u, A[2] + (B[2] - A[2]) * u]; }
-  function strandPt(k, t) { // a whole strand: one half below the neck, turned about it, and another above
-    var NS = TREE.s.length, P; if (t >= 0.5) return halfPt(TREE.s[k], t * 2 - 1); P = halfPt(TREE.s[k === TREE.lit ? k : (k * 7 + 3) % NS], 1 - t * 2); return [-P[0], -P[1], -P[2]];
-  }
-  function treeShape(i, o) {
-    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), P;
-    if (c < 0.87) { var t = 0.5 + (b - 0.5) * Math.pow(Math.abs(b * 2 - 1), -0.15); P = strandPt(Math.floor(a * TREE.s.length) % TREE.s.length, Math.max(0, Math.min(1, t))); P[0] += (d - 0.5) * 0.0015; P[1] += (e - 0.5) * 0.0015; }
-    else if (c < 0.91) { P = strandPt(TREE.lit, b); P[0] += (d - 0.5) * 0.004; P[1] += (e - 0.5) * 0.004; }                   // the lit path
-    else { var m = Math.floor(a * 9) % 9, ang = b * 6.2832, up = d * 2 - 1, fl = Math.sqrt(1 - up * up), r = e * e * e * (m === 0 || m === 8 ? 0.06 : m === 4 ? 0.075 : 0.028); P = strandPt(TREE.lit, m / 8); // a light at each turn; the neck and the two tips brightest
-      P = [P[0] + Math.cos(ang) * fl * r, P[1] + up * r, P[2] + Math.sin(ang) * fl * r]; }
-    o[i] = P[0]; o[i + 1] = P[1]; o[i + 2] = P[2];
-  }
-  function ready(F) { // how the particles are shared out: by each rope's length and width, and by each knot's size
-    var tot = 0, k; F.el = F.e.map(function (e) { var a = F.n[e[0]], b = F.n[e[1]], l = Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); tot += l * (0.4 + e[3]); return tot; });
-    for (k = 0; k < F.el.length; k++) F.el[k] /= tot; tot = 0; F.nl = F.n.map(function (n) { tot += n[3] * n[3]; return tot; }); for (k = 0; k < F.nl.length; k++) F.nl[k] /= tot; return F;
-  }
-  var FORMS = [ready(globeForm()), null, ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))]; // Tools is the tree, above
+  var FORMS = [ready(globeForm()), ready(neckForm()), ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))];
   function formShape(i, o, F) {
-    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), x, y, z, k = 0;
-    if (c < 0.6) {                                   // a rope: a bundle of strands, widest at its middle
-      while (k < F.el.length - 1 && F.el[k] < a) k++; var E = F.e[k], A = F.n[E[0]], B2 = F.n[E[1]], u = 1 - b, dx = B2[0] - A[0], dy = B2[1] - A[1], dz = B2[2] - A[2], l = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1, wd = Math.sin(3.14159 * b) * 0.05 * E[3];
-      if (F.r) { x = A[0] * u + B2[0] * b; y = A[1] * u + B2[1] * b; z = A[2] * u + B2[2] * b; var len = Math.sqrt(x * x + y * y + z * z) || 1, lift = F.r * (1 + E[2] * Math.sin(3.14159 * b) * l) / len; x *= lift; y *= lift; z *= lift; x += (d - 0.5) * wd; y += (e - 0.5) * wd; z += (q0(n * 3.7) - 0.5) * wd; }
-      else { var mx = (A[0] + B2[0]) / 2 - dy / l * E[2] * l * 2, my = (A[1] + B2[1]) / 2 + dx / l * E[2] * l * 2; x = u * u * A[0] + 2 * u * b * mx + b * b * B2[0]; y = u * u * A[1] + 2 * u * b * my + b * b * B2[1]; z = A[2] * u + B2[2] * b;
-        x += -dy / l * (d - 0.5) * wd; y += dx / l * (d - 0.5) * wd; z += (e - 0.5) * wd; }
-    } else {                                         // a knot: a core of light and a flare of rays
-      while (k < F.nl.length - 1 && F.nl[k] < a) k++; var P = F.n[k], sz = P[3], ang, r;
-      if (d < 0.42) { var rays = sz > 0.6 ? 6 : 4; ang = Math.floor(b * rays) / rays * 6.2832 + 0.3; r = e * e * 0.16 * sz; } else { ang = b * 6.2832; r = e * e * e * 0.075 * sz; }
-      x = P[0] + Math.cos(ang) * r; y = P[1] + Math.sin(ang) * r; z = P[2] + (q0(n * 3.7) - 0.5) * r;
+    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), x, y, z, k = 0;
+    if (c < 0.8) {                                   // a line: exact, no width
+      while (k < F.el.length - 1 && F.el[k] < a) k++; var E = F.e[k], A = F.n[E[0]], B2 = F.n[E[1]], u = 1 - b;
+      x = A[0] * u + B2[0] * b; y = A[1] * u + B2[1] * b; z = A[2] * u + B2[2] * b;
+      if (F.r) { var lift = F.r / (Math.sqrt(x * x + y * y + z * z) || 1); x *= lift; y *= lift; z *= lift; }
+    } else {                                         // a node: a small ring, and a point at its centre
+      while (k < F.nl.length - 1 && F.nl[k] < a) k++; var P = F.n[k], r = d < 0.22 ? 0.004 * d : 0.026 * P[3], ang = b * 6.2832;
+      x = P[0] + Math.cos(ang) * r; y = P[1] + Math.sin(ang) * r; z = P[2];
     }
     o[i] = x; o[i + 1] = y; o[i + 2] = z;
   }
   function build(img) {
     var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; var x = c.getContext("2d"); x.drawImage(img, 0, 0);
     var d = x.getImageData(0, 0, c.width, c.height).data, SW = c.width, i = 0; FW = c.width; FH = c.height; srcImg = img; IMG_ASP = FW / FH;
-    for (; i < N - AMB; i++) { var j = i * 3; formShape(j, T[1], FORMS[0]); treeShape(j, T[2]); formShape(j, T[3], FORMS[2]); formShape(j, T[4], FORMS[3]);
+    for (; i < N - AMB; i++) { var j = i * 3; formShape(j, T[1], FORMS[0]); formShape(j, T[2], FORMS[1]); formShape(j, T[3], FORMS[2]); formShape(j, T[4], FORMS[3]);
       UU[i] = rnd(); VV[i] = rnd(); R[i * 4] = rnd(); R[i * 4 + 1] = rnd(); R[i * 4 + 2] = rnd() * rnd(); R[i * 4 + 3] = 0.55 + 0.45 * rnd(); }
     for (; i < N; i++) { var j3 = i * 3, ax = (rnd() - 0.5) * 6.4, ay = (rnd() - 0.5) * 3.4, az = -2.6 + rnd() * 4.6;
       for (var k = 1; k < 5; k++) { T[k][j3] = ax; T[k][j3 + 1] = ay; T[k][j3 + 2] = az; }
@@ -236,7 +214,7 @@
     var asp = W / H, port = asp < 0.85, tt = reduce ? 0 : t, nf = 1;
     var rot = [0, 0,
       tt * 0.14 + ptr[0] * 0.3, 0.3 + ptr[1] * -0.1,                                    // the globe turns
-      Math.sin(tt * 0.21 + 1) * 0.2 + ptr[0] * 0.25, 0.1 + ptr[1] * -0.1,                // the tree sways
+      tt * 0.12 + ptr[0] * 0.3, 0.32 + ptr[1] * -0.1,                                   // the neck turns
       Math.sin(tt * 0.19 + 2) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
       Math.sin(tt * 0.2 + 3) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
       0, 0];
