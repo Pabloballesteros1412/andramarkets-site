@@ -40,17 +40,18 @@
     narrow = map.clientWidth < 900; if (narrow) { Z0 = map.clientWidth / VW; map.style.height = Math.round(VH * Z0) + "px"; } else map.style.height = "";
     CW = map.clientWidth; CH = map.clientHeight; dpr = Math.min(window.devicePixelRatio || 1, 2); cv.width = Math.round(CW * dpr); cv.height = Math.round(CH * dpr);
     if (narrow) { W = VW; H = VH; Z = Z0; } else { W = CW; H = CH; Z = 1; } OX = OY = 0;
-    var rx = Math.min(W * 0.37, 520), ry = narrow ? H * 0.36 : Math.min(H * 0.27, 300), cx0 = W / 2, cy0 = narrow ? H / 2 : H * 0.6, top0 = 24; // on a wide screen the title sits over the top of the picture
-    if (!narrow) { var hd = document.querySelector(".lib .page__head"); if (hd) top0 = Math.max(24, hd.getBoundingClientRect().bottom - map.getBoundingClientRect().top + 30); ry = Math.max(150, Math.min(ry, (H - 96 - top0 - 64) / 2)); cy0 = Math.max(top0 + 30 + ry, Math.min(cy0, H - 96 - ry)); }
-    top0 = cy0 - ry + (narrow ? 44 : 34); // every report sits under the topic at the top, never over it
+    var rx = Math.min(W * 0.37, 520), ry = narrow ? H * 0.36 : Math.min(H * 0.27, 300), cx0 = W / 2, cy0 = narrow ? H / 2 : H * 0.6; // on a wide screen the title sits over the top of the picture
+    if (!narrow) { var hd = document.querySelector(".lib .page__head"); if (hd) cy0 = Math.max(cy0, Math.min(H - 90 - ry, hd.getBoundingClientRect().bottom - map.getBoundingClientRect().top + 46 + ry)); } // the topic at the top clears the heading
     T.forEach(function (t) { t.x = cx0 + Math.cos(t.a) * rx; t.y = cy0 + Math.sin(t.a) * ry; t.r = (narrow ? 15 : 11) + Math.sqrt(t.n) * 0.9;
       var s = t.el.style, c = Math.cos(t.a), sn = Math.sin(t.a); var mid = Math.abs(c) < 0.3; s.left = (t.x + (mid ? 34 : c * 56)) + "px"; s.top = (t.y + (mid ? sn * 10 : sn * 40)) + "px"; s.transform = "translate(" + (c < -0.3 ? "-100%" : "0") + ",-50%)";
-      // a topic's own reports: a fan on the side of it that faces the middle of the map
-      t.singles.forEach(function (r, k) { var d = 58 + 24 * Math.sqrt(k + 0.4), a = Math.atan2(-sn, -c) + ((k * 0.61803 + t.ph) % 1 - 0.5) * 2.5; r.x = t.x + Math.cos(a) * d * 1.15; r.y = t.y + Math.sin(a) * d * 0.9; }); });
+      // a topic's own reports: a spiral round it, leaning toward the middle of the map
+      var up = sn < -0.9; // the topic at the top keeps its reports under it: the same spiral, folded down
+      t.singles.forEach(function (r, k) { var d = 54 + 25 * Math.sqrt((up ? 1.7 : 1) * k + 0.4), a = k * 2.39996 + t.ph, ox = Math.cos(a) * d * (up ? 1.45 : 1.15), oy = Math.sin(a) * d * 0.9; r.x = t.x - c * 46 + ox; r.y = up ? t.y + 40 + Math.abs(oy) : t.y - sn * 46 + oy; }); });
     // a report on several topics sits between them
     R.forEach(function (r) { if (r.tg.length < 2) return; var x = 0, y = 0; r.tg.forEach(function (t) { x += t.x / r.tg.length; y += t.y / r.tg.length; }); r.x = x + (cx0 - x) * 0.12 + r.j[0] * 90; r.y = y + (cy0 - y) * 0.12 + r.j[1] * 90; });
+    var top0 = cy0 - ry + (narrow ? 40 : 30); // no report over the topic at the top
     for (var it = 0; it < 80; it++) { for (var i = 0; i < R.length; i++) { for (var j = i + 1; j < R.length; j++) { var a = R[i], b = R[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1, m = 32; if (d < m) { var f = (m - d) / 2 / d; a.x -= dx * f; a.y -= dy * f; b.x += dx * f; b.y += dy * f; } }
-      T.forEach(function (t) { var q = R[i], dx = q.x - t.x, dy = q.y - t.y, d = Math.hypot(dx, dy) || 1; if (d < 46) { q.x = t.x + dx / d * 46; q.y = t.y + dy / d * 46; } }); if (R[i].y < top0) R[i].y = top0 + (i % 5) * 3; } }
+      T.forEach(function (t) { var q = R[i], dx = q.x - t.x, dy = q.y - t.y, d = Math.hypot(dx, dy) || 1; if (d < 46) { q.x = t.x + dx / d * 46; q.y = t.y + dy / d * 46; } }); if (R[i].y < top0) R[i].y = top0 + (i % 7) * 4; } }
     R.forEach(function (r) { r.x = Math.max(24, Math.min(W - 24, r.x)); r.y = Math.max(top0, Math.min(H - 24, r.y)); r.r = (narrow ? 3.6 : 2.6) + 2.4 * (1 - r.age) * (1 - r.age); });
     view();
   }
