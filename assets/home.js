@@ -178,7 +178,7 @@
   function fstr(n) { var a = []; for (var i = 0; i < n; i++) a.push({ r: Math.sqrt(fr()), tw: (fr() - 0.5) * 1.4, ph: fr() * 6.28, sp: 0.5 + fr() }); return a; }
   function fglow(x, y, r, a) { a *= FA; var g = fx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "rgba(255,255,255," + a.toFixed(3) + ")"); g.addColorStop(0.25, "rgba(" + FC[1] + "," + (a * 0.45).toFixed(3) + ")"); g.addColorStop(1, "rgba(" + FC[2] + ",0)"); fx.fillStyle = g; fx.fillRect(x - r, y - r, r * 2, r * 2); }
   function frope(ax, ay, bx, by, bow, st, wide, base, t, pulses, key) {
-    var dx = bx - ax, dy = by - ay, l = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / l, ny = dx / l, c0 = (ax + bx) / 2 + nx * bow * l, c1 = (ay + by) / 2 + ny * bow * l;
+    var dx = bx - ax, dy = by - ay, l = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / l, ny = dx / l, c0 = bow.length ? bow[0] : (ax + bx) / 2 + nx * bow * l, c1 = bow.length ? bow[1] : (ay + by) / 2 + ny * bow * l; // bow: how far it bends, or the point it bends through
     var p1x = ax + (c0 - ax) * 2 / 3, p1y = ay + (c1 - ay) * 2 / 3, p2x = bx + (c0 - bx) * 2 / 3, p2y = by + (c1 - by) * 2 / 3; fx.lineWidth = 0.55 * FL;
     for (var q = 0; q < st.length; q++) { var z = st[q], th = z.ph + t * z.sp * 0.5, o1 = wide * z.r * Math.sin(th), o2 = wide * z.r * Math.sin(th + 2.6 + z.tw);
       fx.strokeStyle = "rgba(" + FC[0] + "," + (FA * base * (0.3 + 0.7 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; fx.beginPath(); fx.moveTo(ax, ay); fx.bezierCurveTo(p1x + nx * o1, p1y + ny * o1, p2x + nx * o2, p2y + ny * o2, bx, by); fx.stroke(); }
@@ -196,10 +196,11 @@
   }
   // the web and the burst: knots [x, y, big, phase], ropes [from, to, bow, strands, wide, pulses]
   function flat(kn, rp) { return { k: kn, r: rp.map(function (e) { return { a: e[0], b: e[1], bow: e[2], st: fstr(e[3]), wide: e[4], pu: e[5] }; }) }; }
-  var WEB = (function () { var kn = [], rp = [], kids = [2, 2, 5, 4, 5, 4], k, j2;
-    for (k = 0; k < 6; k++) { var an = -Math.PI / 2 + k / 6 * 6.2832; kn.push([Math.cos(an) * 0.5, Math.sin(an) * 0.5, 1, fr() * 6]); }
-    for (k = 0; k < 6; k++) rp.push([k, (k + 1) % 6, 0.2, 46, 0.045, 2]);
-    for (k = 0; k < 6; k++) for (j2 = 0; j2 < kids[k]; j2++) { var a0 = -Math.PI / 2 + k / 6 * 6.2832, ca = a0 + (j2 - (kids[k] - 1) / 2) * 0.36, dd = 0.4 + (kids[k] > 3 && j2 % 2 ? 0.07 : 0); kn.push([kn[k][0] + Math.cos(ca) * dd, kn[k][1] + Math.sin(ca) * dd, 0, fr() * 6]); rp.push([k, kn.length - 1, (j2 % 2 ? 1 : -1) * 0.08, 14, 0.022, 1]); }
+  var PATH = (function () { var kn = [], rp = [], kids = [2, 2, 5, 4, 5, 4], k, j2; // Careers: six stages climbing to the brightest, each with its parts to one side
+    for (k = 0; k < 6; k++) { var u = k / 5; kn.push([-0.62 + 1.2 * u + Math.sin(u * 6.2832) * 0.1, -0.7 + 1.4 * u - Math.sin(u * 6.2832) * 0.13, k === 5 ? 1.7 : 1, fr() * 6]); }
+    for (k = 0; k < 5; k++) rp.push([k, k + 1, k % 2 ? 0.2 : -0.2, 46, 0.045, 2]);
+    for (k = 0; k < 6; k++) { var a = kn[Math.max(0, k - 1)], b = kn[Math.min(5, k + 1)], dir = Math.atan2(b[1] - a[1], b[0] - a[0]) + (k % 2 ? -1.5708 : 1.5708);
+      for (j2 = 0; j2 < kids[k]; j2++) { var ca = dir + (j2 - (kids[k] - 1) / 2) * 0.36, dd = 0.3 + (j2 % 2 ? 0.06 : 0); kn.push([kn[k][0] + Math.cos(ca) * dd, kn[k][1] + Math.sin(ca) * dd, 0, fr() * 6]); rp.push([k, kn.length - 1, (j2 % 2 ? 1 : -1) * 0.08, 14, 0.022, 1]); } }
     return flat(kn, rp); })();
   var BURST = (function () { var kn = [[0, 0, 1, 1]], rp = [], k, j2;
     for (k = 0; k < 7; k++) { var an = k / 7 * 6.2832 + 0.3, d1 = 0.5 + (k % 2) * 0.1, m = kn.length; kn.push([Math.cos(an) * d1, Math.sin(an) * d1, 1, fr() * 6]); rp.push([0, m, k % 2 ? 0.16 : -0.16, 34, 0.04, 2]);
@@ -210,19 +211,18 @@
     for (i2 = 0; i2 < M0; i2++) { var near = []; for (j2 = 0; j2 < M0; j2++) if (j2 !== i2) near.push([Math.pow(kn[i2][0] - kn[j2][0], 2) + Math.pow(kn[i2][1] - kn[j2][1], 2) + Math.pow(kn[i2][2] - kn[j2][2], 2), j2]);
       near.sort(function (a, b) { return a[0] - b[0]; }); [0, 1, 4].forEach(function (q) { var o2 = near[q][1], key = Math.min(i2, o2) + "-" + Math.max(i2, o2); if (!seen[key]) { seen[key] = 1; ed.push({ a: i2, b: o2, st: fstr(7), pu: ed.length % 3 === 0 }); } }); }
     return { k: kn, e: ed }; })();
-  var TREE2 = (function () { var a = [], k; for (k = 0; k < 250; k++) { var th = -0.55 + Math.pow(fr(), 0.8) * 1.85; a.push({ th: th, L: (0.6 + fr() * 0.36) * (1 + Math.max(0, th) * 0.16), dr: 0.35 + fr() * 0.6, ph: fr() * 6.28, al: 0.07 + fr() * 0.17, m: Math.floor(fr() * 250) }); }
-    var best = 0, bv = -9; a.forEach(function (z, n2) { var v = z.L - Math.abs(z.th - 0.5); if (v > bv) { bv = v; best = n2; } }); a.lit = best; a[best].m = best; return a; })();
+  var GLASS = (function () { var a = [], k; for (k = 0; k < 16; k++) a.push({ an: Math.floor(k / 2) / 8 * 6.2832 + (k % 2 ? 0.39 : 0), top: k % 2 === 0, st: fstr(22), rim: fstr(9), ph: fr() * 6 }); return a; })(); // Tools: eight knots above, eight below, every rope through one neck
   function figs(t, wts, cxN, cyN, obj, intro) {
     var d = Math.min(2, window.devicePixelRatio || 1), w = Math.round(W * d), h = Math.round(H * d); if (fc.width !== w || fc.height !== h) { fc.width = w; fc.height = h; }
     fx.setTransform(1, 0, 0, 1, 0, 0); fx.clearRect(0, 0, w, h); fx.globalCompositeOperation = "lighter";
     var X0 = (cxN * 0.5 + 0.5) * w, Y0 = (0.5 - cyN * 0.5) * h, R = obj * h * 0.5 * 2.75 / 3.4; FL = d * Math.max(0.8, Math.min(1.5, R / (330 * d)));
     for (var n = 1; n <= 4; n++) { var al = wts[n]; if (al < 0.01) continue; FA = al * al * intro; FC = TINT[n]; var S = R * (0.94 + 0.06 * al);
-      if (n === 1) drawGlobe(t, X0, Y0, S * 0.84); else if (n === 2) drawTree(t, X0, Y0, S * 0.92); else drawFlat(n === 3 ? BURST : WEB, t, X0, Y0, S * (n === 3 ? 0.98 : 1), n === 3 ? 0.3 : 0.42); }
+      if (n === 1) drawGlobe(t, X0, Y0, S * 0.84); else if (n === 2) drawGlass(t, X0, Y0, S); else drawFlat(n === 3 ? BURST : PATH, t, X0, Y0, S * (n === 3 ? 0.98 : 1.08), n === 3 ? 0.3 : 0.42); }
   }
   function drawFlat(F, t, X0, Y0, S, base) {
     var P = F.k.map(function (k, i2) { var fl = k[2] ? 0.012 : 0.02; return [X0 + (k[0] + Math.sin(t * 0.42 + k[3] * 2) * fl) * S, Y0 - (k[1] + Math.cos(t * 0.36 + k[3] * 3) * fl) * S]; });
     F.r.forEach(function (e, i2) { frope(P[e.a][0], P[e.a][1], P[e.b][0], P[e.b][1], e.bow, e.st, e.wide * S, base, t, e.pu, i2); });
-    F.k.forEach(function (k, i2) { fknot(P[i2][0], P[i2][1], (k[2] ? 0.024 : 0.012) * S, k[2], t, k[3], 1); });
+    F.k.forEach(function (k, i2) { fknot(P[i2][0], P[i2][1], (k[2] ? 0.024 * k[2] : 0.012) * S, k[2], t, k[3], 1); });
   }
   function drawGlobe(t, X0, Y0, S) {
     var ay = t * 0.14 + ptr[0] * 0.3, ax = 0.3 - ptr[1] * 0.1, ca = Math.cos(ay), sa = Math.sin(ay), cb = Math.cos(ax), sb = Math.sin(ax);
@@ -237,16 +237,17 @@
       if (e.pu && dep > 0.5) { var f = (t * 0.13 + i2 * 0.37) % 1, k = Math.min(9, Math.floor(f * 10)), u3 = f * 10 - k, hx2 = pts[k][0] + (pts[k + 1][0] - pts[k][0]) * u3, hy2 = pts[k][1] + (pts[k + 1][1] - pts[k][1]) * u3; fglow(hx2, hy2, 8 * FL, 0.85 * dep); } });
     GLOBE.k.forEach(function (k, i2) { var dep = Math.max(0, Math.min(1, (P[i2][2] + 0.55) / 0.9)); if (dep < 0.5) fglow(P[i2][0], P[i2][1], 0.02 * S, 0.25 + 0.5 * dep); else fknot(P[i2][0], P[i2][1], (k[3] ? 0.02 : 0.011) * S, k[3], t, k[4], dep); });
   }
-  function drawTree(t, X0, Y0, S) {
-    function half(z, sg) { var th = z.th + Math.sin(t * 0.5 + z.ph) * 0.03 + ptr[0] * 0.05, L = z.L, e = th + (th > 0.1 ? z.dr : -0.4 * z.dr), tx = -Math.sin(th) * L, ty = Math.cos(th) * L * 0.86;
-      return [X0 + sg * (-0.02) * S, Y0 - sg * 0.2 * S, X0 + sg * (tx + Math.sin(e) * 0.36 * L) * S, Y0 - sg * (ty - Math.cos(e) * 0.36 * L) * S, X0 + sg * tx * S, Y0 - sg * ty * S]; }
-    function bez(h, f) { var u = 1 - f; return [u * u * u * X0 + 3 * u * u * f * h[0] + 3 * u * f * f * h[2] + f * f * f * h[4], u * u * u * Y0 + 3 * u * u * f * h[1] + 3 * u * f * f * h[3] + f * f * f * h[5]]; }
-    fx.lineWidth = 0.6 * FL; fx.lineCap = "round";
-    TREE2.forEach(function (z, i2) { if (i2 === TREE2.lit) return; var a = half(z, 1), b = half(TREE2[z.m], -1); fx.strokeStyle = "rgba(" + FC[0] + "," + (FA * z.al).toFixed(3) + ")"; fx.beginPath(); fx.moveTo(b[4], b[5]); fx.bezierCurveTo(b[2], b[3], b[0], b[1], X0, Y0); fx.bezierCurveTo(a[0], a[1], a[2], a[3], a[4], a[5]); fx.stroke(); });
-    var lz = TREE2[TREE2.lit], la = half(lz, 1), lb = half(lz, -1); fx.strokeStyle = "rgba(" + FC[0] + "," + (FA * 0.85).toFixed(3) + ")"; fx.lineWidth = 1.3 * FL; fx.beginPath(); fx.moveTo(lb[4], lb[5]); fx.bezierCurveTo(lb[2], lb[3], lb[0], lb[1], X0, Y0); fx.bezierCurveTo(la[0], la[1], la[2], la[3], la[4], la[5]); fx.stroke();
-    fglow(X0, Y0, 0.16 * S, 0.3); fknot(X0, Y0, 0.02 * S, 1, t, 1, 1); fknot(la[4], la[5], 0.016 * S, 1, t, 2, 1); fknot(lb[4], lb[5], 0.016 * S, 1, t, 3, 1);
-    [0.5, 0.78].forEach(function (f, i2) { var q = bez(la, f), q2 = bez(lb, f); fknot(q[0], q[1], 0.008 * S, 0, t, 4 + i2, 1); fknot(q2[0], q2[1], 0.008 * S, 0, t, 6 + i2, 1); });
-    var pf = (t * 0.16) % 2, hd = pf < 1 ? bez(lb, 1 - pf) : bez(la, pf - 1); fglow(hd[0], hd[1], 10 * FL, 0.95);
+  function drawGlass(t, X0, Y0, S) {
+    var ay = t * 0.16 + ptr[0] * 0.3, ax = 0.34 - ptr[1] * 0.1, ca = Math.cos(ay), sa = Math.sin(ay), cb = Math.cos(ax), sb = Math.sin(ax), RR = 0.62, HH = 0.74;
+    function pr3(x, y, z) { var x1 = x * ca + z * sa, z1 = -x * sa + z * ca, y1 = y * cb - z1 * sb, z2 = y * sb + z1 * cb, f = 1 / (1 - z2 * 0.16); return [X0 + x1 * S * f, Y0 - y1 * S * f, z2]; }
+    function dp(z) { var d2 = Math.max(0, Math.min(1, (z + 0.7) / 1.3)); return 0.3 + 0.7 * d2; }
+    var P = GLASS.map(function (g) { return pr3(Math.cos(g.an) * RR, g.top ? HH : -HH, Math.sin(g.an) * RR); });
+    GLASS.forEach(function (g, i2) { var y = g.top ? HH : -HH, nb = (i2 + 2) % 16, m = g.an + 0.3927, c = pr3(Math.cos(m) * RR * 1.09, y, Math.sin(m) * RR * 1.09);   // the rim
+      frope(P[i2][0], P[i2][1], P[nb][0], P[nb][1], [c[0], c[1]], g.rim, 0.012 * S, 0.4 * dp((P[i2][2] + P[nb][2]) / 2), t, 0, i2); });
+    GLASS.forEach(function (g, i2) { var y = g.top ? HH : -HH, c = pr3(Math.cos(g.an) * RR * 0.12, y * 0.34, Math.sin(g.an) * RR * 0.12);               // through the neck
+      frope(P[i2][0], P[i2][1], X0, Y0, [c[0], c[1]], g.st, 0.034 * S, 0.5 * dp(P[i2][2]), t, i2 % 2 === 0 ? 1 : 0, i2); });
+    fglow(X0, Y0, 0.14 * S, 0.3); fknot(X0, Y0, 0.026 * S, 1, t, 1, 1);
+    GLASS.forEach(function (g, i2) { fknot(P[i2][0], P[i2][1], 0.02 * S, i2 % 4 === 0, t, g.ph, dp(P[i2][2])); });
   }
   function build(img) {
     var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; var x = c.getContext("2d"); x.drawImage(img, 0, 0);
