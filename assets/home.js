@@ -211,7 +211,7 @@
   // Careers: the skyline the group is about, towers with their windows lit.
   var TOWERS = (function () { var a = [], x = -0.98, k; while (x < 0.9) { var w = 0.09 + fr() * 0.09, mid = 1 - Math.abs(x + w / 2) * 0.75, h = (0.35 + fr() * 0.5) * (0.55 + mid * 0.75), cols = Math.max(2, Math.round(w / 0.03)), rows = Math.max(3, Math.round(h / 0.045)), win = [];
       for (k = 0; k < cols * rows; k++) win.push(fr() < 0.42 ? fr() * 6.28 : -1); a.push({ x: x, w: w, h: h, cols: cols, rows: rows, win: win, top: fr() < 0.3 ? 1 : fr() < 0.5 ? 2 : 0, back: 0 }); x += w + 0.012 + fr() * 0.02; }
-    var tall = 0; a.forEach(function (z, n2) { if (Math.abs(z.x + z.w / 2) < Math.abs(a[tall].x + a[tall].w / 2)) tall = n2; }); a[tall].h = 1.32; a[tall].top = 3; a[tall].rows = 28; a[tall].win = []; for (k = 0; k < a[tall].cols * 28; k++) a[tall].win.push(fr() < 0.5 ? fr() * 6.28 : -1);
+    var tall = 0; a.forEach(function (z, n2) { if (Math.abs(z.x + z.w / 2) < Math.abs(a[tall].x + a[tall].w / 2)) tall = n2; }); a[tall].h = 1.0; a[tall].top = 3; a[tall].rows = 22; a[tall].win = []; for (k = 0; k < a[tall].cols * 22; k++) a[tall].win.push(fr() < 0.5 ? fr() * 6.28 : -1);
     var b = []; for (x = -0.9; x < 0.85; x += 0.13 + fr() * 0.1) b.push({ x: x, w: 0.1 + fr() * 0.07, h: 0.3 + fr() * 0.45 }); a.back = b; a.st = fstr(30); return a; })();
   function figs(t, wts, cxN, cyN, obj, intro) {
     var d = Math.min(2, window.devicePixelRatio || 1), w = Math.round(W * d), h = Math.round(H * d); if (fc.width !== w || fc.height !== h) { fc.width = w; fc.height = h; }
@@ -240,28 +240,31 @@
   }
   function col(a) { return "rgba(" + FC[0] + "," + (FA * a).toFixed(3) + ")"; }
   function drawCandles(t, X0, Y0, S) {
-    var n = CANDLES.length, step = 1.86 / n, bw = step * 0.56, ma = [], sum = 0, k;
-    function px(i2) { return X0 + (-0.93 + step * (i2 + 0.5)) * S; } function py(v) { return Y0 - v * S * 1.15; }
-    fx.lineWidth = 0.5 * FL; for (k = 0; k < 5; k++) { fx.strokeStyle = col(0.07); fx.beginPath(); fx.moveTo(X0 - 0.96 * S, py(-0.6 + k * 0.3)); fx.lineTo(X0 + 0.96 * S, py(-0.6 + k * 0.3)); fx.stroke(); } // the grid of the chart
+    var n = CANDLES.length, step = 1.64 / n, bw = step * 0.56, ma = [], sum = 0, k, vb = Y0 + 0.74 * S;
+    function px(i2) { return X0 + (-0.84 + step * (i2 + 0.5)) * S; } function py(v) { return Y0 - (v * 0.98 + 0.12) * S; }
+    fx.lineWidth = 0.5 * FL; for (k = 0; k < 5; k++) { fx.strokeStyle = col(0.07); fx.beginPath(); fx.moveTo(X0 - 0.86 * S, py(-0.6 + k * 0.3)); fx.lineTo(X0 + 0.86 * S, py(-0.6 + k * 0.3)); fx.stroke(); fx.strokeStyle = col(0.4); fx.beginPath(); fx.moveTo(X0 + 0.86 * S, py(-0.6 + k * 0.3)); fx.lineTo(X0 + 0.89 * S, py(-0.6 + k * 0.3)); fx.stroke(); } // the grid of the chart, and the ticks of its scale
+    fx.strokeStyle = col(0.3); fx.beginPath(); fx.moveTo(X0 + 0.86 * S, py(0.66)); fx.lineTo(X0 + 0.86 * S, vb); fx.lineTo(X0 - 0.86 * S, vb); fx.stroke();
     CANDLES.forEach(function (z, i2) { var c = z.c + (i2 === n - 1 ? Math.sin(t * 0.9) * 0.05 : 0), up = c >= z.o, x = px(i2), y0 = py(Math.max(z.o, c)), y1 = py(Math.min(z.o, c)), hh = Math.max(2 * FL, y1 - y0), hi = py(Math.max(z.h, c)), lo = py(Math.min(z.l, c));
       sum += c; if (i2 >= 4) { sum -= CANDLES[i2 - 4].c; } ma.push([x, py(sum / Math.min(i2 + 1, 4) + 0.1)]);
-      fglow(x, (y0 + y1) / 2, bw * S * 1.5, 0.1); fx.strokeStyle = col(0.75); fx.lineWidth = 0.8 * FL; fx.beginPath(); fx.moveTo(x, hi); fx.lineTo(x, y0); fx.moveTo(x, y1); fx.lineTo(x, lo); fx.stroke();
+      var vh = (0.03 + Math.abs(z.c - z.o) * 0.42 + 0.02 * Math.sin(z.ph)) * S; fx.fillStyle = col(up ? 0.16 : 0.3); fx.fillRect(x - bw * S / 2, vb - vh, bw * S, vh);   // what changed hands that day
+      fglow(x, (y0 + y1) / 2, bw * S * (i2 === n - 1 ? 3 : 1.6), i2 === n - 1 ? 0.22 : 0.12); fx.strokeStyle = col(0.75); fx.lineWidth = 0.8 * FL; fx.beginPath(); fx.moveTo(x, hi); fx.lineTo(x, y0); fx.moveTo(x, y1); fx.lineTo(x, lo); fx.stroke();
       if (up) { fx.fillStyle = col(0.1); fx.fillRect(x - bw * S / 2, y0, bw * S, hh); fx.strokeStyle = col(0.95); fx.lineWidth = 1.1 * FL; fx.strokeRect(x - bw * S / 2, y0, bw * S, hh); }  // a rise is hollow, a fall is solid
       else { var g = fx.createLinearGradient(0, y0, 0, y0 + hh); g.addColorStop(0, col(0.85)); g.addColorStop(1, col(0.45)); fx.fillStyle = g; fx.fillRect(x - bw * S / 2, y0, bw * S, hh); }
-      if (i2 === n - 1) { var yc = py(c); fx.setLineDash([3 * FL, 5 * FL]); fx.strokeStyle = col(0.45); fx.lineWidth = 0.7 * FL; fx.beginPath(); fx.moveTo(X0 - 0.96 * S, yc); fx.lineTo(X0 + 0.99 * S, yc); fx.stroke(); fx.setLineDash([]); fknot(x + bw * S * 0.9, yc, 0.016 * S, 1, t, 1, 1); } });
-    for (k = 0; k < ma.length - 1; k++) frope(ma[k][0], ma[k][1], ma[k + 1][0], ma[k + 1][1], 0, CANDLES.st, 0.012 * S, 0.3, t, k % 5 === 0 ? 1 : 0, k);
+      if (i2 === n - 1) { var yc = py(c); fx.setLineDash([3 * FL, 5 * FL]); fx.strokeStyle = col(0.45); fx.lineWidth = 0.7 * FL; fx.beginPath(); fx.moveTo(X0 - 0.86 * S, yc); fx.lineTo(X0 + 0.86 * S, yc); fx.stroke(); fx.setLineDash([]); fknot(X0 + 0.86 * S, yc, 0.018 * S, 1, t, 1, 1); } });
+    for (k = 0; k < ma.length - 1; k++) frope(ma[k][0], ma[k][1], ma[k + 1][0], ma[k + 1][1], 0, CANDLES.st, 0.014 * S, 0.42, t, k % 4 === 0 ? 1 : 0, k);
   }
   function drawTowers(t, X0, Y0, S) {
-    var gy = Y0 + 0.58 * S, sx = Math.sin(t * 0.2) * 0.012 + ptr[0] * 0.03;
+    var gy = Y0 + 0.46 * S, sx = Math.sin(t * 0.2) * 0.012 + ptr[0] * 0.03, S0 = S; S = S * 0.96;
     TOWERS.back.forEach(function (z) { var x = X0 + (z.x - sx * 0.4) * S, w = z.w * S, h = z.h * S; fx.fillStyle = col(0.035); fx.fillRect(x, gy - h, w, h); fx.strokeStyle = col(0.2); fx.lineWidth = 0.6 * FL; fx.strokeRect(x, gy - h, w, h); });
+    TOWERS.forEach(function (z) { var x = X0 + (z.x - sx) * S, w = z.w * S, rh = z.h * S * 0.3, g = fx.createLinearGradient(0, gy, 0, gy + rh); g.addColorStop(0, "rgba(" + FC[1] + "," + (0.2 * FA).toFixed(3) + ")"); g.addColorStop(1, "rgba(" + FC[2] + ",0)"); fx.fillStyle = g; fx.fillRect(x + w * 0.08, gy, w * 0.84, rh); }); // each tower's light on the water
     TOWERS.forEach(function (z, i2) { var x = X0 + (z.x - sx) * S, w = z.w * S, h = z.h * S, y = gy - h, cw = w / z.cols, ch = h / z.rows, r, c;
       fx.fillStyle = "rgba(0,0,0,0.9)"; fx.globalCompositeOperation = "source-over"; fx.fillRect(x, y, w, h); fx.globalCompositeOperation = "lighter"; fx.fillStyle = col(0.05); fx.fillRect(x, y, w, h);
       fx.strokeStyle = col(0.8); fx.lineWidth = 0.9 * FL; fx.beginPath(); fx.moveTo(x, gy); fx.lineTo(x, y); fx.lineTo(x + w, y); fx.lineTo(x + w, gy); fx.stroke();
-      if (z.top === 1) { fx.beginPath(); fx.moveTo(x + w * 0.25, y); fx.lineTo(x + w * 0.25, y - 0.035 * S); fx.lineTo(x + w * 0.75, y - 0.035 * S); fx.lineTo(x + w * 0.75, y); fx.stroke(); }
+      if (z.top === 1) { fx.beginPath(); fx.moveTo(x + w * 0.16, y); fx.lineTo(x + w * 0.16, y - 0.05 * S); fx.lineTo(x + w * 0.84, y - 0.05 * S); fx.lineTo(x + w * 0.84, y); fx.moveTo(x + w * 0.32, y - 0.05 * S); fx.lineTo(x + w * 0.32, y - 0.09 * S); fx.lineTo(x + w * 0.68, y - 0.09 * S); fx.lineTo(x + w * 0.68, y - 0.05 * S); fx.stroke(); } // setbacks
       if (z.top === 2) { fx.beginPath(); fx.moveTo(x + w / 2, y); fx.lineTo(x + w / 2, y - 0.07 * S); fx.stroke(); }
       if (z.top === 3) { fx.beginPath(); fx.moveTo(x, y); fx.lineTo(x + w / 2, y - 0.12 * S); fx.lineTo(x + w, y); fx.moveTo(x + w / 2, y - 0.12 * S); fx.lineTo(x + w / 2, y - 0.24 * S); fx.stroke(); fknot(x + w / 2, y - 0.24 * S, 0.016 * S, 1, t, 2, 1); }
-      for (r = 0; r < z.rows; r++) for (c = 0; c < z.cols; c++) { var ph = z.win[r * z.cols + c]; if (ph < 0) continue; fx.fillStyle = "rgba(" + FC[0] + "," + (FA * (0.35 + 0.45 * (0.5 + 0.5 * Math.sin(t * 0.5 + ph)))).toFixed(3) + ")"; fx.fillRect(x + c * cw + cw * 0.28, y + r * ch + ch * 0.25, cw * 0.44, ch * 0.42); } });
-    frope(X0 - 1.02 * S, gy, X0 + 1.02 * S, gy, 0, TOWERS.st, 0.01 * S, 0.5, t, 2, 3);
+      for (r = 0; r < z.rows; r++) for (c = 0; c < z.cols; c++) { var ph = z.win[r * z.cols + c]; if (ph < 0) continue; fx.fillStyle = "rgba(" + FC[0] + "," + (FA * (0.35 + 0.45 * (0.5 + 0.5 * Math.sin(t * 0.5 + ph)))).toFixed(3) + ")"; fx.fillRect(x + c * cw + cw * 0.3, y + r * ch + ch * 0.28, cw * 0.4, ch * 0.36); } });
+    frope(X0 - 1.06 * S, gy, X0 + 1.06 * S, gy, 0, TOWERS.st, 0.008 * S, 0.5, t, 2, 3); S = S0;
   }
   function build(img) {
     var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; var x = c.getContext("2d"); x.drawImage(img, 0, 0);
