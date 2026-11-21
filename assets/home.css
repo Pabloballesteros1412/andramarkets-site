@@ -19,6 +19,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;ba
 @media (max-width:760px){.space{--t-far:720px;--t-near:980px}}
 html.has-space body::before{display:none}
 #scene{position:fixed;inset:0;width:100%;height:100%;display:block;mix-blend-mode:screen}
+#figs{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;mix-blend-mode:screen}
 .no-gl #scene{display:none}
 main{position:relative}
 .bar{position:fixed;inset:0 0 auto;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:32px;height:84px;padding-top:env(safe-area-inset-top,0px);padding-left:max(var(--gut),env(safe-area-inset-left,0px));padding-right:max(var(--gut),env(safe-area-inset-right,0px))}
@@ -97,8 +98,8 @@ h2{font-size:clamp(2.5rem,5.2vw,4.75rem)}
  html.opening--quick.is-live .space{animation-duration:1.2s;animation-delay:.2s}
  html.opening--quick.is-live .sec--hero h1{animation-duration:.9s;animation-delay:.45s}
  html.opening--quick.is-live .bar,html.opening--quick.is-live .rail{animation-duration:.7s;animation-delay:.8s}
- #scene{transition:opacity .62s ease-in,transform .7s cubic-bezier(.55,0,.85,.25);transform-origin:50% 55%}
+ #scene,#figs{transition:opacity .62s ease-in,transform .7s cubic-bezier(.55,0,.85,.25);transform-origin:50% 55%}
  main,.bar,.rail{transition:opacity .32s ease}
- html.is-leaving #scene{opacity:0;transform:scale(1.9)}
+ html.is-leaving #scene,html.is-leaving #figs{opacity:0;transform:scale(1.9)}
  html.is-leaving main,html.is-leaving .bar,html.is-leaving .rail{opacity:0!important;animation:none}
 }

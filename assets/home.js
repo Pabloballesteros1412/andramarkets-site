@@ -46,7 +46,7 @@
     "  float hk=wh*(1.0-amb); size=mix(size,max(1.0,1.15*uDpr/max(1.0,uDpr*0.8)),hk*(1.0-burst));",
     "  float sub=min(1.0,size*size); gl_PointSize=clamp(size,1.0,40.0*uDpr);",
     "  float br=mix(0.62,clamp(aR.w,0.0,1.0),0.0); br=mix(br,0.5,amb);",
-    "  float g=br*sub*uIntro/(1.0+coc*coc*18.0*amb)*(1.0-0.78*burst)*mix(uVis*0.34*uGain,0.3,amb)*mix(1.0,bf,w1)*mix(1.0,bf2*0.8,w2);",
+    "  float g=br*sub*uIntro/(1.0+coc*coc*18.0*amb)*(1.0-0.78*burst)*mix(uVis*0.34*uGain,0.3,amb)*mix(1.0,bf,w1)*mix(1.0,bf2*0.8,w2)*(1.0-(1.0-amb)*(1.0-wh));",   // the groups' figures are drawn, not made of particles
     "  float hv=step(aR.x,uHV)*uIntro*clamp(pow(aR.w,1.2)*0.96,0.0,1.0)*nt*mix(0.22,1.0,smoothstep(0.72,1.0,nt))*step(0.001,w0);",
     "  vA=mix(g,hv*(1.0-uImg),hk);",
     "}"].join("\n");
@@ -168,6 +168,103 @@
       x = P[0] + Math.cos(ang) * r; y = P[1] + Math.sin(ang) * r; z = P[2] + (q0(n * 3.7) - 0.5) * r;
     }
     o[i] = x; o[i + 1] = y; o[i + 2] = z;
+  }
+  // ---- The four groups' figures, drawn in the maps' own stroke (owner, 21 Nov 2026: fixed and clear, in keeping
+  // with the site): ropes of fine strands, knots of light with a flare, light travelling along. Markets a globe of
+  // knots and arcs, Tools the reel's tree on both sides of a bottleneck, Research a burst, Careers the web.
+  var fc = document.createElement("canvas"), fx = fc.getContext("2d"); fc.id = "figs"; fc.setAttribute("aria-hidden", "true"); cv.parentNode.insertBefore(fc, cv.nextSibling);
+  var TINT = [null, ["208,190,255", "172,144,255", "132,104,255"], ["226,236,252", "215,230,255", "190,215,255"], ["255,214,150", "255,190,110", "255,160,70"], ["120,185,255", "60,140,255", "30,100,255"]];
+  var fseed = 5, FC, FA = 1, FL = 1; function fr() { fseed = (fseed * 16807) % 2147483647; return fseed / 2147483647; }
+  function fstr(n) { var a = []; for (var i = 0; i < n; i++) a.push({ r: Math.sqrt(fr()), tw: (fr() - 0.5) * 1.4, ph: fr() * 6.28, sp: 0.5 + fr() }); return a; }
+  function fglow(x, y, r, a) { a *= FA; var g = fx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "rgba(255,255,255," + a.toFixed(3) + ")"); g.addColorStop(0.25, "rgba(" + FC[1] + "," + (a * 0.45).toFixed(3) + ")"); g.addColorStop(1, "rgba(" + FC[2] + ",0)"); fx.fillStyle = g; fx.fillRect(x - r, y - r, r * 2, r * 2); }
+  function frope(ax, ay, bx, by, bow, st, wide, base, t, pulses, key) {
+    var dx = bx - ax, dy = by - ay, l = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / l, ny = dx / l, c0 = bow.length ? bow[0] : (ax + bx) / 2 + nx * bow * l, c1 = bow.length ? bow[1] : (ay + by) / 2 + ny * bow * l; // bow: how far it bends, or the point it bends through
+    var p1x = ax + (c0 - ax) * 2 / 3, p1y = ay + (c1 - ay) * 2 / 3, p2x = bx + (c0 - bx) * 2 / 3, p2y = by + (c1 - by) * 2 / 3; fx.lineWidth = 0.55 * FL;
+    for (var q = 0; q < st.length; q++) { var z = st[q], th = z.ph + t * z.sp * 0.5, o1 = wide * z.r * Math.sin(th), o2 = wide * z.r * Math.sin(th + 2.6 + z.tw);
+      fx.strokeStyle = "rgba(" + FC[0] + "," + (FA * base * (0.3 + 0.7 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; fx.beginPath(); fx.moveTo(ax, ay); fx.bezierCurveTo(p1x + nx * o1, p1y + ny * o1, p2x + nx * o2, p2y + ny * o2, bx, by); fx.stroke(); }
+    function at(f) { var u = 1 - f; return [u * u * u * ax + 3 * u * u * f * p1x + 3 * u * f * f * p2x + f * f * f * bx, u * u * u * ay + 3 * u * u * f * p1y + 3 * u * f * f * p2y + f * f * f * by]; }
+    fx.lineCap = "round";
+    for (var u2 = 0; u2 < pulses; u2++) { var f = (t * (0.1 + u2 * 0.03) + key * 0.37 + u2 * 0.41) % 1, back = u2 % 2;
+      for (var k = 0; k < 12; k++) { var f0 = f - k * 0.011, f1 = f - (k + 1) * 0.011; if (f1 < 0) break; var a0 = at(back ? 1 - f0 : f0), a1 = at(back ? 1 - f1 : f1); fx.strokeStyle = "rgba(" + FC[0] + "," + (FA * (1 - k / 12) * 0.8).toFixed(3) + ")"; fx.lineWidth = 1.3 * FL * (1 - k / 14); fx.beginPath(); fx.moveTo(a0[0], a0[1]); fx.lineTo(a1[0], a1[1]); fx.stroke(); }
+      var hd = at(back ? 1 - f : f); fglow(hd[0], hd[1], 9 * FL, 0.9); }
+  }
+  function fknot(X, Y, R, big, t, ph, a) {
+    var beat = 0.5 + 0.5 * Math.sin(t * 1.3 + ph * 3); fglow(X, Y, R * (4.2 + 0.6 * beat), (big ? 0.26 : 0.2) * a); fglow(X, Y, R * 1.1, 0.9 * a); fglow(X, Y, R * 0.42, a);
+    var rot0 = t * 0.07 + ph, rays = big ? 6 : 4;
+    for (var r0 = 0; r0 < rays; r0++) { var ang = rot0 + r0 * 6.2832 / rays, len = R * ((big ? r0 % 3 === 0 : r0 % 2 === 0) ? 4.4 + 1.2 * beat : 2.1 + 0.5 * beat), ex = X + Math.cos(ang) * len, ey = Y + Math.sin(ang) * len, g = fx.createLinearGradient(X, Y, ex, ey);
+      g.addColorStop(0, "rgba(255,255,255," + (0.85 * a * FA).toFixed(3) + ")"); g.addColorStop(0.3, "rgba(" + FC[1] + "," + (0.3 * a * FA).toFixed(3) + ")"); g.addColorStop(1, "rgba(" + FC[2] + ",0)"); fx.strokeStyle = g; fx.lineWidth = (big ? 1 : 0.7) * FL; fx.beginPath(); fx.moveTo(X, Y); fx.lineTo(ex, ey); fx.stroke(); }
+  }
+  // the web and the burst: knots [x, y, big, phase], ropes [from, to, bow, strands, wide, pulses]
+  function flat(kn, rp) { return { k: kn, r: rp.map(function (e) { return { a: e[0], b: e[1], bow: e[2], st: fstr(e[3]), wide: e[4], pu: e[5] }; }) }; }
+  var BURST = (function () { var kn = [[0, 0, 1, 1]], rp = [], k, j2;
+    for (k = 0; k < 7; k++) { var an = k / 7 * 6.2832 + 0.3, d1 = 0.5 + (k % 2) * 0.1, m = kn.length; kn.push([Math.cos(an) * d1, Math.sin(an) * d1, 1, fr() * 6]); rp.push([0, m, k % 2 ? 0.16 : -0.16, 34, 0.04, 2]);
+      var kids = 2 + k % 2; for (j2 = 0; j2 < kids; j2++) { var ca = an + (j2 - (kids - 1) / 2) * 0.34, d2 = 0.36 + (j2 % 2) * 0.06; kn.push([kn[m][0] + Math.cos(ca) * d2, kn[m][1] + Math.sin(ca) * d2, 0, fr() * 6]); rp.push([m, kn.length - 1, (j2 % 2 ? 1 : -1) * 0.1, 14, 0.02, 1]); } }
+    return flat(kn, rp); })();
+  var GLOBE = (function () { var kn = [], ed = [], M0 = 30, i2, j2, seen = {};
+    for (i2 = 0; i2 < M0; i2++) { var yy = 1 - (i2 + 0.5) / M0 * 2, rr = Math.sqrt(1 - yy * yy), th = i2 * 2.39996; kn.push([Math.cos(th) * rr, yy, Math.sin(th) * rr, i2 % 5 === 0, fr() * 6]); }
+    for (i2 = 0; i2 < M0; i2++) { var near = []; for (j2 = 0; j2 < M0; j2++) if (j2 !== i2) near.push([Math.pow(kn[i2][0] - kn[j2][0], 2) + Math.pow(kn[i2][1] - kn[j2][1], 2) + Math.pow(kn[i2][2] - kn[j2][2], 2), j2]);
+      near.sort(function (a, b) { return a[0] - b[0]; }); [0, 1, 4].forEach(function (q) { var o2 = near[q][1], key = Math.min(i2, o2) + "-" + Math.max(i2, o2); if (!seen[key]) { seen[key] = 1; ed.push({ a: i2, b: o2, st: fstr(7), pu: ed.length % 3 === 0 }); } }); }
+    return { k: kn, e: ed }; })();
+  // Tools: a chart of candles (what the tools work on), with its average drawn as a rope and the last candle live.
+  var CANDLES = (function () { var a = [], p = 0.3, k; for (k = 0; k < 20; k++) { var o = p, c = o + (fr() - 0.42) * 0.2; if (k === 7 || k === 13) c = o - 0.14 - fr() * 0.06; var hi = Math.max(o, c) + fr() * 0.07 + 0.015, lo = Math.min(o, c) - fr() * 0.07 - 0.015; a.push({ o: o, c: c, h: hi, l: lo, ph: fr() * 6 }); p = c; }
+    var mn = 9, mx = -9; a.forEach(function (z) { mn = Math.min(mn, z.l); mx = Math.max(mx, z.h); }); a.forEach(function (z) { ["o", "c", "h", "l"].forEach(function (f) { z[f] = (z[f] - mn) / (mx - mn) * 1.2 - 0.6; }); }); a.st = fstr(12); return a; })();
+  // Careers: the skyline the group is about, towers with their windows lit.
+  var TOWERS = (function () { var a = [], x = -0.98, k; while (x < 0.9) { var w = 0.09 + fr() * 0.09, mid = 1 - Math.abs(x + w / 2) * 0.75, h = (0.35 + fr() * 0.5) * (0.55 + mid * 0.75), cols = Math.max(2, Math.round(w / 0.03)), rows = Math.max(3, Math.round(h / 0.045)), win = [];
+      for (k = 0; k < cols * rows; k++) win.push(fr() < 0.42 ? fr() * 6.28 : -1); a.push({ x: x, w: w, h: h, cols: cols, rows: rows, win: win, top: fr() < 0.3 ? 1 : fr() < 0.5 ? 2 : 0, back: 0 }); x += w + 0.012 + fr() * 0.02; }
+    var tall = 0; a.forEach(function (z, n2) { if (Math.abs(z.x + z.w / 2) < Math.abs(a[tall].x + a[tall].w / 2)) tall = n2; }); a[tall].h = 1.0; a[tall].top = 3; a[tall].rows = 22; a[tall].win = []; for (k = 0; k < a[tall].cols * 22; k++) a[tall].win.push(fr() < 0.5 ? fr() * 6.28 : -1);
+    var b = []; for (x = -0.9; x < 0.85; x += 0.13 + fr() * 0.1) b.push({ x: x, w: 0.1 + fr() * 0.07, h: 0.3 + fr() * 0.45 }); a.back = b; a.st = fstr(30); return a; })();
+  function figs(t, wts, cxN, cyN, obj, intro) {
+    var d = Math.min(2, window.devicePixelRatio || 1), w = Math.round(W * d), h = Math.round(H * d); if (fc.width !== w || fc.height !== h) { fc.width = w; fc.height = h; }
+    fx.setTransform(1, 0, 0, 1, 0, 0); fx.clearRect(0, 0, w, h); fx.globalCompositeOperation = "lighter";
+    var X0 = (cxN * 0.5 + 0.5) * w, Y0 = (0.5 - cyN * 0.5) * h, R = obj * h * 0.5 * 2.75 / 3.4; FL = d * Math.max(0.8, Math.min(1.5, R / (330 * d)));
+    for (var n = 1; n <= 4; n++) { var al = wts[n]; if (al < 0.01) continue; FA = al * al * intro; FC = TINT[n]; var S = R * (0.94 + 0.06 * al);
+      if (n === 1) drawGlobe(t, X0, Y0, S * 0.84); else if (n === 2) drawCandles(t, X0, Y0, S); else if (n === 3) drawFlat(BURST, t, X0, Y0, S * 0.98, 0.3); else drawTowers(t, X0, Y0, S); }
+  }
+  function drawFlat(F, t, X0, Y0, S, base) {
+    var P = F.k.map(function (k, i2) { var fl = k[2] ? 0.012 : 0.02; return [X0 + (k[0] + Math.sin(t * 0.42 + k[3] * 2) * fl) * S, Y0 - (k[1] + Math.cos(t * 0.36 + k[3] * 3) * fl) * S]; });
+    F.r.forEach(function (e, i2) { frope(P[e.a][0], P[e.a][1], P[e.b][0], P[e.b][1], e.bow, e.st, e.wide * S, base, t, e.pu, i2); });
+    F.k.forEach(function (k, i2) { fknot(P[i2][0], P[i2][1], (k[2] ? 0.024 * k[2] : 0.012) * S, k[2], t, k[3], 1); });
+  }
+  function drawGlobe(t, X0, Y0, S) {
+    var ay = t * 0.14 + ptr[0] * 0.3, ax = 0.3 - ptr[1] * 0.1, ca = Math.cos(ay), sa = Math.sin(ay), cb = Math.cos(ax), sb = Math.sin(ax);
+    function pr3(x, y, z) { var x1 = x * ca + z * sa, z1 = -x * sa + z * ca, y1 = y * cb - z1 * sb, z2 = y * sb + z1 * cb, f = 1 / (1 - z2 * 0.14); return [X0 + x1 * S * f, Y0 - y1 * S * f, z2]; }
+    var rim = fx.createRadialGradient(X0, Y0, S * 0.9, X0, Y0, S * 1.16); rim.addColorStop(0, "rgba(" + FC[2] + ",0)"); rim.addColorStop(0.42, "rgba(" + FC[1] + "," + (0.16 * FA).toFixed(3) + ")"); rim.addColorStop(1, "rgba(" + FC[2] + ",0)"); fx.fillStyle = rim; fx.fillRect(X0 - S * 1.2, Y0 - S * 1.2, S * 2.4, S * 2.4);
+    var P = GLOBE.k.map(function (k) { return pr3(k[0], k[1], k[2]); });
+    GLOBE.e.forEach(function (e, i2) { var A = GLOBE.k[e.a], B = GLOBE.k[e.b], pts = [], j2, zm = 0;
+      for (j2 = 0; j2 <= 10; j2++) { var u = j2 / 10, x = A[0] * (1 - u) + B[0] * u, y = A[1] * (1 - u) + B[1] * u, z = A[2] * (1 - u) + B[2] * u, l = (1 + 0.05 * Math.sin(3.14159 * u)) / Math.sqrt(x * x + y * y + z * z), q = pr3(x * l, y * l, z * l); pts.push(q); zm += q[2] / 11; }
+      var dep = Math.max(0, Math.min(1, (zm + 0.55) / 0.9)), base = 0.07 + 0.38 * dep * dep, dx = pts[10][0] - pts[0][0], dy = pts[10][1] - pts[0][1], l2 = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / l2, ny = dx / l2; fx.lineWidth = 0.55 * FL;
+      e.st.forEach(function (z2) { var th = z2.ph + t * z2.sp * 0.5, o = 0.02 * S * z2.r * Math.sin(th); fx.strokeStyle = "rgba(" + FC[0] + "," + (FA * base * (0.4 + 0.6 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; fx.beginPath();
+        for (j2 = 0; j2 <= 10; j2++) { var en = Math.sin(3.14159 * j2 / 10) * o; if (j2) fx.lineTo(pts[j2][0] + nx * en, pts[j2][1] + ny * en); else fx.moveTo(pts[0][0], pts[0][1]); } fx.stroke(); });
+      if (e.pu && dep > 0.5) { var f = (t * 0.13 + i2 * 0.37) % 1, k = Math.min(9, Math.floor(f * 10)), u3 = f * 10 - k, hx2 = pts[k][0] + (pts[k + 1][0] - pts[k][0]) * u3, hy2 = pts[k][1] + (pts[k + 1][1] - pts[k][1]) * u3; fglow(hx2, hy2, 8 * FL, 0.85 * dep); } });
+    GLOBE.k.forEach(function (k, i2) { var dep = Math.max(0, Math.min(1, (P[i2][2] + 0.55) / 0.9)); if (dep < 0.5) fglow(P[i2][0], P[i2][1], 0.02 * S, 0.25 + 0.5 * dep); else fknot(P[i2][0], P[i2][1], (k[3] ? 0.02 : 0.011) * S, k[3], t, k[4], dep); });
+  }
+  function col(a) { return "rgba(" + FC[0] + "," + (FA * a).toFixed(3) + ")"; }
+  function drawCandles(t, X0, Y0, S) {
+    var n = CANDLES.length, step = 1.64 / n, bw = step * 0.56, ma = [], sum = 0, k, vb = Y0 + 0.74 * S;
+    function px(i2) { return X0 + (-0.84 + step * (i2 + 0.5)) * S; } function py(v) { return Y0 - (v * 0.98 + 0.12) * S; }
+    fx.lineWidth = 0.5 * FL; for (k = 0; k < 5; k++) { fx.strokeStyle = col(0.07); fx.beginPath(); fx.moveTo(X0 - 0.86 * S, py(-0.6 + k * 0.3)); fx.lineTo(X0 + 0.86 * S, py(-0.6 + k * 0.3)); fx.stroke(); fx.strokeStyle = col(0.4); fx.beginPath(); fx.moveTo(X0 + 0.86 * S, py(-0.6 + k * 0.3)); fx.lineTo(X0 + 0.89 * S, py(-0.6 + k * 0.3)); fx.stroke(); } // the grid of the chart, and the ticks of its scale
+    fx.strokeStyle = col(0.3); fx.beginPath(); fx.moveTo(X0 + 0.86 * S, py(0.66)); fx.lineTo(X0 + 0.86 * S, vb); fx.lineTo(X0 - 0.86 * S, vb); fx.stroke();
+    CANDLES.forEach(function (z, i2) { var c = z.c + (i2 === n - 1 ? Math.sin(t * 0.9) * 0.05 : 0), up = c >= z.o, x = px(i2), y0 = py(Math.max(z.o, c)), y1 = py(Math.min(z.o, c)), hh = Math.max(2 * FL, y1 - y0), hi = py(Math.max(z.h, c)), lo = py(Math.min(z.l, c));
+      sum += c; if (i2 >= 4) { sum -= CANDLES[i2 - 4].c; } ma.push([x, py(sum / Math.min(i2 + 1, 4) + 0.1)]);
+      var vh = (0.03 + Math.abs(z.c - z.o) * 0.42 + 0.02 * Math.sin(z.ph)) * S; fx.fillStyle = col(up ? 0.16 : 0.3); fx.fillRect(x - bw * S / 2, vb - vh, bw * S, vh);   // what changed hands that day
+      fglow(x, (y0 + y1) / 2, bw * S * (i2 === n - 1 ? 3 : 1.6), i2 === n - 1 ? 0.22 : 0.12); fx.strokeStyle = col(0.75); fx.lineWidth = 0.8 * FL; fx.beginPath(); fx.moveTo(x, hi); fx.lineTo(x, y0); fx.moveTo(x, y1); fx.lineTo(x, lo); fx.stroke();
+      if (up) { fx.fillStyle = col(0.1); fx.fillRect(x - bw * S / 2, y0, bw * S, hh); fx.strokeStyle = col(0.95); fx.lineWidth = 1.1 * FL; fx.strokeRect(x - bw * S / 2, y0, bw * S, hh); }  // a rise is hollow, a fall is solid
+      else { var g = fx.createLinearGradient(0, y0, 0, y0 + hh); g.addColorStop(0, col(0.85)); g.addColorStop(1, col(0.45)); fx.fillStyle = g; fx.fillRect(x - bw * S / 2, y0, bw * S, hh); }
+      if (i2 === n - 1) { var yc = py(c); fx.setLineDash([3 * FL, 5 * FL]); fx.strokeStyle = col(0.45); fx.lineWidth = 0.7 * FL; fx.beginPath(); fx.moveTo(X0 - 0.86 * S, yc); fx.lineTo(X0 + 0.86 * S, yc); fx.stroke(); fx.setLineDash([]); fknot(X0 + 0.86 * S, yc, 0.018 * S, 1, t, 1, 1); } });
+    for (k = 0; k < ma.length - 1; k++) frope(ma[k][0], ma[k][1], ma[k + 1][0], ma[k + 1][1], 0, CANDLES.st, 0.014 * S, 0.42, t, k % 4 === 0 ? 1 : 0, k);
+  }
+  function drawTowers(t, X0, Y0, S) {
+    var gy = Y0 + 0.46 * S, sx = Math.sin(t * 0.2) * 0.012 + ptr[0] * 0.03, S0 = S; S = S * 0.96;
+    TOWERS.back.forEach(function (z) { var x = X0 + (z.x - sx * 0.4) * S, w = z.w * S, h = z.h * S; fx.fillStyle = col(0.035); fx.fillRect(x, gy - h, w, h); fx.strokeStyle = col(0.2); fx.lineWidth = 0.6 * FL; fx.strokeRect(x, gy - h, w, h); });
+    TOWERS.forEach(function (z) { var x = X0 + (z.x - sx) * S, w = z.w * S, rh = z.h * S * 0.3, g = fx.createLinearGradient(0, gy, 0, gy + rh); g.addColorStop(0, "rgba(" + FC[1] + "," + (0.2 * FA).toFixed(3) + ")"); g.addColorStop(1, "rgba(" + FC[2] + ",0)"); fx.fillStyle = g; fx.fillRect(x + w * 0.08, gy, w * 0.84, rh); }); // each tower's light on the water
+    TOWERS.forEach(function (z, i2) { var x = X0 + (z.x - sx) * S, w = z.w * S, h = z.h * S, y = gy - h, cw = w / z.cols, ch = h / z.rows, r, c;
+      fx.fillStyle = "rgba(0,0,0,0.9)"; fx.globalCompositeOperation = "source-over"; fx.fillRect(x, y, w, h); fx.globalCompositeOperation = "lighter"; fx.fillStyle = col(0.05); fx.fillRect(x, y, w, h);
+      fx.strokeStyle = col(0.8); fx.lineWidth = 0.9 * FL; fx.beginPath(); fx.moveTo(x, gy); fx.lineTo(x, y); fx.lineTo(x + w, y); fx.lineTo(x + w, gy); fx.stroke();
+      if (z.top === 1) { fx.beginPath(); fx.moveTo(x + w * 0.16, y); fx.lineTo(x + w * 0.16, y - 0.05 * S); fx.lineTo(x + w * 0.84, y - 0.05 * S); fx.lineTo(x + w * 0.84, y); fx.moveTo(x + w * 0.32, y - 0.05 * S); fx.lineTo(x + w * 0.32, y - 0.09 * S); fx.lineTo(x + w * 0.68, y - 0.09 * S); fx.lineTo(x + w * 0.68, y - 0.05 * S); fx.stroke(); } // setbacks
+      if (z.top === 2) { fx.beginPath(); fx.moveTo(x + w / 2, y); fx.lineTo(x + w / 2, y - 0.07 * S); fx.stroke(); }
+      if (z.top === 3) { fx.beginPath(); fx.moveTo(x, y); fx.lineTo(x + w / 2, y - 0.12 * S); fx.lineTo(x + w, y); fx.moveTo(x + w / 2, y - 0.12 * S); fx.lineTo(x + w / 2, y - 0.24 * S); fx.stroke(); fknot(x + w / 2, y - 0.24 * S, 0.016 * S, 1, t, 2, 1); }
+      for (r = 0; r < z.rows; r++) for (c = 0; c < z.cols; c++) { var ph = z.win[r * z.cols + c]; if (ph < 0) continue; fx.fillStyle = "rgba(" + FC[0] + "," + (FA * (0.35 + 0.45 * (0.5 + 0.5 * Math.sin(t * 0.5 + ph)))).toFixed(3) + ")"; fx.fillRect(x + c * cw + cw * 0.3, y + r * ch + ch * 0.28, cw * 0.4, ch * 0.36); } });
+    frope(X0 - 1.06 * S, gy, X0 + 1.06 * S, gy, 0, TOWERS.st, 0.008 * S, 0.5, t, 2, 3); S = S0;
   }
   function build(img) {
     var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; var x = c.getContext("2d"); x.drawImage(img, 0, 0);
@@ -300,6 +397,7 @@
     if (act !== actNow) { actNow = act; for (var r2 = 0; r2 < dots.length; r2++) dots[r2].classList.toggle("on", dots[r2].getAttribute("href") === ids[act]); }
     if (st) { var sp = (y - stTop + vh * 0.55) / (stH - vh * 0.35), nW = words.length, lit = Math.max(0, Math.min(nW, Math.ceil(sp * (nW + 2) - 1)));
       if (lit !== litN) { litN = lit; for (var w0 = 0; w0 < nW; w0++) words[w0].classList.toggle("lit", w0 < lit); } }
+    figs(reduce ? 4 : t, [0, wt(1), wt(2), wt(3), wt(4)], cx, cy, obj, 1);
     requestAnimationFrame(frame);
   }
   document.addEventListener("click", function (e) { var a = e.target.closest && e.target.closest('a[href^="#"]'); if (!a || reduce) return; var sec = document.getElementById(a.getAttribute("href").slice(1)); if (!sec || !sec.hasAttribute("data-shape")) return;
