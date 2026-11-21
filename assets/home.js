@@ -178,29 +178,33 @@
       P = [P[0] + Math.cos(ang) * fl * r, P[1] + up * r, P[2] + Math.sin(ang) * fl * r]; }
     o[i] = P[0]; o[i + 1] = P[1]; o[i + 2] = P[2];
   }
-  // Tools: the tree of the owner's reference reel. Hundreds of hair-thin strands leave one root as a tight trunk,
-  // part into boughs and fan into a wide wind-blown crown; one path through it is lit, with a light at each turn.
+  // Tools: the tree of the owner's reference reel, made on both sides of a bottleneck (owner, 21 Nov 2026).
+  // Hundreds of hair-thin strands gather from a wide wind-blown crown below, squeeze through one narrow neck and
+  // fan out into a second crown above; one path through the neck is lit, with a light at each turn.
   var TREE = (function () {
-    var seed = 11, NS = 720, NP = 26, S = [], k, j2, mnx = 9, mxx = -9, mny = 9, mxy = -9;
+    var seed = 11, NS = 900, NP = 26, S = [], k, j2, mx = 0, my = 0;
     function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
     function sm(a, b, t) { t = Math.max(0, Math.min(1, (t - a) / (b - a))); return t * t * (3 - 2 * t); }
-    var boughs = []; for (k = 0; k < 9; k++) boughs.push([-0.5 + Math.pow(k / 8, 0.8) * 1.6 + (rnd() - 0.5) * 0.1, (rnd() - 0.5) * 0.7]); // lean (from upright, towards the wind) and depth
+    var boughs = []; for (k = 0; k < 9; k++) boughs.push([-0.5 + Math.pow(k / 8, 0.8) * 1.6 + (rnd() - 0.5) * 0.1, (rnd() - 0.5) * 0.8]); // lean (from upright, towards the wind) and depth
     for (k = 0; k < NS; k++) { var bg = boughs[Math.floor(Math.pow(rnd(), 0.75) * 9)], twig = Math.floor(rnd() * 4), th1 = bg[0] + (twig - 1.5) * 0.11, th2 = th1 + (rnd() - 0.5) * 0.3, L = (0.8 + rnd() * 0.5) * (1 + Math.max(0, bg[0]) * 0.28), dz = bg[1] + (rnd() - 0.5) * 0.3, droop = 0.5 + rnd() * 0.8,
-        x = 0, y = 0, z = 0, pts = [];
-      for (j2 = 0; j2 < NP; j2++) { var t = j2 / (NP - 1), th = 0.2 + (bg[0] - 0.2) * sm(0.3, 0.52, t) + (th1 - bg[0]) * sm(0.46, 0.68, t) + (th2 - th1) * sm(0.6, 0.92, t) + droop * t * t * t * (bg[0] > 0.1 ? 1 : -0.4) + Math.sin(t * 9 + k) * 0.04 * t;
-        pts.push([x, y, z]); x -= Math.sin(th) * L / NP; y += Math.cos(th) * L / NP; z += dz * sm(0.3, 0.7, t) * L / NP; if (x < mnx) mnx = x; if (x > mxx) mxx = x; if (y < mny) mny = y; if (y > mxy) mxy = y; }
+        x = (rnd() - 0.5) * 0.012, y = 0, z = (rnd() - 0.5) * 0.012, pts = [];
+      for (j2 = 0; j2 < NP; j2++) { var t = j2 / (NP - 1), th = 0.12 + (bg[0] - 0.12) * sm(0.1, 0.38, t) + (th1 - bg[0]) * sm(0.32, 0.6, t) + (th2 - th1) * sm(0.55, 0.92, t) + droop * t * t * t * (bg[0] > 0.1 ? 1 : -0.4) + Math.sin(t * 9 + k) * 0.04 * t;
+        pts.push([x, y, z]); x -= Math.sin(th) * L / NP; y += Math.cos(th) * L / NP; z += dz * sm(0.2, 0.7, t) * L / NP; if (Math.abs(x) > mx) mx = Math.abs(x); if (y > my) my = y; }
       S.push(pts); }
-    var sc = Math.min(2.0 / (mxx - mnx), 1.6 / (mxy - mny)), ox = -(mxx + mnx) / 2 * sc + 0.05, oy = -0.8 - mny * sc;
-    S.forEach(function (pts) { pts.forEach(function (q) { q[0] = q[0] * sc + ox; q[1] = q[1] * sc + oy; q[2] *= sc; }); });
-    var best = 0, bv = -9; S.forEach(function (pts, n2) { var e2 = pts[NP - 1], v = e2[1] - Math.abs(e2[0] + 0.25) * 0.8; if (v > bv) { bv = v; best = n2; } }); // the lit path ends high in the crown
-    return { s: S, np: NP, lit: S[best] };
+    var sc = Math.min(1.1 / mx, 0.95 / my);
+    S.forEach(function (pts) { pts.forEach(function (q) { q[0] *= sc; q[1] *= sc; q[2] *= sc; }); });
+    var best = 0, bv = -9; S.forEach(function (pts, n2) { var e2 = pts[NP - 1], v = e2[1] - Math.abs(e2[0] + 0.3) * 0.8; if (v > bv) { bv = v; best = n2; } }); // the lit path ends high in each crown
+    return { s: S, np: NP, lit: best };
   })();
-  function strandPt(pts, t) { var f = t * (TREE.np - 1), i2 = Math.min(TREE.np - 2, Math.floor(f)), u = f - i2, A = pts[i2], B = pts[i2 + 1]; return [A[0] + (B[0] - A[0]) * u, A[1] + (B[1] - A[1]) * u, A[2] + (B[2] - A[2]) * u]; }
+  function halfPt(pts, t) { var f = t * (TREE.np - 1), i2 = Math.min(TREE.np - 2, Math.floor(f)), u = f - i2, A = pts[i2], B = pts[i2 + 1]; return [A[0] + (B[0] - A[0]) * u, A[1] + (B[1] - A[1]) * u, A[2] + (B[2] - A[2]) * u]; }
+  function strandPt(k, t) { // a whole strand: one half below the neck, turned about it, and another above
+    var NS = TREE.s.length, P; if (t >= 0.5) return halfPt(TREE.s[k], t * 2 - 1); P = halfPt(TREE.s[k === TREE.lit ? k : (k * 7 + 3) % NS], 1 - t * 2); return [-P[0], -P[1], -P[2]];
+  }
   function treeShape(i, o) {
     var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), P;
-    if (c < 0.86) { P = strandPt(TREE.s[Math.floor(a * TREE.s.length) % TREE.s.length], Math.pow(b, 0.8)); P[0] += (d - 0.5) * 0.0015; P[1] += (e - 0.5) * 0.0015; }
-    else if (c < 0.9) { P = strandPt(TREE.lit, b); P[0] += (d - 0.5) * 0.004; P[1] += (e - 0.5) * 0.004; }                 // the lit path
-    else { var m = Math.floor(a * 7) % 7, ang = b * 6.2832, up = d * 2 - 1, fl = Math.sqrt(1 - up * up), r = e * e * e * (m === 0 || m === 6 ? 0.07 : 0.03); P = strandPt(TREE.lit, m / 6); // a light at each turn, the root and the tip brightest
+    if (c < 0.87) { var t = 0.5 + (b - 0.5) * Math.pow(Math.abs(b * 2 - 1), -0.15); P = strandPt(Math.floor(a * TREE.s.length) % TREE.s.length, Math.max(0, Math.min(1, t))); P[0] += (d - 0.5) * 0.0015; P[1] += (e - 0.5) * 0.0015; }
+    else if (c < 0.91) { P = strandPt(TREE.lit, b); P[0] += (d - 0.5) * 0.004; P[1] += (e - 0.5) * 0.004; }                   // the lit path
+    else { var m = Math.floor(a * 9) % 9, ang = b * 6.2832, up = d * 2 - 1, fl = Math.sqrt(1 - up * up), r = e * e * e * (m === 0 || m === 8 ? 0.06 : m === 4 ? 0.075 : 0.028); P = strandPt(TREE.lit, m / 8); // a light at each turn; the neck and the two tips brightest
       P = [P[0] + Math.cos(ang) * fl * r, P[1] + up * r, P[2] + Math.sin(ang) * fl * r]; }
     o[i] = P[0]; o[i + 1] = P[1]; o[i + 2] = P[2];
   }
