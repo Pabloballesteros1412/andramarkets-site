@@ -95,9 +95,9 @@
   // the light of each shape: the horse, Markets (violet), Tools (white), Research (gold), Careers (blue), the close
   var COLS = [[1, 1, 1], [0.8, 0.7, 1], [1, 1, 1], [1, 0.82, 0.56], [0.5, 0.72, 1], [1, 1, 1]];
   function q4(n) { var v = n * 0.4142135623730951; return v - Math.floor(v); }
-  // Each group's picture is drawn in the maps' language, knots of light joined by ropes of strands, in
-  // its map's colour, and each has a form of its own (owner, 20 Nov 2026): Markets a globe of knots and
-  // arcs, Tools a wheel of two rings, Research a burst from one core, Careers the web of its map.
+  // Each group's picture has a form of its own, in its map's colour (owner, 20 and 21 Nov 2026): Markets a globe
+  // of knots and arcs, Tools the reel's tree on both sides of a bottleneck, Research a burst from one core,
+  // Careers the web of its map. The globe, burst and web are drawn in the maps' language, knots joined by ropes.
   // A form is knots [x, y, z, size] and ropes [from, to, bow, width]; on a globe the ropes follow the sphere.
   function webForm(kids) {
     var N0 = [], E = [], k, j2;
@@ -114,69 +114,11 @@
       near.sort(function (a, b) { return a[0] - b[0]; }); [0, 1, 4].forEach(function (q) { var o2 = near[q][1], key = Math.min(i2, o2) + "-" + Math.max(i2, o2); if (!seen[key]) { seen[key] = 1; E.push([i2, o2, 0.1, q === 4 ? 0.45 : 0.6]); } }); }
     return { n: N0, e: E, r: R };
   }
-  function wheelForm() {
-    var N0 = [[0, 0, 0, 1.2]], E = [], k;
-    for (k = 0; k < 6; k++) { var a1 = k / 6 * 6.2832; N0.push([Math.cos(a1) * 0.42, Math.sin(a1) * 0.42, 0, 0.8]); E.push([0, k + 1, 0, 0.7]); }
-    for (k = 0; k < 6; k++) E.push([k + 1, (k + 1) % 6 + 1, 0.1, 0.8]);
-    for (k = 0; k < 12; k++) { var a2 = (k + 0.5) / 12 * 6.2832; N0.push([Math.cos(a2) * 0.9, Math.sin(a2) * 0.9, 0, 0.5]); E.push([Math.floor(k / 2) + 1, 7 + k, 0, 0.5]); if (k % 2 === 0) E.push([(Math.floor(k / 2) + 5) % 6 + 1, 7 + k, 0, 0.4]); }
-    for (k = 0; k < 12; k++) E.push([7 + k, 7 + (k + 1) % 12, 0.07, 0.6]);
-    return { n: N0, e: E };
-  }
   function burstForm() {
     var N0 = [[0, 0, 0, 1.5]], E = [], k, j2;
     for (k = 0; k < 7; k++) { var an = k / 7 * 6.2832 + 0.3, d1 = 0.5 + (k % 2) * 0.1, m = N0.length; N0.push([Math.cos(an) * d1, Math.sin(an) * d1, (k % 3 - 1) * 0.12, 0.8]); E.push([0, m, k % 2 ? 0.08 : -0.08, 0.9]);
       var kids = 2 + k % 2; for (j2 = 0; j2 < kids; j2++) { var ca = an + (j2 - (kids - 1) / 2) * 0.34, d2 = 0.36 + (j2 % 2) * 0.06; N0.push([N0[m][0] + Math.cos(ca) * d2, N0[m][1] + Math.sin(ca) * d2, N0[m][2] * 1.6, 0.45]); E.push([m, N0.length - 1, 0.05, 0.45]); } }
     return { n: N0, e: E };
-  }
-  function tilt(N0, ax, ay) { // turn a form's knots so a solid reads in depth even face on
-    N0.forEach(function (n) { var y = n[1] * Math.cos(ax) - n[2] * Math.sin(ax), z = n[1] * Math.sin(ax) + n[2] * Math.cos(ax), x = n[0] * Math.cos(ay) + z * Math.sin(ay); z = -n[0] * Math.sin(ay) + z * Math.cos(ay); n[0] = x; n[1] = y; n[2] = z; }); return N0;
-  }
-  function gridForm() { // sixteen knots, four by four, laid like a floor
-    var N0 = [], E = [], r, c;
-    for (r = 0; r < 4; r++) for (c = 0; c < 4; c++) N0.push([(c - 1.5) * 0.44, (r - 1.5) * 0.44, 0, (r + c) % 3 ? 0.55 : 0.85]);
-    for (r = 0; r < 4; r++) for (c = 0; c < 4; c++) { var i2 = r * 4 + c; if (c < 3) E.push([i2, i2 + 1, 0, 0.6]); if (r < 3) E.push([i2, i2 + 4, 0, 0.6]); if (c < 3 && r < 3 && (r + c) % 2 === 0) E.push([i2, i2 + 5, 0.06, 0.35]); }
-    return { n: tilt(N0, 0.85, 0.12), e: E };
-  }
-  function helixForm() { // two strands coiled round each other, joined by rungs
-    var N0 = [], E = [], k;
-    for (k = 0; k < 8; k++) { var t = k / 7, an = t * 6.2832 * 1.25, y = (t - 0.5) * 1.6; N0.push([Math.cos(an) * 0.45, y, Math.sin(an) * 0.45, 0.6]); N0.push([Math.cos(an + 3.1416) * 0.45, y, Math.sin(an + 3.1416) * 0.45, 0.6]);
-      E.push([2 * k, 2 * k + 1, 0, 0.45]); if (k) { E.push([2 * k - 2, 2 * k, 0.12, 0.8]); E.push([2 * k - 1, 2 * k + 1, 0.12, 0.8]); } }
-    return { n: tilt(N0, 0.45, 0), e: E };
-  }
-  function cubeForm() { // a cube inside a cube, corner joined to corner
-    var N0 = [], E = [], k, j2;
-    [0.6, 0.27].forEach(function (h, w) { for (k = 0; k < 8; k++) N0.push([(k & 1 ? h : -h), (k & 2 ? h : -h), (k & 4 ? h : -h), w ? 0.5 : 0.85]); });
-    for (k = 0; k < 8; k++) for (j2 = 0; j2 < 3; j2++) { var o2 = k ^ (1 << j2); if (o2 > k) { E.push([k, o2, 0, 0.8]); E.push([k + 8, o2 + 8, 0, 0.5]); } }
-    for (k = 0; k < 8; k++) E.push([k, k + 8, 0, 0.45]);
-    return { n: tilt(N0, 0.5, 0.62), e: E };
-  }
-  function starsForm() { // sixteen stars, one for each tool, joined like a constellation on a sky chart
-    var N0 = [[-0.78, 0.52, 0.05, 1.0], [-0.42, 0.66, -0.1, 0.55], [-0.12, 0.42, 0.08, 0.8], [0.18, 0.72, -0.05, 0.5], [0.52, 0.58, 0.1, 1.1],
-      [0.82, 0.3, -0.08, 0.6], [0.26, 0.12, 0, 1.25], [-0.2, -0.02, -0.12, 0.6], [-0.6, 0.08, 0.1, 0.5], [-0.86, -0.3, 0, 0.75],
-      [-0.38, -0.42, 0.06, 0.9], [0.02, -0.6, -0.08, 0.5], [0.42, -0.36, 0.12, 0.7], [0.74, -0.58, 0, 1.0], [0.3, -0.86, -0.06, 0.55], [0.88, -0.12, 0.05, 0.45]];
-    var E = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [2, 6], [4, 6], [6, 7], [7, 8], [8, 0], [8, 9], [7, 10], [9, 10], [10, 11], [6, 12], [12, 13], [11, 14], [5, 15], [15, 13]]
-      .map(function (e) { return [e[0], e[1], 0, 0.3]; });
-    return { n: N0, e: E, smooth: 1 };
-  }
-  function roseForm() { // a rosette: eight petals of two bowed ropes from one core, and a scalloped rim of eight more knots
-    var N0 = [[0, 0, 0, 1.2]], E = [], k;
-    for (k = 0; k < 8; k++) { var an = k / 8 * 6.2832 + 0.39; N0.push([Math.cos(an) * 0.53, Math.sin(an) * 0.53, (k % 2 ? 0.1 : -0.1), 0.8]); E.push([0, k + 1, 0.13, 0.75]); E.push([0, k + 1, -0.13, 0.75]); }
-    for (k = 0; k < 8; k++) { var a2 = (k + 0.5) / 8 * 6.2832 + 0.39; N0.push([Math.cos(a2) * 0.84, Math.sin(a2) * 0.84, 0, 0.5]); E.push([k + 1, 9 + k, -0.1, 0.5]); E.push([(k + 1) % 8 + 1, 9 + k, 0.1, 0.5]); }
-    return { n: N0, e: E };
-  }
-  // Tools: an armillary sphere, the old instrument of tilted rings. Hair-thin threads of light, three to a ring,
-  // sixteen small points of light riding them (one for each tool), a fine axis and a faint shell of dust.
-  var RINGS = [[0.74, 0.35, 0], [0.74, 1.25, 0.25], [0.74, 0.5, 1.05], [0.74, -0.8, -0.7], [0.84, 1.5708, 0]];
-  function ringPt(R, th, off, k) { var g = RINGS[k], x = Math.cos(th) * R, y = off, z = Math.sin(th) * R, y2 = y * Math.cos(g[1]) - z * Math.sin(g[1]), z2 = y * Math.sin(g[1]) + z * Math.cos(g[1]); return [x * Math.cos(g[2]) - y2 * Math.sin(g[2]), x * Math.sin(g[2]) + y2 * Math.cos(g[2]), z2]; }
-  function armShape(i, o) {
-    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), P, k;
-    if (c < 0.6) { k = Math.min(4, Math.floor(b * 5)); var th = a * 6.2832, t3 = Math.floor(d * 3) - 1; P = ringPt(RINGS[k][0] + t3 * 0.016 + (e - 0.5) * 0.003, th, (q0(n * 3.7) - 0.5) * 0.003, k); }
-    else if (c < 0.66) { P = [(d - 0.5) * 0.004, (a - 0.5) * 1.8, (e - 0.5) * 0.004]; }                       // the axis
-    else if (c < 0.76) { var u = a * 2 - 1, ph = b * 6.2832, rr = Math.sqrt(1 - u * u), R2 = 0.45 + d * 0.45; P = [Math.cos(ph) * rr * R2, u * R2, Math.sin(ph) * rr * R2]; } // dust
-    else { var m = Math.floor(a * 17), sz, ang, r; if (m === 16) { P = [0, 0, 0]; sz = 0.9; } else { P = ringPt(RINGS[m % 4][0], (Math.floor(m / 4) + (m % 4) * 0.31) * 1.5708 + 0.4, 0, m % 4); sz = m % 3 ? 0.42 : 0.6; }
-      ang = b * 6.2832; r = e * e * e * 0.07 * sz; var up = d * 2 - 1, fl = Math.sqrt(1 - up * up);                 // a small round glow
-      P = [P[0] + Math.cos(ang) * fl * r, P[1] + up * r, P[2] + Math.sin(ang) * fl * r]; }
-    o[i] = P[0]; o[i + 1] = P[1]; o[i + 2] = P[2];
   }
   // Tools: the tree of the owner's reference reel, made on both sides of a bottleneck (owner, 21 Nov 2026).
   // Hundreds of hair-thin strands gather from a wide wind-blown crown below, squeeze through one narrow neck and
@@ -212,11 +154,11 @@
     var tot = 0, k; F.el = F.e.map(function (e) { var a = F.n[e[0]], b = F.n[e[1]], l = Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); tot += l * (0.4 + e[3]); return tot; });
     for (k = 0; k < F.el.length; k++) F.el[k] /= tot; tot = 0; F.nl = F.n.map(function (n) { tot += n[3] * n[3]; return tot; }); for (k = 0; k < F.nl.length; k++) F.nl[k] /= tot; return F;
   }
-  var FORMS = [ready(globeForm()), ready(roseForm()), ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))];
+  var FORMS = [ready(globeForm()), null, ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))]; // Tools is the tree, above
   function formShape(i, o, F) {
     var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), x, y, z, k = 0;
     if (c < 0.6) {                                   // a rope: a bundle of strands, widest at its middle
-      while (k < F.el.length - 1 && F.el[k] < a) k++; var E = F.e[k], A = F.n[E[0]], B2 = F.n[E[1]], u = 1 - b, dx = B2[0] - A[0], dy = B2[1] - A[1], dz = B2[2] - A[2], l = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1, wd = (F.smooth ? 0.45 : Math.sin(3.14159 * b)) * 0.05 * E[3];
+      while (k < F.el.length - 1 && F.el[k] < a) k++; var E = F.e[k], A = F.n[E[0]], B2 = F.n[E[1]], u = 1 - b, dx = B2[0] - A[0], dy = B2[1] - A[1], dz = B2[2] - A[2], l = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1, wd = Math.sin(3.14159 * b) * 0.05 * E[3];
       if (F.r) { x = A[0] * u + B2[0] * b; y = A[1] * u + B2[1] * b; z = A[2] * u + B2[2] * b; var len = Math.sqrt(x * x + y * y + z * z) || 1, lift = F.r * (1 + E[2] * Math.sin(3.14159 * b) * l) / len; x *= lift; y *= lift; z *= lift; x += (d - 0.5) * wd; y += (e - 0.5) * wd; z += (q0(n * 3.7) - 0.5) * wd; }
       else { var mx = (A[0] + B2[0]) / 2 - dy / l * E[2] * l * 2, my = (A[1] + B2[1]) / 2 + dx / l * E[2] * l * 2; x = u * u * A[0] + 2 * u * b * mx + b * b * B2[0]; y = u * u * A[1] + 2 * u * b * my + b * b * B2[1]; z = A[2] * u + B2[2] * b;
         x += -dy / l * (d - 0.5) * wd; y += dx / l * (d - 0.5) * wd; z += (e - 0.5) * wd; }
