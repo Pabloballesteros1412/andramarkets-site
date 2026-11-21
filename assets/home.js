@@ -196,12 +196,6 @@
   }
   // the web and the burst: knots [x, y, big, phase], ropes [from, to, bow, strands, wide, pulses]
   function flat(kn, rp) { return { k: kn, r: rp.map(function (e) { return { a: e[0], b: e[1], bow: e[2], st: fstr(e[3]), wide: e[4], pu: e[5] }; }) }; }
-  var PATH = (function () { var kn = [], rp = [], kids = [2, 2, 5, 4, 5, 4], k, j2; // Careers: six stages climbing to the brightest, each with its parts to one side
-    for (k = 0; k < 6; k++) { var u = k / 5; kn.push([-0.62 + 1.2 * u + Math.sin(u * 6.2832) * 0.1, -0.7 + 1.4 * u - Math.sin(u * 6.2832) * 0.13, k === 5 ? 1.7 : 1, fr() * 6]); }
-    for (k = 0; k < 5; k++) rp.push([k, k + 1, k % 2 ? 0.2 : -0.2, 46, 0.045, 2]);
-    for (k = 0; k < 6; k++) { var a = kn[Math.max(0, k - 1)], b = kn[Math.min(5, k + 1)], dir = Math.atan2(b[1] - a[1], b[0] - a[0]) + (k % 2 ? -1.5708 : 1.5708);
-      for (j2 = 0; j2 < kids[k]; j2++) { var ca = dir + (j2 - (kids[k] - 1) / 2) * 0.36, dd = 0.3 + (j2 % 2 ? 0.06 : 0); kn.push([kn[k][0] + Math.cos(ca) * dd, kn[k][1] + Math.sin(ca) * dd, 0, fr() * 6]); rp.push([k, kn.length - 1, (j2 % 2 ? 1 : -1) * 0.08, 14, 0.022, 1]); } }
-    return flat(kn, rp); })();
   var BURST = (function () { var kn = [[0, 0, 1, 1]], rp = [], k, j2;
     for (k = 0; k < 7; k++) { var an = k / 7 * 6.2832 + 0.3, d1 = 0.5 + (k % 2) * 0.1, m = kn.length; kn.push([Math.cos(an) * d1, Math.sin(an) * d1, 1, fr() * 6]); rp.push([0, m, k % 2 ? 0.16 : -0.16, 34, 0.04, 2]);
       var kids = 2 + k % 2; for (j2 = 0; j2 < kids; j2++) { var ca = an + (j2 - (kids - 1) / 2) * 0.34, d2 = 0.36 + (j2 % 2) * 0.06; kn.push([kn[m][0] + Math.cos(ca) * d2, kn[m][1] + Math.sin(ca) * d2, 0, fr() * 6]); rp.push([m, kn.length - 1, (j2 % 2 ? 1 : -1) * 0.1, 14, 0.02, 1]); } }
@@ -211,13 +205,20 @@
     for (i2 = 0; i2 < M0; i2++) { var near = []; for (j2 = 0; j2 < M0; j2++) if (j2 !== i2) near.push([Math.pow(kn[i2][0] - kn[j2][0], 2) + Math.pow(kn[i2][1] - kn[j2][1], 2) + Math.pow(kn[i2][2] - kn[j2][2], 2), j2]);
       near.sort(function (a, b) { return a[0] - b[0]; }); [0, 1, 4].forEach(function (q) { var o2 = near[q][1], key = Math.min(i2, o2) + "-" + Math.max(i2, o2); if (!seen[key]) { seen[key] = 1; ed.push({ a: i2, b: o2, st: fstr(7), pu: ed.length % 3 === 0 }); } }); }
     return { k: kn, e: ed }; })();
-  var GLASS = (function () { var a = [], k; for (k = 0; k < 16; k++) a.push({ an: Math.floor(k / 2) / 8 * 6.2832 + (k % 2 ? 0.39 : 0), top: k % 2 === 0, st: fstr(22), rim: fstr(9), ph: fr() * 6 }); return a; })(); // Tools: eight knots above, eight below, every rope through one neck
+  // Tools: a chart of candles (what the tools work on), with its average drawn as a rope and the last candle live.
+  var CANDLES = (function () { var a = [], p = 0.3, k; for (k = 0; k < 20; k++) { var o = p, c = o + (fr() - 0.42) * 0.2; if (k === 7 || k === 13) c = o - 0.14 - fr() * 0.06; var hi = Math.max(o, c) + fr() * 0.07 + 0.015, lo = Math.min(o, c) - fr() * 0.07 - 0.015; a.push({ o: o, c: c, h: hi, l: lo, ph: fr() * 6 }); p = c; }
+    var mn = 9, mx = -9; a.forEach(function (z) { mn = Math.min(mn, z.l); mx = Math.max(mx, z.h); }); a.forEach(function (z) { ["o", "c", "h", "l"].forEach(function (f) { z[f] = (z[f] - mn) / (mx - mn) * 1.2 - 0.6; }); }); a.st = fstr(12); return a; })();
+  // Careers: the skyline the group is about, towers with their windows lit.
+  var TOWERS = (function () { var a = [], x = -0.98, k; while (x < 0.9) { var w = 0.09 + fr() * 0.09, mid = 1 - Math.abs(x + w / 2) * 0.75, h = (0.35 + fr() * 0.5) * (0.55 + mid * 0.75), cols = Math.max(2, Math.round(w / 0.03)), rows = Math.max(3, Math.round(h / 0.045)), win = [];
+      for (k = 0; k < cols * rows; k++) win.push(fr() < 0.42 ? fr() * 6.28 : -1); a.push({ x: x, w: w, h: h, cols: cols, rows: rows, win: win, top: fr() < 0.3 ? 1 : fr() < 0.5 ? 2 : 0, back: 0 }); x += w + 0.012 + fr() * 0.02; }
+    var tall = 0; a.forEach(function (z, n2) { if (Math.abs(z.x + z.w / 2) < Math.abs(a[tall].x + a[tall].w / 2)) tall = n2; }); a[tall].h = 1.32; a[tall].top = 3; a[tall].rows = 28; a[tall].win = []; for (k = 0; k < a[tall].cols * 28; k++) a[tall].win.push(fr() < 0.5 ? fr() * 6.28 : -1);
+    var b = []; for (x = -0.9; x < 0.85; x += 0.13 + fr() * 0.1) b.push({ x: x, w: 0.1 + fr() * 0.07, h: 0.3 + fr() * 0.45 }); a.back = b; a.st = fstr(30); return a; })();
   function figs(t, wts, cxN, cyN, obj, intro) {
     var d = Math.min(2, window.devicePixelRatio || 1), w = Math.round(W * d), h = Math.round(H * d); if (fc.width !== w || fc.height !== h) { fc.width = w; fc.height = h; }
     fx.setTransform(1, 0, 0, 1, 0, 0); fx.clearRect(0, 0, w, h); fx.globalCompositeOperation = "lighter";
     var X0 = (cxN * 0.5 + 0.5) * w, Y0 = (0.5 - cyN * 0.5) * h, R = obj * h * 0.5 * 2.75 / 3.4; FL = d * Math.max(0.8, Math.min(1.5, R / (330 * d)));
     for (var n = 1; n <= 4; n++) { var al = wts[n]; if (al < 0.01) continue; FA = al * al * intro; FC = TINT[n]; var S = R * (0.94 + 0.06 * al);
-      if (n === 1) drawGlobe(t, X0, Y0, S * 0.84); else if (n === 2) drawGlass(t, X0, Y0, S); else drawFlat(n === 3 ? BURST : PATH, t, X0, Y0, S * (n === 3 ? 0.98 : 1.08), n === 3 ? 0.3 : 0.42); }
+      if (n === 1) drawGlobe(t, X0, Y0, S * 0.84); else if (n === 2) drawCandles(t, X0, Y0, S); else if (n === 3) drawFlat(BURST, t, X0, Y0, S * 0.98, 0.3); else drawTowers(t, X0, Y0, S); }
   }
   function drawFlat(F, t, X0, Y0, S, base) {
     var P = F.k.map(function (k, i2) { var fl = k[2] ? 0.012 : 0.02; return [X0 + (k[0] + Math.sin(t * 0.42 + k[3] * 2) * fl) * S, Y0 - (k[1] + Math.cos(t * 0.36 + k[3] * 3) * fl) * S]; });
@@ -237,17 +238,30 @@
       if (e.pu && dep > 0.5) { var f = (t * 0.13 + i2 * 0.37) % 1, k = Math.min(9, Math.floor(f * 10)), u3 = f * 10 - k, hx2 = pts[k][0] + (pts[k + 1][0] - pts[k][0]) * u3, hy2 = pts[k][1] + (pts[k + 1][1] - pts[k][1]) * u3; fglow(hx2, hy2, 8 * FL, 0.85 * dep); } });
     GLOBE.k.forEach(function (k, i2) { var dep = Math.max(0, Math.min(1, (P[i2][2] + 0.55) / 0.9)); if (dep < 0.5) fglow(P[i2][0], P[i2][1], 0.02 * S, 0.25 + 0.5 * dep); else fknot(P[i2][0], P[i2][1], (k[3] ? 0.02 : 0.011) * S, k[3], t, k[4], dep); });
   }
-  function drawGlass(t, X0, Y0, S) {
-    var ay = t * 0.16 + ptr[0] * 0.3, ax = 0.34 - ptr[1] * 0.1, ca = Math.cos(ay), sa = Math.sin(ay), cb = Math.cos(ax), sb = Math.sin(ax), RR = 0.62, HH = 0.74;
-    function pr3(x, y, z) { var x1 = x * ca + z * sa, z1 = -x * sa + z * ca, y1 = y * cb - z1 * sb, z2 = y * sb + z1 * cb, f = 1 / (1 - z2 * 0.16); return [X0 + x1 * S * f, Y0 - y1 * S * f, z2]; }
-    function dp(z) { var d2 = Math.max(0, Math.min(1, (z + 0.7) / 1.3)); return 0.3 + 0.7 * d2; }
-    var P = GLASS.map(function (g) { return pr3(Math.cos(g.an) * RR, g.top ? HH : -HH, Math.sin(g.an) * RR); });
-    GLASS.forEach(function (g, i2) { var y = g.top ? HH : -HH, nb = (i2 + 2) % 16, m = g.an + 0.3927, c = pr3(Math.cos(m) * RR * 1.09, y, Math.sin(m) * RR * 1.09);   // the rim
-      frope(P[i2][0], P[i2][1], P[nb][0], P[nb][1], [c[0], c[1]], g.rim, 0.012 * S, 0.4 * dp((P[i2][2] + P[nb][2]) / 2), t, 0, i2); });
-    GLASS.forEach(function (g, i2) { var y = g.top ? HH : -HH, c = pr3(Math.cos(g.an) * RR * 0.12, y * 0.34, Math.sin(g.an) * RR * 0.12);               // through the neck
-      frope(P[i2][0], P[i2][1], X0, Y0, [c[0], c[1]], g.st, 0.034 * S, 0.5 * dp(P[i2][2]), t, i2 % 2 === 0 ? 1 : 0, i2); });
-    fglow(X0, Y0, 0.14 * S, 0.3); fknot(X0, Y0, 0.026 * S, 1, t, 1, 1);
-    GLASS.forEach(function (g, i2) { fknot(P[i2][0], P[i2][1], 0.02 * S, i2 % 4 === 0, t, g.ph, dp(P[i2][2])); });
+  function col(a) { return "rgba(" + FC[0] + "," + (FA * a).toFixed(3) + ")"; }
+  function drawCandles(t, X0, Y0, S) {
+    var n = CANDLES.length, step = 1.86 / n, bw = step * 0.56, ma = [], sum = 0, k;
+    function px(i2) { return X0 + (-0.93 + step * (i2 + 0.5)) * S; } function py(v) { return Y0 - v * S * 1.15; }
+    fx.lineWidth = 0.5 * FL; for (k = 0; k < 5; k++) { fx.strokeStyle = col(0.07); fx.beginPath(); fx.moveTo(X0 - 0.96 * S, py(-0.6 + k * 0.3)); fx.lineTo(X0 + 0.96 * S, py(-0.6 + k * 0.3)); fx.stroke(); } // the grid of the chart
+    CANDLES.forEach(function (z, i2) { var c = z.c + (i2 === n - 1 ? Math.sin(t * 0.9) * 0.05 : 0), up = c >= z.o, x = px(i2), y0 = py(Math.max(z.o, c)), y1 = py(Math.min(z.o, c)), hh = Math.max(2 * FL, y1 - y0), hi = py(Math.max(z.h, c)), lo = py(Math.min(z.l, c));
+      sum += c; if (i2 >= 4) { sum -= CANDLES[i2 - 4].c; } ma.push([x, py(sum / Math.min(i2 + 1, 4) + 0.1)]);
+      fglow(x, (y0 + y1) / 2, bw * S * 1.5, 0.1); fx.strokeStyle = col(0.75); fx.lineWidth = 0.8 * FL; fx.beginPath(); fx.moveTo(x, hi); fx.lineTo(x, y0); fx.moveTo(x, y1); fx.lineTo(x, lo); fx.stroke();
+      if (up) { fx.fillStyle = col(0.1); fx.fillRect(x - bw * S / 2, y0, bw * S, hh); fx.strokeStyle = col(0.95); fx.lineWidth = 1.1 * FL; fx.strokeRect(x - bw * S / 2, y0, bw * S, hh); }  // a rise is hollow, a fall is solid
+      else { var g = fx.createLinearGradient(0, y0, 0, y0 + hh); g.addColorStop(0, col(0.85)); g.addColorStop(1, col(0.45)); fx.fillStyle = g; fx.fillRect(x - bw * S / 2, y0, bw * S, hh); }
+      if (i2 === n - 1) { var yc = py(c); fx.setLineDash([3 * FL, 5 * FL]); fx.strokeStyle = col(0.45); fx.lineWidth = 0.7 * FL; fx.beginPath(); fx.moveTo(X0 - 0.96 * S, yc); fx.lineTo(X0 + 0.99 * S, yc); fx.stroke(); fx.setLineDash([]); fknot(x + bw * S * 0.9, yc, 0.016 * S, 1, t, 1, 1); } });
+    for (k = 0; k < ma.length - 1; k++) frope(ma[k][0], ma[k][1], ma[k + 1][0], ma[k + 1][1], 0, CANDLES.st, 0.012 * S, 0.3, t, k % 5 === 0 ? 1 : 0, k);
+  }
+  function drawTowers(t, X0, Y0, S) {
+    var gy = Y0 + 0.58 * S, sx = Math.sin(t * 0.2) * 0.012 + ptr[0] * 0.03;
+    TOWERS.back.forEach(function (z) { var x = X0 + (z.x - sx * 0.4) * S, w = z.w * S, h = z.h * S; fx.fillStyle = col(0.035); fx.fillRect(x, gy - h, w, h); fx.strokeStyle = col(0.2); fx.lineWidth = 0.6 * FL; fx.strokeRect(x, gy - h, w, h); });
+    TOWERS.forEach(function (z, i2) { var x = X0 + (z.x - sx) * S, w = z.w * S, h = z.h * S, y = gy - h, cw = w / z.cols, ch = h / z.rows, r, c;
+      fx.fillStyle = "rgba(0,0,0,0.9)"; fx.globalCompositeOperation = "source-over"; fx.fillRect(x, y, w, h); fx.globalCompositeOperation = "lighter"; fx.fillStyle = col(0.05); fx.fillRect(x, y, w, h);
+      fx.strokeStyle = col(0.8); fx.lineWidth = 0.9 * FL; fx.beginPath(); fx.moveTo(x, gy); fx.lineTo(x, y); fx.lineTo(x + w, y); fx.lineTo(x + w, gy); fx.stroke();
+      if (z.top === 1) { fx.beginPath(); fx.moveTo(x + w * 0.25, y); fx.lineTo(x + w * 0.25, y - 0.035 * S); fx.lineTo(x + w * 0.75, y - 0.035 * S); fx.lineTo(x + w * 0.75, y); fx.stroke(); }
+      if (z.top === 2) { fx.beginPath(); fx.moveTo(x + w / 2, y); fx.lineTo(x + w / 2, y - 0.07 * S); fx.stroke(); }
+      if (z.top === 3) { fx.beginPath(); fx.moveTo(x, y); fx.lineTo(x + w / 2, y - 0.12 * S); fx.lineTo(x + w, y); fx.moveTo(x + w / 2, y - 0.12 * S); fx.lineTo(x + w / 2, y - 0.24 * S); fx.stroke(); fknot(x + w / 2, y - 0.24 * S, 0.016 * S, 1, t, 2, 1); }
+      for (r = 0; r < z.rows; r++) for (c = 0; c < z.cols; c++) { var ph = z.win[r * z.cols + c]; if (ph < 0) continue; fx.fillStyle = "rgba(" + FC[0] + "," + (FA * (0.35 + 0.45 * (0.5 + 0.5 * Math.sin(t * 0.5 + ph)))).toFixed(3) + ")"; fx.fillRect(x + c * cw + cw * 0.28, y + r * ch + ch * 0.25, cw * 0.44, ch * 0.42); } });
+    frope(X0 - 1.02 * S, gy, X0 + 1.02 * S, gy, 0, TOWERS.st, 0.01 * S, 0.5, t, 2, 3);
   }
   function build(img) {
     var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; var x = c.getContext("2d"); x.drawImage(img, 0, 0);
