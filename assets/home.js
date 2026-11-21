@@ -25,11 +25,11 @@
     "  float hvB=0.75*mix(1.0,0.12,clamp(lift*2.2,0.0,1.0))*(0.1+0.9*exp(-abs(sin(th))*uRr*1.5));",
     "  float nt=clamp((uNight-aR.x*0.3)/0.7,0.0,1.0); nt=nt*nt*(3.0-2.0*nt);",
     // uOn marks the two shapes in play: the other four are not worked out for any particle
-    "  float w=0.0,w0=0.0,w1=0.0,bf=1.0;",
+    "  float w=0.0,w0=0.0,w1=0.0,bf=1.0,w2=0.0,bf2=1.0;",
     "  if(uOn[0]>0.5){ float sn=sin(3.14159*nt); vec3 hp=h0*uObj*uHS+uOff[0]; if(sn>0.0005) hp+=nz(h0*3.0+aR.y*7.0+uTime*0.2)*0.13*sn;",
     "    w=(1.0-ft)*step(abs(uA-0.0),0.5)+ft*step(abs(uB-0.0),0.5); w0=w; p+=w*mix(mix(arcW,hp,nt),rot(h0,uRot[0]),amb); wh+=w; }",
-    "  if(uOn[1]>0.5){ w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); w1=w*(1.0-amb); bf=mix(1.0,mix(0.07,1.0,smoothstep(-0.06,0.06,g1.z)),step(dot(a1,a1),0.9)); p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb)); }",
-    "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); p+=w*(rot(a2+vec3(0.0,0.05*sin(a2.x*3.0+a2.z*2.0+uTime*0.9),0.0)*(1.0-amb),uRot[2])*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
+    "  if(uOn[1]>0.5){ w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); w1=w*(1.0-amb); bf=mix(0.2,1.0,smoothstep(-0.5,0.3,g1.z)); p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb)); }",
+    "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); vec3 g2=rot(a2,uRot[2]); w2=w*(1.0-amb); bf2=mix(0.5,1.0,smoothstep(-0.5,0.3,g2.z)); p+=w*(g2*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
     "  if(uOn[3]>0.5){ w=(1.0-ft)*step(abs(uA-3.0),0.5)+ft*step(abs(uB-3.0),0.5); p+=w*(rot(a3,uRot[3])*mix(uObj,1.0,amb)+uOff[3]*(1.0-amb)); }",
     "  if(uOn[4]>0.5){ w=(1.0-ft)*step(abs(uA-4.0),0.5)+ft*step(abs(uB-4.0),0.5); p+=w*(rot(a4,uRot[4])*mix(uObj,1.0,amb)+uOff[4]*(1.0-amb)); }",
     "  if(uOn[5]>0.5){ w=(1.0-ft)*step(abs(uA-5.0),0.5)+ft*step(abs(uB-5.0),0.5); p+=w*mix(arcW,rot(h0,uRot[5]),amb); wh+=w; }",
@@ -46,7 +46,7 @@
     "  float hk=wh*(1.0-amb); size=mix(size,max(1.0,1.15*uDpr/max(1.0,uDpr*0.8)),hk*(1.0-burst));",
     "  float sub=min(1.0,size*size); gl_PointSize=clamp(size,1.0,40.0*uDpr);",
     "  float br=mix(0.62,clamp(aR.w,0.0,1.0),0.0); br=mix(br,0.5,amb);",
-    "  float g=br*sub*uIntro/(1.0+coc*coc*18.0*amb)*(1.0-0.78*burst)*mix(uVis*0.34*uGain,0.3,amb)*mix(1.0,bf,w1);",
+    "  float g=br*sub*uIntro/(1.0+coc*coc*18.0*amb)*(1.0-0.78*burst)*mix(uVis*0.34*uGain,0.3,amb)*mix(1.0,bf,w1)*mix(1.0,bf2*0.8,w2);",
     "  float hv=step(aR.x,uHV)*uIntro*clamp(pow(aR.w,1.2)*0.96,0.0,1.0)*nt*mix(0.22,1.0,smoothstep(0.72,1.0,nt))*step(0.001,w0);",
     "  vA=mix(g,hv*(1.0-uImg),hk);",
     "}"].join("\n");
@@ -92,47 +92,87 @@
   function q1(n) { var v = n * 0.7548776662466927; return v - Math.floor(v); }
   function q2(n) { var v = n * 0.5698402909980532; return v - Math.floor(v); }
   function q3(n) { var v = n * 0.8191725133961645; return v - Math.floor(v); }
-  var LATS = [], LATC = [0]; (function () { for (var k = -5; k <= 5; k++) { LATS.push(k * 0.2618); LATC.push(LATC[LATC.length - 1] + Math.cos(k * 0.2618)); } })();
-  // Minimal scenes: a few exact lines each.
-  function globe(i, o) {
-    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), x, y, z, r = 0.82, lat, lon;
-    if (c < 0.1) { var an = b * 6.2832, rr = 1.14; x = Math.cos(an) * rr; z = Math.sin(an) * rr; y = z * 0.32; z = z * 0.95; }
-    else {
-      if (c < 0.4) { var LK = [-1.05, -0.7, -0.35, 0, 0.35, 0.7, 1.05], LW = [0.07, 0.19, 0.33, 0.5, 0.67, 0.81, 0.93], k = 0; while (k < 6 && a > LW[k]) k++; lat = LK[k]; lon = b * 6.2832; }
-      else { lon = Math.floor(a * 12) / 12 * 6.2832; lat = (b * 2 - 1) * 1.5; }
-      x = r * Math.cos(lat) * Math.cos(lon); y = r * Math.sin(lat); z = r * Math.cos(lat) * Math.sin(lon);
+  // the light of each shape: the horse, Markets (violet), Tools (white), Research (gold), Careers (blue), the close
+  var COLS = [[1, 1, 1], [0.8, 0.7, 1], [1, 1, 1], [1, 0.82, 0.56], [0.5, 0.72, 1], [1, 1, 1]];
+  function q4(n) { var v = n * 0.4142135623730951; return v - Math.floor(v); }
+  // Each group's picture has a form of its own, in its map's colour (owner, 20 and 21 Nov 2026): Markets a globe
+  // of knots and arcs, Tools the reel's tree on both sides of a bottleneck, Research a burst from one core,
+  // Careers the web of its map. The globe, burst and web are drawn in the maps' language, knots joined by ropes.
+  // A form is knots [x, y, z, size] and ropes [from, to, bow, width]; on a globe the ropes follow the sphere.
+  function webForm(kids) {
+    var N0 = [], E = [], k, j2;
+    for (k = 0; k < 6; k++) { var an = -Math.PI / 2 + k / 6 * 6.2832; N0.push([Math.cos(an) * 0.5, -Math.sin(an) * 0.5, 0, 1]); }
+    for (k = 0; k < 6; k++) E.push([k, (k + 1) % 6, -0.13, 1]);
+    for (k = 0; k < 6; k++) for (j2 = 0; j2 < kids[k]; j2++) { var a0 = -Math.PI / 2 + k / 6 * 6.2832, ca = a0 + (j2 - (kids[k] - 1) / 2) * 0.36, dd = 0.4 + (kids[k] > 3 && j2 % 2 ? 0.07 : 0);
+      N0.push([N0[k][0] + Math.cos(ca) * dd, N0[k][1] - Math.sin(ca) * dd, 0, 0.5]); E.push([k, N0.length - 1, 0.05, 0.5]); }
+    return { n: N0, e: E };
+  }
+  function globeForm() {
+    var N0 = [], E = [], M0 = 30, R = 0.8, i2, j2, seen = {};
+    for (i2 = 0; i2 < M0; i2++) { var yy = 1 - (i2 + 0.5) / M0 * 2, rr = Math.sqrt(1 - yy * yy), th = i2 * 2.39996; N0.push([Math.cos(th) * rr * R, yy * R, Math.sin(th) * rr * R, i2 % 5 === 0 ? 0.9 : 0.5]); }
+    for (i2 = 0; i2 < M0; i2++) { var near = []; for (j2 = 0; j2 < M0; j2++) if (j2 !== i2) near.push([Math.pow(N0[i2][0] - N0[j2][0], 2) + Math.pow(N0[i2][1] - N0[j2][1], 2) + Math.pow(N0[i2][2] - N0[j2][2], 2), j2]);
+      near.sort(function (a, b) { return a[0] - b[0]; }); [0, 1, 4].forEach(function (q) { var o2 = near[q][1], key = Math.min(i2, o2) + "-" + Math.max(i2, o2); if (!seen[key]) { seen[key] = 1; E.push([i2, o2, 0.1, q === 4 ? 0.45 : 0.6]); } }); }
+    return { n: N0, e: E, r: R };
+  }
+  function burstForm() {
+    var N0 = [[0, 0, 0, 1.5]], E = [], k, j2;
+    for (k = 0; k < 7; k++) { var an = k / 7 * 6.2832 + 0.3, d1 = 0.5 + (k % 2) * 0.1, m = N0.length; N0.push([Math.cos(an) * d1, Math.sin(an) * d1, (k % 3 - 1) * 0.12, 0.8]); E.push([0, m, k % 2 ? 0.08 : -0.08, 0.9]);
+      var kids = 2 + k % 2; for (j2 = 0; j2 < kids; j2++) { var ca = an + (j2 - (kids - 1) / 2) * 0.34, d2 = 0.36 + (j2 % 2) * 0.06; N0.push([N0[m][0] + Math.cos(ca) * d2, N0[m][1] + Math.sin(ca) * d2, N0[m][2] * 1.6, 0.45]); E.push([m, N0.length - 1, 0.05, 0.45]); } }
+    return { n: N0, e: E };
+  }
+  // Tools: the tree of the owner's reference reel, made on both sides of a bottleneck (owner, 21 Nov 2026).
+  // Hundreds of hair-thin strands gather from a wide wind-blown crown below, squeeze through one narrow neck and
+  // fan out into a second crown above; one path through the neck is lit, with a light at each turn.
+  var TREE = (function () {
+    var seed = 11, NS = 900, NP = 26, S = [], k, j2, mx = 0, my = 0;
+    function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+    function sm(a, b, t) { t = Math.max(0, Math.min(1, (t - a) / (b - a))); return t * t * (3 - 2 * t); }
+    var boughs = []; for (k = 0; k < 9; k++) boughs.push([-0.5 + Math.pow(k / 8, 0.8) * 1.6 + (rnd() - 0.5) * 0.1, (rnd() - 0.5) * 0.8]); // lean (from upright, towards the wind) and depth
+    for (k = 0; k < NS; k++) { var bg = boughs[Math.floor(Math.pow(rnd(), 0.75) * 9)], twig = Math.floor(rnd() * 4), th1 = bg[0] + (twig - 1.5) * 0.11, th2 = th1 + (rnd() - 0.5) * 0.3, L = (0.8 + rnd() * 0.5) * (1 + Math.max(0, bg[0]) * 0.28), dz = bg[1] + (rnd() - 0.5) * 0.3, droop = 0.5 + rnd() * 0.8,
+        x = (rnd() - 0.5) * 0.012, y = 0, z = (rnd() - 0.5) * 0.012, pts = [];
+      for (j2 = 0; j2 < NP; j2++) { var t = j2 / (NP - 1), th = 0.12 + (bg[0] - 0.12) * sm(0.0, 0.22, t) + (th1 - bg[0]) * sm(0.18, 0.5, t) + (th2 - th1) * sm(0.45, 0.9, t) + droop * t * t * t * (bg[0] > 0.1 ? 1 : -0.4) + Math.sin(t * 9 + k) * 0.04 * t;
+        pts.push([x, y, z]); x -= Math.sin(th) * L / NP; y += Math.cos(th) * L / NP; z += dz * sm(0.2, 0.7, t) * L / NP; if (Math.abs(x) > mx) mx = Math.abs(x); if (y > my) my = y; }
+      S.push(pts); }
+    var sc = Math.min(1.1 / mx, 0.95 / my);
+    S.forEach(function (pts) { pts.forEach(function (q) { q[0] *= sc; q[1] *= sc; q[2] *= sc; }); });
+    var best = 0, bv = -9; S.forEach(function (pts, n2) { var e2 = pts[NP - 1], v = e2[1] - Math.abs(e2[0] + 0.3) * 0.8; if (v > bv) { bv = v; best = n2; } }); // the lit path ends high in each crown
+    return { s: S, np: NP, lit: best };
+  })();
+  function halfPt(pts, t) { var f = t * (TREE.np - 1), i2 = Math.min(TREE.np - 2, Math.floor(f)), u = f - i2, A = pts[i2], B = pts[i2 + 1]; return [A[0] + (B[0] - A[0]) * u, A[1] + (B[1] - A[1]) * u, A[2] + (B[2] - A[2]) * u]; }
+  function strandPt(k, t) { // a whole strand: one half below the neck, turned about it, and another above
+    var NS = TREE.s.length, P; if (t >= 0.5) return halfPt(TREE.s[k], t * 2 - 1); P = halfPt(TREE.s[k === TREE.lit ? k : (k * 7 + 3) % NS], 1 - t * 2); return [-P[0], -P[1], -P[2]];
+  }
+  function treeShape(i, o) {
+    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), P;
+    if (c < 0.87) { var t = 0.5 + (b - 0.5) * Math.pow(Math.abs(b * 2 - 1), -0.15); P = strandPt(Math.floor(a * TREE.s.length) % TREE.s.length, Math.max(0, Math.min(1, t))); P[0] += (d - 0.5) * 0.0015; P[1] += (e - 0.5) * 0.0015; }
+    else if (c < 0.91) { P = strandPt(TREE.lit, b); P[0] += (d - 0.5) * 0.004; P[1] += (e - 0.5) * 0.004; }                   // the lit path
+    else { var m = Math.floor(a * 9) % 9, ang = b * 6.2832, up = d * 2 - 1, fl = Math.sqrt(1 - up * up), r = e * e * e * (m === 0 || m === 8 ? 0.06 : m === 4 ? 0.075 : 0.028); P = strandPt(TREE.lit, m / 8); // a light at each turn; the neck and the two tips brightest
+      P = [P[0] + Math.cos(ang) * fl * r, P[1] + up * r, P[2] + Math.sin(ang) * fl * r]; }
+    o[i] = P[0]; o[i + 1] = P[1]; o[i + 2] = P[2];
+  }
+  function ready(F) { // how the particles are shared out: by each rope's length and width, and by each knot's size
+    var tot = 0, k; F.el = F.e.map(function (e) { var a = F.n[e[0]], b = F.n[e[1]], l = Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); tot += l * (0.4 + e[3]); return tot; });
+    for (k = 0; k < F.el.length; k++) F.el[k] /= tot; tot = 0; F.nl = F.n.map(function (n) { tot += n[3] * n[3]; return tot; }); for (k = 0; k < F.nl.length; k++) F.nl[k] /= tot; return F;
+  }
+  var FORMS = [ready(globeForm()), null, ready(burstForm()), ready(webForm([2, 2, 5, 4, 5, 4]))]; // Tools is the tree, above
+  function formShape(i, o, F) {
+    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), x, y, z, k = 0;
+    if (c < 0.6) {                                   // a rope: a bundle of strands, widest at its middle
+      while (k < F.el.length - 1 && F.el[k] < a) k++; var E = F.e[k], A = F.n[E[0]], B2 = F.n[E[1]], u = 1 - b, dx = B2[0] - A[0], dy = B2[1] - A[1], dz = B2[2] - A[2], l = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1, wd = Math.sin(3.14159 * b) * 0.05 * E[3];
+      if (F.r) { x = A[0] * u + B2[0] * b; y = A[1] * u + B2[1] * b; z = A[2] * u + B2[2] * b; var len = Math.sqrt(x * x + y * y + z * z) || 1, lift = F.r * (1 + E[2] * Math.sin(3.14159 * b) * l) / len; x *= lift; y *= lift; z *= lift; x += (d - 0.5) * wd; y += (e - 0.5) * wd; z += (q0(n * 3.7) - 0.5) * wd; }
+      else { var mx = (A[0] + B2[0]) / 2 - dy / l * E[2] * l * 2, my = (A[1] + B2[1]) / 2 + dx / l * E[2] * l * 2; x = u * u * A[0] + 2 * u * b * mx + b * b * B2[0]; y = u * u * A[1] + 2 * u * b * my + b * b * B2[1]; z = A[2] * u + B2[2] * b;
+        x += -dy / l * (d - 0.5) * wd; y += dx / l * (d - 0.5) * wd; z += (e - 0.5) * wd; }
+    } else {                                         // a knot: a core of light and a flare of rays
+      while (k < F.nl.length - 1 && F.nl[k] < a) k++; var P = F.n[k], sz = P[3], ang, r;
+      if (d < 0.42) { var rays = sz > 0.6 ? 6 : 4; ang = Math.floor(b * rays) / rays * 6.2832 + 0.3; r = e * e * 0.16 * sz; } else { ang = b * 6.2832; r = e * e * e * 0.075 * sz; }
+      x = P[0] + Math.cos(ang) * r; y = P[1] + Math.sin(ang) * r; z = P[2] + (q0(n * 3.7) - 0.5) * r;
     }
     o[i] = x; o[i + 1] = y; o[i + 2] = z;
-  }
-  function surface(i, o) {
-    var n = i / 3, x, z;
-    if (q0(n) < 0.55) { x = (Math.floor(q1(n) * 13) - 6) / 6; z = q2(n) * 2 - 1; } else { z = (Math.floor(q1(n) * 11) - 5) / 5; x = q2(n) * 2 - 1; }
-    var tm = (z + 1) / 2, y = -0.42 + 0.62 * x * x * (1.25 - 0.75 * tm) + 0.2 * Math.exp(-2.2 * tm) - 0.1 * x * (1 - tm);
-    o[i] = x * 0.98; o[i + 1] = y * 0.9; o[i + 2] = z * 0.8;
-  }
-  var S = DATA.spx, smin = Math.min.apply(0, S), smax = Math.max.apply(0, S);
-  function sy(v) { return -0.5 + (v - smin) / (smax - smin) * 1.05; }
-  function chart(i, o) {
-    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), m = S.length, x, y;
-    if (c < 0.46) { var f = b * (m - 1), j = Math.floor(f), t = f - j; x = f; y = sy(S[j] + (S[Math.min(m - 1, j + 1)] - S[j]) * t); }
-    else { var j2 = Math.floor(a * m); x = j2; y = -0.62 + (sy(S[j2]) + 0.62) * q3(n); }
-    o[i] = -0.92 + x / (m - 1) * 1.84; o[i + 1] = y * 0.85; o[i + 2] = 0;
-  }
-  var TW = [], TWH = [0.24, 0.38, 0.3, 0.52, 0.44, 0.68, 0.6, 0.86, 0.76, 1.04, 0.94, 1.26], TWA = [0];
-  (function () { var x = 0; for (var j = 0; j < TWH.length; j++) { TW.push([x, 0.13, TWH[j], 0.13, (j % 3 - 1) * 0.07]); x += 0.165; TWA.push(TWA[j] + TWH[j] + 0.5); } })();
-  var TWC = (TW[TW.length - 1][0] + 0.13) / 2;
-  function skyline(i, o) {
-    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), tt = a * TWA[TWA.length - 1], k = 0; while (k < TW.length - 1 && TWA[k + 1] <= tt) k++;
-    var t = TW[k], x, y, z, base = -0.62;
-    if (c < 0.4) { var e = Math.floor(d * 12);
-      if (e < 4) { x = (e & 1); z = (e >> 1); y = b; } else if (e < 8) { x = b; z = (e & 1); y = (e >> 2 === 1 ? (e >> 1) & 1 : 0); y = (e >> 1) & 1; } else { x = (e & 1); z = b; y = (e >> 1) & 1; } }
-    else { var rows = Math.max(3, Math.round(t[2] / 0.052)); y = (Math.floor(d * rows) + 0.5) / rows; if (c < 0.8) { x = b; z = 1; } else { x = 1; z = b; } }
-    o[i] = (t[0] + x * t[1] - TWC) * 0.78; o[i + 1] = (base + y * t[2]) * 0.92 + 0.02; o[i + 2] = (t[4] + (z - 0.5) * t[3]) * 0.9;
   }
   function build(img) {
     var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; var x = c.getContext("2d"); x.drawImage(img, 0, 0);
     var d = x.getImageData(0, 0, c.width, c.height).data, SW = c.width, i = 0; FW = c.width; FH = c.height; srcImg = img; IMG_ASP = FW / FH;
-    for (; i < N - AMB; i++) { var j = i * 3; globe(j, T[1]); surface(j, T[2]); chart(j, T[3]); skyline(j, T[4]);
+    for (; i < N - AMB; i++) { var j = i * 3; formShape(j, T[1], FORMS[0]); treeShape(j, T[2]); formShape(j, T[3], FORMS[2]); formShape(j, T[4], FORMS[3]);
       UU[i] = rnd(); VV[i] = rnd(); R[i * 4] = rnd(); R[i * 4 + 1] = rnd(); R[i * 4 + 2] = rnd() * rnd(); R[i * 4 + 3] = 0.55 + 0.45 * rnd(); }
     for (; i < N; i++) { var j3 = i * 3, ax = (rnd() - 0.5) * 6.4, ay = (rnd() - 0.5) * 3.4, az = -2.6 + rnd() * 4.6;
       for (var k = 1; k < 5; k++) { T[k][j3] = ax; T[k][j3 + 1] = ay; T[k][j3 + 2] = az; }
@@ -195,10 +235,10 @@
     ptr[0] += (pt[0] - ptr[0]) * 0.05; ptr[1] += (pt[1] - ptr[1]) * 0.05;
     var asp = W / H, port = asp < 0.85, tt = reduce ? 0 : t, nf = 1;
     var rot = [0, 0,
-      tt * 0.16 + ptr[0] * 0.3, 0.28 + ptr[1] * -0.1,
-      -0.5 + Math.sin(tt * 0.2) * 0.18 + ptr[0] * 0.25, 0.42 + ptr[1] * -0.1,
-      Math.sin(tt * 0.22) * 0.14 + ptr[0] * 0.2, 0.05 + ptr[1] * -0.08,
-      -0.45 + Math.sin(tt * 0.18) * 0.2 + ptr[0] * 0.25, 0.16 + ptr[1] * -0.08,
+      tt * 0.14 + ptr[0] * 0.3, 0.3 + ptr[1] * -0.1,                                    // the globe turns
+      Math.sin(tt * 0.21 + 1) * 0.2 + ptr[0] * 0.25, 0.1 + ptr[1] * -0.1,                // the tree sways
+      Math.sin(tt * 0.19 + 2) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
+      Math.sin(tt * 0.2 + 3) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
       0, 0];
     var hs = port ? 2.05 : 1, obj = port ? Math.min(0.42, asp * 0.9) : Math.min(1, asp * 0.62);
     var ox = port ? 0 : Math.min(0.8, asp * 0.43), oy = port ? 0.4 : 0.06, side = [1, 1, 1, 1, 1, 0];
@@ -213,7 +253,7 @@
     gl.useProgram(PB); gl.bindBuffer(gl.ARRAY_BUFFER, qb); var la = LOC.bq; gl.enableVertexAttribArray(la); gl.vertexAttribPointer(la, 2, gl.FLOAT, false, 0, 0);
     gl.uniform4f(UB.uBox, 0, 0, 1, 1); gl.uniform2f(UB.uRes, cv.width, cv.height); gl.uniform2f(UB.uC, cx, cy); gl.uniform1f(UB.uTime, tt);
     var op = reduce || !OPENING ? 1 : Math.min(1, Math.max(0, (t - 0.2) / OPEN_S)); gl.uniform1f(UB.uOpen, 1 - Math.pow(1 - op, 2.2)); gl.uniform1f(UB.uHor, hor); gl.uniform2f(UB.uH, 0, feet); gl.uniform1f(UB.uR, port ? 2.2 : 3.4);
-    gl.uniform1f(UB.uGlobe, Math.max(0, wt(1) * 1.6 - 0.6)); gl.uniform1f(UB.uGR, 0.82 * obj * 2.75 / 3.4); gl.uniform1f(UB.uAspect, asp);
+    gl.uniform1f(UB.uGlobe, 0); gl.uniform1f(UB.uGR, 0.82 * obj * 2.75 / 3.4); gl.uniform1f(UB.uAspect, asp);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     var wH = wt(0) + wt(5), it0 = reduce ? 1 : Math.min(1, t / 3.4), imgA = Math.max(0, Math.min(1, (wH - 0.86) / 0.14)) * Math.max(0, Math.min(1, (it0 - 0.8) / 0.2));
     imgA = Math.max(0, Math.min(1, (wt(0) - 0.86) / 0.14)) * Math.max(0, Math.min(1, (night - 0.95) / 0.05)); imgA = imgA * imgA * (3 - 2 * imgA);
@@ -236,7 +276,7 @@
     var rl = LOC.r; gl.bindBuffer(gl.ARRAY_BUFFER, rbuf); gl.enableVertexAttribArray(rl); gl.vertexAttribPointer(rl, 4, gl.FLOAT, false, 0, 0);
     gl.uniform1f(U.uA, A); gl.uniform1f(U.uB, B); gl.uniform1f(U.uT, Tm); gl.uniform1f(U.uTime, tt); gl.uniform1f(U.uAspect, asp); gl.uniform1f(U.uDpr, DPR); var it = reduce ? 1 : Math.min(1, t / 3.4); gl.uniform1f(U.uIntro, 1 - Math.pow(1 - it, 3));
     gl.uniform1f(U.uObj, obj); gl.uniform1f(U.uPx, DPR * H / 900 * (small ? 1.15 : 1)); gl.uniform1f(U.uVis, 1);
-    gl.uniform3f(U.uCol, 1, 1, 1);
+    var ca0 = COLS[A], cb0 = COLS[B]; gl.uniform3f(U.uCol, ca0[0] + (cb0[0] - ca0[0]) * es, ca0[1] + (cb0[1] - ca0[1]) * es, ca0[2] + (cb0[2] - ca0[2]) * es); // each group in its map's colour
     rotA.set(rot); offA.set(off); for (var o6 = 0; o6 < 6; o6++) onA[o6] = (A === o6 && Tm < 1) || (B === o6 && Tm > 0) ? 1 : 0;
     gl.uniform2fv(U.uRot, rotA); gl.uniform3fv(U.uOff, offA); gl.uniform1fv(U.uOn, onA); gl.uniform2f(U.uPtr, ptr[0], ptr[1]);
     // the lines of particles: none are drawn while the horizon alone, or the finished drawing of the horse, is the picture

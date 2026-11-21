@@ -441,3 +441,14 @@ a.nav__btn{display:inline-flex}
 .tools-map--blue.is-live ol ol a:hover,.tools-map--blue.is-live ol ol a:focus-visible,.tools-map--blue.has-pick ol ol a.is-on{color:#bcdcff}
 .tools-map--gold.is-live ol ol a:hover,.tools-map--gold.is-live ol ol a:focus-visible,.tools-map--gold.has-pick ol ol a.is-on{color:#ffe1b0}
 .tools-map--violet.is-live ol ol a:hover,.tools-map--violet.is-live ol ol a:focus-visible,.tools-map--violet.has-pick ol ol a.is-on{color:#ddd0ff}
+
+/* The phone menu now that every group is a link to its map (owner, 19 Nov 2026): the four names
+   in large type, one under another, each with a line of its map's colour. */
+@media (max-width:960px){
+  html.js .nav{display:flex;flex-direction:column;justify-content:center;gap:6px;padding-bottom:14vh}
+  html.js a.nav__btn{display:flex;align-items:center;justify-content:space-between;min-height:84px;font-size:2.25rem;font-weight:300;letter-spacing:-.02em;color:var(--ink);border-bottom:1px solid var(--rule)!important;text-decoration:none}
+  html.js a.nav__btn::after{content:"";width:34px;height:1px;background:currentColor;opacity:.7}
+  html.js .nav__group:nth-child(1) a.nav__btn::after{background:#ac90ff;opacity:1}
+  html.js .nav__group:nth-child(3) a.nav__btn::after{background:#ffbe6e;opacity:1}
+  html.js .nav__group:nth-child(4) a.nav__btn::after{background:#3c8cff;opacity:1}
+}
