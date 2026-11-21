@@ -29,7 +29,7 @@
     "  if(uOn[0]>0.5){ float sn=sin(3.14159*nt); vec3 hp=h0*uObj*uHS+uOff[0]; if(sn>0.0005) hp+=nz(h0*3.0+aR.y*7.0+uTime*0.2)*0.13*sn;",
     "    w=(1.0-ft)*step(abs(uA-0.0),0.5)+ft*step(abs(uB-0.0),0.5); w0=w; p+=w*mix(mix(arcW,hp,nt),rot(h0,uRot[0]),amb); wh+=w; }",
     "  if(uOn[1]>0.5){ w=(1.0-ft)*step(abs(uA-1.0),0.5)+ft*step(abs(uB-1.0),0.5); vec3 g1=rot(a1,uRot[1]); w1=w*(1.0-amb); bf=mix(0.2,1.0,smoothstep(-0.5,0.3,g1.z)); p+=w*(g1*mix(uObj,1.0,amb)+uOff[1]*(1.0-amb)); }",
-    "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); vec3 g2=rot(a2,uRot[2]); w2=w*(1.0-amb); bf2=mix(0.22,1.0,smoothstep(-0.6,0.4,g2.z)); p+=w*(g2*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
+    "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); vec3 g2=rot(a2,uRot[2]); w2=w*(1.0-amb); bf2=mix(0.5,1.0,smoothstep(-0.5,0.3,g2.z)); p+=w*(g2*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
     "  if(uOn[3]>0.5){ w=(1.0-ft)*step(abs(uA-3.0),0.5)+ft*step(abs(uB-3.0),0.5); p+=w*(rot(a3,uRot[3])*mix(uObj,1.0,amb)+uOff[3]*(1.0-amb)); }",
     "  if(uOn[4]>0.5){ w=(1.0-ft)*step(abs(uA-4.0),0.5)+ft*step(abs(uB-4.0),0.5); p+=w*(rot(a4,uRot[4])*mix(uObj,1.0,amb)+uOff[4]*(1.0-amb)); }",
     "  if(uOn[5]>0.5){ w=(1.0-ft)*step(abs(uA-5.0),0.5)+ft*step(abs(uB-5.0),0.5); p+=w*mix(arcW,rot(h0,uRot[5]),amb); wh+=w; }",
@@ -178,30 +178,31 @@
       P = [P[0] + Math.cos(ang) * fl * r, P[1] + up * r, P[2] + Math.sin(ang) * fl * r]; }
     o[i] = P[0]; o[i + 1] = P[1]; o[i + 2] = P[2];
   }
-  // Tools: a tree of light. A trunk of fine threads branches six times into a full crown, with sixteen lights in it, one for each
-  // tool; fine roots below, a crown of leaves of light above.
+  // Tools: the tree of the owner's reference reel. Hundreds of hair-thin strands leave one root as a tight trunk,
+  // part into boughs and fan into a wide wind-blown crown; one path through it is lit, with a light at each turn.
   var TREE = (function () {
-    var seed = 7, S = [], tips = [], tot = 0;
+    var seed = 11, NS = 720, NP = 26, S = [], k, j2, mnx = 9, mxx = -9, mny = 9, mxy = -9;
     function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
-    function nrm(v) { var l = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; }
-    function perp(d, ph) { var u = nrm(Math.abs(d[1]) < 0.9 ? [d[2], 0, -d[0]] : [1, 0, 0]), v = [d[1] * u[2] - d[2] * u[1], d[2] * u[0] - d[0] * u[2], d[0] * u[1] - d[1] * u[0]]; return [u[0] * Math.cos(ph) + v[0] * Math.sin(ph), u[1] * Math.cos(ph) + v[1] * Math.sin(ph), u[2] * Math.cos(ph) + v[2] * Math.sin(ph)]; }
-    function seg(A, d, L, th, depth, root) {
-      var B = [A[0] + d[0] * L, A[1] + d[1] * L, A[2] + d[2] * L], pb = perp(d, rnd() * 6.2832), bend = L * 0.14, C = [(A[0] + B[0]) / 2 + pb[0] * bend, (A[1] + B[1]) / 2 + pb[1] * bend, (A[2] + B[2]) / 2 + pb[2] * bend];
-      tot += L * (0.25 + th * 30); S.push({ A: A, C: C, B: B, th: th, d: d, w: tot, n: Math.max(1, Math.round(th / 0.0035)) });
-      if (root) return; if (depth >= 3) tips.push(B); if (depth === 6) return;
-      var ph = rnd() * 6.2832, k, kids = depth > 0 && depth < 4 && rnd() < 0.55 ? 3 : 2; for (k = 0; k < kids; k++) { var sp = 0.38 + rnd() * 0.42, q = perp(d, ph + k * 6.2832 / kids + (rnd() - 0.5) * 0.6); seg(B, nrm([d[0] * Math.cos(sp) + q[0] * Math.sin(sp), d[1] * Math.cos(sp) + q[1] * Math.sin(sp) + 0.1, d[2] * Math.cos(sp) + q[2] * Math.sin(sp)]), L * (0.7 + rnd() * 0.14), th * 0.64, depth + 1); }
-    }
-    seg([0, -0.86, 0], nrm([0.04, 1, 0]), 0.5, 0.075, 0);
-    for (var r = 0; r < 7; r++) { var an = r / 7 * 6.2832 + 0.4; seg([0, -0.84, 0], nrm([Math.cos(an), -0.22, Math.sin(an)]), 0.2 + rnd() * 0.16, 0.016, 0, 1); }
-    S.forEach(function (g) { g.w /= tot; }); return { s: S, tips: tips };
+    function sm(a, b, t) { t = Math.max(0, Math.min(1, (t - a) / (b - a))); return t * t * (3 - 2 * t); }
+    var boughs = []; for (k = 0; k < 9; k++) boughs.push([-0.5 + Math.pow(k / 8, 0.8) * 1.6 + (rnd() - 0.5) * 0.1, (rnd() - 0.5) * 0.7]); // lean (from upright, towards the wind) and depth
+    for (k = 0; k < NS; k++) { var bg = boughs[Math.floor(Math.pow(rnd(), 0.75) * 9)], twig = Math.floor(rnd() * 4), th1 = bg[0] + (twig - 1.5) * 0.11, th2 = th1 + (rnd() - 0.5) * 0.3, L = (0.8 + rnd() * 0.5) * (1 + Math.max(0, bg[0]) * 0.28), dz = bg[1] + (rnd() - 0.5) * 0.3, droop = 0.5 + rnd() * 0.8,
+        x = 0, y = 0, z = 0, pts = [];
+      for (j2 = 0; j2 < NP; j2++) { var t = j2 / (NP - 1), th = 0.2 + (bg[0] - 0.2) * sm(0.3, 0.52, t) + (th1 - bg[0]) * sm(0.46, 0.68, t) + (th2 - th1) * sm(0.6, 0.92, t) + droop * t * t * t * (bg[0] > 0.1 ? 1 : -0.4) + Math.sin(t * 9 + k) * 0.04 * t;
+        pts.push([x, y, z]); x -= Math.sin(th) * L / NP; y += Math.cos(th) * L / NP; z += dz * sm(0.3, 0.7, t) * L / NP; if (x < mnx) mnx = x; if (x > mxx) mxx = x; if (y < mny) mny = y; if (y > mxy) mxy = y; }
+      S.push(pts); }
+    var sc = Math.min(2.0 / (mxx - mnx), 1.6 / (mxy - mny)), ox = -(mxx + mnx) / 2 * sc + 0.05, oy = -0.8 - mny * sc;
+    S.forEach(function (pts) { pts.forEach(function (q) { q[0] = q[0] * sc + ox; q[1] = q[1] * sc + oy; q[2] *= sc; }); });
+    var best = 0, bv = -9; S.forEach(function (pts, n2) { var e2 = pts[NP - 1], v = e2[1] - Math.abs(e2[0] + 0.25) * 0.8; if (v > bv) { bv = v; best = n2; } }); // the lit path ends high in the crown
+    return { s: S, np: NP, lit: S[best] };
   })();
+  function strandPt(pts, t) { var f = t * (TREE.np - 1), i2 = Math.min(TREE.np - 2, Math.floor(f)), u = f - i2, A = pts[i2], B = pts[i2 + 1]; return [A[0] + (B[0] - A[0]) * u, A[1] + (B[1] - A[1]) * u, A[2] + (B[2] - A[2]) * u]; }
   function treeShape(i, o) {
-    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), P, k = 0;
-    if (c < 0.5) { while (k < TREE.s.length - 1 && TREE.s[k].w < a) k++; var g = TREE.s[k], u = 1 - b, id = Math.floor(d * g.n), rr = g.th * (1 - 0.36 * b) * Math.sqrt((id + 0.5) / g.n) * (g.n > 1 ? 1 : 0), q = [Math.cos(id * 2.39996) * rr, Math.sin(id * 2.39996) * rr];
-      P = [u * u * g.A[0] + 2 * u * b * g.C[0] + b * b * g.B[0] + q[0] + (e - 0.5) * 0.002, u * u * g.A[1] + 2 * u * b * g.C[1] + b * b * g.B[1], u * u * g.A[2] + 2 * u * b * g.C[2] + b * b * g.B[2] + q[1]]; }
-    else { var fruit = c > 0.95, nt = TREE.tips.length, T0 = TREE.tips[fruit ? Math.floor(a * 16) * Math.floor(nt / 16) + 3 : Math.floor(a * nt) % nt], up = d * 2 - 1, fl = Math.sqrt(1 - up * up), ang = b * 6.2832, r = fruit ? e * e * e * 0.026 : 0.012 + e * e * 0.085; // leaves round every twig, and sixteen lights
-      P = [T0[0] + Math.cos(ang) * fl * r, T0[1] + up * r, T0[2] + Math.sin(ang) * fl * r]; }
-    o[i] = P[0] * 0.86; o[i + 1] = P[1] * 0.86 - 0.06; o[i + 2] = P[2] * 0.86;
+    var n = i / 3, c = q0(n), a = q1(n), b = q2(n), d = q3(n), e = q4(n), P;
+    if (c < 0.86) { P = strandPt(TREE.s[Math.floor(a * TREE.s.length) % TREE.s.length], Math.pow(b, 0.8)); P[0] += (d - 0.5) * 0.0015; P[1] += (e - 0.5) * 0.0015; }
+    else if (c < 0.9) { P = strandPt(TREE.lit, b); P[0] += (d - 0.5) * 0.004; P[1] += (e - 0.5) * 0.004; }                 // the lit path
+    else { var m = Math.floor(a * 7) % 7, ang = b * 6.2832, up = d * 2 - 1, fl = Math.sqrt(1 - up * up), r = e * e * e * (m === 0 || m === 6 ? 0.07 : 0.03); P = strandPt(TREE.lit, m / 6); // a light at each turn, the root and the tip brightest
+      P = [P[0] + Math.cos(ang) * fl * r, P[1] + up * r, P[2] + Math.sin(ang) * fl * r]; }
+    o[i] = P[0]; o[i + 1] = P[1]; o[i + 2] = P[2];
   }
   function ready(F) { // how the particles are shared out: by each rope's length and width, and by each knot's size
     var tot = 0, k; F.el = F.e.map(function (e) { var a = F.n[e[0]], b = F.n[e[1]], l = Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2)); tot += l * (0.4 + e[3]); return tot; });
@@ -289,7 +290,7 @@
     var asp = W / H, port = asp < 0.85, tt = reduce ? 0 : t, nf = 1;
     var rot = [0, 0,
       tt * 0.14 + ptr[0] * 0.3, 0.3 + ptr[1] * -0.1,                                    // the globe turns
-      tt * 0.1 + ptr[0] * 0.3, 0.2 + ptr[1] * -0.1,                                     // the sphere turns
+      Math.sin(tt * 0.21 + 1) * 0.2 + ptr[0] * 0.25, 0.1 + ptr[1] * -0.1,                // the tree sways
       Math.sin(tt * 0.19 + 2) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
       Math.sin(tt * 0.2 + 3) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
       0, 0];
