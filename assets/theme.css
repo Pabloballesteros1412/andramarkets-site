@@ -406,6 +406,19 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .lib-map.is-zoom,.lib-map.is-zoom *{touch-action:none}
 @media (max-width:899px){.lib-map{height:auto;min-height:0;max-height:none}.lib.has-map .lib-map{margin-top:8px}.lib.has-map .page__head{pointer-events:auto}.lib-map__down{position:static;transform:none;display:flex;justify-content:center}.lib-map__name{font-size:2rem}.lib-map__card b{font-size:1rem}}
 
+/* Daily close notes: the sessions as a ribbon of light (assets/notes-ribbon.js), over the archive it is drawn from. */
+.nr{position:relative;height:100vh;min-height:680px;max-height:1000px;margin:-13rem calc(50% - 50vw) 0;overflow:hidden;text-align:left}
+.nr canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+.has-ribbon .page__head{border-bottom:0;padding-bottom:0}
+.has-ribbon .page__head .lede{display:none}
+.has-ribbon .page__head>:not(.nr){position:relative;z-index:1;pointer-events:none}
+.nr__card{position:absolute;left:50%;transform:translateX(-50%);width:min(620px,calc(100vw - 40px));text-align:center;display:block;color:var(--ink);text-decoration:none!important;text-shadow:0 0 12px #000,0 0 12px #000}
+.nr__date{display:block;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
+.nr__card b{display:block;margin-top:6px;font-weight:300;font-size:1.375rem;line-height:1.2;letter-spacing:-.015em}
+.nr__fig{display:block;margin-top:8px;font-size:.9375rem;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.nr__card em{display:block;margin-top:10px;font-style:normal;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
+.nr .lib-map__down{bottom:10px}
+@media (max-width:899px){.nr{height:auto;min-height:0;max-height:none;margin-top:20px;display:flex;flex-direction:column}.nr canvas{position:relative;inset:auto;height:260px;order:2}.nr__card{position:static;transform:none;text-align:left;width:auto;order:1;margin:0 20px 8px;min-height:9.5rem}.has-ribbon .page__head>:not(.nr){pointer-events:auto}.has-ribbon .page__head .lede{display:block}.nr .lib-map__down{display:none}}
 /* Chart of the day: the day's chart fills the first screen (owner, 24 Nov 2026): drawn large, its bars growing from
    the line of zero with a glow, and the two lines beside it in large type. The steps to other sessions sit by the date. */
 @media (min-width:900px){
