@@ -13,7 +13,9 @@ Sources, all from FRED (FRED_API_KEY), each indicator fetched on its own:
     SAHMREALTIME   the Sahm rule recession indicator, real-time, monthly
     ICSA, IC4WSA   initial jobless claims and their 4-week average, weekly
                    (US Department of Labor)
-    BAMLH0A0HYM2   ICE BofA US High Yield Index option-adjusted spread, daily
+    BAA10Y         Moody's seasoned Baa corporate bond yield less the 10-year Treasury, daily (from 1986).
+                   It replaced the ICE BofA high-yield spread on 24 Nov 2026 (owner): FRED serves only the
+                   last three years of that one, too short beside half a century of the others.
     NFCI           Chicago Fed National Financial Conditions Index, weekly
     USREC          NBER based recession indicator, monthly
 
@@ -135,8 +137,8 @@ def b_claims():
     return stamp(block, "US Department of Labor via FRED (ICSA, IC4WSA)", max(ic[-1][0], avg[-1][0]))
 
 
-def b_hy():
-    rows = fred(["BAMLH0A0HYM2"], dt.date(1996, 12, 1))["BAMLH0A0HYM2"]
+def b_baa():
+    rows = fred(["BAA10Y"], dt.date(1986, 1, 1))["BAA10Y"]
     dates, values = thin(rows, 100, 0)
     last = rows[-1]
     year = [v for d, v in rows if d > last[0] - dt.timedelta(days=365)]
@@ -146,7 +148,7 @@ def b_hy():
     a = ago(rows, 1)
     if a:
         block["latest"]["ago"] = {"date": a["date"], "value": round(a["value"] * 100)}
-    return stamp(block, "ICE BofA via FRED (BAMLH0A0HYM2)", last[0])
+    return stamp(block, "Moody's and the Federal Reserve via FRED (BAA10Y)", last[0])
 
 
 def b_nfci():
@@ -187,7 +189,7 @@ def b_recessions():
     return stamp({"periods": periods}, "NBER via FRED (USREC)", rows[-1][0])
 
 
-BLOCKS = {"curve": b_curve, "sahm": b_sahm, "claims": b_claims, "hy": b_hy, "nfci": b_nfci, "recessions": b_recessions}
+BLOCKS = {"curve": b_curve, "sahm": b_sahm, "claims": b_claims, "baa": b_baa, "nfci": b_nfci, "recessions": b_recessions}
 
 
 def main():

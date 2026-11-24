@@ -406,6 +406,19 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .lib-map.is-zoom,.lib-map.is-zoom *{touch-action:none}
 @media (max-width:899px){.lib-map{height:auto;min-height:0;max-height:none}.lib.has-map .lib-map{margin-top:8px}.lib.has-map .page__head{pointer-events:auto}.lib-map__down{position:static;transform:none;display:flex;justify-content:center}.lib-map__name{font-size:2rem}.lib-map__card b{font-size:1rem}}
 
+/* Recession watch: the five indicators as a seismograph of light (assets/recession-seis.js), over the table and charts it is drawn from. */
+.rw-seis{position:relative;height:100vh;min-height:700px;max-height:1040px;margin:-13rem calc(50% - 50vw) 0;overflow:hidden;text-align:left}
+.rw-seis[hidden]{display:none}
+.rw-seis canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y}
+.rw.has-seis .dd__head{border-bottom:0;padding-bottom:0}
+.rw.has-seis .dd__head .note__meta,.rw.has-seis .dd__head .lede{display:none}
+.rw.has-seis .dd__head>:not(.rw-seis){position:relative;z-index:1;pointer-events:none}
+.rw-seis__names{position:absolute;inset:0;pointer-events:none}
+.rw-seis__name,.rw-seis__now{position:absolute;white-space:nowrap;line-height:1.2;font-weight:300}
+.rw-seis__name{font-size:1rem;color:var(--ink)}
+.rw-seis__now{font-size:1.0625rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.rw-seis .lib-map__down{bottom:6px}
+@media (max-width:899px){.rw-seis{height:auto;min-height:0;max-height:none;margin-top:16px}.rw.has-seis .dd__head>:not(.rw-seis){pointer-events:auto}.rw.has-seis .dd__head .lede{display:block}.rw-seis .lib-map__down{display:none}.rw-seis__name{font-size:.9375rem;color:var(--ink-2)}.rw-seis__now{font-size:.9375rem}}
 /* Central banks: every bank on one map of light (assets/banks-map.js), over the tables it is drawn from. */
 .cb-map{position:relative;height:100vh;min-height:760px;max-height:1100px;margin:-13rem calc(50% - 50vw) 0;overflow:hidden;text-align:left}
 .cb-map[hidden]{display:none}

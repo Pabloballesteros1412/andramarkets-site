@@ -7,7 +7,9 @@ No forecast and no probability of our own.
 
 Figures from .cache/recession/recession.json (tools/recession_data.py); an
 indicator with no figures yet says "Data pending". assets/recession.js draws
-the charts.
+the charts; assets/recession-seis.js draws the seismograph over the page: the five
+indicators as five lines of light with the recessions as bands across them
+(owner, 24 Nov 2026).
 """
 import datetime as dt
 import json
@@ -53,8 +55,9 @@ INDICATORS = [
      "in percentage points, as published at the time. The rule triggers at 0.50."),
     ("claims", "Initial claims", "New claims for unemployment benefits, weekly", "Initial jobless claims",
      "First claims for unemployment benefits each week, seasonally adjusted, in thousands, with their 4-week average."),
-    ("hy", "HY credit spread", "High-yield bonds over Treasuries", "High-yield credit spread",
-     "The extra yield on US high-yield corporate bonds over Treasuries, option-adjusted, in basis points."),
+    ("baa", "Baa credit spread", "Baa corporate bonds over the 10-year Treasury", "Baa credit spread",
+     "The yield on Moody's seasoned Baa corporate bonds, the lowest investment grade, less the 10-year Treasury "
+     "yield, in basis points."),
     ("nfci", "Chicago Fed NFCI", "National Financial Conditions Index", "Chicago Fed National Financial Conditions Index",
      "A weekly index of US money, debt and equity markets and the banking system. Zero is the average since 1971; "
      "above zero, conditions are tighter than average."),
@@ -84,7 +87,7 @@ def reading(site, key, b):
                 site.mv(f'{site.signed(L["value"] - a["value"], 0, "k")} since {short(a["date"])}') if a else "",
                 "No official threshold", f'4-week average {lvl(L["avg"]["value"], 0, "k")}',
                 f'Week to {day(site, L["date"])}')
-    if key == "hy":
+    if key == "baa":
         return (lvl(L["value"], 0, " bp"),
                 site.mv(f'{site.signed(L["value"] - a["value"], 0, " bp")} since {short(a["date"])}') if a else "",
                 "No official threshold", f'Past year: {lvl(L["low"])} to {lvl(L["high"])} bp', day(site, L["date"]))
@@ -158,13 +161,18 @@ def pages(site):
                      for r in ("1Y", "2Y", "5Y", "10Y", "20Y", "Max"))
     stamps = [b["fetched"] for k, b in data.items() if isinstance(b, dict) and b.get("fetched")]
     updated = f"Updated {site.et_stamp(max(stamps))}" if stamps else "Data pending"
+    # The seismograph over the page (assets/recession-seis.js): drawn from the series and the table below, so it
+    # stays hidden until the script has both.
+    seis = ('<div class="rw-seis" hidden><canvas aria-hidden="true"></canvas><div class="rw-seis__names" aria-hidden="true"></div>'
+            '<a class="lib-map__down" href="#rw-now">Latest readings</a></div>') if any(data.get(k) for k, *_ in INDICATORS) else ""
     blob = json.dumps(payload(data), separators=(",", ":")).replace("</", "<\\/")
     body = f"""<main id="main" class="page dd fr rw">
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
       <h1 class="page__title">Recession watch</h1>
       <p class="lede">The most watched US recession indicators, each with its latest reading, its history with recessions shaded and its source.</p>
-      <p class="note__meta"><span>FRED: Federal Reserve, BLS, Department of Labor, ICE BofA, Chicago Fed, NBER</span><span>{updated}</span><span>Refreshed each weekday</span></p>
+      <p class="note__meta"><span>FRED: Federal Reserve, BLS, Department of Labor, Moody's, Chicago Fed, NBER</span><span>{updated}</span><span>Refreshed each weekday</span></p>
+      {seis}
     </header>
     <div class="dd__main fr__main">
       {now_p}
@@ -173,15 +181,15 @@ def pages(site):
       {panels}
     </div>
     <div class="page__body dd__text">
-      <section aria-labelledby="rw-how"><h2 id="rw-how">How to read it</h2><p>The curve is inverted when 3-month bills yield more than 10-year notes; it turned negative before most US recessions since the 1970s, with long and variable lags. The Sahm rule marks the start of a recession when the 3-month average of the unemployment rate rises 0.50 percentage point or more above its lowest 3-month average of the previous 12 months; this real-time version uses the unemployment rate as it was published at the time. Initial claims count the people filing a first claim for unemployment benefits each week; the 4-week average smooths the weekly noise. The high-yield spread is the extra yield investors ask to hold the bonds of lower-rated US companies rather than Treasuries. The Chicago Fed's index reads positive when financial conditions are tighter than average and negative when they are looser, by the Chicago Fed's own definition.</p><p>Shaded periods are recessions as the NBER dates them, from the month after a peak to the trough.</p></section>
-      <section aria-labelledby="rw-lim"><h2 id="rw-lim">Limits</h2><p>No indicator here is a forecast, and this page makes none: no probability, no call. Indicators like these have signalled recessions that did not come, and turned late on others. Claims and the high-yield spread have no official threshold. The NBER dates a recession only months after it starts, so the latest months are never shaded. Claims are revised; the page shows the figures as last published.</p></section>
-      <section aria-labelledby="rw-src"><h2 id="rw-src">Sources and method</h2><p>All series from FRED: T10Y3M (from the Federal Reserve's Treasury yields), SAHMREALTIME (from the BLS unemployment rate), ICSA and IC4WSA (US Department of Labor), BAMLH0A0HYM2 (ICE BofA US High Yield Index), NFCI (Federal Reserve Bank of Chicago) and USREC (NBER). Each chart starts in 1970, or where its series starts. Daily series older than two years are shown one point a week. Fetched each weekday; a series that does not answer keeps its last figures, with their date.</p><p>For information only. Not investment advice.</p></section>
+      <section aria-labelledby="rw-how"><h2 id="rw-how">How to read it</h2><p>The curve is inverted when 3-month bills yield more than 10-year notes; it turned negative before most US recessions since the 1970s, with long and variable lags. The Sahm rule marks the start of a recession when the 3-month average of the unemployment rate rises 0.50 percentage point or more above its lowest 3-month average of the previous 12 months; this real-time version uses the unemployment rate as it was published at the time. Initial claims count the people filing a first claim for unemployment benefits each week; the 4-week average smooths the weekly noise. The Baa spread is the extra yield investors ask to hold the bonds of companies at the lowest investment grade rather than the 10-year Treasury. The Chicago Fed's index reads positive when financial conditions are tighter than average and negative when they are looser, by the Chicago Fed's own definition.</p><p>Shaded periods are recessions as the NBER dates them, from the month after a peak to the trough.</p></section>
+      <section aria-labelledby="rw-lim"><h2 id="rw-lim">Limits</h2><p>No indicator here is a forecast, and this page makes none: no probability, no call. Indicators like these have signalled recessions that did not come, and turned late on others. Claims and the Baa spread have no official threshold. The NBER dates a recession only months after it starts, so the latest months are never shaded. Claims are revised; the page shows the figures as last published.</p></section>
+      <section aria-labelledby="rw-src"><h2 id="rw-src">Sources and method</h2><p>All series from FRED: T10Y3M (from the Federal Reserve's Treasury yields), SAHMREALTIME (from the BLS unemployment rate), ICSA and IC4WSA (US Department of Labor), BAA10Y (Moody's seasoned Baa corporate bond yield less the 10-year Treasury), NFCI (Federal Reserve Bank of Chicago) and USREC (NBER). Each chart starts in 1970, or where its series starts. Daily series older than two years are shown one point a week. Fetched each weekday; a series that does not answer keeps its last figures, with their date.</p><p>For information only. Not investment advice.</p></section>
     </div>
   </div>
 </main>
 <script type="application/json" id="rw-data">{blob}</script>"""
     return {"recession-watch/": site.shell(
         title="Recession watch: Andra Markets",
-        desc="The 10Y-3M Treasury curve, the Sahm rule, initial jobless claims, the high-yield credit spread and the "
+        desc="The 10Y-3M Treasury curve, the Sahm rule, initial jobless claims, the Baa credit spread and the "
              "Chicago Fed's financial conditions index, with NBER recessions shaded since 1970. By Andra Markets.",
-        body=body, home="../", base="../", path="recession-watch/", scripts=("recession.js",))}
+        body=body, home="../", base="../", path="recession-watch/", scripts=("recession.js", "recession-seis.js"))}

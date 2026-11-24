@@ -1798,7 +1798,7 @@ def research_map_page(notes):
           ("Every central bank", "central-banks/#cb-world"))),
         ("recession-watch", "Recession watch", "recession-watch/",
          (("Treasury curve", "recession-watch/#rw-curve"), ("Sahm rule", "recession-watch/#rw-sahm"),
-          ("Jobless claims", "recession-watch/#rw-claims"), ("Credit spread", "recession-watch/#rw-hy"),
+          ("Jobless claims", "recession-watch/#rw-claims"), ("Credit spread", "recession-watch/#rw-baa"),
           ("Financial conditions", "recession-watch/#rw-nfci"))),
         ("market-history", "Market history", "market-history/",
          (("Since 1928", "market-history/#mh-over-t"), ("Every episode", "market-history/#mh-tl-t"))),
@@ -3377,7 +3377,7 @@ DATA_SOURCES = [
      "The US Treasury's daily par yield curve, breakevens and real yields, the 2s10s and 3m10y spreads, the Fed's "
      "target range, the effective and monthly federal funds rates, ICE BofA credit spreads, inflation, unemployment "
      "and payrolls; the 10-year Treasury yield since 1953 for the Portfolio Builder; the ECB deposit facility rate "
-     "(backup), the Sahm rule, initial jobless claims and their 4-week average, the high-yield spread, the Chicago "
+     "(backup), the Sahm rule, initial jobless claims and their 4-week average, the Baa credit spread, the Chicago "
      "Fed's NFCI and the NBER recession dates.",
      "Close notes, dashboards, Fed &amp; Rates, calendar actuals, Guess the Fed, Portfolio Builder, Central banks, "
      "Recession watch",
@@ -6309,7 +6309,7 @@ SEARCH_PAGE_TERMS = {
     "central-banks/": "central banks policy rates interest rates Fed ECB Bank of England BoE Bank of Japan BoJ target "
                       "range deposit facility rate Bank Rate rate decision meeting dates last move",
     "recession-watch/": "recession indicators yield curve inversion 10Y-3M T10Y3M Sahm rule unemployment initial jobless "
-                        "claims high-yield credit spread HY OAS Chicago Fed NFCI financial conditions NBER recessions",
+                        "claims Baa credit spread Moody's corporate bonds Chicago Fed NFCI financial conditions NBER recessions",
     "firms/": "banks boutiques asset managers hedge funds trading quant firms bulge bracket elite boutique divisions "
               "IB S&T offices internship programmes apply careers",
     "application-tracker/": "applications tracker deadlines status applied interview superday offer contacts notes "
