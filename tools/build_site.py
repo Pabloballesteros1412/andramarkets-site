@@ -3035,6 +3035,14 @@ def methodology():
     )
 
 
+def ribbon_attrs(r):
+    """The S&P 500 close and its change that day, for the ribbon over the archive (assets/notes-ribbon.js)."""
+    c = (r.get("closes") or {}).get("spx") or {}
+    if c.get("last") is None or c.get("chg") is None:
+        return ""
+    return f' data-spx="{c["last"]:.2f}" data-chg="{c["chg"]:.2f}"'
+
+
 def archive(notes):
     months = {}
     for r in notes:
@@ -3043,7 +3051,7 @@ def archive(notes):
         f'<section class="archive__month" aria-labelledby="m-{y}-{m:02d}">'
         f'<h2 id="m-{y}-{m:02d}">{dt.date(y, m, 1):%B %Y}</h2><ol class="note-list">'
         + "".join(
-            f'<li><a href="{r["date"]}/"><time datetime="{r["date"]}">{r["day"].day} {r["day"]:%b}</time>'
+            f'<li><a href="{r["date"]}/"{ribbon_attrs(r)}><time datetime="{r["date"]}">{r["day"].day} {r["day"]:%b}</time>'
             f'<span class="note-list__title">{esc(r["note"]["headline"])}</span>{icon("arrow-right")}</a></li>'
             for r in rows
         )
@@ -3057,10 +3065,11 @@ def archive(notes):
       <h1 class="page__title">Daily close notes</h1>
       <p class="lede">Every US trading day, after the close. {count} Weekly reviews and research are in the <a href="../research/">Research Library</a>.</p>
     </header>
-    <div class="archive">{groups}</div>
+    <div class="archive" id="all-notes">{groups}</div>
   </div>
 </main>"""
     return shell(
+        scripts=("notes-ribbon.js",),
         title="Daily close notes: Andra Markets",
         desc="The Andra Markets close note archive: one research note every US trading day, after the close.",
         body=body,
