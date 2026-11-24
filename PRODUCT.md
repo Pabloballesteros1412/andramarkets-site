@@ -160,7 +160,7 @@ record. The daily note is one module among others, not the centrepiece.
   backup), the BIS for the Bank of Japan; meeting dates from each bank's own
   calendar. The Fed's row links to Fed & Rates.
 - Recession watch (`recession-watch/`, owner-approved sketch, 1 Nov 2026): the
-  10Y-3M curve, the Sahm rule, initial jobless claims, the high-yield spread
+  10Y-3M curve, the Sahm rule, initial jobless claims, the Baa credit spread
   and the Chicago Fed's NFCI, each with its latest reading, a plain reading
   against its own published definition (or the note that it has none) and its
   history since 1970 or its first observation, NBER recessions shaded. All

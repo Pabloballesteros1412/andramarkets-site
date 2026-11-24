@@ -275,7 +275,7 @@ England's database (`IUDBEDR`), the BIS as backup; the Bank of Japan from the
 BIS (`WS_CBPOL`: the API, then the bulk file). Decision dates for 400 days
 ahead come from each bank's own calendar, read with `calendar_data.py`'s
 parsers. `tools/recession_data.py` writes `.cache/recession/recession.json`
-from FRED `T10Y3M`, `SAHMREALTIME`, `ICSA`, `IC4WSA`, `BAMLH0A0HYM2`, `NFCI`
+from FRED `T10Y3M`, `SAHMREALTIME`, `ICSA`, `IC4WSA`, `BAA10Y`, `NFCI`
 and `USREC`. Each source is fetched on its own and keeps its last good copy;
 with none the pages show "Data pending". Neither endpoint could be reached
 from the session that built them, so the first deploy is their first live

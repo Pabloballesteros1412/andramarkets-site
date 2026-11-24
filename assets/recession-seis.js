@@ -10,11 +10,11 @@
   var D; try { D = JSON.parse(el.textContent); } catch (err) { return; }
   var cv = box.querySelector("canvas"), cx = cv && cv.getContext("2d"), names = box.querySelector(".rw-seis__names"); if (!cx || !names) return;
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var KEYS = ["curve", "sahm", "claims", "hy", "nfci"], MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var KEYS = ["curve", "sahm", "claims", "baa", "nfci"], MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   function day(s) { return Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)) / 864e5; }
   function minus(s) { return s.replace("-", "−"); }
   var FMT = { curve: function (v) { return minus(v.toFixed(0)) + " bp"; }, sahm: function (v) { return minus(v.toFixed(2)) + " pp"; }, claims: function (v) { return Math.round(v).toLocaleString("en-US") + "k"; },
-    hy: function (v) { return minus(v.toFixed(0)) + " bp"; }, nfci: function (v) { return minus(v.toFixed(2)); } };
+    baa: function (v) { return minus(v.toFixed(0)) + " bp"; }, nfci: function (v) { return minus(v.toFixed(2)); } };
   // the lines, from the page's own data; the names and latest readings, from its table
   var T = []; KEYS.forEach(function (k) { var b = D[k]; if (!b || !b.dates || !b.dates.length) return; var vals = b.values || (b.series && b.series[0] && b.series[0].values); if (!vals) return;
     var a = document.querySelector('.rw-tab a.rw-name[href="#rw-' + k + '"]'), row = a && a.closest("tr"), fig = row && row.querySelector(".cb-fig");

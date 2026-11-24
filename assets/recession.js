@@ -234,8 +234,8 @@
         fmt: function (v) { return v.toLocaleString("en-US", { maximumFractionDigits: 0 }) + "k"; },
         rfmt: function (v) { return level(v, 0, "k"); } });
     },
-    hy: function () {
-      draw("hy", { name: "High-yield spread", kind: "daily",
+    baa: function () {
+      draw("baa", { name: "Baa spread", kind: "daily",
         fmt: function (v) { return v.toFixed(0); }, rfmt: function (v) { return level(v, 0, " bp"); } });
     },
     nfci: function () {
