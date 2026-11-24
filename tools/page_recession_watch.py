@@ -7,7 +7,9 @@ No forecast and no probability of our own.
 
 Figures from .cache/recession/recession.json (tools/recession_data.py); an
 indicator with no figures yet says "Data pending". assets/recession.js draws
-the charts.
+the charts; assets/recession-seis.js draws the seismograph over the page: the five
+indicators as five lines of light with the recessions as bands across them
+(owner, 24 Nov 2026).
 """
 import datetime as dt
 import json
@@ -158,6 +160,10 @@ def pages(site):
                      for r in ("1Y", "2Y", "5Y", "10Y", "20Y", "Max"))
     stamps = [b["fetched"] for k, b in data.items() if isinstance(b, dict) and b.get("fetched")]
     updated = f"Updated {site.et_stamp(max(stamps))}" if stamps else "Data pending"
+    # The seismograph over the page (assets/recession-seis.js): drawn from the series and the table below, so it
+    # stays hidden until the script has both.
+    seis = ('<div class="rw-seis" hidden><canvas aria-hidden="true"></canvas><div class="rw-seis__names" aria-hidden="true"></div>'
+            '<a class="lib-map__down" href="#rw-now">Latest readings</a></div>') if any(data.get(k) for k, *_ in INDICATORS) else ""
     blob = json.dumps(payload(data), separators=(",", ":")).replace("</", "<\\/")
     body = f"""<main id="main" class="page dd fr rw">
   <div class="wrap dd__grid">
@@ -165,6 +171,7 @@ def pages(site):
       <h1 class="page__title">Recession watch</h1>
       <p class="lede">The most watched US recession indicators, each with its latest reading, its history with recessions shaded and its source.</p>
       <p class="note__meta"><span>FRED: Federal Reserve, BLS, Department of Labor, ICE BofA, Chicago Fed, NBER</span><span>{updated}</span><span>Refreshed each weekday</span></p>
+      {seis}
     </header>
     <div class="dd__main fr__main">
       {now_p}
@@ -184,4 +191,4 @@ def pages(site):
         title="Recession watch: Andra Markets",
         desc="The 10Y-3M Treasury curve, the Sahm rule, initial jobless claims, the high-yield credit spread and the "
              "Chicago Fed's financial conditions index, with NBER recessions shaded since 1970. By Andra Markets.",
-        body=body, home="../", base="../", path="recession-watch/", scripts=("recession.js",))}
+        body=body, home="../", base="../", path="recession-watch/", scripts=("recession.js", "recession-seis.js"))}
