@@ -274,7 +274,7 @@ def index_page(site, eps, rows, ms):
                       desc=f"What happened in each stage of the S&amp;P 500 since 1928: {n} episodes from the great crash "
                            "to today, each with its fall from peak to low and the time it took to recover.",
                       body=body, home="../", base="../", path="market-history/",
-                      scripts=("market-history.js",) if rows else ())
+                      scripts=("market-history.js", "history-water.js") if rows else ())
 
 
 def sim_start(ep):

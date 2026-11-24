@@ -419,6 +419,9 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .nr__card em{display:block;margin-top:10px;font-style:normal;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
 .nr .lib-map__down{bottom:10px}
 @media (max-width:899px){.nr{height:auto;min-height:0;max-height:none;margin-top:20px;display:flex;flex-direction:column}.nr canvas{position:relative;inset:auto;height:260px;order:2}.nr__card{position:static;transform:none;text-align:left;width:auto;order:1;margin:0 20px 8px;min-height:9.5rem}.has-ribbon .page__head>:not(.nr){pointer-events:auto}.has-ribbon .page__head .lede{display:block}.nr .lib-map__down{display:none}}
+/* Market history: the falls under water (assets/history-water.js) share the ribbon's frame and card. */
+.has-ribbon .page__head .note__meta{display:none}
+@media (max-width:899px){.nr.mhw canvas{height:300px}.has-ribbon .page__head .note__meta{display:block}.nr.mhw .nr__card{min-height:8.5rem}}
 /* Chart of the day: the day's chart fills the first screen (owner, 24 Nov 2026): drawn large, its bars growing from
    the line of zero with a glow, and the two lines beside it in large type. The steps to other sessions sit by the date. */
 @media (min-width:900px){
