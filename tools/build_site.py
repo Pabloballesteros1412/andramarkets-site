@@ -1254,7 +1254,7 @@ def dashboards_index():
 </main>"""
     return shell(title="Dashboards: Andra Markets",
                  desc="Interactive views across rates, equities, macro and cross-asset, each with its source and date.",
-                 body=body, home="../", base="../", path="dashboards/")
+                 body=body, home="../", base="../", path="dashboards/", scripts=("dash-wall.js",))
 
 # The header menu in four groups (owner-approved, 31 Oct 2026): each opens a panel the
 # width of the page, its links with a line each. On phones and tablets the same markup
