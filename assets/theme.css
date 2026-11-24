@@ -406,6 +406,34 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .lib-map.is-zoom,.lib-map.is-zoom *{touch-action:none}
 @media (max-width:899px){.lib-map{height:auto;min-height:0;max-height:none}.lib.has-map .lib-map{margin-top:8px}.lib.has-map .page__head{pointer-events:auto}.lib-map__down{position:static;transform:none;display:flex;justify-content:center}.lib-map__name{font-size:2rem}.lib-map__card b{font-size:1rem}}
 
+/* Chart of the day: the day's chart fills the first screen (owner, 24 Nov 2026): drawn large, its bars growing from
+   the line of zero with a glow, and the two lines beside it in large type. The steps to other sessions sit by the date. */
+@media (min-width:900px){
+.cotd .page__head{border-bottom:0;padding-bottom:0}
+.cotd .page__head .lede{display:none}
+.cotd__day{min-height:calc(100vh - 19rem);grid-template-columns:minmax(0,7fr) minmax(0,4fr);grid-template-rows:auto 1fr auto auto auto auto 1fr;column-gap:clamp(40px,6vw,120px);align-content:center;padding-bottom:3rem}
+.cotd__day>.cotd__bar{justify-content:center;gap:1.5rem;border:0;margin-bottom:1rem}
+.cotd__day>.cotd__fig{grid-row:2/-1;align-self:center;border-top:0!important;padding-top:0}
+.cotd__day>.cotd__read{grid-row:3;font-size:clamp(1.375rem,1.9vw,2rem);line-height:1.3;font-weight:300;letter-spacing:-.015em;color:var(--ink)}
+.cotd__day>.cotd__quote{grid-row:4}.cotd__day>.cotd__acts{grid-row:5}.cotd__day>.cotd__src{grid-row:6}
+.cotd__quote p{font-size:1.1875rem;line-height:1.45}
+.cotd__date{font-size:1rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.cotd__ctitle{font-size:.8125rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);font-weight:400}
+.cotd__fig .chart{overflow:visible;display:block;width:100%;max-height:calc(100vh - 27rem);min-height:300px}
+.cotd__fig .chart rect.up{filter:drop-shadow(0 0 5px rgba(46,200,120,.55))}
+.cotd__fig .chart rect.down{filter:drop-shadow(0 0 5px rgba(240,80,80,.55))}
+.cotd__fig .chart path,.cotd__fig .chart polyline{filter:drop-shadow(0 0 3px rgba(215,230,255,.5))}
+}
+@media (min-width:900px) and (prefers-reduced-motion:no-preference){
+.cotd__fig .chart rect.up,.cotd__fig .chart rect.down{transform-box:fill-box;transform-origin:left center;animation:cotd-grow .9s cubic-bezier(.2,.7,.2,1) both}
+.cotd__fig .chart rect.down{transform-origin:right center}
+.cotd__fig .chart .chart__value{animation:cotd-in .5s ease-out both}
+.cotd__fig .chart g:nth-of-type(n) rect,.cotd__fig .chart g:nth-of-type(n) .chart__value{animation-delay:calc(.25s + var(--n,0)*.06s)}
+.cotd__fig .chart g:nth-of-type(2){--n:1}.cotd__fig .chart g:nth-of-type(3){--n:2}.cotd__fig .chart g:nth-of-type(4){--n:3}.cotd__fig .chart g:nth-of-type(5){--n:4}.cotd__fig .chart g:nth-of-type(6){--n:5}.cotd__fig .chart g:nth-of-type(7){--n:6}.cotd__fig .chart g:nth-of-type(8){--n:7}.cotd__fig .chart g:nth-of-type(9){--n:8}.cotd__fig .chart g:nth-of-type(10){--n:9}.cotd__fig .chart g:nth-of-type(11){--n:10}.cotd__fig .chart g:nth-of-type(n+12){--n:11}
+.cotd__day>.cotd__read,.cotd__day>.cotd__quote,.cotd__day>.cotd__acts{animation:cotd-in .7s ease-out .5s both}
+}
+@keyframes cotd-grow{from{transform:scaleX(0)}}
+@keyframes cotd-in{from{opacity:0}}
 /* Dashboards: the tiles as a wall of screens (assets/dash-wall.js), over the list it is cloned from. */
 .dash-wall{position:relative;height:100vh;min-height:720px;max-height:1040px;margin:-13rem calc(50% - 50vw) 0;overflow:hidden;perspective:1500px;perspective-origin:50% 56%;text-align:left}
 .has-wall .page__head{border-bottom:0;padding-bottom:0}
