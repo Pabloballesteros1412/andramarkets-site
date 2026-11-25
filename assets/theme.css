@@ -578,3 +578,43 @@ a.nav__btn{display:inline-flex}
   .has-figure .lab-groups{margin-top:36px}
 }
 @media (prefers-reduced-motion:reduce){.tf__names a,.tf__names a::before{transition:none}}
+
+/* Recruiting calendar: what lies ahead as a timeline (assets/recruiting-ahead.js), over the tables it is written with. */
+.has-ahead .page__head{border-bottom:0;padding-bottom:0}
+.rk{margin:18px 0 clamp(36px,6vh,64px);text-align:left}
+.rk__next{margin:0 0 22px;text-align:center;font-size:clamp(1.125rem,2vw,1.375rem);font-weight:300;letter-spacing:-.02em;color:var(--ink)}
+.rk__soon{display:none;list-style:none;margin:0;padding:0}
+.rk__soon li{padding:14px 0;border-top:1px solid var(--rule)}
+.rk__soon li:first-child{border-top-color:var(--rule-strong)}
+.rk__soon b{display:block;margin-top:4px;font-size:1.1875rem;font-weight:400}
+.rk__soon li>span:last-child{display:block;margin-top:2px;font-size:.875rem;color:var(--ink-2)}
+.rk__plot svg{display:block;overflow:visible}
+.rk__plot text{font-family:inherit;font-size:13px;fill:var(--ink-2)}
+.rk__plot .rk-firm{fill:var(--ink)}
+.rk__plot .rk-group{font-size:12px;fill:var(--ink-3)}
+.rk__plot .rk-mono{font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+.rk__plot .rk-ink{fill:var(--ink)}
+.rk-under{fill:#000}
+.rk-grid{stroke:var(--chart-grid)}
+.rk-rule{stroke:rgba(242,243,243,.05)}
+.rk-today{stroke:var(--ink)}
+.rk-past{fill:rgba(0,0,0,.45);pointer-events:none}
+.rk-c{fill:#e8f0ff}
+.rk-o{fill:#000;stroke:#e8f0ff;stroke-width:1.3}
+.rk-open{stroke:#e8f0ff;stroke-width:1.6}
+.rk-open--on{stroke-width:1.2;opacity:.5}
+.rk-win{fill:rgba(214,228,255,.2)}
+.rk-roll{stroke:rgba(214,228,255,.6);stroke-width:1.2;stroke-dasharray:1 6;stroke-linecap:round}
+.rk-row{transition:opacity .25s;animation:rk-in .6s both;animation-delay:calc(var(--i)*22ms)}
+@keyframes rk-in{from{opacity:0}}
+.rk__plot svg:hover .rk-row{opacity:.4}
+.rk__plot svg .rk-row:hover{opacity:1}
+.rk__key{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px 32px;margin-top:12px}
+.rk__k{display:inline-block;vertical-align:middle;margin:0 8px 0 22px}
+.rk__k:first-child{margin-left:0}
+.rk__k--c{width:8px;height:8px;border-radius:50%;background:#e8f0ff}
+.rk__k--o{width:7px;height:7px;border-radius:50%;border:1.3px solid #e8f0ff}
+.rk__k--w{width:22px;height:8px;background:rgba(214,228,255,.28)}
+.rk__k--r{width:22px;height:0;border-top:1.5px dotted rgba(214,228,255,.8)}
+@media (max-width:899px){.rk__plot,.rk__key{display:none}.rk__soon{display:block}.rk__next{text-align:left;margin-bottom:16px}}
+@media (prefers-reduced-motion:reduce){.rk-row{animation:none;transition:none}}

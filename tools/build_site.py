@@ -6027,6 +6027,49 @@ def rc_events(rows):
     return out
 
 
+def rc_span(window):
+    """'Dec 2026 to Feb 2027' -> (date(2026, 12, 1), date(2027, 2, 28)); '15 Nov 2026 (encouraged)' -> that day twice;
+    'end of 2026' -> its December. None when no month and year can be read."""
+    found = re.findall(r"(?:(\d{1,2}) )?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* (\d{4})", window or "")
+    if not found:
+        m = re.search(r"end of (\d{4})", window or "")
+        return (dt.date(int(m.group(1)), 12, 1), dt.date(int(m.group(1)), 12, 31)) if m else None
+
+    def day(x, last):
+        d, m, y = x[0], MON3.index(x[1]) + 1, int(x[2])
+        if d:
+            return dt.date(y, m, int(d))
+        return dt.date(y + (m == 12), m % 12 + 1, 1) - dt.timedelta(days=1) if last else dt.date(y, m, 1)
+    return day(found[0], False), day(found[-1], True)
+
+
+def rc_ahead(rows):
+    """The timeline over the calendar (assets/recruiting-ahead.js): each firm with its programmes' dates, in the
+    order of the firm types. A programme is 'd' (dates the firm gave: o opens, c closes), 'w' (a window, from a to b,
+    said as t; x marks an expected one) or 'r' (rolling). Programmes with nothing announced are left out; the script
+    drops what is already past on the day it is read."""
+    firms = {}
+    for r in rows:
+        it = None
+        if r["status"] == "rolling":
+            it = {"k": "r", "o": r.get("opens")}
+        elif r.get("opens") or r.get("closes"):
+            it = {"k": "d", "o": r.get("opens"), "c": r.get("closes")}
+        elif r["status"] in ("expected", "confirmed"):
+            spans = [x for x in (rc_span(r.get("opens_window")), rc_span(r.get("closes_window"))) if x]
+            if spans:
+                it = {"k": "w", "a": min(x[0] for x in spans).isoformat(), "b": max(x[1] for x in spans).isoformat(),
+                      "t": " to ".join(w for w in (r.get("opens_window"), r.get("closes_window")) if w) if not (r.get("opens_window") and r.get("closes_window"))
+                      else f'opens {r["opens_window"]}, closes {r["closes_window"]}', "x": r["status"] == "expected"}
+        if it:
+            it["p"] = r["programme"]
+            g = RC_GROUP_OF.get(r["group"], r["group"])
+            firms.setdefault(r["firm"], {"f": r["firm"], "g": g, "items": []})["items"].append(it)
+    order = {g: i for i, (g, _) in enumerate(RC_GROUPS)}
+    out = {"groups": dict(RC_GROUPS), "firms": sorted(firms.values(), key=lambda f: order.get(f["g"], 9)), "all": len({r["firm"] for r in rows})}
+    return json.dumps(out, separators=(",", ":")).replace("</", "<\\/")
+
+
 def rc_attrs(r):
     divs = " ".join(d for d in r.get("divisions", []) if d in RC_DIVS) or "Other"
     return (f'data-kind="{r["kind"]}" data-group="{RC_GROUP_OF.get(r["group"], r["group"])}" data-div="{esc(divs)}" '
@@ -6136,6 +6179,7 @@ def recruiting_page(rows):
       <p class="lede">When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications for internships and analyst programmes.</p>
       <p class="note__meta"><span>{len({r["firm"] for r in rows})} firms, {len(rows)} programmes</span><span>{counts["confirmed"]} confirmed, {counts["expected"]} expected, {counts["rolling"]} rolling</span><span>{checked_txt}</span></p>
     </header>
+    <script type="application/json" id="rc-ahead">{rc_ahead(rows)}</script>
     <div class="cl__controls rc-ctl" hidden>
       <div class="cl__groups">
         <div class="cl__group"><span class="cl__glabel" id="rc-v-l">View</span><div class="filters" role="group" aria-labelledby="rc-v-l"><button type="button" class="chip" data-view="date" aria-pressed="true">By date</button><button type="button" class="chip" data-view="firm" aria-pressed="false">By firm</button></div></div>
@@ -6157,7 +6201,7 @@ def recruiting_page(rows):
 </main>"""
     return shell(title="Recruiting calendar: Andra Markets",
                  desc="When US banks, boutiques, asset managers, hedge funds and trading firms open and close applications for internships and analyst programmes, checked against each firm's careers site.",
-                 body=body, home="../", base="../", path="recruiting-calendar/", scripts=("recruiting.js",))
+                 body=body, home="../", base="../", path="recruiting-calendar/", scripts=("recruiting.js", "recruiting-ahead.js"))
 
 
 # Break into Wall Street (break-into-wall-street/) ---------------------------------------------------
