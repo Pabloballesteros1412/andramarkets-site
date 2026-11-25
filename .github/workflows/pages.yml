@@ -333,7 +333,7 @@ jobs:
           cp -r learn _site/
           cp -r world _site/
           cp -r fx _site/
-          cp -r lab simulators tools-map research-map markets _site/
+          cp -r lab simulators tools-map research-map markets live-markets _site/
           cp -r research interview-prep sources legal privacy contact _site/
           cp -r fed-rates careers break-into-wall-street _site/
           cp -r recruiting-calendar interview-simulator firms application-tracker _site/
