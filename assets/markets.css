@@ -21,7 +21,7 @@
 .tv__by a:hover{color:var(--ink,#f2f3f3)}
 .tv--tape .tv__frame{height:46px}
 .tv--chart .tv__frame{height:clamp(480px,74vh,820px)}
-.tv--overview .tv__frame,.tv--symbol .tv__frame{height:480px}
+.tv--overview .tv__frame,.tv--symbol .tv__frame{height:640px}
 .tv--heatmap .tv__frame{height:clamp(440px,48vw,680px)}
 @media (prefers-reduced-motion:reduce){.tv__frame::before{animation:none}.tv iframe{transition:none}}
 
@@ -45,7 +45,7 @@
 @media (max-width:899px){
  .lm-pair{grid-template-columns:1fr}
  .tv--chart .tv__frame{height:min(72vh,560px)}
- .tv--overview .tv__frame{height:480px}
+ .tv--overview .tv__frame{height:600px}
  .tv--symbol .tv__frame{height:400px}
  .tv--heatmap .tv__frame{height:460px}
 }

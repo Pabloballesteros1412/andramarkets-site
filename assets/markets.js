@@ -72,9 +72,9 @@
     overview: function (el, th, t) {
       return ["market-overview", {
         colorTheme: th, isTransparent: true, locale: CFG.locale, width: "100%", height: "100%",
-        // No chart above the list: its dates are drawn in a serif face that no setting changes
-        // (the site sets no serif anywhere), and the page already has two charts.
-        dateRange: "12M", showChart: false, showSymbolLogo: false, showFloatingTooltip: false,
+        // The chart above the list draws its dates in TradingView's own serif face, which no
+        // setting changes: kept as it is at the owner's word (25 Nov 2026).
+        dateRange: "12M", showChart: true, showSymbolLogo: false, showFloatingTooltip: false,
         plotLineColorGrowing: t.up, plotLineColorFalling: t.down, gridLineColor: t.grid, scaleFontColor: t.ink2,
         belowLineFillColorGrowing: t.upFill, belowLineFillColorFalling: t.downFill,
         belowLineFillColorGrowingBottom: t.upNone, belowLineFillColorFallingBottom: t.downNone,
@@ -102,6 +102,9 @@
       return ["stock-heatmap", {
         dataSource: source[1], blockSize: "market_cap_basic", blockColor: "change", grouping: "sector",
         colorTheme: th, locale: CFG.locale, width: "100%", height: "100%",
+        // A company clicked in the map opens its page in Companies (companies/go/ finds it).
+        symbolUrl: new URL((document.body.getAttribute("data-base") || "") + "companies/go/", location.href).href +
+          "?x={tvexchange}&s={tvsymbol}",
         hasTopBar: false, isDataSetEnabled: false, isZoomEnabled: false, hasSymbolTooltip: true, isMonoSize: false
       }];
     }

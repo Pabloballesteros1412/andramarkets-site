@@ -66,7 +66,7 @@ def pages(site):
       </section>
     </div>
     <section class="lm-sec reveal" aria-labelledby="lm-heat">
-      <div class="lm-sec__head"><h2 id="lm-heat">Heatmap</h2>
+      <div class="lm-sec__head"><h2 id="lm-heat">Heatmap</h2><p>Choose a company to open its page in Companies.</p>
         <div class="filters lm-switch" role="group" aria-label="Index shown in the heatmap" data-tv-switch="lm-heatmap">{chips}</div></div>
       {slot("heatmap", f"{site.esc(labels[0])} heatmap", ' id="lm-heatmap" data-tv-source="0"')}
     </section>
@@ -74,7 +74,15 @@ def pages(site):
     <noscript><p class="lm-note">Live Markets needs JavaScript: its quotes and charts are drawn by TradingView's widgets.</p></noscript>
   </div>
 </main>"""
-    return {"live-markets/": site.shell(
+    # Where a company clicked in a heatmap lands: assets/company-go.js sends it on to its page.
+    go = site.shell(
+        title="Opening the company: Andra Markets", desc="Opening the company's page.",
+        body='<main id="main" class="page"><div class="wrap"><header class="page__head">'
+             '<h1 class="page__title">Companies</h1><p class="lede">Opening the company. If nothing happens, go to '
+             '<a class="link" href="../">Companies</a>.</p></header></div></main>',
+        home="../../", base="../../", path="companies/go/", scripts=("search-index.js", "company-go.js"),
+        scene=False, index=False)
+    return {"companies/go/": go, "live-markets/": site.shell(
         title="Live Markets: Andra Markets",
         desc="Live quotes and charts for indices, currencies, commodities, bonds and bitcoin, with heatmaps of the "
              "IBEX 35 and the S&P 500. Market data by TradingView.",
