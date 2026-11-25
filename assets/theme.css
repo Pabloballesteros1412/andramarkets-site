@@ -648,3 +648,32 @@ a.nav__btn{display:inline-flex}
 .wp.is-drawn .wp-line,.wp.is-drawn .wp-stop,.wp.is-drawn .wp-sky{animation:none;stroke-dashoffset:0}
 @media (max-width:899px){.wp__plot{height:auto}.wp-name{font-size:19px;fill:var(--ink)}.wp{margin-top:20px}}
 @media (prefers-reduced-motion:reduce){.wp-line,.wp-stop,.wp-sky,.wp-win--live{animation:none;stroke-dashoffset:0;transition:none}}
+
+/* Tools: two atoms, the Lab and Simulators (assets/tools-atoms.js), laid out from the page's own list of links. */
+.atoms ol{list-style:none;margin:0;padding:0}
+.atoms>ol>li{padding:18px 0;border-top:1px solid var(--rule)}
+.atoms__name{font-size:1.375rem;color:var(--ink);text-decoration:none}
+.atoms__sub,.atoms__theme{display:block;margin:6px 0 2px;font-size:.8125rem;color:var(--ink-3)}
+.atoms ol ol ol a{display:inline-block;padding:6px 0;color:var(--ink-2);text-decoration:none}
+.has-atoms .page__head{border-bottom:0;padding-bottom:0}
+.atoms.is-live{display:grid;grid-template-columns:1fr 1fr;gap:0 clamp(24px,4vw,64px);margin-top:8px}
+.atom{min-width:0}
+.atom__stage{position:relative;height:clamp(380px,calc(100vh - 25rem),500px)}
+.atom__stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.atom__core{position:absolute;left:50%;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%}
+.atom__tool{position:absolute;width:max-content;max-width:8.5rem;font-size:.8125rem;line-height:1.3;color:var(--ink-2);text-decoration:none!important;text-wrap:balance;transition:color .2s}
+.atom__tool:hover,.atom__tool:focus-visible{color:var(--ink)}
+.atom__tool:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+.atom__foot{text-align:center;margin-top:4px}
+.atom__name{display:inline-block;font-size:clamp(2rem,3.4vw,2.75rem);font-weight:300;letter-spacing:-.03em;line-height:1.1;color:var(--ink);text-decoration:none!important}
+.atom__name::after{content:"";display:block;height:1px;margin-top:6px;background:var(--ink);transform:scaleX(0);transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+.atom__name:hover::after,.atom__name:focus-visible::after{transform:scaleX(1)}
+.atom__sub{margin:12px 0 0}
+@media (max-width:899px){
+  .atoms.is-live{display:block;overflow:hidden;margin-inline:-20px;padding-inline:20px}
+  .atom+.atom{margin-top:56px}
+  .atom__stage{height:min(84vw,360px)}
+  .atom__tool{max-width:6.75rem;font-size:.75rem}
+  .atom__foot{margin-top:-28px}
+}
+@media (prefers-reduced-motion:reduce){.atom__name::after,.atom__tool{transition:none}}
