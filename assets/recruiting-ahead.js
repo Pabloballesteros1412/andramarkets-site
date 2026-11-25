@@ -106,6 +106,7 @@
           text(g, a, y + 4, tries[k][0], "rk-mono" + (lb.soft ? "" : " rk-ink")); taken.push([a - 4, b + 4]); break;
         }
       });
+      [].forEach.call(g.querySelectorAll("circle"), function (c) { g.appendChild(c); });   // the marks over the labels' grounds
       y += RH;
     });
     el("rect", { x: L, y: TOP - 10, width: Math.max(0, tx - L), height: H - 24 - TOP + 10, "class": "rk-past" }, svg);
