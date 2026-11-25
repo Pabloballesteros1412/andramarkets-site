@@ -697,3 +697,10 @@ a.nav__btn{display:inline-flex}
 .qz .fed-q{margin-top:26px}
 @media (max-width:899px){.qz-btns{grid-template-columns:1fr 1fr}.qz-chart{max-height:none}}
 @media (prefers-reduced-motion:reduce){.qz-line,.qz-area{animation:none;stroke-dashoffset:0}}
+.qz-grid3{grid-template-columns:repeat(3,1fr)}
+.qz-zero{stroke:var(--rule-strong);stroke-width:1;vector-effect:non-scaling-stroke;stroke-dasharray:3 3}
+.qz--recession .qz-btns,.qz--higher .qz-btns,.qz--earnings .qz-btns{grid-template-columns:1fr 1fr}
+@media (max-width:899px){.qz-grid3{grid-template-columns:1fr}}
+.qz-grid2{grid-template-columns:1fr 1fr}
+.qz-grid2 b{font-size:clamp(1.25rem,2.4vw,2rem);line-height:1.15}
+@media (max-width:899px){.qz-grid2{grid-template-columns:1fr}}

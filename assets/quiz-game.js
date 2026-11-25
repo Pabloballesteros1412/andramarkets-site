@@ -53,6 +53,83 @@
       row: function (R, D, pick) { var it = D.items[R.a]; return [esc(it.t) + ", " + it.y, move(it.f), esc(D.items[pick].t)]; }
     }
   };
+  // Recession call: a month end with its yield curve, Sahm rule reading and jobless claims; does the cycle peak within a year?
+  var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function mname(m) { return MONTHS[+m.slice(5, 7) - 1] + " " + m.slice(0, 4); }
+  function madd(m, n) { var y = +m.slice(0, 4), k = +m.slice(5, 7) - 1 + n; y += Math.floor(k / 12); k = ((k % 12) + 12) % 12; return y + "-" + (k < 9 ? "0" : "") + (k + 1); }
+  function mdiff(a, b) { return (+b.slice(0, 4) - +a.slice(0, 4)) * 12 + (+b.slice(5, 7) - +a.slice(5, 7)); }
+  function spark(vals, zero) {
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals); if (zero != null) { lo = Math.min(lo, zero); hi = Math.max(hi, zero); } var sp = hi - lo || 1;
+    var d = vals.map(function (v, i) { return (i ? "L" : "M") + (i / (vals.length - 1) * 100).toFixed(1) + " " + (38 - (v - lo) / sp * 36).toFixed(1); }).join("");
+    return '<svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">' + (zero != null ? '<line class="qz-zero" x1="0" x2="100" y1="' + (38 - (zero - lo) / sp * 36).toFixed(1) + '" y2="' + (38 - (zero - lo) / sp * 36).toFixed(1) + '"/>' : "") + '<path d="' + d + '"/></svg>';
+  }
+  KINDS.recession = {
+    prep: function (D) {
+      if (D.ok) return;
+      // the peak of each cycle is the month before the first month the NBER marks as recession
+      D.peaks = D.rec.map(function (p) { return madd(p[0], -1); });
+      D.ok = []; D.rows.forEach(function (r, i) {
+        var m = r[0], inside = D.rec.some(function (p) { return m >= madd(p[0], -1) && m < p[1]; });
+        if (i < 24 || inside || mdiff(m, D.rows[D.rows.length - 1][0]) < 13) return;
+        var next = D.peaks.filter(function (p) { return p > m; })[0];
+        D.ok.push({ i: i, yes: !!next && mdiff(m, next) <= 12, next: next || "" });
+      });
+    },
+    rounds: function (D, r) {
+      this.prep(D);
+      var yes = shuffle(D.ok.filter(function (x) { return x.yes; }), r), no = shuffle(D.ok.filter(function (x) { return !x.yes; }), r), n = 4 + Math.floor(r() * 3);
+      return shuffle(yes.slice(0, n).concat(no.slice(0, ROUNDS - n)), r);
+    },
+    show: function (el, R, D) {
+      var i = R.i, row = D.rows[i], span = D.rows.slice(i - 23, i + 1), c = row[1] / 100, ago = D.rows[i - 12];
+      function card(t, v, note, vals, zero) { return "<div><span>" + t + "</span><b>" + v + "</b><em>" + note + "</em>" + spark(vals, zero) + "</div>"; }
+      el.innerHTML = '<div class="fed-grid qz-grid3">' +
+        card("Yield curve, 10-year less 3-month", (c < 0 ? MINUS : "") + Math.abs(c).toFixed(2) + " points", c < 0 ? "Inverted" : c < 0.5 ? "Nearly flat" : "Upward sloping", span.map(function (x) { return x[1]; }), 0) +
+        card("Sahm rule indicator", row[2].toFixed(2) + " points", row[2] >= 0.5 ? "At or above its 0.50 threshold" : "Below its 0.50 threshold", span.map(function (x) { return x[2]; }), 0.5) +
+        card("Jobless claims, 4-week average", Math.round(row[3]).toLocaleString("en-US") + ",000", "A year before: " + Math.round(ago[3]).toLocaleString("en-US") + ",000", span.map(function (x) { return x[3]; })) +
+        '</div><p class="lens-read qz-read">A month end, undated · each line is its last 24 months</p>';
+    },
+    choices: function () { return [{ id: "yes", label: "Recession within 12 months" }, { id: "no", label: "No recession" }]; },
+    right: function (R) { return R.yes ? "yes" : "no"; },
+    said: function (R, D, pick) { return pick === "yes" ? "recession" : "no recession"; },
+    after: function (R, D) {
+      var m = D.rows[R.i][0];
+      return { h: mname(m) + ": " + (R.yes ? "a recession followed." : "no recession within twelve months."),
+        p: (R.yes ? "The NBER puts the peak of the cycle in " + mname(R.next) + ", " + mdiff(m, R.next) + (mdiff(m, R.next) === 1 ? " month" : " months") + " later." : R.next ? "The next peak of the cycle came in " + mname(R.next) + ", " + (mdiff(m, R.next) < 24 ? mdiff(m, R.next) + " months" : Math.round(mdiff(m, R.next) / 12) + " years") + " later." : "No recession has been dated since.") +
+          ' <a class="link" href="' + CFG.base + 'recession-watch/">Today\u2019s readings</a>' };
+    },
+    cols: ["Month", "Curve", "Sahm", "You said", "What happened"],
+    row: function (R, D, pick) { var r = D.rows[R.i]; return [mname(r[0]), (r[1] < 0 ? MINUS : "") + Math.abs(r[1] / 100).toFixed(2), r[2].toFixed(2), pick === "yes" ? "Recession" : "No recession", R.yes ? "Recession" : "No recession"]; }
+  };
+  // Higher or lower: two companies; which share rose more over the last twelve months?
+  KINDS.higher = {
+    rounds: function (D, r) {
+      var out = [], used = {}, tries = 0;
+      while (out.length < ROUNDS && tries++ < 4000) {
+        var a = Math.floor(r() * D.items.length), b = Math.floor(r() * D.items.length);
+        if (a === b || used[a] || used[b] || Math.abs(D.items[a].r - D.items[b].r) < 0.05) continue;
+        used[a] = used[b] = 1; out.push({ a: a, b: b });
+      }
+      return out;
+    },
+    card: function (it, open) {
+      return "<div><span>" + esc(it.s) + (it.c ? " · " + esc(it.c) : "") + "</span><b>" + esc(it.n) + "</b><em>" + (open ? "Twelve months: " + move(it.r) : "Twelve months: hidden") + "</em>" +
+        (open ? spark(it.p, 1000) : '<svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><line class="qz-zero" x1="0" x2="100" y1="20" y2="20"/></svg>') + "</div>";
+    },
+    show: function (el, R, D, open) {
+      el.innerHTML = '<div class="fed-grid qz-grid2">' + this.card(D.items[R.a], open) + this.card(D.items[R.b], open) + '</div><p class="lens-read qz-read">Share price, in its own currency · the twelve months to ' + esc(D.to) + "</p>";
+    },
+    reveal: function (el, R, D) { this.show(el, R, D, true); },
+    choices: function (R, D) { return [{ id: "a", label: D.items[R.a].n, sub: D.items[R.a].s }, { id: "b", label: D.items[R.b].n, sub: D.items[R.b].s }]; },
+    right: function (R, D) { return D.items[R.a].r > D.items[R.b].r ? "a" : "b"; },
+    said: function (R, D, pick) { return D.items[R[pick]].n; },
+    after: function (R, D) {
+      var w = D.items[this.right(R, D) === "a" ? R.a : R.b], l = D.items[this.right(R, D) === "a" ? R.b : R.a];
+      return { h: esc(w.n) + " did better.", p: esc(w.n) + " " + move(w.r) + ", " + esc(l.n) + " " + move(l.r) + ", over the twelve months to " + esc(D.to) + "." };
+    },
+    cols: ["The better share", "", "The other", "", "You picked"],
+    row: function (R, D, pick) { var ra = this.right(R, D), w = D.items[ra === "a" ? R.a : R.b], l = D.items[ra === "a" ? R.b : R.a]; return [esc(w.n), move(w.r), esc(l.n), move(l.r), esc(D.items[R[pick]].n)]; }
+  };
   var K = KINDS[CFG.kind]; if (!K) return;
 
   var D = null, game = null, mode = "daily";
@@ -80,6 +157,7 @@
     [].forEach.call($("btns").querySelectorAll("[data-pick]"), function (b) { b.disabled = true; b.setAttribute("aria-pressed", b.getAttribute("data-pick") === String(pick) ? "true" : "false"); if (b.getAttribute("data-pick") === String(want)) b.classList.add("is-right"); });
     a.innerHTML = '<p class="sim-tag">' + (ok ? "Correct" : "Not this time: you said " + esc(K.said(R, D, pick))) + "</p><h2>" + t.h + "</h2><p>" + t.p + "</p>" +
       '<button class="btn" type="button">' + (last ? "See your score" : "Next") + ' <svg class="icon" aria-hidden="true"><use href="#i-arrow-right"/></svg></button>';
+    if (K.reveal) K.reveal($("stage"), R, D);
     a.hidden = false; game.round++; tag();
     a.querySelector("button").addEventListener("click", function () { if (game.round < ROUNDS) { round(); window.scrollTo(0, 0); } else finish(); });
     a.querySelector("button").focus({ preventScroll: true }); a.scrollIntoView({ block: "nearest", behavior: "smooth" });
