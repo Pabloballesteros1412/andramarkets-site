@@ -2058,11 +2058,32 @@ def main():
     cache["updated"] = now.isoformat(timespec="seconds")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(cache, indent=1, sort_keys=True), encoding="utf-8")
+    keep_results(cache["events"], path.with_name("results.json"))
     bad = [k for k, s in status.items() if s.get("error")]
     print(f"{len(cache['events'])} events stored; sources failing this run: {', '.join(bad) or 'none'}")
     if PROBE:
         for ind, v in sorted(cache.get("values", {}).items()):
             print(f"  value {ind}: {v.get('error') or (v['obs'][-1] if v['obs'] else 'empty')}")
+
+
+def keep_results(events, path):
+    """A lasting record of reported results, for a simulator to come (Earnings reaction; owner, 25 Nov 2026): the
+    calendar drops an event a few weeks after its date, so each earnings event that has its EPS, the EPS of the same
+    quarter a year before and its first-session move is copied to .cache/calendar/results.json, kept by the same
+    workflow cache. Never published; a failure here never stops the fetch."""
+    try:
+        try:
+            kept = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            kept = {}
+        for e in events.values():
+            if e.get("kind") == "earnings" and e.get("actual") and e.get("previous") and (e.get("reaction") or {}).get("move") is not None:
+                kept[e["id"]] = {k: e.get(k) for k in ("company", "ticker", "country", "market", "date", "actual", "previous",
+                                                       "prev_period", "report_type", "reaction")}
+        path.write_text(json.dumps(kept, indent=1, sort_keys=True), encoding="utf-8")
+        print(f"{len(kept)} reported results on record")
+    except Exception as e:  # noqa: BLE001
+        log(f"results record: {type(e).__name__}: {e}", "warning")
 
 
 if __name__ == "__main__":

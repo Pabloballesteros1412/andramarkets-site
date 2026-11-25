@@ -130,6 +130,47 @@
     cols: ["The better share", "", "The other", "", "You picked"],
     row: function (R, D, pick) { var ra = this.right(R, D), w = D.items[ra === "a" ? R.a : R.b], l = D.items[ra === "a" ? R.b : R.a]; return [esc(w.n), move(w.r), esc(l.n), move(l.r), esc(D.items[R[pick]].n)]; }
   };
+  // Lump sum or drip: $12,000 at a hidden month; all at once, or a twelfth a month for a year? Valued five years on.
+  function money(v) { return "$" + (Math.round(v / 10) * 10).toLocaleString("en-US"); }
+  KINDS.lump = {
+    prep: function (D) { if (D.R) return; D.R = D.s.split(",").map(function (x) { return +x / 1e5; }); },
+    value: function (D, i) {   // [all at once, in twelve parts], five years after month i
+      var lump = 12000, drip = 0, k, j;
+      for (j = i; j < i + 60; j++) lump *= 1 + D.R[j];
+      for (k = 0; k < 12; k++) { var v = 1000; for (j = i + k; j < i + 60; j++) v *= 1 + D.R[j]; drip += v; }
+      return [lump, drip];
+    },
+    rounds: function (D, r) {
+      this.prep(D); var out = [], used = {}, n = D.R.length, tries = 0;
+      while (out.length < ROUNDS && tries++ < 2000) { var i = 60 + Math.floor(r() * (n - 120)), y = Math.floor(i / 30); if (used[y]) continue; used[y] = 1; out.push({ i: i }); }
+      return out;
+    },
+    show: function (el, R, D, open) {
+      var W = 960, H = 340, L = 8, T = 16, B = 30, i = R.i, lv = [1], k;
+      for (k = i - 60; k < (open ? i + 60 : i); k++) lv.push(lv[lv.length - 1] * (1 + D.R[k]));
+      var at = lv[60], lg = lv.map(function (v) { return Math.log(v / at); }), lo = Math.min.apply(null, lg), hi = Math.max.apply(null, lg); if (!open) { hi = Math.max(hi, 0.4); lo = Math.min(lo, -0.4); }
+      function X(j) { return L + j / 120 * (W - L - 8); } function Y(v) { return T + (hi - v) / (hi - lo || 1) * (H - T - B); }
+      var d = lg.map(function (v, j) { return (j ? "L" : "M") + X(j).toFixed(1) + " " + Y(v).toFixed(1); }).join("");
+      el.innerHTML = '<svg class="qz-chart" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="The S&amp;P 500 with dividends over the five years before the moment you invest' + (open ? ", and the five years after" : "") + '.">' +
+        '<line class="qz-grid" x1="' + L + '" x2="' + (W - 8) + '" y1="' + Y(0).toFixed(1) + '" y2="' + Y(0).toFixed(1) + '"/>' +
+        '<line class="qz-now" x1="' + X(60).toFixed(1) + '" x2="' + X(60).toFixed(1) + '" y1="' + T + '" y2="' + (H - B) + '"/>' +
+        '<text class="qz-tick" x="' + (X(60) - 10).toFixed(1) + '" y="' + (H - 9) + '" text-anchor="end">The five years before</text><text class="qz-tick" x="' + (X(60) + 10).toFixed(1) + '" y="' + (H - 9) + '">' + (open ? "The five years after" : "You invest here. The next five years are hidden") + "</text>" +
+        '<path class="qz-line' + (open ? " qz-line--still" : "") + '" pathLength="1" d="' + d + '"/><circle class="qz-dot" cx="' + X(60).toFixed(1) + '" cy="' + Y(0).toFixed(1) + '" r="4"/></svg>' +
+        '<p class="lens-read qz-read">S&amp;P 500 with dividends · month ends, ratio scale · undated</p>';
+    },
+    reveal: function (el, R, D) { this.show(el, R, D, true); },
+    choices: function () { return [{ id: "lump", label: "All at once", sub: "$12,000 today" }, { id: "drip", label: "Over twelve months", sub: "$1,000 a month" }]; },
+    right: function (R, D) { var v = this.value(D, R.i); return v[0] >= v[1] ? "lump" : "drip"; },
+    said: function (R, D, pick) { return pick === "lump" ? "all at once" : "over twelve months"; },
+    when: function (D, i) { return mname(madd(D.first, i)); },
+    after: function (R, D) {
+      var v = this.value(D, R.i), lump = v[0] >= v[1];
+      return { h: this.when(D, R.i) + ": " + (lump ? "all at once" : "the drip") + " was worth more.",
+        p: "Five years on, $12,000 all at once was worth " + money(v[0]) + " (" + move(v[0] / 12000 - 1, 0) + "); in twelve monthly parts, " + money(v[1]) + " (" + move(v[1] / 12000 - 1, 0) + ")." + (lump ? "" : " On balance the later parts bought at lower prices than the first day\u2019s.") };
+    },
+    cols: ["You invest in", "All at once", "Over twelve months", "You picked"],
+    row: function (R, D, pick) { var v = this.value(D, R.i); return [this.when(D, R.i), money(v[0]) + " " + move(v[0] / 12000 - 1, 0), money(v[1]) + " " + move(v[1] / 12000 - 1, 0), pick === "lump" ? "All at once" : "Over twelve months"]; }
+  };
   var K = KINDS[CFG.kind]; if (!K) return;
 
   var D = null, game = null, mode = "daily";
