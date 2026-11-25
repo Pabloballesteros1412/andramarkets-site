@@ -61,7 +61,7 @@
     chart: function (el, th, t) {
       var c = CFG.chart, wide = el.clientWidth >= 900;
       return ["advanced-chart", {
-        autosize: true, symbol: c.symbol, interval: c.interval || "D", timezone: c.timezone || "Etc/UTC",
+        autosize: true, symbol: el.getAttribute("data-tv-symbol") || c.symbol, interval: c.interval || "D", timezone: c.timezone || "Etc/UTC",
         theme: th, style: "1", locale: CFG.locale, allow_symbol_change: true, withdateranges: true,
         hide_side_toolbar: !wide, details: false, hotlist: false, calendar: false, save_image: false,
         watchlist: wide && c.watchlist ? c.watchlist : [],
@@ -231,6 +231,54 @@
         if (target.classList.contains("is-mounted")) mount(target);
       });
     });
+  });
+
+  // What the chart shows: a chip for each of the config's picks, and a field for any other
+  // ticker ("AAPL", "BME:SAN"). Either builds the chart again on that symbol.
+  [].forEach.call(document.querySelectorAll("[data-tv-picks]"), function (box) {
+    var target = document.getElementById(box.getAttribute("data-tv-picks"));
+    var picks = (CFG.chart && CFG.chart.picks) || [];
+    if (!target || !picks.length) return;
+    var group = document.createElement("div");
+    group.className = "filters lm-switch";
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", "Symbol shown in the chart");
+    function show(symbol) {
+      target.setAttribute("data-tv-symbol", symbol);
+      [].forEach.call(group.children, function (c) {
+        c.setAttribute("aria-pressed", c.getAttribute("data-symbol") === symbol ? "true" : "false");
+      });
+      mount(target);
+    }
+    var start = target.getAttribute("data-tv-symbol") || CFG.chart.symbol;
+    picks.forEach(function (pick) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.textContent = pick[0];
+      chip.setAttribute("data-symbol", pick[1]);
+      chip.setAttribute("aria-pressed", pick[1] === start ? "true" : "false");
+      chip.addEventListener("click", function () {
+        if (target.getAttribute("data-tv-symbol") !== pick[1]) show(pick[1]);
+      });
+      group.appendChild(chip);
+    });
+    var form = document.createElement("form");
+    form.className = "lm-find";
+    var id = "lm-find-q";
+    form.innerHTML = '<label for="' + id + '">Any other ticker</label>' +
+      '<input id="' + id + '" type="text" inputmode="latin" autocomplete="off" autocapitalize="characters" ' +
+      'spellcheck="false" maxlength="24" placeholder="AAPL, BME:SAN, BTCUSD">' +
+      '<button type="submit" class="chip">Show</button>';
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var q = form.querySelector("input"), v = q.value.trim().toUpperCase();
+      if (!/^[A-Z0-9][A-Z0-9:._!&-]{0,23}$/.test(v)) { q.focus(); return; }
+      show(v);
+    });
+    box.appendChild(group);
+    box.appendChild(form);
+    box.hidden = false;
   });
 
   window.AndraMarkets = { mount: mount, unmount: unmount, refresh: refresh, theme: theme };

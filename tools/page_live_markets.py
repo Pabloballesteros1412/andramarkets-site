@@ -52,8 +52,9 @@ def pages(site):
       <p class="lede">Indices, currencies, commodities, bonds and bitcoin as they trade, on TradingView's charts.</p>
     </header>
     <section class="lm-sec reveal" aria-labelledby="lm-chart">
-      <div class="lm-sec__head"><h2 id="lm-chart">Chart</h2><p>Change the symbol, the interval or the range from the chart itself.</p></div>
-      {slot("chart", "Chart")}
+      <div class="lm-sec__head"><h2 id="lm-chart">Chart</h2><p>Indices, shares, currencies, commodities and crypto: choose one, or type any ticker.</p></div>
+      <div class="lm-picks" data-tv-picks="lm-chart-slot" hidden></div>
+      {slot("chart", "Chart", ' id="lm-chart-slot"')}
     </section>
     <div class="lm-pair">
       <section class="lm-sec reveal" aria-labelledby="lm-overview">

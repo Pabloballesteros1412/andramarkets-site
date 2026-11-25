@@ -14,10 +14,10 @@ window.ANDRA_MARKETS = {
 
   // The tape under the header: [symbol, name shown].
   tape: [
-    ["BME:IBC", "IBEX 35"],
-    ["OANDA:EU50EUR", "Euro Stoxx 50"],
     ["FOREXCOM:SPXUSD", "S&P 500"],
     ["FOREXCOM:NSXUSD", "Nasdaq 100"],
+    ["OANDA:EU50EUR", "Euro Stoxx 50"],
+    ["BME:IBC", "IBEX 35"],
     ["FX_IDC:EURUSD", "EUR/USD"],
     ["TVC:UKOIL", "Brent"],
     ["OANDA:XAUUSD", "Gold"],
@@ -25,14 +25,34 @@ window.ANDRA_MARKETS = {
     ["BITSTAMP:BTCUSD", "Bitcoin"]
   ],
 
-  // The large chart. The reader can change its symbol from the chart itself.
+  // The large chart. It opens on `symbol`; the reader changes it with the chips
+  // above the chart (`picks`: [name shown, symbol]), by typing any ticker in the
+  // field beside them, or from the chart's own search.
   chart: {
-    symbol: "CAPITALCOM:SP35",
+    symbol: "FOREXCOM:SPXUSD",
     interval: "D",
     timezone: "Europe/Madrid",
+    picks: [
+      ["S&P 500", "FOREXCOM:SPXUSD"],
+      ["Nasdaq 100", "FOREXCOM:NSXUSD"],
+      ["Euro Stoxx 50", "OANDA:EU50EUR"],
+      ["IBEX 35", "CAPITALCOM:SP35"],
+      ["Nvidia", "NASDAQ:NVDA"],
+      ["Apple", "NASDAQ:AAPL"],
+      ["Microsoft", "NASDAQ:MSFT"],
+      ["Alphabet", "NASDAQ:GOOGL"],
+      ["Amazon", "NASDAQ:AMZN"],
+      ["Meta", "NASDAQ:META"],
+      ["Tesla", "NASDAQ:TSLA"],
+      ["EUR/USD", "FX_IDC:EURUSD"],
+      ["Gold", "OANDA:XAUUSD"],
+      ["Brent", "TVC:UKOIL"],
+      ["Bitcoin", "BITSTAMP:BTCUSD"]
+    ],
     // The list at the chart's right on wide screens.
     watchlist: [
-      "CAPITALCOM:SP35", "OANDA:EU50EUR", "FOREXCOM:SPXUSD", "FOREXCOM:NSXUSD",
+      "FOREXCOM:SPXUSD", "FOREXCOM:NSXUSD", "OANDA:EU50EUR", "CAPITALCOM:SP35",
+      "NASDAQ:NVDA", "NASDAQ:AAPL", "NASDAQ:MSFT", "NASDAQ:GOOGL", "NASDAQ:AMZN", "NASDAQ:META", "NASDAQ:TSLA",
       "FX_IDC:EURUSD", "TVC:UKOIL", "OANDA:XAUUSD", "EUREX:FGBL1!", "BITSTAMP:BTCUSD"
     ]
   },
@@ -40,11 +60,11 @@ window.ANDRA_MARKETS = {
   // Market overview: one tab per entry, [symbol, name shown] in each.
   overview: [
     { title: "Indices", symbols: [
-      ["BME:IBC", "IBEX 35"],
-      ["OANDA:EU50EUR", "Euro Stoxx 50"],
-      ["OANDA:DE30EUR", "DAX"],
       ["FOREXCOM:SPXUSD", "S&P 500"],
       ["FOREXCOM:NSXUSD", "Nasdaq 100"],
+      ["OANDA:EU50EUR", "Euro Stoxx 50"],
+      ["OANDA:DE30EUR", "DAX"],
+      ["BME:IBC", "IBEX 35"],
       ["OANDA:JP225USD", "Nikkei 225"]
     ] },
     { title: "FX", symbols: [
@@ -74,12 +94,12 @@ window.ANDRA_MARKETS = {
   ],
 
   // The index in focus beside the overview: [name shown, symbol].
-  featured: ["IBEX 35", "CAPITALCOM:SP35"],
+  featured: ["S&P 500", "FOREXCOM:SPXUSD"],
 
   // Heatmaps, one chip each: [chip label, TradingView's name for the index].
   // Others TradingView offers: "NASDAQ100", "DAX", "SX5E", "UK100", "CAC40".
   heatmaps: [
-    ["IBEX 35", "IBEX35"],
-    ["S&P 500", "SPX500"]
+    ["S&P 500", "SPX500"],
+    ["IBEX 35", "IBEX35"]
   ]
 };
