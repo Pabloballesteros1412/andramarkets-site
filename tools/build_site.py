@@ -53,6 +53,7 @@ from legal_content import LEGAL, LEGAL_UPDATED, PRIVACY, PRIVACY_ANALYTICS, PRIV
 from world_data import AXES as WORLD_AXES, MARKETS as WORLD_MARKETS  # noqa: E402
 import page_chart_of_the_day  # noqa: E402
 import page_central_banks  # noqa: E402
+import page_live_markets  # noqa: E402
 import page_recession_watch  # noqa: E402
 import page_market_history  # noqa: E402
 import page_interview_simulator  # noqa: E402
@@ -1176,7 +1177,10 @@ def page(notes, cal):
 <nav class="sheet" id="sheet" aria-label="Menu">{menu}<a href="contact/">Contact us</a></nav>
 <nav class="rail" aria-label="Page sections"><a href="#top" aria-label="Top"></a><a href="#record" aria-label="The record"></a>{"".join(f'<a href="#{key}" aria-label="{name}"></a>' for key, name, _, _ in NAV_GROUPS)}<a href="#contact" aria-label="Contact"></a></nav>
 <main id="main">
-<section class="sec sec--hero" id="top" data-shape="0"><div class="sec__in"><h1>Markets, on the record.</h1></div></section>
+<section class="sec sec--hero" id="top" data-shape="0"><div class="sec__in"><h1>Markets, on the record.</h1></div>
+<div class="home-tape"><a class="home-tape__go" href="live-markets/">Live Markets{HOME_ARROW}</a>
+<div class="tv tv--tape" data-tv="tape" data-tv-defer><div class="tv__frame" role="group" aria-label="Live quotes, from TradingView"></div></div>
+<a class="home-tape__hit" href="live-markets/" tabindex="-1" aria-hidden="true"></a></div></section>
 <section class="sec statement" id="record" data-shape="0"><p class="state">{words}</p></section>
 {groups}<section class="sec sec--end" id="contact" data-shape="5"><div class="sec__in"><h2>On the record, every trading day.</h2>
 <a class="go" href="contact/">Contact us{HOME_ARROW}</a></div>
@@ -1185,11 +1189,11 @@ def page(notes, cal):
 <script type="application/json" id="home-data">{json.dumps(data, separators=(",", ":"))}</script>""",
         home="",
         base="",
-        scripts=("space.js", "home.js"),
+        scripts=("space.js", "home.js", "markets-config.js", "markets.js"),
         nav=False,
         footer=False,
         scene=False,
-        bare=("home.css",),
+        bare=("home.css", "markets.css"),
         ld={"@context": "https://schema.org", "@graph": [
             ld_org(), dict({"@type": "WebSite", "name": "Andra Markets"}, **({"url": abs_url()} if SITE_URL else {}))]},
         # The opening (assets/home.css, assets/home.js): marked before the first paint so the phrase
@@ -1358,6 +1362,7 @@ CO_TOTAL = f"{3 * PER_MARKET:,}"
 
 NAV_GROUPS = (
     ("markets", "Markets", "Prices, rates and what is coming, with each figure's source and date.", (
+        ("Live Markets", "live-markets/", "Live quotes, charts and heatmaps, by TradingView."),
         ("Dashboards", "dashboards/", "Nine views across rates, equities, macro and cross-asset."),
         ("Fed &amp; Rates", "fed-rates/", "Policy rate, FOMC odds and countdown, the Treasury curve."),
         ("Calendar", "calendar/", "Releases, central banks and earnings, five weeks ahead."),
@@ -1393,6 +1398,7 @@ NAV_GROUPS = (
 # data. Paths have pathLength 1, so site.css draws each from 0 to 1; .dot and .soft show
 # once the line is drawn; .base is the axis.
 NAV_CHARTS = {
+    "live-markets/": '<path class="base" d="M2 60H110"/><path class="draw bar" pathLength="1" d="M14 50V26M32 44V18M50 52V30M68 38V14M86 30V8"/><path class="soft" d="M14 56V20M32 50V12M50 58V24M68 44V8M86 36V4"/><circle class="dot" cx="104" cy="14" r="3"/>',
     "dashboards/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 50L18 42L30 46L44 30L58 34L72 20L86 26L110 10"/><circle class="dot" cx="110" cy="10" r="3"/>',
     "fed-rates/": '<path class="base" d="M2 60H110"/><path class="draw" pathLength="1" d="M2 52H24V42H46V32H68V24H84"/><path class="soft" d="M84 24H96V30H110"/><circle class="dot" cx="84" cy="24" r="3"/>',
     "calendar/": '<path class="base" d="M2 44H110"/><path class="draw" pathLength="1" d="M14 44V26M34 44V32M54 44V14M74 44V30M94 44V20"/><circle class="dot" cx="54" cy="14" r="3"/>',
@@ -1747,6 +1753,9 @@ CAREERS_MAP = (
 def markets_map_page():
     """Every Markets section and its parts on one map, drawn by the Tools map's script in violet."""
     groups_ = (
+        ("live-markets", "Live Markets", "live-markets/",
+         (("Chart", "live-markets/#lm-chart"), ("Market overview", "live-markets/#lm-overview"),
+          ("Heatmap", "live-markets/#lm-heat"))),
         ("dashboards", "Dashboards", "dashboards/",
          (("Rates", "dashboards/#rates"), ("Macro", "dashboards/#macro"), ("Equities", "dashboards/#equities"),
           ("Cross-asset", "dashboards/#cross-asset"))),
@@ -3374,6 +3383,12 @@ def interview_page(notes):
 
 # (provider, url, what it supplies, where it is used, how often it is read)
 DATA_SOURCES = [
+    ("TradingView", "https://www.tradingview.com/",
+     "Live quotes, charts and heatmaps, drawn by TradingView's own widgets from TradingView's feeds. Not stored or "
+     "changed by Andra Markets; some markets are delayed, and index quotes marked with a broker's name are that "
+     "broker's indicative price.",
+     "Live Markets, the tape on the home page",
+     "Live, in your browser"),
     ("Yahoo Finance", "https://finance.yahoo.com/",
      "Closing prices of equity indices, sector ETFs, volatility indices, currencies, commodity futures, credit ETFs, "
      "digital assets and the watchlist stocks; CBOT fed funds futures and the Cboe Treasury yield indices; earnings "
@@ -6310,6 +6325,8 @@ SEARCH_TERMS = {
 
 # Words a page is found by beyond its title.
 SEARCH_PAGE_TERMS = {
+    "live-markets/": "live markets real time quotes prices chart TradingView ticker tape heatmap IBEX 35 Euro Stoxx 50 "
+                     "S&P 500 Nasdaq 100 EUR/USD Brent gold Bund bitcoin indices currencies commodities bonds",
     "contact/": f"contact email {CONTACT_EMAIL} write to us LinkedIn TikTok social media follow",
     "fed-rates/": "Fed FOMC policy rate fed funds futures meeting probabilities yield curve Treasury 2s10s 3m10y "
                   "inversion spreads TIPS real yield breakeven inflation CPI PCE unemployment",
@@ -6511,6 +6528,7 @@ def fin_ticker(t):
 
 
 SEARCH_PAGES = [
+    ("Live Markets", "live-markets/", "Page"),
     ("Dashboards", "dashboards/", "Page"),
     ("Fed & Rates", "fed-rates/", "Page"),
     ("Break into Wall Street", "break-into-wall-street/", "Page"),
@@ -6650,7 +6668,7 @@ def write_discovery(notes, library):
 
 # Section pages built in their own modules (tools/page_*.py), each returning
 # {output path: page HTML}: the Research and Careers sections added on 1 Nov 2026.
-PAGE_MODULES = (page_chart_of_the_day, page_central_banks, page_recession_watch, page_market_history,
+PAGE_MODULES = (page_live_markets, page_chart_of_the_day, page_central_banks, page_recession_watch, page_market_history,
                 page_interview_simulator, page_firms, page_application_tracker)
 
 
@@ -6802,10 +6820,16 @@ GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", 
              "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
              "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
              "chart-of-the-day", "central-banks", "recession-watch", "market-history",
-             "interview-simulator", "firms", "application-tracker", "contact", "tools-map", "research-map", "markets")
+             "interview-simulator", "firms", "application-tracker", "contact", "tools-map", "research-map", "markets", "live-markets")
 INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
 # Data blocks the browser never runs: the policy does not apply to them.
 DATA_SCRIPTS = ("application/json", "application/ld+json")
+# The pages that mount TradingView's widgets carry assets/markets.js; only their policy admits
+# TradingView's loader (script-src) and the frames it opens (frame-src). The frames fetch their
+# own data: nothing else of TradingView's runs in the page.
+TV_MARK = "assets/markets.js"
+TV_SCRIPTS = "https://s3.tradingview.com"
+TV_FRAMES = "https://www.tradingview-widget.com https://s.tradingview.com"
 CSP_META = re.compile(r'<meta http-equiv="Content-Security-Policy" content="[^"]*">\n?')
 
 
@@ -6832,15 +6856,18 @@ def csp_policy(page_html):
     api_origin = f"{api.scheme}://{api.netloc}" if api.scheme in ("http", "https") and api.netloc else ""
     # Cloudflare's visit count, only on a page that carries its beacon (shell()).
     counted = f'src="{BEACON_SRC}"' in page_html
+    # TradingView's widgets, only on a page that mounts them (Live Markets and the homepage's tape).
+    live = TV_MARK in page_html
     beacon_origin = urlsplit(BEACON_SRC)
     return "; ".join([
         "default-src 'self'",
         " ".join(["script-src 'self'"] + ([f"{beacon_origin.scheme}://{beacon_origin.netloc}"] if counted else [])
-                 + inline_hashes(page_html)),
+                 + ([TV_SCRIPTS] if live else []) + inline_hashes(page_html)),
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob:",
         "font-src 'self'",
         "connect-src 'self'" + (f" {api_origin}" if api_origin else "") + (f" {BEACON_REPORT}" if counted else ""),
+        *([f"frame-src {TV_FRAMES}"] if live else []),
         "object-src 'none'",
         "base-uri 'self'",
         "form-action 'self'",

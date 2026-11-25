@@ -7,7 +7,7 @@ cookie, a vendor or the newsletter changes, change the privacy policy too.
 Both should be reviewed by a qualified lawyer before the paid tier opens.
 """
 
-LEGAL_UPDATED = "2026-11-02"
+LEGAL_UPDATED = "2026-11-25"
 PRIVACY_UPDATED = "2026-11-11"
 
 LEGAL = [
@@ -103,7 +103,8 @@ LEGAL = [
 
     ("links", "Links to other websites",
      "<p>The site links to third-party websites, such as data publishers and the Andra Markets pages on "
-     "LinkedIn and TikTok. It embeds no third-party players or feeds. Andra Markets is not responsible for "
+     "LinkedIn and TikTok. The only third-party content it embeds is TradingView's market widgets, on the "
+     "Live Markets page and in the tape on the home page. Andra Markets is not responsible for "
      "the content or practices of other websites, which are governed by their own terms.</p>"),
 
     ("liability", "Limitation of liability",
@@ -172,10 +173,18 @@ PRIVACY = [
      "behind the company pages. When you look up a company, the ticker is passed to Finnhub and Financial "
      "Modeling Prep to fetch its figures; no personal data is sent to them. Cloudflare processes your IP "
      "address to deliver the response and protect the service.</li>"
+     "<li><b>TradingView</b> (TradingView, Inc., United States) supplies the live quotes, charts and "
+     "heatmaps on the <a href=\"../live-markets/\">Live Markets</a> page and the tape of quotes on the "
+     "home page. They are TradingView's own widgets, loaded from TradingView into frames on those two "
+     "pages: when you open either page your browser connects to TradingView, which receives your IP "
+     "address, your browser and device type and the address of the page, and may keep its own cookies or "
+     "storage inside its frames, under <a href=\"https://www.tradingview.com/privacy-policy/\" "
+     "rel=\"noopener nofollow\">TradingView's privacy policy</a>. Andra Markets sends TradingView nothing "
+     "about you and cannot read what its frames keep. No other page loads anything from TradingView.</li>"
      "</ul>"
      "<p>Apart from the services named here, nothing loads from third-party networks: the site's fonts, "
-     "scripts and images are served from the site itself, and no third-party player, feed or widget is "
-     "embedded. Links to LinkedIn and TikTok are plain links: nothing loads from those services unless you "
+     "scripts and images are served from the site itself, and no other third-party player, feed or widget "
+     "is embedded. Links to LinkedIn and TikTok are plain links: nothing loads from those services unless you "
      "follow one, and then their own policies apply.</p>"),
 
     ("basis", "Legal basis, retention and transfers",

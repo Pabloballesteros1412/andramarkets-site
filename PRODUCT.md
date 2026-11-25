@@ -29,7 +29,10 @@ quant tools (momentum regime backtest explorer, options pricer, more to come);
 an economic calendar; a daily US market close note; a Research Library; Fed & Rates; Markets Interview Prep; and
 Break into Wall Street, a careers guide. Videos stay on
 TikTok and LinkedIn: the site links to them and embeds nothing (owner, 30 Oct
-2026: the Watch section was removed so the site sets no third-party cookies). Success: visitors explore
+2026: the Watch section was removed so the site sets no third-party cookies). The one
+exception is Live Markets (`live-markets/`, owner, 25 Nov 2026): TradingView's free widgets
+(tape, chart, market overview, heatmaps), live, and the same tape on the homepage linking to
+it; the privacy policy names TradingView. Success: visitors explore
 a dashboard or tool, come back for the calendar and note, and subscribe by email.
 
 ## Positioning
