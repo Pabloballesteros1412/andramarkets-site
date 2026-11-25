@@ -11,21 +11,7 @@ The widgets load from TradingView, so this is the one page whose Content
 Security Policy admits its scripts and frames (TV_MARK in build_site.py), and
 the privacy policy names it (tools/legal_content.py).
 """
-import json
-import re
-
 CONFIG = "markets-config.js"
-
-
-def heatmaps(site):
-    """The heatmap chips' labels, read from the config so the page and the script agree."""
-    text = (site.ROOT / "assets" / CONFIG).read_text(encoding="utf-8")
-    m = re.search(r"heatmaps:\s*(\[.*?\])\s*\n\s*\}", text, re.S)
-    try:
-        rows = json.loads(re.sub(r"//[^\n]*", "", m.group(1))) if m else []
-    except ValueError:
-        rows = []
-    return [r[0] for r in rows if r] or ["IBEX 35", "S&P 500"]
 
 
 def slot(kind, label, extra=""):
@@ -40,20 +26,30 @@ def slot(kind, label, extra=""):
 
 
 def pages(site):
-    labels = heatmaps(site)
-    chips = "".join(
-        f'<button type="button" class="chip" data-tv-source="{i}" aria-pressed="{"true" if i == 0 else "false"}">{site.esc(name)}</button>'
-        for i, name in enumerate(labels))
+    def switch(slot_id, items, label, what=""):
+        """The chips that choose what a slot shows; assets/markets.js fills them from the config."""
+        return (f'<div class="filters lm-switch" role="group" aria-label="{label}" data-tv-switch="{slot_id}" '
+                f'data-tv-list="{items}" data-tv-what="{what}" hidden></div>')
+
     body = f"""<main id="main" class="page lm">
   <div class="lm-tape">{slot("tape", "Quotes tape")}</div>
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Live Markets</h1>
-      <p class="lede">Indices, currencies, commodities, bonds and bitcoin as they trade, on TradingView's charts.</p>
+      <p class="lede">Indices, shares, currencies, commodities, bonds and crypto as they trade, on TradingView's charts.</p>
     </header>
     <section class="lm-sec reveal" aria-labelledby="lm-chart">
-      <div class="lm-sec__head"><h2 id="lm-chart">Chart</h2><p>Change the symbol, the interval or the range from the chart itself.</p></div>
-      {slot("chart", "Chart")}
+      <div class="lm-sec__head"><h2 id="lm-chart">Chart</h2><p>Indices, shares, currencies, commodities and crypto: choose one, or type any ticker.</p></div>
+      <div class="lm-picks" data-tv-picks="lm-chart-slot" hidden></div>
+      {slot("chart", "Chart", ' id="lm-chart-slot"')}
+    </section>
+    <section class="lm-sec reveal" aria-labelledby="lm-about">
+      <div class="lm-sec__head"><h2 id="lm-about">In the chart</h2><p data-tv-no-share>Choose a share above to see its figures, its profile and its news here.</p></div>
+      {slot("info", "The symbol in the chart", ' data-tv-follow')}
+      <div class="lm-pair lm-pair--even" data-tv-share hidden>
+        <div class="lm-sub"><h3>Fundamentals</h3>{slot("financials", "Fundamentals of the company in the chart", ' data-tv-follow')}</div>
+        <div class="lm-sub"><h3>Profile</h3>{slot("profile", "Profile of the company in the chart", ' data-tv-follow')}</div>
+      </div>
     </section>
     <div class="lm-pair">
       <section class="lm-sec reveal" aria-labelledby="lm-overview">
@@ -65,10 +61,30 @@ def pages(site):
         {slot("symbol", "Index in focus")}
       </section>
     </div>
+    <div class="lm-pair">
+      <section class="lm-sec reveal" aria-labelledby="lm-movers">
+        <div class="lm-sec__head"><h2 id="lm-movers">Movers</h2>{switch("lm-movers-slot", "movers", "Market whose movers are shown", "movers")}</div>
+        {slot("movers", "Most active, gainers and losers", ' id="lm-movers-slot"')}
+      </section>
+      <section class="lm-sec reveal" style="--i:1" aria-labelledby="lm-news">
+        <div class="lm-sec__head"><h2 id="lm-news">News</h2><p>Headlines from TradingView: the market's, or the share's in the chart.</p></div>
+        {slot("news", "Headlines from TradingView", ' data-tv-follow')}
+      </section>
+    </div>
     <section class="lm-sec reveal" aria-labelledby="lm-heat">
-      <div class="lm-sec__head"><h2 id="lm-heat">Heatmap</h2><p>Choose a company to open its page in Companies.</p>
-        <div class="filters lm-switch" role="group" aria-label="Index shown in the heatmap" data-tv-switch="lm-heatmap">{chips}</div></div>
-      {slot("heatmap", f"{site.esc(labels[0])} heatmap", ' id="lm-heatmap" data-tv-source="0"')}
+      <div class="lm-sec__head"><h2 id="lm-heat">Heatmap</h2><p>In an index's map, choose a company to open its page in Companies.</p>
+        {switch("lm-heatmap", "heatmaps", "Market shown in the heatmap", "heatmap")}</div>
+      {slot("heatmap", "Heatmap", ' id="lm-heatmap"')}
+    </section>
+    <section class="lm-sec reveal" aria-labelledby="lm-fx">
+      <div class="lm-sec__head"><h2 id="lm-fx">Currencies</h2><p>Each row's currency against each column's.</p>
+        {switch("lm-fx-slot", "fx.views", "View of the currencies table")}</div>
+      {slot("fx", "Currencies against each other", ' id="lm-fx-slot"')}
+    </section>
+    <section class="lm-sec reveal" aria-labelledby="lm-screen">
+      <div class="lm-sec__head"><h2 id="lm-screen">Screener</h2><p>Every listed share of a market: sort by a column, or filter.</p>
+        {switch("lm-screen-slot", "screeners", "Market shown in the screener", "screener")}</div>
+      {slot("screener", "Share screener", ' id="lm-screen-slot"')}
     </section>
     <p class="lm-note">Market data provided by <a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">TradingView</a>. Some markets may be delayed. The widgets load from TradingView, under its own terms and privacy policy; see <a href="../privacy/#hosting">Privacy and cookies</a>. For information only, not investment advice.</p>
     <noscript><p class="lm-note">Live Markets needs JavaScript: its quotes and charts are drawn by TradingView's widgets.</p></noscript>
@@ -84,7 +100,7 @@ def pages(site):
         scene=False, index=False)
     return {"companies/go/": go, "live-markets/": site.shell(
         title="Live Markets: Andra Markets",
-        desc="Live quotes and charts for indices, currencies, commodities, bonds and bitcoin, with heatmaps of the "
-             "IBEX 35 and the S&P 500. Market data by TradingView.",
+        desc="Live quotes and charts for indices, shares, currencies, commodities, bonds and crypto, with movers, "
+             "heatmaps, a screener and each company's figures. Market data by TradingView.",
         body=body, home="../", base="../", path="live-markets/", scripts=(CONFIG, "markets.js"),
         head=f'\n<link rel="stylesheet" href="../assets/markets.css?v={site.ver("markets.css")}">')}

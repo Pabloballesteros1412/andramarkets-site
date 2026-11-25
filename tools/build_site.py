@@ -1755,7 +1755,8 @@ def markets_map_page():
     groups_ = (
         ("live-markets", "Live Markets", "live-markets/",
          (("Chart", "live-markets/#lm-chart"), ("Market overview", "live-markets/#lm-overview"),
-          ("Heatmap", "live-markets/#lm-heat"))),
+          ("Movers", "live-markets/#lm-movers"), ("Heatmap", "live-markets/#lm-heat"),
+          ("Currencies", "live-markets/#lm-fx"), ("Screener", "live-markets/#lm-screen"))),
         ("dashboards", "Dashboards", "dashboards/",
          (("Rates", "dashboards/#rates"), ("Macro", "dashboards/#macro"), ("Equities", "dashboards/#equities"),
           ("Cross-asset", "dashboards/#cross-asset"))),
@@ -3384,7 +3385,7 @@ def interview_page(notes):
 # (provider, url, what it supplies, where it is used, how often it is read)
 DATA_SOURCES = [
     ("TradingView", "https://www.tradingview.com/",
-     "Live quotes, charts and heatmaps, drawn by TradingView's own widgets from TradingView's feeds. Not stored or "
+     "Live quotes, charts, heatmaps, movers, a screener, company figures and profiles, and headlines, drawn by TradingView's own widgets from TradingView's feeds. Not stored or "
      "changed by Andra Markets; some markets are delayed, and index quotes marked with a broker's name are that "
      "broker's indicative price.",
      "Live Markets, the tape on the home page",
@@ -6369,7 +6370,8 @@ SEARCH_TERMS = {
 
 # Words a page is found by beyond its title.
 SEARCH_PAGE_TERMS = {
-    "live-markets/": "live markets real time quotes prices chart TradingView ticker tape heatmap IBEX 35 Euro Stoxx 50 "
+    "live-markets/": "live markets real time quotes prices chart TradingView ticker tape heatmap screener movers gainers "
+                     "losers most active fundamentals company profile news headlines crypto ETF cross rates IBEX 35 Euro Stoxx 50 "
                      "S&P 500 Nasdaq 100 EUR/USD Brent gold Bund bitcoin indices currencies commodities bonds",
     "contact/": f"contact email {CONTACT_EMAIL} write to us LinkedIn TikTok social media follow",
     "fed-rates/": "Fed FOMC policy rate fed funds futures meeting probabilities yield curve Treasury 2s10s 3m10y "

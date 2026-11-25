@@ -61,7 +61,7 @@
     chart: function (el, th, t) {
       var c = CFG.chart, wide = el.clientWidth >= 900;
       return ["advanced-chart", {
-        autosize: true, symbol: c.symbol, interval: c.interval || "D", timezone: c.timezone || "Etc/UTC",
+        autosize: true, symbol: el.getAttribute("data-tv-symbol") || c.symbol, interval: c.interval || "D", timezone: c.timezone || "Etc/UTC",
         theme: th, style: "1", locale: CFG.locale, allow_symbol_change: true, withdateranges: true,
         hide_side_toolbar: !wide, details: false, hotlist: false, calendar: false, save_image: false,
         watchlist: wide && c.watchlist ? c.watchlist : [],
@@ -98,17 +98,64 @@
       }];
     },
     heatmap: function (el, th) {
-      var source = CFG.heatmaps[+el.getAttribute("data-tv-source") || 0] || CFG.heatmaps[0];
-      return ["stock-heatmap", {
-        dataSource: source[1], blockSize: "market_cap_basic", blockColor: "change", grouping: "sector",
-        colorTheme: th, locale: CFG.locale, width: "100%", height: "100%",
-        // A company clicked in the map opens its page in Companies (companies/go/ finds it).
-        symbolUrl: new URL((document.body.getAttribute("data-base") || "") + "companies/go/", location.href).href +
-          "?x={tvexchange}&s={tvsymbol}",
+      var source = chosen(el, CFG.heatmaps), kind = source[2] || "stock";
+      var map = {
+        dataSource: source[1], blockColor: "change", colorTheme: th, locale: CFG.locale, width: "100%", height: "100%",
         hasTopBar: false, isDataSetEnabled: false, isZoomEnabled: false, hasSymbolTooltip: true, isMonoSize: false
-      }];
+      };
+      if (kind === "crypto") {
+        map.blockSize = "market_cap_calc"; map.blockColor = "24h_close_change|5";
+        return ["crypto-coins-heatmap", map];
+      }
+      if (kind === "etf") {
+        map.blockSize = "volume"; map.grouping = "asset_class";
+        return ["etf-heatmap", map];
+      }
+      map.blockSize = "market_cap_basic"; map.grouping = "sector";
+      // A company clicked in the map opens its page in Companies (companies/go/ finds it).
+      map.symbolUrl = new URL((document.body.getAttribute("data-base") || "") + "companies/go/", location.href).href +
+        "?x={tvexchange}&s={tvsymbol}";
+      return ["stock-heatmap", map];
+    },
+    // The symbol the chart shows: its quote line, and for a share its figures and profile.
+    info: function (el, th) { return ["symbol-info", plain(th, { symbol: symbolOf(el) })]; },
+    financials: function (el, th) { return ["financials", plain(th, { symbol: symbolOf(el), displayMode: "regular", largeChartUrl: "" })]; },
+    profile: function (el, th) { return ["symbol-profile", plain(th, { symbol: symbolOf(el) })]; },
+    // TradingView's headlines: the symbol's when it is a share, the market's otherwise.
+    news: function (el, th) {
+      var s = symbolOf(el);
+      return ["timeline", plain(th, isShare(s) ? { feedMode: "symbol", symbol: s, displayMode: "regular" }
+                                              : { feedMode: "all_symbols", displayMode: "regular" })];
+    },
+    movers: function (el, th, t) {
+      return ["hotlists", plain(th, {
+        exchange: chosen(el, CFG.movers)[1], dateRange: "12M", showChart: false, showSymbolLogo: false,
+        showFloatingTooltip: false, plotLineColorGrowing: t.up, plotLineColorFalling: t.down, symbolActiveColor: t.inkFill
+      })];
+    },
+    fx: function (el, th) {
+      return [chosen(el, CFG.fx.views)[1], plain(th, { currencies: CFG.fx.currencies })];
+    },
+    screener: function (el, th) {
+      return ["screener", plain(th, {
+        market: chosen(el, CFG.screeners)[1], defaultColumn: CFG.screenerColumns || "performance",
+        defaultScreen: "most_capitalized", showToolbar: true
+      })];
     }
   };
+
+  // The entry of a config list that a slot's chips have chosen (the first until one is).
+  function chosen(el, list) { return list[+el.getAttribute("data-tv-source") || 0] || list[0]; }
+  function plain(th, more) {
+    var cfg = { colorTheme: th, isTransparent: true, locale: CFG.locale, width: "100%", height: "100%" };
+    for (var k in more) cfg[k] = more[k];
+    return cfg;
+  }
+  function symbolOf(el) { return el.getAttribute("data-tv-symbol") || CFG.chart.symbol; }
+  // A share has figures, a profile and news of its own: a listing on a stock exchange, or a
+  // bare ticker ("AAPL"). Indices, currencies, futures and crypto here come from other sources.
+  var SHARES = /^(NASDAQ|NYSE|AMEX|BATS|BME|XETR|FWB|LSE|MIL|EURONEXT|SIX|OMXSTO|OMXCOP|OMXHEX|TSX|TSE|HKEX|ASX|NSE|BSE|KRX|TWSE|BMFBOVESPA|BMV):/;
+  function isShare(symbol) { return SHARES.test(symbol) || /^[A-Z][A-Z.]{0,4}$/.test(symbol); }
 
   function unmount(el) {
     if (el._tvWatch) { el._tvWatch.disconnect(); el._tvWatch = null; }
@@ -215,22 +262,91 @@
     });
   }
 
-  // Chips that choose what a slot shows (the heatmap's index).
+  // Chips that choose what a slot shows (which heatmap, which market's movers...): one chip
+  // for each entry of the config list the group names, the first chosen.
   [].forEach.call(document.querySelectorAll("[data-tv-switch]"), function (group) {
     var target = document.getElementById(group.getAttribute("data-tv-switch"));
-    var chips = [].slice.call(group.querySelectorAll(".chip"));
-    if (!target) return;
-    chips.forEach(function (chip) {
+    var list = group.getAttribute("data-tv-list").split(".").reduce(function (o, k) { return o && o[k]; }, CFG);
+    if (!target || !list || list.length < 2) return;
+    var what = group.getAttribute("data-tv-what") || "";
+    list.forEach(function (entry, i) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.textContent = entry[0];
+      chip.setAttribute("aria-pressed", i === 0 ? "true" : "false");
       chip.addEventListener("click", function () {
-        // (site.js may already have pressed the chip: go by what the slot shows)
-        if (target.getAttribute("data-tv-source") === chip.getAttribute("data-tv-source")) return;
-        chips.forEach(function (c) { c.setAttribute("aria-pressed", c === chip ? "true" : "false"); });
-        target.setAttribute("data-tv-source", chip.getAttribute("data-tv-source"));
-        var title = target.querySelector(".tv__frame");
-        if (title) title.setAttribute("aria-label", chip.textContent.trim() + " heatmap");
+        if ((+target.getAttribute("data-tv-source") || 0) === i) return;
+        [].forEach.call(group.children, function (c) { c.setAttribute("aria-pressed", c === chip ? "true" : "false"); });
+        target.setAttribute("data-tv-source", i);
+        var frame = target.querySelector(".tv__frame");
+        if (frame) frame.setAttribute("aria-label", (entry[0] + " " + what).trim());
         if (target.classList.contains("is-mounted")) mount(target);
       });
+      group.appendChild(chip);
     });
+    group.hidden = false;
+  });
+
+  // The symbol the reader chose: the chart and every slot that follows it (data-tv-follow) are
+  // built again on it. What only a share has is shown for a share and put away otherwise.
+  function setSymbol(symbol, remount) {
+    [].forEach.call(document.querySelectorAll('[data-tv="chart"], [data-tv-follow]'), function (el) {
+      el.setAttribute("data-tv-symbol", symbol);
+      if (remount && el.classList.contains("is-mounted")) mount(el);
+    });
+    var share = isShare(symbol);
+    [].forEach.call(document.querySelectorAll("[data-tv-share]"), function (el) { el.hidden = !share; });
+    [].forEach.call(document.querySelectorAll("[data-tv-no-share]"), function (el) { el.hidden = share; });
+  }
+  setSymbol(CFG.chart.symbol, false);
+
+  // What the chart shows: a chip for each of the config's picks, and a field for any other
+  // ticker ("AAPL", "BME:SAN"). Either builds the chart again on that symbol.
+  [].forEach.call(document.querySelectorAll("[data-tv-picks]"), function (box) {
+    var target = document.getElementById(box.getAttribute("data-tv-picks"));
+    var picks = (CFG.chart && CFG.chart.picks) || [];
+    if (!target || !picks.length) return;
+    var group = document.createElement("div");
+    group.className = "filters lm-switch";
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", "Symbol shown in the chart");
+    function show(symbol) {
+      [].forEach.call(group.children, function (c) {
+        c.setAttribute("aria-pressed", c.getAttribute("data-symbol") === symbol ? "true" : "false");
+      });
+      setSymbol(symbol, true);
+      if (!target.classList.contains("is-mounted")) mount(target);
+    }
+    var start = target.getAttribute("data-tv-symbol") || CFG.chart.symbol;
+    picks.forEach(function (pick) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.textContent = pick[0];
+      chip.setAttribute("data-symbol", pick[1]);
+      chip.setAttribute("aria-pressed", pick[1] === start ? "true" : "false");
+      chip.addEventListener("click", function () {
+        if (target.getAttribute("data-tv-symbol") !== pick[1]) show(pick[1]);
+      });
+      group.appendChild(chip);
+    });
+    var form = document.createElement("form");
+    form.className = "lm-find";
+    var id = "lm-find-q";
+    form.innerHTML = '<label for="' + id + '">Any other ticker</label>' +
+      '<input id="' + id + '" type="text" inputmode="latin" autocomplete="off" autocapitalize="characters" ' +
+      'spellcheck="false" maxlength="24" placeholder="AAPL, BME:SAN, BTCUSD">' +
+      '<button type="submit" class="chip">Show</button>';
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var q = form.querySelector("input"), v = q.value.trim().toUpperCase();
+      if (!/^[A-Z0-9][A-Z0-9:._!&-]{0,23}$/.test(v)) { q.focus(); return; }
+      show(v);
+    });
+    box.appendChild(group);
+    box.appendChild(form);
+    box.hidden = false;
   });
 
   window.AndraMarkets = { mount: mount, unmount: unmount, refresh: refresh, theme: theme };
