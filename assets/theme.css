@@ -625,7 +625,6 @@ a.nav__btn{display:inline-flex}
 .wp{margin:8px 0 clamp(28px,5vh,56px);text-align:left}
 .wp__plot{height:clamp(340px,calc(100vh - 27rem),470px)}
 .wp__plot svg{display:block;overflow:visible}
-.wp__list{display:none}
 .wp-strand{fill:none;stroke:rgba(214,228,255,.17);stroke-width:.7}
 .wp-line{fill:none;stroke:#e8f0ff;stroke-width:1.5;opacity:.8;stroke-dasharray:1;stroke-dashoffset:1;animation:wp-draw .5s linear forwards;animation-delay:calc(.25s + var(--i)*.22s);transition:opacity .3s}
 @keyframes wp-draw{to{stroke-dashoffset:0}}
@@ -647,12 +646,5 @@ a.nav__btn{display:inline-flex}
 .is-lit .wp-line{opacity:.25}.is-lit .wp-line.is-on{opacity:1}
 .is-lit .wp-stop:not(.is-on) .wp-name{fill:var(--ink-3)}
 .wp.is-drawn .wp-line,.wp.is-drawn .wp-stop,.wp.is-drawn .wp-sky{animation:none;stroke-dashoffset:0}
-@media (max-width:899px){
-  .wp__plot{display:none}
-  .wp__list{display:block;list-style:none;margin:8px 0 0 5px;padding:0;border-left:1px solid rgba(214,228,255,.55)}
-  .wp__list li{position:relative;padding:0 0 0 26px}
-  .wp__list li::before{content:"";position:absolute;left:-5.5px;top:40px;width:8px;height:8px;border-radius:50%;background:#000;border:1.3px solid #e8f0ff}
-  .wp__list a{display:block;padding:10px 0;font-size:1.25rem;font-weight:300;letter-spacing:-.02em;color:var(--ink);text-decoration:none}
-  .wp__list a span{display:block}
-}
+@media (max-width:899px){.wp__plot{height:auto}.wp-name{font-size:19px;fill:var(--ink)}.wp{margin-top:20px}}
 @media (prefers-reduced-motion:reduce){.wp-line,.wp-stop,.wp-sky,.wp-win--live{animation:none;stroke-dashoffset:0;transition:none}}
