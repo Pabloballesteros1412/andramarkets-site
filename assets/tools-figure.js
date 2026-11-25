@@ -90,6 +90,8 @@
       return paths(3, 120, 0.03, 0.002, null, [0.95]); }],
     "panic-test": ["Illustrative · 48 crashes and what came after", function () {
       return paths(5, 120, 0.014, 0, function (t, j) { var d = 0.25 + (j * 37 % 20) / 60; return t < 0.4 ? -0.056 * d : t < 0.5 ? -0.004 : 0.018 * d; }, [0.95]); }],
+    "name-the-crash": ["Illustrative · 48 falls from a high, each to its own depth", function () {
+      return paths(13, 120, 0.008, 0, function (t, j) { var d = 0.3 + (j * 29 % 23) / 26, at = 0.25 + (j * 17 % 11) / 40; return t < 0.12 ? 0 : t < at + 0.12 ? -0.02 * d / at * 0.55 : 0.004 * d; }, [0.95]); }],
     "guess-the-fed": ["Illustrative · 48 paths of the Fed's target over ten months", function () {
       var r = rng(9), lines = [];
       function steps(moves, v) { var p = [[0, v]]; moves.forEach(function (m, i) { p.push([(i + 1) / 10, v]); v = Math.max(0.04, Math.min(0.96, v + m)); if (m) p.push([(i + 1) / 10, v]); }); return p; }
