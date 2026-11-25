@@ -3551,6 +3551,7 @@ def interview_page(notes):
         home="../",
         base="../",
         path="interview-prep/",
+        scripts=("interview-clock.js",),
     )
 
 
