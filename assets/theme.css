@@ -546,3 +546,35 @@ a.nav__btn{display:inline-flex}
   html.js .nav__group:nth-child(3) a.nav__btn::after{background:#ffbe6e;opacity:1}
   html.js .nav__group:nth-child(4) a.nav__btn::after{background:#3c8cff;opacity:1}
 }
+
+/* Lab and Simulators: one figure of fine lines that turns into each tool's own curve (assets/tools-figure.js),
+   the tools' names at its left, over the list it reads them from. */
+.has-figure .page__head{border-bottom:0;padding-bottom:clamp(8px,2vh,24px)}
+.tf{display:grid;grid-template-columns:5fr 7fr;gap:clamp(32px,5vw,80px);align-items:center;text-align:left}
+.tf__names{display:flex;flex-direction:column;align-items:flex-start}
+.tf__group{margin:clamp(8px,1.8vh,18px) 0 4px;font-size:.8125rem;color:var(--ink-3)}
+.tf__group:first-child{margin-top:0}
+.tf__names a{position:relative;font-size:clamp(1.0625rem,2.5vh,1.3125rem);font-weight:300;letter-spacing:-.02em;line-height:1.5;color:var(--ink-3);text-decoration:none!important;transition:color .25s,padding-left .4s cubic-bezier(.2,.7,.2,1)}
+.tf--few .tf__names a{font-size:clamp(1.5rem,3.8vh,2.125rem);line-height:1.45}
+.tf__names a::before{content:"";position:absolute;left:0;top:50%;width:28px;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+.tf__names a.is-on{color:var(--ink);padding-left:42px}
+.tf__names a.is-on::before{transform:scaleX(1)}
+.tf__fig{display:block;height:clamp(280px,calc(100vh - 32rem),520px)}
+.tf__fig canvas{display:block;width:100%;height:100%}
+.tf__foot{display:flex;justify-content:space-between;align-items:baseline;gap:24px;margin-top:16px}
+.tf__step{display:none;white-space:nowrap}
+.tf__step button{margin-left:14px;padding:10px 0 10px 14px;font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--ink);background:none;border:0;border-left:1px solid var(--rule-strong);cursor:pointer}
+.tf__title{display:none;margin:10px 0 0;font-size:1.375rem;font-weight:300;letter-spacing:-.02em}
+.tf__title a{color:var(--ink);text-decoration:none}
+.tf__desc{margin:10px 0 0;max-width:50ch;min-height:4.65em;font-size:.9375rem;line-height:1.55;color:var(--ink-2)}
+.tf__open{display:inline-block;margin-top:6px;font-size:.9375rem}
+.tf__down{position:static;transform:none;display:flex;justify-content:center;margin:clamp(20px,4vh,44px) 0 clamp(28px,5vh,56px)}
+@media (max-width:899px){
+  .tf{display:block}.tf__names{display:none}
+  .tf__fig{height:min(62vw,300px)}
+  .tf__step{display:block}.tf__title{display:block}
+  .tf__read{min-height:3.2em}.tf__desc{min-height:6.2em}
+  .tf__down{display:none}
+  .has-figure .lab-groups{margin-top:36px}
+}
+@media (prefers-reduced-motion:reduce){.tf__names a,.tf__names a::before{transition:none}}
