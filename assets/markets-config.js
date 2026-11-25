@@ -5,7 +5,10 @@
 // instrument on tradingview.com and copy it from the page). Not every symbol is
 // open to the free widgets: the official index feeds TVC:IBEX35, TVC:SX5E,
 // TVC:DEU40 and TVC:NI225 answer "only available on TradingView", so those
-// indices use a broker's quote of the same index instead.
+// indices use a broker's quote of the same index instead. Government bond
+// yields (TVC:DE10Y, TVC:US10Y...) are closed to them too: bonds are shown by
+// their Eurex futures, which are prices, not yields (a future rises when the
+// yield falls).
 window.ANDRA_MARKETS = {
   locale: "en",
 
@@ -18,7 +21,7 @@ window.ANDRA_MARKETS = {
     ["FX_IDC:EURUSD", "EUR/USD"],
     ["TVC:UKOIL", "Brent"],
     ["OANDA:XAUUSD", "Gold"],
-    ["TVC:DE10Y", "Germany 10Y"],
+    ["EUREX:FGBL1!", "Bund 10Y future"],
     ["BITSTAMP:BTCUSD", "Bitcoin"]
   ],
 
@@ -30,7 +33,7 @@ window.ANDRA_MARKETS = {
     // The list at the chart's right on wide screens.
     watchlist: [
       "CAPITALCOM:SP35", "OANDA:EU50EUR", "FOREXCOM:SPXUSD", "FOREXCOM:NSXUSD",
-      "FX_IDC:EURUSD", "TVC:UKOIL", "OANDA:XAUUSD", "TVC:DE10Y", "BITSTAMP:BTCUSD"
+      "FX_IDC:EURUSD", "TVC:UKOIL", "OANDA:XAUUSD", "EUREX:FGBL1!", "BITSTAMP:BTCUSD"
     ]
   },
 
@@ -61,12 +64,12 @@ window.ANDRA_MARKETS = {
       ["CAPITALCOM:NATURALGAS", "Natural gas"]
     ] },
     { title: "Bonds", symbols: [
-      ["TVC:DE10Y", "Germany 10Y"],
-      ["TVC:ES10Y", "Spain 10Y"],
-      ["TVC:IT10Y", "Italy 10Y"],
-      ["TVC:US10Y", "US 10Y"],
-      ["TVC:US02Y", "US 2Y"],
-      ["TVC:GB10Y", "UK 10Y"]
+      ["EUREX:FGBL1!", "Germany 10Y, Bund future"],
+      ["EUREX:FGBM1!", "Germany 5Y, Bobl future"],
+      ["EUREX:FGBS1!", "Germany 2Y, Schatz future"],
+      ["EUREX:FBTP1!", "Italy 10Y, BTP future"],
+      ["EUREX:FOAT1!", "France 10Y, OAT future"],
+      ["NASDAQ:TLT", "US Treasuries 20Y+, ETF"]
     ] }
   ],
 
