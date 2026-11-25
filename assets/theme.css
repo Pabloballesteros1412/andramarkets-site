@@ -648,3 +648,8 @@ a.nav__btn{display:inline-flex}
 .wp.is-drawn .wp-line,.wp.is-drawn .wp-stop,.wp.is-drawn .wp-sky{animation:none;stroke-dashoffset:0}
 @media (max-width:899px){.wp__plot{height:auto}.wp-name{font-size:19px;fill:var(--ink)}.wp{margin-top:20px}}
 @media (prefers-reduced-motion:reduce){.wp-line,.wp-stop,.wp-sky,.wp-win--live{animation:none;stroke-dashoffset:0;transition:none}}
+
+/* The Tools map: the way to the Lab and Simulators pages, under its lede. */
+.tools-map__lists{position:relative;z-index:2;margin:14px 0 0;font-size:.9375rem;color:var(--ink-2)}
+.tools-map__lists a{margin-left:14px;pointer-events:auto}
+@media (max-width:899px){.tools-map__lists span{display:block;margin-bottom:6px}.tools-map__lists a{margin:0 24px 0 0;display:inline-block;padding:6px 0}}

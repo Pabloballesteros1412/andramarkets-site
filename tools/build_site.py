@@ -1513,7 +1513,7 @@ def site_footer(home, base):
     </div>
     <nav class="foot__nav foot__nav--groups" aria-label="Footer">
       <div class="foot__group"><p class="foot__gt">Markets</p><a href="{base}markets/">All markets</a></div>
-      <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a></div>
+      <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a><a href="{base}lab/">Lab</a><a href="{base}simulators/">Simulators</a></div>
       <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}research-map/">All research</a></div>
       <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}careers/">All of Careers</a></div>
       <div class="foot__group"><p class="foot__gt">Andra Markets</p><a href="{base}methodology/">Methodology</a><a href="{base}sources/">Data sources</a><a href="{base}legal/">Legal notice</a><a href="{base}privacy/">Privacy and cookies</a></div>
@@ -1717,6 +1717,7 @@ def tools_map_page():
     <header class="page__head">
       <h1 class="page__title">Tools</h1>
       <p class="lede">{total} tools and simulators that run in your browser.<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
+      <p class="tools-map__lists"><span>One at a time, each with its figure:</span> <a class="link" href="../lab/">Lab</a> <a class="link" href="../simulators/">Simulators</a></p>
     </header>
     <nav class="tools-map" aria-label="Tools"><ol>{groups}</ol></nav>
   </div>
