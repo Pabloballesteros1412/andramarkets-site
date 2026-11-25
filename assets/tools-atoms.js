@@ -21,19 +21,25 @@
     box.className = "atom"; stage.className = "atom__stage"; stage.appendChild(cv); box.appendChild(stage);
     var name = li.querySelector(":scope > .atoms__name"), sub = li.querySelector(":scope > .atoms__sub");
     var core = document.createElement("a"); core.className = "atom__core"; core.href = name.getAttribute("href"); core.tabIndex = -1; core.setAttribute("aria-hidden", "true"); stage.appendChild(core);
-    var themes = [].slice.call(li.querySelectorAll(":scope > ol > li")), N = themes.length, electrons = [];
-    var orbits = themes.map(function (th, i) {
+    var themes = [].slice.call(li.querySelectorAll(":scope > ol > li")), electrons = [];
+    // Every atom has the same number of orbits, so that both are as full: a theme takes as many of them as its share
+    // of the tools (the Lab's four themes one each; Simulators' two themes two each), its tools dealt among them.
+    var ORB = Math.max(4, themes.length), counts = themes.map(function (th) { return th.querySelectorAll("a").length; }), take = themes.map(function () { return 1; }), left = ORB - themes.length;
+    while (left-- > 0) { var best = 0; counts.forEach(function (c, i) { if (c / take[i] > counts[best] / take[best]) best = i; }); take[best]++; }
+    var specs = []; themes.forEach(function (th, i) { var links = [].slice.call(th.querySelectorAll("a")), group = []; for (var q = 0; q < take[i]; q++) specs.push({ th: th, group: group, links: links.filter(function (a, j) { return j % take[i] === q; }) }); });
+    var N = specs.length;
+    var orbits = specs.map(function (sp, i) { var th = sp.th;
       // the orbits fan evenly either side of level; each is a few fine strands, set a little apart
       var tilt = (i - (N - 1) / 2) * (N > 2 ? 0.7 : 1.0), strands = [];
       for (var k = 0; k < 20; k++) strands.push({ rx: (rnd() - 0.5) * 0.08, ry: (rnd() - 0.5) * 0.06, t: (rnd() - 0.5) * 0.05, a: k ? 0.09 : 0.5 });
-      var o = { tilt: tilt, strands: strands, name: th.querySelector(".atoms__theme").textContent, key: th.getAttribute("data-key"), sp: (i % 2 ? -1 : 1) * (0.05 + rnd() * 0.03), lit: 0 };
-      var links = [].slice.call(th.querySelectorAll("a")), m = links.length;
+      var o = { tilt: tilt, strands: strands, name: th.querySelector(".atoms__theme").textContent, key: th.getAttribute("data-key"), sp: (i % 2 ? -1 : 1) * (0.05 + rnd() * 0.03), lit: 0, n: sp.links.length };
+      var links = sp.links, m = links.length; sp.group.push(o);
       links.forEach(function (a, j) {
         // spread round the orbit, started clear of the nucleus
         var e = { o: o, a: a, u0: (m === 4 ? Math.PI / 4 : m === 3 ? 0.5 : m === 2 ? 0.45 : 0.3) + j * TAU / m + i * 0.35 };
         a.className = "atom__tool"; stage.appendChild(a); electrons.push(e);
-        function on() { o.lit = 1; subline.textContent = o.name; }
-        function off() { o.lit = o.key === want ? 1 : 0; subline.textContent = base; }
+        function on() { sp.group.forEach(function (g) { g.lit = 1; }); subline.textContent = o.name; }
+        function off() { sp.group.forEach(function (g) { g.lit = g.key === want ? 1 : 0; }); subline.textContent = base; }
         a.addEventListener("pointerenter", on); a.addEventListener("pointerleave", off); a.addEventListener("focus", on); a.addEventListener("blur", off);
       });
       if (o.key === want) o.lit = 1;
@@ -63,7 +69,7 @@
   function draw(at) {
     var c = at.c, R = at.R, cx = at.S / 2, cy = at.H / 2; if (!R) return;
     c.clearRect(0, 0, at.S, at.H); c.globalCompositeOperation = "lighter";
-    var turn = at.narrow && !still ? at.orbits[Math.floor(at.t / 4) % at.orbits.length] : null;   // a phone: the orbit whose names show
+    var turn = at.narrow && !still ? at.orbits[Math.floor(at.t / 4) % at.orbits.length] : null; if (turn && !turn.n) turn = null;   // a phone: the orbit whose names show
     if (turn !== at.turn) { at.turn = turn; at.orbits.forEach(function (o) { o.lit = turn ? (o === turn ? 1 : 0) : (o.key === want ? 1 : 0); }); at.sub.textContent = turn ? turn.name : at.base; }
     at.orbits.forEach(function (o) {
       o.strands.forEach(function (s) {

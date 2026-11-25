@@ -1715,7 +1715,7 @@ def tools_map_page():
         inner = "".join(f'<li data-key="{k}"><span class="atoms__theme">{label}</span><ol>{"".join(tool(x) for x in slugs)}</ol></li>'
                         for k, label, slugs in themes)
         return (f'<li><a class="atoms__name" href="../{key}/">{name}</a>'
-                f'<p class="atoms__sub">{n} {noun} in {len(themes)} orbits</p><ol>{inner}</ol></li>')
+                f'<p class="atoms__sub">{n} {noun}: {", ".join(label.lower() for _, label, _ in themes)}</p><ol>{inner}</ol></li>')
     groups = atom("lab", "Lab", "tools", LAB_GROUPS) + atom("simulators", "Simulators", "simulators", SIM_GROUPS)
     total = sum(len(t[4]) for t in TOOL_THEMES)
     body = f"""<main id="main" class="page">
