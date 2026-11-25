@@ -368,6 +368,12 @@ jobs:
       - id: deployment
         continue-on-error: true
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+      # Run 249 failed both tries within two seconds of the upload: the artifact
+      # was uploaded, but the API did not list it yet ("Found 0 artifact(s)").
+      # The second try waits, so it does not ask the same question at once.
+      - name: Wait before the second try
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 45
       - id: deployment_retry
         if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
