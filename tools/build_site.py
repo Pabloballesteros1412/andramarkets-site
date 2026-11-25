@@ -1702,28 +1702,34 @@ def tool_groups(groups, row):
 
 
 def tools_map_page():
-    """Every Tools section and its tools on one map (assets/tools-map.js lays this nested list out
-    over a canvas; without the script it is the list)."""
-    def tool(page, slug):
-        if page.startswith("lab/"):
-            title = next(t for t in LAB_TOOLS if t[0] == slug)[2]
-            return f'<li><a href="../lab/{slug}/">{title}</a></li>'
+    """Tools as two atoms, the Lab and Simulators (owner, 25 Nov 2026; until then one map of the six themes, from
+    which nothing led to those two pages). Each atom's orbits are its themes and its electrons their tools.
+    assets/tools-atoms.js lays this nested list out; without the script it is the list."""
+    def tool(slug):
+        if any(t[0] == slug for t in LAB_TOOLS):
+            return f'<li><a href="../lab/{slug}/">{next(t for t in LAB_TOOLS if t[0] == slug)[2]}</a></li>'
         return f'<li><a href="../simulators/{slug}/">{next(x for x in SIMULATORS if x[0] == slug)[1]}</a></li>'
-    groups = "".join(f'<li data-key="{page.rstrip("/").split("/")[-1]}"><span class="tools-map__name">{name}</span><ol>{"".join(tool(page, x) for x in slugs)}</ol></li>'
-                     for _, page, name, _, slugs in TOOL_THEMES)
+
+    def atom(key, name, noun, themes):
+        n = sum(len(slugs) for _, _, slugs in themes)
+        inner = "".join(f'<li data-key="{k}"><span class="atoms__theme">{label}</span><ol>{"".join(tool(x) for x in slugs)}</ol></li>'
+                        for k, label, slugs in themes)
+        return (f'<li><a class="atoms__name" href="../{key}/">{name}</a>'
+                f'<p class="atoms__sub">{n} {noun}: {", ".join(label.lower() for _, label, _ in themes)}</p><ol>{inner}</ol></li>')
+    groups = atom("lab", "Lab", "tools", LAB_GROUPS) + atom("simulators", "Simulators", "simulators", SIM_GROUPS)
     total = sum(len(t[4]) for t in TOOL_THEMES)
     body = f"""<main id="main" class="page">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Tools</h1>
-      <p class="lede">{total} tools and simulators that run in your browser.<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
+      <p class="lede">{total} tools and simulators that run in your browser.</p>
     </header>
-    <nav class="tools-map" aria-label="Tools"><ol>{groups}</ol></nav>
+    <nav class="atoms" aria-label="Tools"><ol>{groups}</ol></nav>
   </div>
 </main>"""
     return shell(title="Tools: Andra Markets", desc=f"{total} interactive tools and simulators that run in your browser: options, bonds, "
-                 "risk and portfolio, valuation and growth, market replays and strategy games. By Andra Markets.",
-                 body=body, home="../", base="../", path="tools-map/", scripts=("tools-map.js",))
+                 "risk and portfolio, valuation and growth in the Lab; market replays and strategy games in Simulators.",
+                 body=body, home="../", base="../", path="tools-map/", scripts=("tools-atoms.js",))
 
 
 # The Careers map (owner, 19 Nov 2026: "the same as Tools"): each section and the parts of it a
