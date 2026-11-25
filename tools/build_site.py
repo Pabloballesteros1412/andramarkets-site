@@ -1645,9 +1645,9 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 </body>
 </html>
 """
-    # The six Tools sections are one map now: every link to a section goes to it, at that section.
-    for _, theme, *_ in TOOL_THEMES:
-        page = page.replace(f'href="{base}{theme}"', f'href="{base}tools-map/#{theme.rstrip("/").split("/")[-1]}"')
+    # The six Tools themes are groups on the Lab and Simulators pages: every link to one goes to it there.
+    for key, theme, *_ in TOOL_THEMES:
+        page = page.replace(f'href="{base}{theme}"', f'href="{base}{theme_home(key, theme)}"')
     return page
 
 
@@ -1687,10 +1687,17 @@ TOOL_THEMES = (
      "Run a paper long-short fund of your own, call the Fed's next move from the figures it had, and take a "
      "portfolio of stocks, bonds and cash through ten hidden years.", ("your-fund", "guess-the-fed", "portfolio-builder")),
 )
+
+
+def theme_home(key, page):
+    """Where a Tools theme lives: its group on the Lab or Simulators page ('lab/#options')."""
+    return page.split("/")[0] + "/#" + key
+
+
 LAB_GROUPS = tuple((key, name, slugs) for key, page, name, _, slugs in TOOL_THEMES if page.startswith("lab/"))
 SIM_GROUPS = tuple((key, name, slugs) for key, page, name, _, slugs in TOOL_THEMES if page.startswith("simulators/"))
 # Each tool's theme page, from its own folder (lab/<slug>/ or simulators/<slug>/): (link, name).
-TOOL_THEME_OF = {slug: ("../../tools-map/#" + page.rstrip("/").split("/")[-1], name) for _, page, name, _, slugs in TOOL_THEMES for slug in slugs}
+TOOL_THEME_OF = {slug: ("../../" + theme_home(key, page), name) for key, page, name, _, slugs in TOOL_THEMES for slug in slugs}
 
 
 def tool_groups(groups, row):
@@ -1702,15 +1709,17 @@ def tool_groups(groups, row):
 
 
 def tools_map_page():
-    """Every Tools section and its tools on one map (assets/tools-map.js lays this nested list out
-    over a canvas; without the script it is the list)."""
-    def tool(page, slug):
-        if page.startswith("lab/"):
-            title = next(t for t in LAB_TOOLS if t[0] == slug)[2]
-            return f'<li><a href="../lab/{slug}/">{title}</a></li>'
+    """The Tools map: two knots, the Lab and Simulators, each a link to its page, with its tools hanging off it
+    (owner, 25 Nov 2026; until then the six themes were the knots and nothing led to those two pages).
+    assets/tools-map.js lays this nested list out over a canvas; without the script it is the list."""
+    def tool(slug):
+        if any(t[0] == slug for t in LAB_TOOLS):
+            return f'<li><a href="../lab/{slug}/">{next(t for t in LAB_TOOLS if t[0] == slug)[2]}</a></li>'
         return f'<li><a href="../simulators/{slug}/">{next(x for x in SIMULATORS if x[0] == slug)[1]}</a></li>'
-    groups = "".join(f'<li data-key="{page.rstrip("/").split("/")[-1]}"><span class="tools-map__name">{name}</span><ol>{"".join(tool(page, x) for x in slugs)}</ol></li>'
-                     for _, page, name, _, slugs in TOOL_THEMES)
+    groups = "".join(
+        f'<li data-key="{key}"><a class="tools-map__name" href="../{key}/">{name}</a><ol>'
+        + "".join(tool(x) for _, _, slugs in themes for x in slugs) + "</ol></li>"
+        for key, name, themes in (("lab", "Lab", LAB_GROUPS), ("simulators", "Simulators", SIM_GROUPS)))
     total = sum(len(t[4]) for t in TOOL_THEMES)
     body = f"""<main id="main" class="page">
   <div class="wrap">
@@ -1718,11 +1727,11 @@ def tools_map_page():
       <h1 class="page__title">Tools</h1>
       <p class="lede">{total} tools and simulators that run in your browser.<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
     </header>
-    <nav class="tools-map" aria-label="Tools"><ol>{groups}</ol></nav>
+    <nav class="tools-map" data-page="tools" aria-label="Tools"><ol>{groups}</ol></nav>
   </div>
 </main>"""
     return shell(title="Tools: Andra Markets", desc=f"{total} interactive tools and simulators that run in your browser: options, bonds, "
-                 "risk and portfolio, valuation and growth, market replays and strategy games. By Andra Markets.",
+                 "risk and portfolio, valuation and growth in the Lab, and market replays and strategy games in Simulators.",
                  body=body, home="../", base="../", path="tools-map/", scripts=("tools-map.js",))
 
 
@@ -6758,10 +6767,10 @@ def main():
     (OUT / "research-map" / "index.html").write_text(research_map_page(notes))
     (OUT / "tools-map").mkdir(exist_ok=True)
     (OUT / "tools-map" / "index.html").write_text(tools_map_page())
-    for _, theme, name, lede, slugs in TOOL_THEMES:  # the old section addresses send readers to the map
+    for key, theme, name, lede, slugs in TOOL_THEMES:  # the old theme addresses send readers to the theme on its page
         (OUT / theme).mkdir(parents=True, exist_ok=True)
         (OUT / theme / "index.html").write_text(moved_redirect(
-            theme, "tools-map/#" + theme.rstrip("/").split("/")[-1], "the Tools map", f"{name} is now part of"))
+            theme, theme_home(key, theme), "the Lab" if theme.startswith("lab/") else "Simulators", f"{name} is now part of"))
     risk = risk_data()
     for i, t in enumerate(LAB_TOOLS):
         (OUT / "lab" / t[0]).mkdir(exist_ok=True)

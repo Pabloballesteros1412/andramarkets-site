@@ -26,7 +26,8 @@
     [].forEach.call(li.querySelectorAll(":scope > ol > li > a"), function (a, j) { g.tools.push({ g: g, j: j, el: a, r: 6.5, ph: rnd() * 6.28, kn: orbits(4), st: strands(26) }); });
     return g;
   });
-  var NG = G.length, RING = G.map(function (g, i) { return { a: g, b: G[(i + 1) % NG], st: strands(84) }; });
+  var NG = G.length, TWO = NG === 2, RING = G.map(function (g, i) { return { a: g, b: G[(i + 1) % NG], st: strands(84) }; });
+  if (TWO) RING.length = 1;   // two sections (Tools: the Lab and Simulators) are joined by one rope, not a ring
   var ALL = []; G.forEach(function (g) { ALL.push(g); g.tools.forEach(function (t) { ALL.push(t); }); });
   var DUST = []; for (var d0 = 0; d0 < 280; d0++) DUST.push({ x: rnd(), y: rnd(), s: 0.4 + rnd() * 1.3, a: 0.08 + rnd() * 0.3, v: 0.004 + rnd() * 0.012, ph: rnd() * 6.28 });
   var W = 0, H = 0, CW = 0, CH = 0, Z = 1, Z0 = 1, OX = 0, OY = 0, VW = 1040, VH = 1100, list = map.querySelector(":scope > ol"), dpr = 1, narrow = false, pick = null, grab = null, px = -1, py = -1, t0 = 0, intro = still ? 1 : 0;
@@ -43,7 +44,7 @@
     if (narrow) { W = VW; H = VH; Z = Z0; OX = OY = 0; } else { W = CW; H = CH; Z = 1; OX = OY = 0; }
     var mode = narrow ? "n" : "w";
     G.forEach(function (g, i) {
-      var a = -Math.PI / 2 + i / NG * 6.2832, p = [0.5 + Math.cos(a) * (narrow ? 0.2 : 0.25 * Math.min(1, 1240 / W + 0.1)), 0.5 + Math.sin(a) * 0.25];
+      var a = (TWO && !narrow ? Math.PI : -Math.PI / 2) + i / NG * 6.2832, p = [0.5 + Math.cos(a) * (narrow ? 0.2 : (TWO ? 0.2 : 0.25) * Math.min(1, 1240 / W + 0.1)), 0.5 + Math.sin(a) * 0.25];   // two sections stand side by side on a wide screen
       if (saved && saved[mode] && saved[mode][i]) p = saved[mode][i];
       g.fx = p[0]; g.fy = p[1]; g.r = narrow ? 19 : 13; g.tools.forEach(function (t) { t.r = narrow ? 10 : 6.5; });
     });
@@ -54,8 +55,9 @@
     G.forEach(function (g) {
       var a = Math.atan2(g.y - gy, g.x - gx), n = g.tools.length, s = g.el.style;
       s.left = (g.x - Math.cos(a) * (narrow ? 62 : 84)) + "px"; s.top = (g.y - Math.sin(a) * (narrow ? 50 : 44)) + "px"; s.transform = "translate(-50%,-50%)"; s.textAlign = "center";
+      if (TWO) { var off = narrow ? 96 : 40; s.left = (g.x - Math.cos(a) * 64 + Math.sin(a) * off) + "px"; s.top = (g.y - Math.sin(a) * 64 - Math.abs(Math.cos(a)) * off) + "px"; }   // beside the one rope, not on it
       g.tools.forEach(function (t, j) {
-        var ta = a + (j - (n - 1) / 2) * (n > 3 ? 0.46 : 0.54), d = 150 + (n > 2 && j % 2 ? 26 : 0), ts = t.el.style;
+        var ta = a + (j - (n - 1) / 2) * (n > 3 ? 0.46 : 0.54), d = 150 + (n > 2 && j % 2 ? (n > 7 ? 74 : 26) : 0), ts = t.el.style;   // many tools: every other one further out, so their names clear each other
         t.x = g.x + Math.cos(ta) * d; t.y = g.y + Math.sin(ta) * d; var c = Math.cos(ta), sn = Math.sin(ta), side = c > 0.12 ? 1 : c < -0.12 ? -1 : 0;
         ts.left = (t.x + (side ? side * 18 : 0)) + "px"; ts.top = (t.y + (side ? 0 : sn > 0 ? 24 : -24)) + "px"; ts.transform = "translate(" + (side > 0 ? "0" : side < 0 ? "-100%" : "-50%") + ",-50%)"; ts.textAlign = side > 0 ? "left" : side < 0 ? "right" : "center";
         t.c = [(g.x + t.x) / 2 - (t.y - g.y) * 0.12, (g.y + t.y) / 2 + (t.x - g.x) * 0.12];
