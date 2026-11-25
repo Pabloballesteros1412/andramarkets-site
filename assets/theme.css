@@ -540,8 +540,14 @@ a.nav__btn{display:inline-flex}
    in large type, one under another, each with a line of its map's colour. */
 @media (max-width:960px){
   html.js .nav{display:flex;flex-direction:column;justify-content:center;gap:6px;padding-bottom:14vh}
-  html.js a.nav__btn{display:flex;align-items:center;justify-content:space-between;min-height:84px;font-size:2.25rem;font-weight:300;letter-spacing:-.02em;color:var(--ink);border-bottom:1px solid var(--rule)!important;text-decoration:none}
-  html.js a.nav__btn::after{content:"";width:34px;height:1px;background:currentColor;opacity:.7}
+  html.js a.nav__btn,html.js button.nav__btn{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:84px;padding:0;font-size:2.25rem;font-weight:300;letter-spacing:-.02em;color:var(--ink);border-bottom:1px solid var(--rule)!important;text-decoration:none;text-align:left}
+  html.js a.nav__btn::after,html.js button.nav__btn::after{content:"";width:34px;height:1px;background:currentColor;opacity:.7}
+  html.js button.nav__btn .nav__caret{display:none}
+  html.js button.nav__btn::before{display:none}
+  /* Tools has two sections, shown under its name whole (owner, 25 Nov 2026). */
+  html.js .nav{overflow-y:auto;justify-content:safe center}
+  html.js .nav__panel{flex:0 0 auto;height:auto;max-height:none;overflow:visible;padding:0}
+  html.js .nav__group:nth-child(2) button.nav__btn{border-bottom:0!important}
   html.js .nav__group:nth-child(1) a.nav__btn::after{background:#ac90ff;opacity:1}
   html.js .nav__group:nth-child(3) a.nav__btn::after{background:#ffbe6e;opacity:1}
   html.js .nav__group:nth-child(4) a.nav__btn::after{background:#3c8cff;opacity:1}

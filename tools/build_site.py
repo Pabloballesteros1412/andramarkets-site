@@ -1370,12 +1370,8 @@ NAV_GROUPS = (
         ("FX", "fx/", "The dollar and thirty-nine currencies against it."),
         ("Companies", "companies/", f"Earnings and figures for {CO_TOTAL} companies."))),
     ("tools", "Tools", "Sixteen tools and simulators that run in your browser.", (
-        ("Options", "lab/options/", "The payoff at expiry and Black-Scholes with its Greeks."),
-        ("Bonds", "lab/bonds/", "Price, duration and convexity; yield to maturity."),
-        ("Risk &amp; portfolio", "lab/risk-and-portfolio/", "Correlation, the efficient frontier, position size and VaR."),
-        ("Valuation &amp; growth", "lab/valuation-and-growth/", "Discounted cash flow, compound growth, real return."),
-        ("Market replays", "simulators/market-replays/", "The Trading Simulator and the Panic Test, on real history."),
-        ("Strategy games", "simulators/strategy-games/", "Guess the Fed and the Portfolio Builder."))),
+        ("Lab", "lab/", "Eleven quant tools: options, bonds, risk and portfolio, valuation and growth."),
+        ("Simulators", "simulators/", "Five market games played on real history: replays and strategy games."))),
     ("research", "Research", "What happened and why, on the record.", (
         ("Daily note", "reports/", "One note every US trading day, after the close."),
         ("Research Library", "research/", "Weekly reviews and longer research, as PDFs."),
@@ -1405,6 +1401,8 @@ NAV_CHARTS = {
     "world/": '<path class="soft" d="M56 4L84 18L82 46L56 60L30 46L28 18Z"/><path class="draw" pathLength="1" d="M56 12L74 22L78 42L56 50L38 40L34 22Z"/><circle class="dot" cx="78" cy="42" r="3"/>',
     "fx/": '<path class="draw" pathLength="1" d="M2 14C30 18 50 46 110 50"/><path class="draw" pathLength="1" d="M2 48C34 44 60 18 110 14"/><circle class="dot" cx="57" cy="32" r="3"/>',
     "companies/": '<path class="base" d="M2 60H110"/><path class="draw bar" pathLength="1" d="M12 60V42M28 60V32M44 60V38M60 60V22M76 60V28M92 60V12"/>',
+    "lab/": '<path class="base" d="M2 60H110"/><path class="soft" d="M6 12C28 30 54 44 108 52M6 28C30 36 56 44 108 48"/><path class="draw" pathLength="1" d="M6 6C22 34 50 50 108 56"/><circle class="dot" cx="42" cy="42" r="3"/>',
+    "simulators/": '<path class="base" d="M2 60H110"/><path class="soft" d="M22 14H110"/><path class="draw" pathLength="1" d="M2 30L12 22L22 14L30 26L38 44L46 54L56 48L66 38L78 30L90 22L100 16L110 12"/><circle class="dot" cx="110" cy="12" r="3"/>',
     "lab/options/": '<path class="base" d="M2 60H110"/><path class="soft" d="M48 8V60"/><path class="draw" pathLength="1" d="M2 46H48L106 8"/><circle class="dot" cx="106" cy="8" r="3"/>',
     "lab/bonds/": '<path class="base" d="M2 60H110"/><path class="soft" d="M8 16L67 60"/><path class="draw" pathLength="1" d="M6 6C22 34 50 50 108 56"/><circle class="dot" cx="28" cy="31" r="3"/>',
     "lab/risk-and-portfolio/": '<path class="base" d="M4 4V60H110"/><path class="draw" pathLength="1" d="M34 58C14 48 14 32 30 24C50 14 76 10 104 6"/><circle class="dot" cx="30" cy="24" r="3"/>',
@@ -1428,7 +1426,6 @@ NAV_CHARTS = {
 
 # The menu's groups that are one map each: group key -> (the map's address, its link on the homepage).
 GROUP_MAPS = {"markets": ("markets/", "All markets, on one map"),
-              "tools": ("tools-map/", "All tools, on one map"),
               "research": ("research-map/", "All research, on one map"),
               "careers": ("careers/", "Everything for a career in markets, on one map")}
 
@@ -1443,6 +1440,7 @@ def nav_menu(base):
     for key, name, intro, links in NAV_GROUPS:
         if key in GROUP_MAPS:
             # These groups have no panel: their sections are all on their map (owner, 15 and 19 Nov 2026).
+            # Tools has its panel back, with two sections, the Lab and Simulators (owner, 25 Nov 2026).
             groups.append(f'<div class="nav__group"><a class="nav__btn" href="{base}{GROUP_MAPS[key][0]}">{name}</a></div>')
             continue
         items = "".join(
@@ -1513,7 +1511,7 @@ def site_footer(home, base):
     </div>
     <nav class="foot__nav foot__nav--groups" aria-label="Footer">
       <div class="foot__group"><p class="foot__gt">Markets</p><a href="{base}markets/">All markets</a></div>
-      <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a></div>
+      <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}lab/">Lab</a><a href="{base}simulators/">Simulators</a></div>
       <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}research-map/">All research</a></div>
       <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}careers/">All of Careers</a></div>
       <div class="foot__group"><p class="foot__gt">Andra Markets</p><a href="{base}methodology/">Methodology</a><a href="{base}sources/">Data sources</a><a href="{base}legal/">Legal notice</a><a href="{base}privacy/">Privacy and cookies</a></div>
@@ -1645,9 +1643,9 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 </body>
 </html>
 """
-    # The six Tools sections are one map now: every link to a section goes to it, at that section.
-    for _, theme, *_ in TOOL_THEMES:
-        page = page.replace(f'href="{base}{theme}"', f'href="{base}tools-map/#{theme.rstrip("/").split("/")[-1]}"')
+    # The six Tools themes are groups on the Lab and Simulators pages: every link to one goes to it there.
+    for key, theme, *_ in TOOL_THEMES:
+        page = page.replace(f'href="{base}{theme}"', f'href="{base}{theme_home(key, theme)}"')
     return page
 
 
@@ -1687,10 +1685,17 @@ TOOL_THEMES = (
      "Run a paper long-short fund of your own, call the Fed's next move from the figures it had, and take a "
      "portfolio of stocks, bonds and cash through ten hidden years.", ("your-fund", "guess-the-fed", "portfolio-builder")),
 )
+
+
+def theme_home(key, page):
+    """Where a Tools theme lives: its group on the Lab or Simulators page ('lab/#options')."""
+    return page.split("/")[0] + "/#" + key
+
+
 LAB_GROUPS = tuple((key, name, slugs) for key, page, name, _, slugs in TOOL_THEMES if page.startswith("lab/"))
 SIM_GROUPS = tuple((key, name, slugs) for key, page, name, _, slugs in TOOL_THEMES if page.startswith("simulators/"))
 # Each tool's theme page, from its own folder (lab/<slug>/ or simulators/<slug>/): (link, name).
-TOOL_THEME_OF = {slug: ("../../tools-map/#" + page.rstrip("/").split("/")[-1], name) for _, page, name, _, slugs in TOOL_THEMES for slug in slugs}
+TOOL_THEME_OF = {slug: ("../../" + theme_home(key, page), name) for key, page, name, _, slugs in TOOL_THEMES for slug in slugs}
 
 
 def tool_groups(groups, row):
@@ -1699,31 +1704,6 @@ def tool_groups(groups, row):
         f'<section class="archive__month" id="{key}" aria-labelledby="{key}-h"><h2 id="{key}-h">{name}</h2>'
         f'<ol class="learn-list lab-index">{"".join(row(slug) for slug in slugs)}</ol></section>'
         for key, name, slugs in groups) + "</div>"
-
-
-def tools_map_page():
-    """Every Tools section and its tools on one map (assets/tools-map.js lays this nested list out
-    over a canvas; without the script it is the list)."""
-    def tool(page, slug):
-        if page.startswith("lab/"):
-            title = next(t for t in LAB_TOOLS if t[0] == slug)[2]
-            return f'<li><a href="../lab/{slug}/">{title}</a></li>'
-        return f'<li><a href="../simulators/{slug}/">{next(x for x in SIMULATORS if x[0] == slug)[1]}</a></li>'
-    groups = "".join(f'<li data-key="{page.rstrip("/").split("/")[-1]}"><span class="tools-map__name">{name}</span><ol>{"".join(tool(page, x) for x in slugs)}</ol></li>'
-                     for _, page, name, _, slugs in TOOL_THEMES)
-    total = sum(len(t[4]) for t in TOOL_THEMES)
-    body = f"""<main id="main" class="page">
-  <div class="wrap">
-    <header class="page__head">
-      <h1 class="page__title">Tools</h1>
-      <p class="lede">{total} tools and simulators that run in your browser.<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
-    </header>
-    <nav class="tools-map" aria-label="Tools"><ol>{groups}</ol></nav>
-  </div>
-</main>"""
-    return shell(title="Tools: Andra Markets", desc=f"{total} interactive tools and simulators that run in your browser: options, bonds, "
-                 "risk and portfolio, valuation and growth, market replays and strategy games. By Andra Markets.",
-                 body=body, home="../", base="../", path="tools-map/", scripts=("tools-map.js",))
 
 
 # The Careers map (owner, 19 Nov 2026: "the same as Tools"): each section and the parts of it a
@@ -6754,12 +6734,14 @@ def main():
     (OUT / "markets" / "index.html").write_text(markets_map_page())
     (OUT / "research-map").mkdir(exist_ok=True)
     (OUT / "research-map" / "index.html").write_text(research_map_page(notes))
+    # The Tools map gave way to the Lab and Simulators pages (owner, 25 Nov 2026): its address and the
+    # old theme addresses send readers there.
     (OUT / "tools-map").mkdir(exist_ok=True)
-    (OUT / "tools-map" / "index.html").write_text(tools_map_page())
-    for _, theme, name, lede, slugs in TOOL_THEMES:  # the old section addresses send readers to the map
+    (OUT / "tools-map" / "index.html").write_text(moved_redirect("tools-map/", "lab/", "the Lab", "The tools are now in two places, Simulators and"))
+    for key, theme, name, lede, slugs in TOOL_THEMES:
         (OUT / theme).mkdir(parents=True, exist_ok=True)
         (OUT / theme / "index.html").write_text(moved_redirect(
-            theme, "tools-map/#" + theme.rstrip("/").split("/")[-1], "the Tools map", f"{name} is now part of"))
+            theme, theme_home(key, theme), "the Lab" if theme.startswith("lab/") else "Simulators", f"{name} is now part of"))
     risk = risk_data()
     for i, t in enumerate(LAB_TOOLS):
         (OUT / "lab" / t[0]).mkdir(exist_ok=True)
