@@ -2515,7 +2515,7 @@ def lab_index():
   </div>
 </main>"""
     return shell(title="Lab: Andra Markets", desc="Eleven interactive quant tools that run in your browser: a portfolio analyser, risk and correlation, options payoff and Black-Scholes Greeks, bond price, yield to maturity, efficient frontier, DCF, value at risk, real return, compound growth.",
-                 body=body, home="../", base="../", path="lab/")
+                 body=body, home="../", base="../", path="lab/", scripts=("tools-figure.js",))
 
 
 SIM_CACHE = ROOT / ".cache" / "sim"
@@ -2711,7 +2711,7 @@ def sim_index(sim):
   </div>
 </main>"""
     return shell(title="Simulators: Andra Markets", desc="Five market simulators that run in your browser: the Trading Simulator, the Panic Test, Guess the Fed, the Portfolio Builder and Your fund, a paper long-short fund.",
-                 body=body, home="../", base="../", path="simulators/")
+                 body=body, home="../", base="../", path="simulators/", scripts=("tools-figure.js",))
 
 
 def sim_head(name, tag_attr):
