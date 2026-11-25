@@ -419,6 +419,22 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .nr__card em{display:block;margin-top:10px;font-style:normal;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase}
 .nr .lib-map__down{bottom:10px}
 @media (max-width:899px){.nr{height:auto;min-height:0;max-height:none;margin-top:20px;display:flex;flex-direction:column}.nr canvas{position:relative;inset:auto;height:260px;order:2}.nr__card{position:static;transform:none;text-align:left;width:auto;order:1;margin:0 20px 8px;min-height:9.5rem}.has-ribbon .page__head>:not(.nr){pointer-events:auto}.has-ribbon .page__head .lede{display:block}.nr .lib-map__down{display:none}}
+/* Calendar: what comes next, large (assets/calendar-next.js), over the table it is read from. */
+.cn{margin:clamp(2rem,5vh,4rem) auto 0;max-width:1100px;text-align:center}
+.has-next .cl__head .lede{display:none}
+.cn__k{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
+.cn__main{display:block;margin-top:.75rem;color:var(--ink);text-decoration:none!important}
+.cn__count{display:block;font-family:"Geist Mono",ui-monospace,monospace;font-size:clamp(1.5rem,3.4vw,3rem);font-weight:300;letter-spacing:.02em;font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 0 28px rgba(190,215,255,.45)}
+.cn__name{display:block;margin-top:.5rem;font-weight:300;font-size:clamp(2rem,5.2vw,4.75rem);line-height:1.05;letter-spacing:-.035em;text-wrap:balance}
+.cn__meta{display:block;margin-top:1rem;font-size:1rem;color:var(--ink-2)}
+.cn__k--then{margin-top:clamp(2rem,5vh,3.5rem)}
+.cn__then{list-style:none;margin:.75rem 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,3vw,48px);text-align:left}
+.cn__then a{display:block;padding-top:14px;border-top:1px solid var(--rule);color:var(--ink);text-decoration:none!important}
+.cn__then span{display:block;font-size:.8125rem;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.cn__then b{display:block;margin-top:4px;font-weight:300;font-size:1.1875rem;line-height:1.25}
+.cn__then i{display:block;margin-top:4px;font-style:normal;font-size:.8125rem;color:var(--ink-3)}
+.cl__row.is-found>*{background:rgba(242,243,243,.14);transition:background .4s}
+@media (max-width:899px){.cn{text-align:left}.cn__then{grid-template-columns:1fr;gap:0}.cn__then a{padding:12px 0}}
 /* Market history: the falls under water (assets/history-water.js) share the ribbon's frame and card. */
 .has-ribbon .page__head .note__meta{display:none}
 @media (max-width:899px){.nr.mhw canvas{height:300px}.has-ribbon .page__head .note__meta{display:block}.nr.mhw .nr__card{min-height:8.5rem}}

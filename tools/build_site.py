@@ -4456,7 +4456,7 @@ def calendar_page(cal, now):
     return shell(
         title="Calendar: Andra Markets",
         desc="Market-moving releases, central bank meetings, market structure and the earnings of the largest companies in the US, Europe and Asia, five weeks ahead, in New York and Madrid time.",
-        body=body, home="../", base="../", path="calendar/", scripts=("calendar.js",))
+        body=body, home="../", base="../", path="calendar/", scripts=("calendar.js", "calendar-next.js"))
 
 
 def calendar_week(cal, monday, now, weeks):
