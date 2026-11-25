@@ -96,6 +96,8 @@
       return family(function (p, x) { var slope = 2.2 - p * 3.4; return 4 + slope * (1 - Math.exp(-x * 3.2)) * 0.9 - (1 - p) * 0.2 * x; }, 0.78); }],
     "higher-or-lower": ["Illustrative · 48 shares over a year, and two of them", function () {
       return paths(47, 120, 0.02, 0.0012, null, [0.95, 0.5]); }],
+    "lump-sum-or-drip": ["Illustrative · $12,000 all at once and, fainter, in twelve monthly parts, over 48 paths", function () {
+      return paths(61, 120, 0.02, 0.0016, null, [0.95, 0.5]); }],
     "guess-the-fed": ["Illustrative · 48 paths of the Fed's target over ten months", function () {
       var r = rng(9), lines = [];
       function steps(moves, v) { var p = [[0, v]]; moves.forEach(function (m, i) { p.push([(i + 1) / 10, v]); v = Math.max(0.04, Math.min(0.96, v + m)); if (m) p.push([(i + 1) / 10, v]); }); return p; }
