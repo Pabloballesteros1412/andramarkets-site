@@ -6331,7 +6331,7 @@ def careers_page():
                  desc="A guide for students breaking into investment banking, sales and trading, asset management, equity research "
                       "and hedge funds, from non-target universities and from outside the US: roles, recruiting timelines, CV, "
                       "networking, visas and certifications.",
-                 body=body, home="../", base="../", path="break-into-wall-street/", scripts=("careers.js",))
+                 body=body, home="../", base="../", path="break-into-wall-street/", scripts=("careers.js", "wall-street-path.js"))
 
 
 def slug_s(s):
