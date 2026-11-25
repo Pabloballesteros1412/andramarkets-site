@@ -23,6 +23,11 @@
 .tv--chart .tv__frame{height:clamp(480px,74vh,820px)}
 .tv--overview .tv__frame,.tv--symbol .tv__frame{height:640px}
 .tv--heatmap .tv__frame{height:clamp(440px,48vw,680px)}
+.tv--info .tv__frame{height:190px}
+.tv--financials .tv__frame,.tv--profile .tv__frame{height:560px}
+.tv--movers .tv__frame,.tv--news .tv__frame{height:500px}
+.tv--fx .tv__frame{height:440px}
+.tv--screener .tv__frame{height:clamp(520px,78vh,760px)}
 @media (prefers-reduced-motion:reduce){.tv__frame::before{animation:none}.tv iframe{transition:none}}
 
 /* the page */
@@ -36,7 +41,11 @@
 .lm-sec__head h2{margin:0;font-size:1.1875rem;font-weight:400!important;letter-spacing:-.012em}
 .lm-sec__head p{margin:0;font-size:.875rem;color:var(--ink-2)}
 .lm-pair{display:grid;grid-template-columns:5fr 7fr;gap:0 clamp(20px,3vw,44px)}
-.lm-switch{margin:0;gap:0 26px}
+.lm-pair--even{grid-template-columns:1fr 1fr;margin-top:clamp(20px,3vw,36px)}
+.lm-pair[hidden],.lm-switch[hidden]{display:none}
+.lm-sub{min-width:0}
+.lm-sub h3{margin:0 0 12px;padding-top:14px;border-top:1px solid var(--rule);font-size:.9375rem;font-weight:400!important;color:var(--ink-2)}
+.lm-switch{margin:0;padding:0;gap:0 26px}
 .lm-switch .chip{min-height:32px}
 .lm-switch .chip[aria-pressed="true"]{background-position:left calc(100% - 3px)!important}
 .lm-picks{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 40px;margin-bottom:14px}
@@ -56,6 +65,12 @@
  .tv--overview .tv__frame{height:600px}
  .tv--symbol .tv__frame{height:400px}
  .tv--heatmap .tv__frame{height:460px}
+ .tv--info .tv__frame{height:350px}
+ .lm-sec__head .lm-switch{flex-wrap:wrap;gap:0 22px;width:100%}
+ .tv--financials .tv__frame{height:520px}
+ .tv--profile .tv__frame{height:440px}
+ .tv--movers .tv__frame,.tv--news .tv__frame{height:500px}
+ .tv--screener .tv__frame{height:560px}
 }
 
 /* the homepage's tape: live quotes along the foot of the first screen, under the horizon. A

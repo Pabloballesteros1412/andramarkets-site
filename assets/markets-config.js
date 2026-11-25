@@ -96,10 +96,39 @@ window.ANDRA_MARKETS = {
   // The index in focus beside the overview: [name shown, symbol].
   featured: ["S&P 500", "FOREXCOM:SPXUSD"],
 
-  // Heatmaps, one chip each: [chip label, TradingView's name for the index].
-  // Others TradingView offers: "NASDAQ100", "DAX", "SX5E", "UK100", "CAC40".
+  // Heatmaps, one chip each: [chip label, TradingView's name for the set, kind].
+  // kind is "stock" (the default: an index's companies), "crypto" or "etf".
+  // Other indices TradingView offers: "DAX", "SX5E", "UK100", "CAC40", "NIKKEI225".
   heatmaps: [
     ["S&P 500", "SPX500"],
-    ["IBEX 35", "IBEX35"]
-  ]
+    ["Nasdaq 100", "NASDAQ100"],
+    ["IBEX 35", "IBEX35"],
+    ["Crypto", "Crypto", "crypto"],
+    ["ETFs", "AllUSEtf", "etf"]
+  ],
+
+  // Movers (most active, gainers, losers), one chip each: [chip label, exchange].
+  movers: [
+    ["United States", "US"],
+    ["Spain", "BME"]
+  ],
+
+  // Currencies: the table's currencies, and its two views.
+  fx: {
+    currencies: ["EUR", "USD", "JPY", "GBP", "CHF", "AUD", "CAD", "CNY"],
+    views: [
+      ["Day's change", "forex-heat-map"],
+      ["Rates", "forex-cross-rates"]
+    ]
+  },
+
+  // The screener, one chip each: [chip label, TradingView's market]. It opens on
+  // the Performance columns; the reader can change them from the screener.
+  screeners: [
+    ["United States", "america"],
+    ["Spain", "spain"],
+    ["Germany", "germany"],
+    ["United Kingdom", "uk"]
+  ],
+  screenerColumns: "performance"
 };
