@@ -365,9 +365,20 @@ jobs:
       # PDFs (runs 151 and 153, both cut at 10 minutes while "syncing_files").
       # A failed first try gets a second one with the same upload, so a slow
       # Pages has 20 minutes; the live site keeps its last deploy until one works.
+      # Since 25 Nov 2026 the upload above can finish before GitHub lists the
+      # artifact: deploy-pages, asking a third of a second later, found none
+      # ("No artifacts named github-pages", runs 245, 246 and 249) although it was
+      # there moments after. Give the listing half a minute, and a minute more
+      # before the second try (which used to follow the first at once, and so
+      # failed the same way).
+      - name: Wait for the artifact to be listed
+        run: sleep 30
       - id: deployment
         continue-on-error: true
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+      - name: Wait before the second try
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 60
       - id: deployment_retry
         if: steps.deployment.outcome == 'failure'
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
