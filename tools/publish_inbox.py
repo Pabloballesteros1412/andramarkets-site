@@ -77,7 +77,9 @@ def cover_title(pdf):
     if not sized:
         return ""
     big = max(s for s, _ in sized)
-    return tidy(" ".join(t for s, t in sized if s == big))
+    # Join the fragments as set: the spaces are fragments of their own, and a
+    # kerned word comes in pieces ("C", "u", "t") that must not be spaced apart.
+    return tidy("".join(t.replace("\n", " ") for s, t in frags if s == big))
 
 
 def summarise(dek):
@@ -103,10 +105,12 @@ def read_cover(pdf):
     """What the cover says: {date, number, title, summary, tags, type}, with None where unread."""
     flat = " ".join(cover_text(pdf).split())
     meta = {"date": None, "number": None, "title": None, "summary": None, "tags": [], "type": "research"}
-    m = re.search(r"Report No\. (\d{4}-\d+) · \w+, (\d{1,2}) (%s) (\d{4})" % "|".join(MONTHS), flat)
+    # Covers print this line as set ("Report No. 2026-90 · Thursday, 5 November 2026") or in capitals.
+    m = re.search(r"Report No\. (\d{4}-\d+) · \w+, (\d{1,2}) (%s) (\d{4})" % "|".join(MONTHS), flat, re.I)
     if m:
         meta["number"] = m.group(1)
-        meta["date"] = dt.date(int(m.group(4)), MONTHS.index(m.group(3)) + 1, int(m.group(2))).isoformat()
+        month = [x.lower() for x in MONTHS].index(m.group(3).lower()) + 1
+        meta["date"] = dt.date(int(m.group(4)), month, int(m.group(2))).isoformat()
     title = cover_title(pdf)
     if title and not re.search(r"\b\w \w \w \w\b", title):  # spaced-out slide titles ("A N T H R O P I C")
         meta["title"] = title
@@ -124,7 +128,8 @@ def read_cover(pdf):
             dek = re.sub(r"^[^A-Z]*?(?=[A-Z])", "", dek.lstrip(" .:")).strip()  # a margin note before the dek
             if len(dek) > 40:
                 meta["summary"] = summarise(tidy(dek))
-    head = flat.split("Report No.")[0] + " " + flat.split("Report No.")[-1][:200]
+    parts = re.split(r"Report No\.", flat, flags=re.I)
+    head = parts[0] + " " + parts[-1][:200]
     meta["tags"] = [tag for tag, words in TOPIC_WORDS if re.search(words, head, re.I)]
     if re.search(r"weekly (market )?review", head, re.I):
         meta["type"] = "weekly"
