@@ -3,7 +3,7 @@
 button,input,select,textarea{font-family:inherit}
 :root,:root[data-theme="light"],:root[data-theme="dark"]{color-scheme:dark;
  --font:"Inter","Helvetica Neue",Arial,sans-serif;
- --ground:#000;--ground-2:#0c0d0e;--ink:#f2f3f3;--ink-2:#a3a8aa;--ink-3:#74797c;
+ --ground:#000;--ground-2:#0c0d0e;--ink:#f2f3f3;--ink-head:#bfc3c6;--ink-2:#a3a8aa;--ink-3:#74797c;
  --rule:rgba(242,243,243,.1);--rule-strong:rgba(242,243,243,.26);
  --btn-bg:#f2f3f3;--btn-fg:#000;--btn-hover:#fff;
  --plate:#0b0c0d;--plate-2:#121415;--plate-hover:#1a1c1e;--plate-ink:#f2f3f3;--plate-ink-2:#a3a8aa;--plate-rule:rgba(242,243,243,.12);
@@ -31,6 +31,8 @@ h1,h2{font-weight:700}h3,h4{font-weight:600}
 .page__body h2,.page h2{font-weight:600;letter-spacing:-.02em}
 .lede{font-weight:400;color:var(--ink-2)}
 strong,b{font-weight:600}
+/* Headlines in light grey so they sit in the dark ground (owner, 27 Nov 2026). */
+h1,h2,.page__title,.report__title,.section-title,.sim-title,.nav__title,.cn__name,.atom__name,.ic__title{color:var(--ink-head)!important}
 /* header */
 .brand__name{font-size:.8125rem!important;font-weight:400!important;letter-spacing:.3em!important;text-transform:uppercase}
 .nav__btn{font-size:.8125rem;font-weight:400;letter-spacing:.02em;color:var(--ink-2)}

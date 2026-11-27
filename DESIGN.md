@@ -215,6 +215,8 @@ Ink on black, one slightly raised tone, and a red and green pair for rises and f
 
 On black, `#1fd27a` and `#ff4b52` pass WCAG AA as text, so the figure and chart pairs are the same.
 
+**Headline grey** (owner's choice, 27 Nov 2026): every headline (homepage phrase, group titles and statement, page and note titles, section headings) is set in `--ink-head` `#bfc3c6`, a light grey that sits in the black ground; running text stays in `--ink-2` and figures in ink.
+
 ### Named Rules
 **The Rise and Fall Rule** (owner's change, 22 Oct 2026; it replaces the charts-only rule). Red and green mean a rise or a fall, and nothing else. They colour chart marks and keys, and every figure on the site that shows a rise or a fall: price moves and percentage changes, the tape, the close-note panel, chart value labels, dashboard "Latest" panels and readouts, calendar changes (m/m, q/q, monthly changes) and earnings first-session moves. The figure always keeps its + or − sign, so colour is never the only cue; a figure that rounds to zero has no sign and stays in ink. Labels, prose, headings, units and words beside the figure ("on the day", "since 3 Oct", "q/q") stay in ink. Levels stay in ink even when signed: yields, rates, inflation rates, spreads, correlations, scores, EPS. Never in buttons, links, tags, status messages, errors, success messages or decoration. As text the figure uses `--up-text` / `--down-text` (`.mv--up`, `.mv--down`; SVG labels take the same classes), except on a dashboard heat cell, where it is white on the cell's own red or green (see Dashboard tile); `build_site.py` reads the class from the printed sign (`mv()`, `move_class()`), and the rolling figures colour a signed word when their element carries `data-moves`.
 
