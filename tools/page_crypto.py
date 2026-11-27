@@ -73,7 +73,7 @@ def pages(site):
     <div class="cs" data-planets="{PLANETS}" hidden>
       <canvas aria-hidden="true"></canvas>
       <div class="cs__names"></div>
-      <p class="lens-read cs__read">Size by market value · the larger the coin, the nearer its orbit · the belt is the rest of the hundred · the turning is not data</p>
+      <p class="lens-read cs__read">Size by market value · the larger the coin, the nearer its orbit · the belt is the rest of the hundred · the surfaces and the turning are not data</p>
       <a class="lib-map__down" href="#cs-all">Every coin</a>
     </div>
     <section id="cs-all" aria-labelledby="cs-all-h">
@@ -81,7 +81,7 @@ def pages(site):
       <p class="cs-sub">By market value in US dollars. Coins that are another coin under a wrapper (wrapped, staked or bridged) are left out. "Pegged" marks a coin held to a currency.</p>
       <div class="cs-scroll"><table class="cs-tab"><thead><tr><th scope="col"><span class="visually-hidden">Rank</span></th><th scope="col">Coin</th><th scope="col">Price</th>
         <th scope="col">Day</th><th scope="col">Week</th><th scope="col">Market value</th></tr></thead><tbody>{rows}</tbody></table></div>
-      <p class="report__src">CoinGecko, {when}. Prices and changes in US dollars; a day is the last 24 hours, a week the last seven days. For information only. Not investment advice.</p>
+      <p class="report__src">CoinGecko, {when}. Prices and changes in US dollars; a day is the last 24 hours, a week the last seven days. For information only. Not investment advice. Surfaces of the Sun and planets: Solar System Scope (CC BY 4.0), from NASA imagery.</p>
     </section>
   </div>
 </main>"""
