@@ -367,9 +367,24 @@ def commons_file(url):
     return f"https://upload.wikimedia.org/wikipedia/commons/{h[0]}/{h[:2]}/{urllib.parse.quote(name)}"
 
 
+# Anything in an SVG that can run script or load content when the file is
+# opened on its own (the pages' CSP does not cover a bare SVG on the site).
+SVG_ACTIVE = re.compile(rb"<script|<foreignobject|<iframe|<embed|<object|<animate|<set[\s>/]|<handler"
+                        rb"|\son[a-z]+\s*=|javascript:|xlink:href\s*=\s*[\"']\s*(?!#|data:image/)"
+                        rb"|\bhref\s*=\s*[\"']\s*(?!#|data:image/)")
+SAFE_SYMBOL = re.compile(r"[A-Z0-9][A-Z0-9.\-]{0,15}")
+
+
+def svg_is_safe(raw):
+    return not SVG_ACTIVE.search(raw.lower())
+
+
 def logo(symbol, svg_url=None):
     """The company's logo, kept once fetched: the official SVG from Wikimedia
     Commons where Wikidata has one, else a PNG from Financial Modeling Prep."""
+    # The symbol comes from fetched data and becomes a file name.
+    if not SAFE_SYMBOL.fullmatch(symbol or ""):
+        raise ValueError(f"unexpected ticker {symbol!r}")
     LOGOS.mkdir(parents=True, exist_ok=True)
     svg, png = LOGOS / f"{symbol}.svg", LOGOS / f"{symbol}.png"
     if svg_url:
@@ -391,9 +406,10 @@ def logo(symbol, svg_url=None):
         head = raw[:600].lower()
         if len(raw) > 3 * 1024 * 1024 or (b"<svg" not in head and b"<?xml" not in head):
             raise ValueError("not an SVG")
-        # Served only through <img>, where scripts never run; dropped anyway.
-        if b"<script" in raw.lower():
-            raise ValueError("SVG with a script")
+        # Shown through <img>, where scripts never run, but the file is also
+        # published and can be opened on its own: refuse any active content.
+        if not svg_is_safe(raw):
+            raise ValueError("SVG with active content")
         svg.write_bytes(raw)
         return
     if png.exists() and png.stat().st_size > 200:
@@ -467,6 +483,10 @@ def universe(cache):
     out, seen = [], set()
     for m in MARKETS:
         for r in lists.get(m) or []:
+            # Fetched symbols become folder and file names: anything odd is dropped.
+            if not SAFE_SYMBOL.fullmatch(str(r["symbol"])):
+                log(f"universe {m}: skipping unexpected symbol {str(r['symbol'])[:20]!r}", "warning")
+                continue
             if r["symbol"] not in seen:
                 seen.add(r["symbol"])
                 out.append((m, r))

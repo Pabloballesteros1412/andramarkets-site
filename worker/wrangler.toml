@@ -26,6 +26,17 @@ namespace_id = "1001"
   limit = 60
   period = 60
 
+# A stricter limit on cache misses for the two routes that fan out to many
+# vendor calls (fundamentals, peers): index.js reads it as env.HEAVY. Ten
+# uncached company pages a minute per visitor is more than a reader opens.
+[[ratelimits]]
+name = "HEAVY"
+namespace_id = "1002"
+
+  [ratelimits.simple]
+  limit = 10
+  period = 60
+
 # Optional: keep the last good answer for each request and serve it when a
 # vendor fails or the free quota runs out. Create the namespace with
 #   npx wrangler kv namespace create STALE
