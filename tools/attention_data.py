@@ -61,6 +61,7 @@ WIKI_ARTICLES = [
 ]
 GDELT = "https://api.gdeltproject.org/api/v2/doc/doc"
 GDELT_GAP = 6.0  # seconds between requests: GDELT asks for at least five
+GDELT_BUDGET = 240  # seconds for all of GDELT in one run; the subjects not reached keep their last copy
 # (key, the page's name, GDELT query)
 NEWS = [
     ("recession", "Recession", '(recession OR "economic downturn")'),
@@ -116,27 +117,27 @@ def wikipedia(old):
 
 def gdelt(mode, query):
     q = urllib.parse.urlencode({"query": f"{query} sourcelang:english", "mode": mode, "format": "json", "timespan": "3months"})
-    for i in range(3):
-        try:
-            raw = get(f"{GDELT}?{q}")
-            return json.loads(raw)
-        except (urllib.error.HTTPError, ValueError) as e:
-            if i == 2:
-                raise
-            log(f"GDELT {mode} {query}: {type(e).__name__}, waiting", "warning")
-            time.sleep(20)
-        finally:
-            time.sleep(GDELT_GAP)
+    try:
+        return json.loads(get(f"{GDELT}?{q}"))
+    finally:
+        time.sleep(GDELT_GAP)
 
 
-def news():
-    out = []
+def news(old):
+    out, start = [], time.monotonic()
+    kept = {s["key"]: s for s in (old or {}).get("subjects", [])}
     for key, name, query in NEWS:
+        if time.monotonic() - start > GDELT_BUDGET:
+            if key in kept:
+                out.append(kept[key])
+            continue
         try:
             vol = gdelt("timelinevol", query)
             tone = gdelt("timelinetone", query)
         except Exception as e:  # noqa: BLE001
             log(f"GDELT {name}: {type(e).__name__}: {e}", "warning")
+            if key in kept:
+                out.append(kept[key])
             continue
         v = {d["date"][:8]: d["value"] for d in (vol.get("timeline") or [{}])[0].get("data", [])}
         t = {d["date"][:8]: d["value"] for d in (tone.get("timeline") or [{}])[0].get("data", [])}
@@ -163,7 +164,7 @@ def main():
     today = now_utc().date().isoformat()
     out = {"schema": SCHEMA, "wikipedia": old.get("wikipedia"), "news": old.get("news")}
     did = False
-    for part, fn in (("wikipedia", lambda: wikipedia(old.get("wikipedia"))), ("news", news)):
+    for part, fn in (("wikipedia", lambda: wikipedia(old.get("wikipedia"))), ("news", lambda: news(old.get("news")))):
         if not a.force and (out[part] or {}).get("fetched", "")[:10] == today:
             continue
         try:
