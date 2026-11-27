@@ -20,6 +20,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/world_data.py`: fetches the World markets figures at deploy time (below).
 - `assets/world.js`: the World markets comparison radar.
 - `tools/ships_data.py`, `.github/workflows/hedgefund-data.yml`: Hedge Fund Data, Ships: IMF PortWatch chokepoint transits and a sample of the global AIS stream (aisstream.io, secret `AISSTREAM_API_KEY`) every 30 minutes, into the Actions cache (`.cache/hf/`). No page reads it yet.
+- `tools/predictions_data.py`, `tools/jets_data.py`: Hedge Fund Data, Prediction markets (Polymarket and Kalshi, no key) and Jets (OpenSky, secrets `OPENSKY_CLIENT_ID` and `OPENSKY_CLIENT_SECRET`: every aircraft heard, the business jets among them by type, and the airfields they gather at; no owner or operator is kept), run by the same workflow into `.cache/hf/`.
 - `tools/fx_data.py`: fetches the daily FX analyses and the FX pairs table at deploy time (below).
 - `tools/strip_data.py`: fetches the homepage market strip (the tape) every 15 minutes in US hours (below).
 - `tools/fedrates_data.py`, `assets/fedrates.js`: the Fed & Rates section (`fed-rates/`): fetches its figures at deploy time and every 15 minutes in US hours (below), and draws its charts.

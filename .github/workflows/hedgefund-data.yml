@@ -8,6 +8,13 @@ name: Hedge Fund Data
 #   Ships (tools/ships_data.py): IMF PortWatch chokepoint transits (no key) and
 #   a 150-second sample of the global AIS stream from aisstream.io
 #   (AISSTREAM_API_KEY), merged with the samples before it.
+#   Prediction markets (tools/predictions_data.py): Polymarket and Kalshi, no key.
+#   Jets (tools/jets_data.py): every aircraft OpenSky hears, the business jets
+#   among them and the airfields they gather at (OPENSKY_CLIENT_ID and
+#   OPENSKY_CLIENT_SECRET).
+#
+# Each step keeps its source's last good copy on failure and never stops the
+# others (continue-on-error), so one source that is down costs only its own figures.
 #
 # Cron runs only on the default branch. Until this is merged, a push to a
 # branch that changes these files runs it once, so the sources can be checked.
@@ -21,6 +28,8 @@ on:
     branches-ignore: [main]
     paths:
       - "tools/ships_data.py"
+      - "tools/predictions_data.py"
+      - "tools/jets_data.py"
       - ".github/workflows/hedgefund-data.yml"
 
 permissions:
@@ -51,9 +60,19 @@ jobs:
           key: hf-${{ github.run_id }}
           restore-keys: hf-
       - name: Ships
+        continue-on-error: true
         env:
           AISSTREAM_API_KEY: ${{ secrets.AISSTREAM_API_KEY }}
         run: python3 tools/ships_data.py --seconds 150
+      - name: Prediction markets
+        continue-on-error: true
+        run: python3 tools/predictions_data.py
+      - name: Jets
+        continue-on-error: true
+        env:
+          OPENSKY_CLIENT_ID: ${{ secrets.OPENSKY_CLIENT_ID }}
+          OPENSKY_CLIENT_SECRET: ${{ secrets.OPENSKY_CLIENT_SECRET }}
+        run: python3 tools/jets_data.py
       - name: Save Hedge Fund Data
         if: ${{ always() }}
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -68,7 +87,7 @@ jobs:
           try:
               d = json.load(open(".cache/hf/ships.json"))
           except Exception as e:
-              print(f"No ships.json: {e}"); raise SystemExit
+              print(f"No ships.json: {e}"); d = {}
           pw, ais = d.get("portwatch") or {}, d.get("ais") or {}
           print("### Ships")
           print(f"- PortWatch: {len(pw.get('chokepoints', []))} chokepoints, {pw.get('first')} to {pw.get('last')}, fetched {pw.get('fetched')}")
@@ -77,4 +96,18 @@ jobs:
                     f"{len(ais['vessels']):,} on the map; by kind {ais['by_kind']}")
           else:
               print("- AIS: no sample yet")
+          try:
+              p = json.load(open(".cache/hf/predictions.json"))
+              print("### Prediction markets")
+              for name, v in p["venues"].items():
+                  print(f"- {name}: {len(v['events'])} events, fetched {v['fetched']}")
+          except Exception as e:
+              print(f"- Prediction markets: {e}")
+          try:
+              j = json.load(open(".cache/hf/jets.json"))["latest"]
+              print("### Jets")
+              print(f"- {j['aircraft']:,} aircraft, {j['airborne']:,} airborne, {j['bizjets']:,} business jets ({j['bizjets_airborne']:,} airborne)")
+              print(f"- At the hubs: {j['hubs']}")
+          except Exception as e:
+              print(f"- Jets: {e}")
           EOF
