@@ -14,7 +14,7 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/check_site.py`: run after the build, at every deploy. It fails the deploy if a close note page came out without a section its note has, or the homepage index lacks a section of the menu, so the live site keeps its last good version.
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
 - `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
-- `tools/company_data.py`: fetches the figures behind the company pages (the calendar's 1,200: the 400 largest in the S&P 500, the STOXX Europe 600 and the six Asian markets) at deploy time, into `.cache/companies/`.
+- `tools/company_data.py`: fetches the figures behind the company pages (the calendar's 2,100: the S&P 500 and the S&P MidCap 400, the STOXX Europe 600, and the 600 largest in the six Asian markets) at deploy time, into `.cache/companies/`.
 - `tools/calendar_data.py`: fetches the calendar at deploy time (below).
 - `tools/world_data.py`: fetches the World markets figures at deploy time (below).
 - `assets/world.js`: the World markets comparison radar.
@@ -421,11 +421,11 @@ caches every answer (fundamentals, peers, analysts and search 24 hours, news
 15 minutes, the price 60 seconds). `assets/profile.js` uses it in three
 places:
 
-- `/companies/`: the search field filters the 1,200 and lists any other
+- `/companies/`: the search field filters the 2,100 and lists any other
   US-listed company that matches.
 - `/companies/<ticker>/` for US companies: the live price, news and analyst
   recommendations on top of the static page.
-- `/companies/live/?t=TICK`: the full profile of a US company outside the 1,200
+- `/companies/live/?t=TICK`: the full profile of a US company outside the 2,100
   (results, margins, statements, multiples, peers, news, analysts).
 
 `/profile/` (the section's first home) forwards old links there.
@@ -527,10 +527,13 @@ or a later estimate never stands in for it. Add one-off events (OPEC+
 meetings, Jackson Hole, debt-ceiling deadlines, elections) to `ONE_OFF` as
 they are announced, with their source.
 
-Each market follows its 400 largest companies (`UNIVERSE` in
-`tools/calendar_data.py`); the rows marked High stay the largest 25 (US), 12
-(Europe) and 5 (Asia), as before. Membership and market caps take a few batched
-calls per market (50 symbols a call; Asia screens 250 listings per market).
+The markets follow 2,100 companies (`UNIVERSE` in `tools/calendar_data.py`;
+owner, 27 Nov 2026): every company of the S&P 500 and the S&P MidCap 400 (State
+Street's SPY and MDY holdings), every company of the STOXX Europe 600, and the
+600 largest across the six Asian markets. The rows marked High stay the largest
+25 (US), 12 (Europe) and 5 (Asia), as before. Membership and market caps take a
+few batched calls per market (50 symbols a call; Asia screens 500 listings per
+market, in two calls of 250).
 The per-company calls, year-ago and reported EPS and the first-session moves,
 are paced 0.3 seconds apart and share a time budget (`CAL_YAHOO_BUDGET`, 180
 seconds by default): reports already out come first, a report still ahead is

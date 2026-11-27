@@ -3,8 +3,9 @@
 
 Run by .github/workflows/pages.yml after tools/calendar_data.py, before
 tools/build_site.py. Writes one file, .cache/companies/companies.json: the
-1,200 companies of the calendar's earnings universe (the 400 largest in the
-S&P 500, in the STOXX Europe 600 and across the six Asian markets, read from
+2,100 companies of the calendar's earnings universe (the S&P 500 and the S&P
+MidCap 400, the STOXX Europe 600, and the 600 largest across the six Asian
+markets, read from
 .cache/calendar/calendar.json) and, for each, the figures its page draws.
 build_site.py reads it; with no file there are no company pages.
 
@@ -54,7 +55,8 @@ ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / ".cache" / "companies" / "companies.json"
 CAL = ROOT / ".cache" / "calendar" / "calendar.json"
 MARKETS = ("us", "europe", "asia")
-PER_MARKET = 400  # the calendar's universe: 400 per market
+# the calendar's universe in each market (UNIVERSE in tools/calendar_data.py)
+PER_MARKET = {"us": 900, "europe": 600, "asia": 600}
 BUDGET = float(os.environ.get("COMPANY_BUDGET", "1200"))
 FUND_DAYS = 5  # the fundamentals and month-end closes are refetched after this many days
 FRESH = 2 * 3600  # closes fetched less than this long ago are not fetched again
@@ -132,8 +134,8 @@ def get_json(url):
 
 
 def spy_list():
-    """The PER_MARKET largest S&P 500 companies by index weight, as universe
-    entries: the fallback when the calendar has no universe yet."""
+    """The S&P 500's companies by index weight, as universe entries: the fallback
+    when the calendar has no universe yet."""
     table = xlsx_rows(fetch(SPY_URL))
     head = next(i for i, r in enumerate(table) if "Ticker" in r)
     cols = table[head]
@@ -159,7 +161,7 @@ def spy_list():
             continue
         seen.add(key)
         out.append({"symbol": t, "name": name, "country": "US", "bench": "^GSPC", "bench_name": "S&P 500"})
-        if len(out) == PER_MARKET:
+        if len(out) == PER_MARKET["us"]:
             break
     return out
 
@@ -447,8 +449,9 @@ def universe(cache):
         got = {}
     lists = {}
     for m in MARKETS:
-        rows = [r for r in got.get(m) or [] if r.get("symbol")][:PER_MARKET]
-        if len(rows) >= PER_MARKET // 2:
+        rows = [r for r in got.get(m) or [] if r.get("symbol")][:PER_MARKET[m]]
+        # fewer than half of the old 400 means the calendar's list failed, not that it grew
+        if len(rows) >= 200:
             lists[m] = rows
         elif kept.get(m):
             log(f"universe {m}: the calendar has {len(rows)}; using the last good list", "warning")

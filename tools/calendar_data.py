@@ -9,8 +9,10 @@ figures behind Previous and Actual. build_site.py reads it.
 
 Sources: each publisher's own schedule (see SOURCES), values from FRED,
 Eurostat, the ECB, the ONS, the Bank of England and TreasuryDirect, and the
-earnings of the 100 largest S&P 500 companies: membership from State
-Street's SPY holdings, market cap, dates and EPS from Yahoo Finance.
+earnings of 2,100 companies (UNIVERSE): the S&P 500 and the S&P MidCap 400
+(membership from State Street's SPY and MDY holdings), the STOXX Europe 600
+(iShares' holdings) and the 600 largest across six Asian markets; market cap,
+dates and EPS from Yahoo Finance.
 
 When a source fails, its events stay as last fetched and the page shows the
 day of that copy; a failure never empties the calendar. Nothing here is
@@ -1011,6 +1013,8 @@ SOURCES = {
                  "fn": None},
     "spy": {"name": "State Street, SPY holdings",
             "url": "https://www.ssga.com/us/en/intermediary/etfs/spdr-sp-500-etf-trust-spy", "fn": None},
+    "mdy": {"name": "State Street, MDY holdings (S&P MidCap 400)",
+            "url": "https://www.ssga.com/us/en/intermediary/etfs/spdr-sp-midcap-400-etf-trust-mdy", "fn": None},
 }
 # Sources that always have something in a five-week window: an empty answer
 # means the page changed, so it counts as a failure and the last copy stays.
@@ -1335,8 +1339,10 @@ def xlsx_rows(raw):
     return out
 
 
-def spy_members():
-    raw = fetch("https://www.ssga.com/us/en/intermediary/library-content/products/fund-data/etfs/us/holdings-daily-us-en-spy.xlsx")
+def ssga_members(fund, least):
+    """Tickers of a State Street SPDR fund's holdings: SPY for the S&P 500, MDY for the
+    S&P MidCap 400."""
+    raw = fetch(f"https://www.ssga.com/us/en/intermediary/library-content/products/fund-data/etfs/us/holdings-daily-us-en-{fund}.xlsx")
     table = xlsx_rows(raw)
     head = next(i for i, r in enumerate(table) if "Ticker" in r)
     col = table[head].index("Ticker")
@@ -1345,9 +1351,17 @@ def spy_members():
         t = r[col].strip() if len(r) > col else ""
         if re.fullmatch(r"[A-Z]{1,5}(?:\.[A-Z])?", t):
             out.append(t.replace(".", "-"))
-    if len(out) < 400:
-        raise ValueError(f"SPY holdings: only {len(out)} tickers")
+    if len(out) < least:
+        raise ValueError(f"{fund.upper()} holdings: only {len(out)} tickers")
     return out
+
+
+def spy_members():
+    return ssga_members("spy", 400)
+
+
+def mdy_members():
+    return ssga_members("mdy", 300)
 
 
 class Yahoo:
@@ -1381,9 +1395,9 @@ class Yahoo:
         data = json.dumps(body).encode() if body is not None else None
         return json.loads(self._open(f"{url}{sep}crumb={urllib.parse.quote(self.crumb)}", data))
 
-    def screener(self, region, size):
-        """The largest equities of one market by market cap."""
-        body = {"offset": 0, "size": size, "sortField": "intradaymarketcap", "sortType": "desc", "quoteType": "equity",
+    def screener(self, region, size, offset=0):
+        """The largest equities of one market by market cap, from the offset-th."""
+        body = {"offset": offset, "size": size, "sortField": "intradaymarketcap", "sortType": "desc", "quoteType": "equity",
                 "query": {"operator": "and", "operands": [{"operator": "eq", "operands": ["region", region]}]},
                 "userId": "", "userIdType": "guid"}
         res = self.json("https://query1.finance.yahoo.com/v1/finance/screener?lang=en-US&region=US&formatted=false", body)
@@ -1529,10 +1543,12 @@ def stoxx600_members():
     raise last or ValueError("no holdings file")
 
 
-# How many companies each market's earnings rows follow: the 400 largest in
-# the S&P 500, in the STOXX Europe 600 and across the six Asian markets
-# (owner's request, 11 Nov 2026; it was 200 each since 26 Oct 2026).
-UNIVERSE = 400
+# How many companies each market's earnings rows follow (owner's request,
+# 27 Nov 2026: 2,100 in all; it was 400 each since 11 Nov 2026 and 200 each
+# since 26 Oct 2026): every company of the S&P 500 and the S&P MidCap 400 (the
+# S&P 900), every company of the STOXX Europe 600, and the 600 largest across
+# the six Asian markets.
+UNIVERSE = {"us": 900, "europe": 600, "asia": 600}
 
 # Asia: Yahoo Finance's screener ranks each market by market cap; the top
 # companies across the six markets, one listing each.
@@ -1565,16 +1581,22 @@ def pick_listing(group):
 
 # Each market's largest listings screened before the top companies across the
 # six are picked: enough that dual listings and preferred lines dropped below
-# never leave the list short (Yahoo's screener answers up to 250 a call; on
+# never leave the list short. Yahoo's screener answers up to 250 a call; on
 # 11 Nov 2026 the 400th company was worth $17bn and every market's 250th less
-# than $11bn, so one call a market still reaches past the cut).
+# than $11bn. With 600 picked (27 Nov 2026) the cut is lower, so each market is
+# read in two calls, its 500 largest.
 ASIA_SCREEN = 250
+ASIA_PAGES = 2
 
 
-def asia_universe(yahoo, n=UNIVERSE):
+def asia_universe(yahoo, n=UNIVERSE["asia"]):
     found = []
     for region in ASIA:
-        found += yahoo.screener(region, ASIA_SCREEN)
+        for page in range(ASIA_PAGES):
+            got = yahoo.screener(region, ASIA_SCREEN, page * ASIA_SCREEN)
+            found += got
+            if len(got) < ASIA_SCREEN:
+                break
     # Korean preferred shares trade under codes not ending in 0 (005935 for Samsung).
     found = [q for q in found if not (suffix(q["symbol"]) in (".KS", ".KQ") and not q["symbol"].split(".")[0].endswith("0"))
              and q["symbol"] not in NOT_PRIMARY]
@@ -1626,7 +1648,7 @@ def traded_usd(q, rates):
     return vol * price / (100 if q.get("currency") == "GBp" else 1) * rate
 
 
-def europe_universe(cache, yahoo, n=UNIVERSE):
+def europe_universe(cache, yahoo, n=UNIVERSE["europe"]):
     try:
         members = stoxx600_members()
         cache["stoxx600"] = {"members": members, "ok": dt.datetime.now(UTC).isoformat(timespec="seconds"), "error": None}
@@ -1673,16 +1695,22 @@ def europe_universe(cache, yahoo, n=UNIVERSE):
     return top
 
 
-def us_universe(cache, yahoo, n=UNIVERSE):
-    try:
-        members = spy_members()
-        cache["spy"] = {"tickers": members, "ok": dt.datetime.now(UTC).isoformat(timespec="seconds"), "error": None}
-    except Exception as e:  # noqa: BLE001
-        members = (cache.get("spy") or {}).get("tickers")
-        log(f"spy: {type(e).__name__}: {e}; using the last good list ({(cache.get('spy') or {}).get('ok')})", "warning")
-        cache.setdefault("spy", {})["error"] = f"{type(e).__name__}: {e}"[:200]
-        if not members:
-            raise ValueError("no S&P 500 membership list yet") from e
+def us_universe(cache, yahoo, n=UNIVERSE["us"]):
+    # The S&P 500 (SPY's holdings) and the S&P MidCap 400 (MDY's), each keeping its
+    # last good list when State Street does not answer. Without the S&P 500 there is
+    # no US list; without the MidCap 400, the S&P 500 alone.
+    lists = {}
+    for key, get, label in (("spy", spy_members, "S&P 500"), ("mdy", mdy_members, "S&P MidCap 400")):
+        try:
+            lists[key] = get()
+            cache[key] = {"tickers": lists[key], "ok": dt.datetime.now(UTC).isoformat(timespec="seconds"), "error": None}
+        except Exception as e:  # noqa: BLE001
+            lists[key] = (cache.get(key) or {}).get("tickers")
+            log(f"{key}: {type(e).__name__}: {e}; using the last good list ({(cache.get(key) or {}).get('ok')})", "warning")
+            cache.setdefault(key, {})["error"] = f"{type(e).__name__}: {e}"[:200]
+            if not lists[key] and key == "spy":
+                raise ValueError(f"no {label} membership list yet") from e
+    members = list(dict.fromkeys((lists["spy"] or []) + (lists["mdy"] or [])))
     quotes = [q for q in yahoo.quotes(members) if q.get("marketCap")]
     quotes.sort(key=lambda q: -q["marketCap"])
     top, seen = [], set()
@@ -1839,7 +1867,7 @@ def report_type(qobs, aobs, end):
 
 
 # Per-company Yahoo requests (EPS and first-session moves) are paced and stop
-# at a time budget, so a deploy with 1,200 companies stays well inside its
+# at a time budget, so a deploy with 2,100 companies stays well inside its
 # 15 minutes; whatever is left is fetched first next run.
 PACE = 0.3
 YAHOO_BUDGET = float(os.environ.get("CAL_YAHOO_BUDGET", "180"))
