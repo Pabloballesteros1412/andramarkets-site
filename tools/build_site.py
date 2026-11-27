@@ -1638,7 +1638,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{og_alt}">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preload" href="{base}assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{base}assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 {"".join(f'<link rel="stylesheet" href="{base}assets/{c}?v={ver(c)}">' for c in (bare or ("site.css", "theme.css")))}{head}
 {SPECULATION}
 </head>
@@ -1772,7 +1772,8 @@ def markets_map_page():
     groups_ = (
         ("live-markets", "Live Markets", "live-markets/",
          (("Chart", "live-markets/#lm-chart"), ("Market overview", "live-markets/#lm-overview"),
-          ("Movers", "live-markets/#lm-movers"), ("Heatmap", "live-markets/#lm-heat"),
+          ("Quotes", "live-markets/#lm-quotes"), ("Movers", "live-markets/#lm-movers"),
+          ("Heatmap", "live-markets/#lm-heat"), ("World economy", "live-markets/#lm-econ"),
           ("Currencies", "live-markets/#lm-fx"), ("Screener", "live-markets/#lm-screen"))),
         ("dashboards", "Dashboards", "dashboards/",
          (("Rates", "dashboards/#rates"), ("Macro", "dashboards/#macro"), ("Equities", "dashboards/#equities"),
@@ -3567,7 +3568,7 @@ def interview_page(notes):
 # (provider, url, what it supplies, where it is used, how often it is read)
 DATA_SOURCES = [
     ("TradingView", "https://www.tradingview.com/",
-     "Live quotes, charts, heatmaps, movers, a screener, company figures and profiles, and headlines, drawn by TradingView's own widgets from TradingView's feeds. Not stored or "
+     "Live quotes, charts, heatmaps, movers, a screener, a quotes table, company figures and profiles, a world economy map (GDP, unemployment, government debt, interest rates, inflation) and headlines, drawn by TradingView's own widgets from TradingView's feeds. Not stored or "
      "changed by Andra Markets; some markets are delayed, and index quotes marked with a broker's name are that "
      "broker's indicative price.",
      "Live Markets, the tape on the home page",
@@ -6553,7 +6554,8 @@ SEARCH_TERMS = {
 # Words a page is found by beyond its title.
 SEARCH_PAGE_TERMS = {
     "live-markets/": "live markets real time quotes prices chart TradingView ticker tape heatmap screener movers gainers "
-                     "losers most active fundamentals company profile news headlines crypto ETF cross rates IBEX 35 Euro Stoxx 50 "
+                     "losers most active fundamentals company profile news headlines crypto ETF cross rates quotes table indicators "
+                     "moving average RSI MACD Bollinger compare world economy map GDP unemployment inflation debt IBEX 35 Euro Stoxx 50 "
                      "S&P 500 Nasdaq 100 EUR/USD Brent gold Bund bitcoin indices currencies commodities bonds",
     "contact/": f"contact email {CONTACT_EMAIL} write to us LinkedIn TikTok social media follow",
     "fed-rates/": "Fed FOMC policy rate fed funds futures meeting probabilities yield curve Treasury 2s10s 3m10y "
@@ -7065,8 +7067,8 @@ DATA_SCRIPTS = ("application/json", "application/ld+json")
 # TradingView's loader (script-src) and the frames it opens (frame-src). The frames fetch their
 # own data: nothing else of TradingView's runs in the page.
 TV_MARK = "assets/markets.js"
-TV_SCRIPTS = "https://s3.tradingview.com"
-TV_FRAMES = "https://www.tradingview-widget.com https://s.tradingview.com"
+TV_SCRIPTS = "https://s3.tradingview.com https://widgets.tradingview-widget.com"
+TV_FRAMES = "https://www.tradingview-widget.com https://s.tradingview.com https://widgets.tradingview-widget.com"
 CSP_META = re.compile(r'<meta http-equiv="Content-Security-Policy" content="[^"]*">\n?')
 
 

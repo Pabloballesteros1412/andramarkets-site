@@ -86,7 +86,7 @@
   }
   function proj(p) { var v = sub(p, eye), z = dot(v, fw); if (z <= 0) return null; return [(0.5 + 0.5 * dot(v, rt) / (z * tanF * asp)) * W, (0.5 - 0.5 * dot(v, up) / (z * tanF)) * H, z]; }
   function seen(p) { return dot(p, eye) > 1; }
-  var MONO = "Geist, Helvetica Neue, Arial, sans-serif", SANS = "Geist, system-ui, sans-serif";
+  var MONO = "Inter, Arial, sans-serif", SANS = "Inter, system-ui, sans-serif";
   var glow = document.createElement("canvas"); glow.width = glow.height = 128;
   (function () { var g = glow.getContext("2d"), r = g.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(0.12, "rgba(225,238,255,.8)"); r.addColorStop(0.35, "rgba(150,190,255,.22)"); r.addColorStop(1, "rgba(120,170,255,0)"); g.fillStyle = r; g.fillRect(0, 0, 128, 128); })();
   function spot(q, s, a) { cx.globalAlpha = a; cx.drawImage(glow, q[0] - s / 2, q[1] - s / 2, s, s); }

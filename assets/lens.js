@@ -1,6 +1,6 @@
 /* Andra Markets: lenses, the tools' figures drawn as fields of fine lines (owner-approved
    preview, 13 Nov 2026). Thousands of thin white strands on the black ground, laid over one
-   another so that density reads as brightness, with small read-outs in Geist Light. Used by the
+   another so that density reads as brightness, with small read-outs in Inter Light. Used by the
    portfolio analyser (assets/portfolio.js) and Your fund (assets/fund.js).
 
      AndraLens.weave(canvas, { returns, steps, block, unit })  possible paths of a portfolio
@@ -13,7 +13,7 @@
   "use strict";
   var TAU = Math.PI * 2, MINUS = "−";
   var INK = "242,243,243", UP = "#1fd27a", DOWN = "#ff4b52";
-  var MONO = '"Geist", "Helvetica Neue", Arial, sans-serif';   // the read-outs' face (owner, 27 Nov 2026: Geist Light, as written)
+  var MONO = 'Inter, "Helvetica Neue", Arial, sans-serif';   // the read-outs' face (owner, 27 Nov 2026: Inter Light, as written)
   var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // A small seeded generator: the same portfolio draws the same picture every time.
@@ -44,7 +44,7 @@
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     return { c: c, w: w, h: h };
   }
-  // A read-out on the canvas: small, in Geist Light, as written.
+  // A read-out on the canvas: small, in Inter Light, as written.
   function label(c, text, x, y, align, color) {
     c.font = "300 12px " + MONO;
     c.textAlign = align || "left";
