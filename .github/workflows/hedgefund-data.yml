@@ -22,7 +22,9 @@ name: Hedge Fund Data
 #   Insiders (tools/insiders_data.py): SEC EDGAR Form 4 open-market trades
 #   (SEC_CONTACT_EMAIL, which the SEC requires in every request).
 #   From orbit (tools/orbit_data.py): NASA FIRMS heat anomalies
-#   (NASA_FIRMS_MAP_KEY); every three hours.
+#   (NASA_FIRMS_MAP_KEY); every three hours. Night lights
+#   (tools/nightlights_data.py): NASA Black Marble monthly radiance over 13
+#   places (NASA_EARTHDATA_TOKEN), a few tiles a run until the history is full.
 #
 # Each step keeps its source's last good copy on failure and never stops the
 # others (continue-on-error), so one source that is down costs only its own figures.
@@ -47,6 +49,7 @@ on:
       - "tools/power_data.py"
       - "tools/insiders_data.py"
       - "tools/orbit_data.py"
+      - "tools/nightlights_data.py"
       - ".github/workflows/hedgefund-data.yml"
 
 permissions:
@@ -68,8 +71,8 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
-      - name: Install the WebSocket client
-        run: pip install websockets==15.0.1
+      - name: Install the WebSocket and HDF5 readers
+        run: pip install websockets==15.0.1 h5py==3.12.1 numpy==2.1.3
       - name: Restore Hedge Fund Data
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
@@ -123,6 +126,12 @@ jobs:
         env:
           NASA_FIRMS_MAP_KEY: ${{ secrets.NASA_FIRMS_MAP_KEY }}
         run: python3 tools/orbit_data.py
+      - name: Night lights
+        continue-on-error: true
+        timeout-minutes: 8
+        env:
+          NASA_EARTHDATA_TOKEN: ${{ secrets.NASA_EARTHDATA_TOKEN }}
+        run: python3 tools/nightlights_data.py
       - name: Save Hedge Fund Data
         if: ${{ always() }}
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -200,4 +209,10 @@ jobs:
               print(f"- FIRMS: {o.get('total')} detections in 24 hours, fetched {o.get('fetched')}")
           except Exception as e:
               print(f"- From orbit: {e}")
+          try:
+              nl = json.load(open(".cache/hf/nightlights.json"))
+              done = sum(1 for m in nl["data"].values() for x in m.values() if x)
+              print(f"- Night lights: {len(nl['data'])} months, {done} region-months measured")
+          except Exception as e:
+              print(f"- Night lights: {e}")
           EOF
