@@ -166,6 +166,34 @@ test("fundamentals: FMP's daily limit is busy; an unknown ticker is not_found", 
   assert.equal(a.res.status, 404);
 });
 
+test("an unknown ticker costs one vendor call and its 404 is cached", async () => {
+  routes["fmp:/profile"] = [];
+  let a = await call("/fundamentals?t=ZZZQ");
+  assert.equal(a.res.status, 404);
+  assert.equal(calls.length, 1, "no statement is asked for a ticker with no profile");
+  a = await call("/fundamentals?t=ZZZQ");
+  assert.equal(a.res.status, 404);
+  assert.equal(a.res.headers.get("X-Cache"), "HIT");
+  assert.equal(calls.length, 1, "second ask served from cache");
+});
+
+test("heavy routes get the stricter limiter on a cache miss only", async () => {
+  let n = 0;
+  const HEAVY = { limit: async () => ({ success: ++n <= 1 }) };
+  routes["fmp:/profile"] = [{ companyName: "Example Corp" }];
+  assert.equal((await call("/fundamentals?t=EXMP", { env: env({ HEAVY }) })).res.status, 200);
+  assert.equal((await call("/fundamentals?t=EXMP", { env: env({ HEAVY }) })).res.status, 200, "cached answer is not limited");
+  assert.equal((await call("/fundamentals?t=OTHR", { env: env({ HEAVY }) })).res.status, 429);
+  routes["fh:/quote"] = { c: 1, d: 0, dp: 0, pc: 1, t: 1 };
+  assert.equal((await call("/quote?t=OTHR", { env: env({ HEAVY }) })).res.status, 200, "light routes are not limited");
+});
+
+test("analyst counts are numbers, whatever the vendor sends", async () => {
+  routes["fh:/stock/recommendation"] = [{ period: "2026-11-01", strongBuy: "1;background:url(x)", buy: 3, hold: null, sell: "2", strongSell: 0 }];
+  const a = await call("/analysts?t=EXMP");
+  assert.deepEqual(a.body.months[0], { period: "2026-11-01", strongBuy: 0, buy: 3, hold: 0, sell: 2, strongSell: 0 });
+});
+
 test("fundamentals: asks FMP for the 5 years its free plan allows, never more", async () => {
   routes["fmp:/profile"] = [{ companyName: "Example Corp" }];
   await call("/fundamentals?t=EXMP");

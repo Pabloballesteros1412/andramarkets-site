@@ -502,6 +502,12 @@ def push_branch(branch, records, message):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def inert(text):
+    """Agent-written text quoted in a pull request: no @mention notifies anyone
+    and no Markdown link renders (a zero-width space after '@', brackets escaped)."""
+    return str(text).replace("@", "@\u200b").replace("[", "\\[").replace("]", "\\]")
+
+
 def open_pr(branch, title, body, token):
     owner = SITE_REPO.split("/")[0]
     open_prs = api(f"/repos/{SITE_REPO}/pulls?state=open&head={owner}:{branch}", token)
@@ -530,9 +536,9 @@ def open_held_pr(record, reasons, token):
         "",
         "**Why it was held**",
         "",
-        *[f"- {r}" for r in reasons],
+        *[f"- {inert(r)}" for r in reasons],
         "",
-        f"**Headline:** {record['note']['headline']}",
+        f"**Headline:** {inert(record['note']['headline'])}",
         "",
         "**What to do**",
         "",
@@ -582,7 +588,7 @@ def open_backfill_pr(records, token):
         "",
         "| Date | Headline | Held because | Agent run |",
         "|---|---|---|---|",
-        *[f"| {r['date']} | {r['record']['note']['headline'].replace('|', '/')} | "
+        *[f"| {r['date']} | {inert(r['record']['note']['headline']).replace('|', '/')} | "
           f"{'; '.join(short_reason(x) for x in r['reasons'])} | "
           f"[run {r['record']['source']['run_id']}]({_run_link(r['record'])}) |" for r in records],
         "",

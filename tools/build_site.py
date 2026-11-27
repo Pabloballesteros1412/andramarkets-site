@@ -841,7 +841,7 @@ def dashboard_page(key, cat, name, desc, source, rec):
                         for r in ranges)
         asof = tile_asof(key, rec)
         meta = f'{esc(rec["source"])}. As of {asof}.'
-        payload = json.dumps(det, separators=(",", ":")).replace("</", "<\\/")
+        payload = json.dumps(det, separators=(",", ":")).replace("<", "\\u003c")
         rows = latest_rows(key, rec)
         kpis = "".join(f'<li class="kpi__item"><span class="kpi__name">{n}</span><span class="kpi__level">{lv}</span>'
                        f'<span class="kpi__chg">{note}</span></li>' for n, lv, note in rows)
@@ -1143,6 +1143,15 @@ SPECULATION = ('<script type="speculationrules">'
                '"eagerness":"moderate"}]}'
                '</script>')
 
+# The homepage's opening (assets/home.css, assets/home.js), in its head.
+HOME_BOOT = ('(function(){var d=document.documentElement;if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;'
+             'd.classList.add("opening");try{if(sessionStorage.getItem("andra-opened"))d.classList.add("opening--quick")}catch(e){}'
+             'setTimeout(function(){d.classList.add("is-live")},4000)})();')
+
+# /profile/'s redirect to Companies (profile_redirect()).
+PROFILE_REDIRECT_JS = ("var t=new URLSearchParams(location.search).get('t');"
+                       "location.replace('../companies/'+(t?'live/?t='+encodeURIComponent(t):''));")
+
 
 # How many tools and simulators there are, in words (kept in step with LAB_N and SIM_N below, which the build checks).
 NUM_WORD = {5: "Five", 6: "Six", 7: "Seven", 8: "Eight", 9: "Nine", 10: "Ten", 16: "Sixteen", 17: "Seventeen", 18: "Eighteen", 19: "Nineteen", 20: "Twenty"}
@@ -1190,7 +1199,7 @@ def page(notes, cal):
 <a class="go" href="contact/">Contact us{HOME_ARROW}</a></div>
 <footer class="foot"><span>&copy; {year} Andra Markets</span><span><a href="legal/">For information only. Not investment advice.</a> &middot; <a href="privacy/">Privacy and cookies</a></span></footer></section>
 </main>
-<script type="application/json" id="home-data">{json.dumps(data, separators=(",", ":"))}</script>""",
+<script type="application/json" id="home-data">{json.dumps(data, separators=(",", ":")).replace("<", "\\u003c")}</script>""",
         home="",
         base="",
         scripts=("space.js", "home.js", "markets-config.js", "markets.js"),
@@ -1204,9 +1213,7 @@ def page(notes, cal):
         # and the header start hidden; the full sequence once per visit, a short one after that.
         # If the scene never starts they are shown after four seconds.
         head=(f'\n<link rel="preload" href="assets/horse-particles.webp?v={ver("horse-particles.webp")}" as="image" type="image/webp">'
-              '\n<script>(function(){var d=document.documentElement;if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;'
-              'd.classList.add("opening");try{if(sessionStorage.getItem("andra-opened"))d.classList.add("opening--quick")}catch(e){}'
-              'setTimeout(function(){d.classList.add("is-live")},4000)})();</script>'),
+              f'\n<script>{HOME_BOOT}</script>'),
     )
 
 
@@ -2211,7 +2218,7 @@ def pf_page(i, risk):
     data = pf_data(risk)
     others = "".join(f'<a class="link" href="../{t[0]}/">{t[2]} {icon("arrow-right")}</a>' for j, t in enumerate(LAB_TOOLS) if j != i)
     if data:
-        payload = json.dumps(data, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+        payload = json.dumps(data, separators=(",", ":"), ensure_ascii=False).replace("<", "\\u003c")
         asof = day_med(dt.date.fromisoformat(data["asof"]))
         tool = f"""<div class="pa__grid" hidden>
       <section class="pa__in" aria-labelledby="pa-h-in">
@@ -2340,7 +2347,7 @@ def risk_page(i, data, key):
     slug, kind, title, desc, how, limits = LAB_TOOLS[i]
     others = "".join(f'<a class="link" href="../{t[0]}/">{t[2]} {icon("arrow-right")}</a>' for j, t in enumerate(LAB_TOOLS) if j != i)
     if data:
-        payload = json.dumps({k: v for k, v in data.items() if k[0] != "_"}, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+        payload = json.dumps({k: v for k, v in data.items() if k[0] != "_"}, separators=(",", ":"), ensure_ascii=False).replace("<", "\\u003c")
         tool = f"""<section class="dd__main lt-tool" aria-label="Calculator" hidden>
       <div class="lt-inputs">{risk_inputs(data)}<button class="co-reset lt-reset" type="button">Reset</button>
         <p class="lt-status" role="status" aria-live="polite"></p></div>
@@ -2425,7 +2432,7 @@ def fund_page(risk):
         from lab_data import WORLD
         cfg = {"companies": data["companies"], "files": data["files"], "asof": data["asof"], "bench": PF_BENCH,
                "world": WORLD if WORLD in risk["_extra"] else "", "start": FUND_START, "gross": FUND_GROSS}
-        payload = json.dumps(cfg, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+        payload = json.dumps(cfg, separators=(",", ":"), ensure_ascii=False).replace("<", "\\u003c")
         asof = day_med(dt.date.fromisoformat(data["asof"]))
         tool = f"""<div class="fd" hidden>
       <section class="fd-new" aria-labelledby="fd-h-new" hidden>
@@ -2782,7 +2789,7 @@ def sim_game_page(kind, sim):
     src = "; ".join(f"{html.unescape(n)}: Yahoo Finance, {sim['markets'][k]['first'].year} to {day_med(sim['markets'][k]['last'])}"
                     for k, n, _ in SIM_MARKETS if k in sim["markets"])
     config = json.dumps({"game": kind, "markets": markets, "episodes": episodes, "src": src},
-                        separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+                        separators=(",", ":"), ensure_ascii=False).replace("<", "\\u003c")
     rival = "The Index" if kind == "trading" else "Holding on"
     if kind == "trading":
         how = [("You start with $10,000 in the market on the first day of a two-year stretch picked from its history, "
@@ -2838,7 +2845,7 @@ def sim_fed_page(sim):
     eps = [{"from": a, "to": b, "title": t} for a, b, t, _, _ in EPISODES]
     config = json.dumps({"file": fed["file"] if fed else "", "episodes": eps,
                          "src": f"FRED: CPI, unemployment, the Fed's target and the 2-year Treasury yield, to {fed['last']}" if fed else ""},
-                        separators=(",", ":")).replace("</", "<\\/")
+                        separators=(",", ":")).replace("<", "\\u003c")
     cards = "".join(f'<div><span>{t}</span><b data-fed="{k}"></b><em data-fed="{k}-note"></em><svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true"><path data-fed="{k}-spark"/></svg></div>'
                     for k, t in (("cpi", "Inflation, CPI over 12 months"), ("un", "Unemployment"),
                                  ("target", "Fed funds target"), ("gs2", "2-year Treasury yield")))
@@ -3000,7 +3007,7 @@ def quiz_page(slug, data):
     kind, title, text, question, share, verdicts, how = QUIZ[slug]
     key = (data or {}).get("file", "").split("?")[0].replace("simdata-", "").replace(".js", "")
     config = json.dumps({"key": key, "kind": kind, "name": name, "file": (data or {}).get("file", ""), "rounds": 10, "base": "../../",
-                         "share": share, "verdicts": verdicts, "src": (data or {}).get("src", "")}, separators=(",", ":")).replace("</", "<\\/")
+                         "share": share, "verdicts": verdicts, "src": (data or {}).get("src", "")}, separators=(",", ":")).replace("<", "\\u003c")
     inner = f"""<div class="fed-game qz qz--{kind}">
     {sim_head(name, 'data-quiz="tag"')}
     <div class="sim-panel fed-intro" data-quiz="intro"><h2>{title}</h2>
@@ -3028,7 +3035,7 @@ def sim_portfolio_page(sim):
     config = json.dumps({"file": pf["file"] if pf else "", "episodes": eps,
                          "src": (f"S&P 500 with dividends (Yahoo Finance, Robert Shiller) and 10-year Treasuries (Robert Shiller, FRED), "
                                  f"{pf['first'][:4]} to {pf['last']}") if pf else ""},
-                        separators=(",", ":")).replace("</", "<\\/")
+                        separators=(",", ":")).replace("<", "\\u003c")
     sliders = "".join(f'<div class="pb-row"><label for="pb-{k}">{t}<b data-pb="{k}-v">{v}%</b></label>'
                       f'<input id="pb-{k}" type="range" min="0" max="100" step="5" value="{v}" data-pb="{k}"></div>'
                       for k, t, v in (("s", "Stocks", 60), ("b", "Bonds", 30)))
@@ -4270,7 +4277,7 @@ def fx_charts(fx):
                       "group": r["group"], "ccy": ccy, "inv": bool(ccy) and name.startswith("USD/")})
     moves = {k: {m: r.get(m) for m in ("d1", "w1", "m1", "ytd")} for k, r in rows.items()}
     payload = json.dumps({"pairs": pairs, "hist": hist, "moves": moves, "rates": fx.get("rates") or {}},
-                         separators=(",", ":")).replace("</", "<\\/")
+                         separators=(",", ":")).replace("<", "\\u003c")
     ranges = lambda d: fx_chips("dd__ranges", "Range", [(r, r) for r in FX_RANGES], d)  # noqa: E731
     others = [(p["key"], p["name"]) for p in pairs if p["key"] != "dxy"]
     rates = fx.get("rates") or {}
@@ -4354,7 +4361,7 @@ def fx_index(fx):
                         + "</div></section>")
     earth = ""
     if rows:
-        globe = json.dumps(fx_globe(rows), separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+        globe = json.dumps(fx_globe(rows), separators=(",", ":"), ensure_ascii=False).replace("<", "\\u003c")
         earth = f"""<div class="wm-globe" hidden>
         <canvas class="wm-globe__gl" aria-hidden="true"></canvas>
         <canvas class="wm-globe__top" role="img" aria-label="The Earth, turning, with each country coloured for its currency's last session against the dollar. Every figure is in the table below."></canvas>
@@ -4770,9 +4777,11 @@ def load_companies():
 
 def co_logo(t):
     """The company's logo file: the official SVG where there is one, else the PNG."""
+    from company_data import svg_is_safe
     for ext in (".svg", ".png"):
         f = CO_DATA.parent / "logos" / f"{t}{ext}"
-        if f.exists():
+        # A cached SVG fetched before the active-content check is checked again.
+        if f.exists() and (ext == ".png" or svg_is_safe(f.read_bytes())):
             return f
     return None
 
@@ -5001,11 +5010,11 @@ def co_returns(t, data):
     rec = data["co"][t]
     sector = rec["sector"]
     mates = co_mates(t, data)
-    rows = [(co_name(rec), period_returns(rec["closes"]))]
+    rows = [(esc(co_name(rec)), period_returns(rec["closes"]))]
     if len(mates) >= 3:
         rs = [period_returns(data["co"][x]["closes"]) for x in mates]
         avg = [None if any(r[i] is None for r in rs) else sum(r[i] for r in rs) / len(rs) for i in range(4)]
-        rows.append((f"{SHORT_SECTOR.get(sector, sector)} average ({len(mates)})", avg))
+        rows.append((f"{esc(SHORT_SECTOR.get(sector, sector))} average ({len(mates)})", avg))
     bench = co_bench(rec, data)
     if bench:
         rows.append((esc(rec["bench_name"]), period_returns(bench)))
@@ -5145,11 +5154,11 @@ def company_page(t, data, cal):
     peers_all = co_mates(t, data)
     if len(peers_all) >= 4:
         peers = peers_all
-        peers_lede = (f"{name} (filled) against the other {len(peers) - 1} {SHORT_SECTOR.get(sector, sector).lower()} "
+        peers_lede = (f"{esc(name)} (filled) against the other {len(peers) - 1} {esc(SHORT_SECTOR.get(sector, sector).lower())} "
                       f"companies among the {PER_MARKET} largest in {where}. Tap or hover a dot to read it.")
     else:
         peers = [x for x in data["order"] if data["co"][x]["market"] == market]
-        peers_lede = (f"{name} (filled) against the {PER_MARKET} largest companies in {where}; too few in its sector "
+        peers_lede = (f"{esc(name)} (filled) against the {PER_MARKET} largest companies in {where}; too few in its sector "
                       f"to compare on their own. Tap or hover a dot to read it.")
     flow = co_flow(rec)
     cagr, _ = co_cagr(rec)
@@ -5171,10 +5180,10 @@ def company_page(t, data, cal):
     }
     if risk:
         payload["risk"] = {"dd": risk["dd"]}
-    json_payload = json.dumps(payload, separators=(",", ":")).replace("</", "<\\/")
+    json_payload = json.dumps(payload, separators=(",", ":")).replace("<", "\\u003c")
 
     chg = f'{mv(("+" if m["chg"] >= 0 else MINUS) + price_txt(abs(m["chg"]), cur))} ({mv(signed(m["chg_pct"], 2, "%"))})'
-    lede = f"{SHORT_SECTOR.get(sector, sector)}{(', ' + esc(rec['industry'])) if rec.get('industry') else ''}. Revenue of {fmoney(m['rev'])} in the year to {fy}"
+    lede = f"{esc(SHORT_SECTOR.get(sector, sector))}{(', ' + esc(rec['industry'])) if rec.get('industry') else ''}. Revenue of {fmoney(m['rev'])} in the year to {fy}"
     if m["revg"] is not None:
         lede += f", {'up' if m['revg'] >= 0 else 'down'} {abs(m['revg']):.1f}%"
     if m["om"] is not None:
@@ -5324,10 +5333,10 @@ def company_page(t, data, cal):
     body = f"""<main id="main" class="page dd co" data-co{live_attrs}>
   <div class="wrap dd__grid">
     <header class="page__head dd__head{" co-head--logo" if logo_html else ""}">
-      <p class="dd__crumbs"><a href="../">Companies</a> <span aria-hidden="true">/</span> {SHORT_SECTOR.get(sector, sector)}</p>
+      <p class="dd__crumbs"><a href="../">Companies</a> <span aria-hidden="true">/</span> {esc(SHORT_SECTOR.get(sector, sector))}</p>
       <h1 class="page__title">{esc(name)}</h1>
       {logo_html}
-      <p class="co-quote"><span class="co-px"{ids("px")}>{price_txt(m["price"], cur)}</span><span class="co-chg"{ids("chg")}>{chg} on the day</span><span class="note__meta"{ids("qmeta")}>{t}, {esc(rec.get("exchange") or "")}. Close {day_med(d)}.</span></p>
+      <p class="co-quote"><span class="co-px"{ids("px")}>{price_txt(m["price"], cur)}</span><span class="co-chg"{ids("chg")}>{chg} on the day</span><span class="note__meta"{ids("qmeta")}>{esc(t)}, {esc(rec.get("exchange") or "")}. Close {day_med(d)}.</span></p>
       <p class="lede">{lede}</p>
       <div class="co-acts">
         <button class="btn" type="button" data-soon="The portfolio monitor is coming soon: you will be able to follow {esc(name)} and your other holdings here.">Add to portfolio monitor</button>
@@ -5395,7 +5404,7 @@ def company_page(t, data, cal):
   <script type="application/json" id="co-data">{json_payload}</script>
 </main>"""
     return shell(
-        title=f"{esc(name)} ({t}): Andra Markets",
+        title=f"{esc(name)} ({esc(t)}): Andra Markets",
         desc=esc(f"{name}: valuation, peers, revenue to profit and the share price against the market. {html.unescape(lede)}"),
         body=body, home=base, base=base, path=f"companies/{co_slug(t)}/", scripts=("company.js", "profile.js") if live else ("company.js",),
     )
@@ -5479,7 +5488,7 @@ def companies_index(data):
     order = sorted(sectors, key=lambda s: (-len(sectors[s]), s))
     n = len(data["order"])
     chips = (f'<button type="button" class="chip" data-cofilter="all" aria-pressed="true">All sectors <span class="chip__n">{n}</span></button>'
-             + "".join(f'<button type="button" class="chip" data-cofilter="{slug_s(s)}" aria-pressed="false">{SHORT_SECTOR.get(s, s)} '
+             + "".join(f'<button type="button" class="chip" data-cofilter="{slug_s(s)}" aria-pressed="false">{esc(SHORT_SECTOR.get(s, s))} '
                        f'<span class="chip__n">{len(sectors[s])}</span></button>' for s in order))
     mchips = (f'<button type="button" class="chip" data-comarket="all" aria-pressed="true">All markets <span class="chip__n">{n}</span></button>'
               + "".join(f'<button type="button" class="chip" data-comarket="{k}" aria-pressed="false">{label} '
@@ -5497,13 +5506,13 @@ def companies_index(data):
         rows.append(
             f'<tr data-sector="{slug_s(rec["sector"])}" data-market="{rec["market"]}" data-t="{fin_ticker(t) if rec["market"] == "us" else t}" '
             f'data-q="{esc(" ".join(sorted({t.lower(), fin_ticker(t).lower()})) + " " + html.unescape(co_name(rec)).lower())}"><td class="co-tab__rank">{i}</td>'
-            f'<td class="co-tab__name"><a href="{co_slug(t)}/">{esc(co_name(rec))}</a><span>{t}</span></td>'
-            f'<td class="co-tab__sec" data-label="Sector">{SHORT_SECTOR.get(rec["sector"], rec["sector"])}</td>'
+            f'<td class="co-tab__name"><a href="{co_slug(t)}/">{esc(co_name(rec))}</a><span>{esc(t)}</span></td>'
+            f'<td class="co-tab__sec" data-label="Sector">{esc(SHORT_SECTOR.get(rec["sector"], rec["sector"]))}</td>'
             f'<td class="num" data-label="Close">{price_txt(m["price"], rec.get("currency") or "USD")}</td>'
             f'<td class="num" data-label="Day">{mv(signed(m["chg_pct"], 2, "%"))}</td>'
             f'<td class="num" data-label="Value">{money(usd)}</td>'
             f'<td class="num" data-label="P/E">{pe_txt}</td></tr>')
-    globe = json.dumps(globe_data(data, ranked, ms), separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+    globe = json.dumps(globe_data(data, ranked, ms), separators=(",", ":"), ensure_ascii=False).replace("<", "\\u003c")
     body = f"""<main id="main" class="page co-index" data-mode="index" data-api="{esc(PROFILE_API)}">
   <div class="wrap">
     <header class="page__head">
@@ -5697,7 +5706,7 @@ def world_page(w):
         "markets": [{"iso": iso, "name": nm, "index": idx} for iso, nm, _, idx, *_ in WORLD_MARKETS],
         "figures": {iso: {a: {"v": r["v"], "when": world_when(r), "src": r["src"]} for a, r in f.items() if a in WORLD_AXIS}
                     for iso, f in figs.items()},
-        "scale": scale, "start": WORLD_DEFAULT}, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+        "scale": scale, "start": WORLD_DEFAULT}, separators=(",", ":"), ensure_ascii=False).replace("<", "\\u003c")
     ranges = "".join(
         f'<li class="kpi__item"><span class="kpi__name">{WORLD_AXIS[a][1]}</span>'
         f'<span class="kpi__level">{world_fig(a, {"v": sc["lo"]})} to {world_fig(a, {"v": sc["hi"]})}</span>'
@@ -5728,7 +5737,7 @@ def world_page(w):
         if a == "fx" and "United States" in missing:
             gap = gap.replace("United States", "the United States (its currency is the dollar)")
         src_rows.append(f'<li><span>{WORLD_AXIS[a][0]}. {WORLD_AXIS[a][4]} {parts}.{gap}</span></li>')
-    globe = json.dumps(world_globe(figs), separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+    globe = json.dumps(world_globe(figs), separators=(",", ":"), ensure_ascii=False).replace("<", "\\u003c")
     body = f"""<main id="main" class="page dd wm" data-world>
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
@@ -6001,10 +6010,10 @@ def fedrates_page(d):
             f'<h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{kpis}</ul>'
             f'<p class="report__src">Each figure with its own date. Sources in each panel.</p></aside>') if latest else ""
     updated = f'Updated {et_stamp(d["updated"])}' if d.get("updated") else "Data pending"
-    payload = json.dumps(fr_payload(d), separators=(",", ":")).replace("</", "<\\/")
+    payload = json.dumps(fr_payload(d), separators=(",", ":")).replace("<", "\\u003c")
     night = json.dumps({"night": f'../assets/us-night.jpg?v={ver("us-night.jpg")}', "day": f'../assets/earth-day.jpg?v={ver("earth-day.jpg")}',
                         "box": [-172, -28, -2, 80], "next": upcoming[0]["decision"] if upcoming else None, "goto": "fr-policy"},
-                       separators=(",", ":")).replace("</", "<\\/")
+                       separators=(",", ":")).replace("<", "\\u003c")
     body = f"""<main id="main" class="page dd fr">
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
@@ -6126,7 +6135,7 @@ def technical_page(t, topics):
               f'<p class="tq-ex__note">{esc(e["note"])}</p></section>')
     q = t["questions"]
     core = sum(x["level"] == "core" for x in q)
-    payload = json.dumps(q, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+    payload = json.dumps(q, separators=(",", ":"), ensure_ascii=False).replace("<", "\\u003c")
     noscript = "".join(f'<li><p class="tq-nq">{esc(x["q"])}</p>{tq_paras(x["a"])}'
                        + (f'<p class="ip-follow"><b>Likely follow-up:</b> {esc(x["follow"])}</p>' if x.get("follow") else "") + "</li>"
                        for x in q)
@@ -6258,7 +6267,7 @@ def rc_ahead(rows):
             firms.setdefault(r["firm"], {"f": r["firm"], "g": g, "items": []})["items"].append(it)
     order = {g: i for i, (g, _) in enumerate(RC_GROUPS)}
     out = {"groups": dict(RC_GROUPS), "firms": sorted(firms.values(), key=lambda f: order.get(f["g"], 9)), "all": len({r["firm"] for r in rows})}
-    return json.dumps(out, separators=(",", ":")).replace("</", "<\\/")
+    return json.dumps(out, separators=(",", ":")).replace("<", "\\u003c")
 
 
 def rc_attrs(r):
@@ -6734,8 +6743,7 @@ def live_page(companies):
 
 def profile_redirect():
     """/profile/ moved into Companies: send old links on."""
-    js = ("var t=new URLSearchParams(location.search).get('t');"
-          "location.replace('../companies/'+(t?'live/?t='+encodeURIComponent(t):''));")
+    js = PROFILE_REDIRECT_JS
     body = (f'<main id="main" class="page"><div class="wrap"><header class="page__head"><h1 class="page__title">Companies</h1>'
             f'<p class="lede">The company profile is now part of <a class="link" href="../companies/">Companies</a>.</p></header></div></main>'
             f'<script>{js}</script>')
@@ -6821,7 +6829,7 @@ def search_index(notes, companies=None, library=()):
     for e in page_market_history.episodes():
         items.append({"g": "Pages", "t": e["title"], "m": f"Market history, {e['years']}",
                       "u": f"market-history/{e['slug']}/", "k": e["text"]})
-    payload = json.dumps(items, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    payload = json.dumps(items, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
     return "// Generated by tools/build_site.py. Do not edit.\nwindow.ANDRA_SEARCH=" + payload + ";\n"
 
 
@@ -7057,13 +7065,28 @@ DATA_SCRIPTS = ("application/json", "application/ld+json")
 # TradingView's loader (script-src) and the frames it opens (frame-src). The frames fetch their
 # own data: nothing else of TradingView's runs in the page.
 TV_MARK = "assets/markets.js"
-TV_SCRIPTS = "https://s3.tradingview.com"
+TV_SCRIPTS = "https://s3.tradingview.com/external-embedding/"  # the widget loaders only (assets/markets.js)
 TV_FRAMES = "https://www.tradingview-widget.com https://s.tradingview.com"
 CSP_META = re.compile(r'<meta http-equiv="Content-Security-Policy" content="[^"]*">\n?')
 
 
+def known_inline(body):
+    """Whether an inline script is one the build itself writes. The policy hashes
+    only these, so text injected into a page from fetched data can never become
+    an allowed script, even as a whole <script> element."""
+    allowed = {THEME_BOOT, ARRIVE_BOOT + MOVE_BOOT, HOME_BOOT, PROFILE_REDIRECT_JS,
+               SPECULATION.split(">", 1)[1].rsplit("</script>", 1)[0]}
+    # moved_redirect(): a relative address made of the site's own folder names.
+    return body in allowed or bool(re.fullmatch(r'location\.replace\("(\.\./)*[a-z0-9/-]*(#[a-z0-9-]+)?"\);', body))
+
+
+class UnknownInlineScript(ValueError):
+    pass
+
+
 def inline_hashes(page_html):
-    """'sha256-...' for each inline script the browser would run, in page order."""
+    """'sha256-...' for each inline script the browser would run, in page order.
+    Raises UnknownInlineScript for any inline script the build did not write."""
     out = []
     for m in INLINE_SCRIPT.finditer(page_html):
         attrs = m.group("attrs")
@@ -7074,6 +7097,8 @@ def inline_hashes(page_html):
             continue
         # the browser hashes the text after turning CRLF and CR into LF
         body = m.group("body").replace("\r\n", "\n").replace("\r", "\n")
+        if not known_inline(body):
+            raise UnknownInlineScript(f"inline script the build did not write: {body[:80]!r}")
         h = "'sha256-" + base64.b64encode(hashlib.sha256(body.encode("utf-8")).digest()).decode("ascii") + "'"
         if h not in out:
             out.append(h)
@@ -7087,10 +7112,10 @@ def csp_policy(page_html):
     counted = f'src="{BEACON_SRC}"' in page_html
     # TradingView's widgets, only on a page that mounts them (Live Markets and the homepage's tape).
     live = TV_MARK in page_html
-    beacon_origin = urlsplit(BEACON_SRC)
     return "; ".join([
         "default-src 'self'",
-        " ".join(["script-src 'self'"] + ([f"{beacon_origin.scheme}://{beacon_origin.netloc}"] if counted else [])
+        # Third-party scripts by exact path, not their whole host.
+        " ".join(["script-src 'self'"] + ([BEACON_SRC] if counted else [])
                  + ([TV_SCRIPTS] if live else []) + inline_hashes(page_html)),
         "style-src 'self' 'unsafe-inline'",
         "img-src 'self' data: blob:",

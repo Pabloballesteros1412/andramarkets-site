@@ -730,7 +730,7 @@
       key.textContent = "";
       bar.setAttribute("aria-label", parts.map(function (p) { return p[0] + " " + p[1]; }).join(", "));
       parts.forEach(function (p, i) {
-        if (p[1]) bar.appendChild(h("i", { "class": "pf-an-" + (i + 1), style: "flex:" + p[1] }));
+        if (p[1]) bar.appendChild(h("i", { "class": "pf-an-" + (i + 1), style: "flex:" + (+p[1] || 0) }));
         key.appendChild(h("span", {}, [h("i", { "class": "pf-an-" + (i + 1) }), p[0] + " ", h("b", {}, String(p[1]))]));
       });
       state(anPart, "ok");

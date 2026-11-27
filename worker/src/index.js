@@ -34,6 +34,7 @@ const YEARS = 5;
 // Edge-cache keys carry a version: bump it when answers change shape or
 // content, so a day of cached answers from the old code is not served.
 const CACHE_VERSION = "v2";
+const HEAVY_ROUTES = new Set(["fundamentals", "peers"]);
 
 export default {
   async fetch(request, env, ctx) {
@@ -70,6 +71,14 @@ export default {
       const hit = await cache.match(cacheReq);
       if (hit) return withHeaders(hit, { ...cors, "X-Cache": "HIT" });
     }
+    // A miss on the routes that fan out to many vendor calls (fundamentals: 6,
+    // peers: up to 13) gets a second, stricter per-IP limit, so a script that
+    // walks made-up tickers cannot spend the day's free quota for everyone.
+    if (env.HEAVY && HEAVY_ROUTES.has(name)) {
+      const ip = request.headers.get("CF-Connecting-IP") || "anon";
+      const { success } = await env.HEAVY.limit({ key: ip });
+      if (!success) return json({ error: { code: "busy", message: "Too many requests. Try again in a minute.", retryAfter: 60 } }, 429, { ...cors, "Retry-After": "60" });
+    }
 
     try {
       const data = await handler(arg, env);
@@ -93,6 +102,14 @@ export default {
         }
       }
       const extra = err.retryAfter ? { "Retry-After": String(err.retryAfter) } : {};
+      // An unknown ticker stays unknown: cache the 404 (an hour for the price,
+      // a day for the rest), so asking again costs no vendor call.
+      if (cache && err.code === "not_found") {
+        const ttl = name === "quote" ? 3600 : 86400;
+        const neg = json({ error: { code: err.code, message: err.message } }, 404, { "Cache-Control": `public, max-age=300, s-maxage=${ttl}` });
+        ctx.waitUntil(cache.put(cacheReq, neg.clone()));
+        return withHeaders(neg, { ...cors, "X-Cache": "MISS" });
+      }
       return json({ error: { code: err.code, message: err.message, ...(err.retryAfter ? { retryAfter: err.retryAfter } : {}) } }, err.status, { ...cors, ...extra, "Cache-Control": "no-store" });
     }
   },
@@ -144,7 +161,7 @@ async function news(t, env) {
 async function analysts(t, env) {
   const d = await finnhub("/stock/recommendation", { symbol: t }, env);
   const rows = (Array.isArray(d) ? d : []).sort((a, b) => (a.period < b.period ? 1 : -1)).slice(0, 4)
-    .map((r) => ({ period: r.period, strongBuy: r.strongBuy || 0, buy: r.buy || 0, hold: r.hold || 0, sell: r.sell || 0, strongSell: r.strongSell || 0 }));
+    .map((r) => ({ period: /^\d{4}-\d{2}(-\d{2})?$/.test(r.period || "") ? r.period : "", strongBuy: num(r.strongBuy) || 0, buy: num(r.buy) || 0, hold: num(r.hold) || 0, sell: num(r.sell) || 0, strongSell: num(r.strongSell) || 0 }));
   return { t, months: rows };
 }
 
@@ -165,20 +182,21 @@ async function peers(t, env) {
 
 async function fundamentals(t, env) {
   const fmpCall = (path, extra) => fmp(path, { symbol: t, ...extra }, env).catch((e) => e);
-  const [profile, income, balance, cash, ratios, metric] = await Promise.all([
-    fmpCall("/profile"),
-    fmpCall("/income-statement", { period: "annual", limit: YEARS }),
-    fmpCall("/balance-sheet-statement", { period: "annual", limit: YEARS }),
-    fmpCall("/cash-flow-statement", { period: "annual", limit: YEARS }),
-    fmpCall("/ratios", { period: "annual", limit: YEARS }),
-    finnhubMetric(t, env).catch((e) => e),
-  ]);
+  // The profile first: a made-up ticker then costs one FMP call, not five.
+  const profile = await fmpCall("/profile");
   const p = Array.isArray(profile) ? profile[0] : null;
   if (!p) {
     // No profile: a bad ticker, or the vendor failed. Pass the vendor's error on.
     if (profile instanceof ApiError && profile.code !== "not_found") throw profile;
     throw new ApiError(404, "not_found", `No US-listed company trades as ${t}.`);
   }
+  const [income, balance, cash, ratios, metric] = await Promise.all([
+    fmpCall("/income-statement", { period: "annual", limit: YEARS }),
+    fmpCall("/balance-sheet-statement", { period: "annual", limit: YEARS }),
+    fmpCall("/cash-flow-statement", { period: "annual", limit: YEARS }),
+    fmpCall("/ratios", { period: "annual", limit: YEARS }),
+    finnhubMetric(t, env).catch((e) => e),
+  ]);
   const years = mergeYears(list(income), list(balance), list(cash), list(ratios));
   const missing = [["income", income], ["balance", balance], ["cash", cash], ["ratios", ratios], ["metrics", metric]]
     .filter(([, v]) => v instanceof Error || (Array.isArray(v) && !v.length)).map(([k]) => k);

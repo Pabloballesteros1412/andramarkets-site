@@ -35,6 +35,13 @@ on:
       strip_only:
         type: boolean
         default: false
+    # Only the secrets this workflow reads; callers pass them by name rather
+    # than inheriting every repository secret (Cloudflare and vendor keys).
+    secrets:
+      AGENT_ARTIFACTS_TOKEN:
+        required: false
+      FRED_API_KEY:
+        required: false
 
 permissions:
   contents: read

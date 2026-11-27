@@ -440,6 +440,13 @@ feature (the page shows analyst recommendations instead), and FMP allows
 about 250 calls a day (about 5 per new ticker; repeat visits come from the
 cache). A section the plan leaves out says so on the page.
 
+To keep one client from spending those quotas for everyone, the Worker limits
+each visitor (by IP) to 60 requests a minute (`LIMITER` in
+`worker/wrangler.toml`) and, for fundamentals and peers answers not yet in the
+cache, to 10 a minute (`HEAVY`). An unknown ticker costs one FMP call (the
+profile is asked first) and its "not found" is cached like an answer (an hour
+for the price, a day for the rest).
+
 **The keys never enter the repo or the page.** They live as Worker secrets.
 Locally they sit in `.env` (ignored by git). `worker/.dev.vars.example`
 shows the variables for `npx wrangler dev`.

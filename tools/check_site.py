@@ -133,7 +133,12 @@ def check_csp():
         first_script = html.find("<script")
         if first_script >= 0 and first_script < m.start():
             problems.append(f"{rel}: a script comes before the Content Security Policy")
-        missing = [h for h in site.inline_hashes(html) if h not in m.group(1)]
+        try:
+            hashes = site.inline_hashes(html)
+        except site.UnknownInlineScript as e:
+            problems.append(f"{rel}: {e}")
+            continue
+        missing = [h for h in hashes if h not in m.group(1)]
         if missing:
             problems.append(f"{rel}: {len(missing)} inline script(s) not allowed by the policy")
     return problems

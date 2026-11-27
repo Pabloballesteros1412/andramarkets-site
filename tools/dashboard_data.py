@@ -58,9 +58,23 @@ def log(msg, level="notice"):
     print(f"::{level}::{msg}" if os.environ.get("GITHUB_ACTIONS") else msg, flush=True)
 
 
+class _NoAuthAcrossHosts(urllib.request.HTTPRedirectHandler):
+    """Release assets redirect to signed storage on another host: follow the
+    redirect without the agent repo's token (urllib copies it by default)."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        new = super().redirect_request(req, fp, code, msg, headers, newurl)
+        if new is not None and urllib.parse.urlsplit(newurl).hostname != urllib.parse.urlsplit(req.full_url).hostname:
+            new.remove_header("Authorization")
+        return new
+
+
+_OPENER = urllib.request.build_opener(_NoAuthAcrossHosts)
+
+
 def get(url, headers=None, limit=MAX_JSON):
     req = urllib.request.Request(url, headers={"User-Agent": UA, **(headers or {})})
-    with urllib.request.urlopen(req, timeout=40) as r:
+    with _OPENER.open(req, timeout=40) as r:
         raw = r.read(limit + 1)
     if len(raw) > limit:
         raise ValueError(f"{url}: response too large")

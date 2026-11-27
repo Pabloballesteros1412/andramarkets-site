@@ -59,7 +59,8 @@ jobs:
     uses: ./.github/workflows/pages.yml
     with:
       strip_only: true
-    secrets: inherit
+    secrets:
+      FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
     permissions:
       contents: read
       pages: write

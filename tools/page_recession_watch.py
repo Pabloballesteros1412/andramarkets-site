@@ -165,7 +165,7 @@ def pages(site):
     # stays hidden until the script has both.
     seis = ('<div class="rw-seis" hidden><canvas aria-hidden="true"></canvas><div class="rw-seis__names" aria-hidden="true"></div>'
             '<a class="lib-map__down" href="#rw-now">Latest readings</a></div>') if any(data.get(k) for k, *_ in INDICATORS) else ""
-    blob = json.dumps(payload(data), separators=(",", ":")).replace("</", "<\\/")
+    blob = json.dumps(payload(data), separators=(",", ":")).replace("<", "\\u003c")
     body = f"""<main id="main" class="page dd fr rw">
   <div class="wrap dd__grid">
     <header class="page__head dd__head">

@@ -118,8 +118,10 @@ NAVIGATE = {"Sec-Fetch-Dest": "document", "Sec-Fetch-Mode": "navigate", "Sec-Fet
 
 def links(page, base):
     """[(absolute url, link text)] in a page."""
-    return [(urllib.parse.urljoin(base, html.unescape(h)), re.sub(r"\s+", " ", strip(t)))
-            for h, t in re.findall(r'(?is)<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', page)]
+    # Only web addresses: urljoin passes a javascript: or data: link through as it is.
+    out = [(urllib.parse.urljoin(base, html.unescape(h).strip()), re.sub(r"\s+", " ", strip(t)))
+           for h, t in re.findall(r'(?is)<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>', page)]
+    return [(u, t) for u, t in out if re.match(r"(?i)https?://", u)]
 
 
 def strip(fragment):
@@ -222,7 +224,7 @@ class Events:
         nyday = utc.astimezone(NY).date() if utc else day
         ev = {"id": f"{self.src}:{nyday}:{slug(title)}", "src": cite or self.src, "date": nyday.isoformat(),
               "utc": utc.isoformat() if utc else None, "timing": timing, "country": country,
-              "kind": kind, "imp": imp, "title": title, "url": url or SOURCES[cite or self.src]["url"],
+              "kind": kind, "imp": imp, "title": title, "url": url if re.match(r"(?i)https?://", url or "") else SOURCES[cite or self.src]["url"],
               "ind": ind, "ref": ref}
         ev.update(extra or {})
         self.items.append(ev)
