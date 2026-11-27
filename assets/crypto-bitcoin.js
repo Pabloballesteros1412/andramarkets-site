@@ -84,8 +84,8 @@
     c.beginPath(); for (var k2 = i0; k2 <= i1; k2 += step) { var xx = X(k2), yy = Y(price ? P[k2] : DD[k2]); k2 === i0 ? c.moveTo(xx, yy) : c.lineTo(xx, yy); } c.lineTo(X(i1), Y(price ? P[i1] : DD[i1]));
     c.strokeStyle = "#f2f3f3"; c.lineWidth = price ? 1.5 : 1.2; c.stroke();
     // marks: the cycles' peaks on the price; the falls' lows below the record
-    function mark(i, v, text, color, below) { if (i < i0 || i > i1) return; var x = X(i), y = Y(v), w = c.measureText(text).width, ty = below ? y + 15 : y - 13, bx = [x - w / 2 - 3, ty - 8, x + w / 2 + 3, ty + 8];
-      c.fillStyle = "#f2f3f3"; c.beginPath(); c.arc(x, y, 2.6, 0, 7); c.fill(); if (bx[0] < L || bx[2] > S.w - 2 || taken.some(function (t) { return !(bx[2] < t[0] || bx[0] > t[2] || bx[3] < t[1] || bx[1] > t[3]); })) return;
+    function mark(i, v, text, color, below) { if (i < i0 || i > i1) return; var x0 = X(i), y = Y(v), w = c.measureText(text).width, x = Math.min(Math.max(x0, L + w / 2 + 3), S.w - w / 2 - 6), ty = below ? y + 15 : y - 13, bx = [x - w / 2 - 3, ty - 8, x + w / 2 + 3, ty + 8];
+      c.fillStyle = "#f2f3f3"; c.beginPath(); c.arc(x0, y, 2.6, 0, 7); c.fill(); if (bx[0] < L - 4 || bx[2] > S.w - 2 || taken.some(function (t) { return !(bx[2] < t[0] || bx[0] > t[2] || bx[3] < t[1] || bx[1] > t[3]); })) return;
       taken.push(bx); c.fillStyle = color; c.textAlign = "center"; c.fillText(text, x, ty); }
     if (price) peaks.forEach(function (m, k) { var d = new Date(T(m)), top = m === REC[N - 1] || P[m] >= P[REC[N - 1]]; if (P[m] < 10 && !log) return;
       mark(m, P[m], (top ? "Record " : "") + money(P[m]) + (S.narrow ? "" : ", " + MON[d.getUTCMonth()] + " " + d.getUTCFullYear()), top ? "#f2f3f3" : "#a3a8aa", false); });
