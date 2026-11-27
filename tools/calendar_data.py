@@ -1462,6 +1462,12 @@ def usd_cap(q, rates):
 # Europe 600 ETF (EXSA). Each holding's exchange (or, failing that, its
 # country) gives the Yahoo Finance suffix.
 STOXX600_HOLDINGS = [
+    # The holdings as iShares' rebuilt fund page reads them: JSON, one list per column
+    # (27 Nov 2026; the CSV addresses below stopped answering on 12 Nov 2026, the
+    # "latest-holdings.csv" link on the page included). Without asOfDate, the latest day.
+    "https://www.ishares.com/varnish-api/uk-retail01-product-data/product-data/api/v2/get-product-data"
+    "?appSubType=ISHARES&appType=PRODUCT_PAGE&component=holdings.all&locale=de_DE&portfolioId=251931"
+    "&targetSite=de-ishares-v2&userType=individual&excludeContent=true&includeConfig=true",
     # The rebuilt site's holdings file, linked from the fund page (22 Oct 2026).
     "https://www.ishares.com/de/privatanleger/de/produkte/251931/ishares-stoxx-europe-600-ucits-etf-de/latest-holdings.csv",
     "https://www.ishares.com/uk/individual/en/products/251931/ishares-stoxx-europe-600-ucits-etf-de-fund/"
@@ -1476,19 +1482,40 @@ EXCHANGE_SUFFIX = [("london", ".L"), ("xetra", ".DE"), ("deutsche b", ".DE"), ("
                    ("amsterdam", ".AS"), ("paris", ".PA"), ("brussels", ".BR"), ("lisbon", ".LS"),
                    ("italiana", ".MI"), ("milan", ".MI"), ("madrid", ".MC"), ("bolsa", ".MC"), ("swiss", ".SW"),
                    ("copenhagen", ".CO"), ("stockholm", ".ST"), ("helsinki", ".HE"), ("oslo", ".OL"),
-                   ("irish", ".IR"), ("dublin", ".IR"), ("wiener", ".VI"), ("vienna", ".VI"), ("warsaw", ".WA")]
+                   ("irish", ".IR"), ("dublin", ".IR"), ("wiener", ".VI"), ("vienna", ".VI"), ("warsaw", ".WA"),
+                   ("athens", ".AT")]
 COUNTRY_SUFFIX = {"United Kingdom": ".L", "Germany": ".DE", "France": ".PA", "Netherlands": ".AS",
                   "Switzerland": ".SW", "Denmark": ".CO", "Sweden": ".ST", "Finland": ".HE", "Norway": ".OL",
                   "Spain": ".MC", "Italy": ".MI", "Belgium": ".BR", "Portugal": ".LS", "Ireland": ".IR",
-                  "Austria": ".VI", "Poland": ".WA"}
+                  "Austria": ".VI", "Poland": ".WA", "Greece": ".AT"}
 COUNTRY_EN = {"Deutschland": "Germany", "Frankreich": "France", "Niederlande": "Netherlands", "Schweiz": "Switzerland",
               "Dänemark": "Denmark", "Schweden": "Sweden", "Finnland": "Finland", "Norwegen": "Norway",
               "Spanien": "Spain", "Italien": "Italy", "Belgien": "Belgium", "Irland": "Ireland",
-              "Österreich": "Austria", "Polen": "Poland", "Vereinigtes Königreich": "United Kingdom"}
+              "Österreich": "Austria", "Polen": "Poland", "Vereinigtes Königreich": "United Kingdom",
+              "Griechenland": "Greece", "Portugal": "Portugal"}
+
+
+def holdings_json_csv(raw):
+    """The holdings table iShares' product-data API serves as JSON (each column a list:
+    ticker, asset class, country, exchange, name), written out as the CSV file had it."""
+    cols = json.loads(raw)["componentsByNameMap"]["holdings"]["containersByNameMap"]["all"]["dataPointsByNameMap"]
+    names = {"ticker": "Ticker", "assetClass": "Asset Class", "countryOfRisk": "Location", "exchange": "Exchange",
+             "issueName": "Name", "holdingPercent": "Weight (%)"}
+    data = {label: cols[key]["value"] for key, label in names.items()
+            if isinstance((cols.get(key) or {}).get("value"), list)}
+    if "Ticker" not in data:
+        raise ValueError("holdings JSON: no ticker column")
+    buf = io.StringIO()
+    out = csv.writer(buf)
+    out.writerow(list(data))
+    for i in range(len(data["Ticker"])):
+        out.writerow([data[c][i] if i < len(data[c]) else "" for c in data])
+    return buf.getvalue()
 
 
 def stoxx600_members():
-    """[(Yahoo symbol, country)] of the STOXX Europe 600, from the ETF's holdings file."""
+    """[(Yahoo symbol, country, weight in the fund in percent or None)] of the STOXX
+    Europe 600, from the ETF's holdings file."""
     last = None
     for url in STOXX600_HOLDINGS:
         try:
@@ -1498,6 +1525,12 @@ def stoxx600_members():
             if PROBE:
                 print(f"    {url[:70]}... failed: {type(e).__name__}: {e}")
             continue
+        if raw.lstrip().startswith("{"):
+            try:
+                raw = holdings_json_csv(raw)
+            except (ValueError, KeyError, TypeError) as e:
+                last = ValueError(f"{url}: {type(e).__name__}: {e}")
+                continue
         lines = raw.lstrip("\ufeff").splitlines()
         # The English file separates with commas, the German one with semicolons.
         head = next((i for i, ln in enumerate(lines) if re.search(r'(^|[,;])"?(Ticker|Emittententicker)"?[,;]', ln)), None)
@@ -1537,8 +1570,14 @@ def stoxx600_members():
             suffix = next((sx for key, sx in EXCHANGE_SUFFIX if key in exch), None) or COUNTRY_SUFFIX.get(country)
             if not suffix:
                 continue
-            sym = re.sub(r"[ /]+", "-", tick.rstrip(".")) + suffix
-            out.append((sym, country))
+            # "NOVO B" is NOVO-B and "BT.A" is BT-A on Yahoo; "RR." is RR
+            sym = re.sub(r"[ ./]+", "-", tick.rstrip(".")) + suffix
+            raw_w = (r.get("Weight (%)") or r.get("Gewichtung (%)") or "").strip()
+            try:  # "1.23" from the JSON, "1,23" in the German file
+                weight = float(raw_w.replace(",", ".")) if raw_w else None
+            except ValueError:
+                weight = None
+            out.append((sym, country, weight))
         if len(out) >= 500:
             return out
         last = ValueError(f"{url}: only {len(out)} equity holdings")
@@ -1638,6 +1677,7 @@ MAIN_LISTING = {
     "ABB.ST": "ABBN.SW",       # ABB: Zurich primary
     "STLAP.PA": "STLAM.MI",    # Stellantis: Milan primary
     "RO.SW": "ROP.SW",         # Roche bearer shares: the Genussschein line instead
+    "SKFVER-B.ST": "SKF-B.ST",  # SKF B: iShares' ticker (27 Nov 2026) is not Yahoo's
 }
 
 
@@ -1660,7 +1700,9 @@ def europe_universe(cache, yahoo, n=UNIVERSE["europe"]):
         cache.setdefault("stoxx600", {})["error"] = f"{type(e).__name__}: {e}"[:200]
         if not members:
             raise ValueError("no STOXX Europe 600 membership list yet") from e
-    country = dict((s, c) for s, c in members)
+    # (symbol, country) from lists kept before 27 Nov 2026; (symbol, country, weight) since
+    country = {m[0]: m[1] for m in members}
+    weight = {m[0]: m[2] for m in members if len(m) > 2 and m[2]}
     main = {s: MAIN_LISTING[s] for s in country if s in MAIN_LISTING}
     quotes = yahoo.quotes(list(country) + [m for m in main.values() if m not in country])
     found = {q["symbol"] for q in quotes if q.get("regularMarketPrice")}
@@ -1670,11 +1712,26 @@ def europe_universe(cache, yahoo, n=UNIVERSE["europe"]):
         if m in found:
             country.setdefault(m, country[s])
             country.pop(s)
-    quotes = [q for q in quotes if q["symbol"] in country]
+            if s in weight:
+                weight.setdefault(m, weight.pop(s))
+    # A line Yahoo knows by no name (a subscription right the fund holds for a
+    # while, KESKOBU0126.HE) is not a company.
+    quotes = [q for q in quotes if q["symbol"] in country and (q.get("longName") or q.get("shortName"))]
     rates = usd_rates(yahoo, [q.get("currency") for q in quotes])
-    groups = {}
     for q in quotes:
         q["_usd"] = usd_cap(q, rates)
+    # Yahoo gives some members neither a cap nor a share count (KBC, Publicis, Fresenius
+    # on 27 Nov 2026). Their cap is estimated from their weight in the fund, at the
+    # median cap per point of weight of the members Yahoo does give: a float-adjusted
+    # figure, used only to rank them.
+    per_point = sorted(q["_usd"] / weight[q["symbol"]] for q in quotes if q["_usd"] and weight.get(q["symbol"]))
+    if per_point:
+        mid = per_point[len(per_point) // 2]
+        for q in quotes:
+            if not q["_usd"] and weight.get(q["symbol"]) and q.get("regularMarketPrice"):
+                q["_usd"] = weight[q["symbol"]] * mid
+    groups = {}
+    for q in quotes:
         if q.get("regularMarketPrice"):
             q["_country"] = "UK" if country[q["symbol"]] == "United Kingdom" else country[q["symbol"]]
             groups.setdefault(company(q.get("longName") or q.get("shortName") or q["symbol"]), []).append(q)
