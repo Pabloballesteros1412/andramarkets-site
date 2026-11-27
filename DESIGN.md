@@ -482,6 +482,8 @@ Fifty markets on eight measures (twenty-five until 13 Nov 2026), from `tools/wor
   - *Moves and rate differentials:* a scatter of each currency's move against the dollar (vertical, chips for the period) against its 3-month interbank rate less the US's (horizontal, percentage points), dashed zero lines, each point a 4.5px dot in `--up` or `--down` by the move's sign (ink when it rounds to zero) with its currency code in ink-2; the readout words the differential without a sign ("1.31 points below the US"), since it is a level. A source line names the OECD rates and the currencies without one.
 - **Nav:** "FX" between Calendar and Daily note in the header (and in the footer). With World markets as well the header holds nine links: the gap tightens to 12px from 1021px to 1080px.
 
+> **Hidden (owner, 27 Nov 2026: "hide the Crypto section until we have it perfect").** `CRYPTO_PUBLIC = False` in `tools/build_site.py`: no Crypto page is built or published, and the menu, homepage, footer and search leave the group out. Its data is still fetched at deploy. Set it to `True` to publish everything below again.
+
 ### Crypto: where the coins trade (`crypto/`; owner-approved sketch and build, 27 Nov 2026)
 The fifth group (amber, `--amber #ffb048`, `--amber-2 #ffd99a`). After the Bitcoin sun with its planets, an eclipse and two flat maps were turned down, the owner asked for "sober, like the maps, and realistic". From `.cache/crypto/crypto.json` (`tools/crypto_data.py`, CoinGecko); `tools/page_crypto.py`, `assets/crypto-globe.js`.
 - **Head:** title, lede "Where the coins trade, and what they are worth.", meta row (the whole market, Bitcoin's share, "Data from CoinGecko, [date, time] UTC"). No rule under it: the globe rises behind it.

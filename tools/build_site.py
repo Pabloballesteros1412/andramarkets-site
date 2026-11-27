@@ -57,6 +57,11 @@ import page_live_markets  # noqa: E402
 import page_recession_watch  # noqa: E402
 import page_market_history  # noqa: E402
 import page_crypto  # noqa: E402
+
+# Crypto stays off the published site until the owner calls it finished (owner, 27 Nov 2026: "hide the Crypto
+# section until we have it perfect"). False: no Crypto pages are built, and the menu, homepage, footer and search
+# leave the group out. Its data is still fetched at deploy, so the caches stay warm. True puts it all back.
+CRYPTO_PUBLIC = False
 import page_interview_simulator  # noqa: E402
 import page_firms  # noqa: E402
 import page_application_tracker  # noqa: E402
@@ -1414,6 +1419,8 @@ NAV_GROUPS = (
         ("Prices", "crypto/prices/", "The hundred largest coins: their shares, their moves and their last seven days."),
         ("Bitcoin", "crypto/bitcoin/", "The price since 2010, its four halvings and every great fall."),)),
 )
+if not CRYPTO_PUBLIC:
+    NAV_GROUPS = tuple(g for g in NAV_GROUPS if g[0] != "crypto")
 
 
 # A small chart drawn beside each section in the open menu (owner-approved, 1 Nov 2026): a
@@ -1450,6 +1457,9 @@ NAV_CHARTS = {
 
 
 # The menu's groups that are one map each: group key -> (the map's address, its link on the homepage).
+CRYPTO_FOOT = ('<div class="foot__group"><p class="foot__gt">Crypto</p><a href="{base}crypto/">Where it trades</a>'
+               '<a href="{base}crypto/prices/">Prices</a><a href="{base}crypto/bitcoin/">Bitcoin</a></div>')
+
 GROUP_MAPS = {"markets": ("markets/", "All markets, on one map"),
               "tools": ("tools-map/", "All tools, on one map"),
               "research": ("research-map/", "All research, on one map"),
@@ -1540,7 +1550,7 @@ def site_footer(home, base):
       <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a></div>
       <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}research-map/">All research</a></div>
       <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}careers/">All of Careers</a></div>
-      <div class="foot__group"><p class="foot__gt">Crypto</p><a href="{base}crypto/">Where it trades</a><a href="{base}crypto/prices/">Prices</a><a href="{base}crypto/bitcoin/">Bitcoin</a></div>
+      {CRYPTO_FOOT.format(base=base) if CRYPTO_PUBLIC else ""}
       <div class="foot__group"><p class="foot__gt">Andra Markets</p><a href="{base}methodology/">Methodology</a><a href="{base}sources/">Data sources</a><a href="{base}legal/">Legal notice</a><a href="{base}privacy/">Privacy and cookies</a></div>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
@@ -6844,8 +6854,11 @@ def search_index(notes, companies=None, library=()):
                       "u": f"break-into-wall-street/technicals/{t['slug']}/",
                       "k": t["short"] + " interview questions " + " ".join(e["title"] for e in t["essentials"])})
     for title, url, meta in SEARCH_PAGES:
+        if url.startswith("crypto/") and not CRYPTO_PUBLIC:
+            continue
         items.append({"g": "Pages", "t": title, "m": meta, "u": url, "k": SEARCH_PAGE_TERMS.get(url, "")})
-    items += [x for x in page_crypto.search_items(sys.modules[__name__]) if x["u"] != "crypto/bitcoin/"]
+    if CRYPTO_PUBLIC:
+        items += [x for x in page_crypto.search_items(sys.modules[__name__]) if x["u"] != "crypto/bitcoin/"]
     for e in page_market_history.episodes():
         items.append({"g": "Pages", "t": e["title"], "m": f"Market history, {e['years']}",
                       "u": f"market-history/{e['slug']}/", "k": e["text"]})
@@ -7050,6 +7063,8 @@ def main():
                 shutil.copyfile(logo, folder / f"logo{logo.suffix}")
         print(f"wrote {len(companies['order'])} company pages")
     for mod in PAGE_MODULES:
+        if mod is page_crypto and not CRYPTO_PUBLIC:
+            continue
         for path, html_out in mod.pages(sys.modules[__name__]).items():
             (OUT / path).mkdir(parents=True, exist_ok=True)
             (OUT / path / "index.html").write_text(html_out)
