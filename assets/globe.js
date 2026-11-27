@@ -22,7 +22,7 @@
   var D = JSON.parse(src.textContent), CO = D.co, N = CO.length, SEC = D.sectors;
   var cv = box.querySelector("canvas"), read = box.querySelector(".lens-read"), stats = box.querySelector(".lens-stats");
   var TAU = Math.PI * 2, MINUS = "−", INK = "242,243,243", UP = "31,210,122", DN = "255,75,82";
-  var MONO = '"Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace';
+  var MONO = 'Inter, "Helvetica Neue", Arial, sans-serif';
   var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   // a company: [folder, name, ticker, sector, market, last move in basis points]
   var SLUG = 0, NAME = 1, TICK = 2, SECT = 3, MKT = 4, MOVE = 5;
@@ -222,7 +222,7 @@
       Object.keys(tied).forEach(function (j) { if (Q[j][2] > 0.05) label(CO[j][TICK], Q[j][0] + 8, Q[j][1] + 3, "left", "rgba(163,168,170,.95)", 9); });
       var f = Q[focus], mv = CO[focus][MOVE], right = f[0] > S.w - 240;
       c.beginPath(); c.arc(f[0], f[1], 11 + (still ? 0 : Math.sin(t * 3) * 1.5), 0, TAU); c.strokeStyle = "rgba(" + INK + ",.9)"; c.lineWidth = 1; c.stroke();
-      c.font = "300 20px Geist, sans-serif"; c.textAlign = right ? "right" : "left"; c.fillStyle = "rgb(" + INK + ")"; if ("letterSpacing" in c) c.letterSpacing = "-0.3px";
+      c.font = "300 20px Inter, sans-serif"; c.textAlign = right ? "right" : "left"; c.fillStyle = "rgb(" + INK + ")"; if ("letterSpacing" in c) c.letterSpacing = "-0.3px";
       c.fillText(CO[focus][NAME], f[0] + (right ? -20 : 20), f[1] - 2);
       label(pct(mv) + " · " + SEC[CO[focus][SECT]], f[0] + (right ? -20 : 20), f[1] + 15, right ? "right" : "left", "rgb(" + (mv >= 0 ? UP : DN) + ")", 10);
     }

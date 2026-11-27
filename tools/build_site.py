@@ -1631,7 +1631,7 @@ def shell(title, desc, body, home, base, path="", scripts=(), nav=True, footer=T
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{og_alt}">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preload" href="{base}assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{base}assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
 {"".join(f'<link rel="stylesheet" href="{base}assets/{c}?v={ver(c)}">' for c in (bare or ("site.css", "theme.css")))}{head}
 {SPECULATION}
 </head>
