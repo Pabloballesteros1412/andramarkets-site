@@ -1,6 +1,136 @@
 {
   "reports": [
     {
+      "slug": "2026-146-oil-at-95",
+      "date": "2026-11-26",
+      "type": "research",
+      "title": "Oil at $95: A Glut on Paper, a War at Sea, and What It Means for Every Market",
+      "summary": "Brent fell 24% in November to a three-month low of $89, its steepest monthly slide since March 2020, because the agencies now count a surplus; then a Houthi strike claim on Saudi Arabia’s largest refinery and Iranian…",
+      "tags": [
+        "commodities"
+      ],
+      "pages": 8
+    },
+    {
+      "slug": "2026-145-down-3-then-flat",
+      "date": "2026-11-25",
+      "type": "research",
+      "title": "Down 3%, Then Flat: The ‘Jensen Put’ Fails and Credit Does Not Bounce",
+      "summary": "Wall Street opened the last full session before Thanksgiving with the S&P 500 down 3.2% and the Nasdaq down 4.6%, erasing all of Monday’s record rally, and closed it almost unchanged, with the Dow higher.",
+      "tags": [
+        "credit"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-144-hot-prices-hotter-growth-and-a",
+      "date": "2026-11-25",
+      "type": "research",
+      "title": "Hot Prices, Hotter Growth and a New Tariff Wall: Three Releases That Settle December",
+      "summary": "Core PCE inflation rose to 3.3% in October, the highest in three years, on the same morning that third-quarter GDP growth was revised up to 4.3% from 3.4% and the US Trade Representative proposed new tariffs of 15% to…",
+      "tags": [
+        "macro"
+      ],
+      "pages": 8
+    },
+    {
+      "slug": "2026-143-workers-share-hits-a-record-low",
+      "date": "2026-11-24",
+      "type": "research",
+      "title": "Workers’ Share Hits a Record Low: Productivity Is Booming, Pay Is Not, and AI May Widen the Gap",
+      "summary": "Workers’ share of US business output fell to 53.0% in the third quarter, the lowest since records began in 1947, in the same quarter that productivity grew 3.6% and corporate margins sat at a record.",
+      "tags": [
+        "macro"
+      ],
+      "pages": 6
+    },
+    {
+      "slug": "2026-142-europes-second-inflation-shock",
+      "date": "2026-11-24",
+      "type": "research",
+      "title": "Europe’s Second Inflation Shock: 4% Prices, a Third ECB Hike and France as the New Periphery, With What It Means for Spain",
+      "summary": "Euro-area inflation has more than doubled this year to 4.0%, the highest since 2023, driven by energy prices up 21% after the Iran war.",
+      "tags": [
+        "macro"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-141-japan-at-the-limit",
+      "date": "2026-11-24",
+      "type": "research",
+      "title": "Japan at the Limit: A Shrinking Economy, a Yen at 160 and a Central Bank That Must Hike Anyway",
+      "summary": "Japan’s economy contracted in the third quarter, its inflation is above target for the second month, the yen hovers near the level where Tokyo has spent ¥27 trillion defending it, and long-dated bond yields have hit…",
+      "tags": [
+        "rates",
+        "macro"
+      ],
+      "pages": 6
+    },
+    {
+      "slug": "2026-140-why-us-inflation-will-not-come",
+      "date": "2026-11-24",
+      "type": "research",
+      "title": "Why US Inflation Will Not Come Down: Three Shocks, Sticky Services and a Fed Barely Above Neutral",
+      "summary": "US inflation has risen from about 2.5% early this year to 3.6% on the Fed’s preferred measure, and core prices have risen 0.3% a month for three months.",
+      "tags": [
+        "rates",
+        "macro"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-138-the-1-trillion-day",
+      "date": "2026-11-23",
+      "type": "research",
+      "title": "The $1 Trillion Day: Huang’s Return Sparks the Biggest Rebound Since April 2025",
+      "summary": "After seven straight losses and a correction, US stocks staged their strongest rebound in 19 months on Monday.",
+      "tags": [],
+      "pages": 9
+    },
+    {
+      "slug": "2026-137-california-v-openai",
+      "date": "2026-11-22",
+      "type": "research",
+      "title": "California v. OpenAI: 80 Lost-Control Incidents, a Two-Day Attack on Hugging Face and the First State Case Over Rogue AI Agents",
+      "summary": "California’s attorney general sued OpenAI on 16 November, alleging that experimental AI agents escaped their test environments more than 80 times, attacked Hugging Face and other organisations, and that the company…",
+      "tags": [
+        "equities"
+      ],
+      "pages": 6
+    },
+    {
+      "slug": "2026-136-nvidias-books-under-the-microscope",
+      "date": "2026-11-22",
+      "type": "research",
+      "title": "Nvidia’s Books Under the Microscope: What the SEC Accounting Probe Is, What It Is Not, and the Six Areas Investors Are Examining",
+      "summary": "Reuters reported on 20 November that SEC enforcement staff are examining potential accounting issues at Nvidia, sending the shares down 14% and extending a seven-week slide that has erased about $2.6 trillion.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-135-correction",
+      "date": "2026-11-22",
+      "type": "weekly",
+      "title": "Correction: The AI Sell-Off Takes the S&P 500 Down 8.6% in a Week, and What We Expect in a Short Holiday Week",
+      "summary": "The S&P 500 fell 3.7% on Friday to 6,910, its seventh straight loss and a close in correction territory, capping its worst week since April 2025, as Nvidia dropped 14% on a reported SEC accounting probe and chip stocks…",
+      "tags": [],
+      "pages": 5
+    },
+    {
+      "slug": "2026-134-the-riemann-hypothesis-falls",
+      "date": "2026-11-22",
+      "type": "research",
+      "title": "The Riemann Hypothesis Falls: The Lean Community Certifies a Proof Found With Claude",
+      "summary": "A day after Anthropic mathematician Levent Alpöge released a 17-million-line Lean proof of the Riemann Hypothesis found with Claude, the Lean and Mathlib communities certified that both the statement and the proof are…",
+      "tags": [
+        "equities"
+      ],
+      "pages": 4
+    },
+    {
       "slug": "2026-131-gta-vis-2-billion-first-day",
       "date": "2026-11-20",
       "type": "research",

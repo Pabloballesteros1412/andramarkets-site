@@ -56,6 +56,7 @@ import page_central_banks  # noqa: E402
 import page_live_markets  # noqa: E402
 import page_recession_watch  # noqa: E402
 import page_market_history  # noqa: E402
+import page_crypto  # noqa: E402
 import page_interview_simulator  # noqa: E402
 import page_firms  # noqa: E402
 import page_application_tracker  # noqa: E402
@@ -1158,7 +1159,8 @@ NUM_WORD = {5: "Five", 6: "Six", 7: "Seven", 8: "Eight", 9: "Nine", 10: "Ten", 1
 LAB_N, SIM_N = 11, 9
 TOOLS_N = NUM_WORD[LAB_N + SIM_N]
 HOME_COPY = {"markets": "Prices, rates and what is coming.", "tools": f"{TOOLS_N} tools that run in your browser.",
-             "research": "What happened and why, after every close.", "careers": "For students breaking into markets."}
+             "research": "What happened and why, after every close.", "careers": "For students breaking into markets.",
+             "crypto": "Where the coins trade, and what they are worth."}
 HOME_ARROW = ('<svg class="arr" viewBox="0 0 64 10" aria-hidden="true"><path d="M0 5h62M57 1l5 4-5 4" fill="none" '
               'stroke="currentColor" stroke-width="1"/></svg>')
 
@@ -1172,7 +1174,7 @@ def page(notes, cal):
     data = {"spx": spx or [0, 0],
             "horse": f'assets/horse-particles.webp?v={ver("horse-particles.webp")}'}
     groups = "".join(
-        f'<section class="sec sec--l" id="{key}" data-shape="{i + 1}"><div class="sec__in"><h2>{name}</h2>'
+        f'<section class="sec sec--l" id="{key}" data-shape="{i + 1 if i < 4 else 0}"><div class="sec__in"><h2>{name}</h2>'
         f'<p class="copy">{HOME_COPY[key]}</p><ul class="links">'
         + "".join(f'<li><a href="{href}">{label}</a></li>' for label, href, _ in
                   (((GROUP_MAPS[key][1], GROUP_MAPS[key][0], ""),) if key in GROUP_MAPS else links)) + "</ul></div></section>\n"
@@ -1367,9 +1369,14 @@ def nav_art(key):
     return _NAV_ART[key]
 
 
-# Companies followed in each market (UNIVERSE in tools/calendar_data.py) and in all three.
-PER_MARKET = 400
-CO_TOTAL = f"{3 * PER_MARKET:,}"
+# Companies followed in each market (UNIVERSE in tools/calendar_data.py) and in all three
+# (owner, 27 Nov 2026: 2,100; it was 400 a market).
+MARKET_N = {"us": 900, "europe": 600, "asia": 600}
+CO_TOTAL = f"{sum(MARKET_N.values()):,}"
+# What each market's companies are, said in a sentence: "against {CO_FOLLOWED[m]}".
+CO_FOLLOWED = {"us": "the 900 companies of the S&amp;P 500 and the S&amp;P MidCap 400",
+               "europe": "the 600 companies of the STOXX Europe 600",
+               "asia": "the 600 largest companies in the six Asian markets"}
 
 NAV_GROUPS = (
     ("markets", "Markets", "Prices, rates and what is coming, with each figure's source and date.", (
@@ -1401,6 +1408,9 @@ NAV_GROUPS = (
         ("Recruiting calendar", "recruiting-calendar/", "When US firms open and close applications."),
         ("Firms", "firms/", "The banks, boutiques and funds that hire, and for what."),
         ("Application tracker", "application-tracker/", "Your applications, deadlines and contacts, kept in your browser."))),
+    # A fifth group (owner, 27 Nov 2026). One section so far: where the day's trading is registered, and the hundred largest coins.
+    ("crypto", "Crypto", "Where the coins trade, and what they are worth.", (
+        ("Crypto", "crypto/", "The real Earth with the day's trading by country, and the hundred largest coins."),)),
 )
 
 
@@ -1441,7 +1451,8 @@ NAV_CHARTS = {
 GROUP_MAPS = {"markets": ("markets/", "All markets, on one map"),
               "tools": ("tools-map/", "All tools, on one map"),
               "research": ("research-map/", "All research, on one map"),
-              "careers": ("careers/", "Everything for a career in markets, on one map")}
+              "careers": ("careers/", "Everything for a career in markets, on one map"),
+              "crypto": ("crypto/", "Where the day's trading is registered, on the real Earth")}
 
 
 def nav_chart(href):
@@ -1527,6 +1538,7 @@ def site_footer(home, base):
       <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a></div>
       <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}research-map/">All research</a></div>
       <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}careers/">All of Careers</a></div>
+      <div class="foot__group"><p class="foot__gt">Crypto</p><a href="{base}crypto/">Where crypto trades</a></div>
       <div class="foot__group"><p class="foot__gt">Andra Markets</p><a href="{base}methodology/">Methodology</a><a href="{base}sources/">Data sources</a><a href="{base}legal/">Legal notice</a><a href="{base}privacy/">Privacy and cookies</a></div>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
@@ -1772,7 +1784,8 @@ def markets_map_page():
     groups_ = (
         ("live-markets", "Live Markets", "live-markets/",
          (("Chart", "live-markets/#lm-chart"), ("Market overview", "live-markets/#lm-overview"),
-          ("Movers", "live-markets/#lm-movers"), ("Heatmap", "live-markets/#lm-heat"),
+          ("Quotes", "live-markets/#lm-quotes"), ("Movers", "live-markets/#lm-movers"),
+          ("Heatmap", "live-markets/#lm-heat"), ("World economy", "live-markets/#lm-econ"),
           ("Currencies", "live-markets/#lm-fx"), ("Screener", "live-markets/#lm-screen"))),
         ("dashboards", "Dashboards", "dashboards/",
          (("Rates", "dashboards/#rates"), ("Macro", "dashboards/#macro"), ("Equities", "dashboards/#equities"),
@@ -1804,7 +1817,7 @@ def markets_map_page():
   </div>
 </main>"""
     return shell(title="Markets: Andra Markets", desc="Prices, rates and what is coming: dashboards, the Fed and rates, the calendar, "
-                 "fifty world markets, thirty-nine currencies and 1,200 companies. By Andra Markets.",
+                 f"fifty world markets, thirty-nine currencies and {CO_TOTAL} companies. By Andra Markets.",
                  body=body, home="../", base="../", path="markets/", scripts=("tools-map.js",))
 
 
@@ -3567,7 +3580,7 @@ def interview_page(notes):
 # (provider, url, what it supplies, where it is used, how often it is read)
 DATA_SOURCES = [
     ("TradingView", "https://www.tradingview.com/",
-     "Live quotes, charts, heatmaps, movers, a screener, company figures and profiles, and headlines, drawn by TradingView's own widgets from TradingView's feeds. Not stored or "
+     "Live quotes, charts, heatmaps, movers, a screener, a quotes table, company figures and profiles, a world economy map (GDP, unemployment, government debt, interest rates, inflation) and headlines, drawn by TradingView's own widgets from TradingView's feeds. Not stored or "
      "changed by Andra Markets; some markets are delayed, and index quotes marked with a broker's name are that "
      "broker's indicative price.",
      "Live Markets, the tape on the home page",
@@ -4575,7 +4588,7 @@ def cal_sources_section(cal):
         when = day_med(dt.date.fromisoformat(max(oks)[:10])) if oks else None
         note = (f"Last good figures {when}" if failing and when else "Not available yet" if not when else when)
         rows.append(f'<li><span class="cl__srcname">{esc(ind_src)}, figures</span><span>{note}</span></li>')
-    for key in ("spy", "stoxx600"):  # the membership lists
+    for key in ("spy", "mdy", "stoxx600"):  # the membership lists
         lst = cal.get(key) or {}
         when = day_med(dt.date.fromisoformat(lst["ok"][:10])) if lst.get("ok") else None
         note = ("Last good copy " + when if lst.get("error") and when else when or "Not available yet")
@@ -4585,9 +4598,9 @@ def cal_sources_section(cal):
             f"release. Previous is the last published figure; Actual is the first print, taken within a week of the "
             f"release. No consensus forecasts: no free source is reliable enough. When a source fails, its last good "
             f"copy stays, with its date.</p>"
-            f"<p>Earnings are the next report of the {PER_MARKET} largest S&amp;P 500 companies (members from State Street's SPY "
-            f"holdings), the {PER_MARKET} largest in the STOXX Europe 600 (members from iShares' holdings of its STOXX Europe 600 "
-            f"ETF) and the {PER_MARKET} largest listed in Japan, Taiwan, South Korea, Hong Kong, mainland China and India, one "
+            f"<p>Earnings are the next report of the companies of the S&amp;P 500 and the S&amp;P MidCap 400 (members from State "
+            f"Street's SPY and MDY holdings), of the STOXX Europe 600 (members from iShares' holdings of its STOXX Europe 600 "
+            f"ETF) and of the {MARKET_N['asia']} largest listed in Japan, Taiwan, South Korea, Hong Kong, mainland China and India, one "
             f"listing each, ranked by market cap in dollars. Market caps, dates and diluted EPS from Yahoo Finance; EPS "
             f"in the company's reporting currency, only when Yahoo has it. An estimated date is always marked as "
             f"estimated, and a report time Yahoo does not give, or gives exactly on the market close, is never guessed. "
@@ -4722,10 +4735,10 @@ def calendar_link(cal, d):
 
 
 # Company pages ----------------------------------------------------------------
-# One page per company in the calendar's earnings universe (the 400 largest in
-# the S&P 500, the STOXX Europe 600 and the six Asian markets), from
+# One page per company in the calendar's earnings universe (the S&P 500 and S&P
+# MidCap 400, the STOXX Europe 600 and the 600 largest in six Asian markets), from
 # .cache/companies/companies.json (tools/company_data.py). Owner-approved
-# design, 22 Oct 2026; 600 companies since 28 Oct 2026, 1,200 since 11 Nov 2026. assets/company.js draws the charts from the figures
+# design, 22 Oct 2026; 600 companies since 28 Oct 2026, 1,200 since 11 Nov 2026, 2,100 since 27 Nov 2026. assets/company.js draws the charts from the figures
 # embedded in each page.
 
 CO_DATA = ROOT / ".cache" / "companies" / "companies.json"
@@ -5155,10 +5168,10 @@ def company_page(t, data, cal):
     if len(peers_all) >= 4:
         peers = peers_all
         peers_lede = (f"{esc(name)} (filled) against the other {len(peers) - 1} {esc(SHORT_SECTOR.get(sector, sector).lower())} "
-                      f"companies among the {PER_MARKET} largest in {where}. Tap or hover a dot to read it.")
+                      f"companies among {CO_FOLLOWED.get(market, CO_FOLLOWED['us'])}. Tap or hover a dot to read it.")
     else:
         peers = [x for x in data["order"] if data["co"][x]["market"] == market]
-        peers_lede = (f"{esc(name)} (filled) against the {PER_MARKET} largest companies in {where}; too few in its sector "
+        peers_lede = (f"{esc(name)} (filled) against {CO_FOLLOWED.get(market, CO_FOLLOWED['us'])}; too few in its sector "
                       f"to compare on their own. Tap or hover a dot to read it.")
     flow = co_flow(rec)
     cagr, _ = co_cagr(rec)
@@ -5304,7 +5317,7 @@ def company_page(t, data, cal):
                '<p class="co-src">Month-end closes and annual reports, via Yahoo Finance.</p>') if pe_hist else ""
     s_ret = sec("ret", "Share price returns",
                 f'<p>Price change over each period to the close of {day_med(d)}, without dividends.</p>{returns_table(rets)}'
-                f'<p class="co-src">Yahoo Finance daily closes, in {CUR_NAME.get(cur, cur)}. The sector average is the simple average of its companies among the {PER_MARKET} largest in {where}.</p>')
+                f'<p class="co-src">Yahoo Finance daily closes, in {CUR_NAME.get(cur, cur)}. The sector average is the simple average of its companies among {CO_FOLLOWED.get(market, CO_FOLLOWED['us'])}.</p>')
     s_risk = ""
     if risk:
         beta = f'{risk["beta"]:.2f}' if risk["beta"] is not None else "n/a"
@@ -5517,7 +5530,7 @@ def companies_index(data):
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Companies</h1>
-      <p class="lede">The {PER_MARKET} largest companies in the S&amp;P 500, in the STOXX Europe 600 and across the six Asian markets, the companies the earnings calendar follows, ranked by market value in dollars. Each has a page with its valuation, its peers, where its revenue goes and how the shares have done against the market. Search finds any other US-listed company too.</p>
+      <p class="lede">{CO_TOTAL} companies: the S&amp;P 500 and the S&amp;P MidCap 400, the STOXX Europe 600 and the {MARKET_N['asia']} largest across the six Asian markets, the companies the earnings calendar follows, ranked by market value in dollars. Each has a page with its valuation, its peers, where its revenue goes and how the shares have done against the market. Search finds any other US-listed company too.</p>
     </header>
     <section class="co-globe" aria-labelledby="co-globe-h" hidden>
       <div class="lens-h"><h2 class="visually-hidden" id="co-globe-h">The companies as a globe</h2><p class="lens-read" aria-live="polite"></p><p class="lens-stats"></p></div>
@@ -5547,7 +5560,7 @@ def companies_index(data):
   </div>
 </main>"""
     return shell(title="Companies: Andra Markets",
-                 desc=f"The {PER_MARKET} largest companies in the US, Europe and Asia, each with valuation, peers and results.",
+                 desc=f"{CO_TOTAL} companies in the US, Europe and Asia, each with valuation, peers and results.",
                  body=body, home="../", base="../", path="companies/", scripts=("profile.js", "globe.js"))
 
 
@@ -6555,7 +6568,8 @@ SEARCH_TERMS = {
 # Words a page is found by beyond its title.
 SEARCH_PAGE_TERMS = {
     "live-markets/": "live markets real time quotes prices chart TradingView ticker tape heatmap screener movers gainers "
-                     "losers most active fundamentals company profile news headlines crypto ETF cross rates IBEX 35 Euro Stoxx 50 "
+                     "losers most active fundamentals company profile news headlines crypto ETF cross rates quotes table indicators "
+                     "moving average RSI MACD Bollinger compare world economy map GDP unemployment inflation debt IBEX 35 Euro Stoxx 50 "
                      "S&P 500 Nasdaq 100 EUR/USD Brent gold Bund bitcoin indices currencies commodities bonds",
     "contact/": f"contact email {CONTACT_EMAIL} write to us LinkedIn TikTok social media follow",
     "fed-rates/": "Fed FOMC policy rate fed funds futures meeting probabilities yield curve Treasury 2s10s 3m10y "
@@ -6616,12 +6630,12 @@ def pf_news_analysts(name_html):
 
 
 def live_page(companies):
-    """/companies/live/?t=TICK: the profile of a US company outside the 1,200.
+    """/companies/live/?t=TICK: the profile of a US company outside the 2,100.
 
     One static page. assets/profile.js reads ?t= and fills it from the profile
     API (PROFILE_API, the Cloudflare Worker in worker/), section by section:
     each starts as a skeleton of its final shape and ends as content, or as an
-    error that says what failed and offers to try again. A ticker among the 1,200
+    error that says what failed and offers to try again. A ticker among the 2,100
     goes to its own page (data-known); one that does not trade goes to the
     search on the Companies index."""
     sk, sec = pf_sk, pf_sec
@@ -6752,7 +6766,7 @@ def profile_redirect():
 
 
 def fin_ticker(t):
-    """Finnhub's form of a US ticker of the 1,200: BRK-B is BRK.B."""
+    """Finnhub's form of a US ticker of the 2,100: BRK-B is BRK.B."""
     return t.replace("-", ".")
 
 
@@ -6786,6 +6800,7 @@ SEARCH_PAGES = [
     ("Recession call", "simulators/recession-call/", "Simulators"),
     ("Higher or lower", "simulators/higher-or-lower/", "Simulators"),
     ("Lump sum or drip", "simulators/lump-sum-or-drip/", "Simulators"),
+    ("Crypto", "crypto/", "Page"),
     ("Companies", "companies/", "Page"),
     ("Economic calendar", "calendar/", "Page"),
     ("World markets", "world/", "Page"),
@@ -6902,7 +6917,7 @@ def write_discovery(notes, library):
 # Section pages built in their own modules (tools/page_*.py), each returning
 # {output path: page HTML}: the Research and Careers sections added on 1 Nov 2026.
 PAGE_MODULES = (page_live_markets, page_chart_of_the_day, page_central_banks, page_recession_watch, page_market_history,
-                page_interview_simulator, page_firms, page_application_tracker)
+                page_interview_simulator, page_firms, page_application_tracker, page_crypto)
 
 
 def main():
@@ -7056,7 +7071,7 @@ def main():
 GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", "profile", "calendar",
              "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
              "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
-             "chart-of-the-day", "central-banks", "recession-watch", "market-history",
+             "chart-of-the-day", "central-banks", "recession-watch", "market-history", "crypto",
              "interview-simulator", "firms", "application-tracker", "contact", "tools-map", "research-map", "markets", "live-markets")
 INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
 # Data blocks the browser never runs: the policy does not apply to them.
@@ -7065,8 +7080,10 @@ DATA_SCRIPTS = ("application/json", "application/ld+json")
 # TradingView's loader (script-src) and the frames it opens (frame-src). The frames fetch their
 # own data: nothing else of TradingView's runs in the page.
 TV_MARK = "assets/markets.js"
-TV_SCRIPTS = "https://s3.tradingview.com/external-embedding/"  # the widget loaders only (assets/markets.js)
-TV_FRAMES = "https://www.tradingview-widget.com https://s.tradingview.com"
+# The classic widgets' loaders by path; the web-component widgets load their modules from
+# widgets.tradingview-widget.com, so that host is allowed whole.
+TV_SCRIPTS = "https://s3.tradingview.com/external-embedding/ https://widgets.tradingview-widget.com"
+TV_FRAMES = "https://www.tradingview-widget.com https://s.tradingview.com https://widgets.tradingview-widget.com"
 CSP_META = re.compile(r'<meta http-equiv="Content-Security-Policy" content="[^"]*">\n?')
 
 

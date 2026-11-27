@@ -38,10 +38,20 @@ def pages(site):
       <h1 class="page__title">Live Markets</h1>
       <p class="lede">Indices, shares, currencies, commodities, bonds and crypto as they trade, on TradingView's charts.</p>
     </header>
+    <section class="lm-minis-sec" aria-label="The day so far">
+      <div class="lm-minis" data-tv-minis></div>
+      <p class="tv__by"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">Track all markets on TradingView</a></p>
+    </section>
     <section class="lm-sec reveal" aria-labelledby="lm-chart">
-      <div class="lm-sec__head"><h2 id="lm-chart">Chart</h2><p>Indices, shares, currencies, commodities and crypto: choose one, or type any ticker.</p></div>
+      <div class="lm-sec__head"><h2 id="lm-chart">Chart</h2><p>Choose a symbol or type any ticker, compare two, add indicators, or show two or four charts.</p></div>
       <div class="lm-picks" data-tv-picks="lm-chart-slot" hidden></div>
-      {slot("chart", "Chart", ' id="lm-chart-slot"')}
+      <div class="lm-charts" data-tv-charts data-n="1">
+        {slot("chart", "Chart", ' id="lm-chart-slot" data-tv-main')}
+        {slot("chart", "Second chart", ' data-tv-chart-n="2" hidden')}
+        {slot("chart", "Third chart", ' data-tv-chart-n="3" hidden')}
+        {slot("chart", "Fourth chart", ' data-tv-chart-n="4" hidden')}
+      </div>
+      <p class="tv__by"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">Track all markets on TradingView</a></p>
     </section>
     <section class="lm-sec reveal" aria-labelledby="lm-about">
       <div class="lm-sec__head"><h2 id="lm-about">In the chart</h2><p data-tv-no-share>Choose a share above to see its figures, its profile and its news here.</p></div>
@@ -50,6 +60,10 @@ def pages(site):
         <div class="lm-sub"><h3>Fundamentals</h3>{slot("financials", "Fundamentals of the company in the chart", ' data-tv-follow')}</div>
         <div class="lm-sub"><h3>Profile</h3>{slot("profile", "Profile of the company in the chart", ' data-tv-follow')}</div>
       </div>
+    </section>
+    <section class="lm-sec reveal" aria-labelledby="lm-quotes">
+      <div class="lm-sec__head"><h2 id="lm-quotes">Quotes</h2><p>Last, change, open, high, low and previous close.</p></div>
+      {slot("quotes", "Quotes: indices, currencies, commodities, bond futures and crypto")}
     </section>
     <div class="lm-pair">
       <section class="lm-sec reveal" aria-labelledby="lm-overview">
@@ -75,6 +89,10 @@ def pages(site):
       <div class="lm-sec__head"><h2 id="lm-heat">Heatmap</h2><p>In an index's map, choose a company to open its page in Companies.</p>
         {switch("lm-heatmap", "heatmaps", "Market shown in the heatmap", "heatmap")}</div>
       {slot("heatmap", "Heatmap", ' id="lm-heatmap"')}
+    </section>
+    <section class="lm-sec reveal" aria-labelledby="lm-econ">
+      <div class="lm-sec__head"><h2 id="lm-econ">World economy</h2><p>Each country by its GDP, unemployment, government debt, interest rate or inflation.</p></div>
+      {slot("econ", "World economy map")}
     </section>
     <section class="lm-sec reveal" aria-labelledby="lm-fx">
       <div class="lm-sec__head"><h2 id="lm-fx">Currencies</h2><p>Each row's currency against each column's.</p>

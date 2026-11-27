@@ -18,7 +18,7 @@
   var TEX = { day: base + D.tex.day, night: base + D.tex.night, topo: base + D.tex.topo };
   var cv = box.querySelector(".wm-globe__top"), read = box.querySelector(".wm-globe__read"), stats = box.querySelector(".wm-globe__stats");
   var TAU = Math.PI * 2, RAD = Math.PI / 180, MINUS = "−", INK = "242,243,243", UP = "31,210,122", DN = "255,75,82";
-  var MONO = 'Inter, "Helvetica Neue", Arial, sans-serif';
+  var MONO = 'Inter, "Helvetica Neue", Arial, sans-serif';   // the read-outs' face (owner, 27 Nov 2026: Inter Light, as written)
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   // regular trading hours in UTC, [open, close] in minutes; a lunch break is ignored
   var HOURS = { USA: [870, 1260], CAN: [870, 1260], MEX: [870, 1260], BRA: [780, 1200], ARG: [840, 1200], GBR: [480, 990], DEU: [480, 990], FRA: [480, 990], ITA: [480, 990], ESP: [480, 990], NLD: [480, 990], CHE: [480, 990], SWE: [480, 990], TUR: [420, 900], ISR: [479, 925], ZAF: [420, 900], IND: [225, 600], CHN: [90, 420], HKG: [90, 480], JPN: [0, 390], KOR: [0, 390], TWN: [60, 330], IDN: [120, 540], SGP: [60, 540], AUS: [1380, 1800],
@@ -52,7 +52,7 @@
     stats.textContent = N + " markets · " + OPEN.filter(Boolean).length + " trading now · " + ("0" + now.getUTCHours()).slice(-2) + ":" + ("0" + now.getUTCMinutes()).slice(-2) + " UTC · closes to " + D.asof;
   }
   function proj(p) { var x = p[0] * cosY + p[2] * sinY, z = -p[0] * sinY + p[2] * cosY, y = p[1] * cosX - z * sinX, zz = p[1] * sinX + z * cosX, f = 1 / (1 + PERSP - zz * PERSP); return [S.cx + x * S.rad * f, S.cy - y * S.rad * f, zz, f]; }
-  function label(text, x, y, align, color, size) { var c = S.c; c.font = "400 " + (size || 10) + "px " + MONO; c.textAlign = align || "left"; c.fillStyle = color; if ("letterSpacing" in c) c.letterSpacing = "1px"; c.fillText(String(text).toUpperCase(), x, y); }
+  function label(text, x, y, align, color, size) { var c = S.c; c.font = "300 " + ((size || 10) + 2) + "px " + MONO; c.textAlign = align || "left"; c.fillStyle = color; if ("letterSpacing" in c) c.letterSpacing = "0.1px"; c.fillText(String(text), x, y); }
   function sprite(rgb) { var el = document.createElement("canvas"), n = 64; el.width = el.height = n; var c = el.getContext("2d"), g = c.createRadialGradient(n / 2, n / 2, 0, n / 2, n / 2, n / 2); g.addColorStop(0, "rgba(" + rgb + ",.95)"); g.addColorStop(0.12, "rgba(" + rgb + ",.5)"); g.addColorStop(0.4, "rgba(" + rgb + ",.12)"); g.addColorStop(1, "rgba(" + rgb + ",0)"); c.fillStyle = g; c.fillRect(0, 0, n, n); return el; }
   /* The surface: the real Earth in WebGL under the 2D canvas. Day side from NASA's Blue Marble,
      night side from its city lights, shaded by relief, with a thin atmosphere at the edge. */

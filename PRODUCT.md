@@ -114,17 +114,17 @@ record. The daily note is one module among others, not the centrepiece.
   releases and events for the US, euro area, UK, Japan and China, central bank
   decisions, minutes and key speeches, Treasury note and bond auctions, NYSE
   holidays and early closes, options expiry, the S&P 500 rebalance, the Fed
-  blackout and one-off events, plus the next report of the 400 largest S&P 500
-  companies. Dates from each publisher's own schedule; times in New York and
+  blackout and one-off events, plus the next report of every company of the
+  S&P 500 and the S&P MidCap 400. Dates from each publisher's own schedule; times in New York and
   Madrid; Previous and Actual from FRED, Eurostat, the ECB, the ONS, the Bank
   of England and TreasuryDirect, each Actual linked to its release. No
-  consensus forecasts (no reliable free source). Earnings: SPY holdings for
+  consensus forecasts (no reliable free source). Earnings: SPY and MDY holdings for
   membership, Yahoo Finance for market cap, dates and diluted EPS; an estimated
   date is never shown as confirmed and a report time Yahoo does not give is
   never guessed. A failing source keeps its last good copy with its date.
   Close notes link to their session's events from the calendar's first week.
-  Earnings also cover the 400 largest STOXX Europe 600 companies (iShares
-  holdings for membership) and the 400 largest listed in Japan, Taiwan, South
+  Earnings also cover every STOXX Europe 600 company (iShares
+  holdings for membership) and the 600 largest listed in Japan, Taiwan, South
   Korea, Hong Kong, mainland China and India (Yahoo Finance, one listing each:
   the mainland A-share for dual listings, the Hong Kong listing for Chinese
   companies whose primary listing is in New York), ranked by market cap in

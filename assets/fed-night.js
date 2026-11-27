@@ -123,7 +123,7 @@
     var l = lines(c), x = c.q[0] + 22, y = c.q[1] - 30; cx.font = "300 " + (phone ? 17 : 21) + "px " + SANS; var w = cx.measureText(l[0]).width; if (x + w > W - 12) x = c.q[0] - w - 22; if (x < 12) x = 12;
     var gr = Math.max(w, 170) * 0.85, gx = x + Math.max(w, 170) / 2, gy = y + 30, g = cx.createRadialGradient(gx, gy, 8, gx, gy, gr); g.addColorStop(0, "rgba(0,0,0,.8)"); g.addColorStop(0.55, "rgba(0,0,0,.5)"); g.addColorStop(1, "rgba(0,0,0,0)"); cx.fillStyle = g; cx.fillRect(gx - gr, gy - gr, gr * 2, gr * 2);
     cx.textAlign = "left"; cx.textBaseline = "top"; cx.shadowColor = "#000"; cx.shadowBlur = 14; cx.fillStyle = "#f2f3f3"; cx.fillText(l[0], x, y); cx.fillText(l[0], x, y);
-    cx.font = "400 11px " + MONO; cx.fillStyle = "rgba(200,205,210,.95)"; cx.fillText(l[1], x, y + (phone ? 25 : 30)); cx.fillStyle = "#f2f3f3"; cx.fillText(l[2], x, y + (phone ? 41 : 46)); cx.shadowBlur = 0;
+    cx.font = "300 12px " + MONO; cx.fillStyle = "rgba(200,205,210,.95)"; cx.fillText(l[1], x, y + (phone ? 25 : 30)); cx.fillStyle = "#f2f3f3"; cx.fillText(l[2], x, y + (phone ? 41 : 46)); cx.shadowBlur = 0;
   }
   var run = 0, visible = true;
   function frame(time) {
