@@ -1007,7 +1007,7 @@ SOURCES = {
     "earnings_asia": {"name": "Yahoo Finance, Asian earnings and market caps",
                       "url": "https://finance.yahoo.com/research-hub/screener/", "fn": None},
     "stoxx600": {"name": "iShares, STOXX Europe 600 holdings",
-                 "url": "https://www.ishares.com/uk/individual/en/products/251931/ishares-stoxx-europe-600-ucits-etf-de-fund",
+                 "url": "https://www.ishares.com/ch/professionals/en/products/251931/ishares-stoxx-europe-600-ucits-etf-de-fund",
                  "fn": None},
     "spy": {"name": "State Street, SPY holdings",
             "url": "https://www.ssga.com/us/en/intermediary/etfs/spdr-sp-500-etf-trust-spy", "fn": None},
@@ -1446,12 +1446,17 @@ def usd_cap(q, rates):
 # Europe 600 ETF (EXSA). Each holding's exchange (or, failing that, its
 # country) gives the Yahoo Finance suffix.
 STOXX600_HOLDINGS = [
-    # The rebuilt site's holdings file, linked from the fund page (22 Oct 2026).
-    "https://www.ishares.com/de/privatanleger/de/produkte/251931/ishares-stoxx-europe-600-ucits-etf-de/latest-holdings.csv",
-    "https://www.ishares.com/uk/individual/en/products/251931/ishares-stoxx-europe-600-ucits-etf-de-fund/"
-    "1478358465952.ajax?fileType=csv&fileName=EXSA_holdings&dataType=fund",
-    "https://www.ishares.com/de/privatanleger/de/produkte/251931/ishares-stoxx-europe-600-ucits-etf-de-fund/"
-    "1478358465952.ajax?fileType=csv&fileName=EXSA_holdings&dataType=fund",
+    # iShares Switzerland's holdings CSV for EXSA (27 Nov 2026). The UK and German
+    # sites were rebuilt in November 2026 and their holdings links answer 404 or
+    # 500; the Swiss site keeps the old layout and its "Download holdings" link
+    # serves the same English CSV (Ticker, Location, Exchange) as before.
+    "https://www.ishares.com/ch/professionals/en/products/251931/ishares-stoxx-europe-600-ucits-etf-de-fund/"
+    "1495092304805.ajax?fileType=csv&fileName=EXSA_holdings&dataType=fund",
+    "https://www.ishares.com/ch/individual/en/products/251931/ishares-stoxx-europe-600-ucits-etf-de-fund/"
+    "1495092304805.ajax?fileType=csv&fileName=EXSA_holdings&dataType=fund",
+    # The Swiss fund page itself: if the .ajax number changes, the page's own
+    # holdings link is followed (HOLDINGS_LINK below).
+    "https://www.ishares.com/ch/professionals/en/products/251931/ishares-stoxx-europe-600-ucits-etf-de-fund",
 ]
 # When a holdings address serves the fund's web page instead (iShares has rebuilt
 # its site), the page's own download link for the holdings is followed.
@@ -1460,15 +1465,16 @@ EXCHANGE_SUFFIX = [("london", ".L"), ("xetra", ".DE"), ("deutsche b", ".DE"), ("
                    ("amsterdam", ".AS"), ("paris", ".PA"), ("brussels", ".BR"), ("lisbon", ".LS"),
                    ("italiana", ".MI"), ("milan", ".MI"), ("madrid", ".MC"), ("bolsa", ".MC"), ("swiss", ".SW"),
                    ("copenhagen", ".CO"), ("stockholm", ".ST"), ("helsinki", ".HE"), ("oslo", ".OL"),
-                   ("irish", ".IR"), ("dublin", ".IR"), ("wiener", ".VI"), ("vienna", ".VI"), ("warsaw", ".WA")]
+                   ("irish", ".IR"), ("dublin", ".IR"), ("wiener", ".VI"), ("vienna", ".VI"), ("warsaw", ".WA"),
+                   ("athens", ".AT")]
 COUNTRY_SUFFIX = {"United Kingdom": ".L", "Germany": ".DE", "France": ".PA", "Netherlands": ".AS",
                   "Switzerland": ".SW", "Denmark": ".CO", "Sweden": ".ST", "Finland": ".HE", "Norway": ".OL",
                   "Spain": ".MC", "Italy": ".MI", "Belgium": ".BR", "Portugal": ".LS", "Ireland": ".IR",
-                  "Austria": ".VI", "Poland": ".WA"}
+                  "Austria": ".VI", "Poland": ".WA", "Greece": ".AT"}
 COUNTRY_EN = {"Deutschland": "Germany", "Frankreich": "France", "Niederlande": "Netherlands", "Schweiz": "Switzerland",
               "Dänemark": "Denmark", "Schweden": "Sweden", "Finnland": "Finland", "Norwegen": "Norway",
               "Spanien": "Spain", "Italien": "Italy", "Belgien": "Belgium", "Irland": "Ireland",
-              "Österreich": "Austria", "Polen": "Poland", "Vereinigtes Königreich": "United Kingdom"}
+              "Österreich": "Austria", "Polen": "Poland", "Griechenland": "Greece", "Vereinigtes Königreich": "United Kingdom"}
 
 
 def stoxx600_members():
@@ -1513,7 +1519,8 @@ def stoxx600_members():
         for r in reader:
             tick = (r.get("Ticker") or r.get("Emittententicker") or "").strip()
             kind = (r.get("Asset Class") or r.get("Anlageklasse") or "").strip()
-            if not tick or (kind and kind not in ("Equity", "Aktien")):
+            # A "-" ticker is a coupon or rights line (Pernod Ricard's), not a company.
+            if not re.search(r"[A-Za-z0-9]", tick) or (kind and kind not in ("Equity", "Aktien")):
                 continue
             country = COUNTRY_EN.get((r.get("Location") or r.get("Standort") or "").strip(),
                                      (r.get("Location") or r.get("Standort") or "").strip())
@@ -1521,7 +1528,8 @@ def stoxx600_members():
             suffix = next((sx for key, sx in EXCHANGE_SUFFIX if key in exch), None) or COUNTRY_SUFFIX.get(country)
             if not suffix:
                 continue
-            sym = re.sub(r"[ /]+", "-", tick.rstrip(".")) + suffix
+            # Yahoo writes a share class with a dash: "BT.A" is BT-A.L, "SKF B" is SKF-B.ST.
+            sym = re.sub(r"[ /.]+", "-", tick.rstrip(".")) + suffix
             out.append((sym, country))
         if len(out) >= 500:
             return out
