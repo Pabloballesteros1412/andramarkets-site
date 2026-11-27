@@ -22,7 +22,7 @@
   var D = JSON.parse(src.textContent), CO = D.co, N = CO.length, SEC = D.sectors;
   var cv = box.querySelector("canvas"), read = box.querySelector(".lens-read"), stats = box.querySelector(".lens-stats");
   var TAU = Math.PI * 2, MINUS = "−", INK = "242,243,243", UP = "31,210,122", DN = "255,75,82";
-  var MONO = '"Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace';
+  var MONO = '"Geist", "Helvetica Neue", Arial, sans-serif';   // the read-outs' face (owner, 27 Nov 2026: Geist Light, as written)
   var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   // a company: [folder, name, ticker, sector, market, last move in basis points]
   var SLUG = 0, NAME = 1, TICK = 2, SECT = 3, MKT = 4, MOVE = 5;
@@ -92,9 +92,9 @@
   function hidden(s) { return s[2] < -0.04; }
   function label(text, x, y, align, color, size) {
     var c = S.c;
-    c.font = "400 " + (size || 10) + "px " + MONO; c.textAlign = align || "left"; c.fillStyle = color;
-    if ("letterSpacing" in c) c.letterSpacing = "1px";
-    c.fillText(String(text).toUpperCase(), x, y);
+    c.font = "300 " + ((size || 10) + 2) + "px " + MONO; c.textAlign = align || "left"; c.fillStyle = color;
+    if ("letterSpacing" in c) c.letterSpacing = "0.1px";
+    c.fillText(String(text), x, y);
   }
   function shown(i) { return (sectorOn === "all" || D.slugs[CO[i][SECT]] === sectorOn) && (marketOn === "all" || CO[i][MKT] === marketOn); }
 

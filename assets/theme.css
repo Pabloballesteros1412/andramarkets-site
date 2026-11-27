@@ -1,5 +1,4 @@
 @font-face{font-family:"Geist";src:url("fonts/geist-latin.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
-@font-face{font-family:"Geist Mono";src:url("fonts/geist-mono-latin.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
 /* Andra Markets, new look: black ground, light Geist, type and hairlines only. Loaded after site.css. */
 :root,:root[data-theme="light"],:root[data-theme="dark"]{color-scheme:dark;
  --font:"Geist","Helvetica Neue",Arial,sans-serif;
@@ -319,10 +318,10 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 @media(max-width:960px){.fd-cols{grid-template-columns:1fr}.fd-cols>*+*{border-top:1px solid var(--rule);margin-top:30px}.fd-kpis{grid-template-columns:1fr 1fr}.fd-cells{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.fd-wide{display:none}.fd-tab td.fd-x{width:auto}}
 
-/* Read-outs in small monospaced capitals, over the Companies globe (assets/globe.js). */
+/* Read-outs in Geist Light, as written (owner, 27 Nov 2026), over the Companies globe (assets/globe.js) and elsewhere. */
 .lens{display:block;width:100%;touch-action:pan-y}
 .lens-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:0 24px}
-.lens-stats,.lens-read{margin:0;font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:.6875rem;line-height:1.6;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.lens-stats,.lens-read{margin:0;font-family:var(--font);font-size:.8125rem;font-weight:300;line-height:1.5;letter-spacing:.01em;color:#c3cad6;font-variant-numeric:tabular-nums}
 .lens-stats{text-align:right}
 .lens-read b{font-weight:400;color:var(--ink)}
 .lens-read .mv{font:inherit}
@@ -424,7 +423,7 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .has-next .cl__head .lede{display:none}
 .cn__k{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
 .cn__main{display:block;margin-top:.75rem;color:var(--ink);text-decoration:none!important}
-.cn__count{display:block;font-family:"Geist Mono",ui-monospace,monospace;font-size:clamp(1.5rem,3.4vw,3rem);font-weight:300;letter-spacing:.02em;font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 0 28px rgba(190,215,255,.45)}
+.cn__count{display:block;font-family:var(--font);font-size:clamp(1.5rem,3.4vw,3rem);font-weight:300;letter-spacing:.01em;font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 0 28px rgba(190,215,255,.45)}
 .cn__name{display:block;margin-top:.5rem;font-weight:300;font-size:clamp(2rem,5.2vw,4.75rem);line-height:1.05;letter-spacing:-.035em;text-wrap:balance}
 .cn__meta{display:block;margin-top:1rem;font-size:1rem;color:var(--ink-2)}
 .cn__k--then{margin-top:clamp(2rem,5vh,3.5rem)}
@@ -594,7 +593,7 @@ a.nav__btn{display:inline-flex}
 .rk__plot text{font-family:inherit;font-size:13px;fill:var(--ink-2)}
 .rk__plot .rk-firm{fill:var(--ink)}
 .rk__plot .rk-group{font-size:12px;fill:var(--ink-3)}
-.rk__plot .rk-mono{font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
+.rk__plot .rk-mono{font-family:var(--font);font-size:12px;font-weight:300;letter-spacing:.01em}
 .rk__plot .rk-ink{fill:var(--ink)}
 .rk-under{fill:#000}
 .rk-grid{stroke:var(--chart-grid)}
@@ -640,7 +639,7 @@ a.nav__btn{display:inline-flex}
 .wp-stop{animation:wp-in .5s both;animation-delay:calc(.2s + var(--i)*.22s);outline:0}
 @keyframes wp-in{from{opacity:0}}
 .wp-ring{fill:#000;stroke:#e8f0ff;stroke-width:1.3;transition:fill .25s}
-.wp-no{font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:10.5px;letter-spacing:.12em;fill:var(--ink-2)}
+.wp-no{font-family:var(--font);font-size:12px;font-weight:300;letter-spacing:.01em;fill:var(--ink-2)}
 .wp-name{font-size:17px;font-weight:300;letter-spacing:-.01em;fill:var(--ink-2);transition:fill .25s}
 .wp-stop:hover .wp-name,.wp-stop:focus-visible .wp-name,.wp-stop.is-at .wp-name{fill:var(--ink)}
 .wp-stop.is-on .wp-ring,.wp-stop:focus-visible .wp-ring{fill:#e8f0ff}
@@ -716,7 +715,7 @@ a.nav__btn{display:inline-flex}
 .ic__clock{position:relative;aspect-ratio:1}
 .ic__clock canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 .ic__mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
-.ic__secs{font-family:"Geist Mono",ui-monospace,Menlo,monospace;font-size:clamp(3rem,6vw,4.5rem);font-weight:300;letter-spacing:.02em;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 0 28px rgba(190,215,255,.45)}
+.ic__secs{font-family:var(--font);font-size:clamp(3rem,6vw,4.5rem);font-weight:300;letter-spacing:0;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 0 28px rgba(190,215,255,.45)}
 .ic__count{margin:0}
 .ic__title{margin:12px 0 16px;font-size:clamp(1.625rem,3vw,2.5rem);font-weight:300;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
 .ic__title a{color:var(--ink);text-decoration:none}
@@ -747,7 +746,7 @@ a.nav__btn{display:inline-flex}
 .cg__names{position:absolute;inset:0;pointer-events:none}
 .cg__name{position:absolute;left:0;top:0;white-space:nowrap;line-height:1.25;opacity:0;transition:opacity .35s;text-shadow:0 0 12px #000,0 0 3px #000}
 .cg__name b{display:block;font-weight:400;font-size:.9375rem;color:var(--ink)}
-.cg__name .lens-read{font-size:.625rem}
+.cg__name .lens-read{font-size:.75rem}
 .cg__name.is-on b{color:var(--amber-2)}
 .cg__big{position:absolute;left:max(16px,calc(50vw - 640px));bottom:12%;max-width:300px;pointer-events:none;text-shadow:0 0 18px #000}
 .cg__fig{margin:6px 0 0;font-weight:300;font-size:clamp(2.75rem,5vw,4.5rem);letter-spacing:-.03em;line-height:1;color:var(--ink)}

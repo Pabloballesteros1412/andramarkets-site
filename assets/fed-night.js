@@ -86,7 +86,7 @@
   }
   function proj(p) { var v = sub(p, eye), z = dot(v, fw); if (z <= 0) return null; return [(0.5 + 0.5 * dot(v, rt) / (z * tanF * asp)) * W, (0.5 - 0.5 * dot(v, up) / (z * tanF)) * H, z]; }
   function seen(p) { return dot(p, eye) > 1; }
-  var MONO = "Geist Mono, ui-monospace, monospace", SANS = "Geist, system-ui, sans-serif";
+  var MONO = "Geist, Helvetica Neue, Arial, sans-serif", SANS = "Geist, system-ui, sans-serif";
   var glow = document.createElement("canvas"); glow.width = glow.height = 128;
   (function () { var g = glow.getContext("2d"), r = g.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(0.12, "rgba(225,238,255,.8)"); r.addColorStop(0.35, "rgba(150,190,255,.22)"); r.addColorStop(1, "rgba(120,170,255,0)"); g.fillStyle = r; g.fillRect(0, 0, 128, 128); })();
   function spot(q, s, a) { cx.globalAlpha = a; cx.drawImage(glow, q[0] - s / 2, q[1] - s / 2, s, s); }
@@ -123,7 +123,7 @@
     var l = lines(c), x = c.q[0] + 22, y = c.q[1] - 30; cx.font = "300 " + (phone ? 17 : 21) + "px " + SANS; var w = cx.measureText(l[0]).width; if (x + w > W - 12) x = c.q[0] - w - 22; if (x < 12) x = 12;
     var gr = Math.max(w, 170) * 0.85, gx = x + Math.max(w, 170) / 2, gy = y + 30, g = cx.createRadialGradient(gx, gy, 8, gx, gy, gr); g.addColorStop(0, "rgba(0,0,0,.8)"); g.addColorStop(0.55, "rgba(0,0,0,.5)"); g.addColorStop(1, "rgba(0,0,0,0)"); cx.fillStyle = g; cx.fillRect(gx - gr, gy - gr, gr * 2, gr * 2);
     cx.textAlign = "left"; cx.textBaseline = "top"; cx.shadowColor = "#000"; cx.shadowBlur = 14; cx.fillStyle = "#f2f3f3"; cx.fillText(l[0], x, y); cx.fillText(l[0], x, y);
-    cx.font = "400 11px " + MONO; cx.fillStyle = "rgba(200,205,210,.95)"; cx.fillText(l[1], x, y + (phone ? 25 : 30)); cx.fillStyle = "#f2f3f3"; cx.fillText(l[2], x, y + (phone ? 41 : 46)); cx.shadowBlur = 0;
+    cx.font = "300 12px " + MONO; cx.fillStyle = "rgba(200,205,210,.95)"; cx.fillText(l[1], x, y + (phone ? 25 : 30)); cx.fillStyle = "#f2f3f3"; cx.fillText(l[2], x, y + (phone ? 41 : 46)); cx.shadowBlur = 0;
   }
   var run = 0, visible = true;
   function frame(time) {
