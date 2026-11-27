@@ -1,6 +1,6 @@
 ---
 name: Andra Markets
-description: A markets research platform on the record. Black ground, light Inter type, words and hairlines instead of boxes, a horizon of light and the engraved horse, red and green only for rises and falls.
+description: A markets research platform on the record. Black ground, Inter type with bold headlines, words and hairlines instead of boxes, a horizon of light and the engraved horse, red and green only for rises and falls.
 colors:
   ground: "#000000"
   ground-2: "#0c0d0e"
@@ -169,13 +169,13 @@ Source of truth: `assets/site.css` with `assets/theme.css` loaded after it (ever
 
 **Creative North Star: "Light on the Record"**
 
-A black page, white light and one typeface in light weights. The homepage is a horizon of light with the engraved horse forming out of its dust; every other page is type on black space: a faint grey cloud and fine stars, in three depths that slide a little against each other. Nothing is boxed: actions are words with a long arrow, filters are words, fields are a line, lists and tiles are separated by hairlines.
+A black page, white light and one typeface, bold in headlines. The homepage is a horizon of light with the engraved horse forming out of its dust; every other page is type on black space: a faint grey cloud and fine stars, in three depths that slide a little against each other. Nothing is boxed: actions are words with a long arrow, filters are words, fields are a line, lists and tiles are separated by hairlines.
 
 Colour is withheld on purpose. The site is ink on black; vivid red and green carry one meaning only, a rise or a fall, in charts and on every figure that shows a move (see The Rise and Fall Rule). Seriousness comes from restraint, dated and sourced numbers, and bracketed placeholders wherever a real number does not yet exist.
 
 **Key Characteristics:**
 - One theme: dark. There is no light theme and no theme switch.
-- One family: Inter, variable, in light weights, every stack ending in `sans-serif`.
+- One family: Inter, variable, bold headlines over regular text, every stack ending in `sans-serif`.
 - No boxes: words, lines to write on and 1px hairlines. No shadows, square corners.
 - The horse is the only image: the brand mark in the header and footer, and the engraving on the homepage. Each group of the menu also has a picture drawn in fine lines (a globe, a mesh, a chart, buildings).
 - Red and green only for rises and falls (charts, and figures with a sign); errors are ink only.
@@ -222,23 +222,23 @@ On black, `#1fd27a` and `#ff4b52` pass WCAG AA as text, so the figure and chart 
 
 **Font:** Inter (with Helvetica Neue, Arial, sans-serif), for everything. Owner's change, 27 Nov 2026: Inter replaces Geist (and Geist Mono) for all text on the site, weights unchanged.
 
-**Character:** One face in light weights. Hierarchy comes from size and tight negative tracking at display sizes; weight changes little (300 to 400, 500 for the rare bold).
+**Character:** One face, bold headlines over regular text (owner's change, 27 Nov 2026; it replaces the light weights). Titles are 700 with tight negative tracking, section and list headings 600, running text 400.
 
 Self-hosted variable font: `assets/fonts/inter-latin.woff2` (SIL OFL 1.1, `assets/fonts/OFL-Inter.txt`), `font-weight: 100 900`, `font-display: swap`, preloaded in every page head. The single stack is `--font: "Inter", "Helvetica Neue", Arial, sans-serif`. No serif face exists anywhere, including fallbacks. Schibsted Grotesk, the previous face, is kept only because the share images (`tools/og_note.py`, `assets/og-image.png`) are still set in it.
 
 ### Hierarchy
-- **Homepage phrase and closing line** (300, `clamp(2.5rem, 5.8vw, 5.5rem)`, 1.02, -0.035em), centred. **Homepage group title** (300, `clamp(2.5rem, 5.2vw, 4.75rem)`). **Homepage statement** (300, `clamp(1.75rem, 3.1vw, 2.875rem)`, 1.1).
-- **Page title** (300, `clamp(2.5rem, 6vw, 4.5rem)`, 1, -0.038em): inner page h1. A close note's headline uses the section title scale (300, `clamp(2rem, 4.2vw, 3.5rem)`, 1.02).
-- **Section heading on an inner page** (400, 1.375rem, -0.02em).
-- **Titles in lists and tiles** (400): note list, tool and report titles, dashboard tile, calendar event, accordion questions. Sizes as recorded in each page's section.
-- **Lede** (300, `clamp(1rem, 1.25vw, 1.125rem)`, 1.55): ink-2, max 52ch.
-- **Body** (350, 1.0625rem, 1.55; 1rem at 640px and below): long text max 65ch.
+- **Homepage phrase and closing line** (700, `clamp(2.5rem, 5.8vw, 5.5rem)`, 1.02, -0.035em), centred. **Homepage group title** (700, `clamp(2.5rem, 5.2vw, 4.75rem)`). **Homepage statement** (700, `clamp(1.75rem, 3.1vw, 2.875rem)`, 1.1).
+- **Page title** (700, `clamp(2.5rem, 6vw, 4.5rem)`, 1, -0.038em): inner page h1. A close note's headline uses the section title scale (700, `clamp(2rem, 4.2vw, 3.5rem)`, 1.02).
+- **Section heading on an inner page** (600, 1.375rem, -0.02em).
+- **Titles in lists and tiles** (600): note list, tool and report titles, dashboard tile, calendar event, accordion questions. Sizes as recorded in each page's section.
+- **Lede** (400, `clamp(1rem, 1.25vw, 1.125rem)`, 1.55): ink-2, max 52ch.
+- **Body** (400, 1.0625rem, 1.55; 1rem at 640px and below): long text max 65ch.
 - **Brand** (400, 0.8125rem, uppercase, 0.3em): the "Andra Markets" wordmark next to the mark.
 - **Actions** (400, 0.8125rem, uppercase, 0.14em): every button, followed by its arrow.
 - **Menu and filters** (400, 0.8125rem to 0.875rem): menu group names, filters, range switches, labels of fields.
 - **Small** (0.875rem) and **meta** (0.8125rem), 350: help text, statuses, note meta, chart keys, source lines, tags, legal line.
 - **Figures** (400, tabular): levels and changes in panels and tables.
-- **Bold** inside text is 500.
+- **Bold** inside text is 600.
 
 Uppercase with letter-spacing is used for the brand and for actions, nowhere else. No italics.
 
@@ -657,7 +657,7 @@ Every unknown value is a bracketed placeholder (`[date]`, `[live]`, `[source]`, 
 ### Do:
 - **Do** keep the site one dark theme: black ground, `theme-color` `#000000`, no switch.
 - **Do** set every colour through the custom properties, and new values in `assets/theme.css` (inner pages) or `assets/home.css` (homepage).
-- **Do** use the one `--font` stack ending in `sans-serif`, in light weights: 300 for titles and ledes, 350 for text, 400 for headings in lists, labels and figures, 500 for the rare bold.
+- **Do** use the one `--font` stack ending in `sans-serif`, with bold headlines: 700 for titles, 600 for section and list headings and for bold inside text, 400 for text, ledes, labels and figures.
 - **Do** make actions words with an arrow, filters words with an underline for the chosen one, and fields a line to write on.
 - **Do** apply tabular figures only to elements that hold numbers.
 - **Do** give every chart a key and a source and date line. Lab charts carry an "Illustrative" stamp until real data exists; dashboard tiles never do.
