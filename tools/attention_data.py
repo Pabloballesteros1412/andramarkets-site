@@ -1,0 +1,187 @@
+#!/usr/bin/env python3
+"""Fetch the figures behind Hedge Fund Data: Attention, once a day.
+
+Run by .github/workflows/hedgefund-data.yml; a run on a day already fetched
+does nothing. Writes .cache/hf/attention.json (schema "andra.attention/1",
+Actions cache, never committed or published):
+
+    wikipedia  daily views of the English Wikipedia article on each of the
+               companies and market subjects in WIKI, for 400 days (Wikimedia
+               pageviews API, people only, no bots; no key). A day's views
+               against the article's own 90-day average is the attention
+               spike the page shows.
+    news       for each subject in NEWS, the share of all the world's online
+               news coverage in English that mentions it, and that coverage's
+               average tone, each day for three months (GDELT DOC 2.0, no key;
+               it asks for one request every five seconds, kept here).
+
+A failed source keeps its last good copy with its own date.
+
+    python3 tools/attention_data.py [--force]
+"""
+import argparse
+import datetime as dt
+import json
+import sys
+import time
+import urllib.error
+import urllib.parse
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from dashboard_data import get, log  # noqa: E402
+
+ROOT = Path(__file__).resolve().parent.parent
+CACHE = ROOT / ".cache" / "hf" / "attention.json"
+SCHEMA = "andra.attention/1"
+# Wikimedia asks automated clients to name themselves and a way to reach them.
+WIKI_UA = {"User-Agent": "AndraMarketsSite/1.0 (https://github.com/Pabloballesteros1412/andramarkets-site)"}
+WIKI = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/{}/daily/{}/{}"
+WIKI_DAYS = 400
+# (key, the page's name, Wikipedia article, group)
+WIKI_ARTICLES = [
+    ("NVDA", "Nvidia", "Nvidia", "Companies"), ("AAPL", "Apple", "Apple_Inc.", "Companies"),
+    ("MSFT", "Microsoft", "Microsoft", "Companies"), ("AMZN", "Amazon", "Amazon_(company)", "Companies"),
+    ("GOOGL", "Alphabet", "Google", "Companies"), ("META", "Meta", "Meta_Platforms", "Companies"),
+    ("TSLA", "Tesla", "Tesla,_Inc.", "Companies"), ("AVGO", "Broadcom", "Broadcom", "Companies"),
+    ("PLTR", "Palantir", "Palantir_Technologies", "Companies"), ("AMD", "AMD", "AMD", "Companies"),
+    ("INTC", "Intel", "Intel", "Companies"), ("TSM", "TSMC", "TSMC", "Companies"),
+    ("NFLX", "Netflix", "Netflix", "Companies"), ("BRK", "Berkshire Hathaway", "Berkshire_Hathaway", "Companies"),
+    ("JPM", "JPMorgan Chase", "JPMorgan_Chase", "Companies"), ("LLY", "Eli Lilly", "Eli_Lilly_and_Company", "Companies"),
+    ("NVO", "Novo Nordisk", "Novo_Nordisk", "Companies"), ("ASML", "ASML", "ASML_Holding", "Companies"),
+    ("COIN", "Coinbase", "Coinbase", "Companies"), ("MSTR", "Strategy", "Strategy_Inc.", "Companies"),
+    ("OPENAI", "OpenAI", "OpenAI", "Private"), ("ANTH", "Anthropic", "Anthropic", "Private"),
+    ("SPACEX", "SpaceX", "SpaceX", "Private"),
+    ("BTC", "Bitcoin", "Bitcoin", "Assets"), ("GOLD", "Gold", "Gold_as_an_investment", "Assets"),
+    ("OIL", "Oil price", "Price_of_oil", "Assets"), ("SPX", "S&P 500", "S%26P_500", "Assets"),
+    ("REC", "Recession", "Recession", "Macro"), ("INFL", "Inflation", "Inflation", "Macro"),
+    ("TARIFF", "Tariff", "Tariff", "Macro"), ("FED", "Federal Reserve", "Federal_Reserve", "Macro"),
+    ("BUBBLE", "Stock market bubble", "Stock_market_bubble", "Macro"), ("CRASH", "Stock market crash", "Stock_market_crash", "Macro"),
+    ("LAYOFF", "Layoff", "Layoff", "Macro"), ("STAG", "Stagflation", "Stagflation", "Macro"),
+]
+GDELT = "https://api.gdeltproject.org/api/v2/doc/doc"
+GDELT_GAP = 6.0  # seconds between requests: GDELT asks for at least five
+# (key, the page's name, GDELT query)
+NEWS = [
+    ("recession", "Recession", '(recession OR "economic downturn")'),
+    ("inflation", "Inflation", "inflation"),
+    ("tariffs", "Tariffs", "(tariff OR tariffs)"),
+    ("fed", "The Fed", '("Federal Reserve" OR "the Fed")'),
+    ("layoffs", "Layoffs", "(layoffs OR \"job cuts\")"),
+    ("ai_bubble", "AI bubble", '"AI bubble"'),
+    ("oil", "Oil supply", '("oil supply" OR "oil prices")'),
+    ("hormuz", "Strait of Hormuz", '"Strait of Hormuz"'),
+    ("taiwan", "Taiwan Strait", '("Taiwan Strait" OR "blockade of Taiwan")'),
+    ("shipping", "Shipping disruption", '("shipping disruption" OR "supply chain disruption")'),
+    ("default", "Default and debt", '("debt ceiling" OR "sovereign default" OR "bond market")'),
+    ("bank", "Bank stress", '("bank run" OR "bank failure" OR "banking crisis")'),
+]
+
+
+def now_utc():
+    return dt.datetime.now(dt.timezone.utc)
+
+
+def wikipedia(old):
+    end = now_utc().date() - dt.timedelta(days=1)
+    start = end - dt.timedelta(days=WIKI_DAYS)
+    out = []
+    for key, name, art, group in WIKI_ARTICLES:
+        url = WIKI.format(art, start.strftime("%Y%m%d00"), end.strftime("%Y%m%d00"))
+        for i in range(4):
+            try:
+                items = json.loads(get(url, headers=WIKI_UA)).get("items", [])
+                break
+            except urllib.error.HTTPError as e:
+                if e.code == 404:
+                    items = []
+                    break
+                if e.code != 429 or i == 3:
+                    raise
+                time.sleep(5 * (i + 1))
+        if not items:
+            log(f"Wikipedia: no views for {art}", "warning")
+            continue
+        first = dt.datetime.strptime(items[0]["timestamp"][:8], "%Y%m%d").date()
+        views = {it["timestamp"][:8]: it["views"] for it in items}
+        n = (end - first).days + 1
+        series = [views.get((first + dt.timedelta(days=i)).strftime("%Y%m%d")) for i in range(n)]
+        out.append({"key": key, "name": name, "article": art, "group": group, "first": first.isoformat(), "views": series})
+        time.sleep(0.15)
+    if not out:
+        raise ValueError("Wikipedia returned no views")
+    return {"fetched": now_utc().strftime("%Y-%m-%dT%H:%M:%SZ"), "last": end.isoformat(), "articles": out,
+            "source": "Wikimedia pageviews (English Wikipedia, users only)"}
+
+
+def gdelt(mode, query):
+    q = urllib.parse.urlencode({"query": f"{query} sourcelang:english", "mode": mode, "format": "json", "timespan": "3months"})
+    for i in range(3):
+        try:
+            raw = get(f"{GDELT}?{q}")
+            return json.loads(raw)
+        except (urllib.error.HTTPError, ValueError) as e:
+            if i == 2:
+                raise
+            log(f"GDELT {mode} {query}: {type(e).__name__}, waiting", "warning")
+            time.sleep(20)
+        finally:
+            time.sleep(GDELT_GAP)
+
+
+def news():
+    out = []
+    for key, name, query in NEWS:
+        try:
+            vol = gdelt("timelinevol", query)
+            tone = gdelt("timelinetone", query)
+        except Exception as e:  # noqa: BLE001
+            log(f"GDELT {name}: {type(e).__name__}: {e}", "warning")
+            continue
+        v = {d["date"][:8]: d["value"] for d in (vol.get("timeline") or [{}])[0].get("data", [])}
+        t = {d["date"][:8]: d["value"] for d in (tone.get("timeline") or [{}])[0].get("data", [])}
+        days = sorted(v)
+        if not days:
+            continue
+        out.append({"key": key, "name": name, "query": query, "first": f"{days[0][:4]}-{days[0][4:6]}-{days[0][6:]}",
+                    # share of all monitored English coverage, in percent; tone runs about -10 (negative) to +10
+                    "share": [round(v[d], 4) for d in days], "tone": [None if d not in t else round(t[d], 2) for d in days]})
+    if not out:
+        raise ValueError("GDELT returned nothing")
+    return {"fetched": now_utc().strftime("%Y-%m-%dT%H:%M:%SZ"), "subjects": out,
+            "source": "The GDELT Project, DOC 2.0 (English-language online news)"}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--force", action="store_true")
+    a = ap.parse_args()
+    try:
+        old = json.loads(CACHE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        old = {}
+    today = now_utc().date().isoformat()
+    out = {"schema": SCHEMA, "wikipedia": old.get("wikipedia"), "news": old.get("news")}
+    did = False
+    for part, fn in (("wikipedia", lambda: wikipedia(old.get("wikipedia"))), ("news", news)):
+        if not a.force and (out[part] or {}).get("fetched", "")[:10] == today:
+            continue
+        try:
+            out[part] = fn()
+            did = True
+            log(f"Attention, {part}: {len(out[part].get('articles') or out[part].get('subjects'))} series")
+        except Exception as e:  # noqa: BLE001
+            log(f"Attention, {part} failed, keeping the last copy: {type(e).__name__}: {e}", "warning")
+    if not did:
+        log("Attention: already fetched today")
+        return 0
+    if not out["wikipedia"] and not out["news"]:
+        return 1
+    CACHE.parent.mkdir(parents=True, exist_ok=True)
+    CACHE.write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
+    log(f"Wrote {CACHE.relative_to(ROOT)} ({CACHE.stat().st_size // 1024} KB)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

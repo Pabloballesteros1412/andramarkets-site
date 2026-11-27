@@ -15,6 +15,10 @@ name: Hedge Fund Data
 #   Positioning (tools/positioning_data.py): CFTC Commitments of Traders and
 #   FINRA daily short sale volume, no key.
 #   Government contracts (tools/contracts_data.py): USAspending, no key.
+#   Attention (tools/attention_data.py): Wikipedia page views and GDELT news
+#   coverage, no key; once a day.
+#   Power and passengers (tools/power_data.py): EIA grid demand (EIA_API_KEY)
+#   and TSA checkpoint numbers; every six hours.
 #
 # Each step keeps its source's last good copy on failure and never stops the
 # others (continue-on-error), so one source that is down costs only its own figures.
@@ -35,6 +39,8 @@ on:
       - "tools/jets_data.py"
       - "tools/positioning_data.py"
       - "tools/contracts_data.py"
+      - "tools/attention_data.py"
+      - "tools/power_data.py"
       - ".github/workflows/hedgefund-data.yml"
 
 permissions:
@@ -84,6 +90,14 @@ jobs:
       - name: Government contracts
         continue-on-error: true
         run: python3 tools/contracts_data.py
+      - name: Attention
+        continue-on-error: true
+        run: python3 tools/attention_data.py
+      - name: Power and passengers
+        continue-on-error: true
+        env:
+          EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+        run: python3 tools/power_data.py
       - name: Save Hedge Fund Data
         if: ${{ always() }}
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -134,4 +148,19 @@ jobs:
               print(f"- {len(c['actions'])} actions of $10m or more; listed: {[x['ticker'] for x in c['by_company'][:10]]}")
           except Exception as e:
               print(f"- Government contracts: {e}")
+          try:
+              a = json.load(open(".cache/hf/attention.json"))
+              print("### Attention")
+              print(f"- Wikipedia: {len((a.get('wikipedia') or {}).get('articles', []))} articles; GDELT: {len((a.get('news') or {}).get('subjects', []))} subjects")
+          except Exception as e:
+              print(f"- Attention: {e}")
+          try:
+              w = json.load(open(".cache/hf/power.json"))
+              print("### Power and passengers")
+              g = (w.get("power") or {}).get("grids", [])
+              print(f"- EIA: {len(g)} grids; US48 last day {g[0]['mwh'][-1] if g else None} MWh")
+              t = (w.get("passengers") or {}).get("days", {})
+              print(f"- TSA: {len(t)} days, last {list(t.items())[-1] if t else None}")
+          except Exception as e:
+              print(f"- Power and passengers: {e}")
           EOF
