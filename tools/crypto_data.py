@@ -176,7 +176,7 @@ def coin_detail(c, cats, rank):
         except Exception as e:  # noqa: BLE001
             print(f"crypto: {c['id']} from Coin Metrics: {type(e).__name__}: {e}")
     if "p" not in rec:
-        for attempt in (1, 2):
+        for attempt in (1, 2, 3, 4):
             try:
                 rows = get(f"coins/{c['id']}/market_chart?vs_currency=usd&days=365&interval=daily")["prices"]
                 by_day = {}
@@ -187,9 +187,9 @@ def coin_detail(c, cats, rank):
                 if p:
                     rec.update({"start": start, "p": p, "source": "CoinGecko"})
                 break
-            except Exception as e:  # noqa: BLE001
-                if attempt == 1:
-                    time.sleep(30)
+            except Exception as e:  # noqa: BLE001   CoinGecko's public limit: wait it out, longer each time
+                if attempt < 4:
+                    time.sleep(30 * attempt)
                 else:
                     print(f"crypto: {c['id']} from CoinGecko: {type(e).__name__}: {e}")
         time.sleep(2.5)
