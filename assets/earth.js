@@ -18,7 +18,7 @@
   var TEX = { day: base + D.tex.day, night: base + D.tex.night, topo: base + D.tex.topo };
   var cv = box.querySelector(".wm-globe__top"), read = box.querySelector(".wm-globe__read"), stats = box.querySelector(".wm-globe__stats");
   var TAU = Math.PI * 2, RAD = Math.PI / 180, MINUS = "−", INK = "242,243,243", UP = "31,210,122", DN = "255,75,82";
-  var MONO = '"Geist Mono", ui-monospace, Menlo, monospace';
+  var MONO = 'Inter, "Helvetica Neue", Arial, sans-serif';
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   // regular trading hours in UTC, [open, close] in minutes; a lunch break is ignored
   var HOURS = { USA: [870, 1260], CAN: [870, 1260], MEX: [870, 1260], BRA: [780, 1200], ARG: [840, 1200], GBR: [480, 990], DEU: [480, 990], FRA: [480, 990], ITA: [480, 990], ESP: [480, 990], NLD: [480, 990], CHE: [480, 990], SWE: [480, 990], TUR: [420, 900], ISR: [479, 925], ZAF: [420, 900], IND: [225, 600], CHN: [90, 420], HKG: [90, 480], JPN: [0, 390], KOR: [0, 390], TWN: [60, 330], IDN: [120, 540], SGP: [60, 540], AUS: [1380, 1800],
@@ -171,7 +171,7 @@
     }
     if (focus >= 0 && Q[focus][2] > 0) {
       var f2 = Q[focus], mk = MK[focus], right = f2[0] > S.w - 260;
-      c.font = "300 20px Geist, sans-serif"; c.textAlign = right ? "right" : "left"; c.fillStyle = "rgb(" + INK + ")"; if ("letterSpacing" in c) c.letterSpacing = "-0.3px";
+      c.font = "300 20px Inter, sans-serif"; c.textAlign = right ? "right" : "left"; c.fillStyle = "rgb(" + INK + ")"; if ("letterSpacing" in c) c.letterSpacing = "-0.3px";
       c.shadowColor = "#000"; c.shadowBlur = 8; c.fillText(mk.name, f2[0] + (right ? -20 : 20), f2[1] - 2);
 var ax = f2[0] + (right ? -20 : 20), al = right ? "right" : "left";
       label(mk.index + (OPEN[focus] ? " \u00b7 trading now" : ""), ax, f2[1] + 15, al, "rgba(200,204,206,.95)", 10);

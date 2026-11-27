@@ -13,7 +13,7 @@
   "use strict";
   var TAU = Math.PI * 2, MINUS = "−";
   var INK = "242,243,243", UP = "#1fd27a", DOWN = "#ff4b52";
-  var MONO = '"Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace';
+  var MONO = 'Inter, "Helvetica Neue", Arial, sans-serif';
   var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // A small seeded generator: the same portfolio draws the same picture every time.

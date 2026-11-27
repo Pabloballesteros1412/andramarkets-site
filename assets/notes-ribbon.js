@@ -28,7 +28,7 @@
   function draw(now) {
     var t = still ? 9 : (now - t0) / 1000, e0 = still ? 1 : Math.min(1, t / 1.8), ease = 1 - Math.pow(1 - e0, 3), upto = Math.round((N.length - 1) * ease);
     cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H); cx.globalCompositeOperation = "lighter";
-    cx.font = "10px 'Geist Mono',ui-monospace,monospace"; cx.textBaseline = "middle"; cx.textAlign = "left"; var lastM = -1;
+    cx.font = "10px Inter,Arial,sans-serif"; cx.textBaseline = "middle"; cx.textAlign = "left"; var lastM = -1;
     N.forEach(function (n, i) { if (n.m === lastM) return; lastM = n.m; var x = xOf(i); cx.fillStyle = "rgba(226,236,252,0.45)"; cx.fillText(MON[n.m].toUpperCase() + (narrow ? "" : " " + n.y), x, Y1 + (narrow ? 30 : 56)); cx.fillStyle = "rgba(226,236,252,0.12)"; cx.fillRect(x, Y0 - 10, 1, Y1 - Y0 + (narrow ? 26 : 50)); });
     cx.lineJoin = "round"; cx.strokeStyle = "rgba(200,220,255,0.06)"; cx.lineWidth = 9; line(0, upto); cx.stroke();
     cx.strokeStyle = "rgba(226,236,252,0.2)"; cx.lineWidth = 0.6; line(-2.2, upto); cx.stroke(); line(2.2, upto); cx.stroke();
