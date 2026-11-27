@@ -56,6 +56,7 @@ import page_central_banks  # noqa: E402
 import page_live_markets  # noqa: E402
 import page_recession_watch  # noqa: E402
 import page_market_history  # noqa: E402
+import page_crypto  # noqa: E402
 import page_interview_simulator  # noqa: E402
 import page_firms  # noqa: E402
 import page_application_tracker  # noqa: E402
@@ -6894,7 +6895,7 @@ def write_discovery(notes, library):
 # Section pages built in their own modules (tools/page_*.py), each returning
 # {output path: page HTML}: the Research and Careers sections added on 1 Nov 2026.
 PAGE_MODULES = (page_live_markets, page_chart_of_the_day, page_central_banks, page_recession_watch, page_market_history,
-                page_interview_simulator, page_firms, page_application_tracker)
+                page_interview_simulator, page_firms, page_application_tracker, page_crypto)
 
 
 def main():
@@ -7048,7 +7049,7 @@ def main():
 GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", "profile", "calendar",
              "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
              "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
-             "chart-of-the-day", "central-banks", "recession-watch", "market-history",
+             "chart-of-the-day", "central-banks", "recession-watch", "market-history", "crypto",
              "interview-simulator", "firms", "application-tracker", "contact", "tools-map", "research-map", "markets", "live-markets")
 INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
 # Data blocks the browser never runs: the policy does not apply to them.
