@@ -8,7 +8,9 @@ Run by .github/workflows/hedgefund-data.yml. Writes .cache/hf/nightlights.json
               under sanctions, oil fields that flare gas), the month's total
               night-time light seen from orbit: the sum of the radiance of
               every pixel in the box, in nW/cm2/sr, and how many pixels were
-              lit, for each month since MONTHS ago. A month's total against
+              lit, for each month since MONTHS ago. A month in which fewer
+              than nine pixels in ten were measured (cloud, or a month not
+              yet over) has no figure rather than a low one. A month's total against
               the same month a year earlier is the figure the page shows,
               since light follows the seasons.
 
@@ -39,11 +41,12 @@ from dashboard_data import UA, log  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / ".cache" / "hf" / "nightlights.json"
-SCHEMA = "andra.nightlights/1"
+SCHEMA = "andra.nightlights/2"  # /1 misread the file's encoding: its figures are discarded
 LAADS = "https://ladsweb.modaps.eosdis.nasa.gov/api/v2/content/"
 PRODUCT = "allData/5200/VNP46A3"
 FIELD = "NearNadir_Composite_Snow_Free"
-FILL, SCALE, LIT = 65535, 0.1, 1.0  # a pixel brighter than 1 nW/cm2/sr counts as lit
+LIT = 1.0        # a pixel brighter than 1 nW/cm2/sr counts as lit
+MIN_VALID = 0.9  # share of a box's pixels the month must have measured for its figure to be kept
 MONTHS, MAX_TILES = 37, 14
 # (key, the page's name, why it matters, west, south, east, north); each box lies inside one 10-degree tile.
 REGIONS = [
@@ -121,16 +124,26 @@ def measure(raw, boxes):
         f.visititems(lambda n, o: found.append(n) if n.endswith(FIELD) else None)
         if not found:
             raise ValueError(f"no {FIELD} in the tile")
-        data = f[found[0]][()]
+        ds = f[found[0]]
+        # The field is float32 radiance with its own fill value (-999.9) and scale (1.0): read them from the file.
+        fill = float(ds.attrs["_FillValue"][0])
+        scale = float(ds.attrs["scale_factor"][0]) if "scale_factor" in ds.attrs else 1.0
+        offset = float(ds.attrs["offset"][0]) if "offset" in ds.attrs else 0.0
+        data = ds[()]
     out = {}
     for key, (h, v, w, s, e, n) in boxes.items():
         top, left = 90 - v * 10, -180 + h * 10
         r0, r1 = int(math.floor((top - n) * PX / 10)), int(math.ceil((top - s) * PX / 10))
         c0, c1 = int(math.floor((w - left) * PX / 10)), int(math.ceil((e - left) * PX / 10))
         box = data[r0:r1, c0:c1].astype("float64")
-        good = box != FILL
-        rad = np.where(good, box * SCALE, 0.0)
-        out[key] = {"sum": round(float(rad.sum())), "lit": int((rad > LIT).sum()), "valid": int(good.sum()), "pixels": int(box.size)}
+        good = ~np.isclose(box, fill) & (box * scale + offset >= 0)
+        rad = np.where(good, box * scale + offset, 0.0)
+        valid = int(good.sum())
+        # A month with too few clear, moonless nights leaves holes: its sum would read as a fall in light.
+        # "mean" (radiance per measured pixel) is the figure to compare between months: the pixels measured differ a little.
+        out[key] = ({"sum": round(float(rad.sum())), "mean": round(float(rad.sum()) / valid, 3), "lit": int((rad > LIT).sum()),
+                     "valid": valid, "pixels": int(box.size)}
+                    if valid >= MIN_VALID * box.size else {"sum": None, "mean": None, "lit": None, "valid": valid, "pixels": int(box.size)})
     return out
 
 
@@ -144,7 +157,7 @@ def main():
         log("Night lights: NASA_EARTHDATA_TOKEN is not set", "warning")
         return 0
     laads = Laads(token)
-    data = old.get("data") or {}  # month -> region key -> figures
+    data = (old.get("data") or {}) if old.get("schema") == SCHEMA else {}  # month -> region key -> figures
     tiles = {}
     for key, name, why, w, s, e, n in REGIONS:
         h, v = tile_of(w, s, e, n)
@@ -186,12 +199,12 @@ def main():
     keep = {m for m, _, _ in avail}
     data = {m: v for m, v in sorted(data.items()) if m in keep}
     out = {"schema": SCHEMA, "fetched": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-           "unit": "sum of radiance, nW/cm2/sr", "regions": [{"key": k, "name": n, "why": y, "bbox": [w, s, e, nn]}
+           "unit": "nW/cm2/sr: sum over the box, and mean per measured pixel", "regions": [{"key": k, "name": n, "why": y, "bbox": [w, s, e, nn]}
                                                             for k, n, y, w, s, e, nn in REGIONS],
            "data": data, "source": "NASA Black Marble VNP46A3 (LAADS DAAC)"}
     CACHE.parent.mkdir(parents=True, exist_ok=True)
     CACHE.write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
-    done = sum(1 for m in data.values() for x in m.values() if x)
+    done = sum(1 for m in data.values() for x in m.values() if x and x.get("sum") is not None)
     log(f"Night lights: read {read} tiles; {len(data)} months held, {done} region-months measured")
     return 0
 

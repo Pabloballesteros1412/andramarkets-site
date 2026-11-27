@@ -220,7 +220,7 @@ jobs:
               print(f"- From orbit: {e}")
           try:
               nl = json.load(open(".cache/hf/nightlights.json"))
-              done = sum(1 for m in nl["data"].values() for x in m.values() if x)
+              done = sum(1 for m in nl["data"].values() for x in m.values() if x and x.get("sum") is not None)
               print(f"- Night lights: {len(nl['data'])} months, {done} region-months measured")
           except Exception as e:
               print(f"- Night lights: {e}")
