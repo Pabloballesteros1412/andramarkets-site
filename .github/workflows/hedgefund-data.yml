@@ -19,6 +19,10 @@ name: Hedge Fund Data
 #   coverage, no key; once a day.
 #   Power and passengers (tools/power_data.py): EIA grid demand (EIA_API_KEY)
 #   and TSA checkpoint numbers; every six hours.
+#   Insiders (tools/insiders_data.py): SEC EDGAR Form 4 open-market trades
+#   (SEC_CONTACT_EMAIL, which the SEC requires in every request).
+#   From orbit (tools/orbit_data.py): NASA FIRMS heat anomalies
+#   (NASA_FIRMS_MAP_KEY); every three hours.
 #
 # Each step keeps its source's last good copy on failure and never stops the
 # others (continue-on-error), so one source that is down costs only its own figures.
@@ -41,6 +45,8 @@ on:
       - "tools/contracts_data.py"
       - "tools/attention_data.py"
       - "tools/power_data.py"
+      - "tools/insiders_data.py"
+      - "tools/orbit_data.py"
       - ".github/workflows/hedgefund-data.yml"
 
 permissions:
@@ -98,6 +104,16 @@ jobs:
         env:
           EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
         run: python3 tools/power_data.py
+      - name: Insiders
+        continue-on-error: true
+        env:
+          SEC_CONTACT_EMAIL: ${{ secrets.SEC_CONTACT_EMAIL }}
+        run: python3 tools/insiders_data.py
+      - name: From orbit
+        continue-on-error: true
+        env:
+          NASA_FIRMS_MAP_KEY: ${{ secrets.NASA_FIRMS_MAP_KEY }}
+        run: python3 tools/orbit_data.py
       - name: Save Hedge Fund Data
         if: ${{ always() }}
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -163,4 +179,16 @@ jobs:
               print(f"- TSA: {len(t)} days, last {list(t.items())[-1] if t else None}")
           except Exception as e:
               print(f"- Power and passengers: {e}")
+          try:
+              s = json.load(open(".cache/hf/insiders.json"))
+              print("### Insiders")
+              print(f"- {len(s['trades'])} open-market trades; cluster buys: {[c['ticker'] for c in s['clusters'][:10]]}")
+          except Exception as e:
+              print(f"- Insiders: {e}")
+          try:
+              o = (json.load(open(".cache/hf/orbit.json")).get("thermal") or {})
+              print("### From orbit")
+              print(f"- FIRMS: {o.get('total')} detections in 24 hours, fetched {o.get('fetched')}")
+          except Exception as e:
+              print(f"- From orbit: {e}")
           EOF
