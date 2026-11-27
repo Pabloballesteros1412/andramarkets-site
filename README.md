@@ -521,9 +521,9 @@ the close notes link there) and the homepage section.
 | Loan prime rates | PBoC: the 20th, 9:00 am Beijing, next working day | |
 | NYSE holidays and early closes, options expiry, quad witching, S&P 500 rebalance | `tools/nyse.py` and the exchanges' published rules | |
 | One-off events | `ONE_OFF` in `tools/calendar_data.py`, each with its official source | |
-| Earnings, US: top 400 of the S&P 500 | SPY holdings (State Street) for membership; Yahoo Finance for market cap, dates and diluted EPS | Yahoo Finance |
-| Earnings, Europe: top 400 of the STOXX Europe 600 | iShares STOXX Europe 600 ETF holdings for membership, each mapped to the company's main listing on Yahoo (`MAIN_LISTING`; the most traded class where the file holds two); Yahoo Finance for market cap (in dollars), dates and EPS | Yahoo Finance |
-| Earnings, Asia: top 400 across Japan, Taiwan, South Korea, Hong Kong, mainland China, India | Yahoo Finance screener, one listing per company (mainland A-share for dual listings; Hong Kong for New York-primary Chinese companies; NSE in India; London-primary companies quoted in Hong Kong left out) | Yahoo Finance |
+| Earnings, US: the S&P 500 and the S&P MidCap 400 | SPY and MDY holdings (State Street) for membership; Yahoo Finance for market cap, dates and diluted EPS | Yahoo Finance |
+| Earnings, Europe: the STOXX Europe 600 | iShares STOXX Europe 600 ETF holdings for membership (read from the product-data API its fund page uses since iShares rebuilt its site; the CSV links stopped on 12 Nov 2026), each mapped to the company's main listing on Yahoo (`MAIN_LISTING`; the most traded class where the file holds two); Yahoo Finance for market cap (in dollars; estimated from the member's weight in the fund where Yahoo has none), dates and EPS | Yahoo Finance |
+| Earnings, Asia: top 600 across Japan, Taiwan, South Korea, Hong Kong, mainland China, India | Yahoo Finance screener, one listing per company (mainland A-share for dual listings; Hong Kong for New York-primary Chinese companies; NSE in India; London-primary companies quoted in Hong Kong left out) | Yahoo Finance |
 | First-session move, every earnings row | Yahoo Finance daily closes: the stock and its benchmark (S&P 500, STOXX Europe 600, Nikkei 225, TAIEX, KOSPI, Hang Seng, CSI 300, Nifty 50) | |
 
 When a source fails, its events stay as last read and the Sources list on the
