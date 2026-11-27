@@ -1410,7 +1410,9 @@ NAV_GROUPS = (
         ("Application tracker", "application-tracker/", "Your applications, deadlines and contacts, kept in your browser."))),
     # A fifth group (owner, 27 Nov 2026). One section so far: where the day's trading is registered, and the hundred largest coins.
     ("crypto", "Crypto", "Where the coins trade, and what they are worth.", (
-        ("Crypto", "crypto/", "The real Earth with the day's trading by country, and the hundred largest coins."),)),
+        ("Where it trades", "crypto/", "The real Earth with the day's trading by country."),
+        ("Prices", "crypto/prices/", "The hundred largest coins: their shares, their moves and their last seven days."),
+        ("Bitcoin", "crypto/bitcoin/", "The price since 2010, its four halvings and every great fall."),)),
 )
 
 
@@ -1538,7 +1540,7 @@ def site_footer(home, base):
       <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a></div>
       <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}research-map/">All research</a></div>
       <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}careers/">All of Careers</a></div>
-      <div class="foot__group"><p class="foot__gt">Crypto</p><a href="{base}crypto/">Where crypto trades</a></div>
+      <div class="foot__group"><p class="foot__gt">Crypto</p><a href="{base}crypto/">Where it trades</a><a href="{base}crypto/prices/">Prices</a><a href="{base}crypto/bitcoin/">Bitcoin</a></div>
       <div class="foot__group"><p class="foot__gt">Andra Markets</p><a href="{base}methodology/">Methodology</a><a href="{base}sources/">Data sources</a><a href="{base}legal/">Legal notice</a><a href="{base}privacy/">Privacy and cookies</a></div>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
@@ -6801,6 +6803,8 @@ SEARCH_PAGES = [
     ("Higher or lower", "simulators/higher-or-lower/", "Simulators"),
     ("Lump sum or drip", "simulators/lump-sum-or-drip/", "Simulators"),
     ("Crypto", "crypto/", "Page"),
+    ("Crypto prices", "crypto/prices/", "Page"),
+    ("Bitcoin", "crypto/bitcoin/", "Page"),
     ("Companies", "companies/", "Page"),
     ("Economic calendar", "calendar/", "Page"),
     ("World markets", "world/", "Page"),
