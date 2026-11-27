@@ -138,6 +138,15 @@ jobs:
         with:
           path: .cache/hf
           key: hf-${{ github.run_id }}-${{ github.run_attempt }}
+      # A copy of the figures for building the pages against, kept one day; not on the schedule.
+      - name: Keep a copy for the page build
+        if: ${{ always() && github.event_name != 'schedule' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: hf-data
+          path: .cache/hf
+          include-hidden-files: true
+          retention-days: 1
       - name: Summary
         if: ${{ always() }}
         run: |
