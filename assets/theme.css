@@ -11,7 +11,7 @@ button,input,select,textarea{font-family:inherit}
  --up:#1fd27a;--down:#ff4b52;--up-text:#1fd27a;--down-text:#ff4b52;--up-tint:rgba(31,210,122,.2);--down-tint:rgba(255,75,82,.2);
  --select:rgba(242,243,243,.22);--focus:#f2f3f3;--scrim:rgba(0,0,0,.7)}
 html,body{background:#000}
-body{font-weight:350;letter-spacing:.003em}
+body{font-weight:400;letter-spacing:.003em}
 .scene{display:none!important}
 /* every inner page stands in space: black, faint grey cloud and fine stars, still
    (owner, 13 Nov 2026; drawn by tools/make_space.py). Not on the homepage. */
@@ -26,11 +26,11 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;ba
 .space__near{left:-56px;right:-56px;top:calc(-1*var(--t-near));height:calc(100% + var(--t-near));background:url("space-stars-near.webp") 0 0/var(--t-near) var(--t-near) repeat}
 @media (max-width:760px){.space{--t-far:720px;--t-near:980px}}
 html.has-space body::before{display:none}
-h1,h2,h3,h4{font-weight:300}
-.page__title,.report__title,.section-title{font-weight:300!important;letter-spacing:-.038em!important}
-.page__body h2,.page h2{font-weight:400;letter-spacing:-.02em}
-.lede{font-weight:300;color:var(--ink-2)}
-strong,b{font-weight:500}
+h1,h2{font-weight:700}h3,h4{font-weight:600}
+.page__title,.report__title,.section-title{font-weight:700!important;letter-spacing:-.038em!important}
+.page__body h2,.page h2{font-weight:600;letter-spacing:-.02em}
+.lede{font-weight:400;color:var(--ink-2)}
+strong,b{font-weight:600}
 /* header */
 .brand__name{font-size:.8125rem!important;font-weight:400!important;letter-spacing:.3em!important;text-transform:uppercase}
 .nav__btn{font-size:.8125rem;font-weight:400;letter-spacing:.02em;color:var(--ink-2)}
@@ -63,7 +63,7 @@ strong,b{font-weight:500}
 input[type="search"],input[type="text"],input[type="email"],input[type="number"],select,textarea,.pf-field{border:0!important;border-bottom:1px solid var(--rule-strong)!important;background:none!important;border-radius:0;box-shadow:none!important;font-weight:350}
 input:focus-visible,select:focus-visible,textarea:focus-visible{outline:0!important;border-bottom-color:var(--ink)!important}
 /* titles in lists: light, like everything else */
-h3,h4,.note-list__title,.learn-list__title,.lib-res__t,.archive__month,.report__side-title,.acc__btn,.dash-tile h3,.pw-row__t,.cl__glabel,.lib-sec__head h2,dt,th{font-weight:400!important}
+h3,h4,.note-list__title,.learn-list__title,.lib-res__t,.archive__month,.report__side-title,.acc__btn,.dash-tile h3,.pw-row__t,.cl__glabel,.lib-sec__head h2{font-weight:600!important}dt,th{font-weight:400!important}
 .note-list__title,.learn-list__title,.lib-res__t{letter-spacing:-.012em}
 .filters__glide{display:none!important}
 .chip[aria-pressed="true"] .chip__n{opacity:1}
@@ -76,9 +76,9 @@ label,.field__label,legend{font-weight:400!important}
 .cv{border-color:var(--rule)!important}
 .lib-res__topic,.ip-q__cat,.mh-tl__name,.pw-ext,.pw-lab,.tq-ex__n,.rc-when,.rc-what,.link,.ip-topic__n,.rw-name,.fr__big,.cb-bank,.rc-soon,.contact__name,.isim__time,.cv__name,.tq-ex__title,.page time,.page span,.page a,.page td,.page li{font-weight:inherit}
 .lib-res__topic,.ip-q__cat,.mh-tl__name,.pw-ext,.pw-lab,.tq-ex__n,.rc-when,.rc-what,.link,.ip-topic__n,.rw-name,.fr__big,.cb-bank,.rc-soon,.contact__name,.isim__time,.cv__name,.tq-ex__title{font-weight:400!important}
-.sim-title{font-weight:300!important;letter-spacing:-.038em}
-.page b,.page strong{font-weight:500!important}
-.page h2{font-weight:400!important}
+.sim-title{font-weight:700!important;letter-spacing:-.038em}
+.page b,.page strong{font-weight:600!important}
+.page h2{font-weight:600!important}
 
 /* footer: the menu's four groups and the house pages, side by side */
 .site-footer{border-top:1px solid var(--rule);padding-block:64px 40px}
@@ -96,7 +96,7 @@ label,.field__label,legend{font-weight:400!important}
 .nav__art{display:block;width:min(300px,100%);height:auto;margin:0 auto 14px;fill:none;stroke:var(--ink);stroke-width:1;stroke-linejoin:round;overflow:visible}
 .nav__art path{vector-effect:non-scaling-stroke}
 .nav__art .bk{opacity:.16}
-.nav__title{font-weight:300!important;font-size:1.75rem!important;letter-spacing:-.03em!important}
+.nav__title{font-weight:700!important;font-size:1.75rem!important;letter-spacing:-.03em!important}
 .nav__label{font-weight:400!important}
 .nav__btn,.nav__btn:focus,.nav__btn:focus-visible,.nav__btn[aria-expanded="true"]{outline:0!important;border:0!important;box-shadow:none!important;background:none!important}
 .nav__btn:focus-visible{text-decoration:underline;text-underline-offset:6px}
@@ -122,7 +122,7 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .pa__grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,5vw,88px);border-top:1px solid var(--rule-strong);padding:8px 0 72px}
 .pa__grid[hidden]{display:none}
 .pa__grid>*{min-width:0}
-.pa__h{margin:0;padding:28px 0 14px;font-weight:400;font-size:1.375rem;letter-spacing:-.02em}
+.pa__h{margin:0;padding:28px 0 14px;font-weight:600;font-size:1.375rem;letter-spacing:-.02em}
 .pa__h small{display:block;margin-top:2px;font-size:.8125rem;font-weight:350;letter-spacing:0;color:var(--ink-3)}
 .pa__in .lt-group{display:flex;flex-wrap:wrap;align-items:center;gap:0 24px;margin:0}
 .pa__in .lt-group .cl__glabel{min-width:3.5rem;margin:0}
@@ -172,7 +172,7 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .pa-bar i{position:absolute;left:0;top:8px;height:5px;background:var(--ink)}
 .pa-bar i.pa-bar__w{top:1px;background:var(--ink-3)}
 .pa-two{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 clamp(24px,3vw,48px)}
-.pa-two h3{margin:0 0 6px;font-weight:400;font-size:.8125rem;color:var(--ink-2)}
+.pa-two h3{margin:0 0 6px;font-weight:600;font-size:.8125rem;color:var(--ink-2)}
 .pa-mx{overflow-x:auto}
 .pa-mx table{border-collapse:collapse;min-width:100%;font-size:.75rem;font-variant-numeric:tabular-nums}
 .pa-mx th{padding:0 6px 6px;font-weight:350;color:var(--ink-2);text-align:center;white-space:nowrap}
@@ -425,7 +425,7 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 .cn__k{font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2)}
 .cn__main{display:block;margin-top:.75rem;color:var(--ink);text-decoration:none!important}
 .cn__count{display:block;font-family:var(--font);font-size:clamp(1.5rem,3.4vw,3rem);font-weight:300;letter-spacing:.02em;font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 0 28px rgba(190,215,255,.45)}
-.cn__name{display:block;margin-top:.5rem;font-weight:300;font-size:clamp(2rem,5.2vw,4.75rem);line-height:1.05;letter-spacing:-.035em;text-wrap:balance}
+.cn__name{display:block;margin-top:.5rem;font-weight:700;font-size:clamp(2rem,5.2vw,4.75rem);line-height:1.05;letter-spacing:-.035em;text-wrap:balance}
 .cn__meta{display:block;margin-top:1rem;font-size:1rem;color:var(--ink-2)}
 .cn__k--then{margin-top:clamp(2rem,5vh,3.5rem)}
 .cn__then{list-style:none;margin:.75rem 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(16px,3vw,48px);text-align:left}
@@ -564,7 +564,7 @@ a.nav__btn{display:inline-flex}
 .tf__foot{display:flex;justify-content:space-between;align-items:baseline;gap:24px;margin-top:16px}
 .tf__step{display:none;white-space:nowrap}
 .tf__step button{margin-left:14px;padding:10px 0 10px 14px;font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--ink);background:none;border:0;border-left:1px solid var(--rule-strong);cursor:pointer}
-.tf__title{display:none;margin:10px 0 0;font-size:1.375rem;font-weight:300;letter-spacing:-.02em}
+.tf__title{display:none;margin:10px 0 0;font-size:1.375rem;font-weight:600;letter-spacing:-.02em}
 .tf__title a{color:var(--ink);text-decoration:none}
 .tf__desc{margin:10px 0 0;max-width:50ch;min-height:4.65em;font-size:.9375rem;line-height:1.55;color:var(--ink-2)}
 .tf__open{display:inline-block;margin-top:6px;font-size:.9375rem}
@@ -665,7 +665,7 @@ a.nav__btn{display:inline-flex}
 .atom__tool:hover,.atom__tool:focus-visible{color:var(--ink)}
 .atom__tool:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
 .atom__foot{text-align:center;margin-top:4px}
-.atom__name{display:inline-block;font-size:clamp(2rem,3.4vw,2.75rem);font-weight:300;letter-spacing:-.03em;line-height:1.1;color:var(--ink);text-decoration:none!important}
+.atom__name{display:inline-block;font-size:clamp(2rem,3.4vw,2.75rem);font-weight:700;letter-spacing:-.03em;line-height:1.1;color:var(--ink);text-decoration:none!important}
 .atom__name::after{content:"";display:block;height:1px;margin-top:6px;background:var(--ink);transform:scaleX(0);transition:transform .4s cubic-bezier(.2,.7,.2,1)}
 .atom__name:hover::after,.atom__name:focus-visible::after{transform:scaleX(1)}
 .atom__sub{margin:12px 0 0}
@@ -716,7 +716,7 @@ a.nav__btn{display:inline-flex}
 .ic__mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
 .ic__secs{font-family:var(--font);font-size:clamp(3rem,6vw,4.5rem);font-weight:300;letter-spacing:.02em;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink);text-shadow:0 0 28px rgba(190,215,255,.45)}
 .ic__count{margin:0}
-.ic__title{margin:12px 0 16px;font-size:clamp(1.625rem,3vw,2.5rem);font-weight:300;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
+.ic__title{margin:12px 0 16px;font-size:clamp(1.625rem,3vw,2.5rem);font-weight:700;letter-spacing:-.03em;line-height:1.1;text-wrap:balance}
 .ic__title a{color:var(--ink);text-decoration:none}
 .ic__title a:hover,.ic__title a:focus-visible{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:6px}
 .ic__say{margin:0;max-width:60ch;min-height:6.4em;font-size:1.0625rem;line-height:1.6;color:var(--ink-2)}
