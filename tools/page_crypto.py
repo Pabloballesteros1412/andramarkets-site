@@ -1,16 +1,18 @@
-"""Crypto (crypto/): Bitcoin as a sun and the other coins as its planets.
+"""Crypto (crypto/): where the coins trade, and what they are worth.
 
-Owner-approved sketch, 27 Nov 2026 ("the Bitcoin sun", chosen over three flat looks: the group keeps the site's
-sky and takes an amber light of its own). The page is a table of the largest coins by market value, from
-.cache/crypto/crypto.json (tools/crypto_data.py, CoinGecko); assets/crypto-sun.js draws that table as a system
-over it: the sun is Bitcoin, each planet a coin sized by its market value, the larger the nearer. Every figure on
-the picture is the table's own. Without the script, or without WebGL or canvas, the page is the table.
+Owner-approved sketch and build, 27 Nov 2026 (after the Bitcoin sun and its planets, the eclipse and two flat
+maps: "sober, like the maps, and realistic"). Under the head, the real Earth as it was lit at the time of the
+data, and a column of amber light from each country where exchanges declare their seat, as tall as that
+country's share of the day's trading (assets/crypto-globe.js; the figures are in the page as JSON and in the
+table of seats below it). Then the table of the hundred largest coins by market value. All from
+.cache/crypto/crypto.json (tools/crypto_data.py, CoinGecko). Without the script or WebGL, the page is the two tables.
 """
 import datetime as dt
 import json
 
 MINUS = "−"
-PLANETS = 24  # the largest coins after Bitcoin are planets; the rest of the hundred are the belt beyond them
+SEATS_SHOWN = 12  # countries in the table of seats under the globe; the globe draws them all
+LEDE = "Where the coins trade, and what they are worth."
 
 
 def load(site):
@@ -46,7 +48,7 @@ def pages(site):
     d = load(site)
     if not d:
         body = """<main id="main" class="page cs-page"><div class="wrap"><header class="page__head"><h1 class="page__title">Crypto</h1>
-<p class="lede">Bitcoin and everything that turns round it.</p></header>
+<p class="lede">""" + LEDE + """</p></header>
 <div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div></div></main>"""
         return {"crypto/": site.shell(title="Crypto: Andra Markets", desc="Bitcoin and the largest coins by market value.",
                                       body=body, home="../", base="../", path="crypto/")}
@@ -63,29 +65,60 @@ def pages(site):
         f'<td class="cs-price">{money(c["price"])}</td><td class="cs-day">{move(c["day"])}</td><td class="cs-week">{move(c["week"])}</td>'
         f'<td class="cs-cap">{big(c["cap"])}</td></tr>' for i, c in enumerate(coins))
     btc = coins[0]
+    globe, seats = "", ""
+    ex = d.get("exchanges") or {}
+    places = ex.get("countries") or []
+    if places:
+        def pct(v):
+            return f"{v * 100:.1f}%" if v < 0.01 else f"{v * 100:.0f}%"
+        try:
+            fetched = dt.datetime.fromisoformat(ex["fetched"].replace("Z", "+00:00"))
+            ex_when = f"{fetched.day} {fetched:%b %Y}, {fetched:%H:%M} UTC"
+        except (KeyError, ValueError):
+            ex_when = when
+        data = {"asof": ex.get("fetched") or d.get("asof"), "count": ex.get("count"), "places": [
+            {k: c[k] for k in ("name", "lat", "lon", "share", "n", "top", "island")} for c in places]}
+        isl = ex.get("islands") or 0
+        globe = f"""
+    <section class="cg" aria-label="Where the day's trading is registered" hidden>
+      <canvas class="cg__gl" aria-hidden="true"></canvas>
+      <canvas class="cg__ov" aria-hidden="true"></canvas>
+      <div class="cg__names" aria-hidden="true"></div>
+      <div class="cg__big"><p class="lens-read">Registered on islands</p><p class="cg__fig">{pct(isl)}</p>
+        <p class="cg__say">of the day's trading on {ex.get("count")} exchanges goes through exchanges registered on islands.</p></div>
+      <p class="visually-hidden cg__status" role="status" aria-live="polite"></p>
+      <p class="lens-read cg__read">The Earth as lit at {ex_when} · each column, a country where exchanges are registered, as tall as its share of the day's trading</p>
+      <a class="lib-map__down" href="#cg-seats">Every seat</a>
+      <script type="application/json">{json.dumps(data, separators=(",", ":")).replace("</", "<\\/")}</script>
+    </section>"""
+        trs = "".join(
+            f'<tr><th scope="row">{site.esc(c["name"])}{" <span class=cs-peg>island</span>" if c["island"] else ""}</th><td class="cs-cap">{pct(c["share"])}</td>'
+            f'<td class="cs-price">{c["n"]}</td><td class="cg-top">{site.esc(", ".join(c["top"]))}</td></tr>' for c in places[:SEATS_SHOWN])
+        seats = f"""
+    <section id="cg-seats" aria-labelledby="cg-seats-h">
+      <h2 id="cg-seats-h" class="cs-h">Where the day's trading is registered</h2>
+      <p class="cs-sub">Each exchange's volume over the last 24 hours, added up by the country it declares as its seat: where it is registered, not where its customers live. {pct(ex.get("unplaced") or 0)} of the volume names no country.</p>
+      <div class="cs-scroll"><table class="cs-tab cg-tab"><thead><tr><th scope="col">Country</th><th scope="col">Share of the day</th><th scope="col">Exchanges</th><th scope="col">Largest there</th></tr></thead><tbody>{trs}</tbody></table></div>
+      <p class="report__src">CoinGecko, {ex_when}: the {ex.get("count")} exchanges it lists, volume in bitcoin. {len(places)} countries in all; the {min(SEATS_SHOWN, len(places))} largest here. The Earth: Solar System Scope (CC BY 4.0), from NASA imagery.</p>
+    </section>"""
     body = f"""<main id="main" class="page cs-page">
   <div class="wrap">
     <header class="page__head">
       <h1 class="page__title">Crypto</h1>
-      <p class="lede">Bitcoin and everything that turns round it.</p>
+      <p class="lede">{LEDE}</p>
       <p class="note__meta"><span>The whole market {big(d["total"])}</span><span>Bitcoin {d["btc_share"]:.1f}% of it</span><span>Data from CoinGecko, {when}</span></p>
     </header>
-    <div class="cs" data-planets="{PLANETS}" hidden>
-      <canvas aria-hidden="true"></canvas>
-      <div class="cs__names"></div>
-      <p class="lens-read cs__read">Size by market value · the larger the coin, the nearer its orbit · the belt is the rest of the hundred · the surfaces and the turning are not data</p>
-      <a class="lib-map__down" href="#cs-all">Every coin</a>
-    </div>
+    {globe}{seats}
     <section id="cs-all" aria-labelledby="cs-all-h">
       <h2 id="cs-all-h" class="cs-h">The {len(coins)} largest coins</h2>
       <p class="cs-sub">By market value in US dollars. Coins that are another coin under a wrapper (wrapped, staked or bridged) are left out. "Pegged" marks a coin held to a currency.</p>
       <div class="cs-scroll"><table class="cs-tab"><thead><tr><th scope="col"><span class="visually-hidden">Rank</span></th><th scope="col">Coin</th><th scope="col">Price</th>
         <th scope="col">Day</th><th scope="col">Week</th><th scope="col">Market value</th></tr></thead><tbody>{rows}</tbody></table></div>
-      <p class="report__src">CoinGecko, {when}. Prices and changes in US dollars; a day is the last 24 hours, a week the last seven days. For information only. Not investment advice. Surfaces of the Sun and planets: Solar System Scope (CC BY 4.0), from NASA imagery.</p>
+      <p class="report__src">CoinGecko, {when}. Prices and changes in US dollars; a day is the last 24 hours, a week the last seven days. For information only. Not investment advice.</p>
     </section>
   </div>
 </main>"""
     return {"crypto/": site.shell(
         title="Crypto: Andra Markets",
-        desc=f"Bitcoin at {money(btc['price'])} and the {len(coins) - 1} largest coins after it by market value, with their change over a day and a week.",
-        body=body, home="../", base="../", path="crypto/", scripts=("crypto-sun.js",))}
+        desc=f"Where the day's crypto trading is registered, country by country, and the {len(coins)} largest coins by market value: Bitcoin at {money(btc['price'])}.",
+        body=body, home="../", base="../", path="crypto/", scripts=("crypto-globe.js",) if places else ())}

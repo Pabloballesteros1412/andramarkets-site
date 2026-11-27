@@ -1151,7 +1151,7 @@ LAB_N, SIM_N = 11, 9
 TOOLS_N = NUM_WORD[LAB_N + SIM_N]
 HOME_COPY = {"markets": "Prices, rates and what is coming.", "tools": f"{TOOLS_N} tools that run in your browser.",
              "research": "What happened and why, after every close.", "careers": "For students breaking into markets.",
-             "crypto": "Bitcoin and everything that turns round it."}
+             "crypto": "Where the coins trade, and what they are worth."}
 HOME_ARROW = ('<svg class="arr" viewBox="0 0 64 10" aria-hidden="true"><path d="M0 5h62M57 1l5 4-5 4" fill="none" '
               'stroke="currentColor" stroke-width="1"/></svg>')
 
@@ -1396,9 +1396,9 @@ NAV_GROUPS = (
         ("Recruiting calendar", "recruiting-calendar/", "When US firms open and close applications."),
         ("Firms", "firms/", "The banks, boutiques and funds that hire, and for what."),
         ("Application tracker", "application-tracker/", "Your applications, deadlines and contacts, kept in your browser."))),
-    # A fifth group (owner, 27 Nov 2026). One section so far: the Bitcoin system and the hundred largest coins.
-    ("crypto", "Crypto", "Bitcoin and everything that turns round it.", (
-        ("Crypto", "crypto/", "Bitcoin as a sun, the hundred largest coins as its planets and belt."),)),
+    # A fifth group (owner, 27 Nov 2026). One section so far: where the day's trading is registered, and the hundred largest coins.
+    ("crypto", "Crypto", "Where the coins trade, and what they are worth.", (
+        ("Crypto", "crypto/", "The real Earth with the day's trading by country, and the hundred largest coins."),)),
 )
 
 
@@ -1440,7 +1440,7 @@ GROUP_MAPS = {"markets": ("markets/", "All markets, on one map"),
               "tools": ("tools-map/", "All tools, on one map"),
               "research": ("research-map/", "All research, on one map"),
               "careers": ("careers/", "Everything for a career in markets, on one map"),
-              "crypto": ("crypto/", "Bitcoin and the hundred largest coins, as one system")}
+              "crypto": ("crypto/", "Where the day's trading is registered, on the real Earth")}
 
 
 def nav_chart(href):
@@ -1526,7 +1526,7 @@ def site_footer(home, base):
       <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a></div>
       <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}research-map/">All research</a></div>
       <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}careers/">All of Careers</a></div>
-      <div class="foot__group"><p class="foot__gt">Crypto</p><a href="{base}crypto/">The Bitcoin system</a></div>
+      <div class="foot__group"><p class="foot__gt">Crypto</p><a href="{base}crypto/">Where crypto trades</a></div>
       <div class="foot__group"><p class="foot__gt">Andra Markets</p><a href="{base}methodology/">Methodology</a><a href="{base}sources/">Data sources</a><a href="{base}legal/">Legal notice</a><a href="{base}privacy/">Privacy and cookies</a></div>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
