@@ -13,7 +13,10 @@ file in .cache/crypto/coins/ (its daily closes, from Coin Metrics where it has
 them and otherwise CoinGecko's last year; its network's active addresses,
 transactions and supply where Coin Metrics has them; for the 25 largest, the
 exchanges where it trades) and its logo in .cache/crypto/logos/, for the coin
-pages. tools/page_crypto.py reads them all; nothing here is published as a file.
+pages. And .cache/crypto/markets.json: the daily closes since September 2014 of the
+S&P 500, the Nasdaq Composite, gold, the dollar index and long Treasuries (Yahoo
+Finance), for Bitcoin vs markets. tools/page_crypto.py reads them all; nothing here
+is published as a file.
 
 Source: CoinGecko's public API, no key (https://www.coingecko.com/en/api). Its
 terms ask for attribution, which the page gives beside every figure's date.
@@ -256,6 +259,34 @@ def coins_detail(coins):
     print(f"crypto: coin pages from Coin Metrics {done['Coin Metrics']}, CoinGecko {done['CoinGecko']}, last copy {done['kept']}")
 
 
+MARKETS = ROOT / ".cache" / "crypto" / "markets.json"
+# What Bitcoin is set beside on the Bitcoin vs markets page: Yahoo Finance symbols, daily closes (adjusted, so the
+# Treasury fund carries its income; the two share indices are price levels, without dividends).
+MARKET_SYMBOLS = (("SPX", "^GSPC"), ("NDX", "^IXIC"), ("GOLD", "GC=F"), ("DXY", "DX-Y.NYB"), ("BOND", "TLT"))
+MARKETS_FROM = "2014-09-17"
+
+
+def markets():
+    """Daily closes of each market since September 2014, by date."""
+    import urllib.parse
+    out = {}
+    p1 = int(dt.datetime(2014, 9, 1, tzinfo=dt.timezone.utc).timestamp())
+    p2 = int(dt.datetime.now(dt.timezone.utc).timestamp()) + 86400
+    for key, sym in MARKET_SYMBOLS:
+        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(sym)}?period1={p1}&period2={p2}&interval=1d"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=40) as r:
+            res = json.loads(r.read().decode("utf-8"))["chart"]["result"][0]
+        ind = res["indicators"]
+        closes = (ind.get("adjclose") or [{}])[0].get("adjclose") or ind["quote"][0]["close"]
+        days = {dt.datetime.fromtimestamp(t, dt.timezone.utc).date().isoformat(): float(f"{c:.6g}") for t, c in zip(res["timestamp"], closes) if c}
+        days = {d: v for d, v in days.items() if d >= MARKETS_FROM}
+        if len(days) < 2500:
+            raise ValueError(f"short history for {sym}")
+        out[key] = days
+    return {"s": out, "source": "Yahoo Finance", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+
+
 def fetch():
     rows = get("coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=true&price_change_percentage=24h,7d,30d,1y")
     world = get("global")["data"]
@@ -341,6 +372,13 @@ def main():
         print(f"crypto: Bitcoin history {hist['start']} to {hist['last']}, {len(hist['p'])} days, block {hist['height']}")
     except Exception as e:  # noqa: BLE001
         warn(f"crypto: Bitcoin history: {type(e).__name__}: {e}; keeping the last copy")
+    try:
+        mk = markets()
+        MARKETS.parent.mkdir(parents=True, exist_ok=True)
+        MARKETS.write_text(json.dumps(mk, separators=(",", ":")), encoding="utf-8")
+        print(f"crypto: markets {', '.join(f'{k} {len(v)}' for k, v in mk['s'].items())}")
+    except Exception as e:  # noqa: BLE001
+        warn(f"crypto: markets: {type(e).__name__}: {e}; keeping the last copy")
     if not data:
         return 0
     if data_ex:

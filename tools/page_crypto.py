@@ -52,7 +52,7 @@ def pages(site):
 <div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div></div></main>"""
         out = {"crypto/": site.shell(title="Crypto: Andra Markets", desc="Where the coins trade, and what they are worth.",
                                      body=body, home="../", base="../", path="crypto/")}
-        for path, title in (("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin")):
+        for path, title in (("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets")):
             out[path] = pending(site, path, title)
         return out
     coins = d["coins"]
@@ -121,11 +121,12 @@ def pages(site):
     except ValueError:
         today = dt.date.today()
     out.update(coin_pages(site, d, hist, when, today))
+    out["crypto/markets/"] = markets_page(site, d, hist, load_markets(site))
     return out
 
 
 # ---- the other sections ------------------------------------------------------------------------------------------
-SECTIONS = (("crypto/", "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"))
+SECTIONS = (("crypto/", "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"))
 HALVINGS = (("2012-11-28", 210000), ("2016-07-09", 420000), ("2020-05-11", 630000), ("2024-04-20", 840000))
 MON = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -622,3 +623,152 @@ def search_items(site):
     if not d:
         return []
     return [{"g": "Pages", "t": c["name"], "m": f"Crypto, {c['symbol']}", "u": coin_path(c), "k": f"{c['symbol']} {c['name']} crypto coin"} for c in d["coins"]]
+
+
+# ---- Bitcoin vs markets (crypto/markets/; owner-approved sketches, 27 Nov 2026: the race and the portfolio's control) ----
+MK_NAMES = (("BTC", "Bitcoin"), ("SPX", "S&amp;P 500"), ("NDX", "Nasdaq"), ("GOLD", "Gold"), ("DXY", "Dollar index"), ("BOND", "Long Treasuries"))
+MK_PERIODS = (("Month", 21), ("Year", 252), ("3 years", 756), ("5 years", 1260), ("10 years", 2520))
+MK_SHARES = (0, 0.01, 0.05, 0.10)
+
+
+def load_markets(site):
+    try:
+        m = json.loads((site.ROOT / ".cache" / "crypto" / "markets.json").read_text(encoding="utf-8"))
+        return m if len((m.get("s") or {}).get("SPX") or {}) > 1000 else None
+    except (OSError, ValueError):
+        return None
+
+
+def mk_portfolio(rets, days, w):
+    """100 put into 60% shares and 40% bonds, with w of it in Bitcoin, set back to its weights each month."""
+    hold = {"SPX": 0.6 * (1 - w), "BOND": 0.4 * (1 - w), "BTC": w}
+    cur = {k: v * 100 for k, v in hold.items()}
+    out = [100.0]
+    for i in range(1, len(days)):
+        for k in cur:
+            cur[k] *= 1 + rets[k][i]
+        tot = sum(cur.values())
+        out.append(tot)
+        if days[i][5:7] != days[i - 1][5:7]:
+            cur = {k: tot * v for k, v in hold.items()}
+    return out
+
+
+def markets_page(site, d, hist, mk):
+    import math
+    path = "crypto/markets/"
+    if not hist or not mk:
+        return pending(site, path, "Bitcoin vs markets")
+    b0 = dt.date.fromisoformat(hist["start"])
+    btc = {(b0 + dt.timedelta(days=i)).isoformat(): v for i, v in enumerate(hist["p"])}
+    src = dict(mk["s"], BTC=btc)
+    days = [x for x in sorted(src["SPX"]) if x in btc or x > hist["last"]]   # the S&P 500's trading days
+    days = [x for x in days if x <= hist["last"]]
+    keys = [k for k, _ in MK_NAMES]
+    ser = {k: [] for k in keys}
+    for x in days:
+        for k in keys:
+            v = src[k].get(x)
+            ser[k].append(v if v else (ser[k][-1] if ser[k] else None))
+    first = max(next(i for i, v in enumerate(ser[k]) if v) for k in keys)
+    days, ser = days[first:], {k: v[first:] for k, v in ser.items()}
+    n = len(days)
+    rets = {k: [0.0] + [ser[k][i] / ser[k][i - 1] - 1 for i in range(1, n)] for k in keys}
+    since = f"{MON[int(days[0][5:7]) - 1]} {days[0][:4]}"
+    last_day = day_name(days[-1])
+
+    def vol(r):
+        m = sum(r) / len(r)
+        return (sum((x - m) ** 2 for x in r) / (len(r) - 1)) ** 0.5 * math.sqrt(252) * 100
+
+    def deepest(p):
+        pk, w = p[0], 0.0
+        for v in p:
+            pk = max(pk, v)
+            w = min(w, v / pk - 1)
+        return w * 100
+
+    def a_year(p):
+        return ((p[-1] / p[0]) ** (252 / (len(p) - 1)) - 1) * 100
+
+    def corr(a, b):
+        ma, mb = sum(a) / len(a), sum(b) / len(b)
+        sab = sum((x - ma) * (y - mb) for x, y in zip(a, b))
+        sa, sb = sum((x - ma) ** 2 for x in a), sum((y - mb) ** 2 for y in b)
+        return sab / (sa * sb) ** 0.5 if sa > 0 and sb > 0 else 0.0
+
+    periods = [p for p in MK_PERIODS if p[1] < n] + [(f"Since {since}", n - 1)]
+    ret_rows = "".join(
+        f'<tr{" class=me" if k == "BTC" else ""}><th scope="row">{name}</th>'
+        + "".join(f"<td>{mult_or_pct((ser[k][-1] / ser[k][n - 1 - back] - 1) * 100)}</td>" for _, back in periods) + "</tr>" for k, name in MK_NAMES)
+    risk_rows = "".join(
+        f'<tr{" class=me" if k == "BTC" else ""}><th scope="row">{name}</th><td>{move(a_year(ser[k]))}</td><td>{vol(rets[k][1:]):.0f}%</td>'
+        f'<td>{move(deepest(ser[k]))}</td><td>{move(min(rets[k]) * 100)}</td><td>{move(max(rets[k]) * 100)}</td></tr>' for k, name in MK_NAMES)
+    worst = sorted(range(1, n), key=lambda i: rets["SPX"][i])[:10]
+    worst_rows = "".join(f'<tr><th scope="row">{day_name(days[i])}</th>' + "".join(f"<td>{move(rets[k][i] * 100)}</td>" for k in ("SPX", "BTC", "GOLD", "BOND")) + "</tr>" for i in worst)
+    fell = {k: sum(1 for i in worst if round(rets[k][i] * 100, 1) < 0) for k in ("BTC", "GOLD", "BOND")}
+    ports = {w: mk_portfolio(rets, days, w) for w in MK_SHARES}
+    port_rows = ""
+    for w, p in ports.items():
+        years, prev, worst_year = {}, None, None
+        for x, v in zip(days, p):
+            years.setdefault(x[:4], [v, v])[1] = v
+        for y in sorted(years):
+            start = years[y][0] if prev is None else prev
+            chg = (years[y][1] / start - 1) * 100
+            worst_year = chg if worst_year is None else min(worst_year, chg)
+            prev = years[y][1]
+        pr = [p[i] / p[i - 1] - 1 for i in range(1, n)]
+        port_rows += (f'<tr><th scope="row">{"None: 60/40" if not w else f"{w * 100:.0f}% Bitcoin"}</th><td>${p[-1] * 100:,.0f}</td><td>{move(a_year(p))}</td>'
+                      f'<td>{vol(pr):.1f}%</td><td>{move(deepest(p))}</td><td>{move(worst_year)}</td></tr>')
+    c90 = {k: corr(rets["BTC"][-90:], rets[k][-90:]) for k in ("SPX", "NDX", "GOLD", "DXY")}
+    yr = lambda k: (ser[k][-1] / ser[k][max(0, n - 253)] - 1) * 100
+    cfmt = lambda v: f"{MINUS if v < 0 else ''}{abs(v):.2f}"
+    side = kpis((("Bitcoin, a year", move(yr("BTC")), f"S&amp;P 500 {move(yr('SPX'))}"), ("Gold, a year", move(yr("GOLD")), f"Dollar {move(yr('DXY'))}"),
+                 ("With the S&amp;P 500", cfmt(c90["SPX"]), "90-day correlation"), ("With the Nasdaq", cfmt(c90["NDX"]), "90-day correlation"),
+                 ("With gold", cfmt(c90["GOLD"]), "90-day correlation"), ("With the dollar", cfmt(c90["DXY"]), "90-day correlation"),
+                 ("Bitcoin's volatility", f"{vol(rets['BTC'][-252:]):.0f}%", "last year"), ("The S&amp;P 500's", f"{vol(rets['SPX'][-252:]):.0f}%", "last year")))
+    d0 = dt.date.fromisoformat(days[0])
+    data = {"start": days[0], "d": [(dt.date.fromisoformat(x) - d0).days for x in days],
+            "s": {k: [float(f"{v:.5g}") for v in ser[k]] for k in keys}}
+    chips = "".join(f'<button type="button" class="chip" data-back="{b}" aria-pressed="{"true" if lab == "5Y" else "false"}">{lab}</button>'
+                    for lab, b in (("1Y", 252), ("3Y", 756), ("5Y", 1260), ("10Y", 2520), (days[0][:4], n - 1)) if b < n)
+    body = f"""<main id="main" class="page dd fr cs-page vm">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <h1 class="page__title">Bitcoin vs markets</h1>
+      <p class="lede">Bitcoin beside shares, gold, the dollar and bonds, and what a little of it does to a portfolio.</p>
+      <p class="note__meta"><span>Coin Metrics, Yahoo Finance</span><span>Daily closes to {last_day}</span><span>Refreshed at every deploy</span></p>
+      <section class="vr" aria-label="Bitcoin and the markets, from the same start" hidden>
+        <canvas class="vr__c" role="img" aria-label="Bitcoin, gold, the S&amp;P 500, the Nasdaq, the dollar index and long Treasuries, each starting at 100 on the same day and drawn to today. The figures are in the Returns table below."></canvas>
+        <p class="vr__date" aria-hidden="true"></p>
+        <div class="vr__ctl"><div class="filters dd__ranges" role="group" aria-label="Start">{chips}</div><button class="btn btn--ghost vr__replay" type="button">Replay</button></div>
+        <p class="lens-read vr__read" aria-live="polite"></p>
+      </section>
+    </header>
+    <div class="dd__main fr__main">
+      <section class="fr__panel" aria-labelledby="vm-ret-h"><div class="fr__ph"><h2 id="vm-ret-h">Returns</h2></div><p class="fr__intro">What each gained or lost over each period, to {last_day}.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th></th>{"".join(f'<th scope="col">{lab}</th>' for lab, _ in periods)}</tr></thead><tbody>{ret_rows}</tbody></table></div>
+        <p class="fr__src">Coin Metrics for Bitcoin; Yahoo Finance for the S&amp;P 500, the Nasdaq Composite, gold futures, the dollar index and long Treasuries (the TLT fund, with its income). The share indices are price levels, without dividends. Periods in trading days.</p></section>
+      <section class="fr__panel" aria-labelledby="vm-co-h"><div class="fr__ph"><h2 id="vm-co-h">Moving together</h2></div><p class="fr__intro">How closely Bitcoin's daily moves have followed each market's over the last 90 trading days: 1 is in step, 0 unrelated, below 0 opposite.</p>
+        <div class="vm-plot" data-chart="corr"></div><p class="lens-read vm-read" data-read="corr" aria-live="polite"></p><p class="fr__src">Andra Markets calculation from daily closes.</p></section>
+      <section class="fr__panel" aria-labelledby="vm-ri-h"><div class="fr__ph"><h2 id="vm-ri-h">Risk</h2></div><p class="fr__intro">What each made in a year on average, how much it swings, and its deepest fall from a record, since {since}.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th></th><th scope="col">A year, on average</th><th scope="col">Volatility</th><th scope="col">Deepest fall</th><th scope="col">Worst day</th><th scope="col">Best day</th></tr></thead><tbody>{risk_rows}</tbody></table></div>
+        <p class="fr__src">Volatility: the spread of daily moves, scaled to a year. Andra Markets calculation.</p></section>
+      <section class="fr__panel" aria-labelledby="vm-wd-h"><div class="fr__ph"><h2 id="vm-wd-h">On the market's worst days</h2></div><p class="fr__intro">The ten largest one-day falls of the S&amp;P 500 since {since}, and what Bitcoin, gold and long Treasuries did the same day.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Day</th><th scope="col">S&amp;P 500</th><th scope="col">Bitcoin</th><th scope="col">Gold</th><th scope="col">Long Treasuries</th></tr></thead><tbody>{worst_rows}</tbody></table></div>
+        <p class="lens-read vm-read">Bitcoin fell on {fell["BTC"]} of the ten, gold on {fell["GOLD"]}, long Treasuries on {fell["BOND"]}</p><p class="fr__src">Andra Markets calculation from daily closes.</p></section>
+      <section class="fr__panel" aria-labelledby="vm-pf-h"><div class="fr__ph"><h2 id="vm-pf-h">A little Bitcoin in a portfolio</h2></div><p class="fr__intro">A classic portfolio, 60% shares and 40% bonds, with a share of it moved into Bitcoin and put back to its weights every month. Move the share and see what it would have done since {since}.</p>
+        <div class="pm" hidden><label class="pm__l" for="pm-w">Bitcoin's share <output id="pm-o" for="pm-w">5%</output></label><input id="pm-w" type="range" min="0" max="20" step="1" value="5">
+          <div class="pm__figs" aria-live="polite"><div><span class="lens-read">$10,000 became</span><b id="pm-v"></b><i id="pm-v2"></i></div><div><span class="lens-read">Volatility</span><b id="pm-s"></b><i id="pm-s2"></i></div><div><span class="lens-read">Deepest fall</span><b id="pm-d"></b><i id="pm-d2"></i></div></div>
+          <canvas class="pm__c" role="img" aria-label="The portfolio with the chosen share of Bitcoin, in amber, against the plain 60/40 portfolio, both starting at 100."></canvas></div>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Bitcoin's share</th><th scope="col">$10,000 became</th><th scope="col">A year, on average</th><th scope="col">Volatility</th><th scope="col">Deepest fall</th><th scope="col">Worst year</th></tr></thead><tbody>{port_rows}</tbody></table></div>
+        <p class="fr__src">The S&amp;P 500 (price level) and long Treasuries (TLT), rebalanced monthly, before fees and taxes. What happened says nothing certain of what will. For information only. Not investment advice.</p></section>
+      {more(site, path, "../../")}
+      <script type="application/json" id="vm-data">{json.dumps(data, separators=(",", ":"))}</script>
+    </div>
+    <aside class="report__side dd__side" aria-labelledby="side-title"><h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{side}</ul><p class="report__src">Daily closes to {last_day}.</p></aside>
+  </div>
+</main>"""
+    return site.shell(title="Bitcoin vs markets: Crypto: Andra Markets", desc="Bitcoin beside the S&P 500, the Nasdaq, gold, the dollar and Treasuries: returns, how closely they move together, risk, the market's worst days, and what a share of Bitcoin does to a 60/40 portfolio.",
+                      body=body, home="../../", base="../../", path=path, scripts=("crypto-markets.js",))

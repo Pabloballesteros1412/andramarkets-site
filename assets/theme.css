@@ -805,6 +805,29 @@ a.nav__btn{display:inline-flex}
 .cs-more{margin:clamp(40px,7vh,72px) 0 0;padding-top:18px;border-top:1px solid var(--rule);font-size:.9375rem;color:var(--ink-2)}
 .cs-more a{color:var(--ink)}.cs-more [aria-current]{color:var(--ink-3)}.cs-more__k{color:var(--ink-3);margin-right:8px}
 @media (max-width:699px){.cs-tab .mk-sp{display:none}.mk-row{grid-template-columns:110px 1fr 56px;gap:10px}}
+/* Crypto: Bitcoin vs markets (owner-approved sketches, 27 Nov 2026): the race under the head, the portfolio's control. */
+.has-race .page__head{border-bottom:0;padding-bottom:0}
+.vr{position:relative;text-align:left;height:clamp(460px,62vh,620px);margin:8px calc(50% - 50vw) 0}
+.vr__c{position:absolute;inset:0;width:100%;height:100%;display:block;outline:0}.vr__c:focus-visible{box-shadow:inset 0 0 0 1px var(--ink-3)}
+.vr__date{position:absolute;left:max(24px,calc(50vw - 664px));top:18px;margin:0;font-weight:700;font-size:clamp(2rem,4vw,3.25rem);letter-spacing:-.03em;color:var(--ink-head);font-variant-numeric:tabular-nums;pointer-events:none}
+.vr__ctl{position:absolute;right:max(24px,calc(50vw - 664px));top:22px;display:flex;gap:28px;align-items:center}
+.vr__read{position:absolute;left:16px;right:16px;bottom:0;text-align:center;pointer-events:none}
+.vm-t{font-size:.9375rem;margin-top:14px}.vm-t td,.vm-t th{text-align:right}.vm-t th:first-child,.vm-t td:first-child{text-align:left}
+.vm-plot{margin-top:18px}.vm-plot canvas{display:block;outline:0}.vm-plot canvas:focus-visible{box-shadow:0 0 0 1px var(--ink-3)}.vm-read{margin-top:10px;min-height:1.5em}
+.vm .up{color:var(--up-text)}.vm .down{color:var(--down-text)}
+.pm{margin-top:22px}.pm__l{display:flex;justify-content:space-between;align-items:baseline;color:var(--ink-2)}
+.pm__l output{font-size:2.5rem;font-weight:700;letter-spacing:-.03em;color:var(--amber-2);font-variant-numeric:tabular-nums}
+.pm input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:44px;background:transparent;margin:0;cursor:pointer}
+.pm input[type=range]::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,var(--amber) var(--f,25%),rgba(255,255,255,.18) var(--f,25%))}
+.pm input[type=range]::-moz-range-track{height:2px;background:rgba(255,255,255,.18)}.pm input[type=range]::-moz-range-progress{height:2px;background:var(--amber)}
+.pm input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--amber);margin-top:-8px;box-shadow:0 0 18px rgba(255,176,72,.8)}
+.pm input[type=range]::-moz-range-thumb{width:18px;height:18px;border:0;border-radius:50%;background:var(--amber);box-shadow:0 0 18px rgba(255,176,72,.8)}
+.pm input[type=range]:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+.pm__figs{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:14px;border-top:1px solid var(--rule);padding-top:18px}
+.pm__figs b{display:block;font-weight:300;font-size:clamp(1.5rem,3vw,2.5rem);letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+.pm__figs i{display:block;font-style:normal;color:var(--ink-2);font-size:.875rem;margin-top:4px}
+.pm__c{display:block;width:100%;margin:26px 0 8px}
+@media (max-width:699px){.vr{height:440px}.vr__date{top:52px;left:16px;font-size:1.75rem}.vr__ctl{left:16px;right:16px;top:0;justify-content:space-between;gap:8px}.pm__figs{grid-template-columns:1fr;gap:14px}}
 /* Crypto: a coin's page (owner, 27 Nov 2026: "as in Companies"), the company page grid. */
 .cs-tab a.cs-name,.mk-heat th a{color:var(--ink);text-decoration:none}.cs-tab a.cs-name:hover,.mk-heat th a:hover{text-decoration:underline}
 .co__body .cs-tab{font-size:.9375rem}.co__body .cs-tab th,.co__body .cs-tab td{padding-right:10px}

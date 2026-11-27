@@ -61,7 +61,7 @@ import page_crypto  # noqa: E402
 # Crypto stays off the published site until the owner calls it finished (owner, 27 Nov 2026: "hide the Crypto
 # section until we have it perfect"). False: no Crypto pages are built, and the menu, homepage, footer and search
 # leave the group out. Its data is still fetched at deploy, so the caches stay warm. True puts it all back.
-CRYPTO_PUBLIC = False
+CRYPTO_PUBLIC = os.environ.get("CRYPTO_PREVIEW") == "1"   # off on the site; CRYPTO_PREVIEW=1 builds it locally to look at
 import page_interview_simulator  # noqa: E402
 import page_firms  # noqa: E402
 import page_application_tracker  # noqa: E402
@@ -1417,7 +1417,8 @@ NAV_GROUPS = (
     ("crypto", "Crypto", "Where the coins trade, and what they are worth.", (
         ("Where it trades", "crypto/", "The real Earth with the day's trading by country."),
         ("Prices", "crypto/prices/", "The hundred largest coins: their shares, their moves and their last seven days."),
-        ("Bitcoin", "crypto/bitcoin/", "The price since 2010, its four halvings and every great fall."),)),
+        ("Bitcoin", "crypto/bitcoin/", "The price since 2010, its four halvings and every great fall."),
+        ("Bitcoin vs markets", "crypto/markets/", "Beside shares, gold, the dollar and bonds, and inside a portfolio."),)),
 )
 if not CRYPTO_PUBLIC:
     NAV_GROUPS = tuple(g for g in NAV_GROUPS if g[0] != "crypto")
@@ -1458,7 +1459,7 @@ NAV_CHARTS = {
 
 # The menu's groups that are one map each: group key -> (the map's address, its link on the homepage).
 CRYPTO_FOOT = ('<div class="foot__group"><p class="foot__gt">Crypto</p><a href="{base}crypto/">Where it trades</a>'
-               '<a href="{base}crypto/prices/">Prices</a><a href="{base}crypto/bitcoin/">Bitcoin</a></div>')
+               '<a href="{base}crypto/prices/">Prices</a><a href="{base}crypto/bitcoin/">Bitcoin</a><a href="{base}crypto/markets/">Bitcoin vs markets</a></div>')
 
 GROUP_MAPS = {"markets": ("markets/", "All markets, on one map"),
               "tools": ("tools-map/", "All tools, on one map"),
@@ -6815,6 +6816,7 @@ SEARCH_PAGES = [
     ("Crypto", "crypto/", "Page"),
     ("Crypto prices", "crypto/prices/", "Page"),
     ("Bitcoin", "crypto/bitcoin/", "Page"),
+    ("Bitcoin vs markets", "crypto/markets/", "Page"),
     ("Companies", "companies/", "Page"),
     ("Economic calendar", "calendar/", "Page"),
     ("World markets", "world/", "Page"),
