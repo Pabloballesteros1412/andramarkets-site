@@ -6,7 +6,10 @@ Run by .github/workflows/pages.yml before tools/build_site.py. Writes one file,
 change over a day and over a week), the whole market's value with Bitcoin's
 share of it, and where the day's trading is registered: the 500 exchanges
 CoinGecko lists, their 24-hour volume added up by the country each declares as
-its seat. tools/page_crypto.py reads it; nothing here is published as a file.
+its seat. Also .cache/crypto/btc.json: Bitcoin's closing price every day since
+July 2010 (Coin Metrics Community Data, CC BY-NC 4.0, no key) and the current block
+height (mempool.space), for the Bitcoin page. tools/page_crypto.py reads both;
+nothing here is published as a file.
 
 Source: CoinGecko's public API, no key (https://www.coingecko.com/en/api). Its
 terms ask for attribution, which the page gives beside every figure's date.
@@ -28,13 +31,18 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / ".cache" / "crypto" / "crypto.json"
+HISTORY = ROOT / ".cache" / "crypto" / "btc.json"
+COINMETRICS = "https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=PriceUSD&frequency=1d&page_size=10000&start_time=2010-07-18"
+MEMPOOL = "https://mempool.space/api/blocks/tip/height"
 API = "https://api.coingecko.com/api/v3/"
 KEEP = 100
 # Another coin under a wrapper: by name, or by a symbol the name does not give away.
 WRAPPED = re.compile(r"wrapped|staked|staking|bridged|restaked|binance-peg", re.I)
 WRAPPED_SYMBOLS = {"wbtc", "weth", "steth", "wsteth", "weeth", "cbbtc", "reth", "wbeth", "lbtc", "jitosol", "msol", "bnsol", "rseth", "solvbtc"}
 # Pegged to a currency: shown, and marked, since their value says nothing of their price.
-STABLE = {"usdt", "usdc", "dai", "usds", "usde", "fdusd", "pyusd", "usd1", "tusd", "usdd", "frax", "susds", "susde", "usdf", "bfusd", "rlusd", "usdg", "usdtb", "buidl"}
+STABLE = {"usdt", "usdc", "dai", "usds", "usde", "fdusd", "pyusd", "usd1", "tusd", "usdd", "frax", "susds", "susde", "usdf", "bfusd", "rlusd", "usdg", "usdtb", "buidl",
+          "usdy", "usyc", "ousg", "usdo", "frxusd", "gho", "crvusd", "usd0", "lusd", "eurc", "usdx", "usdb", "usda", "usd0++", "syrupusdc", "jaaa", "jtrsy",
+          "xaut", "paxg"}  # the last two are held to gold, not to a currency, and are marked the same way
 
 
 # Where each declared seat is drawn on the globe: the capital or the financial centre, (lat, lon).
@@ -63,13 +71,49 @@ ISLANDS = {"Seychelles", "British Virgin Islands", "Cayman Islands", "Marshall I
 
 
 def get(path):
-    req = urllib.request.Request(API + path, headers={"User-Agent": "site-build/1.0", "Accept": "application/json"})
+    return get_url(API + path)
+
+
+def get_url(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "site-build/1.0", "Accept": "application/json"})
     with urllib.request.urlopen(req, timeout=30) as r:
         return json.loads(r.read().decode("utf-8"))
 
 
+def spark(prices, n=42):
+    """The last seven days in about n points (CoinGecko gives them hourly), four significant figures."""
+    if len(prices) < 2:
+        return []
+    step = max(1, len(prices) // n)
+    pts = prices[::step] + ([prices[-1]] if (len(prices) - 1) % step else [])
+    return [float(f"{p:.4g}") for p in pts if p is not None]
+
+
+def history():
+    """Bitcoin's close every day since 18 July 2010, as one list from the first day, and the block height."""
+    rows, url = [], COINMETRICS
+    while url and len(rows) < 100000:   # one page holds 10,000 days; later years page on
+        page = get_url(url)
+        rows += page.get("data") or []
+        url = page.get("next_page_url")
+    days = [(r["time"][:10], float(r["PriceUSD"])) for r in rows if r.get("PriceUSD")]
+    if len(days) < 5000 or days[0][0] != "2010-07-18":
+        raise ValueError("unexpected Bitcoin history")
+    out, d0 = [], dt.date.fromisoformat(days[0][0])
+    for day, price in days:   # one figure a day; a missing day keeps the day before's
+        k = (dt.date.fromisoformat(day) - d0).days
+        while len(out) < k:
+            out.append(out[-1])
+        out.append(float(f"{price:.5g}"))
+    try:
+        height = int(urllib.request.urlopen(urllib.request.Request(MEMPOOL, headers={"User-Agent": "site-build/1.0"}), timeout=20).read().decode().strip())
+    except Exception:  # noqa: BLE001
+        height = None
+    return {"start": days[0][0], "last": days[-1][0], "p": out, "height": height, "source": "Coin Metrics", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+
+
 def fetch():
-    rows = get("coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&price_change_percentage=24h,7d")
+    rows = get("coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=true&price_change_percentage=24h,7d,30d,1y")
     world = get("global")["data"]
     coins = []
     for r in rows:
@@ -80,7 +124,9 @@ def fetch():
             continue
         coins.append({"id": r["id"], "symbol": sym.upper(), "name": r["name"], "price": r["current_price"], "cap": r["market_cap"],
                       "day": r.get("price_change_percentage_24h_in_currency"), "week": r.get("price_change_percentage_7d_in_currency"),
-                      "stable": sym in STABLE})
+                      "month": r.get("price_change_percentage_30d_in_currency"), "year": r.get("price_change_percentage_1y_in_currency"),
+                      "ath": r.get("ath"), "ath_date": (r.get("ath_date") or "")[:10],
+                      "spark": spark((r.get("sparkline_in_7d") or {}).get("price") or []), "stable": sym in STABLE})
         if len(coins) == KEEP:
             break
     if len(coins) < 40 or coins[0]["id"] != "bitcoin":
@@ -141,6 +187,13 @@ def main():
     except Exception as e:  # noqa: BLE001
         warn(f"crypto: exchanges: {type(e).__name__}: {e}; keeping the last copy")
         data_ex = old.get("exchanges")
+    try:
+        hist = history()
+        HISTORY.parent.mkdir(parents=True, exist_ok=True)
+        HISTORY.write_text(json.dumps(hist, separators=(",", ":")), encoding="utf-8")
+        print(f"crypto: Bitcoin history {hist['start']} to {hist['last']}, {len(hist['p'])} days, block {hist['height']}")
+    except Exception as e:  # noqa: BLE001
+        warn(f"crypto: Bitcoin history: {type(e).__name__}: {e}; keeping the last copy")
     if not data:
         return 0
     if data_ex:

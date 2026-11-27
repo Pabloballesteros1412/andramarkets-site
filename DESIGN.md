@@ -490,7 +490,23 @@ The fifth group (amber, `--amber #ffb048`, `--amber-2 #ffd99a`). After the Bitco
 - **Motion:** the globe goes from place to place, the largest first (one stop for places within 38° of each other, at most six), 2.6 s to travel, 4.5 s to rest, naming the place it comes to (amber name, its largest exchanges). Pointing at a column holds the globe and names it; dragging turns it, and the tour resumes six seconds later; the arrow keys move between places when the globe has focus; a status line says the place for screen readers. It draws only on screen; under reduced motion it holds still on the first place. Without WebGL, or if a surface fails to load, the section stays hidden.
 - **The figure:** "Registered on islands" over the share of the day's trading through exchanges whose seat is an island (2.75 to 4.5rem/300), with a one-line explanation, at the lower left (under the globe on a phone).
 - **Where the day's trading is registered:** a ruled table of the twelve largest seats (country, an "island" tag, share, exchanges, the three largest there), with what a seat means and the share that names no country.
-- **The hundred largest coins:** the ruled table (rank, coin with symbol and "pegged", price, day, week, market value); moves signed and red or green; wrapped, staked and bridged tokens left out; the week column hidden under 900px.
+- **The group (owner, 27 Nov 2026: "seven sections", the globe one of them, a landing piece of its own to come):** Where it trades (`crypto/`, this globe), Prices (`crypto/prices/`) and Bitcoin (`crypto/bitcoin/`) so far; Derivatives, Network, Stablecoins & DeFi and Bitcoin vs markets to follow, each by proposal and sketch. Each section ends with "In Crypto" and the others as links (`.cs-more`), the current one unlinked.
+
+### Crypto: Prices (`crypto/prices/`; owner-approved sketch and build, 27 Nov 2026)
+After two visual pieces were turned down, the owner asked for clean data pages like Fed & Rates. The Fed & Rates grid (head, main column, sticky Latest), from `.cache/crypto/crypto.json`; `assets/crypto-prices.js`.
+- **The market:** the Fed & Rates probability rows: Bitcoin, Ethereum, stablecoins and the rest of the hundred as a share of every listed coin (12px ink bar on `--ground-2`, the share at the right). A share is not a move: ink.
+- **Moves:** the FX heatmap: the thirty largest over a day, a week, a month and a year, each cell tinted `--up`/`--down` at `0.12 + 0.45 × |move| / largest in its column`, the signed figure in ink. "Show" chips: without stablecoins (default) or all.
+- **Every coin:** the hundred, with rank, symbol, "pegged" (a currency or gold), price, day, week (signed, red or green), the last seven days as a 120×28 ink line on its own scale with a dot at its end (hidden on phones), market value.
+- **Latest:** whole market, Bitcoin's, Ethereum's and the stablecoins' shares, how many rose and fell in 24 hours (stablecoins left out), the largest rise and fall.
+
+### Crypto: Bitcoin (`crypto/bitcoin/`; owner-approved sketch and build, 27 Nov 2026)
+The Fed & Rates grid, from `.cache/crypto/btc.json` (Coin Metrics Community Data, CC BY-NC 4.0: every daily close since 18 July 2010; mempool.space for the block height) and CoinGecko for today; `assets/crypto-bitcoin.js` draws the charts from the JSON in the page.
+- **Range and Scale:** chips 1M, 3M, 1Y, 4Y, Max (default) and Dollars (default) or Log. The owner's note: a ratio scale hid Bitcoin's course, so dollars come first and Log is the choice for the early years.
+- **Price:** one ink line (1.5px), hairline grid, the four halvings as dashed lines named at their foot, the record before each great fall marked with its close and month ("Record $125k, Oct 2025" in ink, earlier ones in ink-2), the latest close at the right end. Pointing, or the arrow keys on the focused chart (Shift for longer steps), reads out the day: close, and how far below the record then.
+- **Below the record:** the share below the highest close so far, each day, filled to a dashed zero line; each fall of more than 70%, and the one under way, marked with its signed figure in `--down-text`.
+- **The four cycles:** the price from each halving as a multiple of that day's, over four years, on a ratio scale, in four line styles (the current cycle solid and bold), each named at its end with its multiple; the readout compares the cycles on the same day.
+- **Every great fall:** record close, low, fall (signed, red), days to the low and back to the record ("Not yet"). A note says the record is a close, and gives CoinGecko's intraday record beside it.
+- **Latest:** price and 24 hours, week and year, record close and the distance from it, market value and share, last halving and days since, next halving (month and year at ten minutes a block from the current height), block height.
 
 ### Lab tool card and the plate
 - **Plate:** the `.lab` section, `--plate` fill, all ink tokens re-mapped (see Colors).
