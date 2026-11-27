@@ -33,12 +33,27 @@
 .lm-minis .tv__fail{padding:12px 0;font-size:.8125rem}
 .lm-charts{display:grid;gap:clamp(16px,2vw,28px)}
 .lm-charts[data-n="2"],.lm-charts[data-n="4"]{grid-template-columns:1fr 1fr}
-.lm-charts[data-n="4"] .tv--chart .tv__frame{height:clamp(380px,46vh,520px)}
+.lm-charts[data-n="4"] .tv--chart .tv__frame{height:clamp(300px,38vh,420px)}
 .lm-charts .tv[hidden]{display:none}
-.lm-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 40px;width:100%}
-.lm-tools__k{font-size:.8125rem;color:var(--ink-3);margin-right:4px;align-self:center}
-.lm-find--cmp{margin-left:auto}
 .lm-clear{color:var(--ink-3)!important}
+.lm-ctl{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 40px;flex:1 1 100%;min-width:0}
+.lm-menu{display:flex;align-items:center;gap:0 26px}
+.lm-menu__b{color:var(--ink-2)!important}
+.lm-menu__b[aria-expanded="true"],.lm-menu__b:hover{color:var(--ink)!important}
+.lm-menu__b[hidden]{display:none!important}
+.lm-menu__n{color:var(--ink-3)}
+.lm-panel{flex:1 1 100%;min-width:0;padding:6px 0 2px;border-top:1px solid var(--rule);margin-top:6px}
+.lm-panel[hidden],.lm-panel>[hidden]{display:none!important}
+.lm-panel .lm-switch{flex-wrap:wrap}
+.lm-charts .tv__by{display:none}
+.lm-charts+.tv__by{margin-top:10px}
+.lm-cell{display:none;align-items:baseline;justify-content:space-between;gap:16px;padding:10px 0 8px;border-top:1px solid var(--rule)}
+.lm-charts[data-n="2"] .lm-cell,.lm-charts[data-n="4"] .lm-cell{display:flex}
+.lm-cell__n{font-size:.9375rem;color:var(--ink)}
+.lm-cell__go{min-height:32px;font-size:.8125rem;color:var(--ink-2)!important}
+.lm-cell__go:hover{color:var(--ink)!important}
+.lm-charts[data-n="2"] .tv--chart .tv__frame{height:clamp(380px,52vh,560px)}
+.lm-charts[data-n="2"] .tv--chart .tv__frame,.lm-charts[data-n="4"] .tv--chart .tv__frame{border:0}
 .lm-clear[hidden]{display:none!important}
 .tv--financials .tv__frame,.tv--profile .tv__frame{height:560px}
 .tv--movers .tv__frame,.tv--news .tv__frame{height:500px}
@@ -71,7 +86,7 @@
 .lm-find input{width:15rem;min-height:36px;padding:4px 0;font:inherit;font-size:.875rem;color:var(--ink)}
 .lm-find input::placeholder{color:var(--ink-3)}
 .lm-find .chip{min-height:36px;color:var(--ink)}
-@media (max-width:640px){.lm-minis{display:flex;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1*var(--gutter));padding-inline:var(--gutter);gap:0 16px}.lm-minis::-webkit-scrollbar{display:none}.lm-minis .tv{flex:0 0 62vw}.lm-layout{display:none}.lm-picks .lm-switch{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1*var(--gutter));padding-inline:var(--gutter);gap:0 22px}.lm-picks .lm-switch::-webkit-scrollbar{display:none}.lm-picks .chip{white-space:nowrap}.lm-find{width:100%}.lm-find input{flex:1;width:auto;min-width:0}}
+@media (max-width:640px){.lm-ctl .lm-find{width:100%}.lm-ctl .lm-find input{flex:1;width:auto;min-width:0}.lm-menu{gap:0 22px}.lm-minis{display:flex;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1*var(--gutter));padding-inline:var(--gutter);gap:0 16px}.lm-minis::-webkit-scrollbar{display:none}.lm-minis .tv{flex:0 0 62vw}.lm-menu__lay{display:none}.lm-picks .lm-switch{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1*var(--gutter));padding-inline:var(--gutter);gap:0 22px}.lm-picks .lm-switch::-webkit-scrollbar{display:none}.lm-picks .chip{white-space:nowrap}.lm-find{width:100%}.lm-find input{flex:1;width:auto;min-width:0}}
 .lm-note{max-width:86ch;margin:clamp(28px,4vw,48px) 0 0;font-size:.8125rem;line-height:1.6;color:var(--ink-3)}
 .lm-note a{color:var(--ink-2);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule-strong)}
 .lm-note a:hover{color:var(--ink)}
@@ -86,7 +101,6 @@
  .lm-charts[data-n="2"],.lm-charts[data-n="4"]{grid-template-columns:1fr}
  .tv--quotes .tv__frame{height:560px}
  .tv--econ .tv__frame{height:380px}
- .lm-find--cmp{margin-left:0}
  .lm-sec__head .lm-switch{flex-wrap:wrap;gap:0 22px;width:100%}
  .tv--financials .tv__frame{height:520px}
  .tv--profile .tv__frame{height:440px}

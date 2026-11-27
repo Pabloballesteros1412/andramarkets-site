@@ -51,6 +51,7 @@ def pages(site):
         {slot("chart", "Third chart", ' data-tv-chart-n="3" hidden')}
         {slot("chart", "Fourth chart", ' data-tv-chart-n="4" hidden')}
       </div>
+      <p class="tv__by"><a href="https://www.tradingview.com/" rel="noopener nofollow" target="_blank">Track all markets on TradingView</a></p>
     </section>
     <section class="lm-sec reveal" aria-labelledby="lm-about">
       <div class="lm-sec__head"><h2 id="lm-about">In the chart</h2><p data-tv-no-share>Choose a share above to see its figures, its profile and its news here.</p></div>

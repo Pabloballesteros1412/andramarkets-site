@@ -49,20 +49,27 @@ window.ANDRA_MARKETS = {
       ["Brent", "TVC:UKOIL"],
       ["Bitcoin", "BITSTAMP:BTCUSD"]
     ],
-    // Indicators the reader can switch on: [chip label, TradingView's study, on at first].
+    // Indicators the reader can switch on: [chip label, TradingView's study, true to have it
+    // on at first]. The chart opens clean (owner, 27 Nov 2026).
     // A study is TradingView's name for it ("RSI@tv-basicstudies"), or one with its
     // settings ({ id, inputs }).
     indicators: [
-      ["MA 50", { id: "MASimple@tv-basicstudies", inputs: { length: 50 } }, true],
-      ["MA 200", { id: "MASimple@tv-basicstudies", inputs: { length: 200 } }, true],
+      ["MA 50", { id: "MASimple@tv-basicstudies", inputs: { length: 50 } }],
+      ["MA 200", { id: "MASimple@tv-basicstudies", inputs: { length: 200 } }],
       ["Bollinger", "BB@tv-basicstudies"],
       ["RSI", "RSI@tv-basicstudies"],
       ["MACD", "MACD@tv-basicstudies"],
       ["Stoch RSI", "StochasticRSI@tv-basicstudies"]
     ],
-    // The charts beside the main one when the reader shows two or four (the first is the
-    // main chart's).
-    layout: ["FOREXCOM:SPXUSD", "FOREXCOM:NSXUSD", "OANDA:XAUUSD", "BITSTAMP:BTCUSD"],
+    // The charts beside the main one when the reader shows two or four: [symbol, name]. The
+    // first place is the main chart's. These are plain charts, for a glance across markets;
+    // "Analyse" opens one alone with every tool.
+    layout: [
+      ["FOREXCOM:SPXUSD", "S&P 500"],
+      ["FOREXCOM:NSXUSD", "Nasdaq 100"],
+      ["OANDA:XAUUSD", "Gold"],
+      ["BITSTAMP:BTCUSD", "Bitcoin"]
+    ],
     // The list at the chart's right on wide screens.
     watchlist: [
       "FOREXCOM:SPXUSD", "FOREXCOM:NSXUSD", "OANDA:EU50EUR", "CAPITALCOM:SP35",

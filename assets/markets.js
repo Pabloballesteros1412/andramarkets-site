@@ -34,7 +34,7 @@
   // The charts beside the main one, each on its own symbol until the reader changes it.
   [].forEach.call(document.querySelectorAll("[data-tv-chart-n]"), function (el) {
     var n = +el.getAttribute("data-tv-chart-n"), list = (CFG.chart && CFG.chart.layout) || [];
-    if (!el.getAttribute("data-tv-symbol") && list[n - 1]) el.setAttribute("data-tv-symbol", list[n - 1]);
+    if (!el.getAttribute("data-tv-symbol") && list[n - 1]) el.setAttribute("data-tv-symbol", list[n - 1][0]);
   });
   var slots = [].slice.call(document.querySelectorAll("[data-tv]"));
   if (!slots.length) return;
@@ -80,6 +80,17 @@
     },
     chart: function (el, th, t) {
       var c = CFG.chart, wide = el.clientWidth >= 900;
+      // In a grid of two or four, a plain chart: no toolbar, legend, tools or indicators.
+      if (inGrid(el)) {
+        return ["advanced-chart", {
+          autosize: true, symbol: el.getAttribute("data-tv-symbol") || c.symbol, interval: c.interval || "D",
+          timezone: c.timezone || "Etc/UTC", theme: th, style: "1", locale: CFG.locale,
+          hide_top_toolbar: true, hide_legend: true, hide_side_toolbar: true, hide_volume: true,
+          allow_symbol_change: false, save_image: false, details: false, hotlist: false, calendar: false,
+          backgroundColor: th === "dark" ? "rgba(0, 0, 0, 1)" : "rgba(255, 255, 255, 1)", gridColor: t.grid,
+          support_host: "https://www.tradingview.com"
+        }];
+      }
       return ["advanced-chart", {
         autosize: true, symbol: el.getAttribute("data-tv-symbol") || c.symbol, interval: c.interval || "D", timezone: c.timezone || "Etc/UTC",
         theme: th, style: "1", locale: CFG.locale, allow_symbol_change: true, withdateranges: true,
@@ -185,6 +196,10 @@
     }
   };
 
+  function inGrid(el) {
+    var g = el.closest && el.closest("[data-tv-charts]");
+    return !!g && +g.getAttribute("data-n") > 1;
+  }
   // The entry of a config list that a slot's chips have chosen (the first until one is).
   function chosen(el, list) { return list[+el.getAttribute("data-tv-source") || 0] || list[0]; }
   function plain(th, more) {
@@ -407,12 +422,14 @@
     group.className = "filters lm-switch";
     group.setAttribute("role", "group");
     group.setAttribute("aria-label", "Symbol shown in the chart");
+    var relabel = null;
     function show(symbol) {
       [].forEach.call(group.children, function (c) {
         c.setAttribute("aria-pressed", c.getAttribute("data-symbol") === symbol ? "true" : "false");
       });
       setSymbol(symbol, true);
       if (!target.classList.contains("is-mounted")) mount(target);
+      if (relabel) relabel();
     }
     var start = target.getAttribute("data-tv-symbol") || CFG.chart.symbol;
     picks.forEach(function (pick) {
@@ -441,11 +458,46 @@
       show(v);
     });
     box.appendChild(group);
-    box.appendChild(form);
 
-    // Compare: a second symbol drawn over the main chart, on the same scale in percent.
+    // The second row: the ticker field at the left, and at the right three words that each
+    // open their options under the row, one at a time: Compare, Indicators, Charts.
+    var row = document.createElement("div");
+    row.className = "lm-ctl";
+    row.appendChild(form);
+    var menu = document.createElement("div");
+    menu.className = "lm-menu";
+    row.appendChild(menu);
+    var panel = document.createElement("div");
+    panel.className = "lm-panel";
+    panel.hidden = true;
+    var opened = null, toggles = {};
+    function toggle(key, label, body) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip lm-menu__b";
+      b.setAttribute("aria-expanded", "false");
+      b.setAttribute("aria-controls", "lm-panel");
+      b.innerHTML = label + '<span class="lm-menu__n"></span>';
+      b.addEventListener("click", function () { open(opened === key ? null : key); });
+      menu.appendChild(b);
+      body.hidden = true;
+      panel.appendChild(body);
+      toggles[key] = { button: b, body: body };
+    }
+    function open(key) {
+      opened = key;
+      for (var k in toggles) {
+        toggles[k].button.setAttribute("aria-expanded", k === key ? "true" : "false");
+        toggles[k].body.hidden = k !== key;
+      }
+      panel.hidden = !key;
+    }
+    function note(key, text) { if (toggles[key]) toggles[key].button.lastChild.textContent = text ? " · " + text : ""; }
+    panel.id = "lm-panel";
+
+    // Compare: a second symbol drawn over the chart, on the same scale in percent.
     var cmp = document.createElement("form");
-    cmp.className = "lm-find lm-find--cmp";
+    cmp.className = "lm-find";
     cmp.innerHTML = '<label for="lm-cmp-q">Compare with</label>' +
       '<input id="lm-cmp-q" type="text" inputmode="latin" autocomplete="off" autocapitalize="characters" ' +
       'spellcheck="false" maxlength="24" placeholder="NASDAQ:NVDA, OANDA:XAUUSD">' +
@@ -457,24 +509,24 @@
       if (!/^[A-Z0-9][A-Z0-9:._!&-]{0,23}$/.test(v)) { q.focus(); return; }
       target.setAttribute("data-tv-compare", v);
       clear.hidden = false;
+      note("cmp", v.split(":").pop());
       mount(target);
     });
     clear.addEventListener("click", function () {
       target.removeAttribute("data-tv-compare");
       cmp.querySelector("input").value = "";
       clear.hidden = true;
+      note("cmp", "");
       mount(target);
     });
+    toggle("cmp", "Compare", cmp);
 
-    var tools = document.createElement("div");
-    tools.className = "lm-tools";
-    // Indicators: chips that each switch one on or off, on every chart shown.
+    // Indicators: chips that each switch one on or off.
     if (INDICATORS.length) {
       var ind = document.createElement("div");
       ind.className = "filters lm-switch";
       ind.setAttribute("role", "group");
-      ind.setAttribute("aria-label", "Indicators drawn on the charts");
-      ind.innerHTML = '<span class="lm-tools__k">Indicators</span>';
+      ind.setAttribute("aria-label", "Indicators drawn on the chart");
       INDICATORS.forEach(function (d, i) {
         var chip = document.createElement("button");
         chip.type = "button";
@@ -484,50 +536,86 @@
         chip.addEventListener("click", function () {
           on[i] = !on[i];
           chip.setAttribute("aria-pressed", on[i] ? "true" : "false");
-          eachChart(mount);
+          var count = on.filter(Boolean).length;
+          note("ind", count ? String(count) : "");
+          mount(target);
         });
         ind.appendChild(chip);
       });
-      tools.appendChild(ind);
+      toggle("ind", "Indicators", ind);
+      var count0 = on.filter(Boolean).length;
+      note("ind", count0 ? String(count0) : "");
     }
-    // Layout: one chart, two side by side, or four in a square.
+
+    // Charts: one with every tool, or two or four plain ones to glance across markets.
     var grid = target.parentNode;
     if (grid && grid.hasAttribute("data-tv-charts")) {
       var lay = document.createElement("div");
-      lay.className = "filters lm-switch lm-layout";
+      lay.className = "filters lm-switch";
       lay.setAttribute("role", "group");
       lay.setAttribute("aria-label", "How many charts");
-      lay.innerHTML = '<span class="lm-tools__k">Charts</span>';
+      var names = {};
+      picks.forEach(function (p) { names[p[1]] = p[0]; });
+      ((CFG.chart && CFG.chart.layout) || []).forEach(function (p) { names[p[0]] = names[p[0]] || p[1]; });
+      // each chart in a grid is named over it, with Analyse to open it alone
+      [].forEach.call(grid.querySelectorAll('[data-tv="chart"]'), function (c) {
+        var head = document.createElement("div");
+        head.className = "lm-cell";
+        head.innerHTML = '<span class="lm-cell__n"></span><button type="button" class="chip lm-cell__go">Analyse</button>';
+        head.querySelector("button").addEventListener("click", function () {
+          var sym = c.getAttribute("data-tv-symbol") || CFG.chart.symbol;
+          setLayout(1);
+          show(sym);
+          target.scrollIntoView({ block: "start", behavior: "smooth" });
+        });
+        c.insertBefore(head, c.firstChild);
+      });
+      function label() {
+        [].forEach.call(grid.querySelectorAll('[data-tv="chart"]'), function (c) {
+          var sym = c.getAttribute("data-tv-symbol") || CFG.chart.symbol;
+          c.querySelector(".lm-cell__n").textContent = names[sym] || sym;
+        });
+      }
+      relabel = label;
+      function setLayout(n) {
+        if (+grid.getAttribute("data-n") === n) return;
+        [].forEach.call(lay.children, function (c) { c.setAttribute("aria-pressed", +c.getAttribute("data-n") === n ? "true" : "false"); });
+        grid.setAttribute("data-n", n);
+        // Compare and Indicators are for the one chart: put away while there are more
+        if (toggles.cmp) toggles.cmp.button.hidden = n > 1;
+        if (toggles.ind) toggles.ind.button.hidden = n > 1;
+        if (n > 1 && (opened === "cmp" || opened === "ind")) open(null);
+        note("lay", n > 1 ? String(n) : "");
+        label();
+        [].forEach.call(grid.querySelectorAll("[data-tv-chart-n]"), function (c) {
+          var showIt = +c.getAttribute("data-tv-chart-n") <= n;
+          if (showIt === !c.hidden) return;
+          c.hidden = !showIt;
+          if (!showIt) unmount(c);
+        });
+        // every chart shown is drawn again for its new place
+        requestAnimationFrame(function () {
+          [].forEach.call(grid.querySelectorAll('[data-tv="chart"]'), function (c) {
+            if (!c.hidden) { c._wide = c.clientWidth >= 900; mount(c); }
+          });
+        });
+      }
       [1, 2, 4].forEach(function (n) {
         var chip = document.createElement("button");
         chip.type = "button";
         chip.className = "chip";
-        chip.textContent = n;
-        chip.setAttribute("aria-label", n === 1 ? "One chart" : n + " charts");
+        chip.textContent = n === 1 ? "One" : n === 2 ? "Two" : "Four";
+        chip.setAttribute("data-n", n);
         chip.setAttribute("aria-pressed", n === 1 ? "true" : "false");
-        chip.addEventListener("click", function () {
-          if (+grid.getAttribute("data-n") === n) return;
-          [].forEach.call(lay.querySelectorAll(".chip"), function (c) { c.setAttribute("aria-pressed", c === chip ? "true" : "false"); });
-          grid.setAttribute("data-n", n);
-          [].forEach.call(grid.querySelectorAll("[data-tv-chart-n]"), function (c) {
-            var show = +c.getAttribute("data-tv-chart-n") <= n;
-            if (show === !c.hidden) return;
-            c.hidden = !show;
-            if (!show) unmount(c);
-          });
-          // every chart shown is drawn again at its new width
-          requestAnimationFrame(function () {
-            [].forEach.call(grid.querySelectorAll('[data-tv="chart"]'), function (c) {
-              if (!c.hidden) { c._wide = c.clientWidth >= 900; mount(c); }
-            });
-          });
-        });
+        chip.addEventListener("click", function () { setLayout(n); });
         lay.appendChild(chip);
       });
-      tools.appendChild(lay);
+      toggle("lay", "Charts", lay);
+      toggles.lay.button.classList.add("lm-menu__lay");
     }
-    box.appendChild(cmp);
-    box.appendChild(tools);
+
+    box.appendChild(row);
+    box.appendChild(panel);
     box.hidden = false;
   });
 
