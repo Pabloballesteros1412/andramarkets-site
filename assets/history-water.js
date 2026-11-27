@@ -31,7 +31,7 @@
     var t = head.querySelector(".page__title"), y0 = 34; if (!narrow && t) { TOP = Math.max(24, t.getBoundingClientRect().bottom - box.getBoundingClientRect().top); y0 = TOP + 190; card.style.top = (TOP + 26) + "px"; } else card.style.top = "";
     var side = narrow ? 20 : Math.max(0, (W - 1328) / 2) + 76; X0 = side + (narrow ? 0 : 40); X1 = W - side; Y0 = y0; Y1 = H - (narrow ? 40 : 120); }
   function glow(x, y, r, a) { var g = cx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "rgba(255,255,255," + a + ")"); g.addColorStop(0.25, "rgba(215,230,255," + a * 0.45 + ")"); g.addColorStop(1, "rgba(190,215,255,0)"); cx.fillStyle = g; cx.fillRect(x - r, y - r, r * 2, r * 2); }
-  function text(s, x, y, a, al, col) { cx.font = "10px Inter,Arial,sans-serif"; cx.textAlign = al || "left"; cx.textBaseline = "middle"; cx.fillStyle = col || "rgba(226,236,252," + a + ")"; cx.fillText(s, x, y); }
+  function text(s, x, y, a, al, col) { cx.font = "300 12px Inter,Arial,sans-serif"; cx.textAlign = al || "left"; cx.textBaseline = "middle"; cx.fillStyle = col || "rgba(226,236,252," + a + ")"; cx.fillText(s, x, y); }
   function path(k) { cx.beginPath(); P.forEach(function (p, i) { var x = xOf(p.t), y = Y0 + (yOf(p.dd) - Y0) * k; if (i) cx.lineTo(x, y); else cx.moveTo(x, y); }); }
   function draw(now) {
     var t = still ? 9 : (now - t0) / 1000, e0 = still ? 1 : Math.min(1, t / 2), k = 1 - Math.pow(1 - e0, 3);   // the valleys sink from the surface
