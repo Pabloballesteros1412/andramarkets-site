@@ -56,6 +56,7 @@ import page_central_banks  # noqa: E402
 import page_live_markets  # noqa: E402
 import page_recession_watch  # noqa: E402
 import page_market_history  # noqa: E402
+import page_crypto  # noqa: E402
 import page_interview_simulator  # noqa: E402
 import page_firms  # noqa: E402
 import page_application_tracker  # noqa: E402
@@ -1149,7 +1150,8 @@ NUM_WORD = {5: "Five", 6: "Six", 7: "Seven", 8: "Eight", 9: "Nine", 10: "Ten", 1
 LAB_N, SIM_N = 11, 9
 TOOLS_N = NUM_WORD[LAB_N + SIM_N]
 HOME_COPY = {"markets": "Prices, rates and what is coming.", "tools": f"{TOOLS_N} tools that run in your browser.",
-             "research": "What happened and why, after every close.", "careers": "For students breaking into markets."}
+             "research": "What happened and why, after every close.", "careers": "For students breaking into markets.",
+             "crypto": "Where the coins trade, and what they are worth."}
 HOME_ARROW = ('<svg class="arr" viewBox="0 0 64 10" aria-hidden="true"><path d="M0 5h62M57 1l5 4-5 4" fill="none" '
               'stroke="currentColor" stroke-width="1"/></svg>')
 
@@ -1163,7 +1165,7 @@ def page(notes, cal):
     data = {"spx": spx or [0, 0],
             "horse": f'assets/horse-particles.webp?v={ver("horse-particles.webp")}'}
     groups = "".join(
-        f'<section class="sec sec--l" id="{key}" data-shape="{i + 1}"><div class="sec__in"><h2>{name}</h2>'
+        f'<section class="sec sec--l" id="{key}" data-shape="{i + 1 if i < 4 else 0}"><div class="sec__in"><h2>{name}</h2>'
         f'<p class="copy">{HOME_COPY[key]}</p><ul class="links">'
         + "".join(f'<li><a href="{href}">{label}</a></li>' for label, href, _ in
                   (((GROUP_MAPS[key][1], GROUP_MAPS[key][0], ""),) if key in GROUP_MAPS else links)) + "</ul></div></section>\n"
@@ -1399,6 +1401,9 @@ NAV_GROUPS = (
         ("Recruiting calendar", "recruiting-calendar/", "When US firms open and close applications."),
         ("Firms", "firms/", "The banks, boutiques and funds that hire, and for what."),
         ("Application tracker", "application-tracker/", "Your applications, deadlines and contacts, kept in your browser."))),
+    # A fifth group (owner, 27 Nov 2026). One section so far: where the day's trading is registered, and the hundred largest coins.
+    ("crypto", "Crypto", "Where the coins trade, and what they are worth.", (
+        ("Crypto", "crypto/", "The real Earth with the day's trading by country, and the hundred largest coins."),)),
 )
 
 
@@ -1439,7 +1444,8 @@ NAV_CHARTS = {
 GROUP_MAPS = {"markets": ("markets/", "All markets, on one map"),
               "tools": ("tools-map/", "All tools, on one map"),
               "research": ("research-map/", "All research, on one map"),
-              "careers": ("careers/", "Everything for a career in markets, on one map")}
+              "careers": ("careers/", "Everything for a career in markets, on one map"),
+              "crypto": ("crypto/", "Where the day's trading is registered, on the real Earth")}
 
 
 def nav_chart(href):
@@ -1525,6 +1531,7 @@ def site_footer(home, base):
       <div class="foot__group"><p class="foot__gt">Tools</p><a href="{base}tools-map/">All tools</a></div>
       <div class="foot__group"><p class="foot__gt">Research</p><a href="{base}research-map/">All research</a></div>
       <div class="foot__group"><p class="foot__gt">Careers</p><a href="{base}careers/">All of Careers</a></div>
+      <div class="foot__group"><p class="foot__gt">Crypto</p><a href="{base}crypto/">Where crypto trades</a></div>
       <div class="foot__group"><p class="foot__gt">Andra Markets</p><a href="{base}methodology/">Methodology</a><a href="{base}sources/">Data sources</a><a href="{base}legal/">Legal notice</a><a href="{base}privacy/">Privacy and cookies</a></div>
     </nav>
     <ul class="foot__social" aria-label="Andra Markets on social media">
@@ -6785,6 +6792,7 @@ SEARCH_PAGES = [
     ("Recession call", "simulators/recession-call/", "Simulators"),
     ("Higher or lower", "simulators/higher-or-lower/", "Simulators"),
     ("Lump sum or drip", "simulators/lump-sum-or-drip/", "Simulators"),
+    ("Crypto", "crypto/", "Page"),
     ("Companies", "companies/", "Page"),
     ("Economic calendar", "calendar/", "Page"),
     ("World markets", "world/", "Page"),
@@ -6901,7 +6909,7 @@ def write_discovery(notes, library):
 # Section pages built in their own modules (tools/page_*.py), each returning
 # {output path: page HTML}: the Research and Careers sections added on 1 Nov 2026.
 PAGE_MODULES = (page_live_markets, page_chart_of_the_day, page_central_banks, page_recession_watch, page_market_history,
-                page_interview_simulator, page_firms, page_application_tracker)
+                page_interview_simulator, page_firms, page_application_tracker, page_crypto)
 
 
 def main():
@@ -7055,7 +7063,7 @@ def main():
 GENERATED = ("index.html", "methodology", "reports", "dashboards", "companies", "profile", "calendar",
              "watch", "learn", "lab", "simulators", "world", "fx", "research", "interview-prep", "sources",
              "legal", "privacy", "fed-rates", "careers", "break-into-wall-street", "recruiting-calendar",
-             "chart-of-the-day", "central-banks", "recession-watch", "market-history",
+             "chart-of-the-day", "central-banks", "recession-watch", "market-history", "crypto",
              "interview-simulator", "firms", "application-tracker", "contact", "tools-map", "research-map", "markets", "live-markets")
 INLINE_SCRIPT = re.compile(r"<script(?P<attrs>[^>]*)>(?P<body>.*?)</script>", re.S)
 # Data blocks the browser never runs: the policy does not apply to them.

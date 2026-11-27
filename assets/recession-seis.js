@@ -47,7 +47,7 @@
   function glow(x, y, r, a) { var g = cx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "rgba(255,255,255," + a + ")"); g.addColorStop(0.25, "rgba(215,230,255," + a * 0.45 + ")"); g.addColorStop(1, "rgba(190,215,255,0)"); cx.fillStyle = g; cx.fillRect(x - r, y - r, r * 2, r * 2); }
   function path(t, off, upto) { cx.beginPath(); var k, n = Math.min(t.n, upto == null ? t.n : upto), up = true; cx.moveTo(X0 + t.first, t.mn[t.first] + off);
     for (k = t.first; k <= n; k++) { var x = X0 + k; if (t.mx[k] - t.mn[k] > 1.2) { if (up) { cx.lineTo(x, t.mx[k] + off); cx.lineTo(x, t.mn[k] + off); } else { cx.lineTo(x, t.mn[k] + off); cx.lineTo(x, t.mx[k] + off); } up = !up; } else cx.lineTo(x, (t.mn[k] + t.mx[k]) / 2 + off); } }
-  function text(s, x, y, a, al, size) { cx.font = (size || 11) + "px Inter,Arial,sans-serif"; cx.textAlign = al || "left"; cx.textBaseline = "middle"; cx.fillStyle = "rgba(226,236,252," + a + ")"; cx.fillText(s, x, y); }
+  function text(s, x, y, a, al, size) { cx.font = "300 " + ((size || 11) + 1) + "px Inter,Arial,sans-serif"; cx.textAlign = al || "left"; cx.textBaseline = "middle"; cx.fillStyle = "rgba(226,236,252," + a + ")"; cx.fillText(s, x, y); }
   function draw(now) {
     var t = still ? 6 : (now - t0) / 1000, e0 = still ? 1 : Math.min(1, t / 2.2), ease = 1 - Math.pow(1 - e0, 3);
     cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H); cx.globalCompositeOperation = "lighter";
@@ -67,7 +67,7 @@
       var d = D0 + (px - X0) / (X1 - X0) * (D1 - D0), dt = new Date(d * 864e5), flip = px > X1 - 150; cx.strokeStyle = "rgba(226,236,252,0.4)"; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(px, Y0 - 6); cx.lineTo(px, Y1 + 10); cx.stroke();
       text(dt.getUTCDate() + " " + MON[dt.getUTCMonth()] + " " + dt.getUTCFullYear(), px + (flip ? -8 : 8), Y0 - 14, 0.9, flip ? "right" : "left", 11);
       T.forEach(function (tr) { var lo = 0, hi = tr.d.length - 1; if (d < tr.d[0] - 20 || d > tr.d[hi] + 20) return; while (lo < hi) { var m = (lo + hi) >> 1; if (tr.d[m] < d) lo = m + 1; else hi = m; } if (lo > 0 && d - tr.d[lo - 1] < tr.d[lo] - d) lo--;
-        var y = yOf(tr, tr.v[lo]); glow(px, y, 9, 0.9); cx.globalCompositeOperation = "source-over"; var s = FMT[tr.k](tr.v[lo]); cx.font = "11px Inter,Arial,sans-serif"; var w = cx.measureText(s).width + 10; cx.fillStyle = "rgba(0,0,0,0.72)"; cx.fillRect(flip ? px - 10 - w : px + 10, y - 20, w, 16); cx.globalCompositeOperation = "lighter"; text(s, px + (flip ? -15 : 15), y - 12, 0.95, flip ? "right" : "left", 11); }); }
+        var y = yOf(tr, tr.v[lo]); glow(px, y, 9, 0.9); cx.globalCompositeOperation = "source-over"; var s = FMT[tr.k](tr.v[lo]); cx.font = "300 12px Inter,Arial,sans-serif"; var w = cx.measureText(s).width + 10; cx.fillStyle = "rgba(0,0,0,0.72)"; cx.fillRect(flip ? px - 10 - w : px + 10, y - 20, w, 16); cx.globalCompositeOperation = "lighter"; text(s, px + (flip ? -15 : 15), y - 12, 0.95, flip ? "right" : "left", 11); }); }
     return e0 < 1;
   }
   function frame(now) { run = 0; var more = draw(now); if ((more || !still) && visible) run = requestAnimationFrame(frame); }
