@@ -805,3 +805,19 @@ a.nav__btn{display:inline-flex}
 .cs-more{margin:clamp(40px,7vh,72px) 0 0;padding-top:18px;border-top:1px solid var(--rule);font-size:.9375rem;color:var(--ink-2)}
 .cs-more a{color:var(--ink)}.cs-more [aria-current]{color:var(--ink-3)}.cs-more__k{color:var(--ink-3);margin-right:8px}
 @media (max-width:699px){.cs-tab .mk-sp{display:none}.mk-row{grid-template-columns:110px 1fr 56px;gap:10px}}
+/* Crypto: a coin's page (owner, 27 Nov 2026: "as in Companies"), the company page grid. */
+.cs-tab a.cs-name,.mk-heat th a{color:var(--ink);text-decoration:none}.cs-tab a.cs-name:hover,.mk-heat th a:hover{text-decoration:underline}
+.co__body .cs-tab{font-size:.9375rem}.co__body .cs-tab th,.co__body .cs-tab td{padding-right:10px}
+.cc-ret td,.cc-ret th{text-align:right}.cc-ret th:first-child{text-align:left}
+.cc-cal{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.6875rem;margin-top:14px;width:100%}
+.cc-cal th,.cc-cal td{padding:6px 2px;text-align:right;border-top:1px solid var(--rule);font-weight:400;white-space:nowrap}
+.cc-cal thead th{color:var(--ink-3)}.cc-cal th[scope=row]{text-align:left;color:var(--ink)}.cc-cal td.yr{border-left:1px solid var(--rule-strong);padding-left:8px}
+.cc-cal .up{color:var(--up-text)}.cc-cal .down{color:var(--down-text)}
+.cc-peers{margin-top:14px}.pe-row{display:grid;grid-template-columns:minmax(120px,170px) 1fr 92px;gap:16px;align-items:center;padding:12px 0;border-top:1px solid var(--rule)}
+.pe-row:last-child{border-bottom:1px solid var(--rule)}.pe-row span:first-child{color:var(--ink)}.pe-row canvas{width:100%;height:34px;display:block}.pe-row span:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.cc-plot{margin-top:16px}.cc-plot canvas{display:block}
+.su{margin-top:16px}.su i{display:block;height:14px;background:var(--ground-2);position:relative}.su i b{position:absolute;left:0;top:0;bottom:0;background:var(--ink)}.su p{margin:10px 0 0;color:var(--ink-2);font-size:.9375rem}
+.cc-days{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:14px}.cc-days h3{font-size:1rem;font-weight:400;color:var(--ink-2);margin:0 0 8px}
+.cc-days ol{margin:0;padding:0;list-style:none}.cc-days li{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--rule);font-variant-numeric:tabular-nums}
+.co .up{color:var(--up-text)}.co .down{color:var(--down-text)}
+@media (max-width:699px){.pe-row{grid-template-columns:96px 1fr 70px;gap:10px}.cc-days{grid-template-columns:1fr;gap:16px}.cc-cal{font-size:.625rem}}
