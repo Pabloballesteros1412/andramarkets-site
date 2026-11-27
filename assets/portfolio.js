@@ -169,8 +169,10 @@
     if (!m) return;
     var list = [];
     m[1].split(",").forEach(function (part) {
-      var kv = part.split("~"), s = decodeURIComponent(kv[0] || ""), v = parseFloat(kv[1]);
-      if (by[s] && list.length < MAX && !list.some(function (h) { return h.s === s; })) list.push({ s: s, v: isFinite(v) && v >= 0 ? v : 0 });
+      var kv = part.split("~"), s = "", v = parseFloat(kv[1]);
+      try { s = decodeURIComponent(kv[0] || ""); } catch (e) { return; }
+      // Own keys only: "constructor" or "__proto__" in a shared link is not a holding.
+      if (Object.prototype.hasOwnProperty.call(by, s) && by[s] && list.length < MAX && !list.some(function (h) { return h.s === s; })) list.push({ s: s, v: isFinite(v) && v >= 0 ? v : 0 });
     });
     if (!list.length) return;
     picked = list;

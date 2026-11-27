@@ -3,8 +3,9 @@
 
 Run by .github/workflows/pages.yml after tools/calendar_data.py, before
 tools/build_site.py. Writes one file, .cache/companies/companies.json: the
-1,200 companies of the calendar's earnings universe (the 400 largest in the
-S&P 500, in the STOXX Europe 600 and across the six Asian markets, read from
+2,100 companies of the calendar's earnings universe (the S&P 500 and the S&P
+MidCap 400, the STOXX Europe 600, and the 600 largest across the six Asian
+markets, read from
 .cache/calendar/calendar.json) and, for each, the figures its page draws.
 build_site.py reads it; with no file there are no company pages.
 
@@ -54,7 +55,8 @@ ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / ".cache" / "companies" / "companies.json"
 CAL = ROOT / ".cache" / "calendar" / "calendar.json"
 MARKETS = ("us", "europe", "asia")
-PER_MARKET = 400  # the calendar's universe: 400 per market
+# the calendar's universe in each market (UNIVERSE in tools/calendar_data.py)
+PER_MARKET = {"us": 900, "europe": 600, "asia": 600}
 BUDGET = float(os.environ.get("COMPANY_BUDGET", "1200"))
 FUND_DAYS = 5  # the fundamentals and month-end closes are refetched after this many days
 FRESH = 2 * 3600  # closes fetched less than this long ago are not fetched again
@@ -132,8 +134,8 @@ def get_json(url):
 
 
 def spy_list():
-    """The PER_MARKET largest S&P 500 companies by index weight, as universe
-    entries: the fallback when the calendar has no universe yet."""
+    """The S&P 500's companies by index weight, as universe entries: the fallback
+    when the calendar has no universe yet."""
     table = xlsx_rows(fetch(SPY_URL))
     head = next(i for i, r in enumerate(table) if "Ticker" in r)
     cols = table[head]
@@ -159,7 +161,7 @@ def spy_list():
             continue
         seen.add(key)
         out.append({"symbol": t, "name": name, "country": "US", "bench": "^GSPC", "bench_name": "S&P 500"})
-        if len(out) == PER_MARKET:
+        if len(out) == PER_MARKET["us"]:
             break
     return out
 
@@ -365,9 +367,24 @@ def commons_file(url):
     return f"https://upload.wikimedia.org/wikipedia/commons/{h[0]}/{h[:2]}/{urllib.parse.quote(name)}"
 
 
+# Anything in an SVG that can run script or load content when the file is
+# opened on its own (the pages' CSP does not cover a bare SVG on the site).
+SVG_ACTIVE = re.compile(rb"<script|<foreignobject|<iframe|<embed|<object|<animate|<set[\s>/]|<handler"
+                        rb"|\son[a-z]+\s*=|javascript:|xlink:href\s*=\s*[\"']\s*(?!#|data:image/)"
+                        rb"|\bhref\s*=\s*[\"']\s*(?!#|data:image/)")
+SAFE_SYMBOL = re.compile(r"[A-Z0-9][A-Z0-9.\-]{0,15}")
+
+
+def svg_is_safe(raw):
+    return not SVG_ACTIVE.search(raw.lower())
+
+
 def logo(symbol, svg_url=None):
     """The company's logo, kept once fetched: the official SVG from Wikimedia
     Commons where Wikidata has one, else a PNG from Financial Modeling Prep."""
+    # The symbol comes from fetched data and becomes a file name.
+    if not SAFE_SYMBOL.fullmatch(symbol or ""):
+        raise ValueError(f"unexpected ticker {symbol!r}")
     LOGOS.mkdir(parents=True, exist_ok=True)
     svg, png = LOGOS / f"{symbol}.svg", LOGOS / f"{symbol}.png"
     if svg_url:
@@ -389,9 +406,10 @@ def logo(symbol, svg_url=None):
         head = raw[:600].lower()
         if len(raw) > 3 * 1024 * 1024 or (b"<svg" not in head and b"<?xml" not in head):
             raise ValueError("not an SVG")
-        # Served only through <img>, where scripts never run; dropped anyway.
-        if b"<script" in raw.lower():
-            raise ValueError("SVG with a script")
+        # Shown through <img>, where scripts never run, but the file is also
+        # published and can be opened on its own: refuse any active content.
+        if not svg_is_safe(raw):
+            raise ValueError("SVG with active content")
         svg.write_bytes(raw)
         return
     if png.exists() and png.stat().st_size > 200:
@@ -447,8 +465,9 @@ def universe(cache):
         got = {}
     lists = {}
     for m in MARKETS:
-        rows = [r for r in got.get(m) or [] if r.get("symbol")][:PER_MARKET]
-        if len(rows) >= PER_MARKET // 2:
+        rows = [r for r in got.get(m) or [] if r.get("symbol")][:PER_MARKET[m]]
+        # fewer than half of the old 400 means the calendar's list failed, not that it grew
+        if len(rows) >= 200:
             lists[m] = rows
         elif kept.get(m):
             log(f"universe {m}: the calendar has {len(rows)}; using the last good list", "warning")
@@ -464,6 +483,10 @@ def universe(cache):
     out, seen = [], set()
     for m in MARKETS:
         for r in lists.get(m) or []:
+            # Fetched symbols become folder and file names: anything odd is dropped.
+            if not SAFE_SYMBOL.fullmatch(str(r["symbol"])):
+                log(f"universe {m}: skipping unexpected symbol {str(r['symbol'])[:20]!r}", "warning")
+                continue
             if r["symbol"] not in seen:
                 seen.add(r["symbol"])
                 out.append((m, r))

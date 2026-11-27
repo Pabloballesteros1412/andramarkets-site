@@ -12,9 +12,10 @@ tools, an economic calendar, a daily close note, a research library, interview p
 - `tools/build_site.py`: generates every page from one shell. Edit markup here, except for the section pages added on 1 Nov 2026, which each live in their own module, `tools/page_<name>.py` (`pages(site)` returns their HTML; `site` is build_site itself, for its shell and helpers). It also writes `assets/search-index.js` (the header search index, not committed).
 - `tools/page_live_markets.py`, `assets/markets.js`, `assets/markets.css`, `assets/markets-config.js`: Live Markets (`live-markets/`) and the homepage's tape, drawn by TradingView's free widgets. To add or remove a ticker, edit `assets/markets-config.js` only. Indicators, the extra charts, the mini charts, the quotes table and the economy map are all set there too. A company clicked in a heatmap goes through `companies/go/` (`assets/company-go.js`) to its page in Companies. `markets.js` mounts a widget when it nears the screen and again when the theme changes (`AndraMarkets.mount`, `unmount`, `refresh`). A page that carries `assets/markets.js` gets TradingView in its Content Security Policy (`TV_MARK` in `build_site.py`); no other page does.
 - `tools/check_site.py`: run after the build, at every deploy. It fails the deploy if a close note page came out without a section its note has, or the homepage index lacks a section of the menu, so the live site keeps its last good version.
+- `tools/minify/`: esbuild, pinned with its integrity hashes, which the deploy uses to minify the published copy of `assets/*.js` and `assets/*.css` (about a quarter less to download). The files in `assets/` stay as written: edit those, never the published copy.
 - `tools/import_notes.py`, `tools/nyse.py`: import the daily close notes (below).
 - `tools/dashboard_data.py`: fetches the dashboard figures at deploy time (below).
-- `tools/company_data.py`: fetches the figures behind the company pages (the calendar's 1,200: the 400 largest in the S&P 500, the STOXX Europe 600 and the six Asian markets) at deploy time, into `.cache/companies/`.
+- `tools/company_data.py`: fetches the figures behind the company pages (the calendar's 2,100: the S&P 500 and the S&P MidCap 400, the STOXX Europe 600, and the 600 largest in the six Asian markets) at deploy time, into `.cache/companies/`.
 - `tools/calendar_data.py`: fetches the calendar at deploy time (below).
 - `tools/world_data.py`: fetches the World markets figures at deploy time (below).
 - `assets/world.js`: the World markets comparison radar.
@@ -421,11 +422,11 @@ caches every answer (fundamentals, peers, analysts and search 24 hours, news
 15 minutes, the price 60 seconds). `assets/profile.js` uses it in three
 places:
 
-- `/companies/`: the search field filters the 1,200 and lists any other
+- `/companies/`: the search field filters the 2,100 and lists any other
   US-listed company that matches.
 - `/companies/<ticker>/` for US companies: the live price, news and analyst
   recommendations on top of the static page.
-- `/companies/live/?t=TICK`: the full profile of a US company outside the 1,200
+- `/companies/live/?t=TICK`: the full profile of a US company outside the 2,100
   (results, margins, statements, multiples, peers, news, analysts).
 
 `/profile/` (the section's first home) forwards old links there.
@@ -439,6 +440,13 @@ The free plans cover US listings only, Finnhub's news sentiment is a paid
 feature (the page shows analyst recommendations instead), and FMP allows
 about 250 calls a day (about 5 per new ticker; repeat visits come from the
 cache). A section the plan leaves out says so on the page.
+
+To keep one client from spending those quotas for everyone, the Worker limits
+each visitor (by IP) to 60 requests a minute (`LIMITER` in
+`worker/wrangler.toml`) and, for fundamentals and peers answers not yet in the
+cache, to 10 a minute (`HEAVY`). An unknown ticker costs one FMP call (the
+profile is asked first) and its "not found" is cached like an answer (an hour
+for the price, a day for the rest).
 
 **The keys never enter the repo or the page.** They live as Worker secrets.
 Locally they sit in `.env` (ignored by git). `worker/.dev.vars.example`
@@ -513,9 +521,9 @@ the close notes link there) and the homepage section.
 | Loan prime rates | PBoC: the 20th, 9:00 am Beijing, next working day | |
 | NYSE holidays and early closes, options expiry, quad witching, S&P 500 rebalance | `tools/nyse.py` and the exchanges' published rules | |
 | One-off events | `ONE_OFF` in `tools/calendar_data.py`, each with its official source | |
-| Earnings, US: top 400 of the S&P 500 | SPY holdings (State Street) for membership; Yahoo Finance for market cap, dates and diluted EPS | Yahoo Finance |
-| Earnings, Europe: top 400 of the STOXX Europe 600 | iShares STOXX Europe 600 ETF holdings for membership, each mapped to the company's main listing on Yahoo (`MAIN_LISTING`; the most traded class where the file holds two); Yahoo Finance for market cap (in dollars), dates and EPS | Yahoo Finance |
-| Earnings, Asia: top 400 across Japan, Taiwan, South Korea, Hong Kong, mainland China, India | Yahoo Finance screener, one listing per company (mainland A-share for dual listings; Hong Kong for New York-primary Chinese companies; NSE in India; London-primary companies quoted in Hong Kong left out) | Yahoo Finance |
+| Earnings, US: the S&P 500 and the S&P MidCap 400 | SPY and MDY holdings (State Street) for membership; Yahoo Finance for market cap, dates and diluted EPS | Yahoo Finance |
+| Earnings, Europe: the STOXX Europe 600 | iShares STOXX Europe 600 ETF holdings for membership (read from the product-data API its fund page uses since iShares rebuilt its site; the CSV links stopped on 12 Nov 2026), each mapped to the company's main listing on Yahoo (`MAIN_LISTING`; the most traded class where the file holds two); Yahoo Finance for market cap (in dollars; estimated from the member's weight in the fund where Yahoo has none), dates and EPS | Yahoo Finance |
+| Earnings, Asia: top 600 across Japan, Taiwan, South Korea, Hong Kong, mainland China, India | Yahoo Finance screener, one listing per company (mainland A-share for dual listings; Hong Kong for New York-primary Chinese companies; NSE in India; London-primary companies quoted in Hong Kong left out) | Yahoo Finance |
 | First-session move, every earnings row | Yahoo Finance daily closes: the stock and its benchmark (S&P 500, STOXX Europe 600, Nikkei 225, TAIEX, KOSPI, Hang Seng, CSI 300, Nifty 50) | |
 
 When a source fails, its events stay as last read and the Sources list on the
@@ -527,10 +535,13 @@ or a later estimate never stands in for it. Add one-off events (OPEC+
 meetings, Jackson Hole, debt-ceiling deadlines, elections) to `ONE_OFF` as
 they are announced, with their source.
 
-Each market follows its 400 largest companies (`UNIVERSE` in
-`tools/calendar_data.py`); the rows marked High stay the largest 25 (US), 12
-(Europe) and 5 (Asia), as before. Membership and market caps take a few batched
-calls per market (50 symbols a call; Asia screens 250 listings per market).
+The markets follow 2,100 companies (`UNIVERSE` in `tools/calendar_data.py`;
+owner, 27 Nov 2026): every company of the S&P 500 and the S&P MidCap 400 (State
+Street's SPY and MDY holdings), every company of the STOXX Europe 600, and the
+600 largest across the six Asian markets. The rows marked High stay the largest
+25 (US), 12 (Europe) and 5 (Asia), as before. Membership and market caps take a
+few batched calls per market (50 symbols a call; Asia screens 500 listings per
+market, in two calls of 250).
 The per-company calls, year-ago and reported EPS and the first-session moves,
 are paced 0.3 seconds apart and share a time budget (`CAL_YAHOO_BUDGET`, 180
 seconds by default): reports already out come first, a report still ahead is

@@ -176,7 +176,7 @@ def pages(site):
                             inner, chart_src, save=SAVE_IMAGE and bool(payload["banks"]))
     stamps = [x["fetched"] for grp in ("rates", "meetings") for x in (data.get(grp) or {}).values() if x.get("fetched")]
     updated = f"Updated {site.et_stamp(max(stamps))}" if stamps else "Data pending"
-    blob = json.dumps(payload, separators=(",", ":")).replace("</", "<\\/")
+    blob = json.dumps(payload, separators=(",", ":")).replace("<", "\\u003c")
     body = f"""<main id="main" class="page dd fr cb{" has-map" if cb_map else ""}">
   <div class="wrap dd__grid">
     <header class="page__head dd__head">

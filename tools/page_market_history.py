@@ -184,7 +184,7 @@ def thin(rows, lo, hi, keep, n):
 
 
 def payload(data):
-    return json.dumps(data, separators=(",", ":")).replace("</", "<\\/")
+    return json.dumps(data, separators=(",", ":")).replace("<", "\\u003c")
 
 
 def source_line(first, upto):

@@ -210,7 +210,7 @@ def pages(site):
     payload = {"secs": d["secs"], "lengths": d["lengths"], "tracks": tracks,
                "topics": {k: {"name": v["name"], "src": v["src"], "href": v["href"]} for k, v in topics.items()},
                "qs": [{k: v for k, v in q.items() if v not in ("", [], None)} for q in qs]}
-    data = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).replace("</", "<\\/")
+    data = json.dumps(payload, separators=(",", ":"), ensure_ascii=False).replace("<", "\\u003c")
 
     # What each track covers: the documented rule, and the way in without JavaScript.
     order = [t for t in topics if not t.startswith("ip-")] + [t for t in topics if t.startswith("ip-")]

@@ -171,7 +171,7 @@
   // ---- Setup --------------------------------------------------------------
   var params = new URLSearchParams(location.search);
   var mode = PANIC ? "crash" : "daily";
-  var market = markets[params.get("m")] ? params.get("m") : CFG.markets[0].key;
+  var market = Object.prototype.hasOwnProperty.call(markets, params.get("m")) ? params.get("m") : CFG.markets[0].key;
   var start = 0, n = N, crash = null;
   var H_ = null; // the loaded market
 

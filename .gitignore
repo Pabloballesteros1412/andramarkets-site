@@ -57,3 +57,6 @@ __pycache__/
 .env.*
 !.env.example
 .dev.vars
+
+# esbuild for the deploy-time minify (tools/minify/package.json)
+tools/minify/node_modules/

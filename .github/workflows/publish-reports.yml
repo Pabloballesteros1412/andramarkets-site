@@ -22,6 +22,7 @@ concurrency:
 jobs:
   import:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
     outputs:
@@ -37,7 +38,7 @@ jobs:
       - name: Install the PDF readers
         run: |
           sudo apt-get update -q && sudo apt-get install -y -q poppler-utils
-          pip install pypdf==5.1.0
+          pip install pypdf==6.21.4
       - name: Publish the inbox
         id: import
         run: |
@@ -50,7 +51,9 @@ jobs:
     # Deploy what was published even if another PDF in the inbox was rejected.
     if: ${{ always() && needs.import.outputs.published == 'true' }}
     uses: ./.github/workflows/pages.yml
-    secrets: inherit
+    secrets:
+      AGENT_ARTIFACTS_TOKEN: ${{ secrets.AGENT_ARTIFACTS_TOKEN }}
+      FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
     permissions:
       contents: read
       pages: write
