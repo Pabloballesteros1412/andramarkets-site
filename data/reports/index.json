@@ -1,6 +1,17 @@
 {
   "reports": [
     {
+      "slug": "2026-147-cut-off-and-propped-up",
+      "date": "2026-11-27",
+      "type": "research",
+      "title": "Cut Off and Propped Up: WashingtonCloses China’s Cloud Loophole asBeijing Rescues Its Chip Stocks",
+      "summary": "Nvidia has told Dell and Supermicro to stop shipping AI servers to Malaysia, Singapore, Thailand and Indonesia, according to the Financial Times, after a US rule made those countries licence destinations on 19 November.",
+      "tags": [
+        "macro"
+      ],
+      "pages": 6
+    },
+    {
       "slug": "2026-146-oil-at-95",
       "date": "2026-11-26",
       "type": "research",
