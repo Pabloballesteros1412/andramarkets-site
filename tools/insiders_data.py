@@ -53,7 +53,9 @@ class Sec:
         self.ua = f"Andra Markets research site {email}"
         self.last = 0.0
 
-    def get(self, url, limit=20 * 1024 * 1024):
+    def get(self, url, limit=20 * 1024 * 1024, missing_ok=False):
+        """missing_ok: the SEC answers 403, not 404, for an object that does not exist yet
+        (today's index before it is published), so a 403 there means "not yet"."""
         for i in range(4):
             wait = self.last + GAP - time.monotonic()
             if wait > 0:
@@ -64,7 +66,7 @@ class Sec:
                 with urllib.request.urlopen(req, timeout=40) as r:
                     return r.read(limit)
             except urllib.error.HTTPError as e:
-                if e.code == 404:
+                if e.code == 404 or (e.code == 403 and missing_ok):
                     return None
                 if e.code not in (403, 429, 500, 502, 503) or i == 3:
                     raise
@@ -146,7 +148,7 @@ def main():
             days.append(d)
         d -= dt.timedelta(days=1)
     for day in reversed(days):
-        raw = sec.get(INDEX.format(y=day.year, q=(day.month - 1) // 3 + 1, d=day.strftime("%Y%m%d")))
+        raw = sec.get(INDEX.format(y=day.year, q=(day.month - 1) // 3 + 1, d=day.strftime("%Y%m%d")), missing_ok=True)
         if not raw:
             continue
         for line in raw.decode("latin-1").splitlines():

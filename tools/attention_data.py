@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Fetch the figures behind Hedge Fund Data: Attention, once a day.
+"""Fetch the figures behind Hedge Fund Data: Attention.
 
-Run by .github/workflows/hedgefund-data.yml; a run on a day already fetched
-does nothing. Writes .cache/hf/attention.json (schema "andra.attention/1",
+Run by .github/workflows/hedgefund-data.yml: Wikipedia once a day, GDELT a
+few subjects every run. Writes .cache/hf/attention.json (schema "andra.attention/1",
 Actions cache, never committed or published):
 
     wikipedia  daily views of the English Wikipedia article on each of the
@@ -12,8 +12,9 @@ Actions cache, never committed or published):
                spike the page shows.
     news       for each subject in NEWS, the share of all the world's online
                news coverage in English that mentions it, and that coverage's
-               average tone, each day for three months (GDELT DOC 2.0, no key;
-               it asks for one request every five seconds, kept here).
+               average tone, each day for three months (GDELT DOC 2.0, no key).
+               GDELT limits cloud addresses hard, so each run renews only the
+               three subjects fetched longest ago, twelve seconds apart.
 
 A failed source keeps its last good copy with its own date.
 
@@ -60,8 +61,8 @@ WIKI_ARTICLES = [
     ("LAYOFF", "Layoff", "Layoff", "Macro"), ("STAG", "Stagflation", "Stagflation", "Macro"),
 ]
 GDELT = "https://api.gdeltproject.org/api/v2/doc/doc"
-GDELT_GAP = 6.0  # seconds between requests: GDELT asks for at least five
-GDELT_BUDGET = 240  # seconds for all of GDELT in one run; the subjects not reached keep their last copy
+GDELT_GAP = 12.0  # seconds between requests: GDELT asks for at least five, and is stricter with cloud addresses
+GDELT_PER_RUN = 3  # subjects asked for in one run, the stalest first; over a day's runs every subject is renewed
 # (key, the page's name, GDELT query)
 NEWS = [
     ("recession", "Recession", '(recession OR "economic downturn")'),
@@ -124,32 +125,31 @@ def gdelt(mode, query):
 
 
 def news(old):
-    out, start = [], time.monotonic()
+    """Renews the GDELT_PER_RUN subjects fetched longest ago; the others keep their last copy."""
     kept = {s["key"]: s for s in (old or {}).get("subjects", [])}
-    for key, name, query in NEWS:
-        if time.monotonic() - start > GDELT_BUDGET:
-            if key in kept:
-                out.append(kept[key])
-            continue
+    order = sorted(NEWS, key=lambda n: (kept.get(n[0]) or {}).get("fetched", ""))
+    renewed = 0
+    for key, name, query in order[:GDELT_PER_RUN]:
         try:
             vol = gdelt("timelinevol", query)
             tone = gdelt("timelinetone", query)
         except Exception as e:  # noqa: BLE001
             log(f"GDELT {name}: {type(e).__name__}: {e}", "warning")
-            if key in kept:
-                out.append(kept[key])
             continue
         v = {d["date"][:8]: d["value"] for d in (vol.get("timeline") or [{}])[0].get("data", [])}
         t = {d["date"][:8]: d["value"] for d in (tone.get("timeline") or [{}])[0].get("data", [])}
         days = sorted(v)
         if not days:
             continue
-        out.append({"key": key, "name": name, "query": query, "first": f"{days[0][:4]}-{days[0][4:6]}-{days[0][6:]}",
-                    # share of all monitored English coverage, in percent; tone runs about -10 (negative) to +10
-                    "share": [round(v[d], 4) for d in days], "tone": [None if d not in t else round(t[d], 2) for d in days]})
-    if not out:
+        kept[key] = {"key": key, "name": name, "query": query, "fetched": now_utc().strftime("%Y-%m-%dT%H:%M:%SZ"),
+                     "first": f"{days[0][:4]}-{days[0][4:6]}-{days[0][6:]}",
+                     # share of all monitored English coverage, in percent; tone runs about -10 (negative) to +10
+                     "share": [round(v[d], 4) for d in days], "tone": [None if d not in t else round(t[d], 2) for d in days]}
+        renewed += 1
+    if not kept:
         raise ValueError("GDELT returned nothing")
-    return {"fetched": now_utc().strftime("%Y-%m-%dT%H:%M:%SZ"), "subjects": out,
+    log(f"GDELT: renewed {renewed} of {GDELT_PER_RUN} subjects; {len(kept)} of {len(NEWS)} held")
+    return {"fetched": now_utc().strftime("%Y-%m-%dT%H:%M:%SZ"), "subjects": [kept[k] for k, _, _ in NEWS if k in kept],
             "source": "The GDELT Project, DOC 2.0 (English-language online news)"}
 
 
@@ -165,7 +165,7 @@ def main():
     out = {"schema": SCHEMA, "wikipedia": old.get("wikipedia"), "news": old.get("news")}
     did = False
     for part, fn in (("wikipedia", lambda: wikipedia(old.get("wikipedia"))), ("news", lambda: news(old.get("news")))):
-        if not a.force and (out[part] or {}).get("fetched", "")[:10] == today:
+        if part == "wikipedia" and not a.force and (out[part] or {}).get("fetched", "")[:10] == today:
             continue
         try:
             out[part] = fn()
