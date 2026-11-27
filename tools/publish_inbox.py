@@ -70,16 +70,25 @@ def cover_title(pdf):
     frags = []
 
     def visit(text, cm, tm, font, size):
-        frags.append((round(size * abs(tm[0] or tm[3]) * abs(cm[0] or 1), 1), text))
+        frags.append((round(size * abs(tm[0] or tm[3]) * abs(cm[0] or 1), 1), text, tm[5]))
 
     PdfReader(str(pdf)).pages[0].extract_text(visitor_text=visit)
-    sized = [(s, t) for s, t in frags if t.strip()]
+    sized = [(s, t) for s, t, _ in frags if t.strip()]
     if not sized:
         return ""
     big = max(s for s, _ in sized)
     # Join the fragments as set: the spaces are fragments of their own, and a
     # kerned word comes in pieces ("C", "u", "t") that must not be spaced apart.
-    return tidy("".join(t.replace("\n", " ") for s, t in frags if s == big))
+    # A new line of the title (a new baseline) starts a new word.
+    out, line = "", None
+    for s, t, y in frags:
+        if s != big:
+            continue
+        if line is not None and y != line:
+            out += " "
+        line = y
+        out += t.replace("\n", " ")
+    return tidy(out)
 
 
 def summarise(dek):
