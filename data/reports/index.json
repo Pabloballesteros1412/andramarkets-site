@@ -1,6 +1,39 @@
 {
   "reports": [
     {
+      "slug": "2026-146-oil-at-95",
+      "date": "2026-11-26",
+      "type": "research",
+      "title": "Oil at $95: A Glut on Paper, a War at Sea, and What It Means for Every Market",
+      "summary": "Brent fell 24% in November to a three-month low of $89, its steepest monthly slide since March 2020, because the agencies now count a surplus; then a Houthi strike claim on Saudi Arabia’s largest refinery and Iranian…",
+      "tags": [
+        "commodities"
+      ],
+      "pages": 8
+    },
+    {
+      "slug": "2026-145-down-3-then-flat",
+      "date": "2026-11-25",
+      "type": "research",
+      "title": "Down 3%, Then Flat: The ‘Jensen Put’ Fails and Credit Does Not Bounce",
+      "summary": "Wall Street opened the last full session before Thanksgiving with the S&P 500 down 3.2% and the Nasdaq down 4.6%, erasing all of Monday’s record rally, and closed it almost unchanged, with the Dow higher.",
+      "tags": [
+        "credit"
+      ],
+      "pages": 7
+    },
+    {
+      "slug": "2026-144-hot-prices-hotter-growth-and-a",
+      "date": "2026-11-25",
+      "type": "research",
+      "title": "Hot Prices, Hotter Growth and a New Tariff Wall: Three Releases That Settle December",
+      "summary": "Core PCE inflation rose to 3.3% in October, the highest in three years, on the same morning that third-quarter GDP growth was revised up to 4.3% from 3.4% and the US Trade Representative proposed new tariffs of 15% to…",
+      "tags": [
+        "macro"
+      ],
+      "pages": 8
+    },
+    {
       "slug": "2026-131-gta-vis-2-billion-first-day",
       "date": "2026-11-20",
       "type": "research",
