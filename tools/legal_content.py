@@ -174,7 +174,7 @@ PRIVACY = [
      "Modeling Prep to fetch its figures; no personal data is sent to them. Cloudflare processes your IP "
      "address to deliver the response and protect the service.</li>"
      "<li><b>TradingView</b> (TradingView, Inc., United States) supplies the live quotes, charts, "
-     "heatmaps, company figures, screener and headlines on the <a href=\"../live-markets/\">Live Markets</a> page and the tape of quotes on the "
+     "heatmaps, company figures, screener, quotes table, world economy map and headlines on the <a href=\"../live-markets/\">Live Markets</a> page and the tape of quotes on the "
      "home page. They are TradingView's own widgets, loaded from TradingView into frames on those two "
      "pages: when you open either page your browser connects to TradingView, which receives your IP "
      "address, your browser and device type and the address of the page, and may keep its own cookies or "
