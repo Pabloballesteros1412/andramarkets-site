@@ -49,6 +49,20 @@ window.ANDRA_MARKETS = {
       ["Brent", "TVC:UKOIL"],
       ["Bitcoin", "BITSTAMP:BTCUSD"]
     ],
+    // Indicators the reader can switch on: [chip label, TradingView's study, on at first].
+    // A study is TradingView's name for it ("RSI@tv-basicstudies"), or one with its
+    // settings ({ id, inputs }).
+    indicators: [
+      ["MA 50", { id: "MASimple@tv-basicstudies", inputs: { length: 50 } }, true],
+      ["MA 200", { id: "MASimple@tv-basicstudies", inputs: { length: 200 } }, true],
+      ["Bollinger", "BB@tv-basicstudies"],
+      ["RSI", "RSI@tv-basicstudies"],
+      ["MACD", "MACD@tv-basicstudies"],
+      ["Stoch RSI", "StochasticRSI@tv-basicstudies"]
+    ],
+    // The charts beside the main one when the reader shows two or four (the first is the
+    // main chart's).
+    layout: ["FOREXCOM:SPXUSD", "FOREXCOM:NSXUSD", "OANDA:XAUUSD", "BITSTAMP:BTCUSD"],
     // The list at the chart's right on wide screens.
     watchlist: [
       "FOREXCOM:SPXUSD", "FOREXCOM:NSXUSD", "OANDA:EU50EUR", "CAPITALCOM:SP35",
@@ -56,6 +70,62 @@ window.ANDRA_MARKETS = {
       "FX_IDC:EURUSD", "TVC:UKOIL", "OANDA:XAUUSD", "EUREX:FGBL1!", "BITSTAMP:BTCUSD"
     ]
   },
+
+  // The row of mini charts at the top of the page: [symbol, name for screen readers].
+  minis: [
+    ["FOREXCOM:SPXUSD", "S&P 500"],
+    ["FOREXCOM:NSXUSD", "Nasdaq 100"],
+    ["OANDA:EU50EUR", "Euro Stoxx 50"],
+    ["OANDA:XAUUSD", "Gold"],
+    ["TVC:UKOIL", "Brent"],
+    ["BITSTAMP:BTCUSD", "Bitcoin"]
+  ],
+
+  // The quotes table, one group of rows each: [symbol, name shown].
+  quotes: [
+    { name: "Indices", symbols: [
+      ["FOREXCOM:SPXUSD", "S&P 500"],
+      ["FOREXCOM:NSXUSD", "Nasdaq 100"],
+      ["FOREXCOM:DJI", "Dow Jones"],
+      ["OANDA:EU50EUR", "Euro Stoxx 50"],
+      ["OANDA:DE30EUR", "DAX"],
+      ["BME:IBC", "IBEX 35"],
+      ["OANDA:UK100GBP", "FTSE 100"],
+      ["OANDA:JP225USD", "Nikkei 225"]
+    ] },
+    { name: "Currencies", symbols: [
+      ["FX_IDC:EURUSD", "EUR/USD"],
+      ["FX_IDC:GBPUSD", "GBP/USD"],
+      ["FX_IDC:USDJPY", "USD/JPY"],
+      ["FX_IDC:USDCHF", "USD/CHF"],
+      ["FX_IDC:EURGBP", "EUR/GBP"]
+    ] },
+    { name: "Commodities", symbols: [
+      ["TVC:UKOIL", "Brent"],
+      ["TVC:USOIL", "WTI"],
+      ["OANDA:XAUUSD", "Gold"],
+      ["OANDA:XAGUSD", "Silver"],
+      ["CAPITALCOM:COPPER", "Copper"],
+      ["CAPITALCOM:NATURALGAS", "Natural gas"]
+    ] },
+    { name: "Bond futures", symbols: [
+      ["EUREX:FGBL1!", "Bund 10Y"],
+      ["EUREX:FGBM1!", "Bobl 5Y"],
+      ["EUREX:FGBS1!", "Schatz 2Y"],
+      ["EUREX:FBTP1!", "BTP 10Y"],
+      ["EUREX:FOAT1!", "OAT 10Y"]
+    ] },
+    { name: "Crypto", symbols: [
+      ["BITSTAMP:BTCUSD", "Bitcoin"],
+      ["BITSTAMP:ETHUSD", "Ether"],
+      ["BINANCE:SOLUSDT", "Solana"],
+      ["BINANCE:XRPUSDT", "XRP"]
+    ] }
+  ],
+
+  // The world economy map. The reader picks the measure on the map itself (GDP,
+  // unemployment, government debt, interest rate, inflation); this is the first.
+  economy: { region: "global", metric: "gdp" },
 
   // Market overview: one tab per entry, [symbol, name shown] in each.
   overview: [

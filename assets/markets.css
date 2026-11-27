@@ -24,6 +24,22 @@
 .tv--overview .tv__frame,.tv--symbol .tv__frame{height:640px}
 .tv--heatmap .tv__frame{height:clamp(440px,48vw,680px)}
 .tv--info .tv__frame{height:190px}
+.tv--quotes .tv__frame{height:600px}
+.tv--econ .tv__frame{height:clamp(440px,42vw,600px)}
+.tv--mini .tv__frame{height:150px}
+.lm-minis-sec{margin-top:clamp(28px,4vw,48px)}
+.lm-minis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0 clamp(12px,1.6vw,24px)}
+.lm-minis .tv{border-top:1px solid var(--rule)}
+.lm-minis .tv__fail{padding:12px 0;font-size:.8125rem}
+.lm-charts{display:grid;gap:clamp(16px,2vw,28px)}
+.lm-charts[data-n="2"],.lm-charts[data-n="4"]{grid-template-columns:1fr 1fr}
+.lm-charts[data-n="4"] .tv--chart .tv__frame{height:clamp(380px,46vh,520px)}
+.lm-charts .tv[hidden]{display:none}
+.lm-tools{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 40px;width:100%}
+.lm-tools__k{font-size:.8125rem;color:var(--ink-3);margin-right:4px;align-self:center}
+.lm-find--cmp{margin-left:auto}
+.lm-clear{color:var(--ink-3)!important}
+.lm-clear[hidden]{display:none!important}
 .tv--financials .tv__frame,.tv--profile .tv__frame{height:560px}
 .tv--movers .tv__frame,.tv--news .tv__frame{height:500px}
 .tv--fx .tv__frame{height:440px}
@@ -55,7 +71,7 @@
 .lm-find input{width:15rem;min-height:36px;padding:4px 0;font:inherit;font-size:.875rem;color:var(--ink)}
 .lm-find input::placeholder{color:var(--ink-3)}
 .lm-find .chip{min-height:36px;color:var(--ink)}
-@media (max-width:640px){.lm-picks .lm-switch{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1*var(--gutter));padding-inline:var(--gutter);gap:0 22px}.lm-picks .lm-switch::-webkit-scrollbar{display:none}.lm-picks .chip{white-space:nowrap}.lm-find{width:100%}.lm-find input{flex:1;width:auto;min-width:0}}
+@media (max-width:640px){.lm-minis{display:flex;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1*var(--gutter));padding-inline:var(--gutter);gap:0 16px}.lm-minis::-webkit-scrollbar{display:none}.lm-minis .tv{flex:0 0 62vw}.lm-layout{display:none}.lm-picks .lm-switch{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:calc(-1*var(--gutter));padding-inline:var(--gutter);gap:0 22px}.lm-picks .lm-switch::-webkit-scrollbar{display:none}.lm-picks .chip{white-space:nowrap}.lm-find{width:100%}.lm-find input{flex:1;width:auto;min-width:0}}
 .lm-note{max-width:86ch;margin:clamp(28px,4vw,48px) 0 0;font-size:.8125rem;line-height:1.6;color:var(--ink-3)}
 .lm-note a{color:var(--ink-2);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--rule-strong)}
 .lm-note a:hover{color:var(--ink)}
@@ -66,6 +82,11 @@
  .tv--symbol .tv__frame{height:400px}
  .tv--heatmap .tv__frame{height:460px}
  .tv--info .tv__frame{height:350px}
+ .lm-minis{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .lm-charts[data-n="2"],.lm-charts[data-n="4"]{grid-template-columns:1fr}
+ .tv--quotes .tv__frame{height:560px}
+ .tv--econ .tv__frame{height:380px}
+ .lm-find--cmp{margin-left:0}
  .lm-sec__head .lm-switch{flex-wrap:wrap;gap:0 22px;width:100%}
  .tv--financials .tv__frame{height:520px}
  .tv--profile .tv__frame{height:440px}

@@ -16,6 +16,26 @@
   if (!CFG) return;
   var root = document.documentElement;
   var SRC = "https://s3.tradingview.com/external-embedding/embed-widget-";
+  var WEB = "https://widgets.tradingview-widget.com/w/" + (CFG.locale || "en") + "/tv-";
+
+  // The row of mini charts: one slot for each of the config's minis, made here so the list
+  // lives in the config alone.
+  [].forEach.call(document.querySelectorAll("[data-tv-minis]"), function (row) {
+    (CFG.minis || []).forEach(function (m) {
+      var el = document.createElement("div");
+      el.className = "tv tv--mini";
+      el.setAttribute("data-tv", "mini");
+      el.setAttribute("data-tv-symbol", m[0]);
+      el.innerHTML = '<div class="tv__frame" role="group"></div><p class="tv__fail">Not loaded.</p>';
+      el.firstChild.setAttribute("aria-label", m[1]);
+      row.appendChild(el);
+    });
+  });
+  // The charts beside the main one, each on its own symbol until the reader changes it.
+  [].forEach.call(document.querySelectorAll("[data-tv-chart-n]"), function (el) {
+    var n = +el.getAttribute("data-tv-chart-n"), list = (CFG.chart && CFG.chart.layout) || [];
+    if (!el.getAttribute("data-tv-symbol") && list[n - 1]) el.setAttribute("data-tv-symbol", list[n - 1]);
+  });
   var slots = [].slice.call(document.querySelectorAll("[data-tv]"));
   if (!slots.length) return;
 
@@ -66,8 +86,29 @@
         hide_side_toolbar: !wide, details: false, hotlist: false, calendar: false, save_image: false,
         watchlist: wide && c.watchlist ? c.watchlist : [],
         backgroundColor: th === "dark" ? "rgba(0, 0, 0, 1)" : "rgba(255, 255, 255, 1)", gridColor: t.grid,
+        studies: studies(),
+        compareSymbols: el.getAttribute("data-tv-compare") ? [{ symbol: el.getAttribute("data-tv-compare"), position: "SameScale" }] : [],
         support_host: "https://www.tradingview.com"
       }];
+    },
+    mini: function (el, th, t) {
+      return ["mini-symbol-overview", plain(th, {
+        symbol: el.getAttribute("data-tv-symbol"), dateRange: "1D", chartOnly: false, noTimeScale: true,
+        // the line in ink: TradingView colours the change itself, as a rise or a fall
+        trendLineColor: t.ink, underLineColor: t.inkFill, underLineBottomColor: t.inkNone
+      })];
+    },
+    quotes: function (el, th) {
+      return ["market-quotes", plain(th, {
+        showSymbolLogo: false,
+        symbolsGroups: CFG.quotes.map(function (g) {
+          return { name: g.name, symbols: g.symbols.map(function (s) { return { name: s[0], displayName: s[1] }; }) };
+        })
+      })];
+    },
+    // TradingView's newer kind of widget: an element of its own, not a frame from a script.
+    econ: function (el, th) {
+      return ["@economic-map", { region: CFG.economy.region || "global", metric: CFG.economy.metric || "gdp", theme: th, transparent: "" }];
     },
     overview: function (el, th, t) {
       return ["market-overview", {
@@ -171,6 +212,7 @@
     if (!build || !frame) return;
     unmount(el);
     var made = build(el, theme(), tokens());
+    if (made[0].charAt(0) === "@") return mountElement(el, frame, made[0].slice(1), made[1]);
     var box = document.createElement("div");
     box.className = "tradingview-widget-container";
     var inner = document.createElement("div");
@@ -201,6 +243,36 @@
     frame.appendChild(box);
   }
 
+  // A widget that is an element (<tv-economic-map>): its module is loaded once, the element is
+  // made with its settings as attributes, and it draws itself inside its own closed shadow.
+  var modules = {};
+  function mountElement(el, frame, name, attrs) {
+    if (!modules[name]) {
+      var s = document.createElement("script");
+      s.type = "module";
+      s.src = WEB + name + ".js";
+      s.onerror = function () { fail(el); };
+      document.head.appendChild(s);
+      modules[name] = true;
+    }
+    var w = document.createElement("tv-" + name);
+    for (var k in attrs) w.setAttribute(k, attrs[k]);
+    w.style.display = "block";
+    w.style.height = "100%";
+    frame.appendChild(w);
+    el.classList.add("is-mounted");
+    var waited = 0;
+    (function check() {
+      if (!el.contains(w)) return;
+      if (window.customElements && customElements.get("tv-" + name)) {
+        el._tvWait = setTimeout(function () { el.classList.add("is-ready"); }, 1200);
+        return;
+      }
+      if ((waited += 250) > 15000) { el.classList.add("is-failed"); return; }
+      el._tvWait = setTimeout(check, 250);
+    })();
+  }
+
   // No frame came (offline, or a blocker stopped TradingView): say so in ink.
   function fail(el) {
     if (el.querySelector("iframe")) { el.classList.add("is-ready"); return; }
@@ -214,22 +286,28 @@
   // Mount each slot as it comes near the screen. A slot marked data-tv-defer (the homepage's
   // tape) waits until the page has loaded and its opening has had the frame to itself.
   var deferred = slots.filter(function (el) { return el.hasAttribute("data-tv-defer"); });
-  slots = slots.filter(function (el) { return deferred.indexOf(el) < 0; });
+  // The extra charts are mounted when the reader asks for them (the layout chips), not on scroll.
+  var watched = slots.filter(function (el) { return deferred.indexOf(el) < 0 && !el.hasAttribute("data-tv-chart-n"); });
   if (deferred.length) {
-    var later = function () { setTimeout(function () { deferred.forEach(mount); slots = slots.concat(deferred); }, 1400); };
+    var later = function () { setTimeout(function () { deferred.forEach(mount); }, 1400); };
     if (document.readyState === "complete") later(); else window.addEventListener("load", later);
   }
   if ("IntersectionObserver" in window) {
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
-        io.unobserve(entry.target);
-        mount(entry.target);
+        // the mini charts are one row that scrolls sideways on phones: they come in together
+        var group = entry.target.getAttribute("data-tv") === "mini"
+          ? [].slice.call(entry.target.parentNode.children) : [entry.target];
+        group.forEach(function (el) {
+          io.unobserve(el);
+          if (!el.classList.contains("is-mounted")) mount(el);
+        });
       });
     }, { rootMargin: "320px 0px" });
-    slots.forEach(function (el) { io.observe(el); });
+    watched.forEach(function (el) { io.observe(el); });
   } else {
-    slots.forEach(mount);
+    watched.forEach(mount);
   }
 
   // The page's theme changed: every mounted widget is built again in it.
@@ -248,17 +326,35 @@
 
   // The chart shows its tools and watchlist only on wide screens: build it again
   // when the page crosses that width.
-  var chart = document.querySelector('[data-tv="chart"]');
-  if (chart) {
-    var wasWide = chart.clientWidth >= 900, resizeWait;
-    window.addEventListener("resize", function () {
-      clearTimeout(resizeWait);
-      resizeWait = setTimeout(function () {
-        var wide = chart.clientWidth >= 900;
-        if (wide === wasWide) return;
-        wasWide = wide;
-        if (chart.classList.contains("is-mounted")) mount(chart);
-      }, 250);
+  var resizeWait;
+  function wideCharts() {
+    [].forEach.call(document.querySelectorAll('[data-tv="chart"]'), function (c) { c._wide = c.clientWidth >= 900; });
+  }
+  wideCharts();
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeWait);
+    resizeWait = setTimeout(function () {
+      [].forEach.call(document.querySelectorAll('[data-tv="chart"]'), function (c) {
+        var wide = c.clientWidth >= 900;
+        if (wide === c._wide) return;
+        c._wide = wide;
+        if (c.classList.contains("is-mounted")) mount(c);
+      });
+    }, 250);
+  });
+
+  // The indicators drawn on every chart: those the reader has switched on, the config's
+  // defaults until then.
+  var INDICATORS = (CFG.chart && CFG.chart.indicators) || [];
+  var on = INDICATORS.map(function (d) { return !!d[2]; });
+  function studies() {
+    // all in one form: the chart drops names given beside studies given with settings
+    return INDICATORS.filter(function (d, i) { return on[i]; })
+      .map(function (d) { return typeof d[1] === "string" ? { id: d[1] } : d[1]; });
+  }
+  function eachChart(fn) {
+    [].forEach.call(document.querySelectorAll('[data-tv="chart"]'), function (c) {
+      if (c.classList.contains("is-mounted")) fn(c);
     });
   }
 
@@ -291,7 +387,7 @@
   // The symbol the reader chose: the chart and every slot that follows it (data-tv-follow) are
   // built again on it. What only a share has is shown for a share and put away otherwise.
   function setSymbol(symbol, remount) {
-    [].forEach.call(document.querySelectorAll('[data-tv="chart"], [data-tv-follow]'), function (el) {
+    [].forEach.call(document.querySelectorAll("[data-tv-main], [data-tv-follow]"), function (el) {
       el.setAttribute("data-tv-symbol", symbol);
       if (remount && el.classList.contains("is-mounted")) mount(el);
     });
@@ -346,6 +442,92 @@
     });
     box.appendChild(group);
     box.appendChild(form);
+
+    // Compare: a second symbol drawn over the main chart, on the same scale in percent.
+    var cmp = document.createElement("form");
+    cmp.className = "lm-find lm-find--cmp";
+    cmp.innerHTML = '<label for="lm-cmp-q">Compare with</label>' +
+      '<input id="lm-cmp-q" type="text" inputmode="latin" autocomplete="off" autocapitalize="characters" ' +
+      'spellcheck="false" maxlength="24" placeholder="NASDAQ:NVDA, OANDA:XAUUSD">' +
+      '<button type="submit" class="chip">Add</button><button type="button" class="chip lm-clear" hidden>Clear</button>';
+    var clear = cmp.querySelector(".lm-clear");
+    cmp.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var q = cmp.querySelector("input"), v = q.value.trim().toUpperCase();
+      if (!/^[A-Z0-9][A-Z0-9:._!&-]{0,23}$/.test(v)) { q.focus(); return; }
+      target.setAttribute("data-tv-compare", v);
+      clear.hidden = false;
+      mount(target);
+    });
+    clear.addEventListener("click", function () {
+      target.removeAttribute("data-tv-compare");
+      cmp.querySelector("input").value = "";
+      clear.hidden = true;
+      mount(target);
+    });
+
+    var tools = document.createElement("div");
+    tools.className = "lm-tools";
+    // Indicators: chips that each switch one on or off, on every chart shown.
+    if (INDICATORS.length) {
+      var ind = document.createElement("div");
+      ind.className = "filters lm-switch";
+      ind.setAttribute("role", "group");
+      ind.setAttribute("aria-label", "Indicators drawn on the charts");
+      ind.innerHTML = '<span class="lm-tools__k">Indicators</span>';
+      INDICATORS.forEach(function (d, i) {
+        var chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip";
+        chip.textContent = d[0];
+        chip.setAttribute("aria-pressed", on[i] ? "true" : "false");
+        chip.addEventListener("click", function () {
+          on[i] = !on[i];
+          chip.setAttribute("aria-pressed", on[i] ? "true" : "false");
+          eachChart(mount);
+        });
+        ind.appendChild(chip);
+      });
+      tools.appendChild(ind);
+    }
+    // Layout: one chart, two side by side, or four in a square.
+    var grid = target.parentNode;
+    if (grid && grid.hasAttribute("data-tv-charts")) {
+      var lay = document.createElement("div");
+      lay.className = "filters lm-switch lm-layout";
+      lay.setAttribute("role", "group");
+      lay.setAttribute("aria-label", "How many charts");
+      lay.innerHTML = '<span class="lm-tools__k">Charts</span>';
+      [1, 2, 4].forEach(function (n) {
+        var chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip";
+        chip.textContent = n;
+        chip.setAttribute("aria-label", n === 1 ? "One chart" : n + " charts");
+        chip.setAttribute("aria-pressed", n === 1 ? "true" : "false");
+        chip.addEventListener("click", function () {
+          if (+grid.getAttribute("data-n") === n) return;
+          [].forEach.call(lay.querySelectorAll(".chip"), function (c) { c.setAttribute("aria-pressed", c === chip ? "true" : "false"); });
+          grid.setAttribute("data-n", n);
+          [].forEach.call(grid.querySelectorAll("[data-tv-chart-n]"), function (c) {
+            var show = +c.getAttribute("data-tv-chart-n") <= n;
+            if (show === !c.hidden) return;
+            c.hidden = !show;
+            if (!show) unmount(c);
+          });
+          // every chart shown is drawn again at its new width
+          requestAnimationFrame(function () {
+            [].forEach.call(grid.querySelectorAll('[data-tv="chart"]'), function (c) {
+              if (!c.hidden) { c._wide = c.clientWidth >= 900; mount(c); }
+            });
+          });
+        });
+        lay.appendChild(chip);
+      });
+      tools.appendChild(lay);
+    }
+    box.appendChild(cmp);
+    box.appendChild(tools);
     box.hidden = false;
   });
 
