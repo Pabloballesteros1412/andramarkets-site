@@ -8,8 +8,12 @@ share of it, and where the day's trading is registered: the 500 exchanges
 CoinGecko lists, their 24-hour volume added up by the country each declares as
 its seat. Also .cache/crypto/btc.json: Bitcoin's closing price every day since
 July 2010 (Coin Metrics Community Data, CC BY-NC 4.0, no key) and the current block
-height (mempool.space), for the Bitcoin page. tools/page_crypto.py reads both;
-nothing here is published as a file.
+height (mempool.space), for the Bitcoin page. And for each of the other coins a
+file in .cache/crypto/coins/ (its daily closes, from Coin Metrics where it has
+them and otherwise CoinGecko's last year; its network's active addresses,
+transactions and supply where Coin Metrics has them; for the 25 largest, the
+exchanges where it trades) and its logo in .cache/crypto/logos/, for the coin
+pages. tools/page_crypto.py reads them all; nothing here is published as a file.
 
 Source: CoinGecko's public API, no key (https://www.coingecko.com/en/api). Its
 terms ask for attribution, which the page gives beside every figure's date.
@@ -26,12 +30,18 @@ import datetime as dt
 import json
 import re
 import sys
+import urllib.error
 import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / ".cache" / "crypto" / "crypto.json"
 HISTORY = ROOT / ".cache" / "crypto" / "btc.json"
+COINS_DIR = ROOT / ".cache" / "crypto" / "coins"
+LOGOS = ROOT / ".cache" / "crypto" / "logos"
+CM = "https://community-api.coinmetrics.io/v4/"
+NET_METRICS = ("AdrActCnt", "TxCnt", "SplyCur")
+TICKERS_FOR = 25  # the largest coins get the table of exchanges; CoinGecko's public limits allow no more
 COINMETRICS = "https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=btc&metrics=PriceUSD&frequency=1d&page_size=10000&start_time=2010-07-18"
 MEMPOOL = "https://mempool.space/api/blocks/tip/height"
 API = "https://api.coingecko.com/api/v3/"
@@ -112,6 +122,140 @@ def history():
     return {"start": days[0][0], "last": days[-1][0], "p": out, "height": height, "source": "Coin Metrics", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
 
 
+def cm_catalog(metric):
+    """The assets Coin Metrics' free tier carries a metric for."""
+    out, url = set(), f"{CM}catalog-v2/asset-metrics?metrics={metric}&page_size=1000"
+    for _ in range(20):
+        page = get_url(url)
+        out |= {x["asset"] for x in page.get("data") or []}
+        url = page.get("next_page_url")
+        if not url:
+            break
+    return out
+
+
+def daily(rows, key):
+    """[(date, value)] to one list from the first date, a missing day keeping the day before's."""
+    days = [(r["time"][:10], float(r[key])) for r in rows if r.get(key) not in (None, "")]
+    if not days:
+        return None, []
+    out, d0 = [], dt.date.fromisoformat(days[0][0])
+    for day, v in days:
+        k = (dt.date.fromisoformat(day) - d0).days
+        while len(out) < k:
+            out.append(out[-1])
+        out.append(float(f"{v:.5g}"))
+    return days[0][0], out
+
+
+def coin_detail(c, cats, rank):
+    """One coin's history, network and exchanges. Coin Metrics when it has the coin and its last price agrees
+    with CoinGecko's within a quarter; otherwise CoinGecko's last 365 days."""
+    import time
+    sym, rec = c["symbol"].lower(), {"id": c["id"], "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+    if sym in cats["PriceUSD"]:
+        mets = ["PriceUSD"] + [m for m in NET_METRICS if sym in cats[m]]
+        try:
+            rows, url = [], f"{CM}timeseries/asset-metrics?assets={sym}&metrics={','.join(mets)}&frequency=1d&page_size=10000"
+            while url and len(rows) < 100000:
+                page = get_url(url)
+                rows += page.get("data") or []
+                url = page.get("next_page_url")
+                time.sleep(0.7)
+            start, p = daily(rows, "PriceUSD")
+            if p and c["price"] and 0.8 < p[-1] / c["price"] < 1.25:
+                rec.update({"start": start, "p": p, "source": "Coin Metrics"})
+                net = {}
+                for m in NET_METRICS:
+                    if m in mets:
+                        ns, nv = daily(rows, m)
+                        if nv and len(nv) > 365:
+                            net[m] = {"start": ns, "v": nv}
+                if net:
+                    rec["net"] = net
+        except Exception as e:  # noqa: BLE001
+            print(f"crypto: {c['id']} from Coin Metrics: {type(e).__name__}: {e}")
+    if "p" not in rec:
+        for attempt in (1, 2):
+            try:
+                rows = get(f"coins/{c['id']}/market_chart?vs_currency=usd&days=365&interval=daily")["prices"]
+                by_day = {}
+                for t, v in rows:
+                    by_day[dt.datetime.fromtimestamp(t / 1000, dt.timezone.utc).date().isoformat()] = v
+                days = sorted(by_day)[:-1] if len(by_day) > 2 else sorted(by_day)   # the last point is today, not a close
+                start, p = daily([{"time": d, "v": by_day[d]} for d in days], "v")
+                if p:
+                    rec.update({"start": start, "p": p, "source": "CoinGecko"})
+                break
+            except Exception as e:  # noqa: BLE001
+                if attempt == 1:
+                    time.sleep(30)
+                else:
+                    print(f"crypto: {c['id']} from CoinGecko: {type(e).__name__}: {e}")
+        time.sleep(2.5)
+    if rank <= TICKERS_FOR:
+        try:
+            try:
+                t = get(f"coins/{c['id']}/tickers?order=volume_desc&depth=false").get("tickers") or []
+            except urllib.error.HTTPError as e:
+                if e.code != 429:
+                    raise
+                time.sleep(45)   # CoinGecko's public limit: wait it out once
+                t = get(f"coins/{c['id']}/tickers?order=volume_desc&depth=false").get("tickers") or []
+            rec["tickers"] = [{"ex": x["market"]["name"], "pair": f"{x['base']}/{x['target']}"[:24], "vol": (x.get("converted_volume") or {}).get("usd")}
+                              for x in t[:60] if (x.get("converted_volume") or {}).get("usd")]
+        except Exception as e:  # noqa: BLE001
+            print(f"crypto: {c['id']} tickers: {type(e).__name__}: {e}")
+        time.sleep(2.5)
+    return rec
+
+
+def logo(c):
+    """The coin's logo from CoinGecko, kept: fetched once."""
+    have = list(LOGOS.glob(f"{c['id']}.*")) if LOGOS.exists() else []
+    if have or not c.get("image"):
+        return
+    try:
+        req = urllib.request.Request(c["image"], headers={"User-Agent": "site-build/1.0"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            body, kind = r.read(), r.headers.get("Content-Type", "")
+        ext = ".png" if body[:8] == b"\x89PNG\r\n\x1a\n" else ".jpg" if body[:3] == b"\xff\xd8\xff" else ".webp" if body[8:12] == b"WEBP" else None
+        if ext and len(body) < 400000:
+            LOGOS.mkdir(parents=True, exist_ok=True)
+            (LOGOS / f"{c['id']}{ext}").write_bytes(body)
+    except Exception as e:  # noqa: BLE001
+        print(f"crypto: {c['id']} logo: {type(e).__name__}: {e}")
+
+
+def coins_detail(coins):
+    try:
+        cats = {m: cm_catalog(m) for m in ("PriceUSD",) + NET_METRICS}
+    except Exception as e:  # noqa: BLE001
+        print(f"crypto: Coin Metrics catalog: {type(e).__name__}: {e}; CoinGecko only")
+        cats = {m: set() for m in ("PriceUSD",) + NET_METRICS}
+    COINS_DIR.mkdir(parents=True, exist_ok=True)
+    done = {"Coin Metrics": 0, "CoinGecko": 0, "kept": 0}
+    for rank, c in enumerate(coins, 1):
+        if c["id"] == "bitcoin":
+            continue
+        logo(c)
+        rec = coin_detail(c, cats, rank)
+        path = COINS_DIR / f"{c['id']}.json"
+        if "tickers" not in rec and path.exists() and rank <= TICKERS_FOR:
+            try:
+                old = json.loads(path.read_text(encoding="utf-8")).get("tickers")
+                if old:
+                    rec["tickers"] = old
+            except ValueError:
+                pass
+        if "p" not in rec:
+            done["kept"] += path.exists()
+            continue   # the last good copy stays
+        path.write_text(json.dumps(rec, separators=(",", ":")), encoding="utf-8")
+        done[rec["source"]] += 1
+    print(f"crypto: coin pages from Coin Metrics {done['Coin Metrics']}, CoinGecko {done['CoinGecko']}, last copy {done['kept']}")
+
+
 def fetch():
     rows = get("coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=true&price_change_percentage=24h,7d,30d,1y")
     world = get("global")["data"]
@@ -125,7 +269,10 @@ def fetch():
         coins.append({"id": r["id"], "symbol": sym.upper(), "name": r["name"], "price": r["current_price"], "cap": r["market_cap"],
                       "day": r.get("price_change_percentage_24h_in_currency"), "week": r.get("price_change_percentage_7d_in_currency"),
                       "month": r.get("price_change_percentage_30d_in_currency"), "year": r.get("price_change_percentage_1y_in_currency"),
-                      "ath": r.get("ath"), "ath_date": (r.get("ath_date") or "")[:10],
+                      "ath": r.get("ath"), "ath_date": (r.get("ath_date") or "")[:10], "atl": r.get("atl"), "atl_date": (r.get("atl_date") or "")[:10],
+                      "fdv": r.get("fully_diluted_valuation"), "volume": r.get("total_volume"), "high": r.get("high_24h"), "low": r.get("low_24h"),
+                      "change": r.get("price_change_24h"), "circ": r.get("circulating_supply"), "total_supply": r.get("total_supply"), "max_supply": r.get("max_supply"),
+                      "image": r.get("image"),
                       "spark": spark((r.get("sparkline_in_7d") or {}).get("price") or []), "stable": sym in STABLE})
         if len(coins) == KEEP:
             break
@@ -198,6 +345,8 @@ def main():
         return 0
     if data_ex:
         data["exchanges"] = data_ex
+    if "--no-coins" not in sys.argv:
+        coins_detail(data["coins"])
     CACHE.parent.mkdir(parents=True, exist_ok=True)
     CACHE.write_text(json.dumps(data, separators=(",", ":")), encoding="utf-8")
     ex = data.get("exchanges") or {}

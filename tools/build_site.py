@@ -6845,6 +6845,7 @@ def search_index(notes, companies=None, library=()):
                       "k": t["short"] + " interview questions " + " ".join(e["title"] for e in t["essentials"])})
     for title, url, meta in SEARCH_PAGES:
         items.append({"g": "Pages", "t": title, "m": meta, "u": url, "k": SEARCH_PAGE_TERMS.get(url, "")})
+    items += [x for x in page_crypto.search_items(sys.modules[__name__]) if x["u"] != "crypto/bitcoin/"]
     for e in page_market_history.episodes():
         items.append({"g": "Pages", "t": e["title"], "m": f"Market history, {e['years']}",
                       "u": f"market-history/{e['slug']}/", "k": e["text"]})

@@ -9,7 +9,7 @@
   var src = document.getElementById("btc-data"); if (!src) return;
   var D; try { D = JSON.parse(src.textContent); } catch (e) { return; }
   var MIN = "−", MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], DAY = 864e5;
-  var t0 = Date.parse(D.start), P = D.p.slice(), N;
+  var t0 = Date.parse(D.start), P = D.p.slice(), N, CUT = D.fallCut || 0.7, NAME = D.name || "Bitcoin";
   // today's price from CoinGecko, when it is a day past the last close
   var nowT = Date.parse(D.now[0]), lastT = t0 + (P.length - 1) * DAY;
   if (nowT > lastT) { for (var g = lastT + DAY; g < nowT; g += DAY) P.push(P[P.length - 1]); P.push(D.now[1]); }
@@ -24,7 +24,7 @@
   // the running record and the falls
   var REC = [], DD = [], pk = 0, falls = [], tr = 0, inF = false;
   for (var i = 0; i < N; i++) {
-    if (P[i] >= P[pk]) { if (inF && P[tr] / P[pk] - 1 < -0.7) falls.push({ p: pk, t: tr, f: P[tr] / P[pk] - 1 }); inF = false; pk = i; tr = i; }
+    if (P[i] >= P[pk]) { if (inF && P[tr] / P[pk] - 1 < -CUT) falls.push({ p: pk, t: tr, f: P[tr] / P[pk] - 1 }); inF = false; pk = i; tr = i; }
     else { inF = true; if (P[i] < P[tr]) tr = i; }
     REC.push(pk); DD.push((P[i] / P[pk] - 1) * 100);
   }
@@ -38,8 +38,8 @@
     return { el: el, cv: cv, read: read, kind: el.getAttribute("data-chart"), at: null };
   });
   var LABEL = {
-    price: "Bitcoin's closing price every day since July 2010, with the four halvings. The great falls are listed in the table below.",
-    dd: "How far below its record close Bitcoin stood each day since 2010.",
+    price: NAME + "'s closing price every day" + (HV.length ? ", with the four halvings" : "") + ". The great falls are listed in the table below.",
+    dd: "How far below its record close " + NAME + " stood each day.",
     cycles: "Bitcoin's price over the four years after each of its four halvings, as a multiple of its price on the halving day."
   };
   charts.forEach(function (ch) { ch.cv.setAttribute("aria-label", LABEL[ch.kind]); });
@@ -87,7 +87,7 @@
     function mark(i, v, text, color, below) { if (i < i0 || i > i1) return; var x0 = X(i), y = Y(v), w = c.measureText(text).width, x = Math.min(Math.max(x0, L + w / 2 + 3), S.w - w / 2 - 6), ty = below ? y + 15 : y - 13, bx = [x - w / 2 - 3, ty - 8, x + w / 2 + 3, ty + 8];
       c.fillStyle = "#f2f3f3"; c.beginPath(); c.arc(x0, y, 2.6, 0, 7); c.fill(); if (bx[0] < L - 4 || bx[2] > S.w - 2 || taken.some(function (t) { return !(bx[2] < t[0] || bx[0] > t[2] || bx[3] < t[1] || bx[1] > t[3]); })) return;
       taken.push(bx); c.fillStyle = color; c.textAlign = "center"; c.fillText(text, x, ty); }
-    if (price) peaks.forEach(function (m, k) { var d = new Date(T(m)), top = m === REC[N - 1] || P[m] >= P[REC[N - 1]]; if (P[m] < 10 && !log) return;
+    if (price) peaks.forEach(function (m, k) { var d = new Date(T(m)), top = m === REC[N - 1] || P[m] >= P[REC[N - 1]]; if (P[m] < P[REC[N - 1]] * 0.15 && !log) return;
       mark(m, P[m], (top ? "Record " : "") + money(P[m]) + (S.narrow ? "" : ", " + MON[d.getUTCMonth()] + " " + d.getUTCFullYear()), top ? "#f2f3f3" : "#a3a8aa", false); });
     else falls.forEach(function (f) { mark(f.t, DD[f.t], MIN + Math.abs(f.f * 100).toFixed(0) + "%", "#ff4b52", true); });
     // the day under the pointer
