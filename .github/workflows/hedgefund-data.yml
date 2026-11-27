@@ -1,0 +1,80 @@
+name: Hedge Fund Data
+
+# Collects the figures behind the Hedge Fund Data group into the Actions cache
+# (.cache/hf), every 30 minutes, for the pages to read at deploy time. Nothing
+# is published or committed by this workflow; the deploy (pages.yml) will
+# restore the same cache once the pages exist.
+#
+#   Ships (tools/ships_data.py): IMF PortWatch chokepoint transits (no key) and
+#   a 150-second sample of the global AIS stream from aisstream.io
+#   (AISSTREAM_API_KEY), merged with the samples before it.
+#
+# Cron runs only on the default branch. Until this is merged, a push to a
+# branch that changes these files runs it once, so the sources can be checked.
+
+on:
+  schedule:
+    # Off the hour and half hour, when GitHub queues are long.
+    - cron: "13,43 * * * *"
+  workflow_dispatch:
+  push:
+    branches-ignore: [main]
+    paths:
+      - "tools/ships_data.py"
+      - ".github/workflows/hedgefund-data.yml"
+
+permissions:
+  contents: read
+
+# Samples build on each other through the cache: one at a time, never cancelled.
+concurrency:
+  group: hedgefund-data
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+      - name: Install the WebSocket client
+        run: pip install websockets==15.0.1
+      - name: Restore Hedge Fund Data
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .cache/hf
+          key: hf-${{ github.run_id }}
+          restore-keys: hf-
+      - name: Ships
+        env:
+          AISSTREAM_API_KEY: ${{ secrets.AISSTREAM_API_KEY }}
+        run: python3 tools/ships_data.py --seconds 150
+      - name: Save Hedge Fund Data
+        if: ${{ always() }}
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .cache/hf
+          key: hf-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Summary
+        if: ${{ always() }}
+        run: |
+          python3 - <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          try:
+              d = json.load(open(".cache/hf/ships.json"))
+          except Exception as e:
+              print(f"No ships.json: {e}"); raise SystemExit
+          pw, ais = d.get("portwatch") or {}, d.get("ais") or {}
+          print("### Ships")
+          print(f"- PortWatch: {len(pw.get('chokepoints', []))} chokepoints, {pw.get('first')} to {pw.get('last')}, fetched {pw.get('fetched')}")
+          if ais:
+              print(f"- AIS sample {ais['sampled']}: {ais['messages']:,} messages, {ais['heard']:,} vessels heard, "
+                    f"{len(ais['vessels']):,} on the map; by kind {ais['by_kind']}")
+          else:
+              print("- AIS: no sample yet")
+          EOF
