@@ -52,7 +52,7 @@ def pages(site):
 <div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div></div></main>"""
         out = {"crypto/": site.shell(title="Crypto: Andra Markets", desc="Where the coins trade, and what they are worth.",
                                      body=body, home="../", base="../", path="crypto/")}
-        for path, title in (("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets")):
+        for path, title in (("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives")):
             out[path] = pending(site, path, title)
         return out
     coins = d["coins"]
@@ -122,11 +122,12 @@ def pages(site):
         today = dt.date.today()
     out.update(coin_pages(site, d, hist, when, today))
     out["crypto/markets/"] = markets_page(site, d, hist, load_markets(site))
+    out["crypto/derivatives/"] = derivs_page(site, d, hist, load_derivs(site))
     return out
 
 
 # ---- the other sections ------------------------------------------------------------------------------------------
-SECTIONS = (("crypto/", "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"))
+SECTIONS = (("crypto/", "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"))
 HALVINGS = (("2012-11-28", 210000), ("2016-07-09", 420000), ("2020-05-11", 630000), ("2024-04-20", 840000))
 MON = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -772,3 +773,124 @@ def markets_page(site, d, hist, mk):
 </main>"""
     return site.shell(title="Bitcoin vs markets: Crypto: Andra Markets", desc="Bitcoin beside the S&P 500, the Nasdaq, gold, the dollar and Treasuries: returns, how closely they move together, risk, the market's worst days, and what a share of Bitcoin does to a 60/40 portfolio.",
                       body=body, home="../../", base="../../", path=path, scripts=("crypto-markets.js",))
+
+
+# ---- Derivatives (crypto/derivatives/; owner-approved sketch, 27 Nov 2026: "the pulse", after two charts of the
+# options by strike were turned down) ----
+def load_derivs(site):
+    try:
+        m = json.loads((site.ROOT / ".cache" / "crypto" / "derivs.json").read_text(encoding="utf-8"))
+        return m if len(m.get("dvol") or []) > 200 and m.get("expiries") else None
+    except (OSError, ValueError):
+        return None
+
+
+def derivs_page(site, d, hist, dv):
+    import math
+    path = "crypto/derivatives/"
+    if not hist or not dv:
+        return pending(site, path, "Derivatives")
+    spot = dv["spot"]
+    try:
+        fetched = dt.datetime.fromisoformat(dv["fetched"])
+        when, today = f"{fetched.day} {fetched:%b %Y}, {fetched:%H:%M} UTC", fetched.date()
+    except (KeyError, ValueError):
+        when, today = "", dt.date.today()
+    usd = lambda v: f"${v / 1e9:.1f}bn" if v >= 1e9 else f"${v / 1e6:,.0f}m"
+    rate = lambda v, dgt=1: f'<span class="{"up" if round(v, dgt) > 0 else "down" if round(v, dgt) < 0 else ""}">{signed(v, dgt)}%</span>'
+    # the pulse: DVOL, and what the price actually did over the 30 days before each day
+    b0, bp = dt.date.fromisoformat(hist["start"]), hist["p"]
+    dvol = [(x, v) for x, v in dv["dvol"] if v]
+    d0 = dt.date.fromisoformat(dvol[0][0])
+    real = []
+    for x, _ in dvol:
+        i = (dt.date.fromisoformat(x) - b0).days
+        if 31 <= i < len(bp):
+            r = [math.log(bp[j] / bp[j - 1]) for j in range(i - 29, i + 1)]
+            m = sum(r) / 30
+            real.append(round((sum((y - m) ** 2 for y in r) / 29) ** 0.5 * math.sqrt(365) * 100, 1))
+        else:
+            real.append(None)
+    last_dvol = dvol[-1][1]
+    last_real = next((v for v in reversed(real) if v is not None), None)
+    rank = sum(1 for _, v in dvol if v <= last_dvol) / len(dvol) * 100
+    per_day = last_dvol / math.sqrt(365)
+    # funding
+    fund = dv.get("fund") or []
+    f_pos = sum(1 for _, v in fund if v > 0)
+    f_avg = sum(v for _, v in fund[-30:]) / max(1, len(fund[-30:]))
+    # futures
+    futs, perp = [], None
+    for f in dv["futures"]:
+        if not f["date"]:
+            perp = f
+            continue
+        days = max(1, (dt.date.fromisoformat(f["date"]) - today).days)
+        futs.append({"date": f["date"], "days": days, "mark": f["mark"], "oi": f["oi"], "prem": (f["mark"] / spot - 1) * 100, "ann": (f["mark"] / spot - 1) * 365 / days * 100})
+    futs.sort(key=lambda f: f["days"])
+    curve = [f for f in futs if f["days"] >= 7]
+    fut_rows = (f'<tr><th scope="row">Perpetual</th><td>{money(perp["mark"])}</td><td>{rate((perp["mark"] / spot - 1) * 100, 2)}</td><td>see Funding</td><td>{usd(perp["oi"])}</td></tr>' if perp else "") + "".join(
+        f'<tr><th scope="row">{day_name(f["date"])}</th><td>{money(f["mark"])}</td><td>{rate(f["prem"], 2)}</td><td>{rate(f["ann"]) if f["days"] >= 7 else "n/a"}</td><td>{usd(f["oi"])}</td></tr>' for f in futs)
+    near3 = min(curve, key=lambda f: abs(f["days"] - 91)) if curve else None
+    # options
+    exps = []
+    for e in dv["expiries"]:
+        ks = e["k"]
+        calls, puts = sum(r[1] for r in ks), sum(r[2] for r in ks)
+        if calls + puts <= 0:
+            continue
+        pain = min((sum(max(0, s[0] - r[0]) * r[1] + max(0, r[0] - s[0]) * r[2] for r in ks), s[0]) for s in ks)[1]
+        exps.append({"date": e["date"], "days": max(0, (dt.date.fromisoformat(e["date"]) - today).days), "c": calls, "p": puts, "pain": pain, "und": e["und"] or spot, "k": ks})
+    exp_rows = "".join(
+        f'<tr><th scope="row">{day_name(e["date"])}</th><td>{"today" if not e["days"] else f"""{e["days"]} day{"s" if e["days"] != 1 else ""}"""}</td><td>{e["c"]:,.0f}</td><td>{e["p"]:,.0f}</td>'
+        f'<td>{e["p"] / e["c"]:.2f}</td><td>{usd((e["c"] + e["p"]) * spot)}</td><td>${e["pain"]:,.0f}</td></tr>' if e["c"] else "" for e in exps)
+    tc, tp = sum(e["c"] for e in exps), sum(e["p"] for e in exps)
+    big_e = max((e for e in exps if e["days"] >= 7), key=lambda e: e["c"] + e["p"], default=exps[-1])
+    und = big_e["und"]
+    smile = [[r[0], r[4] if r[0] < und else r[3]] for r in big_e["k"] if und * 0.5 < r[0] < und * 1.8 and (r[4] if r[0] < und else r[3])]
+    near = lambda t: min(smile, key=lambda q: abs(q[0] - t))[1] if smile else None
+    s_atm, s_dn, s_up = near(und), near(und * 0.8), near(und * 1.2)
+    fut_oi = sum(f["oi"] for f in dv["futures"])
+    side = kpis((("DVOL", f"{last_dvol:.1f}%", "expected, next 30 days"), ("Actual", f"{last_real:.1f}%" if last_real is not None else "n/a", "last 30 days"),
+                 ("Funding", rate(fund[-1][1]) if fund else "n/a", "a year, latest day"), ("3-month future", rate(near3["ann"]) if near3 else "n/a", "a year over Bitcoin"),
+                 ("Options open", usd((tc + tp) * spot), f"{tc + tp:,.0f} bitcoin"), ("Futures open", usd(fut_oi), f"perpetual {usd(perp['oi'])}" if perp else ""),
+                 ("Puts per call", f"{tp / tc:.2f}" if tc else "n/a", "all expiries"), ("Largest expiry", day_name(big_e["date"]), f"max pain ${big_e['pain']:,.0f}")))
+    data = {"start": dvol[0][0], "d": [(dt.date.fromisoformat(x) - d0).days for x, _ in dvol], "dvol": [v for _, v in dvol], "real": real,
+            "fund": {"start": fund[0][0], "d": [(dt.date.fromisoformat(x) - dt.date.fromisoformat(fund[0][0])).days for x, _ in fund], "v": [v for _, v in fund]} if fund else None,
+            "curve": [[f["days"], round(f["ann"], 2), f["date"]] for f in curve], "smile": smile, "und": und}
+    body = f"""<main id="main" class="page dd fr cs-page vm dvp">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <h1 class="page__title">Derivatives</h1>
+      <p class="lede">How much the market expects Bitcoin to move, what it costs to bet with borrowed money and where the options sit.</p>
+      <p class="note__meta"><span>Deribit</span><span>Updated {when}</span><span>Refreshed at every deploy</span></p>
+      <section class="vr dvh" aria-label="DVOL, the swing the market expects" hidden>
+        <canvas class="vr__c" role="img" aria-label="DVOL, the yearly swing Bitcoin options price in for the next 30 days, each day since {day_name(dvol[0][0])}, with the swing that actually happened behind it. Today {last_dvol:.1f}%."></canvas>
+        <p class="vr__date dvh__fig" aria-hidden="true"><b>{last_dvol:.1f}%</b><span>The market expects Bitcoin to move about {per_day:.1f}% a day over the next month</span></p>
+        <div class="vr__ctl"><button class="btn btn--ghost vr__replay" type="button">Replay</button></div>
+        <p class="lens-read vr__read" aria-live="polite"></p>
+      </section>
+    </header>
+    <div class="dd__main fr__main">
+      <section class="fr__panel" aria-labelledby="dv-pulse-h"><div class="fr__ph"><h2 id="dv-pulse-h">Expected and actual swings</h2></div><p class="fr__intro">DVOL is what options price in for the next 30 days, as a yearly figure: Bitcoin's VIX. Today it stands at {last_dvol:.1f}%, higher than on {rank:.0f}% of days since {day_name(dvol[0][0])}; over the last 30 days the price actually swung at {f"{last_real:.1f}%" if last_real is not None else "n/a"}. Divide a yearly figure by 19 for a day's move.</p>
+        <p class="fr__src">Deribit (the DVOL index, daily closes); realised volatility from Coin Metrics daily closes, over the 30 days before each day.</p></section>
+      <section class="fr__panel" aria-labelledby="dv-fund-h"><div class="fr__ph"><h2 id="dv-fund-h">Funding</h2></div><p class="fr__intro">What holders of the perpetual future pay each other to keep it at Bitcoin's price, as a yearly rate. Above zero, those betting on a rise pay those betting on a fall: the market leans long.</p>
+        <div class="vm-plot" data-chart="fund"></div><p class="lens-read vm-read" data-read="fund" aria-live="polite">Longs paid on {f_pos} of the last {len(fund)} days · 30-day average {rate(f_avg)} a year</p><p class="fr__src">Deribit, BTC-PERPETUAL: each day's average of its hourly rates.</p></section>
+      <section class="fr__panel" aria-labelledby="dv-curve-h"><div class="fr__ph"><h2 id="dv-curve-h">The futures curve</h2></div><p class="fr__intro">Each future's price over Bitcoin's now, as a yearly rate. Above zero the market pays up to hold Bitcoin later; below, it sells it at a discount. Futures that expire within a week are left off the chart: a few dollars make a wild yearly rate.</p>
+        <div class="vm-plot" data-chart="curve"></div>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Future</th><th scope="col">Price</th><th scope="col">Over Bitcoin now</th><th scope="col">As a yearly rate</th><th scope="col">Open</th></tr></thead><tbody>{fut_rows}</tbody></table></div>
+        <p class="fr__src">Deribit, mark prices against its Bitcoin index of {money(spot)}, {when}.</p></section>
+      <section class="fr__panel" aria-labelledby="dv-smile-h"><div class="fr__ph"><h2 id="dv-smile-h">The smile</h2></div><p class="fr__intro">The volatility options price in at each strike, for the largest expiry, {day_name(big_e["date"])}. A left side higher than the right means protection against a fall costs more than a bet on a rise.</p>
+        <div class="vm-plot" data-chart="smile"></div><p class="lens-read vm-read">{f"At the price {s_atm:.0f}% · 20% below, {s_dn:.0f}% · 20% above, {s_up:.0f}% · protection against a fall costs {'more' if s_dn > s_up else 'less'} than a bet on a rise" if s_atm else ""}</p>
+        <p class="fr__src">Deribit, mark volatility: puts below the price, calls above.</p></section>
+      <section class="fr__panel" aria-labelledby="dv-exp-h"><div class="fr__ph"><h2 id="dv-exp-h">Every expiry</h2></div><p class="fr__intro">Open option contracts at each expiry, in bitcoin: one contract is one bitcoin. Max pain is the price at which the most options would expire worthless.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Expiry</th><th scope="col">In</th><th scope="col">Calls</th><th scope="col">Puts</th><th scope="col">Puts per call</th><th scope="col">Worth</th><th scope="col">Max pain</th></tr></thead><tbody>{exp_rows}</tbody></table></div>
+        <p class="fr__src">Deribit, {when}. Deribit holds most of the world's Bitcoin options, but not the futures of CME or other exchanges: these are its figures alone. For information only. Not investment advice.</p></section>
+      {more(site, path, "../../")}
+      <script type="application/json" id="dv-data">{json.dumps(data, separators=(",", ":"))}</script>
+    </div>
+    <aside class="report__side dd__side" aria-labelledby="side-title"><h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{side}</ul><p class="report__src">Deribit, {when}.</p></aside>
+  </div>
+</main>"""
+    return site.shell(title="Derivatives: Crypto: Andra Markets", desc=f"Bitcoin's derivatives on Deribit: DVOL at {last_dvol:.0f}%, the perpetual's funding, the futures curve, the volatility smile and every option expiry with its max pain.",
+                      body=body, home="../../", base="../../", path=path, scripts=("crypto-derivs.js",))

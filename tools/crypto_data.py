@@ -15,7 +15,9 @@ transactions and supply where Coin Metrics has them; for the 25 largest, the
 exchanges where it trades) and its logo in .cache/crypto/logos/, for the coin
 pages. And .cache/crypto/markets.json: the daily closes since September 2014 of the
 S&P 500, the Nasdaq Composite, gold, the dollar index and long Treasuries (Yahoo
-Finance), for Bitcoin vs markets. tools/page_crypto.py reads them all; nothing here
+Finance), for Bitcoin vs markets. And .cache/crypto/derivs.json: Bitcoin's derivatives
+on Deribit (the DVOL index, the perpetual's funding, futures and options), for
+Derivatives. tools/page_crypto.py reads them all; nothing here
 is published as a file.
 
 Source: CoinGecko's public API, no key (https://www.coingecko.com/en/api). Its
@@ -259,6 +261,62 @@ def coins_detail(coins):
     print(f"crypto: coin pages from Coin Metrics {done['Coin Metrics']}, CoinGecko {done['CoinGecko']}, last copy {done['kept']}")
 
 
+DERIVS = ROOT / ".cache" / "crypto" / "derivs.json"
+DERIBIT = "https://www.deribit.com/api/v2/public/"
+_MONTHS = {m: i + 1 for i, m in enumerate("JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split())}
+
+
+def _expiry(code):
+    """Deribit's expiry code ("25DEC26") as a date."""
+    m = re.match(r"(\d+)([A-Z]{3})(\d\d)$", code)
+    return dt.date(2000 + int(m[3]), _MONTHS[m[2]], int(m[1])).isoformat()
+
+
+def derivatives(old):
+    """Bitcoin's derivatives on Deribit, no key: the DVOL index day by day, the perpetual's funding day by day,
+    every future's mark price and open interest, and every option's open interest and volatility by expiry and
+    strike. DVOL and funding come in windows (1,000 days, 30 days): each run adds to what the cache already holds."""
+    import time
+
+    def g(path):
+        return get_url(DERIBIT + path)["result"]
+    now = int(time.time() * 1000)
+    spot = g("get_index_price?index_name=btc_usd")["index_price"]
+    dvol = dict((old or {}).get("dvol") or [])
+    for r in g(f"get_volatility_index_data?currency=BTC&resolution=1D&start_timestamp=1609459200000&end_timestamp={now}")["data"]:
+        dvol[dt.datetime.fromtimestamp(r[0] / 1000, dt.timezone.utc).date().isoformat()] = r[4]
+    fund = dict((old or {}).get("fund") or [])
+    hours = {}
+    for k in range(6 if len(fund) < 150 else 1):
+        end = now - k * 30 * 86400000
+        for f in g(f"get_funding_rate_history?instrument_name=BTC-PERPETUAL&start_timestamp={end - 30 * 86400000}&end_timestamp={end}"):
+            hours.setdefault(dt.datetime.fromtimestamp(f["timestamp"] / 1000, dt.timezone.utc).date().isoformat(), []).append(f["interest_1h"])
+        time.sleep(0.4)
+    for day, v in hours.items():
+        if len(v) >= 20 or day not in fund:   # a whole day's hours, as a yearly rate in percent
+            fund[day] = round(sum(v) / len(v) * 24 * 365 * 100, 3)
+    futures = []
+    for x in g("get_book_summary_by_currency?currency=BTC&kind=future"):
+        parts = x["instrument_name"].split("-")
+        if len(parts) != 2 or parts[0] != "BTC":
+            continue
+        futures.append({"name": parts[1], "date": None if parts[1] == "PERPETUAL" else _expiry(parts[1]), "mark": x["mark_price"], "oi": x["open_interest"]})
+    exps = {}
+    for x in g("get_book_summary_by_currency?currency=BTC&kind=option"):
+        _, code, strike, kind = x["instrument_name"].split("-")
+        e = exps.setdefault(code, {"date": _expiry(code), "und": None, "k": {}})
+        e["und"] = x.get("underlying_price") or e["und"]
+        row = e["k"].setdefault(int(strike), [0.0, 0.0, None, None])   # calls, puts, the calls' volatility, the puts'
+        row[0 if kind == "C" else 1] += x.get("open_interest") or 0
+        row[2 if kind == "C" else 3] = x.get("mark_iv")
+    if len(dvol) < 300 or len(exps) < 3 or not futures:
+        raise ValueError("unexpected derivatives data")
+    return {"spot": spot, "dvol": sorted(dvol.items()), "fund": sorted(fund.items()), "futures": futures,
+            "expiries": [{"date": e["date"], "und": e["und"], "k": [[k] + [None if v is None else round(v, 2) for v in row] for k, row in sorted(e["k"].items())]}
+                         for e in sorted(exps.values(), key=lambda e: e["date"])],
+            "source": "Deribit", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+
+
 MARKETS = ROOT / ".cache" / "crypto" / "markets.json"
 # What Bitcoin is set beside on the Bitcoin vs markets page: Yahoo Finance symbols, daily closes (adjusted, so the
 # Treasury fund carries its income; the two share indices are price levels, without dividends).
@@ -379,6 +437,14 @@ def main():
         print(f"crypto: markets {', '.join(f'{k} {len(v)}' for k, v in mk['s'].items())}")
     except Exception as e:  # noqa: BLE001
         warn(f"crypto: markets: {type(e).__name__}: {e}; keeping the last copy")
+    try:
+        prev = json.loads(DERIVS.read_text(encoding="utf-8")) if DERIVS.exists() else None
+        dv = derivatives(prev)
+        DERIVS.parent.mkdir(parents=True, exist_ok=True)
+        DERIVS.write_text(json.dumps(dv, separators=(",", ":")), encoding="utf-8")
+        print(f"crypto: derivatives DVOL {len(dv['dvol'])} days, funding {len(dv['fund'])} days, {len(dv['futures'])} futures, {len(dv['expiries'])} option expiries")
+    except Exception as e:  # noqa: BLE001
+        warn(f"crypto: derivatives: {type(e).__name__}: {e}; keeping the last copy")
     if not data:
         return 0
     if data_ex:

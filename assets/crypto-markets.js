@@ -55,7 +55,7 @@
       if (f >= 1 || at != null) read.textContent = "100 on " + day(T[i0]) + " · " + (at != null ? day(T[end]) : "today") + ": " + LINES.map(function (l) { return l[1] + " " + Math.round(S[l[0]][end] / S[l[0]][i0] * 100).toLocaleString("en-US"); }).join(" · ");
       else read.textContent = "Each line starts at 100 on " + day(T[i0]) + " · Bitcoin in amber";
     }
-    function play() { cancelAnimationFrame(raf); at = null; if (still) { f = 1; draw(); return; } var s0 = performance.now(); f = 0; (function tick(n) { f = Math.min(1, (n - s0) / 7000); draw(); if (f < 1) raf = requestAnimationFrame(tick); })(s0); }
+    function play() { cancelAnimationFrame(raf); at = null; if (still) { f = 1; draw(); return; } var s0 = performance.now(); f = 0; (function tick(n) { f = Math.max(0, Math.min(1, (n - s0) / 7000)); draw(); if (f < 1) raf = requestAnimationFrame(tick); })(s0); }
     chips.forEach(function (b) { b.addEventListener("click", function () { back = +b.getAttribute("data-back"); chips.forEach(function (x) { x.setAttribute("aria-pressed", String(x === b)); }); scale(); play(); }); });
     box.querySelector(".vr__replay").addEventListener("click", play);
     function pick(e) { if (f < 1 || !geo.X1) return; var b = cv.getBoundingClientRect(), x = e.clientX - b.left; if (x < geo.X0 - 10 || x > geo.X1 + 10) { if (at != null) { at = null; draw(); } return; }

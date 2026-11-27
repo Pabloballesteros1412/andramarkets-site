@@ -812,6 +812,9 @@ a.nav__btn{display:inline-flex}
 .vr__date{position:absolute;left:max(24px,calc(50vw - 664px));top:18px;margin:0;font-weight:700;font-size:clamp(2rem,4vw,3.25rem);letter-spacing:-.03em;color:var(--ink-head);font-variant-numeric:tabular-nums;pointer-events:none}
 .vr__ctl{position:absolute;right:max(24px,calc(50vw - 664px));top:22px;display:flex;gap:28px;align-items:center}
 .vr__read{position:absolute;left:16px;right:16px;bottom:0;text-align:center;pointer-events:none}
+.dvh__fig{line-height:1}.dvh__fig b{font-weight:700}.dvh__fig span{display:block;font-size:1rem;font-weight:300;letter-spacing:0;color:var(--ink-2);margin-top:10px;max-width:22rem;line-height:1.4}
+.dvh .vr__read{bottom:-4px}
+@media (max-width:699px){.dvh .vr__date{top:0;font-size:2.25rem}.dvh .vr__ctl{left:auto;top:6px}}
 .vm-t{font-size:.9375rem;margin-top:14px}.vm-t td,.vm-t th{text-align:right}.vm-t th:first-child,.vm-t td:first-child{text-align:left}
 .vm-plot{margin-top:18px}.vm-plot canvas{display:block;outline:0}.vm-plot canvas:focus-visible{box-shadow:0 0 0 1px var(--ink-3)}.vm-read{margin-top:10px;min-height:1.5em}
 .vm .up{color:var(--up-text)}.vm .down{color:var(--down-text)}
