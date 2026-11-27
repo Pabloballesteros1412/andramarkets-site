@@ -172,6 +172,25 @@ def main():
 
     cut = (today - dt.timedelta(days=KEEP_DAYS)).isoformat()
     trades = [t for t in trades if t["date"] >= cut]
+    # Several filers often report one transaction (a fund and its managers, joint owners): keep it once,
+    # with every filer's role and SEC number, so a sale is not counted six times. An issuer with no
+    # ticker ("NONE") cannot be placed by the page and is left out.
+    merged = {}
+    for t in trades:
+        tk = (t.get("ticker") or "").upper()
+        if not tk or tk in ("NONE", "N/A", "NA"):
+            continue
+        key = (tk, t["date"], t["shares"], t["price"], t["code"])
+        m = merged.get(key)
+        if m is None:
+            m = merged[key] = {**t, "ticker": tk, "roles": [], "owners": []}
+        for r in t.get("roles") or [t["role"]]:
+            if r not in m["roles"]:
+                m["roles"].append(r)
+        for o in t.get("owners") or [t.get("owner")]:
+            if o and o not in m["owners"]:
+                m["owners"].append(o)
+    trades = list(merged.values())
     # The seen list only has to cover the filings still in the indexes read.
     seen = sorted(seen)[-60000:]
     ccut = (today - dt.timedelta(days=CLUSTER_DAYS)).isoformat()
@@ -180,9 +199,9 @@ def main():
         if t["code"] == "P" and t["date"] >= ccut and t["ticker"]:
             b = buys.setdefault(t["ticker"], {"ticker": t["ticker"], "company": t["company"], "owners": set(),
                                                "value": 0, "roles": set(), "last": t["date"]})
-            b["owners"].add(t.get("owner") or t["filing"])
+            b["owners"].update(t["owners"] or [t["filing"]])
             b["value"] += t["value"] or 0
-            b["roles"].add(t["role"])
+            b["roles"].update(t["roles"])
             b["last"] = max(b["last"], t["date"])
     clusters = sorted(({k: v for k, v in b.items() if k != "owners"} | {"insiders": len(b["owners"]), "roles": sorted(b["roles"])}
                        for b in buys.values() if len(b["owners"]) >= 2), key=lambda b: -b["value"])
