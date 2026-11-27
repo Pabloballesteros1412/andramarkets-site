@@ -545,6 +545,8 @@ a.nav__btn{display:inline-flex}
   html.js .nav__group:nth-child(1) a.nav__btn::after{background:#ac90ff;opacity:1}
   html.js .nav__group:nth-child(3) a.nav__btn::after{background:#ffbe6e;opacity:1}
   html.js .nav__group:nth-child(4) a.nav__btn::after{background:#3c8cff;opacity:1}
+  html.js .nav__group:nth-child(5) a.nav__btn::after{background:#ffb048;opacity:1}
+  html.js a.nav__btn{min-height:min(84px,11.5vh)}
 }
 
 /* Lab and Simulators: one figure of fine lines that turns into each tool's own curve (assets/tools-figure.js),
@@ -738,9 +740,14 @@ a.nav__btn{display:inline-flex}
 .has-sun .page__head{border-bottom:0;padding-bottom:0;position:relative;z-index:1;pointer-events:none}
 .has-sun .page__head .note__meta{pointer-events:auto}
 .cs{position:relative;height:clamp(520px,calc(100vh - 17rem),700px);margin:-30px calc(50% - 50vw) 0;overflow:hidden}
-.cs canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cs>canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cs>canvas.cs__sunface{inset:auto;pointer-events:none}
 .cs__names{position:absolute;inset:0;pointer-events:none}
 .cs__name,.cs__sun{position:absolute;white-space:nowrap;text-decoration:none!important;line-height:1.25;transition:opacity .3s}
+.cs__name{transform:translateY(-50%)}
+.cs__name.is-small b{font-size:.75rem;color:var(--ink-2)}.cs__name.is-small .lens-read{display:none}
+.cs__name.is-small:hover .lens-read,.cs__name.is-small:focus-visible .lens-read,.cs__tip .lens-read{display:block}
+.cs__tip{pointer-events:none}
 .cs__name b{display:block;font-weight:400;font-size:.9375rem;color:var(--ink)}
 .cs__name .lens-read{font-size:.625rem}
 .cs__name.is-pegged b{color:var(--ink-2)}
@@ -749,7 +756,7 @@ a.nav__btn{display:inline-flex}
 .cs__sun b{display:block;font-weight:300;font-size:1.75rem;letter-spacing:-.02em;color:var(--ink)}
 .cs__sun .lens-read{color:var(--amber-2)}
 .cs .up,.cs-tab .up{color:var(--up-text)}.cs .down,.cs-tab .down{color:var(--down-text)}
-.cs__read{position:absolute;left:0;right:0;bottom:64px;text-align:center}
+.cs__read{position:absolute;left:0;right:0;bottom:56px;text-align:center}
 .cs .lib-map__down{bottom:14px}
 .cs-h{margin:clamp(40px,7vh,80px) 0 6px;font-size:1.375rem;font-weight:400;letter-spacing:-.02em}
 .cs-sub{margin:0 0 20px;max-width:70ch;font-size:.9375rem;color:var(--ink-2)}

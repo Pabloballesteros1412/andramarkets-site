@@ -10,7 +10,7 @@ import datetime as dt
 import json
 
 MINUS = "−"
-SHOWN = 12  # Bitcoin and the eleven largest after it are drawn; the table lists every coin fetched
+PLANETS = 24  # the largest coins after Bitcoin are planets; the rest of the hundred are the belt beyond them
 
 
 def load(site):
@@ -70,10 +70,10 @@ def pages(site):
       <p class="lede">Bitcoin and everything that turns round it.</p>
       <p class="note__meta"><span>The whole market {big(d["total"])}</span><span>Bitcoin {d["btc_share"]:.1f}% of it</span><span>Data from CoinGecko, {when}</span></p>
     </header>
-    <div class="cs" data-shown="{SHOWN}" hidden>
+    <div class="cs" data-planets="{PLANETS}" hidden>
       <canvas aria-hidden="true"></canvas>
       <div class="cs__names"></div>
-      <p class="lens-read cs__read">Size by market value · the larger the coin, the nearer its orbit · the turning is not data</p>
+      <p class="lens-read cs__read">Size by market value · the larger the coin, the nearer its orbit · the belt is the rest of the hundred · the turning is not data</p>
       <a class="lib-map__down" href="#cs-all">Every coin</a>
     </div>
     <section id="cs-all" aria-labelledby="cs-all-h">

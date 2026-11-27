@@ -24,7 +24,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / ".cache" / "crypto" / "crypto.json"
 API = "https://api.coingecko.com/api/v3/"
-KEEP = 30
+KEEP = 100
 # Another coin under a wrapper: by name, or by a symbol the name does not give away.
 WRAPPED = re.compile(r"wrapped|staked|staking|bridged|restaked|binance-peg", re.I)
 WRAPPED_SYMBOLS = {"wbtc", "weth", "steth", "wsteth", "weeth", "cbbtc", "reth", "wbeth", "lbtc", "jitosol", "msol", "bnsol", "rseth", "solvbtc"}
@@ -39,7 +39,7 @@ def get(path):
 
 
 def fetch():
-    rows = get("coins/markets?vs_currency=usd&order=market_cap_desc&per_page=80&page=1&price_change_percentage=24h,7d")
+    rows = get("coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&price_change_percentage=24h,7d")
     world = get("global")["data"]
     coins = []
     for r in rows:
@@ -53,7 +53,7 @@ def fetch():
                       "stable": sym in STABLE})
         if len(coins) == KEEP:
             break
-    if len(coins) < 10 or coins[0]["id"] != "bitcoin":
+    if len(coins) < 40 or coins[0]["id"] != "bitcoin":
         raise ValueError("unexpected list of coins")
     stamp = max(r.get("last_updated") or "" for r in rows)
     return {"coins": coins, "total": world["total_market_cap"]["usd"], "btc_share": world["market_cap_percentage"]["btc"],
