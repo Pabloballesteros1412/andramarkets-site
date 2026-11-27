@@ -12,6 +12,9 @@ name: Hedge Fund Data
 #   Jets (tools/jets_data.py): every aircraft OpenSky hears, the business jets
 #   among them and the airfields they gather at (OPENSKY_CLIENT_ID and
 #   OPENSKY_CLIENT_SECRET).
+#   Positioning (tools/positioning_data.py): CFTC Commitments of Traders and
+#   FINRA daily short sale volume, no key.
+#   Government contracts (tools/contracts_data.py): USAspending, no key.
 #
 # Each step keeps its source's last good copy on failure and never stops the
 # others (continue-on-error), so one source that is down costs only its own figures.
@@ -30,6 +33,8 @@ on:
       - "tools/ships_data.py"
       - "tools/predictions_data.py"
       - "tools/jets_data.py"
+      - "tools/positioning_data.py"
+      - "tools/contracts_data.py"
       - ".github/workflows/hedgefund-data.yml"
 
 permissions:
@@ -73,6 +78,12 @@ jobs:
           OPENSKY_CLIENT_ID: ${{ secrets.OPENSKY_CLIENT_ID }}
           OPENSKY_CLIENT_SECRET: ${{ secrets.OPENSKY_CLIENT_SECRET }}
         run: python3 tools/jets_data.py
+      - name: Positioning
+        continue-on-error: true
+        run: python3 tools/positioning_data.py
+      - name: Government contracts
+        continue-on-error: true
+        run: python3 tools/contracts_data.py
       - name: Save Hedge Fund Data
         if: ${{ always() }}
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
@@ -110,4 +121,17 @@ jobs:
               print(f"- At the hubs: {j['hubs']}")
           except Exception as e:
               print(f"- Jets: {e}")
+          try:
+              q = json.load(open(".cache/hf/positioning.json"))
+              print("### Positioning")
+              print(f"- CFTC: {len(q['cot']['contracts'])} contracts as of {q['cot']['as_of']}")
+              print(f"- FINRA: {len(q['short']['days'])} days, market short ratio {q['short']['market'][-1]}")
+          except Exception as e:
+              print(f"- Positioning: {e}")
+          try:
+              c = json.load(open(".cache/hf/contracts.json"))
+              print("### Government contracts")
+              print(f"- {len(c['actions'])} actions of $10m or more; listed: {[x['ticker'] for x in c['by_company'][:10]]}")
+          except Exception as e:
+              print(f"- Government contracts: {e}")
           EOF
