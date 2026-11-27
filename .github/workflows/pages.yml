@@ -349,6 +349,20 @@ jobs:
           # Search engines and feed readers: written only when SITE_URL is set.
           for f in sitemap.xml robots.txt feed.xml; do if [ -f "$f" ]; then cp "$f" _site/; fi; done
           rm -rf _site/assets/icons
+      # The published copy of the scripts and stylesheets is minified (about a quarter
+      # less to download, the render-blocking CSS included); assets/ in the repo stays
+      # as written and the ?v= versions still come from it. esbuild is pinned with its
+      # integrity hashes in tools/minify/package-lock.json and installed without running
+      # any package scripts. The targets keep the output to syntax older browsers read.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "22"
+      - name: Minify scripts and stylesheets
+        run: |
+          npm ci --prefix tools/minify --ignore-scripts --no-audit --no-fund
+          E=tools/minify/node_modules/.bin/esbuild
+          $E _site/assets/*.js --minify --target=es2017 --outdir=_site/assets --allow-overwrite --log-level=warning
+          $E _site/assets/*.css --minify --target=chrome87,edge88,firefox78,safari14 --outdir=_site/assets --allow-overwrite --log-level=warning
       # Every folder of pages the build wrote (GENERATED in tools/build_site.py) must be
       # staged: contact/ was built but left out of the list above on 8 Nov 2026, so the live
       # site linked to a 404 until this check and the copy were added.

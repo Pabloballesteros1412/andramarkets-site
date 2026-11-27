@@ -1495,7 +1495,7 @@ def site_header(home, base, nav=True):
     return f"""<header class="site-header{'' if nav else ' site-header--home'}">
   <div class="wrap">
     <div class="brand">
-      <span class="brand__mark"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></span>
+      <span class="brand__mark"><img class="brand__mark--light" src="{base}assets/andra-mark-light.png" alt="" width="140" height="160" loading="lazy"><img class="brand__mark--dark" src="{base}assets/andra-mark-dark.png" alt="" width="140" height="160"></span>
       <a class="brand__name" href="{home or '#top'}" aria-label="Andra Markets, home">Andra Markets</a>
     </div>
     {menu}

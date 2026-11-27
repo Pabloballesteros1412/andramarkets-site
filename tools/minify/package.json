@@ -1,0 +1,8 @@
+{
+  "name": "andra-minify",
+  "private": true,
+  "description": "Minifies the published copy of assets/ at deploy (pages.yml). Sources stay as written.",
+  "dependencies": {
+    "esbuild": "0.25.10"
+  }
+}
