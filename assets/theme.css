@@ -367,6 +367,7 @@ html.js .nav__group:not(.is-open) .nav__links{visibility:hidden!important}
 @media (hover:none){.tool-map__hint{display:none}}
 
 /* Tools: every section and its tools on one map (assets/tools-map.js). Until the script runs it is a nested list. */
+.page:has(.tools-map) .page__head{border-bottom:0}
 .tools-map ol{list-style:none;margin:0;padding:0}
 .tools-map>ol>li{padding:14px 0;border-top:1px solid var(--rule)}
 .tools-map__name{display:block;font-size:1.0625rem;color:var(--ink)}
