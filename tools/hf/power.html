@@ -1,0 +1,20 @@
+<div id="main" class="app">
+  <div class="bar"><a class="fn" href="../../">Andra Markets</a><div class="ttl">Power and passengers</div><div class="meta" id="meta"></div><div class="grow"></div><div class="clock"><i></i><span id="clk"></span></div></div>
+  <div class="ld" id="ld"></div>
+  <div class="body">
+    <div class="col">
+      <section class="pn pp tp" style="flex:none"><div class="h"><b>Demand and travel against their own history</b><span>change on the same days a year earlier</span></div><div class="tw"><table class="tb"><thead><tr><th>Series</th><th>Last 90 days</th><th>A day</th><th>7 days</th><th>28 days</th><th>Year to date</th><th>On 3-year average</th><th>52-week range</th></tr></thead><tbody id="ls"></tbody></table></div></section>
+      <div class="row2">
+        <section class="pn pp"><div class="h"><b>Fifty-two weeks, change on a year earlier</b><span id="wkn"></span></div><div class="cvw"><canvas id="wk" aria-label="Each series by week for a year: green where the week ran above the same week a year earlier, red where below"></canvas><div class="tip" id="t6"></div></div></section>
+        <section class="pn pp"><div class="h"><b>This year against this week</b><span>year across, week up</span></div><div class="cvw"><canvas id="sc" aria-label="Each series placed by its change this year and its change over the last seven days"></canvas><div class="tip" id="t7"></div></div></section>
+      </div>
+    </div>
+    <div class="col">
+      <section class="pn pp" style="flex:1.25"><div class="h"><b id="sh"></b><span class="tabs" id="sm"></span></div><div class="cvw"><canvas id="sea" tabindex="0" aria-label="The selected series through the calendar year, this year against earlier years, and its change on a year earlier"></canvas><div class="tip" id="t3"></div></div></section>
+      <section class="pn pp" style="flex:1.2"><div class="h"><b>Lower 48, each hour</b><span id="ecn"></span></div><div class="cvw" style="flex:0 0 52px"><canvas id="ecg" aria-label="Electricity demand of the lower 48 states, each hour for 14 days"></canvas><div class="tip" id="t1"></div></div><div class="cvw"><canvas id="heat" aria-label="Demand by hour of the day for each of the last 14 days"></canvas><div class="tip" id="t4"></div></div></section>
+      <section class="pn pp" style="flex:.6"><div class="h"><b>Air passengers, each day</b><span>150 days, with the 7-day average</span></div><div class="cvw"><canvas id="pax" aria-label="People screened at US airports, each day"></canvas><div class="tip" id="t2"></div></div></section>
+    </div>
+  </div>
+  <div class="foot" id="foot"></div>
+  <div class="menu" id="menu" role="menu" aria-label="Tools"></div>
+</div>

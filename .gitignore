@@ -60,3 +60,4 @@ __pycache__/
 
 # esbuild for the deploy-time minify (tools/minify/package.json)
 tools/minify/node_modules/
+/hedge-fund-data/
