@@ -35,6 +35,7 @@ from dashboard_data import get, log  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / ".cache" / "hf" / "attention.json"
 SCHEMA = "andra.attention/1"
+WIKI_RULE = 2  # raise when the way views are counted changes, so the day's copy is fetched again
 # Wikimedia asks automated clients to name themselves and a way to reach them.
 WIKI_UA = {"User-Agent": "AndraMarketsSite/1.0 (https://github.com/Pabloballesteros1412/andramarkets-site)"}
 WIKI = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/{}/daily/{}/{}"
@@ -219,37 +220,52 @@ def canonical(titles):
     return out
 
 
+def views_of(art, start, end):
+    """{YYYYMMDD: views} for one title, or {} if Wikipedia has none."""
+    url = WIKI.format(art, start.strftime("%Y%m%d00"), end.strftime("%Y%m%d00"))
+    for i in range(4):
+        try:
+            items = json.loads(get(url, headers=WIKI_UA)).get("items", [])
+            return {it["timestamp"][:8]: it["views"] for it in items}
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return {}
+            if e.code != 429 or i == 3:
+                raise
+            time.sleep(5 * (i + 1))
+    return {}
+
+
 def wikipedia(old):
     titles = canonical([a[2] for a in WIKI_ARTICLES])
     end = now_utc().date() - dt.timedelta(days=1)
     start = end - dt.timedelta(days=WIKI_DAYS)
     out = []
-    for key, name, art, group in WIKI_ARTICLES:
-        art = titles[art]
-        url = WIKI.format(art, start.strftime("%Y%m%d00"), end.strftime("%Y%m%d00"))
-        for i in range(4):
-            try:
-                items = json.loads(get(url, headers=WIKI_UA)).get("items", [])
-                break
-            except urllib.error.HTTPError as e:
-                if e.code == 404:
-                    items = []
-                    break
-                if e.code != 429 or i == 3:
-                    raise
-                time.sleep(5 * (i + 1))
-        if not items:
+    for key, name, written, group in WIKI_ARTICLES:
+        art = titles[written]
+        views = views_of(art, start, end)
+        time.sleep(0.15)
+        if art != written:
+            # Views are counted under the title asked for: before the article was moved they are under
+            # the old title, and after it the old title keeps the readers who still follow old links.
+            for day, n in views_of(written, start, end).items():
+                views[day] = views.get(day, 0) + n
+            time.sleep(0.15)
+        if not views:
             log(f"Wikipedia: no views for {art}", "warning")
             continue
-        first = dt.datetime.strptime(items[0]["timestamp"][:8], "%Y%m%d").date()
-        views = {it["timestamp"][:8]: it["views"] for it in items}
+        first = dt.datetime.strptime(min(views), "%Y%m%d").date()
         n = (end - first).days + 1
         series = [views.get((first + dt.timedelta(days=i)).strftime("%Y%m%d")) for i in range(n)]
         out.append({"key": key, "name": name, "article": art, "group": group, "first": first.isoformat(), "views": series})
-        time.sleep(0.15)
     if not out:
         raise ValueError("Wikipedia returned no views")
-    return {"fetched": now_utc().strftime("%Y-%m-%dT%H:%M:%SZ"), "last": end.isoformat(), "asked": len(WIKI_ARTICLES), "articles": out,
+    # Yesterday's count is published some hours into the day: a last day nobody has yet is dropped.
+    while all(a["views"] and a["views"][-1] is None for a in out):
+        for a in out:
+            a["views"].pop()
+        end -= dt.timedelta(days=1)
+    return {"fetched": now_utc().strftime("%Y-%m-%dT%H:%M:%SZ"), "last": end.isoformat(), "asked": len(WIKI_ARTICLES), "rule": WIKI_RULE, "articles": out,
             "source": "Wikimedia pageviews (English Wikipedia, users only)"}
 
 
@@ -303,7 +319,7 @@ def main():
     did = False
     for part, fn in (("wikipedia", lambda: wikipedia(old.get("wikipedia"))), ("news", lambda: news(old.get("news")))):
         if (part == "wikipedia" and not a.force and (out[part] or {}).get("fetched", "")[:10] == today
-                and (out[part] or {}).get("asked") == len(WIKI_ARTICLES)):  # a longer list is fetched at once
+                and (out[part] or {}).get("asked") == len(WIKI_ARTICLES) and (out[part] or {}).get("rule") == WIKI_RULE):  # a longer list is fetched at once
             continue
         try:
             out[part] = fn()
