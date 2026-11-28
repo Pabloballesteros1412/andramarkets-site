@@ -284,6 +284,14 @@ jobs:
         with:
           path: .cache/crypto
           key: crypto-${{ github.run_id }}-${{ github.run_attempt }}
+      # Hedge Fund Data (tools/page_hedgefund.py): its figures are collected by their own
+      # workflow (hedgefund-data.yml, every half hour) and only restored here.
+      - name: Restore Hedge Fund Data
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: .cache/hf
+          key: hf-${{ github.run_id }}
+          restore-keys: hf-
       # Recession watch (tools/recession_data.py): five indicators and the NBER
       # recession dates, all from FRED; each keeps its last good copy.
       - name: Restore recession watch
@@ -335,6 +343,9 @@ jobs:
           # Cloudflare Web Analytics' token (public): every page counts its visits,
           # with no cookies, and the privacy policy says so. Empty: nothing is counted.
           CF_ANALYTICS_TOKEN: ${{ vars.CF_ANALYTICS_TOKEN }}
+          # The basemap of Hedge Fund Data's maps: an ArcGIS key (public in the page by
+          # nature, scoped to this site at developers.arcgis.com). Empty: NASA Blue Marble.
+          ARCGIS_API_KEY: ${{ secrets.ARCGIS_API_KEY }}
         run: python3 tools/build_site.py
       # A build that lost content (a close note page without its body, a homepage
       # index without every section) fails here: the live site keeps its last good
@@ -363,6 +374,7 @@ jobs:
           cp -r recruiting-calendar interview-simulator firms application-tracker _site/
           cp -r chart-of-the-day central-banks recession-watch market-history _site/
           cp -r crypto _site/
+          cp -r hedge-fund-data _site/
           cp -r profile _site/
           # Search engines and feed readers: written only when SITE_URL is set.
           for f in sitemap.xml robots.txt feed.xml; do if [ -f "$f" ]; then cp "$f" _site/; fi; done

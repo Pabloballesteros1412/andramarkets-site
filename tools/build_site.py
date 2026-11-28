@@ -7136,15 +7136,21 @@ def csp_policy(page_html):
     counted = f'src="{BEACON_SRC}"' in page_html
     # TradingView's widgets, only on a page that mounts them (Live Markets and the homepage's tape).
     live = TV_MARK in page_html
+    # The map screens of Hedge Fund Data name their basemap in <meta name="hf-tiles"> (tools/page_hedgefund.py):
+    # only those hosts are opened, for the tiles MapLibre fetches, and its worker, which it starts from a blob.
+    maps = sorted(set(re.findall(r"https://[a-z0-9.-]+", html.unescape(m.group(1))))
+                  | {"https://gibs.earthdata.nasa.gov"}) if (m := re.search(r'<meta name="hf-tiles" content="([^"]*)">', page_html)) else []
     return "; ".join([
         "default-src 'self'",
         # Third-party scripts by exact path, not their whole host.
         " ".join(["script-src 'self'"] + ([BEACON_SRC] if counted else [])
                  + ([TV_SCRIPTS] if live else []) + inline_hashes(page_html)),
         "style-src 'self' 'unsafe-inline'",
-        "img-src 'self' data: blob:",
+        "img-src 'self' data: blob:" + "".join(f" {h}" for h in maps),
         "font-src 'self'",
-        "connect-src 'self'" + (f" {api_origin}" if api_origin else "") + (f" {BEACON_REPORT}" if counted else ""),
+        "connect-src 'self'" + (f" {api_origin}" if api_origin else "") + (f" {BEACON_REPORT}" if counted else "")
+        + "".join(f" {h}" for h in maps),
+        *(["worker-src blob:", "child-src blob:"] if maps else []),
         *([f"frame-src {TV_FRAMES}"] if live else []),
         "object-src 'none'",
         "base-uri 'self'",

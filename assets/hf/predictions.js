@@ -1,9 +1,8 @@
-/* Hedge Fund Data: Prediction markets. The page's figures are in a JSON file beside it, named by <meta name="hf-data">;
-   tools/page_hedgefund.py writes both. Nothing here is fetched from anywhere else. */
+/* Hedge Fund Data: Prediction markets. The page's figures are in data.js beside the page (window.HFDATA), which
+   tools/page_hedgefund.py writes from .cache/hf/. Nothing here is fetched from anywhere else. */
 (function () {
 "use strict";
-var meta = document.querySelector('meta[name="hf-data"]'); if (!meta) return;
-fetch(meta.content).then(function (r) { if (!r.ok) throw new Error("data " + r.status); return r.json(); }).then(function (DATA) {
+var DATA = window.HFDATA; if (!DATA) { document.documentElement.classList.add("hf-nodata"); return; }
 const D = DATA;
 const LONG = ["Fed and rates", "Economy", "Markets", "AI and tech", "Crypto", "Geopolitics", "Elections"];
 const CATS = [["FED", /\bfed\b|fomc|interest rate/i], ["ECON", /econom|inflation|\bcpi\b|\bgdp\b|unemploy|recession|jobless|payroll|productivity|tariff/i], ["MKTS", /financ|stock|s&p|nasdaq|oil|gold|commodit|ipo|earnings/i],
@@ -79,5 +78,4 @@ document.getElementById("q").addEventListener("input", e => { q = e.target.value
 addEventListener("resize", map);
 cats(); blot(); ticket(); requestAnimationFrame(map);
 window.__api = {E, pick};
-}).catch(function (e) { document.documentElement.classList.add("hf-nodata"); console.error(e); });
 })();

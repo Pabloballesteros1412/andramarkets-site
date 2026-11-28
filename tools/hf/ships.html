@@ -1,0 +1,24 @@
+<div id="main" style="display:contents"><div id="map" aria-label="Live map of ships and the world's shipping chokepoints"></div>
+
+<header class="top glass">
+  <div class="brand"><span class="opt">Andra Markets</span><b>Ships</b></div>
+  <div class="stat live"><i></i><span>Positions</span><b id="s-age"></b></div>
+  <div class="stat"><span>Vessels</span><b id="s-n"></b></div>
+  <div class="stat opt"><span>Tankers</span><b id="s-tk"></b></div>
+  <div class="stat opt"><span>Under way</span><b id="s-uw"></b></div>
+  <div class="stat opt"><span>Largest fall</span><b id="s-fall"></b></div>
+  <div class="grow"></div>
+  <div class="search"><input id="q" type="search" placeholder="Find a vessel by name" aria-label="Find a vessel by name" autocomplete="off"></div>
+  <div class="seg" role="group" aria-label="Basemap"><button data-base="sat" aria-pressed="true">Satellite</button><button data-base="dark" aria-pressed="false">Chart</button></div>
+</header>
+
+<aside class="left glass" aria-label="Chokepoints and vessels">
+  <div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-tab="cp">Chokepoints</button><button role="tab" aria-selected="false" data-tab="vs">Vessels in view</button></div>
+  <div class="kinds" id="kinds" role="group" aria-label="Vessel types"></div>
+  <div class="list cp" id="list-cp"></div>
+  <div class="list vs" id="list-vs" hidden></div>
+  <p class="foot" id="foot"></p>
+</aside>
+
+<aside class="card glass" id="card" aria-live="polite"></aside>
+<div class="ro glass" id="ro"></div></div>

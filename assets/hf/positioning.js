@@ -1,9 +1,8 @@
-/* Hedge Fund Data: Positioning. The page's figures are in a JSON file beside it, named by <meta name="hf-data">;
-   tools/page_hedgefund.py writes both. Nothing here is fetched from anywhere else. */
+/* Hedge Fund Data: Positioning. The page's figures are in data.js beside the page (window.HFDATA), which
+   tools/page_hedgefund.py writes from .cache/hf/. Nothing here is fetched from anywhere else. */
 (function () {
 "use strict";
-var meta = document.querySelector('meta[name="hf-data"]'); if (!meta) return;
-fetch(meta.content).then(function (r) { if (!r.ok) throw new Error("data " + r.status); return r.json(); }).then(function (DATA) {
+var DATA = window.HFDATA; if (!DATA) { document.documentElement.classList.add("hf-nodata"); return; }
 const D = DATA;
 const $ = id => document.getElementById(id), esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
 const F = "Inter, 'Helvetica Neue', Arial, sans-serif";
@@ -118,5 +117,4 @@ function pick(it) { sel[mode] = it; draw(); }
 document.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { mode = b.dataset.m; draw(); });
 addEventListener("resize", draw); (document.fonts ? document.fonts.ready : Promise.resolve()).then(draw); requestAnimationFrame(draw);
 window.__api = {setMode: m => { mode = m; draw(); }};
-}).catch(function (e) { document.documentElement.classList.add("hf-nodata"); console.error(e); });
 })();
