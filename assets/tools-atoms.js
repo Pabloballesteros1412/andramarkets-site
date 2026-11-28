@@ -57,11 +57,13 @@
 
   function size() {
     var d = Math.min(window.devicePixelRatio || 1, 2);
-    atoms.forEach(function (at) {
+    atoms.forEach(function (at) { at.d = d;
       var w = at.stage.clientWidth, h = at.stage.clientHeight; if (!w) return;
       at.S = w; at.H = h; at.narrow = w < 520; at.R = at.narrow ? w * 0.29 : Math.min(w * 0.4, h * 0.46, 210);
       at.electrons.forEach(function (e) { e.w = e.a.offsetWidth; });   // one radius for both: the stages are the same size
       at.cv.width = Math.round(w * d); at.cv.height = Math.round(h * d); at.c.setTransform(d, 0, 0, d, 0, 0);
+      if (!at.oc) { at.oc = document.createElement("canvas"); at.ox = at.oc.getContext("2d"); }
+      at.oc.width = at.cv.width; at.oc.height = at.cv.height; at.ox.setTransform(d, 0, 0, d, 0, 0); at.okey = null;
     });
     frame(0);
   }
@@ -71,6 +73,10 @@
     c.clearRect(0, 0, at.S, at.H); c.globalCompositeOperation = "lighter";
     var turn = at.narrow && !still ? at.orbits[Math.floor(at.t / 4) % at.orbits.length] : null; if (turn && !turn.n) turn = null;   // a phone: the orbit whose names show
     if (turn !== at.turn) { at.turn = turn; at.orbits.forEach(function (o) { o.lit = turn ? (o === turn ? 1 : 0) : (o.key === want ? 1 : 0); }); at.sub.textContent = turn ? turn.name : at.base; }
+    // The orbits and the nucleus's glow stand still: they are drawn once to a canvas of their own, and again only when an
+    // orbit is lit or put out, or the size changes. Light adds, so the picture is the same as drawing them every frame.
+    var key = at.orbits.map(function (o) { return o.lit; }).join();
+    if (key !== at.okey) { at.okey = key; var c0 = c; c = at.ox; c.clearRect(0, 0, at.S, at.H); c.globalCompositeOperation = "lighter";
     at.orbits.forEach(function (o) {
       o.strands.forEach(function (s) {
         var rx = R * (1 + s.rx), ry = R * (0.3 + s.ry), ct = Math.cos(o.tilt + s.t), st = Math.sin(o.tilt + s.t);
@@ -78,7 +84,8 @@
         c.strokeStyle = "rgba(" + INK + "," + (s.a * (o.lit ? 2.4 : 1)).toFixed(3) + ")"; c.lineWidth = s.a > 0.3 ? 1.1 : 0.7; c.stroke();
       });
     });
-    glow(c, cx, cy, R * 0.5, 0.45); glow(c, cx, cy, R * 0.16, 1);
+    glow(c, cx, cy, R * 0.5, 0.45); glow(c, cx, cy, R * 0.16, 1); c = c0; }
+    c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(at.oc, 0, 0); c.setTransform(at.d, 0, 0, at.d, 0, 0);
     c.fillStyle = "rgba(255,255,255,.92)"; for (var q = 0; q < 7; q++) { var a = q * 2.4 + at.t * 0.2, d = q ? R * 0.03 : 0; c.beginPath(); c.arc(cx + Math.cos(a) * d, cy + Math.sin(a) * d, R * 0.016 + 1.2, 0, TAU); c.fill(); }
     at.electrons.forEach(function (e) {
       var o = e.o, u = e.u0 + at.t * o.sp, x = R * Math.cos(u), y = R * 0.3 * Math.sin(u), ct = Math.cos(o.tilt), st = Math.sin(o.tilt), dx = x * ct - y * st, dy = x * st + y * ct, far = Math.hypot(dx, dy) / R;

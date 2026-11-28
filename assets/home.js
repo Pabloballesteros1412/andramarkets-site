@@ -274,8 +274,11 @@
   function build(img) {
     var c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; var x = c.getContext("2d"); x.drawImage(img, 0, 0);
     var d = x.getImageData(0, 0, c.width, c.height).data, SW = c.width, i = 0; FW = c.width; FH = c.height; srcImg = img; IMG_ASP = FW / FH;
-    for (; i < N - AMB; i++) { var j = i * 3; formShape(j, T[1], FORMS[0]); treeShape(j, T[2]); formShape(j, T[3], FORMS[2]); formShape(j, T[4], FORMS[3]);
-      UU[i] = rnd(); VV[i] = rnd(); R[i * 4] = rnd(); R[i * 4 + 1] = rnd(); R[i * 4 + 2] = rnd() * rnd(); R[i * 4 + 3] = 0.55 + 0.45 * rnd(); }
+    // the particles are laid out in slices of about 12 ms, so the page answers clicks and scrolling while the horse is made
+    (function part() { var stop = performance.now() + 12;
+    for (; i < N - AMB;) { var j = i * 3; formShape(j, T[1], FORMS[0]); treeShape(j, T[2]); formShape(j, T[3], FORMS[2]); formShape(j, T[4], FORMS[3]);
+      UU[i] = rnd(); VV[i] = rnd(); R[i * 4] = rnd(); R[i * 4 + 1] = rnd(); R[i * 4 + 2] = rnd() * rnd(); R[i * 4 + 3] = 0.55 + 0.45 * rnd(); i++;
+      if (!(i & 4095) && performance.now() > stop) { setTimeout(part, 0); return; } }
     for (; i < N; i++) { var j3 = i * 3, ax = (rnd() - 0.5) * 6.4, ay = (rnd() - 0.5) * 3.4, az = -2.6 + rnd() * 4.6;
       for (var k = 1; k < 5; k++) { T[k][j3] = ax; T[k][j3 + 1] = ay; T[k][j3 + 2] = az; }
       UU[i] = ax; VV[i] = ay; R[i * 4] = rnd(); R[i * 4 + 1] = (az + 2.6) / 4.6; R[i * 4 + 2] = rnd(); R[i * 4 + 3] = 2; }
@@ -285,19 +288,23 @@
     function one() {
       var ox = 0, oy = 0, xx, yy, sum;
       for (xx = 0; xx < FW; xx++) { sum = 0; pre[xx * (FH + 1)] = 0; for (yy = 0; yy < FH; yy++) { var dv = d[((oy + yy) * SW + ox + xx) * 4] / 255; sum += dv > 0.045 ? 0.3 + 0.7 * dv : 0; pre[xx * (FH + 1) + yy + 1] = sum; } col[xx + 1] = col[xx] + sum; }
-      var tot = col[FW], out = new Int16Array(N * 2), q;
-      for (q = 0; q < N - AMB; q++) {
+      var tot = col[FW], out = new Int16Array(N * 2), q = 0;
+      (function seg() { var stop = performance.now() + 12;
+      for (; q < N - AMB;) {
         var tu = UU[q] * tot, lo = 0, hi = FW - 1, mid; while (lo < hi) { mid = (lo + hi) >> 1; if (col[mid + 1] <= tu) lo = mid + 1; else hi = mid; }
         var cw = col[lo + 1] - col[lo], fx = cw > 0 ? (tu - col[lo]) / cw : 0.5, base = lo * (FH + 1), tv = VV[q] * pre[base + FH], l2 = 0, h2 = FH - 1;
         while (l2 < h2) { mid = (l2 + h2) >> 1; if (pre[base + mid + 1] <= tv) l2 = mid + 1; else h2 = mid; }
         var ch = pre[base + l2 + 1] - pre[base + l2], fy = ch > 0 ? (tv - pre[base + l2]) / ch : 0.5;
-        out[q * 2] = (lo + fx - FW / 2) * K * 10000; out[q * 2 + 1] = ((FH - l2 - fy) * K - HHW / 2) * 10000; R[q * 4 + 3] = d[(l2 * SW + lo) * 4] / 255;
+        out[q * 2] = (lo + fx - FW / 2) * K * 10000; out[q * 2 + 1] = ((FH - l2 - fy) * K - HHW / 2) * 10000; R[q * 4 + 3] = d[(l2 * SW + lo) * 4] / 255; q++;
+        if (!(q & 4095) && performance.now() > stop) { setTimeout(seg, 0); return; }
       }
       for (; q < N; q++) { out[q * 2] = UU[q] * 10000; out[q * 2 + 1] = VV[q] * 10000; }
       var fb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, fb); gl.bufferData(gl.ARRAY_BUFFER, out, gl.STATIC_DRAW); FB.push(fb);
       if (++fi < NF) setTimeout(one, 0); else { rbuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, rbuf); gl.bufferData(gl.ARRAY_BUFFER, R, gl.STATIC_DRAW); t0 = performance.now(); document.documentElement.classList.add("is-live"); requestAnimationFrame(frame); }
+      })();
     }
     one();
+    })();
   }
   var W = 0, H = 0, DPR = 1, t0 = 0, prog = 0, ptr = [0, 0], pt = [0, 0], secs = [].slice.call(document.querySelectorAll(".sec")), dots = [].slice.call(document.querySelectorAll(".rail a"));
   // The canvas never holds more than MAXPX pixels (a large or dense screen would fill several times that for the same picture).
