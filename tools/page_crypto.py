@@ -52,7 +52,7 @@ def pages(site):
 <div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div></div></main>"""
         out = {"crypto/": site.shell(title="Crypto: Andra Markets", desc="Where the coins trade, and what they are worth.",
                                      body=body, home="../", base="../", path="crypto/")}
-        for path, title in (("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives")):
+        for path, title in (("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network")):
             out[path] = pending(site, path, title)
         return out
     coins = d["coins"]
@@ -123,11 +123,12 @@ def pages(site):
     out.update(coin_pages(site, d, hist, when, today))
     out["crypto/markets/"] = markets_page(site, d, hist, load_markets(site))
     out["crypto/derivatives/"] = derivs_page(site, d, hist, load_derivs(site))
+    out["crypto/network/"] = network_page(site, d, load_network(site))
     return out
 
 
 # ---- the other sections ------------------------------------------------------------------------------------------
-SECTIONS = (("crypto/", "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"))
+SECTIONS = (("crypto/", "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"))
 HALVINGS = (("2012-11-28", 210000), ("2016-07-09", 420000), ("2020-05-11", 630000), ("2024-04-20", 840000))
 MON = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -894,3 +895,108 @@ def derivs_page(site, d, hist, dv):
 </main>"""
     return site.shell(title="Derivatives: Crypto: Andra Markets", desc=f"Bitcoin's derivatives on Deribit: DVOL at {last_dvol:.0f}%, the perpetual's funding, the futures curve, the volatility smile and every option expiry with its max pain.",
                       body=body, home="../../", base="../../", path=path, scripts=("crypto-derivs.js",))
+
+
+# ---- Network (crypto/network/; owner-approved sketch, 28 Nov 2026: both pieces, the Lightning nodes on the whole
+# Earth and the hashrate as a line of light; the line of text under the globe taken away) ----
+def load_network(site):
+    try:
+        m = json.loads((site.ROOT / ".cache" / "crypto" / "network.json").read_text(encoding="utf-8"))
+        return m if len(m.get("hash") or []) > 1000 and m.get("places") else None
+    except (OSError, ValueError):
+        return None
+
+
+def network_page(site, d, nw):
+    path = "crypto/network/"
+    if not nw:
+        return pending(site, path, "Network")
+    try:
+        fetched = dt.datetime.fromisoformat(nw["fetched"])
+        when = f"{fetched.day} {fetched:%b %Y}, {fetched:%H:%M} UTC"
+    except (KeyError, ValueError):
+        when = ""
+    btc_price = d["coins"][0]["price"]
+    rate = lambda v, dgt=1: f'<span class="{"up" if round(v, dgt) > 0 else "down" if round(v, dgt) < 0 else ""}">{signed(v, dgt)}%</span>'
+    ln, places = nw["ln"], nw["places"]
+    globe = {"asof": nw["fetched"], "points": nw["points"], "places": [
+        {"name": p["name"], "lon": p["lon"], "lat": p["lat"], "share": p["share"] / 100, "label": f"{p['count']:,} nodes · {p['share']:.0f}%", "more": f"{p['btc']:,.0f} BTC in channels"} for p in places]}
+    hs = nw["hash"]
+    last = hs[-1][1]
+    idx = lambda day: next((i for i, h in enumerate(hs) if h[0] >= day), len(hs) - 1)
+    year_ago = hs[idx((dt.date.fromisoformat(hs[-1][0]) - dt.timedelta(days=365)).isoformat())][1]
+    marks = []
+    a, b = idx("2021-04-15"), idx("2021-08-01")
+    if b > a:
+        hi = max(range(a, b), key=lambda i: hs[i][1])
+        lo = min(range(hi, b + 1), key=lambda i: hs[i][1])
+        marks.append({"i": lo, "fall": round((hs[lo][1] / hs[hi][1] - 1) * 100), "text": "China bans mining, 2021"})
+    top_i = max(range(len(hs)), key=lambda i: hs[i][1])
+    big = lambda v: f"{v / 1000:.2f} ZH/s" if v >= 1000 else f"{v:,.0f} EH/s"
+    df = nw["difficulty"]
+    retarget = dt.datetime.fromtimestamp(df["estimatedRetargetDate"] / 1000, dt.timezone.utc)
+    pools, blocks = nw["pools"]["list"], nw["pools"]["blocks"]
+    shown = pools[:8]
+    rest = blocks - sum(n for _, n in shown)
+    pool_rows = "".join(f'<div class="mk-row"><span>{site.esc(name)}</span><i><b style="width:{min(100, n / blocks * 200):.1f}%"></b></i><span>{n / blocks * 100:.1f}%</span></div>'
+                        for name, n in shown + [["Every other pool", rest]])
+    fees, queue = nw["fees"], nw["queue"]
+    pay = fees["fastestFee"] * 140 / 1e8 * btc_price
+    ln_rows = "".join(f'<tr><th scope="row">{site.esc(p["name"])}</th><td>{p["count"]:,}</td><td>{p["share"]:.1f}%</td><td>{p["btc"]:,.0f} BTC</td></tr>' for p in places[:12])
+    side = kpis((("Hashrate", big(nw["now"]), "now"), ("Next difficulty", rate(df["difficultyChange"]), f"in {df['remainingBlocks']:,} blocks"),
+                 ("Next block", f"{fees['fastestFee']} sat/vB", "fee to get in"), ("Waiting", f"{queue['count']:,}", "transactions"),
+                 ("Largest pool", site.esc(pools[0][0]), f"{pools[0][1] / blocks * 100:.1f}% of blocks"), ("Top three pools", f"{sum(n for _, n in pools[:3]) / blocks * 100:.0f}%", "of the last month's blocks"),
+                 ("Lightning nodes", f"{ln['node_count']:,}", f"{ln['channel_count']:,} channels"), ("In Lightning", f"{ln['total_capacity'] / 1e8:,.0f} BTC", big_usd(ln["total_capacity"] / 1e8 * btc_price))))
+    data = {"hash": {"start": hs[0][0], "step": 2, "v": [h[1] for h in hs], "marks": marks, "halvings": [x[0] for x in HALVINGS]},
+            "fees": {"t": [r[0] for r in nw["feerates"]], "mid": [r[1] for r in nw["feerates"]], "top": [r[2] for r in nw["feerates"]]}}
+    body = f"""<main id="main" class="page dd fr cs-page vm nwp">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <h1 class="page__title">Network</h1>
+      <p class="lede">Where Bitcoin's network lives, how much power guards it and what it costs to use.</p>
+      <p class="note__meta"><span>mempool.space</span><span>Updated {when}</span><span>Refreshed at every deploy</span></p>
+      <section class="cg cg--points" aria-label="Lightning nodes on the Earth" hidden>
+        <canvas class="cg__gl" aria-hidden="true"></canvas>
+        <canvas class="cg__ov" aria-hidden="true"></canvas>
+        <div class="cg__names" aria-hidden="true"></div>
+        <div class="cg__big"><p class="lens-read">Lightning nodes</p><p class="cg__fig">{ln["node_count"]:,}</p>
+          <p class="cg__say">computers that move bitcoin in an instant. Each light is a town with some of the {nw["located"]:,} that say where they are; the rest keep it to themselves.</p></div>
+        <p class="visually-hidden cg__status" role="status" aria-live="polite"></p>
+        <p class="visually-hidden">The Earth as lit at {when}, with a light at each town where Lightning nodes publish an address, brighter with more bitcoin in their channels. The countries are in the table below.</p>
+        <script type="application/json">{json.dumps(globe, separators=(",", ":")).replace("</", "<\\/")}</script>
+      </section>
+      <section class="vr dvh nwh" aria-label="The power that guards the network" hidden>
+        <canvas class="vr__c" role="img" aria-label="Bitcoin's hashrate, weekly average, since 2010, with the four halvings. Now {big(last)}."></canvas>
+        <p class="vr__date dvh__fig" aria-hidden="true"><b>{big(last)}</b><span>The computing power guarding Bitcoin: a billion billion guesses, {last:,.0f} times over, every second</span></p>
+        <div class="vr__ctl"><button class="btn btn--ghost vr__replay" type="button">Replay</button></div>
+        <p class="lens-read vr__read" aria-live="polite"></p>
+      </section>
+    </header>
+    <div class="dd__main fr__main">
+      <section class="fr__panel" aria-labelledby="nw-hash-h"><div class="fr__ph"><h2 id="nw-hash-h">Hashrate</h2></div><p class="fr__intro">Miners guess numbers until one seals a block; the hashrate is how many guesses the whole network makes each second. It stands at {big(last)}, {rate((last / year_ago - 1) * 100, 0)} on a year ago; its highest week was {big(hs[top_i][1])}, in {MON[int(hs[top_i][0][5:7]) - 1]} {hs[top_i][0][:4]}. One EH/s is a billion billion guesses a second.</p>
+        <p class="fr__src">mempool.space, daily estimates averaged over the week to each day.</p></section>
+      <section class="fr__panel" aria-labelledby="nw-diff-h"><div class="fr__ph"><h2 id="nw-diff-h">Difficulty</h2></div><p class="fr__intro">Every 2,016 blocks, about two weeks, the network makes mining harder or easier so that a block still takes ten minutes.</p>
+        <div class="mk-bars"><div class="mk-row"><span>This period</span><i><b style="width:{df["progressPercent"]:.1f}%"></b></i><span>{df["progressPercent"]:.0f}%</span></div></div>
+        <p class="lens-read vm-read">{df["remainingBlocks"]:,} blocks to the next change, about {retarget.day} {MON[retarget.month - 1]} {retarget.year} · expected {rate(df["difficultyChange"])} · the last one {rate(df["previousRetarget"])} · blocks are taking {df["timeAvg"] / 60000:.1f} minutes</p>
+        <p class="fr__src">mempool.space, {when}.</p></section>
+      <section class="fr__panel" aria-labelledby="nw-pool-h"><div class="fr__ph"><h2 id="nw-pool-h">Who mines</h2></div><p class="fr__intro">The share of the last month's {blocks:,} blocks found by each mining pool. No pool should come near half: the bars run to 50%.</p>
+        <div class="mk-bars">{pool_rows}</div><p class="fr__src">mempool.space: blocks by the pool that signed them.</p></section>
+      <section class="fr__panel" aria-labelledby="nw-fee-h"><div class="fr__ph"><h2 id="nw-fee-h">Fees and the queue</h2></div><p class="fr__intro">What a transaction pays to get into a block, in satoshis for each unit of space (sat/vB): the middle transaction and the dearest tenth, over a year.</p>
+        <div class="vm-plot" data-chart="fees"></div>
+        <p class="lens-read vm-read" data-read="fees" aria-live="polite">Now: {fees["fastestFee"]} sat/vB gets into the next block, about ${pay:,.2f} for a plain payment · {queue["count"]:,} transactions wait, {queue["vsize"] / 1e6:.0f} blocks' worth</p>
+        <p class="fr__src">mempool.space, {when}. A plain payment is taken as 140 units of space, at Bitcoin's price of {money(btc_price)}.</p></section>
+      <section class="fr__panel" aria-labelledby="nw-ln-h"><div class="fr__ph"><h2 id="nw-ln-h">Lightning by country</h2></div><p class="fr__intro">Lightning moves bitcoin at once through channels opened between nodes. Where the nodes that publish an address are, and the bitcoin in their channels.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Country</th><th scope="col">Nodes</th><th scope="col">Share</th><th scope="col">In channels</th></tr></thead><tbody>{ln_rows}</tbody></table></div>
+        <p class="fr__src">mempool.space. Of {ln["node_count"]:,} nodes, {ln.get("tor_nodes", 0):,} are reached only through Tor and have no place; a node's place is where its address says it is. The Earth: Solar System Scope (CC BY 4.0), from NASA imagery. For information only. Not investment advice.</p></section>
+      {more(site, path, "../../")}
+      <script type="application/json" id="nw-data">{json.dumps(data, separators=(",", ":"))}</script>
+    </div>
+    <aside class="report__side dd__side" aria-labelledby="side-title"><h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{side}</ul><p class="report__src">mempool.space, {when}.</p></aside>
+  </div>
+</main>"""
+    return site.shell(title="Network: Crypto: Andra Markets", desc=f"Bitcoin's network: {ln['node_count']:,} Lightning nodes on the Earth, a hashrate of {big(last)}, the next difficulty change, who mines, fees and the queue.",
+                      body=body, home="../../", base="../../", path=path, scripts=("crypto-globe.js", "crypto-network.js"))
+
+
+def big_usd(v):
+    return f"${v / 1e9:.1f}bn" if v >= 1e9 else f"${v / 1e6:,.0f}m"

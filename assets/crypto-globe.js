@@ -132,7 +132,7 @@
   var pool = {};
   function names() {
     var taken = [box.querySelector(".cg__big")].filter(Boolean).map(function (el) { var b = el.getBoundingClientRect(), o = box.getBoundingClientRect(); return [b.left - o.left, b.top - o.top, b.right - o.left, b.bottom - o.top]; });
-    var lit = pick || focus, order = COLS.slice().sort(function (x, y) { return (y.p === lit) - (x.p === lit) || y.p.share - x.p.share; }), shown = 0, MAX = narrow ? 1 : 10, live = {};
+    var lit = pick || focus, order = COLS.slice().sort(function (x, y) { return (y.p === lit) - (x.p === lit) || y.p.share - x.p.share; }), shown = 0, MAX = narrow ? 1 : PTS ? 5 : 10, live = {};
     order.forEach(function (col) {
       var p = col.p, mine = p === lit; if (!mine && (shown >= MAX || p.share < 0.006 || col.fade < 0.3)) return;
       var el = pool[p.name]; if (!el) { el = pool[p.name] = document.createElement("div"); el.className = "cg__name"; el.innerHTML = "<b></b><span class=\"lens-read\"></span>"; el.firstChild.textContent = p.name; layer.appendChild(el); }

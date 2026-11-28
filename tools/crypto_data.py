@@ -17,7 +17,8 @@ pages. And .cache/crypto/markets.json: the daily closes since September 2014 of 
 S&P 500, the Nasdaq Composite, gold, the dollar index and long Treasuries (Yahoo
 Finance), for Bitcoin vs markets. And .cache/crypto/derivs.json: Bitcoin's derivatives
 on Deribit (the DVOL index, the perpetual's funding, futures and options), for
-Derivatives. tools/page_crypto.py reads them all; nothing here
+Derivatives. And .cache/crypto/network.json: Bitcoin's network from mempool.space
+(hashrate, difficulty, pools, fees, the queue and the Lightning network), for Network. tools/page_crypto.py reads them all; nothing here
 is published as a file.
 
 Source: CoinGecko's public API, no key (https://www.coingecko.com/en/api). Its
@@ -317,6 +318,63 @@ def derivatives(old):
             "source": "Deribit", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
 
 
+NETWORK = ROOT / ".cache" / "crypto" / "network.json"
+MEMPOOL_API = "https://mempool.space/api/"
+
+
+def network():
+    """Bitcoin's network from mempool.space, no key: the hashrate day by day, the difficulty's next change, the
+    month's blocks by mining pool, fees now and block by block over a year, the queue, and the Lightning network
+    (its totals, its nodes by country, and where each node that publishes an address says it is)."""
+    import math
+    import time
+
+    def g(path):
+        time.sleep(0.4)
+        return get_url(MEMPOOL_API + path)
+    hr = g("v1/mining/hashrate/all")
+    rows = [(h["timestamp"], h["avgHashrate"] / 1e18) for h in hr["hashrates"] if h["timestamp"] >= 1262304000 and h["avgHashrate"]]
+    if len(rows) < 3000:
+        raise ValueError("short hashrate history")
+    hashes = []
+    for i in range(0, len(rows), 2):   # every second day, each the average of the week to it, in EH/s
+        w = [v for _, v in rows[max(0, i - 6):i + 1]]
+        hashes.append([dt.datetime.fromtimestamp(rows[i][0], dt.timezone.utc).date().isoformat(), float(f"{sum(w) / len(w):.4g}")])
+    pools = g("v1/mining/pools/1m")
+    fr = g("v1/mining/blocks/fee-rates/1y")
+    world = g("v1/lightning/nodes/world")
+    countries = g("v1/lightning/nodes/countries")
+    top = math.log(1 + (world.get("maxLiquidity") or 1))
+    cells, by_country = {}, {}
+    for n in world["nodes"]:
+        lon, lat, cap = n[0], n[1], n[4] or 0
+        if lon is None or lat is None:
+            continue
+        key = (round(lon, 1), round(lat, 1))   # nodes in one town are one light, as bright as its largest
+        cells[key] = max(cells.get(key, 0), round(math.log(1 + cap) / top, 2))
+        name = n[6].get("en") if isinstance(n[6], dict) else None
+        if name:
+            by_country.setdefault(name, []).append((lon, lat))
+    located = sum(1 for n in world["nodes"] if n[0] is not None and n[1] is not None)
+    places = []
+    for c in countries[:40]:
+        name = c["name"]["en"]
+        ll = by_country.get(name)
+        if not ll:
+            continue
+        lons, lats = sorted(x for x, _ in ll), sorted(y for _, y in ll)   # the middle node: steady for a wide country
+        places.append({"name": name, "lon": lons[len(lons) // 2], "lat": lats[len(lats) // 2], "count": c["count"], "share": c["share"], "btc": int(c["capacity"] or 0) / 1e8})
+    if len(places) < 5 or len(cells) < 200:
+        raise ValueError("unexpected Lightning data")
+    return {"hash": hashes, "now": hr["currentHashrate"] / 1e18, "difficulty": g("v1/difficulty-adjustment"),
+            "pools": {"blocks": pools["blockCount"], "list": [[x["name"], x["blockCount"]] for x in pools["pools"][:12]]},
+            "fees": g("v1/fees/recommended"), "queue": {k: v for k, v in g("mempool").items() if k in ("count", "vsize", "total_fee")},
+            "feerates": [[r["timestamp"], r["avgFee_50"], r["avgFee_90"]] for r in fr][::2],
+            "ln": g("v1/lightning/statistics/latest")["latest"], "places": places, "located": located,
+            "points": [[k[0], k[1], v] for k, v in cells.items()],
+            "source": "mempool.space", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+
+
 MARKETS = ROOT / ".cache" / "crypto" / "markets.json"
 # What Bitcoin is set beside on the Bitcoin vs markets page: Yahoo Finance symbols, daily closes (adjusted, so the
 # Treasury fund carries its income; the two share indices are price levels, without dividends).
@@ -445,6 +503,13 @@ def main():
         print(f"crypto: derivatives DVOL {len(dv['dvol'])} days, funding {len(dv['fund'])} days, {len(dv['futures'])} futures, {len(dv['expiries'])} option expiries")
     except Exception as e:  # noqa: BLE001
         warn(f"crypto: derivatives: {type(e).__name__}: {e}; keeping the last copy")
+    try:
+        nw = network()
+        NETWORK.parent.mkdir(parents=True, exist_ok=True)
+        NETWORK.write_text(json.dumps(nw, separators=(",", ":")), encoding="utf-8")
+        print(f"crypto: network hashrate {len(nw['hash'])} points, {len(nw['pools']['list'])} pools, {len(nw['places'])} Lightning countries, {len(nw['points'])} lights")
+    except Exception as e:  # noqa: BLE001
+        warn(f"crypto: network: {type(e).__name__}: {e}; keeping the last copy")
     if not data:
         return 0
     if data_ex:
