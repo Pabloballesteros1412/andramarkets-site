@@ -84,11 +84,36 @@ def now_utc():
     return dt.datetime.now(dt.timezone.utc)
 
 
+def canonical(titles):
+    """Each title as Wikipedia files its article today. A page that has been moved leaves a redirect,
+    and the pageviews API counts the redirect's own few views, not the article's: Strategy Inc. read
+    7 times a day under its old title. Titles that cannot be resolved are kept as they are."""
+    out = {t: t for t in titles}
+    try:
+        q = urllib.parse.urlencode({"action": "query", "format": "json", "redirects": 1, "titles": "|".join(urllib.parse.unquote(t) for t in titles)})
+        d = json.loads(get("https://en.wikipedia.org/w/api.php?" + q, headers=WIKI_UA))["query"]
+        step = {x["from"].replace(" ", "_"): x["to"].replace(" ", "_") for x in d.get("normalized", []) + d.get("redirects", [])}
+        for t in titles:
+            cur = urllib.parse.unquote(t)
+            for _ in range(3):  # normalised, then redirected
+                if cur not in step:
+                    break
+                cur = step[cur]
+            if cur != urllib.parse.unquote(t):
+                out[t] = urllib.parse.quote(cur, safe="_(),.")
+                log(f"Wikipedia: {t} is now {cur}")
+    except Exception as e:  # noqa: BLE001
+        log(f"Wikipedia: titles not resolved, using them as written: {type(e).__name__}: {e}", "warning")
+    return out
+
+
 def wikipedia(old):
+    titles = canonical([a[2] for a in WIKI_ARTICLES])
     end = now_utc().date() - dt.timedelta(days=1)
     start = end - dt.timedelta(days=WIKI_DAYS)
     out = []
     for key, name, art, group in WIKI_ARTICLES:
+        art = titles[art]
         url = WIKI.format(art, start.strftime("%Y%m%d00"), end.strftime("%Y%m%d00"))
         for i in range(4):
             try:
