@@ -179,14 +179,37 @@ def pending(site, slug, name, desc):
 LEDE = "What ships, jets, satellites, filings, bets and readers show, before it reaches the prices."
 
 
+# What each screen holds, for the group's map: (name, ...) under each section.
+PARTS = {
+    "ships": ("Live map", "Chokepoints", "Tankers", "Vessels in view"),
+    "jets": ("In the air now", "By maker", "Airfields"),
+    "orbit": ("Heat detections", "Oil and gas flares", "Night lights"),
+    "attention": ("The wall", "By group", "Largest spikes"),
+    "predictions": ("The Fed", "Economy", "Elections", "Largest moves"),
+    "positioning": ("Futures", "Short selling", "Crowding"),
+    "insiders": ("Insiders", "Cluster buys", "Government contracts"),
+    "power": ("Every grid", "The year", "Hour by hour", "Air passengers"),
+}
+MAP_ORDER = ("ships", "orbit", "jets", "attention", "predictions", "positioning", "insiders", "power")  # Ships first (owner)
+
+
 def index(site):
-    """The group's own page: a plain ruled list of its screens, in the note archive's pattern. A landing piece of its
-    own is for the owner to approve; nothing in the site's menu leads here yet."""
-    rows = "".join(f'<li><a href="{slug}/" style="grid-template-columns:minmax(9rem,16rem) minmax(0,1fr) auto"><span class="note-list__title">{name}</span>'
-                   f'<span style="color:var(--ink-2)">{desc}</span>{site.icon("arrow-right")}</a></li>' for slug, name, desc, *_ in SECTIONS)
-    body = (f'<main id="main" class="page"><div class="wrap"><header class="page__head"><h1 class="page__title">Hedge Fund Data</h1>'
-            f'<p class="lede">{LEDE}</p></header><div class="archive"><section class="archive__month"><ol class="note-list" style="grid-column:1/-1;width:100%">{rows}</ol></section></div></div></main>')
-    return site.shell(title="Hedge Fund Data: Andra Markets", desc=LEDE, body=body, home="../", base="../", path=f"{GROUP}/")
+    """The group's own page, as Markets, Research and Careers have theirs: every section and its parts on one map of
+    light, drawn by the Tools map's script (assets/tools-map.js) in the group's own colour. Without the script it is a list."""
+    name = {slug: n for slug, n, *_ in SECTIONS}
+    groups = "".join(
+        f'<li data-key="{k}"><a class="tools-map__name" href="{k}/">{name[k]}</a><ol>'
+        + "".join(f'<li><a href="{k}/">{part}</a></li>' for part in PARTS[k]) + "</ol></li>" for k in MAP_ORDER)
+    body = f"""<main id="main" class="page">
+  <div class="wrap">
+    <header class="page__head">
+      <h1 class="page__title">Hedge Fund Data</h1>
+      <p class="lede">{LEDE}<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
+    </header>
+    <nav class="tools-map tools-map--teal" data-page="hedge-fund-data" data-tint='["170,245,238","90,225,216","30,190,186"]' aria-label="Hedge Fund Data"><ol>{groups}</ol></nav>
+  </div>
+</main>"""
+    return site.shell(title="Hedge Fund Data: Andra Markets", desc=LEDE, body=body, home="../", base="../", path=f"{GROUP}/", scripts=("tools-map.js",))
 
 
 def pages(site):
