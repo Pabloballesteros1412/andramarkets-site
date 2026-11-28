@@ -1,6 +1,37 @@
 {
   "reports": [
     {
+      "slug": "2026-150-opec-decides-2027",
+      "date": "2026-11-28",
+      "type": "research",
+      "title": "OPEC+ Decides 2027: A Capacity Audit, an Iraqi Revolt and a Glut on the Horizon",
+      "summary": "OPEC+ ministers meet online on Sunday 29 November to set output for 2027, with no agreed framework beyond 31 December and the first independent audit of members’ capacity on the table.",
+      "tags": [
+        "commodities"
+      ],
+      "pages": 4
+    },
+    {
+      "slug": "2026-149-too-big-to-smuggle",
+      "date": "2026-11-28",
+      "type": "research",
+      "title": "Too Big to Smuggle: Nvidia’s Most Restricted Racks Turn Up in Shanghai, Pledged as Loan Collateral",
+      "summary": "Chinese loan filings reviewed by Bloomberg show a GB300 NVL72 rack, 72 of Nvidia’s most advanced chips, installed at a Shanghai data centre linked to Alice Huang and pledged to secure a ¥96 million bank loan.",
+      "tags": [
+        "equities"
+      ],
+      "pages": 4
+    },
+    {
+      "slug": "2026-148-the-four-day-comeback",
+      "date": "2026-11-28",
+      "type": "research",
+      "title": "The Four-Day Comeback: Wall Street’s Best Week Since April 2025, Inside Its Worst November Since 2008",
+      "summary": "The S&P 500 rose 5.6% in a holiday-shortened week, the Dow had its biggest weekly gain since October 2022 and the VIX fell by about a third, as Nvidia’s reinstatement of Jensen Huang set off a squeeze in AI shares.",
+      "tags": [],
+      "pages": 5
+    },
+    {
       "slug": "2026-147-cut-off-and-propped-up",
       "date": "2026-11-27",
       "type": "research",
