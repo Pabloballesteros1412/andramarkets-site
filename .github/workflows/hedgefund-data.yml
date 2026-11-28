@@ -15,8 +15,7 @@ name: Hedge Fund Data
 #   Positioning (tools/positioning_data.py): CFTC Commitments of Traders and
 #   FINRA daily short sale volume, no key.
 #   Government contracts (tools/contracts_data.py): USAspending, no key.
-#   Attention (tools/attention_data.py): Wikipedia page views and GDELT news
-#   coverage, no key; once a day.
+#   Attention (tools/attention_data.py): Wikipedia page views, no key; once a day.
 #   Power and passengers (tools/power_data.py): EIA grid demand (EIA_API_KEY)
 #   and TSA checkpoint numbers; every six hours.
 #   Insiders (tools/insiders_data.py): SEC EDGAR Form 4 open-market trades
@@ -194,7 +193,7 @@ jobs:
           try:
               a = json.load(open(".cache/hf/attention.json"))
               print("### Attention")
-              print(f"- Wikipedia: {len((a.get('wikipedia') or {}).get('articles', []))} articles; GDELT: {len((a.get('news') or {}).get('subjects', []))} subjects")
+              print(f"- Wikipedia: {len((a.get('wikipedia') or {}).get('articles', []))} articles")
           except Exception as e:
               print(f"- Attention: {e}")
           try:
