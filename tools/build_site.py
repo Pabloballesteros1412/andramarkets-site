@@ -1176,9 +1176,10 @@ def page(notes, cal):
     spx = [n["closes"]["spx"]["last"] for n in sorted(notes, key=lambda n: n["date"])
            if (n.get("closes") or {}).get("spx", {}).get("last")]
     data = {"spx": spx or [0, 0],
-            "horse": f'assets/horse-particles.webp?v={ver("horse-particles.webp")}'}
+            "horse": f'assets/horse-particles.webp?v={ver("horse-particles.webp")}',
+            "sign": f'assets/crypto-sign.webp?v={ver("crypto-sign.webp")}' if CRYPTO_PUBLIC else ""}
     groups = "".join(
-        f'<section class="sec sec--l" id="{key}" data-shape="{i + 1 if i < 4 else 0}"><div class="sec__in"><h2>{name}</h2>'
+        f'<section class="sec sec--l" id="{key}" data-shape="{i + 1 if i < 5 else 0}"><div class="sec__in"><h2>{name}</h2>'
         f'<p class="copy">{HOME_COPY[key]}</p><ul class="links">'
         + "".join(f'<li><a href="{href}">{label}</a></li>' for label, href, _ in
                   (((GROUP_MAPS[key][1], GROUP_MAPS[key][0], ""),) if key in GROUP_MAPS else links)) + "</ul></div></section>\n"
@@ -1201,7 +1202,7 @@ def page(notes, cal):
 <div class="tv tv--tape" data-tv="tape" data-tv-defer><div class="tv__frame" role="group" aria-label="Live quotes, from TradingView"></div></div>
 <a class="home-tape__hit" href="live-markets/" tabindex="-1" aria-hidden="true"></a></div></section>
 <section class="sec statement" id="record" data-shape="0"><p class="state">{words}</p></section>
-{groups}<section class="sec sec--end" id="contact" data-shape="5"><div class="sec__in"><h2>On the record, every trading day.</h2>
+{groups}<section class="sec sec--end" id="contact" data-shape="6"><div class="sec__in"><h2>On the record, every trading day.</h2>
 <a class="go" href="contact/">Contact us{HOME_ARROW}</a></div>
 <footer class="foot"><span>&copy; {year} Andra Markets</span><span><a href="legal/">For information only. Not investment advice.</a> &middot; <a href="privacy/">Privacy and cookies</a></span></footer></section>
 </main>
