@@ -482,7 +482,7 @@ Fifty markets on eight measures (twenty-five until 13 Nov 2026), from `tools/wor
   - *Moves and rate differentials:* a scatter of each currency's move against the dollar (vertical, chips for the period) against its 3-month interbank rate less the US's (horizontal, percentage points), dashed zero lines, each point a 4.5px dot in `--up` or `--down` by the move's sign (ink when it rounds to zero) with its currency code in ink-2; the readout words the differential without a sign ("1.31 points below the US"), since it is a level. A source line names the OECD rates and the currencies without one.
 - **Nav:** "FX" between Calendar and Daily note in the header (and in the footer). With World markets as well the header holds nine links: the gap tightens to 12px from 1021px to 1080px.
 
-> **Hidden (owner, 27 Nov 2026: "hide the Crypto section until we have it perfect").** `CRYPTO_PUBLIC = False` in `tools/build_site.py`: no Crypto page is built or published, and the menu, homepage, footer and search leave the group out. Its data is still fetched at deploy. Set it to `True` to publish everything below again.
+> **Published (owner, 28 Nov 2026), after a day hidden while the group was finished.** `CRYPTO_PUBLIC` in `tools/build_site.py` is on; `CRYPTO_HIDE=1` builds the site without the group (no pages, and the menu, homepage, footer and search leave it out).
 
 ### Crypto: the front (`crypto/`; owner-approved sketches and build, 28 Nov 2026: "the globe in the middle", the sections either side, "remove the extra text", "remove the numbers", "Where it trades in the same tone as the rest")
 `tools/page_crypto.py` (`landing`), `assets/crypto-globe.js` in layers mode, `.ch` in `assets/theme.css`.
@@ -515,7 +515,6 @@ The Fed & Rates grid, from `.cache/crypto/btc.json` and `.cache/crypto/markets.j
 - **Moving together:** Bitcoin's 90-day correlation with the S&P 500 (solid), the Nasdaq, gold and the dollar (three line styles), a dashed zero, names and levels at the right ends, a read-out under the pointer.
 - **A little Bitcoin in a portfolio:** a slider from 0 to 20% (a 2px track, amber to the thumb, an 18px amber thumb with a glow; the share at the right in 2.5rem/700 `--amber-2`); three figures follow it (what $10,000 became, volatility, the deepest fall, each "against … with none"); under them the portfolio's line in amber with the glow against the plain 60/40 in grey. Then the table for 0, 1, 5 and 10%, and the note that the past promises nothing and this is not advice.
 - **Latest:** the year of Bitcoin, the S&P 500, gold and the dollar; the four correlations; Bitcoin's and the S&P 500's volatility over the last year.
-- **Preview:** while Crypto is hidden, `CRYPTO_PREVIEW=1 python3 tools/build_site.py` builds the group locally.
 
 ### Crypto: Derivatives (`crypto/derivatives/`; owner-approved sketch and build, 27 Nov 2026: "the pulse"; a wall of bars and a ridge of the options by strike were both turned down, so options stay in tables)
 The Fed & Rates grid, from `.cache/crypto/derivs.json` (`tools/crypto_data.py`, Deribit, no key: the DVOL index and the perpetual's funding day by day, each run adding to the cache; every future's mark and open interest; every option's open interest and volatility); `tools/page_crypto.py` (`derivs_page`), `assets/crypto-derivs.js`.

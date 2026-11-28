@@ -58,10 +58,9 @@ import page_recession_watch  # noqa: E402
 import page_market_history  # noqa: E402
 import page_crypto  # noqa: E402
 
-# Crypto stays off the published site until the owner calls it finished (owner, 27 Nov 2026: "hide the Crypto
-# section until we have it perfect"). False: no Crypto pages are built, and the menu, homepage, footer and search
-# leave the group out. Its data is still fetched at deploy, so the caches stay warm. True puts it all back.
-CRYPTO_PUBLIC = os.environ.get("CRYPTO_PREVIEW") == "1"   # off on the site; CRYPTO_PREVIEW=1 builds it locally to look at
+# Crypto is on the site (owner, 28 Nov 2026, with the group's seven sections and its front built). CRYPTO_HIDE=1
+# builds without it: no Crypto pages, and the menu, homepage, footer and search leave the group out.
+CRYPTO_PUBLIC = os.environ.get("CRYPTO_HIDE") != "1"
 import page_interview_simulator  # noqa: E402
 import page_firms  # noqa: E402
 import page_application_tracker  # noqa: E402
