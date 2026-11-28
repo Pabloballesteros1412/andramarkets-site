@@ -52,7 +52,7 @@ def pages(site):
 <div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div></div></main>"""
         out = {"crypto/": site.shell(title="Crypto: Andra Markets", desc="Where the coins trade, and what they are worth.",
                                      body=body, home="../", base="../", path="crypto/")}
-        for path, title in (("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi")):
+        for path, title in ((TRADES, "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi")):
             out[path] = pending(site, path, title)
         return out
     coins = d["coins"]
@@ -101,18 +101,20 @@ def pages(site):
     body = f"""<main id="main" class="page cs-page">
   <div class="wrap">
     <header class="page__head">
-      <h1 class="page__title">Crypto</h1>
+      <h1 class="page__title">Where it trades</h1>
       <p class="lede">{LEDE}</p>
       <p class="note__meta"><span>The whole market {big(d["total"])}</span><span>Bitcoin {d["btc_share"]:.1f}% of it</span><span>Data from CoinGecko, {when}</span></p>
     </header>
     {globe}{seats}
-    {more(site, "crypto/", "../")}
+    {more(site, TRADES, "../../")}
   </div>
 </main>"""
-    out = {"crypto/": site.shell(
-        title="Crypto: Andra Markets",
+    out = {TRADES: site.shell(
+        title="Where crypto trades: Andra Markets",
         desc="Where the day's crypto trading is registered, country by country, on the real Earth.",
-        body=body, home="../", base="../", path="crypto/", scripts=("crypto-globe.js",) if places else ())}
+        body=body, home="../../", base="../../", path=TRADES, scripts=("crypto-globe.js",) if places else ())}
+    nw = load_network(site)
+    out["crypto/"] = landing(site, d, when, data if places else None, nw)
     out["crypto/prices/"] = prices_page(site, d, when)
     hist = load_history(site)
     out["crypto/bitcoin/"] = bitcoin_page(site, d, hist)
@@ -123,13 +125,51 @@ def pages(site):
     out.update(coin_pages(site, d, hist, when, today))
     out["crypto/markets/"] = markets_page(site, d, hist, load_markets(site))
     out["crypto/derivatives/"] = derivs_page(site, d, hist, load_derivs(site))
-    out["crypto/network/"] = network_page(site, d, load_network(site))
+    out["crypto/network/"] = network_page(site, d, nw)
     out["crypto/stablecoins/"] = defi_page(site, d, load_defi(site))
     return out
 
 
+def net_layer(nw):
+    """The Network page's lights, as a layer the landing's globe can put on."""
+    return {"points": nw["points"], "places": [
+        {"name": p["name"], "lon": p["lon"], "lat": p["lat"], "share": p["share"] / 100, "label": f"{p['count']:,} nodes · {p['share']:.0f}%", "more": f"{p['btc']:,.0f} BTC in channels"} for p in nw["places"]]}
+
+
+def landing(site, d, when, trade, nw):
+    """The group's front: the Earth in the middle, the seven sections either side of it, by name alone (owner, 28 Nov 2026)."""
+    layers = {}
+    if trade:
+        layers["trade"] = {"places": trade["places"]}
+    if nw:
+        layers["net"] = net_layer(nw)
+    own = {TRADES: "trade", "crypto/network/": "net"}
+    items = "".join(f'<li><a href="../{p}" data-layer="{own.get(p, "") if own.get(p) in layers else ""}">{t}</a></li>' for p, t in SECTIONS)
+    data = {"asof": d.get("asof"), "layers": layers}
+    body = f"""<main id="main" class="page cs-page chp">
+  <div class="wrap">
+    <section class="ch">
+      <h1 class="page__title">Crypto</h1>
+      <p class="visually-hidden">Where the coins trade, what they are worth and how their networks run.</p>
+      <div class="cg ch__globe" hidden>
+        <canvas class="cg__gl" aria-hidden="true"></canvas>
+        <canvas class="cg__ov" aria-hidden="true"></canvas>
+        <div class="cg__names" aria-hidden="true"></div>
+        <p class="visually-hidden cg__status" role="status" aria-live="polite"></p>
+        <script type="application/json">{json.dumps(data, separators=(",", ":")).replace("</", "<\\/")}</script>
+      </div>
+      <nav aria-label="The sections of Crypto"><ol class="ch__list">{items}</ol></nav>
+    </section>
+    <p class="report__src ch__src">CoinGecko, Coin Metrics, Deribit, mempool.space and DefiLlama, {when}. The Earth: Solar System Scope (CC BY 4.0), from NASA imagery.</p>
+  </div>
+</main>"""
+    return site.shell(title="Crypto: Andra Markets", desc="Where the coins trade, what they are worth and how their networks run.",
+                      body=body, home="../", base="../", path="crypto/", scripts=("crypto-globe.js",))
+
+
 # ---- the other sections ------------------------------------------------------------------------------------------
-SECTIONS = (("crypto/", "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi"))
+TRADES = "crypto/exchanges/"
+SECTIONS = ((TRADES, "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi"))
 HALVINGS = (("2012-11-28", 210000), ("2016-07-09", 420000), ("2020-05-11", 630000), ("2024-04-20", 840000))
 MON = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 

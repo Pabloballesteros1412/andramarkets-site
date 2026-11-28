@@ -1165,7 +1165,7 @@ LAB_N, SIM_N = 11, 9
 TOOLS_N = NUM_WORD[LAB_N + SIM_N]
 HOME_COPY = {"markets": "Prices, rates and what is coming.", "tools": f"{TOOLS_N} tools that run in your browser.",
              "research": "What happened and why, after every close.", "careers": "For students breaking into markets.",
-             "crypto": "Where the coins trade, and what they are worth."}
+             "crypto": "Where the coins trade, what they are worth and how their networks run."}
 HOME_ARROW = ('<svg class="arr" viewBox="0 0 64 10" aria-hidden="true"><path d="M0 5h62M57 1l5 4-5 4" fill="none" '
               'stroke="currentColor" stroke-width="1"/></svg>')
 
@@ -1415,7 +1415,7 @@ NAV_GROUPS = (
         ("Application tracker", "application-tracker/", "Your applications, deadlines and contacts, kept in your browser."))),
     # A fifth group (owner, 27 Nov 2026). One section so far: where the day's trading is registered, and the hundred largest coins.
     ("crypto", "Crypto", "Where the coins trade, and what they are worth.", (
-        ("Where it trades", "crypto/", "The real Earth with the day's trading by country."),
+        ("Where it trades", "crypto/exchanges/", "The real Earth with the day's trading by country."),
         ("Prices", "crypto/prices/", "The hundred largest coins: their shares, their moves and their last seven days."),
         ("Bitcoin", "crypto/bitcoin/", "The price since 2010, its four halvings and every great fall."),
         ("Bitcoin vs markets", "crypto/markets/", "Beside shares, gold, the dollar and bonds, and inside a portfolio."),
@@ -1461,14 +1461,14 @@ NAV_CHARTS = {
 
 
 # The menu's groups that are one map each: group key -> (the map's address, its link on the homepage).
-CRYPTO_FOOT = ('<div class="foot__group"><p class="foot__gt">Crypto</p><a href="{base}crypto/">Where it trades</a>'
+CRYPTO_FOOT = ('<div class="foot__group"><p class="foot__gt">Crypto</p><a href="{base}crypto/exchanges/">Where it trades</a>'
                '<a href="{base}crypto/prices/">Prices</a><a href="{base}crypto/bitcoin/">Bitcoin</a><a href="{base}crypto/markets/">Bitcoin vs markets</a><a href="{base}crypto/derivatives/">Derivatives</a><a href="{base}crypto/network/">Network</a><a href="{base}crypto/stablecoins/">Stablecoins &amp; DeFi</a></div>')
 
 GROUP_MAPS = {"markets": ("markets/", "All markets, on one map"),
               "tools": ("tools-map/", "All tools, on one map"),
               "research": ("research-map/", "All research, on one map"),
               "careers": ("careers/", "Everything for a career in markets, on one map"),
-              "crypto": ("crypto/", "Where the day's trading is registered, on the real Earth")}
+              "crypto": ("crypto/", "All of Crypto, around the Earth")}
 
 
 def nav_chart(href):
@@ -6817,6 +6817,7 @@ SEARCH_PAGES = [
     ("Higher or lower", "simulators/higher-or-lower/", "Simulators"),
     ("Lump sum or drip", "simulators/lump-sum-or-drip/", "Simulators"),
     ("Crypto", "crypto/", "Page"),
+    ("Where crypto trades", "crypto/exchanges/", "Page"),
     ("Crypto prices", "crypto/prices/", "Page"),
     ("Bitcoin", "crypto/bitcoin/", "Page"),
     ("Bitcoin vs markets", "crypto/markets/", "Page"),

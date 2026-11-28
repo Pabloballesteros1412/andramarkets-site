@@ -173,7 +173,12 @@
   function setLayer(name) { var L = LAYERS && LAYERS[name] || null; Object.keys(pool).forEach(function (n) { pool[n].remove(); }); pool = {};
     P = L ? (L.places || []).filter(function (p) { return p.share > 0; }) : []; PTS = L && L.points ? (L._pts || (L._pts = toPts(L.points))) : null; TOP = P.length ? P[0].share : 1;
     stops(); pick = null; focus = null; to = null; idle = 0; if (STOPS.length) { go(0); if (still) { view.lon = to.lon; view.lat = to.lat; to = null; } } else if (status) status.textContent = ""; wake(); if (still) draw(); }
-  if (LAYERS) { box.addEventListener("cg:layer", function (e) { setLayer(e.detail); }); if (DATA.layer) setLayer(DATA.layer); }
+  // The landing's sections put their own layer on as the pointer or the focus reaches them; a section without one leaves the Earth alone.
+  if (LAYERS) { var cur = null, links = [].slice.call(document.querySelectorAll("a[data-layer]"));
+    var put = function (name) { name = name && LAYERS[name] ? name : null; if (name === cur) return; cur = name; setLayer(name); };
+    box.addEventListener("cg:layer", function (e) { put(e.detail); });
+    links.forEach(function (a) { var on = function () { put(a.getAttribute("data-layer")); }; a.addEventListener("pointerenter", on); a.addEventListener("focus", on); });
+    if (DATA.layer) put(DATA.layer); }
   if ("IntersectionObserver" in window) new IntersectionObserver(function (en) { seen = en[0].isIntersecting; wake(); }).observe(box);
   document.addEventListener("visibilitychange", function () { wake(); });
   if ("ResizeObserver" in window) new ResizeObserver(size).observe(box); else window.addEventListener("resize", size);
