@@ -29,6 +29,7 @@ import json
 import os
 import re
 import sys
+import time
 import urllib.parse
 from pathlib import Path
 
@@ -45,6 +46,7 @@ GRIDS = [("US48", "Lower 48 states"), ("PJM", "PJM (Mid-Atlantic, incl. northern
          ("NYIS", "New York ISO"), ("ISNE", "ISO New England"), ("SOCO", "Southern Company"), ("TVA", "Tennessee Valley Authority")]
 DAILY_DAYS, HOURLY_DAYS = 3 * 366, 14
 TSA = "https://www.tsa.gov/travel/passenger-volumes"
+PAST_YEARS = 3
 TSA_UA = {"User-Agent": "AndraMarketsSite/1.0 (https://github.com/Pabloballesteros1412/andramarkets-site)"}
 REFRESH_HOURS = 6
 
@@ -97,15 +99,35 @@ def power():
             "hourly_us48_utc": hourly, "source": "U.S. Energy Information Administration, Hourly Electric Grid Monitor"}
 
 
-def passengers():
-    html = get(TSA, headers=TSA_UA, limit=10 * 1024 * 1024).decode("utf-8", "replace")
+def tsa_days(url):
+    html = get(url, headers=TSA_UA, limit=10 * 1024 * 1024).decode("utf-8", "replace")
     rows = re.findall(r"<td[^>]*>\s*(\d{1,2}/\d{1,2}/\d{4})\s*</td>\s*<td[^>]*>\s*([\d,]+)\s*</td>", html)
     days = {}
     for d, n in rows:
         m, dd, y = (int(x) for x in d.split("/"))
         days[dt.date(y, m, dd).isoformat()] = int(n.replace(",", ""))
-    if len(days) < 30:
-        raise ValueError(f"TSA page held {len(days)} days")
+    return days
+
+
+def passengers(old):
+    """This year's page, and once each the pages of the PAST_YEARS before it, which the page needs to
+    compare a day with the same day a year earlier. A past year already held is not asked for again."""
+    days = dict((old or {}).get("days") or {})
+    now = tsa_days(TSA)
+    if len(now) < 30 and not days:
+        raise ValueError(f"TSA page held {len(now)} days")
+    days.update(now)
+    this = now_utc().year
+    for y in range(this - 1, this - 1 - PAST_YEARS, -1):
+        if sum(1 for d in days if d.startswith(str(y))) >= 360:
+            continue
+        try:
+            time.sleep(2)
+            got = tsa_days(f"{TSA}/{y}")
+            days.update({d: n for d, n in got.items() if d.startswith(str(y))})
+            log(f"TSA {y}: {len(got)} days")
+        except Exception as e:  # noqa: BLE001
+            log(f"TSA {y}: {type(e).__name__}: {e}", "warning")
     return {"fetched": now_utc().strftime("%Y-%m-%dT%H:%M:%SZ"), "days": dict(sorted(days.items())),
             "source": "Transportation Security Administration, checkpoint travel numbers"}
 
@@ -121,8 +143,10 @@ def main():
     out = {"schema": SCHEMA, "power": old.get("power"), "passengers": old.get("passengers")}
     fresh = (now_utc() - dt.timedelta(hours=REFRESH_HOURS)).strftime("%Y-%m-%dT%H:%M:%SZ")
     did = False
-    for part, fn in (("power", power), ("passengers", passengers)):
-        if not a.force and (out[part] or {}).get("fetched", "") >= fresh:
+    last_year = str(now_utc().year - 1)
+    has_past = any(d.startswith(last_year) for d in (out["passengers"] or {}).get("days") or {})
+    for part, fn in (("power", power), ("passengers", lambda: passengers(out["passengers"]))):
+        if not a.force and (out[part] or {}).get("fetched", "") >= fresh and (part == "power" or has_past):
             continue
         try:
             out[part] = fn()
