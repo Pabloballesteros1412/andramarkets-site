@@ -106,7 +106,7 @@ jobs:
         run: python3 tools/contracts_data.py
       - name: Attention
         continue-on-error: true
-        timeout-minutes: 4
+        timeout-minutes: 8
         run: python3 tools/attention_data.py
       - name: Power and passengers
         continue-on-error: true
