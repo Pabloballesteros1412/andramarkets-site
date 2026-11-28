@@ -80,7 +80,7 @@
   function project(p) { var r = [p[0] - CAM[0], p[1] - CAM[1], p[2] - CAM[2]], z = dot(r, FW); return [W / 2 + dot(r, RT) / z / TN * H / 2, H / 2 - H * OY - dot(r, UP) / z / TN * H / 2]; }
   function size() {
     D = Math.min(window.devicePixelRatio || 1, 1.75); W = gcv.clientWidth; H = gcv.clientHeight; if (!W) return; narrow = W < 700;
-    DIST = narrow ? 1 / Math.sin(Math.atan(TN * Math.min(1, W / H) * 0.86)) : 3.9; OY = narrow ? -0.04 : -0.1;
+    DIST = 1 / Math.sin(Math.atan(TN * Math.min(1, W / H) * (narrow ? 0.86 : 0.72))); OY = narrow ? 0 : -0.03;   // the whole globe inside the block, with room for its glow: never cut by an edge (owner, 28 Nov 2026)
     gcv.width = ov.width = Math.round(W * D); gcv.height = ov.height = Math.round(H * D); gl.viewport(0, 0, gcv.width, gcv.height); c.setTransform(D, 0, 0, D, 0, 0); if (run) draw(); wake();
   }
   function go(i) { at = (i + STOPS.length) % STOPS.length; from = { lon: view.lon, lat: view.lat }; to = STOPS[at]; k = 0; focus = to.p; hold = 0; say(focus); }
