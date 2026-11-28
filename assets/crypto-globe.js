@@ -19,6 +19,8 @@
   var c = ov.getContext("2d"); if (!gl || !c) return;
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches, RAD = Math.PI / 180, FOV = 30 * RAD, TN = Math.tan(FOV / 2);
   var BASE = (document.body.getAttribute("data-base") || "../") + "assets/crypto/", TOP = P[0].share;
+  // Network (crypto/network/): the same Earth with a point of light for each Lightning node that publishes where it is; the places are then countries, named without a column.
+  var PTS = DATA.points ? DATA.points.map(function (q) { var cl = Math.cos(q[1] * Math.PI / 180); return [cl * Math.sin(q[0] * Math.PI / 180), Math.sin(q[1] * Math.PI / 180), cl * Math.cos(q[0] * Math.PI / 180), q[2] || 0]; }) : null;
   function vec(lon, lat) { var cl = Math.cos(lat * RAD); return [cl * Math.sin(lon * RAD), Math.sin(lat * RAD), cl * Math.cos(lon * RAD)]; }
   function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
   function norm(a) { var l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; }
@@ -82,7 +84,7 @@
     gcv.width = ov.width = Math.round(W * D); gcv.height = ov.height = Math.round(H * D); gl.viewport(0, 0, gcv.width, gcv.height); c.setTransform(D, 0, 0, D, 0, 0); if (run) draw(); wake();
   }
   function go(i) { at = (i + STOPS.length) % STOPS.length; from = { lon: view.lon, lat: view.lat }; to = STOPS[at]; k = 0; focus = to.p; hold = 0; say(focus); }
-  function say(p) { if (status) status.textContent = p.name + ": " + pct(p.share) + " of the day's trading, " + p.n + " exchange" + (p.n > 1 ? "s" : "") + (p.top.length ? ", the largest " + p.top[0] : "") + "."; }
+  function say(p) { if (p.label) { if (status) status.textContent = p.name + ": " + p.label + "."; return; } if (status) status.textContent = p.name + ": " + pct(p.share) + " of the day's trading, " + p.n + " exchange" + (p.n > 1 ? "s" : "") + (p.top.length ? ", the largest " + p.top[0] : "") + "."; }
   function ease(x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
   function step(dt) {
     clock += dt;
@@ -102,12 +104,17 @@
   var COLS = [];
   function columns() {
     c.clearRect(0, 0, W, H); COLS = []; var scale = Math.min(1.25, H / 760) * (narrow ? 0.8 : 1), lit = pick || focus;
+    if (PTS) { c.globalCompositeOperation = "lighter"; var inv = 1 / DIST;
+      for (var q = 0; q < PTS.length; q++) { var v = PTS[q], f = (v[0] * CAM[0] + v[1] * CAM[1] + v[2] * CAM[2]) * inv; if (f < 0.3) continue; var s = project(v), r = 0.9 + v[3] * 1.6, al = Math.min(1, (f - 0.3) * 3);
+        c.fillStyle = "rgba(255,176,72," + (0.22 * al).toFixed(3) + ")"; c.beginPath(); c.arc(s[0], s[1], r * 2.6, 0, 7); c.fill(); c.fillStyle = "rgba(255,226,170," + (0.9 * al).toFixed(3) + ")"; c.fillRect(s[0] - r / 2, s[1] - r / 2, r, r); }
+      c.globalCompositeOperation = "source-over"; }
     P.forEach(function (p) {
       var n = vec(p.lon, p.lat), face = dot(n, norm([CAM[0] - n[0], CAM[1] - n[1], CAM[2] - n[2]])); if (face < 0.04) return;
       var a = project(n), o = project([n[0] * 1.05, n[1] * 1.05, n[2] * 1.05]), dx = o[0] - a[0], dy = o[1] - a[1], l = Math.hypot(dx, dy) || 1;
       var sk = Math.min(1, l / (0.05 * H * 0.9)); dx = dx / l * sk; dy = dy / l * sk - (1 - sk); l = Math.hypot(dx, dy) || 1; dx /= l; dy /= l;   // outward from the globe; up the screen where the outward way points at us
       var len = (12 + 170 * Math.sqrt(p.share / TOP)) * scale, fade = Math.min(1, (face - 0.04) / 0.25) * (lit && lit !== p ? 0.45 : 1), w = 1 + 2.2 * Math.sqrt(p.share / TOP);
       var tx = a[0] + dx * len, ty = a[1] + dy * len;
+      if (PTS) { COLS.push({ p: p, a: a, t: [a[0], a[1] - 6], fade: fade }); return; }
       COLS.push({ p: p, a: a, t: [tx, ty], fade: fade });
       var g = c.createLinearGradient(a[0], a[1], tx, ty);
       g.addColorStop(0, "rgba(255,230,190," + 0.95 * fade + ")"); g.addColorStop(0.6, "rgba(255,180,90," + 0.6 * fade + ")"); g.addColorStop(1, "rgba(255,160,60,0)");
@@ -129,7 +136,7 @@
     order.forEach(function (col) {
       var p = col.p, mine = p === lit; if (!mine && (shown >= MAX || p.share < 0.006 || col.fade < 0.3)) return;
       var el = pool[p.name]; if (!el) { el = pool[p.name] = document.createElement("div"); el.className = "cg__name"; el.innerHTML = "<b></b><span class=\"lens-read\"></span>"; el.firstChild.textContent = p.name; layer.appendChild(el); }
-      el.lastChild.textContent = pct(p.share) + " · " + p.n + " exchange" + (p.n > 1 ? "s" : "") + (mine && p.top.length ? " · " + p.top.join(", ") : "");
+      el.lastChild.textContent = p.label ? p.label + (mine && p.more ? " · " + p.more : "") : pct(p.share) + " · " + p.n + " exchange" + (p.n > 1 ? "s" : "") + (mine && p.top.length ? " · " + p.top.join(", ") : "");
       el.classList.toggle("is-on", mine); var w = el.offsetWidth, h = el.offsetHeight, t = col.t;
       var spots = [[t[0] - w / 2, t[1] - h - 6], [t[0] + 8, t[1] - h / 2], [t[0] - w - 8, t[1] - h / 2]], ok = null;
       for (var j = 0; j < 3 && !ok; j++) { var s = spots[j], bx = [s[0] - 4, s[1] - 2, s[0] + w + 4, s[1] + h + 2]; if (bx[0] < 4 || bx[2] > W - 4 || bx[1] < 4) continue;
@@ -145,7 +152,7 @@
   function frame(now) { var dt = last ? Math.min(0.05, (now - last) / 1000) : 0; last = now; step(dt); draw();
     run = !still && seen && !document.hidden ? requestAnimationFrame(frame) : 0; }
   function wake() { if (still) { requestAnimationFrame(draw); return; } if (!run && seen && !document.hidden) { last = 0; run = requestAnimationFrame(frame); } }
-  function near(e) { var b = ov.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top, best = 12, hit = null;
+  function near(e) { var b = ov.getBoundingClientRect(), x = e.clientX - b.left, y = e.clientY - b.top, best = PTS ? 34 : 12, hit = null;
     COLS.forEach(function (col) { var ax = col.a[0], ay = col.a[1], vx = col.t[0] - ax, vy = col.t[1] - ay, u = Math.max(0, Math.min(1, ((x - ax) * vx + (y - ay) * vy) / (vx * vx + vy * vy || 1))), d = Math.hypot(ax + vx * u - x, ay + vy * u - y);
       if (d < best) { best = d; hit = col.p; } }); return hit; }
   ov.addEventListener("pointerdown", function (e) { drag = { x: e.clientX, y: e.clientY, lon: view.lon, lat: view.lat, moved: false }; to = null; ov.setPointerCapture(e.pointerId); });
