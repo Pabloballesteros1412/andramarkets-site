@@ -18,7 +18,8 @@ S&P 500, the Nasdaq Composite, gold, the dollar index and long Treasuries (Yahoo
 Finance), for Bitcoin vs markets. And .cache/crypto/derivs.json: Bitcoin's derivatives
 on Deribit (the DVOL index, the perpetual's funding, futures and options), for
 Derivatives. And .cache/crypto/network.json: Bitcoin's network from mempool.space
-(hashrate, difficulty, pools, fees, the queue and the Lightning network), for Network. tools/page_crypto.py reads them all; nothing here
+(hashrate, difficulty, pools, fees, the queue and the Lightning network), for Network.
+And .cache/crypto/defi.json: stablecoins and DeFi from DefiLlama, for Stablecoins & DeFi. tools/page_crypto.py reads them all; nothing here
 is published as a file.
 
 Source: CoinGecko's public API, no key (https://www.coingecko.com/en/api). Its
@@ -375,6 +376,44 @@ def network():
             "source": "mempool.space", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
 
 
+DEFI = ROOT / ".cache" / "crypto" / "defi.json"
+LLAMA = "https://api.llama.fi/"
+LLAMA_STABLE = "https://stablecoins.llama.fi/"
+DEFI_FROM = 1546300800   # 1 Jan 2019
+
+
+def defi():
+    """Stablecoins and DeFi from DefiLlama, no key: every stablecoin's supply day by day in total, the largest
+    coins (supply, a month before, price, what backs each), supply by backing and by chain, the value locked in
+    DeFi day by day, and its largest chains and protocols (exchanges left out)."""
+    import time
+
+    def g(url):
+        time.sleep(0.4)
+        return get_url(url)
+    total = [[int(r["date"]), round(((r.get("totalCirculatingUSD") or {}).get("peggedUSD") or 0) / 1e9, 3)] for r in g(LLAMA_STABLE + "stablecoincharts/all")]
+    total = [r for r in total if r[0] >= DEFI_FROM][::2]
+    coins = [x for x in g(LLAMA_STABLE + "stablecoins?includePrices=true")["peggedAssets"] if (x.get("circulating") or {}).get("peggedUSD")]
+    coins.sort(key=lambda x: -x["circulating"]["peggedUSD"])
+    supply = sum(x["circulating"]["peggedUSD"] for x in coins)
+    backing = {}
+    for x in coins:
+        kind = {"fiat-backed": "fiat", "algorithmic": "formula"}.get(x.get("pegMechanism"), "crypto")
+        backing[kind] = backing.get(kind, 0) + x["circulating"]["peggedUSD"]
+    chains = sorted(([c["name"], (c.get("totalCirculatingUSD") or {}).get("peggedUSD") or 0] for c in g(LLAMA_STABLE + "stablecoinchains")), key=lambda c: -c[1])[:10]
+    tvl = [[r["date"], round(r["tvl"] / 1e9, 3)] for r in g(LLAMA + "v2/historicalChainTvl") if r["date"] >= DEFI_FROM][::2]
+    dchains = sorted(([c["name"], c.get("tvl") or 0] for c in g(LLAMA + "v2/chains")), key=lambda c: -c[1])[:10]
+    prot = [x for x in g(LLAMA + "protocols") if x.get("tvl") and x.get("category") not in ("CEX", "Chain")]
+    prot.sort(key=lambda x: -x["tvl"])
+    if len(total) < 500 or len(tvl) < 500 or len(coins) < 20:
+        raise ValueError("unexpected DefiLlama data")
+    return {"total": total, "supply": supply, "count": len(coins), "backing": backing, "chains": chains, "tvl": tvl, "defi_chains": dchains,
+            "coins": [{"name": x["name"], "symbol": x["symbol"], "supply": x["circulating"]["peggedUSD"], "month": (x.get("circulatingPrevMonth") or {}).get("peggedUSD"),
+                       "price": x.get("price"), "peg": x.get("pegType"), "backing": x.get("pegMechanism")} for x in coins[:12]],
+            "protocols": [[x["name"], x.get("category") or "", x["tvl"], x.get("change_7d")] for x in prot[:12]],
+            "source": "DefiLlama", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+
+
 MARKETS = ROOT / ".cache" / "crypto" / "markets.json"
 # What Bitcoin is set beside on the Bitcoin vs markets page: Yahoo Finance symbols, daily closes (adjusted, so the
 # Treasury fund carries its income; the two share indices are price levels, without dividends).
@@ -510,6 +549,13 @@ def main():
         print(f"crypto: network hashrate {len(nw['hash'])} points, {len(nw['pools']['list'])} pools, {len(nw['places'])} Lightning countries, {len(nw['points'])} lights")
     except Exception as e:  # noqa: BLE001
         warn(f"crypto: network: {type(e).__name__}: {e}; keeping the last copy")
+    try:
+        df = defi()
+        DEFI.parent.mkdir(parents=True, exist_ok=True)
+        DEFI.write_text(json.dumps(df, separators=(",", ":")), encoding="utf-8")
+        print(f"crypto: defi {df['count']} stablecoins, supply {len(df['total'])} points, TVL {len(df['tvl'])} points, {len(df['protocols'])} protocols")
+    except Exception as e:  # noqa: BLE001
+        warn(f"crypto: defi: {type(e).__name__}: {e}; keeping the last copy")
     if not data:
         return 0
     if data_ex:

@@ -52,7 +52,7 @@ def pages(site):
 <div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div></div></main>"""
         out = {"crypto/": site.shell(title="Crypto: Andra Markets", desc="Where the coins trade, and what they are worth.",
                                      body=body, home="../", base="../", path="crypto/")}
-        for path, title in (("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network")):
+        for path, title in (("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi")):
             out[path] = pending(site, path, title)
         return out
     coins = d["coins"]
@@ -124,11 +124,12 @@ def pages(site):
     out["crypto/markets/"] = markets_page(site, d, hist, load_markets(site))
     out["crypto/derivatives/"] = derivs_page(site, d, hist, load_derivs(site))
     out["crypto/network/"] = network_page(site, d, load_network(site))
+    out["crypto/stablecoins/"] = defi_page(site, d, load_defi(site))
     return out
 
 
 # ---- the other sections ------------------------------------------------------------------------------------------
-SECTIONS = (("crypto/", "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"))
+SECTIONS = (("crypto/", "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi"))
 HALVINGS = (("2012-11-28", 210000), ("2016-07-09", 420000), ("2020-05-11", 630000), ("2024-04-20", 840000))
 MON = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -1000,3 +1001,90 @@ def network_page(site, d, nw):
 
 def big_usd(v):
     return f"${v / 1e9:.1f}bn" if v >= 1e9 else f"${v / 1e6:,.0f}m"
+
+
+# ---- Stablecoins & DeFi (crypto/stablecoins/; owner, 28 Nov 2026: a line of light "the same as all the others" and a
+# river of strands were turned down; the plain data page was accepted: "that will do") ----
+BACKING = {"fiat-backed": "Dollars and bills", "algorithmic": "A formula"}
+
+
+def load_defi(site):
+    try:
+        m = json.loads((site.ROOT / ".cache" / "crypto" / "defi.json").read_text(encoding="utf-8"))
+        return m if len(m.get("total") or []) > 300 and m.get("coins") else None
+    except (OSError, ValueError):
+        return None
+
+
+def defi_page(site, d, df):
+    path = "crypto/stablecoins/"
+    if not df:
+        return pending(site, path, "Stablecoins &amp; DeFi")
+    try:
+        fetched = dt.datetime.fromisoformat(df["fetched"])
+        when = f"{fetched.day} {fetched:%b %Y}, {fetched:%H:%M} UTC"
+    except (KeyError, ValueError):
+        when = ""
+    supply, coins = df["supply"], df["coins"]
+    share = lambda v, tot: f"{v / tot * 100:.1f}%" if v / tot < 0.01 else f"{v / tot * 100:.0f}%"
+
+    def bars(rows, tot):
+        return "".join(f'<div class="mk-row"><span>{site.esc(n)}</span><i><b style="width:{min(100, v / tot * 100):.1f}%"></b></i><span>{share(v, tot)}</span></div>' for n, v in rows)
+    coin_rows = ""
+    for c in coins:
+        month = (c["supply"] / c["month"] - 1) * 100 if c.get("month") else None
+        # a change of more than two fifths in a month is a coin moved from one contract to another, not a market move
+        month_cell = move(month) if month is not None and abs(month) <= 40 else '<span class="cs-none">n/a</span>'
+        off = (c["price"] - 1) * 100 if c.get("price") and c.get("peg") == "peggedUSD" else None
+        off_cell = f'<span class="{"up" if round(off, 2) > 0 else "down" if round(off, 2) < 0 else ""}">{signed(off, 2)}%</span>' if off is not None else '<span class="cs-none">n/a</span>'
+        coin_rows += (f'<tr><th scope="row">{site.esc(c["name"])} <span class="cs-sym">{site.esc(c["symbol"])}</span></th><td>{big(c["supply"])}</td><td>{c["supply"] / supply * 100:.1f}%</td>'
+                      f'<td>{month_cell}</td><td class="sd-l">{BACKING.get(c.get("backing"), "Other coins")}</td><td>{off_cell}</td></tr>')
+    back = df["backing"]
+    tot, tvl = df["total"], df["tvl"]
+    rec_i = max(range(len(tot)), key=lambda i: tot[i][1])
+    tvl_i = max(range(len(tvl)), key=lambda i: tvl[i][1])
+    mon = lambda ts: (lambda x: f"{MON[x.month - 1]} {x.year}")(dt.datetime.fromtimestamp(ts, dt.timezone.utc))
+    tvl_now = tvl[-1][1] * 1e9
+    year_ago = next((v for t, v in tot if t >= tot[-1][0] - 365 * 86400), tot[0][1])
+    prot_rows = "".join(f'<tr><th scope="row">{site.esc(n)}</th><td class="sd-l">{site.esc(cat)}</td><td>{big(v)}</td><td>{move(ch) if ch is not None else "<span class=cs-none>n/a</span>"}</td></tr>' for n, cat, v, ch in df["protocols"])
+    side = kpis((("Stablecoins", big(supply), f"{df['count']} coins"), (f"{site.esc(coins[0]['name'])}'s share", f"{coins[0]['supply'] / supply * 100:.0f}%", big(coins[0]["supply"])),
+                 (f"{site.esc(coins[1]['symbol'])}'s share", f"{coins[1]['supply'] / supply * 100:.0f}%", big(coins[1]["supply"])), ("Backed by dollars", f"{back.get('fiat', 0) / supply * 100:.0f}%", "of all stablecoins"),
+                 (f"On {site.esc(df['chains'][0][0])}", share(df["chains"][0][1], supply), "of stablecoins"), (f"On {site.esc(df['chains'][1][0])}", share(df["chains"][1][1], supply), "of stablecoins"),
+                 ("Locked in DeFi", big(tvl_now), "every chain"), ("Largest protocol", site.esc(df["protocols"][0][0]), big(df["protocols"][0][2]))))
+    data = {"total": {"t": [r[0] for r in tot], "v": [r[1] for r in tot]}, "tvl": {"t": [r[0] for r in tvl], "v": [r[1] for r in tvl]}}
+    body = f"""<main id="main" class="page dd fr cs-page vm sdp">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <h1 class="page__title">Stablecoins &amp; DeFi</h1>
+      <p class="lede">The dollars that live on blockchains, who issues them, and the money put to work there.</p>
+      <p class="note__meta"><span>DefiLlama</span><span>Updated {when}</span><span>Refreshed at every deploy</span></p>
+    </header>
+    <div class="dd__main fr__main">
+      <section class="fr__panel" aria-labelledby="sd-tot-h"><div class="fr__ph"><h2 id="sd-tot-h">How many there are</h2></div><p class="fr__intro">A stablecoin promises to be worth one unit of a currency, nearly always the dollar. Every one in circulation, in dollars, since 2019.</p>
+        <div class="vm-plot" data-chart="total" data-unit="in circulation"></div>
+        <p class="lens-read vm-read" data-read="total" aria-live="polite">${tot[-1][1]:,.0f}bn at the last daily count, {move((tot[-1][1] / year_ago - 1) * 100)} in a year · its record ${tot[rec_i][1]:,.0f}bn in {mon(tot[rec_i][0])} · it fell by a third after Terra collapsed in May 2022</p>
+        <p class="fr__src">DefiLlama, {df["count"]} stablecoins.</p></section>
+      <section class="fr__panel" aria-labelledby="sd-who-h"><div class="fr__ph"><h2 id="sd-who-h">Who issues them</h2></div><p class="fr__intro">The twelve largest: how many are in circulation, their share, how the month went and how close each trades to the dollar it promises.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Coin</th><th scope="col">In circulation</th><th scope="col">Share</th><th scope="col">Month</th><th scope="col" class="sd-l">Backed by</th><th scope="col">Off its peg</th></tr></thead><tbody>{coin_rows}</tbody></table></div>
+        <p class="fr__src">DefiLlama, {when}. Month: the change in coins in circulation, left out where a coin moved to a new contract. Off its peg: the price against one dollar.</p></section>
+      <section class="fr__panel" aria-labelledby="sd-back-h"><div class="fr__ph"><h2 id="sd-back-h">What backs them</h2></div><p class="fr__intro">Some issuers hold dollars and Treasury bills in a bank; some hold other coins as collateral; a few hold only a formula.</p>
+        <div class="mk-bars">{bars((("Dollars and Treasury bills", back.get("fiat", 0)), ("Other coins as collateral", back.get("crypto", 0)), ("A formula", back.get("formula", 0))), supply)}</div>
+        <p class="fr__src">DefiLlama, by the mechanism each coin declares.</p></section>
+      <section class="fr__panel" aria-labelledby="sd-where-h"><div class="fr__ph"><h2 id="sd-where-h">Where they live</h2></div><p class="fr__intro">The blockchains that carry the most stablecoins.</p>
+        <div class="mk-bars">{bars(df["chains"][:7], supply)}</div><p class="fr__src">DefiLlama.</p></section>
+      <section class="fr__panel" aria-labelledby="sd-tvl-h"><div class="fr__ph"><h2 id="sd-tvl-h">Money at work in DeFi</h2></div><p class="fr__intro">The value locked in decentralised finance: coins lent, staked or pooled in programs that run without a bank.</p>
+        <div class="vm-plot" data-chart="tvl" data-unit="locked"></div>
+        <p class="lens-read vm-read" data-read="tvl" aria-live="polite">{big(tvl_now)} locked today · its record ${tvl[tvl_i][1]:,.0f}bn in {mon(tvl[tvl_i][0])}, {move((tvl[-1][1] / tvl[tvl_i][1] - 1) * 100)} from it</p>
+        <p class="fr__src">DefiLlama, total value locked across every chain, in US dollars.</p></section>
+      <section class="fr__panel" aria-labelledby="sd-big-h"><div class="fr__ph"><h2 id="sd-big-h">The largest chains and protocols</h2></div><p class="fr__intro">Where that money sits: by blockchain, then by program.</p>
+        <div class="mk-bars sd-gap">{bars(df["defi_chains"][:7], tvl_now)}</div>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Protocol</th><th scope="col" class="sd-l">What it does</th><th scope="col">Locked</th><th scope="col">Week</th></tr></thead><tbody>{prot_rows}</tbody></table></div>
+        <p class="fr__src">DefiLlama, {when}. Exchanges are left out. For information only. Not investment advice.</p></section>
+      {more(site, path, "../../")}
+      <script type="application/json" id="sd-data">{json.dumps(data, separators=(",", ":"))}</script>
+    </div>
+    <aside class="report__side dd__side" aria-labelledby="side-title"><h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{side}</ul><p class="report__src">DefiLlama, {when}.</p></aside>
+  </div>
+</main>"""
+    return site.shell(title="Stablecoins & DeFi: Crypto: Andra Markets", desc=f"{big(supply)} of stablecoins: who issues them, what backs them and which blockchains carry them, and the {big(tvl_now)} locked in DeFi by chain and protocol.",
+                      body=body, home="../../", base="../../", path=path, scripts=("crypto-defi.js",))

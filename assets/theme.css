@@ -818,6 +818,7 @@ a.nav__btn{display:inline-flex}
 @media (max-width:699px){.dvh .vr__date{top:0;font-size:2.25rem}.dvh .vr__ctl{left:auto;top:6px}}
 .cg--points .cg__name{text-shadow:0 0 5px #000,0 0 5px #000,0 0 12px #000,0 0 12px #000,0 0 22px #000}
 .nwp .page__head{pointer-events:auto}.nwp .cg{text-align:left;margin-top:-24px}.nwp .nwh{margin-top:24px}
+.vm-t .sd-l{text-align:left;padding-left:14px}.sd-gap{margin-bottom:26px}
 .vm-t{font-size:.9375rem;margin-top:14px}.vm-t td,.vm-t th{text-align:right}.vm-t th:first-child,.vm-t td:first-child{text-align:left}
 .vm-plot{margin-top:18px}.vm-plot canvas{display:block;outline:0}.vm-plot canvas:focus-visible{box-shadow:0 0 0 1px var(--ink-3)}.vm-read{margin-top:10px;min-height:1.5em}
 .vm .up{color:var(--up-text)}.vm .down{color:var(--down-text)}
