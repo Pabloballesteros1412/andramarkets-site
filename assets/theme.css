@@ -810,9 +810,10 @@ a.nav__btn{display:inline-flex}
 @media (min-width:900px){.ch{height:clamp(600px,calc(100vh - 190px),900px)}
 .cg.ch__globe{position:absolute;left:24%;right:24%;top:96px;bottom:12px;width:auto;height:auto;margin:0}
 .ch nav{position:absolute;left:max(0px,calc(50% - 664px));right:max(0px,calc(50% - 664px));top:96px;bottom:0;display:flex;align-items:center;pointer-events:none}
-.ch__list{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,auto);grid-auto-flow:column;column-gap:min(50vw,700px);row-gap:34px}
-.ch__list a{pointer-events:auto;width:fit-content}.ch__list li:nth-child(-n+4) a{margin-left:auto;text-align:right}}
+.ch__list{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,auto);grid-auto-flow:column;column-gap:min(50vw,700px);row-gap:34px}
+.ch__list a{pointer-events:auto;width:fit-content}.ch__list li:nth-child(-n+3) a{margin-left:auto;text-align:right}}
 @media (max-width:899px){.cg.ch__globe{margin-top:0}.ch__list{text-align:center;margin-top:8px}.ch__list a{font-size:1.375rem;padding:11px 0;opacity:.9}}
+.btc-vs{margin-top:clamp(40px,7vh,72px)}
 .cs-more{margin:clamp(40px,7vh,72px) 0 0;padding-top:18px;border-top:1px solid var(--rule);font-size:.9375rem;color:var(--ink-2)}
 .cs-more a{color:var(--ink)}.cs-more [aria-current]{color:var(--ink-3)}.cs-more__k{color:var(--ink-3);margin-right:8px}
 @media (max-width:699px){.cs-tab .mk-sp{display:none}.mk-row{grid-template-columns:110px 1fr 56px;gap:10px}}

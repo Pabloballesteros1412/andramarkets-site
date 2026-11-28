@@ -52,7 +52,7 @@ def pages(site):
 <div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div></div></main>"""
         out = {"crypto/": site.shell(title="Crypto: Andra Markets", desc="Where the coins trade, and what they are worth.",
                                      body=body, home="../", base="../", path="crypto/")}
-        for path, title in ((TRADES, "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi")):
+        for path, title in ((TRADES, "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi")):
             out[path] = pending(site, path, title)
         return out
     coins = d["coins"]
@@ -117,17 +117,25 @@ def pages(site):
     out["crypto/"] = landing(site, d, when, data if places else None, nw)
     out["crypto/prices/"] = prices_page(site, d, when)
     hist = load_history(site)
-    out["crypto/bitcoin/"] = bitcoin_page(site, d, hist)
+    out["crypto/bitcoin/"] = bitcoin_page(site, d, hist, markets_parts(site, d, hist, load_markets(site)))
+    out["crypto/markets/"] = moved(site, "crypto/markets/", "../bitcoin/#markets", "Bitcoin vs markets")
     try:
         today = dt.datetime.fromisoformat(d["asof"].replace("Z", "+00:00")).date()
     except ValueError:
         today = dt.date.today()
     out.update(coin_pages(site, d, hist, when, today))
-    out["crypto/markets/"] = markets_page(site, d, hist, load_markets(site))
     out["crypto/derivatives/"] = derivs_page(site, d, hist, load_derivs(site))
     out["crypto/network/"] = network_page(site, d, nw)
     out["crypto/stablecoins/"] = defi_page(site, d, load_defi(site))
     return out
+
+
+def moved(site, path, to, title):
+    """A page that has moved into another: it sends the reader on at once, and says where."""
+    body = f"""<main id="main" class="page cs-page"><div class="wrap"><header class="page__head"><h1 class="page__title">{title}</h1>
+<p class="lede"><a href="{to}">{title} is now part of Bitcoin.</a></p></header></div></main>"""
+    return site.shell(title=f"{title}: Crypto: Andra Markets", desc=f"{title} is now part of the Bitcoin page.", body=body, home="../../", base="../../", path=path,
+                      head=f'\n<meta http-equiv="refresh" content="0; url={to}">', index=False)
 
 
 def net_layer(nw):
@@ -169,7 +177,7 @@ def landing(site, d, when, trade, nw):
 
 # ---- the other sections ------------------------------------------------------------------------------------------
 TRADES = "crypto/exchanges/"
-SECTIONS = ((TRADES, "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi"))
+SECTIONS = ((TRADES, "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi"))
 HALVINGS = (("2012-11-28", 210000), ("2016-07-09", 420000), ("2020-05-11", 630000), ("2024-04-20", 840000))
 MON = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -277,7 +285,7 @@ def prices_page(site, d, when):
                       body=body, home="../../", base="../../", path="crypto/prices/", scripts=("crypto-prices.js",))
 
 
-def bitcoin_page(site, d, h):
+def bitcoin_page(site, d, h, mk=None):
     """Bitcoin (crypto/bitcoin/; owner-approved sketch, 27 Nov 2026, in dollars by default after the owner's note that
     a ratio scale hid its course): the price since 2010, how far below its record, the four cycles from each halving,
     every great fall, and the Latest panel. The figures are in the page as JSON; assets/crypto-bitcoin.js draws them."""
@@ -319,16 +327,16 @@ def bitcoin_page(site, d, h):
     side = kpis((("Price", money(btc["price"]), f"{move(btc['day'])} in 24 hours"), ("Week", move(btc["week"]), f"Year {move(btc.get('year'))}"),
                  ("Record close", money(p[rec_i]), day_name(date(rec_i))), ("From the record", move(from_rec * 100), "today"),
                  ("Market value", big(btc["cap"]), f"{d['btc_share']:.1f}% of all crypto"), ("Last halving", day_name(last_h[0]), f"{(today - dt.date.fromisoformat(last_h[0])).days:,} days ago"),
-                 ("Next halving", next_level, next_note or "block height pending"), ("Block height", f"{height:,}" if height else "n/a", "mempool.space")))
+                 ("Next halving", next_level, next_note or "block height pending"), ("Block height", f"{height:,}" if height else "n/a", "mempool.space")) + (mk["side"] if mk else ()))
     data = {"start": h["start"], "p": p, "now": [today.isoformat(), btc["price"]], "halvings": [x[0] for x in HALVINGS]}
     hist_when = day_name(h["last"])
-    body = f"""<main id="main" class="page dd fr cs-page">
+    body = f"""<main id="main" class="page dd fr cs-page{" vm" if mk else ""}">
   <div class="wrap dd__grid">
     <header class="page__head dd__head">
       <h1 class="page__title">Bitcoin</h1>
-      <p class="lede">The price since 2010, its four halvings and every great fall.</p>
-      <p class="note__meta"><span>Coin Metrics, CoinGecko, mempool.space</span><span>Updated {when}</span><span>Refreshed at every deploy</span></p>
-    </header>
+      <p class="lede">{"The price since 2010, its halvings and great falls, and how it has done beside shares, gold, the dollar and bonds." if mk else "The price since 2010, its four halvings and every great fall."}</p>
+      <p class="note__meta"><span>Coin Metrics, CoinGecko, mempool.space{", Yahoo Finance" if mk else ""}</span><span>Updated {when}</span><span>Refreshed at every deploy</span></p>
+{mk["race"] if mk else ""}    </header>
     <div class="dd__main fr__main btc">
       <div class="fr__range dd__ctl" hidden><div class="dd__cgroup"><span class="cl__glabel" id="btc-range-l">Range</span>
         <div class="filters dd__ranges" role="group" aria-labelledby="btc-range-l">{"".join(f'<button type="button" class="chip" data-range="{r}" aria-pressed="{"true" if r == "Max" else "false"}">{r}</button>' for r in ("1M", "3M", "1Y", "4Y", "Max"))}</div></div>
@@ -343,14 +351,14 @@ def bitcoin_page(site, d, h):
       <section class="fr__panel" aria-labelledby="btc-falls-h"><div class="fr__ph"><h2 id="btc-falls-h">Every great fall</h2></div><p class="fr__intro">From a record close to the lowest close before the next record: every fall of more than 70%, and the one under way.</p>
         <div class="cs-scroll"><table class="cs-tab btc-falls"><thead><tr><th scope="col">Record</th><th scope="col">Its close</th><th scope="col">Low</th><th scope="col">Its close</th><th scope="col">Fall</th><th scope="col">Days to the low</th><th scope="col">Days back to the record</th></tr></thead><tbody>{rows}</tbody></table></div>
         <p class="fr__src">Andra Markets calculation from Coin Metrics, daily closes. The record here is a closing price; CoinGecko's record, {money(btc.get("ath") or 0)} on {day_name(btc["ath_date"]) if btc.get("ath_date") else "n/a"}, is the highest trade within a day.</p></section>
-      {more(site, "crypto/bitcoin/", "../../")}
+{('<h2 class="cs-h btc-vs" id="markets">Beside the markets</h2>' + chr(10) + mk["panels"] + mk["script"]) if mk else ""}      {more(site, "crypto/bitcoin/", "../../")}
       <script type="application/json" id="btc-data">{json.dumps(data, separators=(",", ":"))}</script>
     </div>
     <aside class="report__side dd__side" aria-labelledby="side-title"><h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{side}</ul><p class="report__src">CoinGecko, {when}; mempool.space for the block height.</p></aside>
   </div>
 </main>"""
     return site.shell(title="Bitcoin: Crypto: Andra Markets", desc=f"Bitcoin at {money(btc['price'])}: its price every day since 2010, how far below its record it stands, its four halving cycles and every great fall.",
-                      body=body, home="../../", base="../../", path="crypto/bitcoin/", scripts=("crypto-bitcoin.js",))
+                      body=body, home="../../", base="../../", path="crypto/bitcoin/", scripts=("crypto-bitcoin.js",) + (("crypto-markets.js",) if mk else ()))
 
 
 # ---- a page for each coin (owner, 27 Nov 2026: "analyse each coin, as in Companies"; sketch with Ethereum approved) ----
@@ -697,11 +705,12 @@ def mk_portfolio(rets, days, w):
     return out
 
 
-def markets_page(site, d, hist, mk):
+def markets_parts(site, d, hist, mk):
+    """Bitcoin beside the markets, as the pieces the Bitcoin page takes in (owner, 28 Nov 2026: "merge Bitcoin and
+    Bitcoin vs markets"): the race for under the head, the panels, four figures for Latest, and the data."""
     import math
-    path = "crypto/markets/"
     if not hist or not mk:
-        return pending(site, path, "Bitcoin vs markets")
+        return None
     b0 = dt.date.fromisoformat(hist["start"])
     btc = {(b0 + dt.timedelta(days=i)).isoformat(): v for i, v in enumerate(hist["p"])}
     src = dict(mk["s"], BTC=btc)
@@ -767,30 +776,21 @@ def markets_page(site, d, hist, mk):
     c90 = {k: corr(rets["BTC"][-90:], rets[k][-90:]) for k in ("SPX", "NDX", "GOLD", "DXY")}
     yr = lambda k: (ser[k][-1] / ser[k][max(0, n - 253)] - 1) * 100
     cfmt = lambda v: f"{MINUS if v < 0 else ''}{abs(v):.2f}"
-    side = kpis((("Bitcoin, a year", move(yr("BTC")), f"S&amp;P 500 {move(yr('SPX'))}"), ("Gold, a year", move(yr("GOLD")), f"Dollar {move(yr('DXY'))}"),
-                 ("With the S&amp;P 500", cfmt(c90["SPX"]), "90-day correlation"), ("With the Nasdaq", cfmt(c90["NDX"]), "90-day correlation"),
-                 ("With gold", cfmt(c90["GOLD"]), "90-day correlation"), ("With the dollar", cfmt(c90["DXY"]), "90-day correlation"),
-                 ("Bitcoin's volatility", f"{vol(rets['BTC'][-252:]):.0f}%", "last year"), ("The S&amp;P 500's", f"{vol(rets['SPX'][-252:]):.0f}%", "last year")))
+    side = (("With the S&amp;P 500", cfmt(c90["SPX"]), "90-day correlation"), ("With gold", cfmt(c90["GOLD"]), "90-day correlation"),
+            ("Bitcoin's volatility", f"{vol(rets['BTC'][-252:]):.0f}%", "last year"), ("The S&amp;P 500's", f"{vol(rets['SPX'][-252:]):.0f}%", "last year"))
     d0 = dt.date.fromisoformat(days[0])
     data = {"start": days[0], "d": [(dt.date.fromisoformat(x) - d0).days for x in days],
             "s": {k: [float(f"{v:.5g}") for v in ser[k]] for k in keys}}
     chips = "".join(f'<button type="button" class="chip" data-back="{b}" aria-pressed="{"true" if lab == "5Y" else "false"}">{lab}</button>'
                     for lab, b in (("1Y", 252), ("3Y", 756), ("5Y", 1260), ("10Y", 2520), (days[0][:4], n - 1)) if b < n)
-    body = f"""<main id="main" class="page dd fr cs-page vm">
-  <div class="wrap dd__grid">
-    <header class="page__head dd__head">
-      <h1 class="page__title">Bitcoin vs markets</h1>
-      <p class="lede">Bitcoin beside shares, gold, the dollar and bonds, and what a little of it does to a portfolio.</p>
-      <p class="note__meta"><span>Coin Metrics, Yahoo Finance</span><span>Daily closes to {last_day}</span><span>Refreshed at every deploy</span></p>
-      <section class="vr" aria-label="Bitcoin and the markets, from the same start" hidden>
+    race = f"""      <section class="vr" aria-label="Bitcoin and the markets, from the same start" hidden>
         <canvas class="vr__c" role="img" aria-label="Bitcoin, gold, the S&amp;P 500, the Nasdaq, the dollar index and long Treasuries, each starting at 100 on the same day and drawn to today. The figures are in the Returns table below."></canvas>
         <p class="vr__date" aria-hidden="true"></p>
         <div class="vr__ctl"><div class="filters dd__ranges" role="group" aria-label="Start">{chips}</div><button class="btn btn--ghost vr__replay" type="button">Replay</button></div>
         <p class="lens-read vr__read" aria-live="polite"></p>
       </section>
-    </header>
-    <div class="dd__main fr__main">
-      <section class="fr__panel" aria-labelledby="vm-ret-h"><div class="fr__ph"><h2 id="vm-ret-h">Returns</h2></div><p class="fr__intro">What each gained or lost over each period, to {last_day}.</p>
+"""
+    panels = f"""      <section class="fr__panel" aria-labelledby="vm-ret-h"><div class="fr__ph"><h2 id="vm-ret-h">Returns</h2></div><p class="fr__intro">What each gained or lost over each period, to {last_day}.</p>
         <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th></th>{"".join(f'<th scope="col">{lab}</th>' for lab, _ in periods)}</tr></thead><tbody>{ret_rows}</tbody></table></div>
         <p class="fr__src">Coin Metrics for Bitcoin; Yahoo Finance for the S&amp;P 500, the Nasdaq Composite, gold futures, the dollar index and long Treasuries (the TLT fund, with its income). The share indices are price levels, without dividends. Periods in trading days.</p></section>
       <section class="fr__panel" aria-labelledby="vm-co-h"><div class="fr__ph"><h2 id="vm-co-h">Moving together</h2></div><p class="fr__intro">How closely Bitcoin's daily moves have followed each market's over the last 90 trading days: 1 is in step, 0 unrelated, below 0 opposite.</p>
@@ -807,14 +807,10 @@ def markets_page(site, d, hist, mk):
           <canvas class="pm__c" role="img" aria-label="The portfolio with the chosen share of Bitcoin, in amber, against the plain 60/40 portfolio, both starting at 100."></canvas></div>
         <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Bitcoin's share</th><th scope="col">$10,000 became</th><th scope="col">A year, on average</th><th scope="col">Volatility</th><th scope="col">Deepest fall</th><th scope="col">Worst year</th></tr></thead><tbody>{port_rows}</tbody></table></div>
         <p class="fr__src">The S&amp;P 500 (price level) and long Treasuries (TLT), rebalanced monthly, before fees and taxes. What happened says nothing certain of what will. For information only. Not investment advice.</p></section>
-      {more(site, path, "../../")}
-      <script type="application/json" id="vm-data">{json.dumps(data, separators=(",", ":"))}</script>
-    </div>
-    <aside class="report__side dd__side" aria-labelledby="side-title"><h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{side}</ul><p class="report__src">Daily closes to {last_day}.</p></aside>
-  </div>
-</main>"""
-    return site.shell(title="Bitcoin vs markets: Crypto: Andra Markets", desc="Bitcoin beside the S&P 500, the Nasdaq, gold, the dollar and Treasuries: returns, how closely they move together, risk, the market's worst days, and what a share of Bitcoin does to a 60/40 portfolio.",
-                      body=body, home="../../", base="../../", path=path, scripts=("crypto-markets.js",))
+"""
+    script = f"""      <script type="application/json" id="vm-data">{json.dumps(data, separators=(",", ":"))}</script>
+"""
+    return {"race": race, "panels": panels, "script": script, "side": side, "last": last_day}
 
 
 # ---- Derivatives (crypto/derivatives/; owner-approved sketch, 27 Nov 2026: "the pulse", after two charts of the
