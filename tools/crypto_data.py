@@ -13,7 +13,14 @@ file in .cache/crypto/coins/ (its daily closes, from Coin Metrics where it has
 them and otherwise CoinGecko's last year; its network's active addresses,
 transactions and supply where Coin Metrics has them; for the 25 largest, the
 exchanges where it trades) and its logo in .cache/crypto/logos/, for the coin
-pages. tools/page_crypto.py reads them all; nothing here is published as a file.
+pages. And .cache/crypto/markets.json: the daily closes since September 2014 of the
+S&P 500, the Nasdaq Composite, gold, the dollar index and long Treasuries (Yahoo
+Finance), for Bitcoin vs markets. And .cache/crypto/derivs.json: Bitcoin's derivatives
+on Deribit (the DVOL index, the perpetual's funding, futures and options), for
+Derivatives. And .cache/crypto/network.json: Bitcoin's network from mempool.space
+(hashrate, difficulty, pools, fees, the queue and the Lightning network), for Network.
+And .cache/crypto/defi.json: stablecoins and DeFi from DefiLlama, for Stablecoins & DeFi. tools/page_crypto.py reads them all; nothing here
+is published as a file.
 
 Source: CoinGecko's public API, no key (https://www.coingecko.com/en/api). Its
 terms ask for attribution, which the page gives beside every figure's date.
@@ -256,6 +263,185 @@ def coins_detail(coins):
     print(f"crypto: coin pages from Coin Metrics {done['Coin Metrics']}, CoinGecko {done['CoinGecko']}, last copy {done['kept']}")
 
 
+DERIVS = ROOT / ".cache" / "crypto" / "derivs.json"
+DERIBIT = "https://www.deribit.com/api/v2/public/"
+_MONTHS = {m: i + 1 for i, m in enumerate("JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC".split())}
+
+
+def _expiry(code):
+    """Deribit's expiry code ("25DEC26") as a date."""
+    m = re.match(r"(\d+)([A-Z]{3})(\d\d)$", code)
+    return dt.date(2000 + int(m[3]), _MONTHS[m[2]], int(m[1])).isoformat()
+
+
+def derivatives(old):
+    """Bitcoin's derivatives on Deribit, no key: the DVOL index day by day, the perpetual's funding day by day,
+    every future's mark price and open interest, and every option's open interest and volatility by expiry and
+    strike. DVOL and funding come in windows (1,000 days, 30 days): each run adds to what the cache already holds."""
+    import time
+
+    def g(path):
+        return get_url(DERIBIT + path)["result"]
+    now = int(time.time() * 1000)
+    spot = g("get_index_price?index_name=btc_usd")["index_price"]
+    dvol = dict((old or {}).get("dvol") or [])
+    for r in g(f"get_volatility_index_data?currency=BTC&resolution=1D&start_timestamp=1609459200000&end_timestamp={now}")["data"]:
+        dvol[dt.datetime.fromtimestamp(r[0] / 1000, dt.timezone.utc).date().isoformat()] = r[4]
+    fund = dict((old or {}).get("fund") or [])
+    hours = {}
+    for k in range(6 if len(fund) < 150 else 1):
+        end = now - k * 30 * 86400000
+        for f in g(f"get_funding_rate_history?instrument_name=BTC-PERPETUAL&start_timestamp={end - 30 * 86400000}&end_timestamp={end}"):
+            hours.setdefault(dt.datetime.fromtimestamp(f["timestamp"] / 1000, dt.timezone.utc).date().isoformat(), []).append(f["interest_1h"])
+        time.sleep(0.4)
+    for day, v in hours.items():
+        if len(v) >= 20 or day not in fund:   # a whole day's hours, as a yearly rate in percent
+            fund[day] = round(sum(v) / len(v) * 24 * 365 * 100, 3)
+    futures = []
+    for x in g("get_book_summary_by_currency?currency=BTC&kind=future"):
+        parts = x["instrument_name"].split("-")
+        if len(parts) != 2 or parts[0] != "BTC":
+            continue
+        futures.append({"name": parts[1], "date": None if parts[1] == "PERPETUAL" else _expiry(parts[1]), "mark": x["mark_price"], "oi": x["open_interest"]})
+    exps = {}
+    for x in g("get_book_summary_by_currency?currency=BTC&kind=option"):
+        _, code, strike, kind = x["instrument_name"].split("-")
+        e = exps.setdefault(code, {"date": _expiry(code), "und": None, "k": {}})
+        e["und"] = x.get("underlying_price") or e["und"]
+        row = e["k"].setdefault(int(strike), [0.0, 0.0, None, None])   # calls, puts, the calls' volatility, the puts'
+        row[0 if kind == "C" else 1] += x.get("open_interest") or 0
+        row[2 if kind == "C" else 3] = x.get("mark_iv")
+    if len(dvol) < 300 or len(exps) < 3 or not futures:
+        raise ValueError("unexpected derivatives data")
+    return {"spot": spot, "dvol": sorted(dvol.items()), "fund": sorted(fund.items()), "futures": futures,
+            "expiries": [{"date": e["date"], "und": e["und"], "k": [[k] + [None if v is None else round(v, 2) for v in row] for k, row in sorted(e["k"].items())]}
+                         for e in sorted(exps.values(), key=lambda e: e["date"])],
+            "source": "Deribit", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+
+
+NETWORK = ROOT / ".cache" / "crypto" / "network.json"
+MEMPOOL_API = "https://mempool.space/api/"
+
+
+def network():
+    """Bitcoin's network from mempool.space, no key: the hashrate day by day, the difficulty's next change, the
+    month's blocks by mining pool, fees now and block by block over a year, the queue, and the Lightning network
+    (its totals, its nodes by country, and where each node that publishes an address says it is)."""
+    import math
+    import time
+
+    def g(path):
+        time.sleep(0.4)
+        return get_url(MEMPOOL_API + path)
+    hr = g("v1/mining/hashrate/all")
+    rows = [(h["timestamp"], h["avgHashrate"] / 1e18) for h in hr["hashrates"] if h["timestamp"] >= 1262304000 and h["avgHashrate"]]
+    if len(rows) < 3000:
+        raise ValueError("short hashrate history")
+    hashes = []
+    for i in range(0, len(rows), 2):   # every second day, each the average of the week to it, in EH/s
+        w = [v for _, v in rows[max(0, i - 6):i + 1]]
+        hashes.append([dt.datetime.fromtimestamp(rows[i][0], dt.timezone.utc).date().isoformat(), float(f"{sum(w) / len(w):.4g}")])
+    pools = g("v1/mining/pools/1m")
+    fr = g("v1/mining/blocks/fee-rates/1y")
+    world = g("v1/lightning/nodes/world")
+    countries = g("v1/lightning/nodes/countries")
+    top = math.log(1 + (world.get("maxLiquidity") or 1))
+    cells, by_country = {}, {}
+    for n in world["nodes"]:
+        lon, lat, cap = n[0], n[1], n[4] or 0
+        if lon is None or lat is None:
+            continue
+        key = (round(lon, 1), round(lat, 1))   # nodes in one town are one light, as bright as its largest
+        cells[key] = max(cells.get(key, 0), round(math.log(1 + cap) / top, 2))
+        name = n[6].get("en") if isinstance(n[6], dict) else None
+        if name:
+            by_country.setdefault(name, []).append((lon, lat))
+    located = sum(1 for n in world["nodes"] if n[0] is not None and n[1] is not None)
+    places = []
+    for c in countries[:40]:
+        name = c["name"]["en"]
+        ll = by_country.get(name)
+        if not ll:
+            continue
+        lons, lats = sorted(x for x, _ in ll), sorted(y for _, y in ll)   # the middle node: steady for a wide country
+        places.append({"name": name, "lon": lons[len(lons) // 2], "lat": lats[len(lats) // 2], "count": c["count"], "share": c["share"], "btc": int(c["capacity"] or 0) / 1e8})
+    if len(places) < 5 or len(cells) < 200:
+        raise ValueError("unexpected Lightning data")
+    return {"hash": hashes, "now": hr["currentHashrate"] / 1e18, "difficulty": g("v1/difficulty-adjustment"),
+            "pools": {"blocks": pools["blockCount"], "list": [[x["name"], x["blockCount"]] for x in pools["pools"][:12]]},
+            "fees": g("v1/fees/recommended"), "queue": {k: v for k, v in g("mempool").items() if k in ("count", "vsize", "total_fee")},
+            "feerates": [[r["timestamp"], r["avgFee_50"], r["avgFee_90"]] for r in fr][::2],
+            "ln": g("v1/lightning/statistics/latest")["latest"], "places": places, "located": located,
+            "points": [[k[0], k[1], v] for k, v in cells.items()],
+            "source": "mempool.space", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+
+
+DEFI = ROOT / ".cache" / "crypto" / "defi.json"
+LLAMA = "https://api.llama.fi/"
+LLAMA_STABLE = "https://stablecoins.llama.fi/"
+DEFI_FROM = 1546300800   # 1 Jan 2019
+
+
+def defi():
+    """Stablecoins and DeFi from DefiLlama, no key: every stablecoin's supply day by day in total, the largest
+    coins (supply, a month before, price, what backs each), supply by backing and by chain, the value locked in
+    DeFi day by day, and its largest chains and protocols (exchanges left out)."""
+    import time
+
+    def g(url):
+        time.sleep(0.4)
+        return get_url(url)
+    total = [[int(r["date"]), round(((r.get("totalCirculatingUSD") or {}).get("peggedUSD") or 0) / 1e9, 3)] for r in g(LLAMA_STABLE + "stablecoincharts/all")]
+    total = [r for r in total if r[0] >= DEFI_FROM][::2]
+    coins = [x for x in g(LLAMA_STABLE + "stablecoins?includePrices=true")["peggedAssets"] if (x.get("circulating") or {}).get("peggedUSD")]
+    coins.sort(key=lambda x: -x["circulating"]["peggedUSD"])
+    supply = sum(x["circulating"]["peggedUSD"] for x in coins)
+    backing = {}
+    for x in coins:
+        kind = {"fiat-backed": "fiat", "algorithmic": "formula"}.get(x.get("pegMechanism"), "crypto")
+        backing[kind] = backing.get(kind, 0) + x["circulating"]["peggedUSD"]
+    chains = sorted(([c["name"], (c.get("totalCirculatingUSD") or {}).get("peggedUSD") or 0] for c in g(LLAMA_STABLE + "stablecoinchains")), key=lambda c: -c[1])[:10]
+    tvl = [[r["date"], round(r["tvl"] / 1e9, 3)] for r in g(LLAMA + "v2/historicalChainTvl") if r["date"] >= DEFI_FROM][::2]
+    dchains = sorted(([c["name"], c.get("tvl") or 0] for c in g(LLAMA + "v2/chains")), key=lambda c: -c[1])[:10]
+    prot = [x for x in g(LLAMA + "protocols") if x.get("tvl") and x.get("category") not in ("CEX", "Chain")]
+    prot.sort(key=lambda x: -x["tvl"])
+    if len(total) < 500 or len(tvl) < 500 or len(coins) < 20:
+        raise ValueError("unexpected DefiLlama data")
+    return {"total": total, "supply": supply, "count": len(coins), "backing": backing, "chains": chains, "tvl": tvl, "defi_chains": dchains,
+            "coins": [{"name": x["name"], "symbol": x["symbol"], "supply": x["circulating"]["peggedUSD"], "month": (x.get("circulatingPrevMonth") or {}).get("peggedUSD"),
+                       "price": x.get("price"), "peg": x.get("pegType"), "backing": x.get("pegMechanism")} for x in coins[:12]],
+            "protocols": [[x["name"], x.get("category") or "", x["tvl"], x.get("change_7d")] for x in prot[:12]],
+            "source": "DefiLlama", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+
+
+MARKETS = ROOT / ".cache" / "crypto" / "markets.json"
+# What Bitcoin is set beside on the Bitcoin vs markets page: Yahoo Finance symbols, daily closes (adjusted, so the
+# Treasury fund carries its income; the two share indices are price levels, without dividends).
+MARKET_SYMBOLS = (("SPX", "^GSPC"), ("NDX", "^IXIC"), ("GOLD", "GC=F"), ("DXY", "DX-Y.NYB"), ("BOND", "TLT"))
+MARKETS_FROM = "2014-09-17"
+
+
+def markets():
+    """Daily closes of each market since September 2014, by date."""
+    import urllib.parse
+    out = {}
+    p1 = int(dt.datetime(2014, 9, 1, tzinfo=dt.timezone.utc).timestamp())
+    p2 = int(dt.datetime.now(dt.timezone.utc).timestamp()) + 86400
+    for key, sym in MARKET_SYMBOLS:
+        url = f"https://query1.finance.yahoo.com/v8/finance/chart/{urllib.parse.quote(sym)}?period1={p1}&period2={p2}&interval=1d"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=40) as r:
+            res = json.loads(r.read().decode("utf-8"))["chart"]["result"][0]
+        ind = res["indicators"]
+        closes = (ind.get("adjclose") or [{}])[0].get("adjclose") or ind["quote"][0]["close"]
+        days = {dt.datetime.fromtimestamp(t, dt.timezone.utc).date().isoformat(): float(f"{c:.6g}") for t, c in zip(res["timestamp"], closes) if c}
+        days = {d: v for d, v in days.items() if d >= MARKETS_FROM}
+        if len(days) < 2500:
+            raise ValueError(f"short history for {sym}")
+        out[key] = days
+    return {"s": out, "source": "Yahoo Finance", "fetched": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+
+
 def fetch():
     rows = get("coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=true&price_change_percentage=24h,7d,30d,1y")
     world = get("global")["data"]
@@ -341,6 +527,35 @@ def main():
         print(f"crypto: Bitcoin history {hist['start']} to {hist['last']}, {len(hist['p'])} days, block {hist['height']}")
     except Exception as e:  # noqa: BLE001
         warn(f"crypto: Bitcoin history: {type(e).__name__}: {e}; keeping the last copy")
+    try:
+        mk = markets()
+        MARKETS.parent.mkdir(parents=True, exist_ok=True)
+        MARKETS.write_text(json.dumps(mk, separators=(",", ":")), encoding="utf-8")
+        print(f"crypto: markets {', '.join(f'{k} {len(v)}' for k, v in mk['s'].items())}")
+    except Exception as e:  # noqa: BLE001
+        warn(f"crypto: markets: {type(e).__name__}: {e}; keeping the last copy")
+    try:
+        prev = json.loads(DERIVS.read_text(encoding="utf-8")) if DERIVS.exists() else None
+        dv = derivatives(prev)
+        DERIVS.parent.mkdir(parents=True, exist_ok=True)
+        DERIVS.write_text(json.dumps(dv, separators=(",", ":")), encoding="utf-8")
+        print(f"crypto: derivatives DVOL {len(dv['dvol'])} days, funding {len(dv['fund'])} days, {len(dv['futures'])} futures, {len(dv['expiries'])} option expiries")
+    except Exception as e:  # noqa: BLE001
+        warn(f"crypto: derivatives: {type(e).__name__}: {e}; keeping the last copy")
+    try:
+        nw = network()
+        NETWORK.parent.mkdir(parents=True, exist_ok=True)
+        NETWORK.write_text(json.dumps(nw, separators=(",", ":")), encoding="utf-8")
+        print(f"crypto: network hashrate {len(nw['hash'])} points, {len(nw['pools']['list'])} pools, {len(nw['places'])} Lightning countries, {len(nw['points'])} lights")
+    except Exception as e:  # noqa: BLE001
+        warn(f"crypto: network: {type(e).__name__}: {e}; keeping the last copy")
+    try:
+        df = defi()
+        DEFI.parent.mkdir(parents=True, exist_ok=True)
+        DEFI.write_text(json.dumps(df, separators=(",", ":")), encoding="utf-8")
+        print(f"crypto: defi {df['count']} stablecoins, supply {len(df['total'])} points, TVL {len(df['tvl'])} points, {len(df['protocols'])} protocols")
+    except Exception as e:  # noqa: BLE001
+        warn(f"crypto: defi: {type(e).__name__}: {e}; keeping the last copy")
     if not data:
         return 0
     if data_ex:

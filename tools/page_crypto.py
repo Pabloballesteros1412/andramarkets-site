@@ -52,7 +52,7 @@ def pages(site):
 <div class="dd__plot dd__plot--pending"><p class="dd__pending">Data pending</p></div></div></main>"""
         out = {"crypto/": site.shell(title="Crypto: Andra Markets", desc="Where the coins trade, and what they are worth.",
                                      body=body, home="../", base="../", path="crypto/")}
-        for path, title in (("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin")):
+        for path, title in ((TRADES, "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi")):
             out[path] = pending(site, path, title)
         return out
     coins = d["coins"]
@@ -84,7 +84,7 @@ def pages(site):
       <div class="cg__big"><p class="lens-read">Registered on islands</p><p class="cg__fig">{pct(isl)}</p>
         <p class="cg__say">of the day's trading on {ex.get("count")} exchanges goes through exchanges registered on islands.</p></div>
       <p class="visually-hidden cg__status" role="status" aria-live="polite"></p>
-      <p class="lens-read cg__read">The Earth as lit at {ex_when} · each column, a country where exchanges are registered, as tall as its share of the day's trading</p>
+      <p class="visually-hidden cg__read">The Earth as lit at {ex_when} · each column, a country where exchanges are registered, as tall as its share of the day's trading</p>
       <a class="lib-map__down" href="#cg-seats">Every seat</a>
       <script type="application/json">{json.dumps(data, separators=(",", ":")).replace("</", "<\\/")}</script>
     </section>"""
@@ -101,18 +101,20 @@ def pages(site):
     body = f"""<main id="main" class="page cs-page">
   <div class="wrap">
     <header class="page__head">
-      <h1 class="page__title">Crypto</h1>
+      <h1 class="page__title">Where it trades</h1>
       <p class="lede">{LEDE}</p>
       <p class="note__meta"><span>The whole market {big(d["total"])}</span><span>Bitcoin {d["btc_share"]:.1f}% of it</span><span>Data from CoinGecko, {when}</span></p>
     </header>
     {globe}{seats}
-    {more(site, "crypto/", "../")}
+    {more(site, TRADES, "../../")}
   </div>
 </main>"""
-    out = {"crypto/": site.shell(
-        title="Crypto: Andra Markets",
+    out = {TRADES: site.shell(
+        title="Where crypto trades: Andra Markets",
         desc="Where the day's crypto trading is registered, country by country, on the real Earth.",
-        body=body, home="../", base="../", path="crypto/", scripts=("crypto-globe.js",) if places else ())}
+        body=body, home="../../", base="../../", path=TRADES, scripts=("crypto-globe.js",) if places else ())}
+    nw = load_network(site)
+    out["crypto/"] = landing(site, d, when, data if places else None, nw)
     out["crypto/prices/"] = prices_page(site, d, when)
     hist = load_history(site)
     out["crypto/bitcoin/"] = bitcoin_page(site, d, hist)
@@ -121,11 +123,53 @@ def pages(site):
     except ValueError:
         today = dt.date.today()
     out.update(coin_pages(site, d, hist, when, today))
+    out["crypto/markets/"] = markets_page(site, d, hist, load_markets(site))
+    out["crypto/derivatives/"] = derivs_page(site, d, hist, load_derivs(site))
+    out["crypto/network/"] = network_page(site, d, nw)
+    out["crypto/stablecoins/"] = defi_page(site, d, load_defi(site))
     return out
 
 
+def net_layer(nw):
+    """The Network page's lights, as a layer the landing's globe can put on."""
+    return {"points": nw["points"], "places": [
+        {"name": p["name"], "lon": p["lon"], "lat": p["lat"], "share": p["share"] / 100, "label": f"{p['count']:,} nodes · {p['share']:.0f}%", "more": f"{p['btc']:,.0f} BTC in channels"} for p in nw["places"]]}
+
+
+def landing(site, d, when, trade, nw):
+    """The group's front: the Earth in the middle, the seven sections either side of it, by name alone (owner, 28 Nov 2026)."""
+    layers = {}
+    if trade:
+        layers["trade"] = {"places": trade["places"]}
+    if nw:
+        layers["net"] = net_layer(nw)
+    own = {TRADES: "trade", "crypto/network/": "net"}
+    items = "".join(f'<li><a href="../{p}" data-layer="{own.get(p, "") if own.get(p) in layers else ""}">{t}</a></li>' for p, t in SECTIONS)
+    data = {"asof": d.get("asof"), "layers": layers}
+    body = f"""<main id="main" class="page cs-page chp">
+  <div class="wrap">
+    <section class="ch">
+      <h1 class="page__title">Crypto</h1>
+      <p class="visually-hidden">Where the coins trade, what they are worth and how their networks run.</p>
+      <div class="cg ch__globe" hidden>
+        <canvas class="cg__gl" aria-hidden="true"></canvas>
+        <canvas class="cg__ov" aria-hidden="true"></canvas>
+        <div class="cg__names" aria-hidden="true"></div>
+        <p class="visually-hidden cg__status" role="status" aria-live="polite"></p>
+        <script type="application/json">{json.dumps(data, separators=(",", ":")).replace("</", "<\\/")}</script>
+      </div>
+      <nav aria-label="The sections of Crypto"><ol class="ch__list">{items}</ol></nav>
+    </section>
+    <p class="report__src ch__src">CoinGecko, Coin Metrics, Deribit, mempool.space and DefiLlama, {when}. The Earth: Solar System Scope (CC BY 4.0), from NASA imagery.</p>
+  </div>
+</main>"""
+    return site.shell(title="Crypto: Andra Markets", desc="Where the coins trade, what they are worth and how their networks run.",
+                      body=body, home="../", base="../", path="crypto/", scripts=("crypto-globe.js",))
+
+
 # ---- the other sections ------------------------------------------------------------------------------------------
-SECTIONS = (("crypto/", "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"))
+TRADES = "crypto/exchanges/"
+SECTIONS = ((TRADES, "Where it trades"), ("crypto/prices/", "Prices"), ("crypto/bitcoin/", "Bitcoin"), ("crypto/markets/", "Bitcoin vs markets"), ("crypto/derivatives/", "Derivatives"), ("crypto/network/", "Network"), ("crypto/stablecoins/", "Stablecoins &amp; DeFi"))
 HALVINGS = (("2012-11-28", 210000), ("2016-07-09", 420000), ("2020-05-11", 630000), ("2024-04-20", 840000))
 MON = ("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -622,3 +666,465 @@ def search_items(site):
     if not d:
         return []
     return [{"g": "Pages", "t": c["name"], "m": f"Crypto, {c['symbol']}", "u": coin_path(c), "k": f"{c['symbol']} {c['name']} crypto coin"} for c in d["coins"]]
+
+
+# ---- Bitcoin vs markets (crypto/markets/; owner-approved sketches, 27 Nov 2026: the race and the portfolio's control) ----
+MK_NAMES = (("BTC", "Bitcoin"), ("SPX", "S&amp;P 500"), ("NDX", "Nasdaq"), ("GOLD", "Gold"), ("DXY", "Dollar index"), ("BOND", "Long Treasuries"))
+MK_PERIODS = (("Month", 21), ("Year", 252), ("3 years", 756), ("5 years", 1260), ("10 years", 2520))
+MK_SHARES = (0, 0.01, 0.05, 0.10)
+
+
+def load_markets(site):
+    try:
+        m = json.loads((site.ROOT / ".cache" / "crypto" / "markets.json").read_text(encoding="utf-8"))
+        return m if len((m.get("s") or {}).get("SPX") or {}) > 1000 else None
+    except (OSError, ValueError):
+        return None
+
+
+def mk_portfolio(rets, days, w):
+    """100 put into 60% shares and 40% bonds, with w of it in Bitcoin, set back to its weights each month."""
+    hold = {"SPX": 0.6 * (1 - w), "BOND": 0.4 * (1 - w), "BTC": w}
+    cur = {k: v * 100 for k, v in hold.items()}
+    out = [100.0]
+    for i in range(1, len(days)):
+        for k in cur:
+            cur[k] *= 1 + rets[k][i]
+        tot = sum(cur.values())
+        out.append(tot)
+        if days[i][5:7] != days[i - 1][5:7]:
+            cur = {k: tot * v for k, v in hold.items()}
+    return out
+
+
+def markets_page(site, d, hist, mk):
+    import math
+    path = "crypto/markets/"
+    if not hist or not mk:
+        return pending(site, path, "Bitcoin vs markets")
+    b0 = dt.date.fromisoformat(hist["start"])
+    btc = {(b0 + dt.timedelta(days=i)).isoformat(): v for i, v in enumerate(hist["p"])}
+    src = dict(mk["s"], BTC=btc)
+    days = [x for x in sorted(src["SPX"]) if x in btc or x > hist["last"]]   # the S&P 500's trading days
+    days = [x for x in days if x <= hist["last"]]
+    keys = [k for k, _ in MK_NAMES]
+    ser = {k: [] for k in keys}
+    for x in days:
+        for k in keys:
+            v = src[k].get(x)
+            ser[k].append(v if v else (ser[k][-1] if ser[k] else None))
+    first = max(next(i for i, v in enumerate(ser[k]) if v) for k in keys)
+    days, ser = days[first:], {k: v[first:] for k, v in ser.items()}
+    n = len(days)
+    rets = {k: [0.0] + [ser[k][i] / ser[k][i - 1] - 1 for i in range(1, n)] for k in keys}
+    since = f"{MON[int(days[0][5:7]) - 1]} {days[0][:4]}"
+    last_day = day_name(days[-1])
+
+    def vol(r):
+        m = sum(r) / len(r)
+        return (sum((x - m) ** 2 for x in r) / (len(r) - 1)) ** 0.5 * math.sqrt(252) * 100
+
+    def deepest(p):
+        pk, w = p[0], 0.0
+        for v in p:
+            pk = max(pk, v)
+            w = min(w, v / pk - 1)
+        return w * 100
+
+    def a_year(p):
+        return ((p[-1] / p[0]) ** (252 / (len(p) - 1)) - 1) * 100
+
+    def corr(a, b):
+        ma, mb = sum(a) / len(a), sum(b) / len(b)
+        sab = sum((x - ma) * (y - mb) for x, y in zip(a, b))
+        sa, sb = sum((x - ma) ** 2 for x in a), sum((y - mb) ** 2 for y in b)
+        return sab / (sa * sb) ** 0.5 if sa > 0 and sb > 0 else 0.0
+
+    periods = [p for p in MK_PERIODS if p[1] < n] + [(f"Since {since}", n - 1)]
+    ret_rows = "".join(
+        f'<tr{" class=me" if k == "BTC" else ""}><th scope="row">{name}</th>'
+        + "".join(f"<td>{mult_or_pct((ser[k][-1] / ser[k][n - 1 - back] - 1) * 100)}</td>" for _, back in periods) + "</tr>" for k, name in MK_NAMES)
+    risk_rows = "".join(
+        f'<tr{" class=me" if k == "BTC" else ""}><th scope="row">{name}</th><td>{move(a_year(ser[k]))}</td><td>{vol(rets[k][1:]):.0f}%</td>'
+        f'<td>{move(deepest(ser[k]))}</td><td>{move(min(rets[k]) * 100)}</td><td>{move(max(rets[k]) * 100)}</td></tr>' for k, name in MK_NAMES)
+    worst = sorted(range(1, n), key=lambda i: rets["SPX"][i])[:10]
+    worst_rows = "".join(f'<tr><th scope="row">{day_name(days[i])}</th>' + "".join(f"<td>{move(rets[k][i] * 100)}</td>" for k in ("SPX", "BTC", "GOLD", "BOND")) + "</tr>" for i in worst)
+    fell = {k: sum(1 for i in worst if round(rets[k][i] * 100, 1) < 0) for k in ("BTC", "GOLD", "BOND")}
+    ports = {w: mk_portfolio(rets, days, w) for w in MK_SHARES}
+    port_rows = ""
+    for w, p in ports.items():
+        years, prev, worst_year = {}, None, None
+        for x, v in zip(days, p):
+            years.setdefault(x[:4], [v, v])[1] = v
+        for y in sorted(years):
+            start = years[y][0] if prev is None else prev
+            chg = (years[y][1] / start - 1) * 100
+            worst_year = chg if worst_year is None else min(worst_year, chg)
+            prev = years[y][1]
+        pr = [p[i] / p[i - 1] - 1 for i in range(1, n)]
+        port_rows += (f'<tr><th scope="row">{"None: 60/40" if not w else f"{w * 100:.0f}% Bitcoin"}</th><td>${p[-1] * 100:,.0f}</td><td>{move(a_year(p))}</td>'
+                      f'<td>{vol(pr):.1f}%</td><td>{move(deepest(p))}</td><td>{move(worst_year)}</td></tr>')
+    c90 = {k: corr(rets["BTC"][-90:], rets[k][-90:]) for k in ("SPX", "NDX", "GOLD", "DXY")}
+    yr = lambda k: (ser[k][-1] / ser[k][max(0, n - 253)] - 1) * 100
+    cfmt = lambda v: f"{MINUS if v < 0 else ''}{abs(v):.2f}"
+    side = kpis((("Bitcoin, a year", move(yr("BTC")), f"S&amp;P 500 {move(yr('SPX'))}"), ("Gold, a year", move(yr("GOLD")), f"Dollar {move(yr('DXY'))}"),
+                 ("With the S&amp;P 500", cfmt(c90["SPX"]), "90-day correlation"), ("With the Nasdaq", cfmt(c90["NDX"]), "90-day correlation"),
+                 ("With gold", cfmt(c90["GOLD"]), "90-day correlation"), ("With the dollar", cfmt(c90["DXY"]), "90-day correlation"),
+                 ("Bitcoin's volatility", f"{vol(rets['BTC'][-252:]):.0f}%", "last year"), ("The S&amp;P 500's", f"{vol(rets['SPX'][-252:]):.0f}%", "last year")))
+    d0 = dt.date.fromisoformat(days[0])
+    data = {"start": days[0], "d": [(dt.date.fromisoformat(x) - d0).days for x in days],
+            "s": {k: [float(f"{v:.5g}") for v in ser[k]] for k in keys}}
+    chips = "".join(f'<button type="button" class="chip" data-back="{b}" aria-pressed="{"true" if lab == "5Y" else "false"}">{lab}</button>'
+                    for lab, b in (("1Y", 252), ("3Y", 756), ("5Y", 1260), ("10Y", 2520), (days[0][:4], n - 1)) if b < n)
+    body = f"""<main id="main" class="page dd fr cs-page vm">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <h1 class="page__title">Bitcoin vs markets</h1>
+      <p class="lede">Bitcoin beside shares, gold, the dollar and bonds, and what a little of it does to a portfolio.</p>
+      <p class="note__meta"><span>Coin Metrics, Yahoo Finance</span><span>Daily closes to {last_day}</span><span>Refreshed at every deploy</span></p>
+      <section class="vr" aria-label="Bitcoin and the markets, from the same start" hidden>
+        <canvas class="vr__c" role="img" aria-label="Bitcoin, gold, the S&amp;P 500, the Nasdaq, the dollar index and long Treasuries, each starting at 100 on the same day and drawn to today. The figures are in the Returns table below."></canvas>
+        <p class="vr__date" aria-hidden="true"></p>
+        <div class="vr__ctl"><div class="filters dd__ranges" role="group" aria-label="Start">{chips}</div><button class="btn btn--ghost vr__replay" type="button">Replay</button></div>
+        <p class="lens-read vr__read" aria-live="polite"></p>
+      </section>
+    </header>
+    <div class="dd__main fr__main">
+      <section class="fr__panel" aria-labelledby="vm-ret-h"><div class="fr__ph"><h2 id="vm-ret-h">Returns</h2></div><p class="fr__intro">What each gained or lost over each period, to {last_day}.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th></th>{"".join(f'<th scope="col">{lab}</th>' for lab, _ in periods)}</tr></thead><tbody>{ret_rows}</tbody></table></div>
+        <p class="fr__src">Coin Metrics for Bitcoin; Yahoo Finance for the S&amp;P 500, the Nasdaq Composite, gold futures, the dollar index and long Treasuries (the TLT fund, with its income). The share indices are price levels, without dividends. Periods in trading days.</p></section>
+      <section class="fr__panel" aria-labelledby="vm-co-h"><div class="fr__ph"><h2 id="vm-co-h">Moving together</h2></div><p class="fr__intro">How closely Bitcoin's daily moves have followed each market's over the last 90 trading days: 1 is in step, 0 unrelated, below 0 opposite.</p>
+        <div class="vm-plot" data-chart="corr"></div><p class="lens-read vm-read" data-read="corr" aria-live="polite"></p><p class="fr__src">Andra Markets calculation from daily closes.</p></section>
+      <section class="fr__panel" aria-labelledby="vm-ri-h"><div class="fr__ph"><h2 id="vm-ri-h">Risk</h2></div><p class="fr__intro">What each made in a year on average, how much it swings, and its deepest fall from a record, since {since}.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th></th><th scope="col">A year, on average</th><th scope="col">Volatility</th><th scope="col">Deepest fall</th><th scope="col">Worst day</th><th scope="col">Best day</th></tr></thead><tbody>{risk_rows}</tbody></table></div>
+        <p class="fr__src">Volatility: the spread of daily moves, scaled to a year. Andra Markets calculation.</p></section>
+      <section class="fr__panel" aria-labelledby="vm-wd-h"><div class="fr__ph"><h2 id="vm-wd-h">On the market's worst days</h2></div><p class="fr__intro">The ten largest one-day falls of the S&amp;P 500 since {since}, and what Bitcoin, gold and long Treasuries did the same day.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Day</th><th scope="col">S&amp;P 500</th><th scope="col">Bitcoin</th><th scope="col">Gold</th><th scope="col">Long Treasuries</th></tr></thead><tbody>{worst_rows}</tbody></table></div>
+        <p class="lens-read vm-read">Bitcoin fell on {fell["BTC"]} of the ten, gold on {fell["GOLD"]}, long Treasuries on {fell["BOND"]}</p><p class="fr__src">Andra Markets calculation from daily closes.</p></section>
+      <section class="fr__panel" aria-labelledby="vm-pf-h"><div class="fr__ph"><h2 id="vm-pf-h">A little Bitcoin in a portfolio</h2></div><p class="fr__intro">A classic portfolio, 60% shares and 40% bonds, with a share of it moved into Bitcoin and put back to its weights every month. Move the share and see what it would have done since {since}.</p>
+        <div class="pm" hidden><label class="pm__l" for="pm-w">Bitcoin's share <output id="pm-o" for="pm-w">5%</output></label><input id="pm-w" type="range" min="0" max="20" step="1" value="5">
+          <div class="pm__figs" aria-live="polite"><div><span class="lens-read">$10,000 became</span><b id="pm-v"></b><i id="pm-v2"></i></div><div><span class="lens-read">Volatility</span><b id="pm-s"></b><i id="pm-s2"></i></div><div><span class="lens-read">Deepest fall</span><b id="pm-d"></b><i id="pm-d2"></i></div></div>
+          <canvas class="pm__c" role="img" aria-label="The portfolio with the chosen share of Bitcoin, in amber, against the plain 60/40 portfolio, both starting at 100."></canvas></div>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Bitcoin's share</th><th scope="col">$10,000 became</th><th scope="col">A year, on average</th><th scope="col">Volatility</th><th scope="col">Deepest fall</th><th scope="col">Worst year</th></tr></thead><tbody>{port_rows}</tbody></table></div>
+        <p class="fr__src">The S&amp;P 500 (price level) and long Treasuries (TLT), rebalanced monthly, before fees and taxes. What happened says nothing certain of what will. For information only. Not investment advice.</p></section>
+      {more(site, path, "../../")}
+      <script type="application/json" id="vm-data">{json.dumps(data, separators=(",", ":"))}</script>
+    </div>
+    <aside class="report__side dd__side" aria-labelledby="side-title"><h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{side}</ul><p class="report__src">Daily closes to {last_day}.</p></aside>
+  </div>
+</main>"""
+    return site.shell(title="Bitcoin vs markets: Crypto: Andra Markets", desc="Bitcoin beside the S&P 500, the Nasdaq, gold, the dollar and Treasuries: returns, how closely they move together, risk, the market's worst days, and what a share of Bitcoin does to a 60/40 portfolio.",
+                      body=body, home="../../", base="../../", path=path, scripts=("crypto-markets.js",))
+
+
+# ---- Derivatives (crypto/derivatives/; owner-approved sketch, 27 Nov 2026: "the pulse", after two charts of the
+# options by strike were turned down) ----
+def load_derivs(site):
+    try:
+        m = json.loads((site.ROOT / ".cache" / "crypto" / "derivs.json").read_text(encoding="utf-8"))
+        return m if len(m.get("dvol") or []) > 200 and m.get("expiries") else None
+    except (OSError, ValueError):
+        return None
+
+
+def derivs_page(site, d, hist, dv):
+    import math
+    path = "crypto/derivatives/"
+    if not hist or not dv:
+        return pending(site, path, "Derivatives")
+    spot = dv["spot"]
+    try:
+        fetched = dt.datetime.fromisoformat(dv["fetched"])
+        when, today = f"{fetched.day} {fetched:%b %Y}, {fetched:%H:%M} UTC", fetched.date()
+    except (KeyError, ValueError):
+        when, today = "", dt.date.today()
+    usd = lambda v: f"${v / 1e9:.1f}bn" if v >= 1e9 else f"${v / 1e6:,.0f}m"
+    rate = lambda v, dgt=1: f'<span class="{"up" if round(v, dgt) > 0 else "down" if round(v, dgt) < 0 else ""}">{signed(v, dgt)}%</span>'
+    # the pulse: DVOL, and what the price actually did over the 30 days before each day
+    b0, bp = dt.date.fromisoformat(hist["start"]), hist["p"]
+    dvol = [(x, v) for x, v in dv["dvol"] if v]
+    d0 = dt.date.fromisoformat(dvol[0][0])
+    real = []
+    for x, _ in dvol:
+        i = (dt.date.fromisoformat(x) - b0).days
+        if 31 <= i < len(bp):
+            r = [math.log(bp[j] / bp[j - 1]) for j in range(i - 29, i + 1)]
+            m = sum(r) / 30
+            real.append(round((sum((y - m) ** 2 for y in r) / 29) ** 0.5 * math.sqrt(365) * 100, 1))
+        else:
+            real.append(None)
+    last_dvol = dvol[-1][1]
+    last_real = next((v for v in reversed(real) if v is not None), None)
+    rank = sum(1 for _, v in dvol if v <= last_dvol) / len(dvol) * 100
+    per_day = last_dvol / math.sqrt(365)
+    # funding
+    fund = dv.get("fund") or []
+    f_pos = sum(1 for _, v in fund if v > 0)
+    f_avg = sum(v for _, v in fund[-30:]) / max(1, len(fund[-30:]))
+    # futures
+    futs, perp = [], None
+    for f in dv["futures"]:
+        if not f["date"]:
+            perp = f
+            continue
+        days = max(1, (dt.date.fromisoformat(f["date"]) - today).days)
+        futs.append({"date": f["date"], "days": days, "mark": f["mark"], "oi": f["oi"], "prem": (f["mark"] / spot - 1) * 100, "ann": (f["mark"] / spot - 1) * 365 / days * 100})
+    futs.sort(key=lambda f: f["days"])
+    curve = [f for f in futs if f["days"] >= 7]
+    fut_rows = (f'<tr><th scope="row">Perpetual</th><td>{money(perp["mark"])}</td><td>{rate((perp["mark"] / spot - 1) * 100, 2)}</td><td>see Funding</td><td>{usd(perp["oi"])}</td></tr>' if perp else "") + "".join(
+        f'<tr><th scope="row">{day_name(f["date"])}</th><td>{money(f["mark"])}</td><td>{rate(f["prem"], 2)}</td><td>{rate(f["ann"]) if f["days"] >= 7 else "n/a"}</td><td>{usd(f["oi"])}</td></tr>' for f in futs)
+    near3 = min(curve, key=lambda f: abs(f["days"] - 91)) if curve else None
+    # options
+    exps = []
+    for e in dv["expiries"]:
+        ks = e["k"]
+        calls, puts = sum(r[1] for r in ks), sum(r[2] for r in ks)
+        if calls + puts <= 0:
+            continue
+        pain = min((sum(max(0, s[0] - r[0]) * r[1] + max(0, r[0] - s[0]) * r[2] for r in ks), s[0]) for s in ks)[1]
+        exps.append({"date": e["date"], "days": max(0, (dt.date.fromisoformat(e["date"]) - today).days), "c": calls, "p": puts, "pain": pain, "und": e["und"] or spot, "k": ks})
+    exp_rows = "".join(
+        f'<tr><th scope="row">{day_name(e["date"])}</th><td>{"today" if not e["days"] else f"""{e["days"]} day{"s" if e["days"] != 1 else ""}"""}</td><td>{e["c"]:,.0f}</td><td>{e["p"]:,.0f}</td>'
+        f'<td>{e["p"] / e["c"]:.2f}</td><td>{usd((e["c"] + e["p"]) * spot)}</td><td>${e["pain"]:,.0f}</td></tr>' if e["c"] else "" for e in exps)
+    tc, tp = sum(e["c"] for e in exps), sum(e["p"] for e in exps)
+    big_e = max((e for e in exps if e["days"] >= 7), key=lambda e: e["c"] + e["p"], default=exps[-1])
+    und = big_e["und"]
+    smile = [[r[0], r[4] if r[0] < und else r[3]] for r in big_e["k"] if und * 0.5 < r[0] < und * 1.8 and (r[4] if r[0] < und else r[3])]
+    near = lambda t: min(smile, key=lambda q: abs(q[0] - t))[1] if smile else None
+    s_atm, s_dn, s_up = near(und), near(und * 0.8), near(und * 1.2)
+    fut_oi = sum(f["oi"] for f in dv["futures"])
+    side = kpis((("DVOL", f"{last_dvol:.1f}%", "expected, next 30 days"), ("Actual", f"{last_real:.1f}%" if last_real is not None else "n/a", "last 30 days"),
+                 ("Funding", rate(fund[-1][1]) if fund else "n/a", "a year, latest day"), ("3-month future", rate(near3["ann"]) if near3 else "n/a", "a year over Bitcoin"),
+                 ("Options open", usd((tc + tp) * spot), f"{tc + tp:,.0f} bitcoin"), ("Futures open", usd(fut_oi), f"perpetual {usd(perp['oi'])}" if perp else ""),
+                 ("Puts per call", f"{tp / tc:.2f}" if tc else "n/a", "all expiries"), ("Largest expiry", day_name(big_e["date"]), f"max pain ${big_e['pain']:,.0f}")))
+    data = {"start": dvol[0][0], "d": [(dt.date.fromisoformat(x) - d0).days for x, _ in dvol], "dvol": [v for _, v in dvol], "real": real,
+            "fund": {"start": fund[0][0], "d": [(dt.date.fromisoformat(x) - dt.date.fromisoformat(fund[0][0])).days for x, _ in fund], "v": [v for _, v in fund]} if fund else None,
+            "curve": [[f["days"], round(f["ann"], 2), f["date"]] for f in curve], "smile": smile, "und": und}
+    body = f"""<main id="main" class="page dd fr cs-page vm dvp">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <h1 class="page__title">Derivatives</h1>
+      <p class="lede">How much the market expects Bitcoin to move, what it costs to bet with borrowed money and where the options sit.</p>
+      <p class="note__meta"><span>Deribit</span><span>Updated {when}</span><span>Refreshed at every deploy</span></p>
+      <section class="vr dvh" aria-label="DVOL, the swing the market expects" hidden>
+        <canvas class="vr__c" role="img" aria-label="DVOL, the yearly swing Bitcoin options price in for the next 30 days, each day since {day_name(dvol[0][0])}, with the swing that actually happened behind it. Today {last_dvol:.1f}%."></canvas>
+        <p class="vr__date dvh__fig" aria-hidden="true"><b>{last_dvol:.1f}%</b><span>The market expects Bitcoin to move about {per_day:.1f}% a day over the next month</span></p>
+        <div class="vr__ctl"><button class="btn btn--ghost vr__replay" type="button">Replay</button></div>
+        <p class="lens-read vr__read" aria-live="polite"></p>
+      </section>
+    </header>
+    <div class="dd__main fr__main">
+      <section class="fr__panel" aria-labelledby="dv-pulse-h"><div class="fr__ph"><h2 id="dv-pulse-h">Expected and actual swings</h2></div><p class="fr__intro">DVOL is what options price in for the next 30 days, as a yearly figure: Bitcoin's VIX. Today it stands at {last_dvol:.1f}%, higher than on {rank:.0f}% of days since {day_name(dvol[0][0])}; over the last 30 days the price actually swung at {f"{last_real:.1f}%" if last_real is not None else "n/a"}. Divide a yearly figure by 19 for a day's move.</p>
+        <p class="fr__src">Deribit (the DVOL index, daily closes); realised volatility from Coin Metrics daily closes, over the 30 days before each day.</p></section>
+      <section class="fr__panel" aria-labelledby="dv-fund-h"><div class="fr__ph"><h2 id="dv-fund-h">Funding</h2></div><p class="fr__intro">What holders of the perpetual future pay each other to keep it at Bitcoin's price, as a yearly rate. Above zero, those betting on a rise pay those betting on a fall: the market leans long.</p>
+        <div class="vm-plot" data-chart="fund"></div><p class="lens-read vm-read" data-read="fund" aria-live="polite">Longs paid on {f_pos} of the last {len(fund)} days · 30-day average {rate(f_avg)} a year</p><p class="fr__src">Deribit, BTC-PERPETUAL: each day's average of its hourly rates.</p></section>
+      <section class="fr__panel" aria-labelledby="dv-curve-h"><div class="fr__ph"><h2 id="dv-curve-h">The futures curve</h2></div><p class="fr__intro">Each future's price over Bitcoin's now, as a yearly rate. Above zero the market pays up to hold Bitcoin later; below, it sells it at a discount. Futures that expire within a week are left off the chart: a few dollars make a wild yearly rate.</p>
+        <div class="vm-plot" data-chart="curve"></div>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Future</th><th scope="col">Price</th><th scope="col">Over Bitcoin now</th><th scope="col">As a yearly rate</th><th scope="col">Open</th></tr></thead><tbody>{fut_rows}</tbody></table></div>
+        <p class="fr__src">Deribit, mark prices against its Bitcoin index of {money(spot)}, {when}.</p></section>
+      <section class="fr__panel" aria-labelledby="dv-smile-h"><div class="fr__ph"><h2 id="dv-smile-h">The smile</h2></div><p class="fr__intro">The volatility options price in at each strike, for the largest expiry, {day_name(big_e["date"])}. A left side higher than the right means protection against a fall costs more than a bet on a rise.</p>
+        <div class="vm-plot" data-chart="smile"></div><p class="lens-read vm-read">{f"At the price {s_atm:.0f}% · 20% below, {s_dn:.0f}% · 20% above, {s_up:.0f}% · protection against a fall costs {'more' if s_dn > s_up else 'less'} than a bet on a rise" if s_atm else ""}</p>
+        <p class="fr__src">Deribit, mark volatility: puts below the price, calls above.</p></section>
+      <section class="fr__panel" aria-labelledby="dv-exp-h"><div class="fr__ph"><h2 id="dv-exp-h">Every expiry</h2></div><p class="fr__intro">Open option contracts at each expiry, in bitcoin: one contract is one bitcoin. Max pain is the price at which the most options would expire worthless.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Expiry</th><th scope="col">In</th><th scope="col">Calls</th><th scope="col">Puts</th><th scope="col">Puts per call</th><th scope="col">Worth</th><th scope="col">Max pain</th></tr></thead><tbody>{exp_rows}</tbody></table></div>
+        <p class="fr__src">Deribit, {when}. Deribit holds most of the world's Bitcoin options, but not the futures of CME or other exchanges: these are its figures alone. For information only. Not investment advice.</p></section>
+      {more(site, path, "../../")}
+      <script type="application/json" id="dv-data">{json.dumps(data, separators=(",", ":"))}</script>
+    </div>
+    <aside class="report__side dd__side" aria-labelledby="side-title"><h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{side}</ul><p class="report__src">Deribit, {when}.</p></aside>
+  </div>
+</main>"""
+    return site.shell(title="Derivatives: Crypto: Andra Markets", desc=f"Bitcoin's derivatives on Deribit: DVOL at {last_dvol:.0f}%, the perpetual's funding, the futures curve, the volatility smile and every option expiry with its max pain.",
+                      body=body, home="../../", base="../../", path=path, scripts=("crypto-derivs.js",))
+
+
+# ---- Network (crypto/network/; owner-approved sketch, 28 Nov 2026: both pieces, the Lightning nodes on the whole
+# Earth and the hashrate as a line of light; the line of text under the globe taken away) ----
+def load_network(site):
+    try:
+        m = json.loads((site.ROOT / ".cache" / "crypto" / "network.json").read_text(encoding="utf-8"))
+        return m if len(m.get("hash") or []) > 1000 and m.get("places") else None
+    except (OSError, ValueError):
+        return None
+
+
+def network_page(site, d, nw):
+    path = "crypto/network/"
+    if not nw:
+        return pending(site, path, "Network")
+    try:
+        fetched = dt.datetime.fromisoformat(nw["fetched"])
+        when = f"{fetched.day} {fetched:%b %Y}, {fetched:%H:%M} UTC"
+    except (KeyError, ValueError):
+        when = ""
+    btc_price = d["coins"][0]["price"]
+    rate = lambda v, dgt=1: f'<span class="{"up" if round(v, dgt) > 0 else "down" if round(v, dgt) < 0 else ""}">{signed(v, dgt)}%</span>'
+    ln, places = nw["ln"], nw["places"]
+    globe = {"asof": nw["fetched"], "points": nw["points"], "places": [
+        {"name": p["name"], "lon": p["lon"], "lat": p["lat"], "share": p["share"] / 100, "label": f"{p['count']:,} nodes · {p['share']:.0f}%", "more": f"{p['btc']:,.0f} BTC in channels"} for p in places]}
+    hs = nw["hash"]
+    last = hs[-1][1]
+    idx = lambda day: next((i for i, h in enumerate(hs) if h[0] >= day), len(hs) - 1)
+    year_ago = hs[idx((dt.date.fromisoformat(hs[-1][0]) - dt.timedelta(days=365)).isoformat())][1]
+    marks = []
+    a, b = idx("2021-04-15"), idx("2021-08-01")
+    if b > a:
+        hi = max(range(a, b), key=lambda i: hs[i][1])
+        lo = min(range(hi, b + 1), key=lambda i: hs[i][1])
+        marks.append({"i": lo, "fall": round((hs[lo][1] / hs[hi][1] - 1) * 100), "text": "China bans mining, 2021"})
+    top_i = max(range(len(hs)), key=lambda i: hs[i][1])
+    big = lambda v: f"{v / 1000:.2f} ZH/s" if v >= 1000 else f"{v:,.0f} EH/s"
+    df = nw["difficulty"]
+    retarget = dt.datetime.fromtimestamp(df["estimatedRetargetDate"] / 1000, dt.timezone.utc)
+    pools, blocks = nw["pools"]["list"], nw["pools"]["blocks"]
+    shown = pools[:8]
+    rest = blocks - sum(n for _, n in shown)
+    pool_rows = "".join(f'<div class="mk-row"><span>{site.esc(name)}</span><i><b style="width:{min(100, n / blocks * 200):.1f}%"></b></i><span>{n / blocks * 100:.1f}%</span></div>'
+                        for name, n in shown + [["Every other pool", rest]])
+    fees, queue = nw["fees"], nw["queue"]
+    pay = fees["fastestFee"] * 140 / 1e8 * btc_price
+    ln_rows = "".join(f'<tr><th scope="row">{site.esc(p["name"])}</th><td>{p["count"]:,}</td><td>{p["share"]:.1f}%</td><td>{p["btc"]:,.0f} BTC</td></tr>' for p in places[:12])
+    side = kpis((("Hashrate", big(nw["now"]), "now"), ("Next difficulty", rate(df["difficultyChange"]), f"in {df['remainingBlocks']:,} blocks"),
+                 ("Next block", f"{fees['fastestFee']} sat/vB", "fee to get in"), ("Waiting", f"{queue['count']:,}", "transactions"),
+                 ("Largest pool", site.esc(pools[0][0]), f"{pools[0][1] / blocks * 100:.1f}% of blocks"), ("Top three pools", f"{sum(n for _, n in pools[:3]) / blocks * 100:.0f}%", "of the last month's blocks"),
+                 ("Lightning nodes", f"{ln['node_count']:,}", f"{ln['channel_count']:,} channels"), ("In Lightning", f"{ln['total_capacity'] / 1e8:,.0f} BTC", big_usd(ln["total_capacity"] / 1e8 * btc_price))))
+    data = {"hash": {"start": hs[0][0], "step": 2, "v": [h[1] for h in hs], "marks": marks, "halvings": [x[0] for x in HALVINGS]},
+            "fees": {"t": [r[0] for r in nw["feerates"]], "mid": [r[1] for r in nw["feerates"]], "top": [r[2] for r in nw["feerates"]]}}
+    body = f"""<main id="main" class="page dd fr cs-page vm nwp">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <h1 class="page__title">Network</h1>
+      <p class="lede">Where Bitcoin's network lives, how much power guards it and what it costs to use.</p>
+      <p class="note__meta"><span>mempool.space</span><span>Updated {when}</span><span>Refreshed at every deploy</span></p>
+      <section class="cg cg--points" aria-label="Lightning nodes on the Earth" hidden>
+        <canvas class="cg__gl" aria-hidden="true"></canvas>
+        <canvas class="cg__ov" aria-hidden="true"></canvas>
+        <div class="cg__names" aria-hidden="true"></div>
+        <div class="cg__big"><p class="lens-read">Lightning nodes</p><p class="cg__fig">{ln["node_count"]:,}</p>
+          <p class="cg__say">computers that move bitcoin in an instant. Each light is a town with some of the {nw["located"]:,} that say where they are; the rest keep it to themselves.</p></div>
+        <p class="visually-hidden cg__status" role="status" aria-live="polite"></p>
+        <p class="visually-hidden">The Earth as lit at {when}, with a light at each town where Lightning nodes publish an address, brighter with more bitcoin in their channels. The countries are in the table below.</p>
+        <script type="application/json">{json.dumps(globe, separators=(",", ":")).replace("</", "<\\/")}</script>
+      </section>
+      <section class="vr dvh nwh" aria-label="The power that guards the network" hidden>
+        <canvas class="vr__c" role="img" aria-label="Bitcoin's hashrate, weekly average, since 2010, with the four halvings. Now {big(last)}."></canvas>
+        <p class="vr__date dvh__fig" aria-hidden="true"><b>{big(last)}</b><span>The computing power guarding Bitcoin: a billion billion guesses, {last:,.0f} times over, every second</span></p>
+        <div class="vr__ctl"><button class="btn btn--ghost vr__replay" type="button">Replay</button></div>
+        <p class="lens-read vr__read" aria-live="polite"></p>
+      </section>
+    </header>
+    <div class="dd__main fr__main">
+      <section class="fr__panel" aria-labelledby="nw-hash-h"><div class="fr__ph"><h2 id="nw-hash-h">Hashrate</h2></div><p class="fr__intro">Miners guess numbers until one seals a block; the hashrate is how many guesses the whole network makes each second. It stands at {big(last)}, {rate((last / year_ago - 1) * 100, 0)} on a year ago; its highest week was {big(hs[top_i][1])}, in {MON[int(hs[top_i][0][5:7]) - 1]} {hs[top_i][0][:4]}. One EH/s is a billion billion guesses a second.</p>
+        <p class="fr__src">mempool.space, daily estimates averaged over the week to each day.</p></section>
+      <section class="fr__panel" aria-labelledby="nw-diff-h"><div class="fr__ph"><h2 id="nw-diff-h">Difficulty</h2></div><p class="fr__intro">Every 2,016 blocks, about two weeks, the network makes mining harder or easier so that a block still takes ten minutes.</p>
+        <div class="mk-bars"><div class="mk-row"><span>This period</span><i><b style="width:{df["progressPercent"]:.1f}%"></b></i><span>{df["progressPercent"]:.0f}%</span></div></div>
+        <p class="lens-read vm-read">{df["remainingBlocks"]:,} blocks to the next change, about {retarget.day} {MON[retarget.month - 1]} {retarget.year} · expected {rate(df["difficultyChange"])} · the last one {rate(df["previousRetarget"])} · blocks are taking {df["timeAvg"] / 60000:.1f} minutes</p>
+        <p class="fr__src">mempool.space, {when}.</p></section>
+      <section class="fr__panel" aria-labelledby="nw-pool-h"><div class="fr__ph"><h2 id="nw-pool-h">Who mines</h2></div><p class="fr__intro">The share of the last month's {blocks:,} blocks found by each mining pool. No pool should come near half: the bars run to 50%.</p>
+        <div class="mk-bars">{pool_rows}</div><p class="fr__src">mempool.space: blocks by the pool that signed them.</p></section>
+      <section class="fr__panel" aria-labelledby="nw-fee-h"><div class="fr__ph"><h2 id="nw-fee-h">Fees and the queue</h2></div><p class="fr__intro">What a transaction pays to get into a block, in satoshis for each unit of space (sat/vB): the middle transaction and the dearest tenth, over a year.</p>
+        <div class="vm-plot" data-chart="fees"></div>
+        <p class="lens-read vm-read" data-read="fees" aria-live="polite">Now: {fees["fastestFee"]} sat/vB gets into the next block, about ${pay:,.2f} for a plain payment · {queue["count"]:,} transactions wait, {queue["vsize"] / 1e6:.0f} blocks' worth</p>
+        <p class="fr__src">mempool.space, {when}. A plain payment is taken as 140 units of space, at Bitcoin's price of {money(btc_price)}.</p></section>
+      <section class="fr__panel" aria-labelledby="nw-ln-h"><div class="fr__ph"><h2 id="nw-ln-h">Lightning by country</h2></div><p class="fr__intro">Lightning moves bitcoin at once through channels opened between nodes. Where the nodes that publish an address are, and the bitcoin in their channels.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Country</th><th scope="col">Nodes</th><th scope="col">Share</th><th scope="col">In channels</th></tr></thead><tbody>{ln_rows}</tbody></table></div>
+        <p class="fr__src">mempool.space. Of {ln["node_count"]:,} nodes, {ln.get("tor_nodes", 0):,} are reached only through Tor and have no place; a node's place is where its address says it is. The Earth: Solar System Scope (CC BY 4.0), from NASA imagery. For information only. Not investment advice.</p></section>
+      {more(site, path, "../../")}
+      <script type="application/json" id="nw-data">{json.dumps(data, separators=(",", ":"))}</script>
+    </div>
+    <aside class="report__side dd__side" aria-labelledby="side-title"><h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{side}</ul><p class="report__src">mempool.space, {when}.</p></aside>
+  </div>
+</main>"""
+    return site.shell(title="Network: Crypto: Andra Markets", desc=f"Bitcoin's network: {ln['node_count']:,} Lightning nodes on the Earth, a hashrate of {big(last)}, the next difficulty change, who mines, fees and the queue.",
+                      body=body, home="../../", base="../../", path=path, scripts=("crypto-globe.js", "crypto-network.js"))
+
+
+def big_usd(v):
+    return f"${v / 1e9:.1f}bn" if v >= 1e9 else f"${v / 1e6:,.0f}m"
+
+
+# ---- Stablecoins & DeFi (crypto/stablecoins/; owner, 28 Nov 2026: a line of light "the same as all the others" and a
+# river of strands were turned down; the plain data page was accepted: "that will do") ----
+BACKING = {"fiat-backed": "Dollars and bills", "algorithmic": "A formula"}
+
+
+def load_defi(site):
+    try:
+        m = json.loads((site.ROOT / ".cache" / "crypto" / "defi.json").read_text(encoding="utf-8"))
+        return m if len(m.get("total") or []) > 300 and m.get("coins") else None
+    except (OSError, ValueError):
+        return None
+
+
+def defi_page(site, d, df):
+    path = "crypto/stablecoins/"
+    if not df:
+        return pending(site, path, "Stablecoins &amp; DeFi")
+    try:
+        fetched = dt.datetime.fromisoformat(df["fetched"])
+        when = f"{fetched.day} {fetched:%b %Y}, {fetched:%H:%M} UTC"
+    except (KeyError, ValueError):
+        when = ""
+    supply, coins = df["supply"], df["coins"]
+    share = lambda v, tot: f"{v / tot * 100:.1f}%" if v / tot < 0.01 else f"{v / tot * 100:.0f}%"
+
+    def bars(rows, tot):
+        return "".join(f'<div class="mk-row"><span>{site.esc(n)}</span><i><b style="width:{min(100, v / tot * 100):.1f}%"></b></i><span>{share(v, tot)}</span></div>' for n, v in rows)
+    coin_rows = ""
+    for c in coins:
+        month = (c["supply"] / c["month"] - 1) * 100 if c.get("month") else None
+        # a change of more than two fifths in a month is a coin moved from one contract to another, not a market move
+        month_cell = move(month) if month is not None and abs(month) <= 40 else '<span class="cs-none">n/a</span>'
+        off = (c["price"] - 1) * 100 if c.get("price") and c.get("peg") == "peggedUSD" else None
+        off_cell = f'<span class="{"up" if round(off, 2) > 0 else "down" if round(off, 2) < 0 else ""}">{signed(off, 2)}%</span>' if off is not None else '<span class="cs-none">n/a</span>'
+        coin_rows += (f'<tr><th scope="row">{site.esc(c["name"])} <span class="cs-sym">{site.esc(c["symbol"])}</span></th><td>{big(c["supply"])}</td><td>{c["supply"] / supply * 100:.1f}%</td>'
+                      f'<td>{month_cell}</td><td class="sd-l">{BACKING.get(c.get("backing"), "Other coins")}</td><td>{off_cell}</td></tr>')
+    back = df["backing"]
+    tot, tvl = df["total"], df["tvl"]
+    rec_i = max(range(len(tot)), key=lambda i: tot[i][1])
+    tvl_i = max(range(len(tvl)), key=lambda i: tvl[i][1])
+    mon = lambda ts: (lambda x: f"{MON[x.month - 1]} {x.year}")(dt.datetime.fromtimestamp(ts, dt.timezone.utc))
+    tvl_now = tvl[-1][1] * 1e9
+    year_ago = next((v for t, v in tot if t >= tot[-1][0] - 365 * 86400), tot[0][1])
+    prot_rows = "".join(f'<tr><th scope="row">{site.esc(n)}</th><td class="sd-l">{site.esc(cat)}</td><td>{big(v)}</td><td>{move(ch) if ch is not None else "<span class=cs-none>n/a</span>"}</td></tr>' for n, cat, v, ch in df["protocols"])
+    side = kpis((("Stablecoins", big(supply), f"{df['count']} coins"), (f"{site.esc(coins[0]['name'])}'s share", f"{coins[0]['supply'] / supply * 100:.0f}%", big(coins[0]["supply"])),
+                 (f"{site.esc(coins[1]['symbol'])}'s share", f"{coins[1]['supply'] / supply * 100:.0f}%", big(coins[1]["supply"])), ("Backed by dollars", f"{back.get('fiat', 0) / supply * 100:.0f}%", "of all stablecoins"),
+                 (f"On {site.esc(df['chains'][0][0])}", share(df["chains"][0][1], supply), "of stablecoins"), (f"On {site.esc(df['chains'][1][0])}", share(df["chains"][1][1], supply), "of stablecoins"),
+                 ("Locked in DeFi", big(tvl_now), "every chain"), ("Largest protocol", site.esc(df["protocols"][0][0]), big(df["protocols"][0][2]))))
+    data = {"total": {"t": [r[0] for r in tot], "v": [r[1] for r in tot]}, "tvl": {"t": [r[0] for r in tvl], "v": [r[1] for r in tvl]}}
+    body = f"""<main id="main" class="page dd fr cs-page vm sdp">
+  <div class="wrap dd__grid">
+    <header class="page__head dd__head">
+      <h1 class="page__title">Stablecoins &amp; DeFi</h1>
+      <p class="lede">The dollars that live on blockchains, who issues them, and the money put to work there.</p>
+      <p class="note__meta"><span>DefiLlama</span><span>Updated {when}</span><span>Refreshed at every deploy</span></p>
+    </header>
+    <div class="dd__main fr__main">
+      <section class="fr__panel" aria-labelledby="sd-tot-h"><div class="fr__ph"><h2 id="sd-tot-h">How many there are</h2></div><p class="fr__intro">A stablecoin promises to be worth one unit of a currency, nearly always the dollar. Every one in circulation, in dollars, since 2019.</p>
+        <div class="vm-plot" data-chart="total" data-unit="in circulation"></div>
+        <p class="lens-read vm-read" data-read="total" aria-live="polite">${tot[-1][1]:,.0f}bn at the last daily count, {move((tot[-1][1] / year_ago - 1) * 100)} in a year · its record ${tot[rec_i][1]:,.0f}bn in {mon(tot[rec_i][0])} · it fell by a third after Terra collapsed in May 2022</p>
+        <p class="fr__src">DefiLlama, {df["count"]} stablecoins.</p></section>
+      <section class="fr__panel" aria-labelledby="sd-who-h"><div class="fr__ph"><h2 id="sd-who-h">Who issues them</h2></div><p class="fr__intro">The twelve largest: how many are in circulation, their share, how the month went and how close each trades to the dollar it promises.</p>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Coin</th><th scope="col">In circulation</th><th scope="col">Share</th><th scope="col">Month</th><th scope="col" class="sd-l">Backed by</th><th scope="col">Off its peg</th></tr></thead><tbody>{coin_rows}</tbody></table></div>
+        <p class="fr__src">DefiLlama, {when}. Month: the change in coins in circulation, left out where a coin moved to a new contract. Off its peg: the price against one dollar.</p></section>
+      <section class="fr__panel" aria-labelledby="sd-back-h"><div class="fr__ph"><h2 id="sd-back-h">What backs them</h2></div><p class="fr__intro">Some issuers hold dollars and Treasury bills in a bank; some hold other coins as collateral; a few hold only a formula.</p>
+        <div class="mk-bars">{bars((("Dollars and Treasury bills", back.get("fiat", 0)), ("Other coins as collateral", back.get("crypto", 0)), ("A formula", back.get("formula", 0))), supply)}</div>
+        <p class="fr__src">DefiLlama, by the mechanism each coin declares.</p></section>
+      <section class="fr__panel" aria-labelledby="sd-where-h"><div class="fr__ph"><h2 id="sd-where-h">Where they live</h2></div><p class="fr__intro">The blockchains that carry the most stablecoins.</p>
+        <div class="mk-bars">{bars(df["chains"][:7], supply)}</div><p class="fr__src">DefiLlama.</p></section>
+      <section class="fr__panel" aria-labelledby="sd-tvl-h"><div class="fr__ph"><h2 id="sd-tvl-h">Money at work in DeFi</h2></div><p class="fr__intro">The value locked in decentralised finance: coins lent, staked or pooled in programs that run without a bank.</p>
+        <div class="vm-plot" data-chart="tvl" data-unit="locked"></div>
+        <p class="lens-read vm-read" data-read="tvl" aria-live="polite">{big(tvl_now)} locked today · its record ${tvl[tvl_i][1]:,.0f}bn in {mon(tvl[tvl_i][0])}, {move((tvl[-1][1] / tvl[tvl_i][1] - 1) * 100)} from it</p>
+        <p class="fr__src">DefiLlama, total value locked across every chain, in US dollars.</p></section>
+      <section class="fr__panel" aria-labelledby="sd-big-h"><div class="fr__ph"><h2 id="sd-big-h">The largest chains and protocols</h2></div><p class="fr__intro">Where that money sits: by blockchain, then by program.</p>
+        <div class="mk-bars sd-gap">{bars(df["defi_chains"][:7], tvl_now)}</div>
+        <div class="cs-scroll"><table class="cs-tab vm-t"><thead><tr><th scope="col">Protocol</th><th scope="col" class="sd-l">What it does</th><th scope="col">Locked</th><th scope="col">Week</th></tr></thead><tbody>{prot_rows}</tbody></table></div>
+        <p class="fr__src">DefiLlama, {when}. Exchanges are left out. For information only. Not investment advice.</p></section>
+      {more(site, path, "../../")}
+      <script type="application/json" id="sd-data">{json.dumps(data, separators=(",", ":"))}</script>
+    </div>
+    <aside class="report__side dd__side" aria-labelledby="side-title"><h2 class="report__side-title" id="side-title">Latest</h2><ul class="kpi">{side}</ul><p class="report__src">DefiLlama, {when}.</p></aside>
+  </div>
+</main>"""
+    return site.shell(title="Stablecoins & DeFi: Crypto: Andra Markets", desc=f"{big(supply)} of stablecoins: who issues them, what backs them and which blockchains carry them, and the {big(tvl_now)} locked in DeFi by chain and protocol.",
+                      body=body, home="../../", base="../../", path=path, scripts=("crypto-defi.js",))
