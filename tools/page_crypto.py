@@ -84,7 +84,7 @@ def pages(site):
       <div class="cg__big"><p class="lens-read">Registered on islands</p><p class="cg__fig">{pct(isl)}</p>
         <p class="cg__say">of the day's trading on {ex.get("count")} exchanges goes through exchanges registered on islands.</p></div>
       <p class="visually-hidden cg__status" role="status" aria-live="polite"></p>
-      <p class="lens-read cg__read">The Earth as lit at {ex_when} · each column, a country where exchanges are registered, as tall as its share of the day's trading</p>
+      <p class="visually-hidden cg__read">The Earth as lit at {ex_when} · each column, a country where exchanges are registered, as tall as its share of the day's trading</p>
       <a class="lib-map__down" href="#cg-seats">Every seat</a>
       <script type="application/json">{json.dumps(data, separators=(",", ":")).replace("</", "<\\/")}</script>
     </section>"""
