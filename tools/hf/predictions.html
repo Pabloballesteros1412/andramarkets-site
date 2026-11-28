@@ -1,0 +1,33 @@
+<div id="main" class="desk">
+  <div class="cmd">
+    <a class="fn" href="../../">Andra Markets</a><div class="ttl">Prediction markets</div>
+    <div class="kv live"><i></i><span>As of</span><b id="s-age"></b></div>
+    <div class="kv opt c2"><span>Contracts</span><b id="s-n"></b></div>
+    <div class="kv opt"><span>Traded, 24 h</span><b id="s-vol"></b></div>
+    <div class="kv opt"><span>Rising / falling</span><b id="s-ad"></b></div>
+    <div class="grow"></div>
+    <div><input id="q" type="search" placeholder="Filter: fed, cpi, taiwan" aria-label="Filter contracts" autocomplete="off"></div>
+    <div class="seg" role="group" aria-label="Venue"><button data-v="" aria-pressed="true">Both</button><button data-v="Polymarket" aria-pressed="false">Polymarket</button><button data-v="Kalshi" aria-pressed="false">Kalshi</button></div>
+  </div>
+  <div class="tape" aria-hidden="true"><div id="tape"></div></div>
+  <div class="grid">
+    <section class="pane blot" aria-label="Blotter">
+      <div class="ph">Blotter <span id="b-n"></span></div>
+      <div class="cats" id="cats" role="group" aria-label="Sector"></div>
+      <div class="scroll" id="blot"></div>
+    </section>
+    <section class="pane" aria-label="Market map and contract">
+      <div class="ph">Market map <span>size: traded in 24 h &nbsp;&middot;&nbsp; colour: the day's move</span></div>
+      <div class="map" id="map"></div>
+      <div class="ph">Contract <span>every outcome</span></div>
+      <div class="scroll" id="ticket"></div>
+    </section>
+    <section class="pane" aria-label="Implied and movers">
+      <div class="ph">Implied by the market <span>probability, %</span></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="ph">Largest moves today <span>points</span></div>
+      <div class="scroll" id="movers"></div>
+    </section>
+  </div>
+  <div class="status" id="status"></div>
+</div>
