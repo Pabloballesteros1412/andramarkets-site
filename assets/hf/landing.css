@@ -35,3 +35,4 @@ html,body{height:100%}body{overflow:hidden}main{overflow-x:hidden}
 @media (max-width:1100px){.ls__stat{display:none}}
 @media (max-width:900px){body{overflow:auto}.ls{position:relative;min-height:100vh}.ls canvas#cv{position:relative;height:46vh}.ls__src{display:none}.ls__head{position:relative;left:auto;top:auto;padding:calc(var(--nav-h) + 12px) var(--gutter) 0}.ls__row{position:relative;left:auto;right:auto;top:auto!important;grid-template-columns:1fr 1fr;padding:0 var(--gutter) 40px}.ls__foot{display:none}}
 .site-footer,footer.foot{display:none}
+.ls__src i{display:block;font-style:normal;font-size:.625rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-bottom:2px}.ls__src b{font-size:.9375rem!important;font-weight:500!important;letter-spacing:-.005em}

@@ -240,8 +240,8 @@ LANDING = (("ships", "Ships", ships, tile_ships), ("orbit", "From orbit", orbit,
 
 
 def index(site):
-    """The group's page (owner-approved mock, 28 Nov 2026): the sources, the light falling from them, the eight sections on
-    a line of light and the ground under them, drawn by assets/hf/landing.js. The sections and their figures are in the
+    """The group's page (owner-approved mock, 28 Nov 2026): a map of the world, six agents travelling over it, the light
+    falling from them and the eight sections on a line, drawn by assets/hf/landing.js over landing-world.js. The sections and their figures are in the
     page as links, so it reads without the script; a section whose data has not arrived says so."""
     full = {slug: n for slug, n, *_ in SECTIONS}
     tiles, series = "", []
@@ -263,7 +263,7 @@ def index(site):
   <script type="application/json" id="hf-landing">{payload}</script>
 </main>"""
     return site.shell(title="Hedge Fund Data: Andra Markets", desc=LEDE, body=body, home="../", base="../", path=f"{GROUP}/", footer=False,
-                      head=f'\n<link rel="stylesheet" href="../assets/hf/landing.css?v={site.ver("hf/landing.css")}">', scripts=("hf/landing.js",))
+                      head=f'\n<link rel="stylesheet" href="../assets/hf/landing.css?v={site.ver("hf/landing.css")}">', scripts=("hf/landing-world.js", "hf/landing.js"))
 
 
 def pages(site):
