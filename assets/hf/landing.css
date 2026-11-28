@@ -1,0 +1,37 @@
+/* Hedge Fund Data: the group's page. See assets/hf/landing.js and DESIGN.md, Hedge Fund Data. */
+html,body{height:100%}body{overflow:hidden}main{overflow-x:hidden}
+.ls{position:fixed;inset:0}
+.ls canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ls__head{position:absolute;left:var(--gutter);top:calc(var(--nav-h) + clamp(4px,1.6vh,18px));z-index:3;pointer-events:none}
+.ls__head h1{font-size:clamp(1.6rem,2.6vw,2.25rem);font-weight:700;letter-spacing:-.038em;line-height:1;color:var(--ink-head,#bfc3c6)}
+.ls__head p{margin:8px 0 0;font-size:.8125rem;font-weight:300;color:var(--ink-2);line-height:1.5;max-width:34ch}
+.ls__src{position:absolute;z-index:2;font-size:.8125rem;font-weight:300;color:#c3cad6;line-height:1.45;pointer-events:none;white-space:nowrap;transition:opacity .25s}
+.ls__src b{display:block;font-weight:500!important;color:var(--ink)}
+.ls__row{position:absolute;z-index:3;left:var(--gutter);right:var(--gutter);display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:clamp(14px,2vw,32px)}
+.ls__t{display:block;text-decoration:none;color:var(--ink);padding:14px 2px 10px 0;background:none;border:0;border-top:1px solid var(--rule-strong);transition:border-color .2s,background .2s,opacity .25s;min-width:0}
+.ls__t small{display:block;font-size:.75rem;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls__t b{display:block;font-size:clamp(1.05rem,1.55vw,1.5rem);font-weight:400!important;letter-spacing:-.03em;line-height:1.25;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ls__t span{display:block;font-size:.6875rem;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls__t canvas{position:static;display:block;width:100%;height:26px;margin-top:7px}
+.ls__t header{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ls__t header em{font-style:normal;font-size:.625rem;color:var(--ink-3);white-space:nowrap}
+.ls__t header em:before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--c);margin-right:5px;vertical-align:1px}
+.ls__t u{display:block;height:2px;margin:-10px -12px 9px;background:var(--c);text-decoration:none;opacity:.85}
+.ls__t span.cap{margin-top:3px;font-size:.625rem}
+.ls__t:hover,.ls__t:focus-visible,.ls__t.on{border-top-color:var(--c);outline:0}
+.ls__t small{font-size:.8125rem!important}
+.ls__src{font-size:.75rem!important;color:var(--ink-3)!important}.ls__src b{font-size:.8125rem;font-weight:400!important}
+.ls.hot .ls__t:not(.on){opacity:.35}.ls.hot .ls__src:not(.on){opacity:.3}
+.ls__foot{position:absolute;left:0;right:0;bottom:0;height:30px;z-index:3;display:flex;align-items:center;overflow:hidden;border-top:1px solid var(--rule);background:rgba(0,0,0,.6);font-size:.75rem;font-weight:300;color:#c3cad6;font-variant-numeric:tabular-nums;pointer-events:none}
+.ls__foot>b{flex:none;height:100%;display:flex;align-items:center;padding:0 16px 0 var(--gutter);background:#000;border-right:1px solid var(--rule);font-weight:400!important;color:var(--ink-2);z-index:1}
+.ls__foot div{display:flex;white-space:nowrap;animation:lsrun 70s linear infinite}
+.ls__foot div span{padding:0 22px;border-right:1px solid var(--rule)}
+@keyframes lsrun{to{transform:translateX(-50%)}}
+.ls__stat{position:absolute;right:var(--gutter);top:calc(var(--nav-h) + 6px);z-index:3;display:flex;gap:26px;font-variant-numeric:tabular-nums;pointer-events:none}
+.ls__stat div small{display:block;font-size:.6875rem;color:var(--ink-3)}
+.ls__stat div b{font-size:.9375rem;font-weight:400!important;color:var(--ink)}
+.ls__cad{position:absolute;z-index:2;font-size:.6875rem;color:var(--ink-3);pointer-events:none;white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.ls__foot div{animation:none}}
+@media (max-width:1100px){.ls__stat{display:none}}
+@media (max-width:900px){body{overflow:auto}.ls{position:relative;min-height:100vh}.ls canvas#cv{position:relative;height:46vh}.ls__src{display:none}.ls__head{position:relative;left:auto;top:auto;padding:calc(var(--nav-h) + 12px) var(--gutter) 0}.ls__row{position:relative;left:auto;right:auto;top:auto!important;grid-template-columns:1fr 1fr;padding:0 var(--gutter) 40px}.ls__foot{display:none}}
+.site-footer,footer.foot{display:none}

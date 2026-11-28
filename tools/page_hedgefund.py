@@ -179,37 +179,91 @@ def pending(site, slug, name, desc):
 LEDE = "What ships, jets, satellites, filings, bets and readers show, before it reaches the prices."
 
 
-# What each screen holds, for the group's map: (name, ...) under each section.
-PARTS = {
-    "ships": ("Live map", "Chokepoints", "Tankers", "Vessels in view"),
-    "jets": ("In the air now", "By maker", "Airfields"),
-    "orbit": ("Heat detections", "Oil and gas flares", "Night lights"),
-    "attention": ("The wall", "By group", "Largest spikes"),
-    "predictions": ("The Fed", "Economy", "Elections", "Largest moves"),
-    "positioning": ("Futures", "Short selling", "Crowding"),
-    "insiders": ("Insiders", "Cluster buys", "Government contracts"),
-    "power": ("Every grid", "The year", "Hour by hour", "Air passengers"),
-}
-MAP_ORDER = ("ships", "orbit", "jets", "attention", "predictions", "positioning", "insiders", "power")  # Ships first (owner)
+def med(a):
+    a = sorted(a)
+    return a[len(a) // 2] if a else 0
+
+
+def tile_ships(d):
+    cp = d["PW"]["cp"]
+    tot = [sum(c["t"][i] or 0 for c in cp) for i in range(len(cp[0]["t"]))]
+    return f'{len(d["AIS"]["v"]):,}', "vessels at sea", "line", tot[-60:], "Transits a day through 28 chokepoints, 60 days"
+
+
+def tile_orbit(d):
+    return (f'{d["t"]["total"]:,}', "heat detections, 24 h", "bars",
+            sorted((v["count"] for v in d["t"]["latest"].values()), reverse=True)[:14], "Detections by region, 24 hours")
+
+
+def tile_jets(d):
+    return f'{len(d["jets"]):,}', "business jets tracked", "bars", sorted(d["by_region"].values(), reverse=True), "Aircraft by region, now"
+
+
+def tile_attention(d):
+    def x(a):
+        v = [n or 0 for n in a["v"]]
+        return v[-1] / (med(v[-91:-1]) or 1)
+    top = max(d["arts"], key=x)
+    return f"{x(top):.0f}\u00d7", f'{top["n"]}, against normal', "line", [n for n in top["v"] if n is not None][-60:], f'{top["n"]}: readers a day, 60 days'
+
+
+def tile_predictions(d):
+    ev = max(d["ev"], key=lambda e: e["v24"])
+    out = sorted(ev["o"], key=lambda o: -o[1])
+    return f"{out[0][1] * 100:.0f}%", out[0][0], "bars", [round(o[1] * 100, 1) for o in out], ev["t"]
+
+
+def tile_positioning(d):
+    c = min(d["cot"], key=lambda c: min(c["p"], 100 - c["p"]))
+    p = round(c["p"])
+    th = "th" if 10 <= p % 100 <= 20 else {1: "st", 2: "nd", 3: "rd"}.get(p % 10, "th")
+    return f"{p}{th}", f'percentile, {c["n"]}', "line", [w[4] for w in c["w"][-52:]], f'{c["n"]}: speculators\' net position, 52 weeks'
+
+
+def tile_insiders(d):
+    flow = {}
+    for t in sorted(d["trades"], key=lambda t: t["d"]):
+        flow[t["d"]] = flow.get(t["d"], 0) + (t["v"] if t["k"] == "P" else -t["v"])
+    net = sum(flow.values())
+    return f"${abs(net) / 1e9:.1f}bn", ("bought" if net > 0 else "sold") + " net, 45 days", "pm", list(flow.values())[-30:], "Insiders' net flow a day, 30 days"
+
+
+def tile_power(d):
+    return f'{d["hourly"][-1][1] / 1e3:.1f} GW', "lower 48, now", "line", [x for x in d["grids"][0]["mwh"] if x is not None][-60:], "Lower 48 demand a day, 60 days"
+
+
+# The eight sections in the order of the group's page (Ships first, owner), with the name on its tile.
+LANDING = (("ships", "Ships", ships, tile_ships), ("orbit", "From orbit", orbit, tile_orbit), ("jets", "Jets", jets, tile_jets),
+           ("attention", "Attention", attention, tile_attention), ("predictions", "Predictions", predictions, tile_predictions),
+           ("positioning", "Positioning", positioning, tile_positioning), ("insiders", "Insiders", insiders, tile_insiders),
+           ("power", "Power", power, tile_power))
 
 
 def index(site):
-    """The group's own page, as Markets, Research and Careers have theirs: every section and its parts on one map of
-    light, drawn by the Tools map's script (assets/tools-map.js) in the group's own colour. Without the script it is a list."""
-    name = {slug: n for slug, n, *_ in SECTIONS}
-    groups = "".join(
-        f'<li data-key="{k}"><a class="tools-map__name" href="{k}/">{name[k]}</a><ol>'
-        + "".join(f'<li><a href="{k}/">{part}</a></li>' for part in PARTS[k]) + "</ol></li>" for k in MAP_ORDER)
-    body = f"""<main id="main" class="page">
-  <div class="wrap">
-    <header class="page__head">
-      <h1 class="page__title">Hedge Fund Data</h1>
-      <p class="lede">{LEDE}<span class="tool-map__hint"> Drag a section where you like.</span><span class="tools-map__touch"> Spread two fingers to enlarge the map.</span></p>
-    </header>
-    <nav class="tools-map tools-map--teal" data-page="hedge-fund-data" data-tint='["170,245,238","90,225,216","30,190,186"]' aria-label="Hedge Fund Data"><ol>{groups}</ol></nav>
-  </div>
+    """The group's page (owner-approved mock, 28 Nov 2026): the sources, the light falling from them, the eight sections on
+    a line of light and the ground under them, drawn by assets/hf/landing.js. The sections and their figures are in the
+    page as links, so it reads without the script; a section whose data has not arrived says so."""
+    full = {slug: n for slug, n, *_ in SECTIONS}
+    tiles, series = "", []
+    for slug, name, build, tile in LANDING:
+        data = build(site)
+        try:
+            fig, sub, kind, vals, cap = tile(data) if data else ("", "Data pending", "", [], "")
+        except (KeyError, IndexError, ValueError, TypeError, ZeroDivisionError):
+            fig, sub, kind, vals, cap = "", "Data pending", "", [], ""
+        series.append([kind, vals])
+        tiles += (f'<a class="ls__t" href="{slug}/" title="{html.escape(cap, quote=True)}" aria-label="{html.escape(full[slug], quote=True)}">'
+                  f'<small>{name}</small><b>{html.escape(fig) or "&nbsp;"}</b><span>{html.escape(sub)}</span></a>')
+    payload = json.dumps(series, separators=(",", ":")).replace("<", "\\u003c")
+    body = f"""<main id="main" class="ls">
+  <canvas id="cv" aria-hidden="true"></canvas>
+  <header class="ls__head"><h1>Hedge Fund Data</h1><p>{LEDE}</p></header>
+  <div id="srcs" aria-hidden="true"></div>
+  <nav class="ls__row" id="row" aria-label="Hedge Fund Data">{tiles}</nav>
+  <script type="application/json" id="hf-landing">{payload}</script>
 </main>"""
-    return site.shell(title="Hedge Fund Data: Andra Markets", desc=LEDE, body=body, home="../", base="../", path=f"{GROUP}/", scripts=("tools-map.js",))
+    return site.shell(title="Hedge Fund Data: Andra Markets", desc=LEDE, body=body, home="../", base="../", path=f"{GROUP}/", footer=False,
+                      head=f'\n<link rel="stylesheet" href="../assets/hf/landing.css?v={site.ver("hf/landing.css")}">', scripts=("hf/landing.js",))
 
 
 def pages(site):
