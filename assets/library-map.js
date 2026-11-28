@@ -38,7 +38,7 @@
   }
   function size() {
     narrow = map.clientWidth < 900; if (narrow) { Z0 = map.clientWidth / VW; map.style.height = Math.round(VH * Z0) + "px"; } else map.style.height = "";
-    CW = map.clientWidth; CH = map.clientHeight; dpr = Math.min(window.devicePixelRatio || 1, 2); cv.width = Math.round(CW * dpr); cv.height = Math.round(CH * dpr);
+    CW = map.clientWidth; CH = map.clientHeight; fit();
     if (narrow) { W = VW; H = VH; Z = Z0; } else { W = CW; H = CH; Z = 1; } OX = OY = 0;
     var rx = Math.min(W * 0.37, 520), ry = narrow ? H * 0.36 : Math.min(H * 0.27, 300), cx0 = W / 2, cy0 = narrow ? H / 2 : H * 0.6; // on a wide screen the title sits over the top of the picture
     if (!narrow) { var hd = document.querySelector(".lib .page__head"); if (hd) cy0 = Math.max(cy0, Math.min(H - 90 - ry, hd.getBoundingClientRect().bottom - map.getBoundingClientRect().top + 46 + ry)); } // the topic at the top clears the heading
@@ -57,6 +57,10 @@
   }
   function glow(x, y, r, a) { var g = cx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "rgba(255,255,255," + a + ")"); g.addColorStop(0.25, "rgba(215,230,255," + a * 0.45 + ")"); g.addColorStop(1, "rgba(180,210,255,0)"); cx.fillStyle = g; cx.fillRect(x - r, y - r, r * 2, r * 2); }
   function push(x, y) { if (px < 0) return [x, y]; var dx = x - px, dy = y - py, d = Math.hypot(dx, dy) || 1, f = Math.max(0, 1 - d / 150); f = f * f * 30; return [x + dx / d * f, y + dy / d * f]; }
+  // A machine that cannot keep up gets a coarser picture, not a slower one: first the canvas below the screen's density
+  // (res), then fewer strands in each rope, each a little brighter (SF), as on the homepage and the Tools map.
+  var res = 1, SF = 1, slow = 0, nfr = 0, last = 0;
+  function fit() { dpr = Math.min(window.devicePixelRatio || 1, 2) * res; cv.width = Math.round(CW * dpr); cv.height = Math.round(CH * dpr); }
   function flare(x, y, R0, a, rays, rot, w) { for (var i = 0; i < rays; i++) { var an = rot + i * 6.2832 / rays, l = R0 * (i % 2 ? 2.2 : 4.6), ex = x + Math.cos(an) * l, ey = y + Math.sin(an) * l, g = cx.createLinearGradient(x, y, ex, ey);
     g.addColorStop(0, "rgba(255,255,255," + (0.85 * a).toFixed(3) + ")"); g.addColorStop(0.3, "rgba(215,230,255," + (0.3 * a).toFixed(3) + ")"); g.addColorStop(1, "rgba(200,220,255,0)"); cx.strokeStyle = g; cx.lineWidth = w * LW; cx.beginPath(); cx.moveTo(x, y); cx.lineTo(ex, ey); cx.stroke(); } }
   function shown(r) { return !r.li.hidden; }
@@ -73,8 +77,8 @@
         var dx = r.vx - tp.x, dy = r.vy - tp.y, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l, bend = l * 0.1 * (k % 2 ? -1 : 1) * (r.j[0] > 0 ? 1 : -1), wide = Math.min(me ? 16 : 11, l * 0.07);
         var p1 = push(tp.x + dx / 3 + nx * bend, tp.y + dy / 3 + ny * bend), p2 = push(tp.x + dx * 2 / 3 + nx * bend, tp.y + dy * 2 / 3 + ny * bend);
         cx.lineWidth = 0.5 * LW;
-        r.st[k].forEach(function (s) { var th = s.ph + (still ? 0 : t * s.sp * 0.5), o1 = wide * s.r * Math.sin(th), o2 = wide * s.r * Math.sin(th + 2.6 + s.tw);
-          cx.strokeStyle = "rgba(226,236,252," + (base * (0.35 + 0.65 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; cx.beginPath(); cx.moveTo(tp.x, tp.y); cx.bezierCurveTo(p1[0] + nx * o1, p1[1] + ny * o1, p2[0] + nx * o2, p2[1] + ny * o2, r.vx, r.vy); cx.stroke(); });
+        r.st[k].forEach(function (s, si) { if (si >= r.st[k].length * SF) return; var th = s.ph + (still ? 0 : t * s.sp * 0.5), o1 = wide * s.r * Math.sin(th), o2 = wide * s.r * Math.sin(th + 2.6 + s.tw);
+          cx.strokeStyle = "rgba(226,236,252," + (Math.min(1, base / SF) * (0.35 + 0.65 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; cx.beginPath(); cx.moveTo(tp.x, tp.y); cx.bezierCurveTo(p1[0] + nx * o1, p1[1] + ny * o1, p2[0] + nx * o2, p2[1] + ny * o2, r.vx, r.vy); cx.stroke(); });
         if (still || intro < 1 || !me) return;
         function at(f) { var u = 1 - f; return [u * u * u * tp.x + 3 * u * u * f * p1[0] + 3 * u * f * f * p2[0] + f * f * f * r.vx, u * u * u * tp.y + 3 * u * u * f * p1[1] + 3 * u * f * f * p2[1] + f * f * f * r.vy]; }
         var f = (t * (me ? 0.5 : 0.16) + r.ph + k * 0.4) % 1; cx.lineCap = "round";
@@ -101,8 +105,10 @@
     card.style.width = w + "px"; card.style.left = left + "px"; card.style.top = Math.max(8, Math.min(CH - 96, y - 18)) + "px"; }
   function names_() { T.forEach(function (q) { q.el.classList.toggle("is-dim", !!((pick && pick !== q) || (hot && hot.tg.indexOf(q) < 0))); q.el.classList.toggle("is-on", pick === q); }); }
   var run = 0, visible = true;
-  function frame(tm) { run = 0; draw(tm); if (!still && visible) run = requestAnimationFrame(frame); }
-  function once() { if (!run) run = requestAnimationFrame(frame); }
+  function frame(tm) { run = 0;
+    if (last) { slow += Math.min(tm - last, 500); if (++nfr === 30 || (nfr >= 6 && slow > 1000)) { if (slow / nfr > 26) { if (res > 0.5) { res *= 0.78; fit(); } else if (SF > 0.35) SF *= 0.75; } slow = 0; nfr = 0; } } last = tm;
+    draw(tm); if (!still && visible) run = requestAnimationFrame(frame); else last = 0; }
+  function once() { if (!run) { last = 0; run = requestAnimationFrame(frame); } }
   function pressed() { var k = "all"; chips.forEach(function (c) { if (c.getAttribute("aria-pressed") === "true") k = c.getAttribute("data-lib-tag"); }); return byK[k] || null; }
   var over = null; // the topic under the pointer, over the one the filter holds
   function sync() { pick = over || pressed(); names_(); once(); }

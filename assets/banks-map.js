@@ -38,7 +38,7 @@
   }
   function size() {
     narrow = map.clientWidth < 900; if (narrow) { Z0 = map.clientWidth / VW; map.style.height = Math.round(VH * Z0) + "px"; } else map.style.height = "";
-    CW = map.clientWidth; CH = map.clientHeight; dpr = Math.min(window.devicePixelRatio || 1, 2); cv.width = Math.round(CW * dpr); cv.height = Math.round(CH * dpr);
+    CW = map.clientWidth; CH = map.clientHeight; fit();
     if (narrow) { W = VW; H = VH; Z = Z0; } else { W = CW; H = CH; Z = 1; } OX = OY = 0;
     var x0 = W / 2, y0 = narrow ? H / 2 : H * 0.6, a = narrow ? 330 : Math.min(W * 0.33, 500), b = narrow ? 400 : Math.min(H * 0.27, 300);
     G.forEach(function (g) {
@@ -56,6 +56,10 @@
     RING.forEach(function (e) { var mx = (e.a.x + e.b.x) / 2, my = (e.a.y + e.b.y) / 2; e.c = [mx + (x0 - mx) * 0.35, my + (y0 - my) * 0.35]; });
     view();
   }
+  // A machine that cannot keep up gets a coarser picture, not a slower one: first the canvas below the screen's density
+  // (res), then fewer strands in each rope, each a little brighter (SF), as on the homepage and the Tools map.
+  var res = 1, SF = 1, slow = 0, nfr = 0, last = 0;
+  function fit() { dpr = Math.min(window.devicePixelRatio || 1, 2) * res; cv.width = Math.round(CW * dpr); cv.height = Math.round(CH * dpr); }
   function glow(x, y, r, a) { var g = cx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "rgba(255,255,255," + a + ")"); g.addColorStop(0.25, "rgba(215,230,255," + a * 0.45 + ")"); g.addColorStop(1, "rgba(180,210,255,0)"); cx.fillStyle = g; cx.fillRect(x - r, y - r, r * 2, r * 2); }
   function push(x, y) { if (px < 0) return [x, y]; var dx = x - px, dy = y - py, d = Math.hypot(dx, dy) || 1, f = Math.max(0, 1 - d / 160); f = f * f * 34; return [x + dx / d * f, y + dy / d * f]; }
   function lit(n) { return !pick || n === pick || n.g === pick || (!!pick.g && pick.g === n); }
@@ -63,8 +67,8 @@
     var dx = Bq.vx - A.vx, dy = Bq.vy - A.vy, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
     var p1 = push(A.vx + (c[0] - A.x) * 2 / 3, A.vy + (c[1] - A.y) * 2 / 3), p2 = push(Bq.vx + (c[0] - Bq.x) * 2 / 3, Bq.vy + (c[1] - Bq.y) * 2 / 3);
     cx.lineWidth = 0.55 * LW;
-    for (var q = 0; q < st.length * e0; q++) { var s = st[q], th = s.ph + (still ? 0 : t * s.sp * 0.5), o1 = wide * s.r * Math.sin(th), o2 = wide * s.r * Math.sin(th + 2.6 + s.tw);
-      cx.strokeStyle = "rgba(226,236,252," + (base * (0.3 + 0.7 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; cx.beginPath(); cx.moveTo(A.vx, A.vy); cx.bezierCurveTo(p1[0] + nx * o1, p1[1] + ny * o1, p2[0] + nx * o2, p2[1] + ny * o2, Bq.vx, Bq.vy); cx.stroke(); }
+    for (var q = 0; q < st.length * e0 * SF; q++) { var s = st[q], th = s.ph + (still ? 0 : t * s.sp * 0.5), o1 = wide * s.r * Math.sin(th), o2 = wide * s.r * Math.sin(th + 2.6 + s.tw);
+      cx.strokeStyle = "rgba(226,236,252," + (Math.min(1, base / SF) * (0.3 + 0.7 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; cx.beginPath(); cx.moveTo(A.vx, A.vy); cx.bezierCurveTo(p1[0] + nx * o1, p1[1] + ny * o1, p2[0] + nx * o2, p2[1] + ny * o2, Bq.vx, Bq.vy); cx.stroke(); }
     if (still || intro < 1 || !pulses) return;
     function at(f) { var u = 1 - f; return [u * u * u * A.vx + 3 * u * u * f * p1[0] + 3 * u * f * f * p2[0] + f * f * f * Bq.vx, u * u * u * A.vy + 3 * u * u * f * p1[1] + 3 * u * f * f * p2[1] + f * f * f * Bq.vy]; }
     cx.lineCap = "round";
@@ -97,8 +101,10 @@
   function fill() { var k = pick && pick.g ? pick : null; card.classList.toggle("is-on", !!k); if (!k) return; var tr = k.tr; card.textContent = tr.getAttribute("data-note"); place(); }
   function place() { var k = pick && pick.g ? pick : null; if (!k) return; var r = k.el.getBoundingClientRect(), m = map.getBoundingClientRect(); card.style.left = Math.max(8, Math.min(CW - card.offsetWidth - 8, r.left - m.left + (k.el.style.textAlign === "right" ? r.width - card.offsetWidth : 0))) + "px"; card.style.top = (r.bottom - m.top + 4) + "px"; }
   var run = 0, visible = true;
-  function frame(tm) { run = 0; draw(tm); if (!still && visible) run = requestAnimationFrame(frame); }
-  function once() { if (!run) run = requestAnimationFrame(frame); }
+  function frame(tm) { run = 0;
+    if (last) { slow += Math.min(tm - last, 500); if (++nfr === 30 || (nfr >= 6 && slow > 1000)) { if (slow / nfr > 26) { if (res > 0.5) { res *= 0.78; fit(); } else if (SF > 0.35) SF *= 0.75; } slow = 0; nfr = 0; } } last = tm;
+    draw(tm); if (!still && visible) run = requestAnimationFrame(frame); else last = 0; }
+  function once() { if (!run) { last = 0; run = requestAnimationFrame(frame); } }
   function set(n) { if (n === pick) return; pick = n; map.classList.toggle("has-pick", !!n); ALL.forEach(function (m) { m.el.classList.toggle("is-on", !n || lit(m)); }); fill(); once(); }
   function near(x, y) { var b = null, k = narrow ? Math.max(1, 0.7 / Z) : 1, bd = 22 * k; B.forEach(function (q) { var d = Math.hypot(q.x - x, q.y - y); if (d < bd) { bd = d; b = q; } }); if (b) return b; G.forEach(function (q) { if (Math.hypot(q.x - x, q.y - y) < 36 * k) b = q; }); return b; }
   function at(e) { var b = map.getBoundingClientRect(); return [(e.clientX - b.left - OX) / Z, (e.clientY - b.top - OY) / Z, e.clientX - b.left, e.clientY - b.top]; }

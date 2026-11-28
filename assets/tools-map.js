@@ -39,7 +39,7 @@
   function size() {
     narrow = map.clientWidth < 900;
     if (narrow) { Z0 = map.clientWidth / VW; map.style.height = Math.round(VH * Z0) + "px"; } else map.style.height = "";
-    CW = map.clientWidth; CH = map.clientHeight; dpr = Math.min(window.devicePixelRatio || 1, 2); cv.width = Math.round(CW * dpr); cv.height = Math.round(CH * dpr);
+    CW = map.clientWidth; CH = map.clientHeight; fit();
     if (narrow) { W = VW; H = VH; Z = Z0; OX = OY = 0; } else { W = CW; H = CH; Z = 1; OX = OY = 0; }
     var mode = narrow ? "n" : "w";
     G.forEach(function (g, i) {
@@ -49,6 +49,10 @@
     });
     layout(); view();
   }
+  // A machine that cannot keep up gets a coarser picture, not a slower one: first the canvas below the screen's density
+  // (res), then fewer strands in each rope, each a little brighter (SF), as on the homepage.
+  var res = 1, SF = 1, slow = 0, nfr = 0, last = 0;
+  function fit() { dpr = Math.min(window.devicePixelRatio || 1, 2) * res; cv.width = Math.round(CW * dpr); cv.height = Math.round(CH * dpr); }
   function layout() {
     var gx = 0, gy = 0; G.forEach(function (g) { g.x = g.fx * W; g.y = g.fy * H; gx += g.x / NG; gy += g.y / NG; });
     G.forEach(function (g) {
@@ -73,8 +77,8 @@
     var dx = B.vx - A.vx, dy = B.vy - A.vy, l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l;
     var p1 = push(A.vx + (c[0] - A.x) * 2 / 3, A.vy + (c[1] - A.y) * 2 / 3), p2 = push(B.vx + (c[0] - B.x) * 2 / 3, B.vy + (c[1] - B.y) * 2 / 3);
     cx.lineWidth = 0.55 * LW;
-    for (var q = 0; q < st.length * e0; q++) { var s = st[q], th = s.ph + (still ? 0 : t * s.sp * 0.5), o1 = wide * s.r * Math.sin(th), o2 = wide * s.r * Math.sin(th + 2.6 + s.tw);
-      cx.strokeStyle = "rgba(" + C1 + "," + (base * (0.3 + 0.7 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; cx.beginPath(); cx.moveTo(A.vx, A.vy); cx.bezierCurveTo(p1[0] + nx * o1, p1[1] + ny * o1, p2[0] + nx * o2, p2[1] + ny * o2, B.vx, B.vy); cx.stroke(); }
+    for (var q = 0; q < st.length * e0 * SF; q++) { var s = st[q], th = s.ph + (still ? 0 : t * s.sp * 0.5), o1 = wide * s.r * Math.sin(th), o2 = wide * s.r * Math.sin(th + 2.6 + s.tw);
+      cx.strokeStyle = "rgba(" + C1 + "," + (Math.min(1, base / SF) * (0.3 + 0.7 * (0.5 + 0.5 * Math.cos(th)))).toFixed(3) + ")"; cx.beginPath(); cx.moveTo(A.vx, A.vy); cx.bezierCurveTo(p1[0] + nx * o1, p1[1] + ny * o1, p2[0] + nx * o2, p2[1] + ny * o2, B.vx, B.vy); cx.stroke(); }
     if (still || intro < 1 || !pulses) return;
     function at(f) { var u = 1 - f; return [u * u * u * A.vx + 3 * u * u * f * p1[0] + 3 * u * f * f * p2[0] + f * f * f * B.vx, u * u * u * A.vy + 3 * u * u * f * p1[1] + 3 * u * f * f * p2[1] + f * f * f * B.vy]; }
     cx.lineCap = "round";
@@ -104,8 +108,10 @@
     cx.globalCompositeOperation = "source-over";
   }
   var run = 0, visible = true;
-  function frame(time) { run = 0; draw(time); if (!still && visible) run = requestAnimationFrame(frame); }
-  function once() { if (!run) run = requestAnimationFrame(frame); }
+  function frame(time) { run = 0;
+    if (last) { slow += Math.min(time - last, 500); if (++nfr === 30 || (nfr >= 6 && slow > 1000)) { if (slow / nfr > 26) { if (res > 0.5) { res *= 0.78; fit(); } else if (SF > 0.35) SF *= 0.75; } slow = 0; nfr = 0; } } last = time;
+    draw(time); if (!still && visible) run = requestAnimationFrame(frame); else last = 0; }
+  function once() { if (!run) { last = 0; run = requestAnimationFrame(frame); } }
   function set(n) { if (n === pick) return; pick = n; map.classList.toggle("has-pick", !!n); ALL.forEach(function (m) { m.el.classList.toggle("is-on", !n || lit(m)); }); once(); }
   ALL.forEach(function (n) { n.el.addEventListener("pointerenter", function () { set(n); }); n.el.addEventListener("pointerleave", function () { set(null); }); n.el.addEventListener("focus", function () { set(n); }); n.el.addEventListener("blur", function () { set(null); }); });
   function hit(x, y) { var b = null, bd = 1e9, k = narrow ? Math.max(1, 0.7 / Z) : 1; ALL.forEach(function (n) { var d = Math.hypot(n.x - x, n.y - y); if (d < (n.g ? 20 : 30) * k && d < bd) { bd = d; b = n; } }); return b; }
