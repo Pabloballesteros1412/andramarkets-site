@@ -13,14 +13,16 @@
   "use strict";
   var box = document.querySelector(".cg"), src = box && box.querySelector('script[type="application/json"]'); if (!box || !src) return;
   var DATA; try { DATA = JSON.parse(src.textContent); } catch (e) { return; }
-  var P = (DATA.places || []).filter(function (p) { return p.share > 0; }); if (!P.length) return;
+  // The group's landing (crypto/) gives the globe layers to put on and take off: none (the Earth alone, turning), or one of the pages' own.
+  var LAYERS = DATA.layers || null, P = LAYERS ? [] : (DATA.places || []).filter(function (p) { return p.share > 0; }); if (!LAYERS && !P.length) return;
   var gcv = box.querySelector(".cg__gl"), ov = box.querySelector(".cg__ov"), layer = box.querySelector(".cg__names"), status = box.querySelector(".cg__status");
   var gl = null; try { gl = gcv.getContext("webgl", { antialias: false, alpha: true, premultipliedAlpha: true }); } catch (e) { gl = null; }
   var c = ov.getContext("2d"); if (!gl || !c) return;
   var still = window.matchMedia("(prefers-reduced-motion: reduce)").matches, RAD = Math.PI / 180, FOV = 30 * RAD, TN = Math.tan(FOV / 2);
-  var BASE = (document.body.getAttribute("data-base") || "../") + "assets/crypto/", TOP = P[0].share;
+  var BASE = (document.body.getAttribute("data-base") || "../") + "assets/crypto/", TOP = P.length ? P[0].share : 1;
   // Network (crypto/network/): the same Earth with a point of light for each Lightning node that publishes where it is; the places are then countries, named without a column.
-  var PTS = DATA.points ? DATA.points.map(function (q) { var cl = Math.cos(q[1] * Math.PI / 180); return [cl * Math.sin(q[0] * Math.PI / 180), Math.sin(q[1] * Math.PI / 180), cl * Math.cos(q[0] * Math.PI / 180), q[2] || 0]; }) : null;
+  function toPts(list) { return list.map(function (q) { var cl = Math.cos(q[1] * Math.PI / 180); return [cl * Math.sin(q[0] * Math.PI / 180), Math.sin(q[1] * Math.PI / 180), cl * Math.cos(q[0] * Math.PI / 180), q[2] || 0]; }); }
+  var PTS = DATA.points ? toPts(DATA.points) : null;
   function vec(lon, lat) { var cl = Math.cos(lat * RAD); return [cl * Math.sin(lon * RAD), Math.sin(lat * RAD), cl * Math.cos(lon * RAD)]; }
   function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
   function norm(a) { var l = Math.hypot(a[0], a[1], a[2]); return [a[0] / l, a[1] / l, a[2] / l]; }
@@ -72,10 +74,11 @@
 
   // ---- the places the globe goes to: the largest first, one stop for places close together --------------------------
   var STOPS = [];
-  P.forEach(function (p) { if (STOPS.length >= 6) return; var v = vec(p.lon, p.lat);
-    if (STOPS.every(function (s) { return dot(vec(s.lon, s.lat), v) < Math.cos(38 * RAD); })) STOPS.push({ p: p, lon: p.lon, lat: Math.max(-25, Math.min(38, p.lat)) }); });
+  function stops() { STOPS = []; P.forEach(function (p) { if (STOPS.length >= 6) return; var v = vec(p.lon, p.lat);
+    if (STOPS.every(function (s) { return dot(vec(s.lon, s.lat), v) < Math.cos(38 * RAD); })) STOPS.push({ p: p, lon: p.lon, lat: Math.max(-25, Math.min(38, p.lat)) }); }); }
+  stops();
   var W = 0, H = 0, D = 1, DIST = 3.9, OY = -0.1, narrow = false, CAM, FW, RT, UP;
-  var view = { lon: STOPS[0].lon, lat: STOPS[0].lat }, from = null, to = null, k = 0, at = 0, hold = 0, focus = STOPS[0].p, pick = null, drag = null, idle = 0, clock = 0;
+  var view = STOPS.length ? { lon: STOPS[0].lon, lat: STOPS[0].lat } : { lon: -40, lat: 14 }, from = null, to = null, k = 0, at = 0, hold = 0, focus = STOPS.length ? STOPS[0].p : null, pick = null, drag = null, idle = 0, clock = 0;
   function camera() { var dir = vec(view.lon, view.lat); CAM = [dir[0] * DIST, dir[1] * DIST, dir[2] * DIST]; FW = norm([-CAM[0], -CAM[1], -CAM[2]]); RT = norm(cross(FW, [0, 1, 0])); UP = cross(RT, FW); }
   function project(p) { var r = [p[0] - CAM[0], p[1] - CAM[1], p[2] - CAM[2]], z = dot(r, FW); return [W / 2 + dot(r, RT) / z / TN * H / 2, H / 2 - H * OY - dot(r, UP) / z / TN * H / 2]; }
   function size() {
@@ -83,13 +86,14 @@
     DIST = 1 / Math.sin(Math.atan(TN * Math.min(1, W / H) * (narrow ? 0.86 : 0.72))); OY = narrow ? 0 : -0.03;   // the whole globe inside the block, with room for its glow: never cut by an edge (owner, 28 Nov 2026)
     gcv.width = ov.width = Math.round(W * D); gcv.height = ov.height = Math.round(H * D); gl.viewport(0, 0, gcv.width, gcv.height); c.setTransform(D, 0, 0, D, 0, 0); if (run) draw(); wake();
   }
-  function go(i) { at = (i + STOPS.length) % STOPS.length; from = { lon: view.lon, lat: view.lat }; to = STOPS[at]; k = 0; focus = to.p; hold = 0; say(focus); }
+  function go(i) { if (!STOPS.length) return; at = (i + STOPS.length) % STOPS.length; from = { lon: view.lon, lat: view.lat }; to = STOPS[at]; k = 0; focus = to.p; hold = 0; say(focus); }
   function say(p) { if (p.label) { if (status) status.textContent = p.name + ": " + p.label + "."; return; } if (status) status.textContent = p.name + ": " + pct(p.share) + " of the day's trading, " + p.n + " exchange" + (p.n > 1 ? "s" : "") + (p.top.length ? ", the largest " + p.top[0] : "") + "."; }
   function ease(x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
   function step(dt) {
     clock += dt;
     if (drag || pick) return;
     if (idle > 0) { idle -= dt; return; }
+    if (!STOPS.length) { view.lon -= dt * 4; view.lat += (14 - view.lat) * Math.min(1, dt); return; }   // no layer on: the Earth turns
     if (to) { k = Math.min(1, k + dt / 2.6); var e = ease(k), dl = ((to.lon - from.lon + 540) % 360) - 180; view.lon = from.lon + dl * e; view.lat = from.lat + (to.lat - from.lat) * e; if (k >= 1) to = null; return; }
     hold += dt; if (hold > 4.5 && !still) go(at + 1);
   }
@@ -164,8 +168,12 @@
   ov.addEventListener("pointerup", release); ov.addEventListener("pointercancel", release);
   ov.addEventListener("pointerleave", function () { if (pick) { pick = null; wake(); if (still) draw(); } });
   box.tabIndex = 0;
-  box.addEventListener("keydown", function (e) { var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0; if (!d) return; e.preventDefault(); idle = 0; go(at + d); if (still) { view.lon = to.lon; view.lat = to.lat; to = null; draw(); } wake(); });
-  box.hidden = false; document.querySelector("main").classList.add("has-globe"); say(focus);
+  box.addEventListener("keydown", function (e) { var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0; if (!d || !STOPS.length) return; e.preventDefault(); idle = 0; go(at + d); if (still) { view.lon = to.lon; view.lat = to.lat; to = null; draw(); } wake(); });
+  box.hidden = false; document.querySelector("main").classList.add("has-globe"); if (focus) say(focus);
+  function setLayer(name) { var L = LAYERS && LAYERS[name] || null; Object.keys(pool).forEach(function (n) { pool[n].remove(); }); pool = {};
+    P = L ? (L.places || []).filter(function (p) { return p.share > 0; }) : []; PTS = L && L.points ? (L._pts || (L._pts = toPts(L.points))) : null; TOP = P.length ? P[0].share : 1;
+    stops(); pick = null; focus = null; to = null; idle = 0; if (STOPS.length) { go(0); if (still) { view.lon = to.lon; view.lat = to.lat; to = null; } } else if (status) status.textContent = ""; wake(); if (still) draw(); }
+  if (LAYERS) { box.addEventListener("cg:layer", function (e) { setLayer(e.detail); }); if (DATA.layer) setLayer(DATA.layer); }
   if ("IntersectionObserver" in window) new IntersectionObserver(function (en) { seen = en[0].isIntersecting; wake(); }).observe(box);
   document.addEventListener("visibilitychange", function () { wake(); });
   if ("ResizeObserver" in window) new ResizeObserver(size).observe(box); else window.addEventListener("resize", size);
