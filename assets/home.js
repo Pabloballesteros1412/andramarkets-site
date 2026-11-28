@@ -8,7 +8,7 @@
   if (!gl) { document.documentElement.classList.add("no-gl", "is-live"); return; }
   var VS = [
     "attribute vec3 a1,a2,a3,a4; attribute vec2 aFa,aFb; attribute vec4 aR;",
-    "uniform float uImg,uHV,uFt,uGain,uA,uB,uT,uTime,uAspect,uDpr,uIntro,uObj,uPx,uVis,uOn[6]; uniform vec2 uRot[6]; uniform vec3 uOff[6]; uniform vec2 uPtr,uHc; uniform float uRr,uNight,uHS;",
+    "uniform float uImg,uHV,uFt,uGain,uA,uB,uT,uTime,uAspect,uDpr,uIntro,uObj,uPx,uVis,uOn[7]; uniform vec2 uRot[7]; uniform vec3 uOff[7]; uniform vec2 uPtr,uHc; uniform float uRr,uNight,uHS;",
     "varying float vA;",
     "vec3 rot(vec3 p, vec2 r){ float c=cos(r.x),s=sin(r.x); p=vec3(c*p.x+s*p.z,p.y,-s*p.x+c*p.z); c=cos(r.y); s=sin(r.y); return vec3(p.x,c*p.y-s*p.z,s*p.y+c*p.z); }",
     "vec3 nz(vec3 p){ return vec3(sin(p.y*2.1+p.z*1.3)+sin(p.z*3.7+p.x*1.9), sin(p.z*2.3+p.x*1.7)+sin(p.x*3.1+p.y*2.9), sin(p.x*2.7+p.y*1.1)+sin(p.y*3.3+p.z*2.2)); }",
@@ -32,7 +32,8 @@
     "  if(uOn[2]>0.5){ w=(1.0-ft)*step(abs(uA-2.0),0.5)+ft*step(abs(uB-2.0),0.5); vec3 g2=rot(a2,uRot[2]); w2=w*(1.0-amb); bf2=mix(0.5,1.0,smoothstep(-0.5,0.3,g2.z)); p+=w*(g2*mix(uObj,1.0,amb)+uOff[2]*(1.0-amb)); }",
     "  if(uOn[3]>0.5){ w=(1.0-ft)*step(abs(uA-3.0),0.5)+ft*step(abs(uB-3.0),0.5); p+=w*(rot(a3,uRot[3])*mix(uObj,1.0,amb)+uOff[3]*(1.0-amb)); }",
     "  if(uOn[4]>0.5){ w=(1.0-ft)*step(abs(uA-4.0),0.5)+ft*step(abs(uB-4.0),0.5); p+=w*(rot(a4,uRot[4])*mix(uObj,1.0,amb)+uOff[4]*(1.0-amb)); }",
-    "  if(uOn[5]>0.5){ w=(1.0-ft)*step(abs(uA-5.0),0.5)+ft*step(abs(uB-5.0),0.5); p+=w*mix(arcW,rot(h0,uRot[5]),amb); wh+=w; }",
+    "  if(uOn[5]>0.5){ w=(1.0-ft)*step(abs(uA-5.0),0.5)+ft*step(abs(uB-5.0),0.5); p+=w*(rot(a4,uRot[5])*mix(uObj,1.0,amb)+uOff[5]*(1.0-amb)); }",   // Crypto: a picture, its particles unseen
+    "  if(uOn[6]>0.5){ w=(1.0-ft)*step(abs(uA-6.0),0.5)+ft*step(abs(uB-6.0),0.5); p+=w*mix(arcW,rot(h0,uRot[6]),amb); wh+=w; }",
     "  float burst=sin(3.14159*ft)*(1.0-amb); p.x=mix(p.x, mod(p.x-uTime*0.2+3.2,6.4)-3.2, amb);",
     "  float drift=0.2*burst+0.05*amb;",                                // the noise costs the most: only where a particle moves by it
     "  if(drift>0.0005) p+=nz(p*1.3+uTime*0.22+aR.y*6.0)*drift;",
@@ -92,8 +93,8 @@
   function q1(n) { var v = n * 0.7548776662466927; return v - Math.floor(v); }
   function q2(n) { var v = n * 0.5698402909980532; return v - Math.floor(v); }
   function q3(n) { var v = n * 0.8191725133961645; return v - Math.floor(v); }
-  // the light of each shape: the horse, Markets (violet), Tools (white), Research (gold), Careers (blue), the close
-  var COLS = [[1, 1, 1], [0.8, 0.7, 1], [1, 1, 1], [1, 0.82, 0.56], [0.5, 0.72, 1], [1, 1, 1]];
+  // the light of each shape: the horse, Markets (violet), Tools (white), Research (gold), Careers (blue), Crypto (amber), the close
+  var COLS = [[1, 1, 1], [0.8, 0.7, 1], [1, 1, 1], [1, 0.82, 0.56], [0.5, 0.72, 1], [1, 0.78, 0.45], [1, 1, 1]];
   function q4(n) { var v = n * 0.4142135623730951; return v - Math.floor(v); }
   // Each group's picture has a form of its own, in its map's colour (owner, 20 and 21 Nov 2026): Markets a globe
   // of knots and arcs, Tools the reel's tree on both sides of a bottleneck, Research a burst from one core,
@@ -213,12 +214,16 @@
       for (k = 0; k < cols * rows; k++) win.push(fr() < 0.42 ? fr() * 6.28 : -1); a.push({ x: x, w: w, h: h, cols: cols, rows: rows, win: win, top: fr() < 0.3 ? 1 : fr() < 0.5 ? 2 : 0, back: 0 }); x += w + 0.012 + fr() * 0.02; }
     var tall = 0; a.forEach(function (z, n2) { if (Math.abs(z.x + z.w / 2) < Math.abs(a[tall].x + a[tall].w / 2)) tall = n2; }); a[tall].h = 1.0; a[tall].top = 3; a[tall].rows = 22; a[tall].win = []; for (k = 0; k < a[tall].cols * 22; k++) a[tall].win.push(fr() < 0.5 ? fr() * 6.28 : -1);
     var b = []; for (x = -0.9; x < 0.85; x += 0.13 + fr() * 0.1) b.push({ x: x, w: 0.1 + fr() * 0.07, h: 0.3 + fr() * 0.45 }); a.back = b; a.st = fstr(30); return a; })();
+  var SIGN = new Image(); if (DATA.sign) SIGN.src = DATA.sign;
   function figs(t, wts, cxN, cyN, obj, intro) {
     var d = Math.min(2, window.devicePixelRatio || 1), w = Math.round(W * d), h = Math.round(H * d); if (fc.width !== w || fc.height !== h) { fc.width = w; fc.height = h; }
     fx.setTransform(1, 0, 0, 1, 0, 0); fx.clearRect(0, 0, w, h); fx.globalCompositeOperation = "lighter";
     var X0 = (cxN * 0.5 + 0.5) * w, Y0 = (0.5 - cyN * 0.5) * h, R = obj * h * 0.5 * 2.75 / 3.4; FL = d * Math.max(0.8, Math.min(1.5, R / (330 * d)));
     for (var n = 1; n <= 4; n++) { var al = wts[n]; if (al < 0.01) continue; FA = al * al * intro; FC = TINT[n]; var S = R * (0.94 + 0.06 * al);
       if (n === 1) drawGlobe(t, X0, Y0, S * 0.84); else if (n === 2) drawCandles(t, X0, Y0, S); else if (n === 3) drawFlat(BURST, t, X0, Y0, S * 0.98, 0.3); else drawTowers(t, X0, Y0, S); }
+    // Crypto: Bitcoin's sign with its walls built of a golden nebula, a picture (tools/make_crypto_sign.py) that breathes (owner, 28 Nov 2026)
+    var a5 = wts[5]; if (a5 > 0.01 && SIGN.complete && SIGN.naturalWidth) { var s5 = R * (2.5 + 0.12 * a5) * (1 + 0.012 * Math.sin(t * 0.35)), br = 0.9 + 0.1 * Math.sin(t * 0.6);
+      fx.globalAlpha = Math.min(1, a5 * a5 * intro * br); fx.drawImage(SIGN, X0 - s5 / 2, Y0 - s5 / 2, s5, s5); fx.globalAlpha = Math.min(1, a5 * a5 * intro) * (0.1 + 0.08 * Math.sin(t * 0.9 + 1)); fx.drawImage(SIGN, X0 - s5 * 0.52, Y0 - s5 * 0.52, s5 * 1.04, s5 * 1.04); fx.globalAlpha = 1; }
   }
   function drawFlat(F, t, X0, Y0, S, base) {
     var P = F.k.map(function (k, i2) { var fl = k[2] ? 0.012 : 0.02; return [X0 + (k[0] + Math.sin(t * 0.42 + k[3] * 2) * fl) * S, Y0 - (k[1] + Math.cos(t * 0.36 + k[3] * 3) * fl) * S]; });
@@ -306,9 +311,9 @@
   addEventListener("pointermove", function (e) { pt[0] = (e.clientX / innerWidth) * 2 - 1; pt[1] = -((e.clientY / innerHeight) * 2 - 1); }, { passive: true });
 
   var jump = null, night = 0, st = document.querySelector(".statement"), words = [].slice.call(document.querySelectorAll(".statement .w"));
-  var onNow = [], litN = -1, actNow = -1, ids = secs.map(function (s) { return "#" + s.id; }), rotA = new Float32Array(12), offA = new Float32Array(18), onA = new Float32Array(6), LOC = null;
+  var onNow = [], litN = -1, actNow = -1, ids = secs.map(function (s) { return "#" + s.id; }), rotA = new Float32Array(14), offA = new Float32Array(21), onA = new Float32Array(7), LOC = null;
   size();
-  var TINTS = [[0.05, 0.06, 0.08], [0.04, 0.07, 0.13], [0.03, 0.09, 0.10], [0.11, 0.07, 0.035], [0.13, 0.06, 0.03], [0.06, 0.065, 0.08]], tint = [0.05, 0.06, 0.08];
+  var TINTS = [[0.05, 0.06, 0.08], [0.04, 0.07, 0.13], [0.03, 0.09, 0.10], [0.11, 0.07, 0.035], [0.13, 0.06, 0.03], [0.12, 0.07, 0.02], [0.06, 0.065, 0.08]], tint = [0.05, 0.06, 0.08];
   function target() {
     var y = window.scrollY || document.documentElement.scrollTop, vh = VH, p = 0, ng = 0;
     for (var i = 0; i < M.length; i++) {
@@ -317,7 +322,7 @@
       var f = Math.min(1, Math.max(0, (y - top - (h - vh)) / vh));   // the last screen of a section hands over to the next
       p = a + (nx - a) * f; ng = i === 0 ? Math.min(1, (y - top) / (vh * 0.8)) : 1;
     }
-    return [Math.min(5, p), ng];
+    return [Math.min(6, p), ng];
   }
   function frame(now) {
     if (window.__clock != null) { now = window.__clock; t0 = 0; }
@@ -325,8 +330,8 @@
     night += (tg[1] - night) * (reduce ? 1 : 0.12);
     if (!jump && Math.abs(tg[0] - prog) > 1.15 && !reduce) jump = { a: Math.round(prog), b: Math.round(tg[0]), t0: now };
     var A, B, Tm;
-    if (jump) { var jt = Math.min(1, (now - jump.t0) / 1500); if (!jump.fixed) jump.b = Math.round(tg[0]); A = jump.a; B = jump.b; Tm = jt; if (jt >= 1) { prog = tg[0]; jump = null; A = Math.min(4, Math.floor(prog)); B = A + 1; Tm = prog - A; } }
-    else { prog += (tg[0] - prog) * k; if (Math.abs(tg[0] - prog) < 0.0005) prog = tg[0]; A = Math.min(4, Math.floor(prog)); B = A + 1; Tm = prog - A; }
+    if (jump) { var jt = Math.min(1, (now - jump.t0) / 1500); if (!jump.fixed) jump.b = Math.round(tg[0]); A = jump.a; B = jump.b; Tm = jt; if (jt >= 1) { prog = tg[0]; jump = null; A = Math.min(5, Math.floor(prog)); B = A + 1; Tm = prog - A; } }
+    else { prog += (tg[0] - prog) * k; if (Math.abs(tg[0] - prog) < 0.0005) prog = tg[0]; A = Math.min(5, Math.floor(prog)); B = A + 1; Tm = prog - A; }
     if (A === B) Tm = 0;
     function wt(n) { return (A === n ? 1 - Tm : 0) + (B === n ? Tm : 0); }
     ptr[0] += (pt[0] - ptr[0]) * 0.05; ptr[1] += (pt[1] - ptr[1]) * 0.05;
@@ -336,14 +341,14 @@
       Math.sin(tt * 0.21 + 1) * 0.2 + ptr[0] * 0.25, 0.1 + ptr[1] * -0.1,                // the tree sways
       Math.sin(tt * 0.19 + 2) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
       Math.sin(tt * 0.2 + 3) * 0.22 + ptr[0] * 0.25, 0.26 + ptr[1] * -0.1,
-      0, 0];
+      0, 0, 0, 0];
     var hs = port ? 2.05 : 1, obj = port ? Math.min(0.42, asp * 0.9) : Math.min(1, asp * 0.62);
-    var ox = port ? 0 : Math.min(0.8, asp * 0.43), oy = port ? 0.4 : 0.06, side = [1, 1, 1, 1, 1, 0];
-    var off = []; for (var i = 0; i < 6; i++) off.push(ox * side[i] * (i === 0 ? 0.86 : 1), oy, 0);
+    var ox = port ? 0 : Math.min(0.8, asp * 0.43), oy = port ? 0.4 : 0.06, side = [1, 1, 1, 1, 1, 1, 0];
+    var off = []; for (var i = 0; i < 7; i++) off.push(ox * side[i] * (i === 0 ? 0.86 : 1), oy, 0);
     // where the object sits on screen (weights between the two shapes in play)
     var es = Tm * Tm * (3 - 2 * Tm), cx = (off[A * 3] * (1 - es) + off[B * 3] * es) * 2.75 / 3.4 / asp, cy = (off[A * 3 + 1] * (1 - es) + off[B * 3 + 1] * es) * 2.75 / 3.4;
     var hh = HHW / 2 * obj * hs * 2.75 / 3.4, hw = hh * IMG_ASP / asp, hx = off[0] * 2.75 / 3.4 / asp, hy = off[1] * 2.75 / 3.4, yh = hy - hh * 0.955;
-    var w5 = wt(5), hor = Math.max((1 - night) * wt(0), Math.max(0, (w5 - 0.3) / 0.7)), feet = (port ? -0.12 : -0.3) - (w5 > 0 ? 0 : night * 0.55);
+    var w5 = wt(6), hor = Math.max((1 - night) * wt(0), Math.max(0, (w5 - 0.3) / 0.7)), feet = (port ? -0.12 : -0.3) - (w5 > 0 ? 0 : night * 0.55);
     gl.disable(gl.BLEND);
     for (var d0 = 0; d0 < 7; d0++) gl.disableVertexAttribArray(d0);
     if (!LOC) LOC = { bq: gl.getAttribLocation(PB, "aQ"), sq: gl.getAttribLocation(PS, "aQ"), fa: gl.getAttribLocation(pr, "aFa"), fb: gl.getAttribLocation(pr, "aFb"), r: gl.getAttribLocation(pr, "aR") };
@@ -352,7 +357,7 @@
     var op = reduce || !OPENING ? 1 : Math.min(1, Math.max(0, (t - 0.2) / OPEN_S)); gl.uniform1f(UB.uOpen, 1 - Math.pow(1 - op, 2.2)); gl.uniform1f(UB.uHor, hor); gl.uniform2f(UB.uH, 0, feet); gl.uniform1f(UB.uR, port ? 2.2 : 3.4);
     gl.uniform1f(UB.uGlobe, 0); gl.uniform1f(UB.uGR, 0.82 * obj * 2.75 / 3.4); gl.uniform1f(UB.uAspect, asp);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    var wH = wt(0) + wt(5), it0 = reduce ? 1 : Math.min(1, t / 3.4), imgA = Math.max(0, Math.min(1, (wH - 0.86) / 0.14)) * Math.max(0, Math.min(1, (it0 - 0.8) / 0.2));
+    var wH = wt(0) + wt(6), it0 = reduce ? 1 : Math.min(1, t / 3.4), imgA = Math.max(0, Math.min(1, (wH - 0.86) / 0.14)) * Math.max(0, Math.min(1, (it0 - 0.8) / 0.2));
     imgA = Math.max(0, Math.min(1, (wt(0) - 0.86) / 0.14)) * Math.max(0, Math.min(1, (night - 0.95) / 0.05)); imgA = imgA * imgA * (3 - 2 * imgA);
     if (srcImg) { var ph = Math.max(8, Math.round(hh * H * DPR));                 // the drawing, resampled to exactly the pixels it will cover
       if (Math.abs(ph - silH) > 1) { silH = ph; var tc = document.createElement("canvas"); tc.height = ph; tc.width = Math.max(8, Math.round(ph * IMG_ASP)); var tx = tc.getContext("2d"); tx.imageSmoothingQuality = "high"; tx.drawImage(srcImg, 0, 0, tc.width, tc.height);
@@ -374,10 +379,10 @@
     gl.uniform1f(U.uA, A); gl.uniform1f(U.uB, B); gl.uniform1f(U.uT, Tm); gl.uniform1f(U.uTime, tt); gl.uniform1f(U.uAspect, asp); gl.uniform1f(U.uDpr, DPR); var it = reduce ? 1 : Math.min(1, t / 3.4); gl.uniform1f(U.uIntro, 1 - Math.pow(1 - it, 3));
     gl.uniform1f(U.uObj, obj); gl.uniform1f(U.uPx, DPR * H / 900 * (small ? 1.15 : 1)); gl.uniform1f(U.uVis, 1);
     var ca0 = COLS[A], cb0 = COLS[B]; gl.uniform3f(U.uCol, ca0[0] + (cb0[0] - ca0[0]) * es, ca0[1] + (cb0[1] - ca0[1]) * es, ca0[2] + (cb0[2] - ca0[2]) * es); // each group in its map's colour
-    rotA.set(rot); offA.set(off); for (var o6 = 0; o6 < 6; o6++) onA[o6] = (A === o6 && Tm < 1) || (B === o6 && Tm > 0) ? 1 : 0;
+    rotA.set(rot); offA.set(off); for (var o6 = 0; o6 < 7; o6++) onA[o6] = (A === o6 && Tm < 1) || (B === o6 && Tm > 0) ? 1 : 0;
     gl.uniform2fv(U.uRot, rotA); gl.uniform3fv(U.uOff, offA); gl.uniform1fv(U.uOn, onA); gl.uniform2f(U.uPtr, ptr[0], ptr[1]);
     // the lines of particles: none are drawn while the horizon alone, or the finished drawing of the horse, is the picture
-    var hidden = (A === 0 && (Tm === 0 || B === 0) && (night < 0.002 || imgA > 0.998)) || (B === 5 && Tm === 1);
+    var hidden = (A === 0 && (Tm === 0 || B === 0) && (night < 0.002 || imgA > 0.998)) || (B === 6 && Tm === 1);
     // keep it smooth: if frames run long, draw fewer of the (randomly ordered) particles, each a little brighter; if that is
     // not enough and they run past 40 ms, a smaller canvas (a browser holding 30 a second to save battery keeps its canvas whole).
     // A level that ran long is not gone back to.
@@ -397,7 +402,7 @@
     if (act !== actNow) { actNow = act; for (var r2 = 0; r2 < dots.length; r2++) dots[r2].classList.toggle("on", dots[r2].getAttribute("href") === ids[act]); }
     if (st) { var sp = (y - stTop + vh * 0.55) / (stH - vh * 0.35), nW = words.length, lit = Math.max(0, Math.min(nW, Math.ceil(sp * (nW + 2) - 1)));
       if (lit !== litN) { litN = lit; for (var w0 = 0; w0 < nW; w0++) words[w0].classList.toggle("lit", w0 < lit); } }
-    figs(reduce ? 4 : t, [0, wt(1), wt(2), wt(3), wt(4)], cx, cy, obj, 1);
+    figs(reduce ? 4 : t, [0, wt(1), wt(2), wt(3), wt(4), wt(5)], cx, cy, obj, 1);
     requestAnimationFrame(frame);
   }
   document.addEventListener("click", function (e) { var a = e.target.closest && e.target.closest('a[href^="#"]'); if (!a || reduce) return; var sec = document.getElementById(a.getAttribute("href").slice(1)); if (!sec || !sec.hasAttribute("data-shape")) return;
